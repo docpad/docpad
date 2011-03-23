@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us" data-collabr="{file:'_layouts/default.html'}">
+<head>
+	<!-- Meta Data -->
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<title>{{ user.document.title }}</title>
+	<meta name="author" content="{{ user.name }}" />
+	<meta name="email" content="{{ user.email }}" />
+	<link href="{{ user.rss.url }}" rel="alternate" title="{{ user.rss.title }}" type="application/atom+xml" />
+	<base href="users/{{ user.code }}" />
+
+	<!-- CSS Files -->
+	<link rel="stylesheet" href="{{ site.url }}/common/styles/style.css" type="text/css" />
+	<link rel="stylesheet" href="{{ user.layout.css }}" type="text/css" />
+	<link rel="stylesheet" href="{{ user.document.css }}" type="text/css" />
+
+	<!-- Javascript Files -->
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js"></script>
+	<script type="text/javascript" src="{{ site.url }}/common/scripts/history.js/scripts/uncompressed/history.adapter.jquery.js"></script>
+	<script type="text/javascript" src="{{ site.url }}/common/scripts/history.js/scripts/uncompressed/history.js"></script>
+	<script type="text/javascript" src="{{ site.url }}/common/scripts/script.js"></script>
+</head>
+<body>
+	{{ content }}
+</body>
+</html>

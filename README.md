@@ -190,3 +190,27 @@ Here is some code:
 Your css:
 
 {{curl https://gist.github.com/867260}}
+
+
+
+
+======
+
+
+
+
+
+var cssFiles = [], $head = $('head');
+
+$head.children('link[href]').each(function(){
+	var $link = $(this);
+	cssFiles.push($link.attr('href'));
+});
+
+var compiledUrl = Hyde.compileCssFiles(cssFiles);
+
+$head.append(
+	$('<link href="'+compiledUrl+'" rel="stylesheet" type="text/css" />');
+);
+
+
