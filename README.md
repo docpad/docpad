@@ -1,216 +1,102 @@
-- Layouts
-	- Content
-	- Stylesheet
-- Markdown Document
-	- Title
-	- Page Numbers
-	- Content
-	- Which Layout
-	- Stylesheet associated with that particular document
-	- Listed or Unlisted
-- Images
-	- Images should be 3rd party, we do not support image uploads
-- User Page
-	- Document Listing
-	- Bio
-	- Email
-	- GitHub Account for Login
+# DocPad: It's Jekyll... but in Node.js
 
 
+## Huh?
 
-----
+DocPad (like Jekyll) renders static markup documents into rich static documents. In other words, it does this:
 
-Create your Layout Form
+- Before:
 
-Name: [...]
+	- myDocPadWebsite/src
+		- docs
+			- posts
+				- 2010-12-25 - Merry Christmas.md
+				- 2010-12-25 - Merry Christmas.css
+			- index.md
+			- index.css
+		- layouts
+			- default.md
+			- default.css
+		- public
+			- someImage.png
+			- someBook.pdf
 
-Content:
-[ your html layout content ]
+- After:
 
-Stylesheet:
-[ CSS content 							]
+	- myDocPadWebsite/out
+		- site
+			- index.html
+			- index.css
+			- posts
+				- index.html
+				- index.css
+				- 2010-12-25 - Merry Christmas.html
+				- 2010-12-25 - Merry Christmas.css
+			- public
+				- someImage.png
+				- someBook.pdf
 
-----
 
+## Uses
 
-----
+* [Node.js](http://nodejs.org) - Server Side Javascript
+* [Express.js](http://expressjs.com/) - The "Server" in Server Side Javascript
 
-Create your Document Form
 
-Title: [ title of the document ]
-Layout: [ references a created layout ] <-- theme stylesheet
+## Install
 
-Format:
-[ dropdown: html, markdown, textile ]
+	npm -g install docpad
 
-Content:
-[ your format content ]
+## Usage
 
-Stylesheet:
-[ CSS content 							]
+- To generate a basic website structure in the current working directory
 
-----
+		docpad skeleton
 
-=============
+- To regenerate the rendered website
 
-/server/doxbox/
+		docpad generate
 
-	server.js < node.js file
+- To regenerate the rendered website automatically whenever we make a change to a file
 
-	_users
-		_users.json
+		docpad watch
 
-		~balupton
-			_balupton.json <- private file
+- To run the docpad server which will watch the files and provide a mangement interface for working with the file
 
-			_layouts
-				index.html
-				index.css
-					>
-						{{curl gist.github.com/balupton/balupton-hyde.css}}
-				security.html < inherits from index.html
-				security.css
+		docpad server
 
-			_documents
-				...
-				projects
-					jquery-ajaxy.html
-					jquery-ajaxy.css
-				posts
-					intelligent-state-handling.md
-				security
-					webct-exploit.md
-					webct-exploit.css
-					bluemountain-exploit.md
-					bluemountain-exploit.css
 
-		~disenchant
+## Features
 
+### Generation
 
-LAYOUTS ONLY BODY ELEMENT.
-WE STRIP JAVASCRIPT, SCRIPT ELEMENTS.
-WE RUN compiled css and html through a checker <style src="..."
-CURL checks mime-types, if text plain fallback to extension, ignores files bigger than 100KB.
+* Support layouts
+* Support meta-data
+* Support css (e.g. less and css)
+* Support tempalting languages (e.g. ejs and eco)
+* Support markup lanagues (e.g. markdown and jade)
+* Support generation of a static website
+* Support generation of PDF documents
 
+### Server
 
-Monentise through:
-	- Document limits
-	- Unlisted accounts
+* Support dynamic pages which won't be generated statically
+* Add NowPad support for interface
+* Add user management
+* Add revision history
+* Add deployment options
 
 
+## History
 
-<!DOCTYPE html>
-<html>
-	<head>
-		<title>WebCT Exploit</title>
-		<script src="http://doxbox.com/resources/script.js"></script>
-		<link href="http://doxbox.com/~balupton/security/webct-exploit.css?bundled" />
-			^ bundles:
-				http://doxbox.com/resources/style.css
-				http://doxbox.com/~balupton.css aliases http://doxbox.com/~balupton/index.css
-				http://doxbox.com/~balupton/security.css
-				http://doxbox.com/~balupton/security/webct-exploit.css
-	</head>
-	<body>
-		<div id="toolbar">
-			<div>Print</div>
-			<div>View as Markdown</div>
-		</div>
-		<article typeof="soic:Post" about="http://doxbox.com/~balupton/security/webct-exploit">
-			<
+- v0.2 March 24, 2011
+	- Prototyping with DisenchantCH
 
+- v0.1 March 16, 2011
+	- Initial Commit with Bergie
 
 
+## License
 
-
-=============
-
-~balupton
-	security
-		webct-exploit.md
-
-
-http://doxbox.com/~balupton/security/webct-exploit
-	> toolbar up the top, has download as markdown, print button, edit if able, etc.
-
-
-http://doxbox.com/~balupton/security/webct-exploit
-> http://doxbox.com/~balupton/security/webct-exploit.md
-
-
-http://doxbox.com/~balupton/security/webct-exploit
-> redirect to http://doxbox.com/~balupton/security/webct-exploit.md
-
-security.html
-	> should theoretically be a layout not document
-		^ omg complexity!
-
-	>
-
-
-
-
-
-
-
-http://doxbox.com/~balupton/security/webct-exploit.md
-
-http://doxbox.com/~balupton/security/
-	->
-		list of all listed documents in security (if owner + unlisted)
-		layout should this use?
-	->
-		security.html
-
-
-
-
-http://doxbox-content.com/ <- sandbox domain, holds all
-
-http://doxbox.com/~balupton/
-	->
-		listing of all my LISTED documents (if logged in, you see unlisted as well - in its own section)
-		with bio, bio layout customisable (secret... called bio template)
-
-http://doxbox.com/~balupton/security-report.md
-	-> HTML rendering of this security-report document
-
-http://doxbox.com
-	-> signup
-
-
-
-Here is some code:
-
-	{{curl https://gist.github.com/867260}}
-
-
-
-
-Your css:
-
-{{curl https://gist.github.com/867260}}
-
-
-
-
-======
-
-
-
-
-
-var cssFiles = [], $head = $('head');
-
-$head.children('link[href]').each(function(){
-	var $link = $(this);
-	cssFiles.push($link.attr('href'));
-});
-
-var compiledUrl = Hyde.compileCssFiles(cssFiles);
-
-$head.append(
-	$('<link href="'+compiledUrl+'" rel="stylesheet" type="text/css" />');
-);
-
-
+Licensed under the [MIT License](http://creativecommons.org/licenses/MIT/)
+Copyright 2011 [Benjamin Arthur Lupton](http://balupton.com)

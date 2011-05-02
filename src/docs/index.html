@@ -1,0 +1,49 @@
+---
+layout: page
+title: Benjamin "balupton" Lupton
+---
+
+<!-- Posts -->
+<section class="posts">
+	<h2>Posts</h2>
+	<nav class="posts" typeof="dc:collection">
+		{% for post in site.posts %}
+			<li typeof="sioc:Post" about="{{ post.url }}">
+				<span property="dc:created">{{ post.date | date_to_string }}</span>
+				<a href="{{ post.url }}" property="dc:title">{{ post.title }}</a>
+			</li>
+		{% endfor %}
+	</nav>
+</section>
+
+<!-- Projects -->
+<section class="projects">
+	<h2>Projects</h2>
+	<nav class="projects">
+		<li>
+			<span class="status">Active</span>
+			<a href="http://bevry.org" title="My Company">Bevry</a>
+			<span class="decription">My Company</span>
+		</li>
+		<li>
+			<span class="status">Active</span>
+			&raquo;
+			<a href="http://aloha-editor.org/" title="The HTML5 WYSIWYG Editor">Aloha Editor</a>
+		</li>
+		<li>
+			<span class="status">Active</span>
+			&raquo;
+			<a href="http://github.com/balupton/nowpad/" title="Realtime text collaboration for your app">NowPad</a>
+		</li>
+		<li>
+			<span class="status">Active</span>
+			&raquo;
+			<a href="http://github.com/balupton/docpad/" title="Content Management Systems Suck. Document Management Systems Rock.">DocPad</a>
+		</li>
+		<li>
+			<span class="status">Active</span>
+			&raquo;
+			<a href="http://github.com/balupton/history.js/" title="Cross-Browser HTML5 History API with an optional HTML4 Fallback">History.js</a>
+		</li>
+	</nav>
+</section>

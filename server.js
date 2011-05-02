@@ -1,1 +1,1 @@
-require(__dirname+'/lib/hyde.js');
+require(__dirname+'/lib/main.js');
