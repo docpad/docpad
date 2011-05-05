@@ -3,7 +3,7 @@
 <head>
 	<!-- Meta Data -->
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-	<title>{{ page.title }}</title>
+	<title><%= @Document.title %></title>
 	<meta name="author" content="Benjamin Lupton" />
 	<meta name="email" content="contact@balupton.com" />
 	<link href="http://feeds.feedburner.com/balupton" rel="alternate" title="Benjamin Lupton" type="application/atom+xml" />
@@ -25,7 +25,7 @@
 		</header>
 
 		<div id="content" class="content">
-			{{ content }}
+			<%- @content %>
 		</div>
 
 		<footer id="footer">

@@ -2,15 +2,15 @@
 layout: default
 ---
 <article id="post" class="post {{ page.class }}" typeof="sioc:post" about="{{ page.url }}" lang="en-us">
-	<h1 property="dcterms:title">{{ page.title }}</h1>
-	<div property="sioc:content">{{ content }}</div>
+	<h1 property="dcterms:title"><%= @Document.title %></h1>
+	<div property="sioc:content"><%- @content %></div>
 </article>
 
 <section id="related">
   <h3>Related Posts</h3>
   <nav class="posts">
     {% for post in site.related_posts limit:3 %}
-      <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ post.url }}">{{ post.title }}</a></li>
+      <li><span>{{ @Document.date | date_to_string }}</span> &raquo; <a href="{{ post.url }}">{{ post.title }}</a></li>
     {% endfor %}
   </nav>
 </section>

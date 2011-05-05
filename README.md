@@ -11,13 +11,12 @@ DocPad (like Jekyll) renders static markup documents into rich static documents.
 		- docs
 			- posts
 				- 2010-12-25 - Merry Christmas.md
-				- 2010-12-25 - Merry Christmas.css
 			- index.md
-			- index.css
 		- layouts
+			- post.md
 			- default.md
-			- default.css
 		- public
+			- style.css
 			- someImage.png
 			- someBook.pdf
 
@@ -26,13 +25,10 @@ DocPad (like Jekyll) renders static markup documents into rich static documents.
 	- myDocPadWebsite/out
 		- site
 			- index.html
-			- index.css
 			- posts
-				- index.html
-				- index.css
 				- 2010-12-25 - Merry Christmas.html
-				- 2010-12-25 - Merry Christmas.css
 			- public
+				- syle.css
 				- someImage.png
 				- someBook.pdf
 
