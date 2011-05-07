@@ -1,16 +1,20 @@
 ---
 layout: default
 ---
-<article id="post" class="post {{ page.class }}" typeof="sioc:post" about="{{ page.url }}" lang="en-us">
+<article id="post" class="post <%= @Document.class %>" typeof="sioc:post" about="<%= @Document.url %>" lang="en-us">
 	<h1 property="dcterms:title"><%= @Document.title %></h1>
 	<div property="sioc:content"><%- @content %></div>
 </article>
 
+<% if @Document.relatedDocuments.length: %>
 <section id="related">
-  <h3>Related Posts</h3>
-  <nav class="posts">
-  	<% for Document in @Document.relatedDocuments: %>
-      <li><span><%= Document.date %></span> &raquo; <a href="<%= Document.url %>"><%= Document.title %></a></li>
-    <% end %>
-  </nav>
+	<h3>Related Posts</h3>
+	<nav class="posts">
+		<% for Document in @Document.relatedDocuments: %>
+			<% if Document.url != @Document.url: %>
+				<li><span><%= Document.date.toLocaleDateString() %></span> &raquo; <a href="<%= Document.url %>"><%= Document.title %></a></li>
+			<% end %>
+		<% end %>
+	</nav>
 </section>
+<% end %>

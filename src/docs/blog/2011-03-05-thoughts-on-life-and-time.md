@@ -2,6 +2,7 @@
 layout: post
 title: Thoughts on time and life.
 tags: [life,rant]
+date: '2011-03-05'
 ---
 
 One trend that I have found to exist in all the best minds that I've countered is not only a [overwhelming hunger](http://www.youtube.com/watch?v=UF8uR6Z6KLc) that never ends for [self-improvement](http://en.wikipedia.org/wiki/Jujutsu) and [learning](http://en.wikipedia.org/wiki/Neuro-linguistic_programming), but also the [acceptance of themselves](http://www.ted.com/talks/lang/eng/brene_brown_on_vulnerability.html).

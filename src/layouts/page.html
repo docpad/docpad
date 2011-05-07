@@ -1,7 +1,7 @@
 ---
 layout: default
 ---
-<article id="page" class="page {{ page.class }}" typeof="sioc:page" about="{{ page.url }}">
+<article id="page" class="page <%= @Document.class %>" typeof="sioc:page" about="<%= @Document.url %>">
 	<h1 property="dcterms:title"><%= @Document.title %></h1>
 	<div property="sioc:content"><%- @content %></div>
 </article>

@@ -7,12 +7,12 @@ title: Benjamin "balupton" Lupton
 <section class="posts">
 	<h2>Posts</h2>
 	<nav class="posts" typeof="dc:collection">
-		{% for post in site.posts %}
-			<li typeof="sioc:Post" about="{{ post.url }}">
-				<span property="dc:created">{{ post.date | date_to_string }}</span>
-				<a href="{{ post.url }}" property="dc:title">{{ post.title }}</a>
+		<% for Document in @Documents: %>
+			<li typeof="sioc:Post" about="<%= Document.url %>">
+				<span property="dc:created"><%= Document.date.toLocaleDateString() %></span>
+				<a href="<%= Document.url %>" property="dc:title"><%= Document.title %></a>
 			</li>
-		{% endfor %}
+		<% end %>
 	</nav>
 </section>
 

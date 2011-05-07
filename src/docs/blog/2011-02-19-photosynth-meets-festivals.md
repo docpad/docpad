@@ -2,6 +2,7 @@
 layout: post
 title: PhotoSynth meets Festivals
 tags: [photosynth,festival]
+date: '2011-02-19'
 ---
 
 This is an idea that I've had for quiet some time; with me occasionally enjoying the good country, blues n roots, or trance festival.
