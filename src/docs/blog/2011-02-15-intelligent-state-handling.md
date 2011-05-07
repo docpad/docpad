@@ -1,6 +1,7 @@
 ---
 layout: post
 title: Intelligent State Handling
+tags: [javascript,html5,history api,state,ajax]
 ---
 
 Hashbangs (#!), hashes (#) and even the HTML5 History API (pushState, popState) all have issues. This article will go through the issues with each one, their use cases, then provide the evolution of their solutions. At the end with little bit of educated simplicity you'll be able to achieve better results; in terms of a better experience for your users as well as better compatibility, accessibility and maintainability in your solutions.

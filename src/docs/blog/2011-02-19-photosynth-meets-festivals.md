@@ -1,6 +1,7 @@
 ---
 layout: post
 title: PhotoSynth meets Festivals
+tags: [photosynth,festival]
 ---
 
 This is an idea that I've had for quiet some time; with me occasionally enjoying the good country, blues n roots, or trance festival.

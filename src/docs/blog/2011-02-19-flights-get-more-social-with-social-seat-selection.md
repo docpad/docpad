@@ -1,6 +1,7 @@
 ---
 layout: post
 title: Flights get more Social with Social Seat Selection
+tags: [idea,flying,travel]
 ---
 
 While flying on Emirates today to the Aloha Editor Hackathon, I was wondering why I always get placed next to very boring people and that surely there are some non-boring people on this airplane. For instance, how awesome would it be if I could have spent those 24 hours in-flight collaborating with two entire rows of other web developers. Or if I'm a single spend it with other single people. Or if I'd like to just chat with people with similar interests that would be awesome too! So this is the solution I came up with:
