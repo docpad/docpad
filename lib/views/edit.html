@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Edit: <%=@Document.title%></title>
+    <style>
+      #content {
+        width:100%;
+        height:400px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Edit: <%=@Document.title%></h1>
+    <form action="" method="post">
+      <div id="content"><%=@Document.contentRaw%></div>
+      <input type="submit" value="save"/>
+    </form>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+    <script src="http://ajaxorg.github.com/ace/build/src/ace.js"></script>
+    <script>
+    (function(window,undefined){
+      var editor = ace.edit('content');
+      editor.setShowPrintMargin(false);
+    })(window);
+    </script>
+  </body>
+</html>
