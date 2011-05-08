@@ -8,10 +8,26 @@ title: Benjamin "balupton" Lupton
 	<h2>Posts</h2>
 	<nav class="posts" typeof="dc:collection">
 		<% for Document in @Documents: %>
+			<% if Document.url.indexOf('/blog') == 0: %>
 			<li typeof="sioc:Post" about="<%= Document.url %>">
 				<span property="dc:created"><%= Document.date.toLocaleDateString() %></span>
 				<a href="<%= Document.url %>" property="dc:title"><%= Document.title %></a>
 			</li>
+			<% end %>
+		<% end %>
+	</nav>
+</section>
+
+<!-- Projects -->
+<section class="projects">
+	<h2>Projects</h2>
+	<nav class="projects" typeof="dc:collection">
+		<% for Document in @Documents: %>
+			<% if Document.url.indexOf('/projects') == 0: %>
+			<li typeof="sioc:Post" about="<%= Document.url %>">
+				<a href="<%= Document.url %>" property="dc:title"><%= Document.title %></a>
+			</li>
+			<% end %>
 		<% end %>
 	</nav>
 </section>
