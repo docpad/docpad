@@ -90,7 +90,7 @@ DocPad (like Jekyll) renders static markup documents into rich static documents.
 
 3. Install DocPad
 
-	npm -g install docpad
+		npm -g install docpad
 
 
 ## Usage
