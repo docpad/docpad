@@ -6,21 +6,36 @@
       #content {
         width:100%;
         height:400px;
+        position:relative;
       }
     </style>
   </head>
   <body>
     <h1>Edit: <%=@Document.title%></h1>
-    <form action="" method="post">
-      <div id="content"><%=@Document.contentRaw%></div>
+    <form id="form" action="" method="post">
+      <div>
+        <input type="hidden" name="content" id="contentHidden"/>
+        <pre id="content"><%=@Document.contentRaw%></pre>
+      </div>
       <input type="submit" value="save"/>
     </form>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
     <script src="http://ajaxorg.github.com/ace/build/src/ace.js"></script>
     <script>
     (function(window,undefined){
-      var editor = ace.edit('content');
+      // Prepare
+      var
+        editor = ace.edit('content'),
+        $form = $('#form'),
+        $contentHidden = $('#contentHidden');
+      
+      // Customise
       editor.setShowPrintMargin(false);
+
+      // Submit
+      $form.submit(function(e){
+        $contentHidden.val(editor.getSession().getValue());
+      });
     })(window);
     </script>
   </body>

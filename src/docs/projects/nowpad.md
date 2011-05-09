@@ -1,10 +1,7 @@
 ---
 layout: post
 title: "NowPad: Realtime Text Collaboration"
-tags:
-	- collaboration
-	- nodejs
-	- realtime
+tags: ["collaboration","nodejs","realtime"]
 date: '2011-03-24'
 ---
 

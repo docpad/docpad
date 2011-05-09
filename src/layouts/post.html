@@ -11,9 +11,7 @@ layout: default
 	<h3>Related Posts</h3>
 	<nav class="posts">
 		<% for Document in @Document.relatedDocuments: %>
-			<% if Document.url != @Document.url: %>
-				<li><span><%= Document.date.toLocaleDateString() %></span> &raquo; <a href="<%= Document.url %>"><%= Document.title %></a></li>
-			<% end %>
+			<li><span><%= Document.date.toLocaleDateString() %></span> &raquo; <a href="<%= Document.url %>"><%= Document.title %></a></li>
 		<% end %>
 	</nav>
 </section>

@@ -140,6 +140,12 @@ DocPad (like Jekyll) renders static markup documents into rich static documents.
 
 ## History
 
+- v0.5 May 9, 2011
+	- Pretty big clean
+
+- v0.4 May 9, 2011
+	- The CLI is now working as documented
+
 - v0.3 May 7, 2011
 	- Got the generation and server going
 
