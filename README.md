@@ -1,10 +1,10 @@
 # DocPad: It's Like Jekyll.
 
-DocPad (like Jekyll) is a static website generator, unlike Jekyll it is written in Node.js and allows the templating engine access to the documents. This means you have the unlimited power of a CMS while having the simplicity of a notepad.
+DocPad (like Jekyll) is a static website generator, unlike Jekyll though it is written in Node.js and allows the template engine access to the documents. This means you have unlimited power like a CMS but the simplicity of a notepad.
 
 ## Huh?
 
-1. Say if you were to create the following website structure:
+1. Say you were to create the following website structure:
 
 	- myWebsite
 		- src
