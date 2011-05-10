@@ -4,7 +4,7 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it is written 
 
 ## Huh?
 
-1. Say if you create the following directory structure:
+1. Say if you were to create the following website structure:
 
 	- myWebsite
 		- src
@@ -12,7 +12,7 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it is written 
 			- layouts
 			- public
 
-2. And you create the following files:
+2. And say that you were to create the following files:
 
 	- A layout at `src/layouts/default.html`, which contains
 		
@@ -45,7 +45,7 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it is written 
 		Hello **World!**
 		```
 
-3. Then when you generate your website a html file will be created at `out/posts/hello.html`, which contains:
+3. Then if you were to do that, then when you generate your website with docpad you will get a html file at `out/posts/hello.html`, which contains:
 
 	``` html
 	<html>
@@ -57,13 +57,13 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it is written 
 	</html>
 	```
 
-4. And any files that you have in `src/public` will be copied to the `out` directory. E.g. `src/public/styles/style.css' -> `out/styles/style.css`
+4. And any files that you have in `src/public` will be copied to the `out` directory. E.g. `src/public/styles/style.css` -> `out/styles/style.css`
 
 5. Allowing you to really easily generate a website which only changes when the documents change (which when you think about it, is really all you need for the majority of websites)
 
 6. Cool, now what was with the `<%=...%>` and `<%-...%>` parts which were substituted away?
 
-	- This is possible because we parse all the documents and layouts through a template rendering engine. The template rendering engine we use is [Eco](https://github.com/sstephenson/eco) which allows you to do some pretty nifty things. In fact we can display the titles and links to all posts with the following html:
+	- This is possible because we parse the documents and layouts through a template rendering engine. The template rendering engine we use is [Eco](https://github.com/sstephenson/eco) which allows you to do some pretty nifty things. In fact we can display the all titles and links of our posts with the following html:
 
 			<% for Document in @Documents: %>
 				<% if Document.url.indexOf('/posts') == 0: %>
