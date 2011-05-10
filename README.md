@@ -59,7 +59,7 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 
 4. And any files that you have in `src/public` will be copied to the `out` directory. E.g. `src/public/styles/style.css` -> `out/styles/style.css`
 
-5. Allowing you to really easily generate a website which only changes when the documents change (which when you think about it, is really all you need for the majority of websites)
+5. Allowing you to easily generate a website which only changes (and automatically updates) when a document changes (which when you think about it; is the majority of websites)
 
 6. Cool, now what was with the `<%=...%>` and `<%-...%>` parts which were substituted away?
 
@@ -78,7 +78,7 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 
 ## Installing
 
-1. [Install Node.js](https://github.com/balupton/docpad/wiki/Installing-Node.js)
+1. [Install Node.js](https://github.com/balupton/node/wiki/Installing-Node.js)
 
 2. [Install MongoDB](http://www.mongodb.org/downloads#packages)
 
@@ -110,29 +110,6 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 		docpad server
 
 
-
-## Features
-
-### Generation
-
-* Support layouts
-* Support meta-data
-* Support css (e.g. less and css)
-* Support tempalting languages (e.g. eco)
-* Support markup lanagues (e.g. markdown and jade)
-* Support generation of a static website
-* Support generation of PDF documents (not yet done)
-
-### Server
-
-* Serve the generated static website
-* Support dynamic pages which won't be generated statically (not yet done)
-* Add NowPad support for interface (not yet done)
-* Add user management (not yet done)
-* Add revision history (not yet done)
-* Add deployment options (not yet done)
-
-
 ## Created With
 
 ### General
@@ -150,6 +127,11 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 ### Template Engines
 
 * [Eco](https://github.com/sstephenson/eco) - Templating Made Easy
+
+
+## Learning
+
+[To learn more about DocPad (including using and extending it), you can visit its wiki here](https://github.com/balupton/docpad/wiki)
 
 
 ## History
