@@ -6,7 +6,7 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll though it is w
 
 1. Say you were to create the following website structure:
 
-	- myWebsite
+	> - myWebsite
 		- src
 			- docs
 			- layouts
