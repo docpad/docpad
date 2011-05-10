@@ -18,9 +18,9 @@ DocPad (like [Jekyll](https://github.com/mojombo/jekyll)) is a static website ge
 		
 		``` html
 		<html>
-			<head><title><%=Document.title%></title></head>
+			<head><title><%=@Document.title%></title></head>
 			<body>
-				<%-content%>
+				<%-@content%>
 			</body>
 		</html>
 		```
@@ -31,8 +31,8 @@ DocPad (like [Jekyll](https://github.com/mojombo/jekyll)) is a static website ge
 		---
 		layout: default
 		---
-		<h1><%=Document.title%></h1>
-		<div><%-content%></div>
+		<h1><%=@Document.title%></h1>
+		<div><%-@content%></div>
 		```
 
 	- And a document at `src/docs/posts/hello.md`, which contains:
