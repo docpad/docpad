@@ -12,7 +12,7 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll though it is w
 			- layouts
 			- public
 
-2. And say that you were to create the following files:
+2. And you were to create the following files:
 
 	- A layout at `src/layouts/default.html`, which contains
 		
@@ -45,7 +45,7 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll though it is w
 		Hello **World!**
 		```
 
-3. Then if you were to do that, then when you generate your website with docpad you will get a html file at `out/posts/hello.html`, which contains:
+3. Then when you generate your website with docpad you will get a html file at `out/posts/hello.html`, which contains:
 
 	``` html
 	<html>
