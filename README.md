@@ -105,7 +105,7 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 
 		docpad watch
 
-- To run the docpad server which will watch the files and provide a mangement interface for working with the file
+- To run the docpad server which allows you to access the generated website in a web browser
 
 		docpad server
 
@@ -131,7 +131,7 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 
 ## Learning
 
-[To learn more about DocPad (including using and extending it), you can visit its wiki here](https://github.com/balupton/docpad/wiki)
+[To learn more about DocPad (including using and extending it) visit its wiki here](https://github.com/balupton/docpad/wiki)
 
 
 ## History
