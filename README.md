@@ -76,9 +76,7 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it is written 
 	- That was possible that file was a [Markdown](http://daringfireball.net/projects/markdown/basics) file (i.e. it had the `.md` extension). Markdown is a great markup language as with it you have an extremely simple and readable document which generates a rich semantic HTML document. DocPad also supports a series of other markup languages as explain later on in this readme.
 
 
-## Install
-
-SWEET! I want to USE IT! Let's do it!
+## Installing
 
 1. Install Node.js
 
@@ -151,23 +149,6 @@ SWEET! I want to USE IT! Let's do it!
 
 
 
-## Built Upon
-
-* [Node.js](http://nodejs.org) - Server Side Javascript
-* [Express.js](http://expressjs.com/) - The "Server" in Server Side Javascript
-* [Mongoose](https://github.com/learnboost/mongoose/) - MongoDB Made Easy
-* [Async](https://github.com/caolan/async) - Asynchrounous Programming Made Easy
-
-### Markup Languges
-
-* [Markdown](http://daringfireball.net/projects/markdown/basics) - Markup Made Easy
-* [Jade](https://github.com/visionmedia/jade) - HTML Made Easy
-
-### Template Engines
-
-* [Eco](https://github.com/sstephenson/eco) - Templating Made Easy
-
-
 ## Features
 
 ### Generation
@@ -188,6 +169,25 @@ SWEET! I want to USE IT! Let's do it!
 * Add user management (not yet done)
 * Add revision history (not yet done)
 * Add deployment options (not yet done)
+
+
+## Created With
+
+### General
+
+* [Node.js](http://nodejs.org) - Server Side Javascript
+* [Express.js](http://expressjs.com/) - The "Server" in Server Side Javascript
+* [Mongoose](https://github.com/learnboost/mongoose/) - MongoDB Made Easy
+* [Async](https://github.com/caolan/async) - Asynchrounous Programming Made Easy
+
+### Markup Languges
+
+* [Markdown](http://daringfireball.net/projects/markdown/basics) - Markup Made Easy
+* [Jade](https://github.com/visionmedia/jade) - HTML Made Easy
+
+### Template Engines
+
+* [Eco](https://github.com/sstephenson/eco) - Templating Made Easy
 
 
 ## History
