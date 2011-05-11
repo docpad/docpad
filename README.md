@@ -1,6 +1,7 @@
 # DocPad: It's Like Jekyll.
 
-DocPad (like [Jekyll](https://github.com/mojombo/jekyll)) is a static website generator, unlike Jekyll it's written in Node.js and allows the template engine complete access to the document model. This means you have unlimited power as a CMS and the simplicity of a notepad.
+DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written in CoffeeScript+Node.js instead of Ruby, and also allows the template engine complete access to the document model. This means you have unlimited power as a CMS and the simplicity of a notepad.
+
 
 ## Huh?
 
@@ -82,7 +83,11 @@ DocPad (like [Jekyll](https://github.com/mojombo/jekyll)) is a static website ge
 
 2. [Install MongoDB](http://www.mongodb.org/downloads#packages)
 
-3. Install DocPad
+3. Install CoffeeScript
+		
+		npm -g install coffee-script
+
+4. Install DocPad
 
 		npm -g install docpad
 
@@ -135,6 +140,10 @@ DocPad (like [Jekyll](https://github.com/mojombo/jekyll)) is a static website ge
 
 
 ## History
+
+- v0.6 May 12, 2011
+	- Moved to CoffeeScript
+	- Removed highlight.js (should be a plugin or client-side feature)
 
 - v0.5 May 9, 2011
 	- Pretty big clean
