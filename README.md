@@ -121,6 +121,7 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 
 * [Node.js](http://nodejs.org) - Server Side Javascript
 * [Express.js](http://expressjs.com/) - The "Server" in Server Side Javascript
+* [CoffeeScript](http://jashkenas.github.com/coffee-script/) - JavaScript Made Easy
 * [Mongoose](https://github.com/learnboost/mongoose/) - MongoDB Made Easy
 * [Async](https://github.com/caolan/async) - Asynchrounous Programming Made Easy
 
