@@ -1,6 +1,6 @@
 # Requirements
 mongoose = require 'mongoose'
-util = require __dirname+'/util.js'
+util = require __dirname+'/util.coffee'
 fs = require 'fs'
 yaml = require 'yaml'
 express = require 'express'
