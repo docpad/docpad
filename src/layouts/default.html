@@ -9,14 +9,24 @@
 	<link href="http://feeds.feedburner.com/balupton" rel="alternate" title="Benjamin Lupton" type="application/atom+xml" />
 
 	<!-- Site CSS -->
-	<link rel="stylesheet" href="/styles/style.css" type="text/css" />
+	<link rel="stylesheet/less" href="/styles/style.less" type="text/css" />
 </head>
-<body>
+<body id="page-<%= @Document.slug %>">
+	<!-- Less -->
+	<script src="http://lesscss.org/js/less.js"></script>
+	
 	<!-- jQuery -->
-	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js"></script>
+
+	<!-- History.js -->
+	<script src="http://github.com/balupton/history.js/raw/master/scripts/compressed/history.adapter.jquery.js"></script>
+	<script src="http://github.com/balupton/history.js/raw/master/scripts/compressed/history.js"></script>
+	<script src="http://github.com/balupton/jquery-scrollto/raw/master/scripts/jquery.scrollto.min.js"></script>
+	<script src="https://gist.github.com/raw/854622/ajaxify-html5.js"></script>
+
 	
 	<!-- Site Script -->
-	<script type="text/javascript" src="/scripts/script.js"></script>
+	<script src="/scripts/script.js"></script>
 
 	<div id="main">
 		<header id="header">
@@ -29,22 +39,22 @@
 		</div>
 
 		<footer id="footer">
-			<div class="contact">
+			<div class="contact contact-details">
 				<p>
-					Benjamin Lupton<br />
-					Couragous Web 2.0 Architect and Entreprenuer
-					<a href="mailto:contact@balupton.com">contact@balupton.com</a>
+					<a title="mail me" href="mailto:b@lupton.cc">Benjamin Lupton</a><br />
+					Founder of <a href="http://bevry.org" title="the open-source javascript company">Bevry</a><br/>
+					JavaScript Star &#9733;
 				</p>
 			</div>
-			<nav class="contact">
+			<nav class="contact contact-links">
 				<li>
-					<a href="http://github.com/balupton/">github.com/balupton</a>
+					<a href="http://github.com/balupton/" title="my open-source work">github.com/balupton</a>
 				</li>
 				<li>
-					<a href="http://twitter.com/balupton/">twitter.com/balupton</a>
+					<a href="http://twitter.com/balupton/" title="tweets of insight from me">twitter.com/balupton</a>
 				</li>
 				<li>
-					<a href="http://flickr.com/photos/balupton/">flickr.com/photos/balupton</a>
+					<a href="http://careers.stackoverflow.com/balupton" title="triple check that i'm worth every penny">careers.stackoverflow.com/balupton</a>
 				</li>
 			</nav>
 			<div class="rss">
@@ -55,7 +65,7 @@
 		</footer>
 	</div>
 
-	<a href="http://github.com/balupton"><img style="position: absolute; top: 0; right: 0; border: 0;" src="/images/forkme.png" alt="Fork me on GitHub" /></a>
+	<a href="http://github.com/balupton" title="hack with me"><img style="position: absolute; top: 0; right: 0; border: 0;" src="/images/forkme.png" alt="Fork me on GitHub" /></a>
 
 </body>
 </html>

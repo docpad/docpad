@@ -9,9 +9,11 @@ layout: default
 <% if @Document.relatedDocuments.length: %>
 <section id="related">
 	<h3>Related Posts</h3>
-	<nav class="posts">
+	<nav class="linklist">
 		<% for Document in @Document.relatedDocuments: %>
-			<li><span><%= Document.date.toLocaleDateString() %></span> &raquo; <a href="<%= Document.url %>"><%= Document.title %></a></li>
+			<li><span><%= Document.date.toShortDateString() %></span>
+			&raquo;
+			<a href="<%= Document.url %>"><%= Document.title %></a></li>
 		<% end %>
 	</nav>
 </section>

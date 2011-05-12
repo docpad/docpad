@@ -22,6 +22,8 @@ Array.prototype.hasCount = (arr) ->
 				++count
 				break
 	return count
+Date.prototype.toShortDateString = ->
+	return this.toDateString().replace(/^[^\s]+\s/,'')
 
 # DocPad
 DocPad =
@@ -77,6 +79,7 @@ DocPad =
 					url: String 
 					title: String 
 					date: Date
+					slug: String
 			] 
 			body: String 
 			contentRaw: String 
@@ -84,6 +87,7 @@ DocPad =
 			contentRendered: String 
 			date: Date 
 			title: String
+			slug: String
 		
 		# Models
 		mongoose.model 'Layout', @LayoutSchema
@@ -104,13 +108,13 @@ DocPad =
 				@generate -> process.exit()
 			
 			when 'watch'
-				@generate()
+				@watch()
 			
 			when 'server'
 				@server()
 			
 			else
-				@skeleton @generate
+				@skeleton @watch @generate
 				@server()
 	
 	# Clean the database
@@ -185,14 +189,8 @@ DocPad =
 				fileMeta.body = fileBody
 				fileMeta.title = fileMeta.title || path.basename(fileFullPath)
 				fileMeta.date = new Date(fileMeta.date || fileStat.ctime)
+				fileMeta.slug = fileMeta.relativeBase.replace(/[^a-zA-Z0-9]/g,'-').replace(/^-/,'').replace(/-+/,'-')
 
-				# Watch
-				fs.watchFile fileFullPath, (newStat,oldStat) ->
-					# Check if file has changes
-					if newStat.mtime.getTime() isnt oldStat.mtime.getTime()
-						# Regenerate
-						DocPad.generate()
-				
 				# Store fileMeta
 				next fileMeta
 		
@@ -448,6 +446,23 @@ DocPad =
 									console.log 'Website Generated'
 									DocPad.generating = false
 									if next then next()
+	
+	# Watch
+	watch: (next) ->
+		util.scandir(
+			# Path
+			DocPad.options.srcPath
+			# File
+			(fileFullPath,fileRelativePath,next) ->
+				next()
+				fs.watchFile fileFullPath, (newStat,oldStat) ->
+					if newStat.mtime.getTime() isnt oldStat.mtime.getTime()
+						DocPad.generate()
+			# Dir
+			false
+			# Next
+			next
+		)
 	
 	# Skeleton
 	skeleton: (next) ->
