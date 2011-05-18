@@ -18,3 +18,25 @@ layout: default
 	</nav>
 </section>
 <% end %>
+
+<section id="comments">
+	<h3>Feedback</h3>
+	<div id="disqus_thread"></div>
+	<script>
+		// Prepare
+		window.disqus_identifier = "<%=@Document.slug%>";
+		window.disqus_developer = document.location.href.indexOf('localhost');
+		window.disqus_url = "<%=@Document.url%>";
+		// Reset
+		if ( typeof window.DISQUS !== 'undefined' ) {
+			window.DISQUS.reset({
+				reload: true,
+				config: function () {
+					this.page.identifier = "<%=@Document.slug%>";
+					this.page.url = "<%=@Document.url%>";
+				}
+			});
+		}
+	</script>
+	<noscript>life would be cooler if you enabled javascript *sigh*</noscript>
+</section>

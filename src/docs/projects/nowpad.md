@@ -4,8 +4,7 @@ title: "NowPad: Realtime Text Collaboration"
 tags: ["collaboration","nodejs","realtime"]
 date: '2011-03-24'
 ---
-abc
-sweet
+
 
 ## Uses
 

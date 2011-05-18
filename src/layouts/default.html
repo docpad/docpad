@@ -10,24 +10,11 @@
 
 	<!-- Site CSS -->
 	<link rel="stylesheet/less" href="/styles/style.less" type="text/css" />
-</head>
-<body id="page-<%= @Document.slug %>">
+
 	<!-- Less -->
 	<script src="http://lesscss.org/js/less.js"></script>
-	
-	<!-- jQuery -->
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js"></script>
-
-	<!-- History.js -->
-	<script src="http://github.com/balupton/history.js/raw/master/scripts/compressed/history.adapter.jquery.js"></script>
-	<script src="http://github.com/balupton/history.js/raw/master/scripts/compressed/history.js"></script>
-	<script src="http://github.com/balupton/jquery-scrollto/raw/master/scripts/jquery.scrollto.min.js"></script>
-	<script src="https://gist.github.com/raw/854622/ajaxify-html5.js"></script>
-
-	
-	<!-- Site Script -->
-	<script src="/scripts/script.js"></script>
-
+</head>
+<body id="page-<%= @Document.slug %>">
 	<div id="main">
 		<header id="header">
 			<a href="/">Benjamin Lupton</a>
@@ -67,5 +54,19 @@
 
 	<a href="http://github.com/balupton" title="hack with me"><img style="position: absolute; top: 0; right: 0; border: 0;" src="/images/forkme.png" alt="Fork me on GitHub" /></a>
 
+	<!-- jQuery -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js"></script>
+
+	<!-- Disqus -->
+	<script src="http://balupton.disqus.com/embed.js"></script>
+
+	<!-- History.js -->
+	<script src="http://github.com/balupton/history.js/raw/master/scripts/compressed/history.adapter.jquery.js"></script>
+	<script src="http://github.com/balupton/history.js/raw/master/scripts/compressed/history.js"></script>
+	<script src="http://github.com/balupton/jquery-scrollto/raw/master/scripts/jquery.scrollto.min.js"></script>
+	<script src="https://gist.github.com/raw/854622/ajaxify-html5.js"></script>
+
+	<!-- Site Script -->
+	<script src="/scripts/script.js"></script>
 </body>
 </html>

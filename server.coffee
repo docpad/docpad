@@ -1,1 +1,1 @@
-require __dirname+'/lib/main.coffee'
+require __dirname+'/lib/docpad.coffee'

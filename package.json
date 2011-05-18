@@ -50,7 +50,9 @@
 		"eco": ">=1.0.3",
 		"async": ">=0.1.9",
 		"express": ">=2.3.2",
-		"yaml": ">=0.1.2"
+		"yaml": ">=0.1.2",
+		"watch": ">=0.3.1",
+		"bal-util": ">=0.1.0"
 	},
 	"engines" : {
 		"node": ">=0.4.0"
@@ -59,7 +61,7 @@
 		"docpad": "./bin/docpad.coffee"
 	},
 	"directories": {
-    "lib": "lib"
-  },
-	"main": "./lib/main.coffee"
+		"lib": "lib"
+	},
+	"main": "./lib/docpad.coffee"
 }
