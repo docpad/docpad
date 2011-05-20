@@ -35,19 +35,22 @@ Date.prototype.toShortDateString = ->
 
 
 # -------------------------------------
-# Server
+# Main
 
-docpad =
+class Docpad
+
 	# Options
-	options:
-		rootPath: null
-		outPath: 'out'
-		srcPath: 'src'
-		viewPath: 'views'
-		dsn: 'mongodb://localhost/docpad'
+	rootPath: null
+	outPath: 'out'
+	srcPath: 'src'
+	viewPath: 'views'
+	skeletonPath: 'src'
+	dsn: 'mongodb://localhost/docpad'
 
-	# Variables
+	# Docpad
 	generating: false
+	server: null
+	port: 9778
 
 	# Model
 	LayoutSchema: null
@@ -55,17 +58,20 @@ docpad =
 	LayoutModel: null
 	DocumentModel: null
 
-	# Initialise Server
-	init: ->
-		# Configure
-		@options.rootPath = process.cwd()
-		@options.skeletonPath = __dirname+'/../'+@options.srcPath
-		@options.srcPath = @options.rootPath+'/'+@options.srcPath
-		@options.outPath = @options.rootPath+'/'+@options.outPath
-		@options.viewPath = __dirname+'/'+@options.viewPath
-		
+	# Init
+	constructor: ({command,rootPath,outPath,srcPath,viewPath,skeletonPath,dsn,port}={}) ->
+		# Options
+		command = command || process.argv[2] || false
+		@rootPath = rootPath || process.cwd()
+		@outPath = outPath || @rootPath+'/'+@outPath
+		@srcPath = srcPath || @rootPath+'/'+@srcPath
+		@viewPath = viewPath || __dirname+'/'+@viewPath
+		@skeletonPath = skeletonPath || __dirname+'/../'+@srcPath
+		@dsn = dsn if dsn
+		@port = port if port
+
 		# Connect
-		mongoose.connect @options.dsn
+		mongoose.connect @dsn
 
 		# Schemas
 		@LayoutSchema = new Schema
@@ -107,7 +113,7 @@ docpad =
 		@DocumentModel = mongoose.model 'Document'
 
 		# Handle
-		@main process.argv[2] || false
+		@main command
 	
 	# Handle
 	main: (command) ->
@@ -137,13 +143,13 @@ docpad =
 		timeout = setTimeout timeoutCallback, 1500
 
 		async.parallel [
-			(callback) ->
-				docpad.LayoutModel.remove {}, (err) ->
+			(callback) =>
+				@LayoutModel.remove {}, (err) ->
 					throw err if err
 					console.log 'Cleaned layouts'
 					callback()
-			(callback) ->
-				docpad.DocumentModel.remove {}, (err) ->
+			(callback) =>
+				@DocumentModel.remove {}, (err) ->
 					throw err if err
 					console.log 'Cleaned documents'
 					callback()
@@ -155,9 +161,12 @@ docpad =
 	
 	# Parse the files
 	generateParse: (next) ->
+		LayoutModel = @LayoutModel
+		DocumentModel = @DocumentModel
+
 		# Paths
-		layoutsSrcPath = @options.srcPath+'/layouts'
-		docsSrcPath = @options.srcPath+'/docs'
+		layoutsSrcPath = @srcPath+'/layouts'
+		docsSrcPath = @srcPath+'/docs'
 
 		# File Parser
 		parseFile = (fileFullPath,fileRelativePath,fileStat,next) ->
@@ -240,7 +249,7 @@ docpad =
 				# One Parsed
 				(fileMeta,next) ->
 					# Prepare
-					Layout = new docpad.LayoutModel()
+					Layout = new LayoutModel()
 
 					# Apply
 					for own key, fileMetaValue of fileMeta
@@ -264,7 +273,7 @@ docpad =
 				# One Parsed
 				(fileMeta,next) ->
 					# Prepare
-					Document = new docpad.DocumentModel()
+					Document = new DocumentModel()
 
 					# Apply
 					for own key, fileMetaValue of fileMeta
@@ -288,6 +297,8 @@ docpad =
 		
 	# Generate relations
 	generateRelations: (next) ->
+		DocumentModel = @DocumentModel
+
 		# Async
 		completed = 0
 		total = 0
@@ -298,13 +309,13 @@ docpad =
 				next()
 
 		# Find documents
-		docpad.DocumentModel.find {}, (err,Documents) ->
+		DocumentModel.find {}, (err,Documents) ->
 			throw err if err
 			Documents.forEach (Document) ->
 				++total
 
 				# Find related documents
-				docpad.DocumentModel.find {tags:{'$in':Document.tags}}, (err,relatedDocuments) ->
+				DocumentModel.find {tags:{'$in':Document.tags}}, (err,relatedDocuments) ->
 					# Check
 					if err then throw err
 					else if relatedDocuments.length is 0 then return complete()
@@ -328,6 +339,9 @@ docpad =
 	
 	# Generate render
 	generateRender: (next) ->
+		LayoutModel = @LayoutModel
+		DocumentModel = @DocumentModel
+
 		# Render helper
 		_render = (Document,templateData) ->
 			rendered = Document.content
@@ -339,7 +353,7 @@ docpad =
 			# Handle parent
 			if child.layout
 				# Find parent
-				docpad.LayoutModel.findOne {relativeBase:child.layout}, (err,parent) ->
+				LayoutModel.findOne {relativeBase:child.layout}, (err,parent) ->
 					# Check
 					if err then throw err
 					else if not parent then throw new Error 'Could not find the layout: '+child.layout
@@ -376,7 +390,7 @@ docpad =
 				next()
 		
 		# Find documents
-		docpad.DocumentModel.find({}).sort('date',-1).execFind (err,Documents) ->
+		DocumentModel.find({}).sort('date',-1).execFind (err,Documents) ->
 			throw err if err
 			Documents.forEach (Document) ->
 				++total
@@ -384,7 +398,7 @@ docpad =
 					Document,
 					{
 						Documents: Documents
-						DocumentModel: docpad.DocumentModel
+						DocumentModel: DocumentModel
 						Document: Document
 					},
 					complete
@@ -392,11 +406,12 @@ docpad =
 	
 	# Write files
 	generateWriteFiles: (next) ->
+		console.log 'Starting write files'
 		util.cpdir(
 			# Src Path
-			docpad.options.srcPath+'/public',
+			@srcPath+'/public',
 			# Out Path
-			docpad.options.outPath
+			@outPath
 			# Next
 			(err) ->
 				throw err if err
@@ -405,6 +420,10 @@ docpad =
 	
 	# Write documents
 	generateWriteDocuments: (next) ->
+		DocumentModel = @DocumentModel
+		outPath = @outPath
+		console.log 'Starting write documents'
+
 		# Async
 		completed = 0
 		total = 0
@@ -415,13 +434,13 @@ docpad =
 				next()
 		
 		# Find documents
-		docpad.DocumentModel.find {}, (err,Documents) ->
+		DocumentModel.find {}, (err,Documents) ->
 			throw err if err
 			Documents.forEach (Document) ->
 				++total
 
 				# Generate path
-				fileFullPath = docpad.options.outPath+'/'+Document.relativeBase+'.html'
+				fileFullPath = outPath+'/'+Document.relativeBase+'.html'
 
 				# Ensure path
 				util.ensurePath path.dirname(fileFullPath), (err) ->
@@ -433,33 +452,37 @@ docpad =
 	
 	# Write
 	generateWrite: (next) ->
+		console.log 'Starting write'
 		async.parallel [
 			# Files
-			(callback) ->
-				docpad.generateWriteFiles (err) ->
+			(callback) =>
+				@generateWriteFiles (err) ->
 					throw err if err
 					callback()
 			# Documents
-			(callback) -> 
-				docpad.generateWriteDocuments (err) ->
+			(callback) =>
+				@generateWriteDocuments (err) ->
 					throw err if err
 					callback()
 		],
 		-> 
+			console.log 'Completed write'
 			next()
 	
 	# Generate
 	generate: (next) ->
+		docpad = @
+
 		# Check
-		if docpad.generating
+		if @generating
 			console.log 'Generate request received, but we are already busy generating...'
 			return
 		else
 			console.log 'Generating...'
-			docpad.generating = true
+			@generating = true
 		
 		# Continue
-		path.exists docpad.options.srcPath, (exists) ->
+		path.exists @srcPath, (exists) ->
 			# Check
 			if exists is false
 				throw new Error 'Cannot generate website as the src dir was not found'
@@ -468,9 +491,9 @@ docpad =
 			console.log 'Cleaning the out path'
 			
 			# Continue
-			util.rmdir docpad.options.outPath, (err,list,tree) ->
+			util.rmdir docpad.outPath, (err,list,tree) ->
 				if err
-					console.log 'Failed to clean the out path '+docpad.options.outPath
+					console.log 'Failed to clean the out path '+docpad.outPath
 					throw err
 				console.log 'Cleaned the out path'
 				docpad.generateClean ->
@@ -484,11 +507,13 @@ docpad =
 	
 	# Watch
 	watch: (next) ->
+		docpad = @
+
 		# Log
 		console.log 'Setting up watching...'
 		
 		# Watch the src directory
-		watch.createMonitor docpad.options.srcPath, (monitor) ->
+		watch.createMonitor docpad.srcPath, (monitor) ->
 			# Log
 			console.log 'Set up watching'
 
@@ -509,44 +534,48 @@ docpad =
 	
 	# Skeleton
 	skeleton: (next) ->
-		path.exists docpad.options.srcPath, (exists) ->
+		docpad = @
+
+		path.exists docpad.srcPath, (exists) ->
 			if exists
 				console.log 'Cannot place skeleton as the out dir already exists'
 				next()
 			else
-				util.cpdir docpad.options.skeletonPath, docpad.options.srcPath, (err) ->
+				util.cpdir docpad.skeletonPath, docpad.srcPath, (err) ->
 					throw err if err
 					next()
 	
 	# Server
 	server: (next) ->
 		# Server
-		app = express.createServer()
+		@server = express.createServer()
 
 		# Configuration
-		app.configure ->
+		@server.configure =>
 			# Standard
-			app.use express.methodOverride()
-			app.use express.errorHandler()
-			app.use express.bodyParser()
+			@server.use express.methodOverride()
+			@server.use express.errorHandler()
+			@server.use express.bodyParser()
 
 			# Routing
-			app.use app.router
-			app.use express.static docpad.options.outPath
+			@server.use @server.router
+			@server.use express.static @outPath
 		
 		# Route something
-		app.get /^\/docpad/, (req,res) ->
+		@server.get /^\/docpad/, (req,res) ->
 			res.send 'DocPad!'
 
 		# Init server
-		app.listen 9778
-		console.log 'Express server listening on port %d', app.address().port
+		@server.listen @port
+		console.log 'Express server listening on port %d', @server.address().port
 
 		# Forward
 		next()
 	
-# Initialise docpad
-docpad.init()
+# API
+docpad =
+	createInstance: (config) ->
+		return new Docpad(config)
 
-
-	
+# Export
+module.exports = docpad

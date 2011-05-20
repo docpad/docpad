@@ -142,6 +142,9 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 
 ## History
 
+- v0.7 May 20, 2011
+	- Now supports multiple docpad instances
+	
 - v0.6 May 12, 2011
 	- Moved to CoffeeScript
 	- Removed highlight.js (should be a plugin or client-side feature)
