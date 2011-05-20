@@ -9,6 +9,7 @@ path = require 'path'
 async = require 'async'
 watch = require 'watch'
 util = require 'bal-util'
+sys = require 'sys'
 mongoose = require 'mongoose'
 Schema = mongoose.Schema 
 SchemaTypes = Schema.Types 
@@ -129,20 +130,27 @@ docpad =
 	
 	# Clean the database
 	generateClean: (next) ->
+		console.log 'Cleaning files'
+
+		timeoutCallback = ->
+			throw new Error 'Could not connect to the mongod'	
+		timeout = setTimeout timeoutCallback, 1500
+
 		async.parallel [
 			(callback) ->
 				docpad.LayoutModel.remove {}, (err) ->
 					throw err if err
-					console.log 'Cleaned Layouts'
+					console.log 'Cleaned layouts'
 					callback()
 			(callback) ->
 				docpad.DocumentModel.remove {}, (err) ->
 					throw err if err
-					console.log 'Cleaned Documents'
+					console.log 'Cleaned documents'
 					callback()
 		],
 		->
-			console.log 'Cleaned Files'
+			clearTimeout timeout
+			console.log 'Cleaned files'
 			next()
 	
 	# Parse the files
@@ -443,17 +451,28 @@ docpad =
 	# Generate
 	generate: (next) ->
 		# Check
-		if docpad.genetating then return
-		else docpad.generating = true
-
+		if docpad.generating
+			console.log 'Generate request received, but we are already busy generating...'
+			return
+		else
+			console.log 'Generating...'
+			docpad.generating = true
+		
 		# Continue
 		path.exists docpad.options.srcPath, (exists) ->
 			# Check
-			if not exists then throw Error 'Cannot generate website as the src dir was not found'
-
+			if exists is false
+				throw new Error 'Cannot generate website as the src dir was not found'
+			
+			# Log
+			console.log 'Cleaning the out path'
+			
 			# Continue
-			util.rmdir docpad.options.outPath, (err) ->
-				throw err if err
+			util.rmdir docpad.options.outPath, (err,list,tree) ->
+				if err
+					console.log 'Failed to clean the out path '+docpad.options.outPath
+					throw err
+				console.log 'Cleaned the out path'
 				docpad.generateClean ->
 					docpad.generateParse ->
 						docpad.generateRelations ->
@@ -465,9 +484,14 @@ docpad =
 	
 	# Watch
 	watch: (next) ->
+		# Log
+		console.log 'Setting up watching...'
+		
 		# Watch the src directory
 		watch.createMonitor docpad.options.srcPath, (monitor) ->
-			
+			# Log
+			console.log 'Set up watching'
+
 			# File Changed
 			monitor.on 'changed', (fileFullPath,newStat,oldStat) ->
 				docpad.generate ->
