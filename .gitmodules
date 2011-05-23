@@ -1,0 +1,3 @@
+[submodule "skeletons/balupton"]
+	path = skeletons/balupton
+	url = git://github.com/balupton/balupton.docpad.git

@@ -43,8 +43,7 @@ class Docpad
 	rootPath: null
 	outPath: 'out'
 	srcPath: 'src'
-	viewPath: 'views'
-	skeletonPath: 'src'
+	skeletonsPath: 'skeletons'
 	dsn: 'mongodb://localhost/docpad'
 
 	# Docpad
@@ -59,14 +58,13 @@ class Docpad
 	DocumentModel: null
 
 	# Init
-	constructor: ({command,rootPath,outPath,srcPath,viewPath,skeletonPath,dsn,port}={}) ->
+	constructor: ({command,rootPath,outPath,srcPath,skeletonsPath,dsn,port}={}) ->
 		# Options
 		command = command || process.argv[2] || false
 		@rootPath = rootPath || process.cwd()
 		@outPath = outPath || @rootPath+'/'+@outPath
 		@srcPath = srcPath || @rootPath+'/'+@srcPath
-		@viewPath = viewPath || __dirname+'/'+@viewPath
-		@skeletonPath = skeletonPath || __dirname+'/../'+@srcPath
+		@skeletonsPath = skeletonsPath || __dirname+'/../'+@skeletonsPath
 		@dsn = dsn if dsn
 		@port = port if port
 
@@ -166,7 +164,7 @@ class Docpad
 
 		# Paths
 		layoutsSrcPath = @srcPath+'/layouts'
-		docsSrcPath = @srcPath+'/docs'
+		documentsSrcPath = @srcPath+'/documents'
 
 		# File Parser
 		parseFile = (fileFullPath,fileRelativePath,fileStat,next) ->
@@ -269,7 +267,7 @@ class Docpad
 			# Documents
 			(callback) -> parseFiles(
 				# Full Path
-				docsSrcPath,
+				documentsSrcPath,
 				# One Parsed
 				(fileMeta,next) ->
 					# Prepare
@@ -343,13 +341,13 @@ class Docpad
 		DocumentModel = @DocumentModel
 
 		# Render helper
-		_render = (Document,templateData) ->
+		_render = (Document,layoutData) ->
 			rendered = Document.content
-			rendered = eco.render rendered, templateData
+			rendered = eco.render rendered, layoutData
 			return rendered
 		
 		# Render recursive helper
-		_renderRecursive = (content,child,templateData,next) ->
+		_renderRecursive = (content,child,layoutData,next) ->
 			# Handle parent
 			if child.layout
 				# Find parent
@@ -359,22 +357,22 @@ class Docpad
 					else if not parent then throw new Error 'Could not find the layout: '+child.layout
 					
 					# Render parent
-					templateData.content = content
-					content = _render parent, templateData
+					layoutData.content = content
+					content = _render parent, layoutData
 
 					# Recurse
-					_renderRecursive content, parent, templateData, next
+					_renderRecursive content, parent, layoutData, next
 			# Handle loner
 			else
 				next content
 		
 		# Render
-		render = (Document,templateData,next) ->
+		render = (Document,layoutData,next) ->
 			# Render original
-			renderedContent = _render Document, templateData
+			renderedContent = _render Document, layoutData
 			
 			# Wrap in parents
-			_renderRecursive renderedContent, Document, templateData, (contentRendered) ->
+			_renderRecursive renderedContent, Document, layoutData, (contentRendered) ->
 				Document.contentRendered = contentRendered
 				Document.save (err) ->
 					throw err if err
@@ -409,7 +407,7 @@ class Docpad
 		console.log 'Starting write files'
 		util.cpdir(
 			# Src Path
-			@srcPath+'/public',
+			@srcPath+'/files',
 			# Out Path
 			@outPath
 			# Next
@@ -536,12 +534,16 @@ class Docpad
 	skeleton: (next) ->
 		docpad = @
 
+		skeleton = (process.argv.length >= 3 and process.argv[2] is 'skeleton' and process.argv[3]) || 'balupton'
+		skeletonPath = @skeletonsPath + '/' + skeleton
+		toPath = (process.argv.length >= 5 and process.argv[2] is 'skeleton' and process.argv[4]) || @rootPath
+		
 		path.exists docpad.srcPath, (exists) ->
 			if exists
-				console.log 'Cannot place skeleton as the out dir already exists'
+				console.log 'Cannot place skeleton as the desired structure already exists'
 				next()
 			else
-				util.cpdir docpad.skeletonPath, docpad.srcPath, (err) ->
+				util.cpdir skeletonPath, toPath, (err) ->
 					throw err if err
 					next()
 	
