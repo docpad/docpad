@@ -234,6 +234,7 @@ class Docpad
 				false,
 				# Next
 				(err) ->
+					console.log 'Failed to parse the directory:',fullPath
 					throw err if err
 					next()
 			)
@@ -537,13 +538,16 @@ class Docpad
 		skeleton = (process.argv.length >= 3 and process.argv[2] is 'skeleton' and process.argv[3]) || 'balupton'
 		skeletonPath = @skeletonsPath + '/' + skeleton
 		toPath = (process.argv.length >= 5 and process.argv[2] is 'skeleton' and process.argv[4]) || @rootPath
-		
+		toPath = util.prefixPathSync(toPath,@rootPath)
+
 		path.exists docpad.srcPath, (exists) ->
 			if exists
 				console.log 'Cannot place skeleton as the desired structure already exists'
 				next()
 			else
+				console.log 'Copying the skeleton ['+skeleton+'] to ['+toPath+']'
 				util.cpdir skeletonPath, toPath, (err) ->
+					console.log 'done'
 					throw err if err
 					next()
 	

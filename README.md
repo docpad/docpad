@@ -144,6 +144,10 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 
 ## History
 
+- v0.8 May 23, 2011
+	- Now supports mutliple skeletons
+	- Structure changes
+
 - v0.7 May 20, 2011
 	- Now supports multiple docpad instances
 	
