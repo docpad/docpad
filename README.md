@@ -165,10 +165,10 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 	- Got the generation and server going
 
 - v0.2 March 24, 2011
-	- Prototyping with DisenchantCH
+	- Prototyping with [disenchant](https://github.com/disenchant)
 
 - v0.1 March 16, 2011
-	- Initial Commit with Bergie
+	- Initial commit with [bergie](https://github.com/bergie)
 
 
 ## License

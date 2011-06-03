@@ -299,25 +299,23 @@ class Docpad
 		DocumentModel = @DocumentModel
 
 		# Async
-		completed = 0
-		total = 0
-		complete = ->
-			++completed
-			if completed is total
-				console.log 'Generated Relations'
-				next()
+		tasks = new util.Group (err) ->
+			console.log 'Generated Relations'
+			next err
 
 		# Find documents
 		DocumentModel.find {}, (err,Documents) ->
 			throw err if err
 			Documents.forEach (Document) ->
-				++total
+				++tasks.total
 
 				# Find related documents
 				DocumentModel.find {tags:{'$in':Document.tags}}, (err,relatedDocuments) ->
 					# Check
-					if err then throw err
-					else if relatedDocuments.length is 0 then return complete()
+					if err
+						throw err
+					else if relatedDocuments.length is 0
+						return tasks.complete false
 					
 					# Fetch
 					relatedDocumentsArray = []
@@ -334,7 +332,7 @@ class Docpad
 					Document.relatedDocuments = relatedDocumentsArray
 					Document.save (err) ->
 						throw err if err
-						complete()
+						tasks.complete false
 	
 	# Generate render
 	generateRender: (next) ->
@@ -380,19 +378,13 @@ class Docpad
 					next()
 			
 		# Async
-		completed = 0
-		total = 0
-		complete = ->
-			completed++
-			if completed is total
-				console.log 'Rendered Files'
-				next()
-		
+		tasks = new util.Group (err) -> next err
+
 		# Find documents
 		DocumentModel.find({}).sort('date',-1).execFind (err,Documents) ->
 			throw err if err
 			Documents.forEach (Document) ->
-				++total
+				++tasks.total
 				render(
 					Document,
 					{
@@ -400,7 +392,7 @@ class Docpad
 						DocumentModel: DocumentModel
 						Document: Document
 					},
-					complete
+					tasks.completer()
 				)
 	
 	# Write files
@@ -424,19 +416,15 @@ class Docpad
 		console.log 'Starting write documents'
 
 		# Async
-		completed = 0
-		total = 0
-		complete = ->
-			completed++
-			if completed is total
-				console.log 'Rendered Documents'
-				next()
+		tasks = new util.Group (err) ->
+			console.log 'Rendered Documents'
+			next err
 		
 		# Find documents
 		DocumentModel.find {}, (err,Documents) ->
 			throw err if err
 			Documents.forEach (Document) ->
-				++total
+				++tasks.total
 
 				# Generate path
 				fileFullPath = outPath+'/'+Document.relativeBase+'.html'
@@ -447,7 +435,7 @@ class Docpad
 					# Write document
 					fs.writeFile fileFullPath, Document.contentRendered, (err) ->
 						throw err if err
-						complete()
+						tasks.complete false
 	
 	# Write
 	generateWrite: (next) ->
