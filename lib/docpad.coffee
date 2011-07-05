@@ -19,8 +19,7 @@ ObjectId = Schema.ObjectId
 # -------------------------------------
 # Prototypes
 
-# Prepare
-Array.prototype.hasCount = (arr) ->
+Array::hasCount = (arr) ->
 	count = 0
 	for a in this
 		for b in arr
@@ -29,9 +28,20 @@ Array.prototype.hasCount = (arr) ->
 				break
 	return count
 
-
-Date.prototype.toShortDateString = ->
+Date::toShortDateString = ->
 	return this.toDateString().replace(/^[^\s]+\s/,'')
+
+Date::toISODateString = Date::toIsoDateString = ->
+	pad = (n) ->
+		if n < 10 then ('0'+n) else n
+	
+	# Return
+	@getUTCFullYear()+'-'+
+		pad(@getUTCMonth()+1)+'-'+
+		pad(@getUTCDate())+'T'+
+		pad(@getUTCHours())+':'+
+		pad(@getUTCMinutes())+':'+
+		pad(@getUTCSeconds())+'Z'
 
 
 # -------------------------------------
@@ -210,12 +220,18 @@ class Docpad
 				fileMeta.fullPath = fileFullPath
 				fileMeta.relativePath = fileRelativePath
 				fileMeta.relativeBase = (if relativeDirPath.length then relativeDirPath+'/' else '')+path.basename(fileRelativePath,path.extname(fileRelativePath))
-				fileMeta.url = '/'+fileMeta.relativeBase+'.html'
 				fileMeta.body = fileBody
 				fileMeta.title = fileMeta.title || path.basename(fileFullPath)
 				fileMeta.date = new Date(fileMeta.date || fileStat.ctime)
 				fileMeta.slug = util.generateSlugSync fileMeta.relativeBase
 
+				# Update Url
+				switch fileMeta.extension
+					when '.jade','.md'
+						fileMeta.url = '/'+fileMeta.relativeBase+'.html'
+					else
+						fileMeta.url = '/'+fileMeta.relativeBase+fileMeta.extension
+				
 				# Store fileMeta
 				next fileMeta
 		
@@ -386,12 +402,18 @@ class Docpad
 			Documents.forEach (Document) ->
 				++tasks.total
 				render(
-					Document,
+					# Document
+					Document
+					# layoutData
 					{
 						Documents: Documents
 						DocumentModel: DocumentModel
 						Document: Document
-					},
+						Site: {
+							date: new Date()
+						}
+					}
+					# next
 					tasks.completer()
 				)
 	
@@ -427,7 +449,7 @@ class Docpad
 				++tasks.total
 
 				# Generate path
-				fileFullPath = outPath+'/'+Document.relativeBase+'.html'
+				fileFullPath = outPath+'/'+Document.url #relativeBase+'.html'
 
 				# Ensure path
 				util.ensurePath path.dirname(fileFullPath), (err) ->
