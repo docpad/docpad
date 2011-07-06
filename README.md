@@ -122,9 +122,9 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 ### General
 
 * [Node.js](http://nodejs.org) - Server Side Javascript
-* [Express.js](http://expressjs.com/) - The "Server" in Server Side Javascript
-* [CoffeeScript](http://jashkenas.github.com/coffee-script/) - JavaScript Made Easy
-* [Mongoose](https://github.com/learnboost/mongoose/) - MongoDB Made Easy
+* [Express.js](http://expressjs.com) - The "Server" in Server Side Javascript
+* [Query-Engine](https://github.com/balupton/query-engine.npm) - The MongoDB Query-Engine without the Database
+* [CoffeeScript](http://jashkenas.github.com/coffee-script) - JavaScript Made Easy
 * [Async](https://github.com/caolan/async) - Asynchrounous Programming Made Easy
 
 ### Markup Languges
@@ -143,6 +143,9 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 
 
 ## History
+
+- v0.9 July 6, 2011
+	- No longer uses MongoDB/Mongoose! We now use [Query-Engine](https://github.com/balupton/query-engine.npm) which doesn't need any database server :)
 
 - v0.8 May 23, 2011
 	- Now supports mutliple skeletons

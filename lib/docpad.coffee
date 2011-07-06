@@ -7,13 +7,9 @@ jade = require 'jade'
 eco = require 'eco'
 path = require 'path'
 async = require 'async'
-watch = require 'watch'
 util = require 'bal-util'
 sys = require 'sys'
-mongoose = require 'mongoose'
-Schema = mongoose.Schema 
-SchemaTypes = Schema.Types 
-ObjectId = Schema.ObjectId
+require 'query-engine'
 
 
 # -------------------------------------
@@ -54,18 +50,40 @@ class Docpad
 	outPath: 'out'
 	srcPath: 'src'
 	skeletonsPath: 'skeletons'
-	dsn: 'mongodb://localhost/docpad'
 
 	# Docpad
 	generating: false
 	server: null
 	port: 9778
 
-	# Model
-	LayoutSchema: null
-	DocumentSchema: null
-	LayoutModel: null
-	DocumentModel: null
+	# Models
+	Layout: class
+		layout: ''
+		fullPath: ''
+		relativePath: ''
+		relativeBase: ''
+		body: ''
+		contentRaw: ''
+		content: ''
+		date: new Date()
+		title: ''
+	Document: class
+		layout: '' 
+		fullPath: '' 
+		relativePath: '' 
+		relativeBase: '' 
+		url: ''
+		tags: [] 
+		relatedDocuments: []
+		body: '' 
+		contentRaw: '' 
+		content: '' 
+		contentRendered: '' 
+		date: new Date() 
+		title: ''
+		slug: ''
+	Layouts: {}
+	Documents: {}
 
 	# Init
 	constructor: ({command,rootPath,outPath,srcPath,skeletonsPath,dsn,port}={}) ->
@@ -75,50 +93,15 @@ class Docpad
 		@outPath = outPath || @rootPath+'/'+@outPath
 		@srcPath = srcPath || @rootPath+'/'+@srcPath
 		@skeletonsPath = skeletonsPath || __dirname+'/../'+@skeletonsPath
-		@dsn = dsn if dsn
 		@port = port if port
 
-		# Connect
-		mongoose.connect @dsn
-
-		# Schemas
-		@LayoutSchema = new Schema
-			layout: String
-			fullPath: String
-			relativePath: String
-			relativeBase: String
-			body: String
-			contentRaw: String
-			content: String
-			date: Date
-			title: String
-		@DocumentSchema = new Schema
-			layout: String 
-			fullPath: String 
-			relativePath: String 
-			relativeBase: String 
-			url: String
-			tags: [String] 
-			relatedDocuments: [
-				new Schema
-					url: String 
-					title: String 
-					date: Date
-					slug: String
-			] 
-			body: String 
-			contentRaw: String 
-			content: String 
-			contentRendered: String 
-			date: Date 
-			title: String
-			slug: String
-		
 		# Models
-		mongoose.model 'Layout', @LayoutSchema
-		mongoose.model 'Document', @DocumentSchema
-		@LayoutModel = mongoose.model 'Layout'
-		@DocumentModel = mongoose.model 'Document'
+		Layouts = @Layouts
+		Documents = @Documents
+		@Layout::save = ->
+			Layouts[@id] = @
+		@Document::save = ->
+			Documents[@id] = @
 
 		# Handle
 		@main command
@@ -127,20 +110,24 @@ class Docpad
 	main: (command) ->
 		switch command
 			when 'skeleton'
-				@skeleton -> process.exit()
+				@skeletonAction -> 
+					process.exit()
 			
 			when 'generate'
-				@generate -> process.exit()
+				@generateAction -> 
+					process.exit()
 			
 			when 'watch'
-				@watch ->
+				@watchAction ->
+					console.log 'DocPad is now watching you...'
 			
 			when 'server'
-				@server ->
+				@serverAction ->
+					console.log 'DocPad is now servering you...'
 			
 			else
-				@skeleton => @watch => @generate ->
-				@server ->
+				@skeletonAction => @generateAction => @serverAction => @watchAction =>
+					console.log 'DocPad is is now watching and serving you...'
 	
 	# Clean the database
 	generateClean: (next) ->
@@ -152,12 +139,12 @@ class Docpad
 
 		async.parallel [
 			(callback) =>
-				@LayoutModel.remove {}, (err) ->
+				@Layouts.remove {}, (err) ->
 					throw err if err
 					console.log 'Cleaned layouts'
 					callback()
 			(callback) =>
-				@DocumentModel.remove {}, (err) ->
+				@Documents.remove {}, (err) ->
 					throw err if err
 					console.log 'Cleaned documents'
 					callback()
@@ -169,8 +156,10 @@ class Docpad
 	
 	# Parse the files
 	generateParse: (next) ->
-		LayoutModel = @LayoutModel
-		DocumentModel = @DocumentModel
+		Layout = @Layout
+		Document = @Document
+		Layouts = @Layouts
+		Documents = @Documents
 
 		# Paths
 		layoutsSrcPath = @srcPath+'/layouts'
@@ -224,6 +213,7 @@ class Docpad
 				fileMeta.title = fileMeta.title || path.basename(fileFullPath)
 				fileMeta.date = new Date(fileMeta.date || fileStat.ctime)
 				fileMeta.slug = util.generateSlugSync fileMeta.relativeBase
+				fileMeta.id = fileMeta.slug
 
 				# Update Url
 				switch fileMeta.extension
@@ -264,17 +254,16 @@ class Docpad
 				# One Parsed
 				(fileMeta,next) ->
 					# Prepare
-					Layout = new LayoutModel()
+					layout = new Layout()
 
 					# Apply
 					for own key, fileMetaValue of fileMeta
-						Layout[key] = fileMetaValue
+						layout[key] = fileMetaValue
 					
 					# Save
-					Layout.save (err) ->
-						throw err if err
-						console.log 'Parsed Layout:', Layout.relativeBase
-						next()
+					layout.save()
+					console.log 'Parsed Layout:', layout.relativeBase
+					next()
 				,
 				# All Parsed
 				->
@@ -288,17 +277,16 @@ class Docpad
 				# One Parsed
 				(fileMeta,next) ->
 					# Prepare
-					Document = new DocumentModel()
+					document = new Document()
 
 					# Apply
 					for own key, fileMetaValue of fileMeta
-						Document[key] = fileMetaValue
+						document[key] = fileMetaValue
 					
 					# Save
-					Document.save (err) ->
-						throw err if err
-						console.log 'Parsed Document:', Document.relativeBase
-						next()
+					document.save()
+					console.log 'Parsed Document:', document.relativeBase
+					next()
 				,
 				# All Parsed
 				->
@@ -312,7 +300,8 @@ class Docpad
 		
 	# Generate relations
 	generateRelations: (next) ->
-		DocumentModel = @DocumentModel
+		Documents = @Documents
+		console.log 'Generating Relations'
 
 		# Async
 		tasks = new util.Group (err) ->
@@ -320,44 +309,40 @@ class Docpad
 			next err
 
 		# Find documents
-		DocumentModel.find {}, (err,Documents) ->
+		Documents.find {}, (err,documents,length) ->
 			throw err if err
-			Documents.forEach (Document) ->
-				++tasks.total
-
+			tasks.total += length
+			documents.forEach (document) ->
 				# Find related documents
-				DocumentModel.find {tags:{'$in':Document.tags}}, (err,relatedDocuments) ->
+				Documents.find {tags:{'$in':document.tags}}, (err,relatedDocuments) ->
 					# Check
 					if err
 						throw err
 					else if relatedDocuments.length is 0
 						return tasks.complete false
-					
+
 					# Fetch
 					relatedDocumentsArray = []
 					relatedDocuments.sort (a,b) ->
-						return a.tags.hasCount(Document.tags) < b.tags.hasCount(Document.tags)
+						return a.tags.hasCount(document.tags) < b.tags.hasCount(document.tags)
 					.forEach (relatedDocument) ->
-						if Document.url is relatedDocument.url then return
-						relatedDocumentsArray.push
-							title: relatedDocument.title
-							url: relatedDocument.url
-							date: relatedDocument.date
+						if document.url is relatedDocument.url then return
+						relatedDocumentsArray.push relatedDocument
 				
 					# Save
-					Document.relatedDocuments = relatedDocumentsArray
-					Document.save (err) ->
-						throw err if err
-						tasks.complete false
+					document.relatedDocuments = relatedDocumentsArray
+					document.save()
+					tasks.complete false
 	
 	# Generate render
 	generateRender: (next) ->
-		LayoutModel = @LayoutModel
-		DocumentModel = @DocumentModel
+		Layouts = @Layouts
+		Documents = @Documents
+		console.log 'Generating Render'
 
 		# Render helper
-		_render = (Document,layoutData) ->
-			rendered = Document.content
+		_render = (document,layoutData) ->
+			rendered = document.content
 			rendered = eco.render rendered, layoutData
 			return rendered
 		
@@ -366,7 +351,7 @@ class Docpad
 			# Handle parent
 			if child.layout
 				# Find parent
-				LayoutModel.findOne {relativeBase:child.layout}, (err,parent) ->
+				Layouts.findOne {relativeBase:child.layout}, (err,parent) ->
 					# Check
 					if err then throw err
 					else if not parent then throw new Error 'Could not find the layout: '+child.layout
@@ -382,40 +367,41 @@ class Docpad
 				next content
 		
 		# Render
-		render = (Document,layoutData,next) ->
+		render = (document,layoutData,next) ->
 			# Render original
-			renderedContent = _render Document, layoutData
+			renderedContent = _render document, layoutData
 			
 			# Wrap in parents
-			_renderRecursive renderedContent, Document, layoutData, (contentRendered) ->
-				Document.contentRendered = contentRendered
-				Document.save (err) ->
-					throw err if err
-					next()
-			
+			_renderRecursive renderedContent, document, layoutData, (contentRendered) ->
+				document.contentRendered = contentRendered
+				next()
+		
 		# Async
 		tasks = new util.Group (err) -> next err
 
+		# Prepare site data
+		Site = site =
+			date: new Date()
+
 		# Find documents
-		DocumentModel.find({}).sort('date',-1).execFind (err,Documents) ->
-			throw err if err
-			Documents.forEach (Document) ->
-				++tasks.total
-				render(
-					# Document
-					Document
-					# layoutData
-					{
-						Documents: Documents
-						DocumentModel: DocumentModel
-						Document: Document
-						Site: {
-							date: new Date()
-						}
-					}
-					# next
-					tasks.completer()
-				)
+		documents = Documents.find({}).sort({'date':-1})
+		tasks.total += documents.length
+		documents.forEach (document) ->
+			render(
+				# Document
+				document
+				# layoutData
+				{
+					documents: documents
+					document: document
+					Documents: documents
+					Document: document
+					site: site
+					Site: site
+				}
+				# next
+				tasks.completer()
+			)
 	
 	# Write files
 	generateWriteFiles: (next) ->
@@ -433,7 +419,7 @@ class Docpad
 	
 	# Write documents
 	generateWriteDocuments: (next) ->
-		DocumentModel = @DocumentModel
+		Documents = @Documents
 		outPath = @outPath
 		console.log 'Starting write documents'
 
@@ -443,22 +429,21 @@ class Docpad
 			next err
 		
 		# Find documents
-		DocumentModel.find {}, (err,Documents) ->
+		Documents.find {}, (err,documents,length) ->
 			throw err if err
-			Documents.forEach (Document) ->
-				++tasks.total
-
+			tasks.total += length
+			documents.forEach (document) ->
 				# Generate path
-				fileFullPath = outPath+'/'+Document.url #relativeBase+'.html'
+				fileFullPath = outPath+'/'+document.url #relativeBase+'.html'
 
 				# Ensure path
 				util.ensurePath path.dirname(fileFullPath), (err) ->
 					throw err if err
 					# Write document
-					fs.writeFile fileFullPath, Document.contentRendered, (err) ->
+					fs.writeFile fileFullPath, document.contentRendered, (err) ->
 						throw err if err
 						tasks.complete false
-	
+
 	# Write
 	generateWrite: (next) ->
 		console.log 'Starting write'
@@ -479,7 +464,7 @@ class Docpad
 			next()
 	
 	# Generate
-	generate: (next) ->
+	generateAction: (next) ->
 		docpad = @
 
 		# Check
@@ -515,34 +500,29 @@ class Docpad
 									next()
 	
 	# Watch
-	watch: (next) ->
+	watchAction: (next) ->
 		docpad = @
 
 		# Log
 		console.log 'Setting up watching...'
 		
 		# Watch the src directory
-		watch.createMonitor docpad.srcPath, (monitor) ->
-			# Log
-			console.log 'Set up watching'
+		watcher = require('watch-tree').watchTree(docpad.srcPath)
+		watcher.on 'fileDeleted', (path) ->
+			docpad.generate ->
+		watcher.on 'fileCreated', (path,stat) ->
+			docpad.generate ->
+		watcher.on 'fileModified', (path,stat) ->
+			docpad.generate ->
 
-			# File Changed
-			monitor.on 'changed', (fileFullPath,newStat,oldStat) ->
-				docpad.generate ->
-				
-			# File Created
-			monitor.on 'created', (fileFullPath,stat) ->
-				docpad.generate ->
-				
-			# File Deleted
-			monitor.on 'removed', (fileFullPath,stat) ->
-				docpad.generate ->
-			
-			# Next
-			next()
+		# Log
+		console.log 'Watching setup'
+
+		# Next
+		next()
 	
 	# Skeleton
-	skeleton: (next) ->
+	skeletonAction: (next) ->
 		docpad = @
 
 		skeleton = (process.argv.length >= 3 and process.argv[2] is 'skeleton' and process.argv[3]) || 'balupton'
@@ -562,7 +542,7 @@ class Docpad
 					next()
 	
 	# Server
-	server: (next) ->
+	serverAction: (next) ->
 		# Server
 		@server = express.createServer()
 
@@ -583,7 +563,7 @@ class Docpad
 
 		# Init server
 		@server.listen @port
-		console.log 'Express server listening on port %d', @server.address().port
+		console.log 'Express server listening on port %d and directory %s', @server.address().port, @outPath
 
 		# Forward
 		next()
