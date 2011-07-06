@@ -103,12 +103,9 @@ class Docpad
 		@Document::save = ->
 			Documents[@id] = @
 
-		# Handle
-		@main command
-	
 	# Handle
-	main: (command) ->
-		switch command
+	action: (action) ->
+		switch action
 			when 'skeleton'
 				@skeletonAction -> 
 					process.exit()
