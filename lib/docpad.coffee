@@ -1,16 +1,15 @@
 # Requirements
 fs = require 'fs'
-yaml = require 'yaml'
-express = require 'express'
-gfm = require 'github-flavored-markdown'
-jade = require 'jade'
-eco = require 'eco'
 path = require 'path'
-async = require 'async'
-util = require 'bal-util'
 sys = require 'sys'
-watchTree = require 'watch-tree'
-require 'query-engine'
+express = false
+yaml = false
+gfm = false
+jade = false
+eco = false
+watchTree = false
+async = false
+util = false
 
 
 # -------------------------------------
@@ -134,12 +133,18 @@ class Docpad
 	
 	# Clean the database
 	generateClean: (next) ->
+		# Requires
+		async = require 'async'		unless async
+		
+		# Prepare
 		console.log 'Cleaning files'
 
+		# Timeout
 		timeoutCallback = ->
 			throw new Error 'Could not connect to the mongod'	
 		timeout = setTimeout timeoutCallback, 1500
 
+		# Handle
 		async.parallel [
 			(callback) =>
 				@Layouts.remove {}, (err) ->
@@ -159,6 +164,13 @@ class Docpad
 	
 	# Parse the files
 	generateParse: (next) ->
+		# Requires
+		yaml = require 'yaml'							unless yaml
+		gfm = require 'github-flavored-markdown'		unless gfm
+		jade = require 'jade'							unless jade
+		async = require 'async'		unless async
+		
+		# Prepare
 		Layout = @Layout
 		Document = @Document
 		Layouts = @Layouts
@@ -303,6 +315,10 @@ class Docpad
 		
 	# Generate relations
 	generateRelations: (next) ->
+		# Requires
+		eco = require 'eco'	unless eco
+
+		# Prepare
 		Documents = @Documents
 		console.log 'Generating Relations'
 
@@ -449,6 +465,10 @@ class Docpad
 
 	# Write
 	generateWrite: (next) ->
+		# Requires
+		async = require 'async'		unless async
+		
+		# Handle
 		console.log 'Starting write'
 		async.parallel [
 			# Files
@@ -468,6 +488,13 @@ class Docpad
 	
 	# Generate
 	generateAction: (next) ->
+		# Requires
+		unless queryEngine
+			queryEngine = true
+			require 'query-engine'
+		util = require 'bal-util'	unless util
+		
+		# Prepare
 		docpad = @
 
 		# Check
@@ -505,6 +532,10 @@ class Docpad
 	
 	# Watch
 	watchAction: (next) ->
+		# Requires
+		watchTree = require 'watch-tree'	unless watchTree
+
+		# Prepare
 		docpad = @
 
 		# Log
@@ -530,13 +561,17 @@ class Docpad
 	
 	# Skeleton
 	skeletonAction: (next) ->
-		docpad = @
+		# Requires
+		util = require 'bal-util'	unless util
 
+		# Prepare
+		docpad = @
 		skeleton = (process.argv.length >= 3 and process.argv[2] is 'skeleton' and process.argv[3]) || 'balupton'
 		skeletonPath = @skeletonsPath + '/' + skeleton
 		toPath = (process.argv.length >= 5 and process.argv[2] is 'skeleton' and process.argv[4]) || @rootPath
 		toPath = util.prefixPathSync(toPath,@rootPath)
 
+		# Copy
 		path.exists docpad.srcPath, (exists) ->
 			if exists
 				console.log 'Cannot place skeleton as the desired structure already exists'
@@ -550,6 +585,9 @@ class Docpad
 	
 	# Server
 	serverAction: (next) ->
+		# Requires
+		express = require 'express'		unless express
+
 		# Server
 		@server = express.createServer()
 
