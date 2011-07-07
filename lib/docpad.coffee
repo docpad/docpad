@@ -556,9 +556,7 @@ class Docpad
 		# Configuration
 		@server.configure =>
 			# Standard
-			@server.use express.methodOverride()
 			@server.use express.errorHandler()
-			@server.use express.bodyParser()
 
 			# Routing
 			@server.use @server.router
