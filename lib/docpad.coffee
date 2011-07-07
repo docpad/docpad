@@ -561,6 +561,19 @@ class Docpad
 		@server.get /^\/docpad/, (req,res) ->
 			res.send 'DocPad!'
 
+		# Try .html for urls with no extension
+		@server.get /\/[a-z0-9]+\/?$/i, (req,res) =>
+			filePath = @outPath+req.url.replace(/\.\./g,'')+'.html' # stop tricktsers
+			path.exists filePath, (exists) ->
+				if exists
+					fs.readFile filePath, (err,data) ->
+						if err
+							res.send(err.message, 500)
+						else
+							res.send(data.toString())
+				else
+					res.send(404)
+		
 		# Init server
 		@server.listen @port
 		console.log 'Express server listening on port %d and directory %s', @server.address().port, @outPath
