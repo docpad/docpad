@@ -502,15 +502,18 @@ class Docpad
 
 		# Log
 		console.log 'Setting up watching...'
-		
+
 		# Watch the src directory
 		watcher = require('watch-tree').watchTree(docpad.srcPath)
 		watcher.on 'fileDeleted', (path) ->
 			docpad.generateAction ->
+				console.log 'Regenerated due to file delete at '+(new Date()).toLocaleString()
 		watcher.on 'fileCreated', (path,stat) ->
 			docpad.generateAction ->
+				console.log 'Regenerated due to file create at '+(new Date()).toLocaleString()
 		watcher.on 'fileModified', (path,stat) ->
 			docpad.generateAction ->
+				console.log 'Regenerated due to file change at '+(new Date()).toLocaleString()
 
 		# Log
 		console.log 'Watching setup'
