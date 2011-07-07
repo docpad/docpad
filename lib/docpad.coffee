@@ -95,7 +95,7 @@ class Docpad
 		@srcPath = srcPath || @rootPath+'/'+@srcPath
 		@skeletonsPath = skeletonsPath || __dirname+'/../'+@skeletonsPath
 		@port = port if port
-		@maxAge = maxAge is maxAge
+		@maxAge = maxAge if maxAge
 
 		# Models
 		@cleanModels = (next) =>
