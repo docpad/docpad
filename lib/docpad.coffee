@@ -51,6 +51,7 @@ class Docpad
 	outPath: 'out'
 	srcPath: 'src'
 	skeletonsPath: 'skeletons'
+	maxAge: false
 
 	# Docpad
 	generating: false
@@ -87,7 +88,7 @@ class Docpad
 	Documents: {}
 
 	# Init
-	constructor: ({command,rootPath,outPath,srcPath,skeletonsPath,dsn,port}={}) ->
+	constructor: ({command,rootPath,outPath,srcPath,skeletonsPath,maxAge,port}={}) ->
 		# Options
 		command = command || process.argv[2] || false
 		@rootPath = rootPath || process.cwd()
@@ -95,6 +96,7 @@ class Docpad
 		@srcPath = srcPath || @rootPath+'/'+@srcPath
 		@skeletonsPath = skeletonsPath || __dirname+'/../'+@skeletonsPath
 		@port = port if port
+		@maxAge = maxAge is maxAge
 
 		# Models
 		@cleanModels = (next) =>
@@ -560,7 +562,10 @@ class Docpad
 
 			# Routing
 			@server.use @server.router
-			@server.use express.static @outPath
+			if @maxAge
+				@server.use express.static @outPath, maxAge: @maxAge
+			else
+				@server.use express.static @outPath
 		
 		# Route something
 		@server.get /^\/docpad/, (req,res) ->
