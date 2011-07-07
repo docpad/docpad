@@ -506,11 +506,11 @@ class Docpad
 		# Watch the src directory
 		watcher = require('watch-tree').watchTree(docpad.srcPath)
 		watcher.on 'fileDeleted', (path) ->
-			docpad.generate ->
+			docpad.generateAction ->
 		watcher.on 'fileCreated', (path,stat) ->
-			docpad.generate ->
+			docpad.generateAction ->
 		watcher.on 'fileModified', (path,stat) ->
-			docpad.generate ->
+			docpad.generateAction ->
 
 		# Log
 		console.log 'Watching setup'
