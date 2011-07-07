@@ -9,6 +9,7 @@ path = require 'path'
 async = require 'async'
 util = require 'bal-util'
 sys = require 'sys'
+watchTree = require 'watch-tree'
 require 'query-engine'
 
 
@@ -96,12 +97,15 @@ class Docpad
 		@port = port if port
 
 		# Models
-		Layouts = @Layouts
-		Documents = @Documents
-		@Layout::save = ->
-			Layouts[@id] = @
-		@Document::save = ->
-			Documents[@id] = @
+		@cleanModels = (next) =>
+			Layouts = @Layouts = {}
+			Documents = @Documents = {}
+			@Layout::save = ->
+				Layouts[@id] = @
+			@Document::save = ->
+				Documents[@id] = @
+			next() if next
+		@cleanModels()
 
 	# Handle
 	action: (action) ->
@@ -493,6 +497,7 @@ class Docpad
 							docpad.generateRender ->
 								docpad.generateWrite ->
 									console.log 'Website Generated'
+									docpad.cleanModels()
 									docpad.generating = false
 									next()
 	
@@ -504,7 +509,7 @@ class Docpad
 		console.log 'Setting up watching...'
 
 		# Watch the src directory
-		watcher = require('watch-tree').watchTree(docpad.srcPath)
+		watcher = watchTree.watchTree(docpad.srcPath)
 		watcher.on 'fileDeleted', (path) ->
 			docpad.generateAction ->
 				console.log 'Regenerated due to file delete at '+(new Date()).toLocaleString()
