@@ -87,7 +87,7 @@ class Docpad
 	Documents: {}
 
 	# Init
-	constructor: ({command,rootPath,outPath,srcPath,skeletonsPath,maxAge,port}={}) ->
+	constructor: ({command,rootPath,outPath,srcPath,skeletonsPath,maxAge,port,server}={}) ->
 		# Options
 		command = command || process.argv[2] || false
 		@rootPath = rootPath || process.cwd()
@@ -96,6 +96,7 @@ class Docpad
 		@skeletonsPath = skeletonsPath || __dirname+'/../'+@skeletonsPath
 		@port = port if port
 		@maxAge = maxAge if maxAge
+		@server = server if server
 
 		# Models
 		@cleanModels = (next) =>
@@ -586,18 +587,18 @@ class Docpad
 	# Server
 	serverAction: (next) ->
 		# Requires
-		express = require 'express'		unless express
+		express = require 'express'			unless express
 
 		# Server
-		@server = express.createServer()
+		if @server
+			listen = false
+		else
+			listen = true
+			@server = express.createServer()
 
 		# Configuration
 		@server.configure =>
-			# Standard
-			@server.use express.errorHandler()
-
 			# Routing
-			@server.use @server.router
 			if @maxAge
 				@server.use express.static @outPath, maxAge: @maxAge
 			else
@@ -608,7 +609,7 @@ class Docpad
 			res.send 'DocPad!'
 
 		# Try .html for urls with no extension
-		@server.get /\/[a-z0-9]+\/?$/i, (req,res) =>
+		@server.get /\/[a-z0-9]+\/?$/i, (req,res,next) =>
 			filePath = @outPath+req.url.replace(/\.\./g,'')+'.html' # stop tricktsers
 			path.exists filePath, (exists) ->
 				if exists
@@ -618,11 +619,12 @@ class Docpad
 						else
 							res.send(data.toString())
 				else
-					res.send(404)
+					next()
 		
-		# Init server
-		@server.listen @port
-		console.log 'Express server listening on port %d and directory %s', @server.address().port, @outPath
+		# Start server listening
+		if listen
+			@server.listen @port
+			console.log 'Express server listening on port %d and directory %s', @server.address().port, @outPath
 
 		# Forward
 		next()
