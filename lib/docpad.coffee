@@ -248,6 +248,10 @@ class Docpad
 				fullPath,
 				# File Action
 				(fileFullPath,fileRelativePath,next) ->
+                                         #Ignore hidden files in SRC directory (such as .DS_Store on Mac)
+					if path.basename(fileFullPath).startsWith('.')
+						console.log 'Skipping Hidden File:',fileFullPath
+						return next()
 					fs.stat fileFullPath, (err,fileStat) ->
 						throw err if err
 						parseFile fileFullPath,fileRelativePath,fileStat,(fileMeta) ->
