@@ -39,6 +39,8 @@ Date::toISODateString = Date::toIsoDateString = ->
 		pad(@getUTCMinutes())+':'+
 		pad(@getUTCSeconds())+'Z'
 
+String::startsWith = (prefix) ->
+	return @indexOf(prefix) is 0
 
 # -------------------------------------
 # Main
