@@ -39,6 +39,8 @@ Date::toISODateString = Date::toIsoDateString = ->
 		pad(@getUTCMinutes())+':'+
 		pad(@getUTCSeconds())+'Z'
 
+String::startsWith = (prefix) ->
+	return @indexOf(prefix) is 0
 
 # -------------------------------------
 # Main
@@ -248,6 +250,10 @@ class Docpad
 				fullPath,
 				# File Action
 				(fileFullPath,fileRelativePath,next) ->
+                                         #Ignore hidden files in SRC directory (such as .DS_Store on Mac)
+					if path.basename(fileFullPath).startsWith('.')
+						console.log 'Skipping Hidden File:',fileFullPath
+						return next()
 					fs.stat fileFullPath, (err,fileStat) ->
 						throw err if err
 						parseFile fileFullPath,fileRelativePath,fileStat,(fileMeta) ->
