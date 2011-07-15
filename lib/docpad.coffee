@@ -108,7 +108,7 @@ class Docpad
 				Layouts[@id] = @
 			@Document::save = ->
 				Documents[@id] = @
-			next() if next
+			next false  if next
 		@cleanModels()
 
 	# Handle
@@ -430,7 +430,7 @@ class Docpad
 			# Wrap in parents
 			_renderRecursive renderedContent, document, layoutData, (contentRendered) ->
 				document.contentRendered = contentRendered
-				next()
+				next false
 		
 		# Async
 		tasks = new util.Group (err) -> next err
@@ -609,7 +609,7 @@ class Docpad
 		console.log 'Watching setup'
 
 		# Next
-		next()
+		next false
 	
 	# Skeleton
 	skeletonAction: (next) ->
@@ -627,7 +627,7 @@ class Docpad
 		path.exists docpad.srcPath, (exists) ->
 			if exists
 				console.log 'Cannot place skeleton as the desired structure already exists'
-				next()
+				next false
 			else
 				console.log 'Copying the skeleton ['+skeleton+'] to ['+toPath+']'
 				util.cpdir skeletonPath, toPath, (err) ->
@@ -670,7 +670,7 @@ class Docpad
 						else
 							res.send(data.toString())
 				else
-					next()
+					next false
 		
 		# Start server listening
 		if listen
@@ -678,7 +678,7 @@ class Docpad
 			console.log 'Express server listening on port %d and directory %s', @server.address().port, @outPath
 
 		# Forward
-		next()
+		next false
 	
 # API
 docpad =
