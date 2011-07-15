@@ -85,6 +85,7 @@ class Docpad
 		date: new Date() 
 		title: ''
 		slug: ''
+		ignore: false
 	Layouts: {}
 	Documents: {}
 
@@ -249,32 +250,47 @@ class Docpad
 				# Path
 				fullPath,
 				# File Action
-				(fileFullPath,fileRelativePath,next) ->
-                                         #Ignore hidden files in SRC directory (such as .DS_Store on Mac)
+				(fileFullPath,fileRelativePath,nextFile) ->
+					# Ignore hidden files
 					if path.basename(fileFullPath).startsWith('.')
-						console.log 'Skipping Hidden File:',fileFullPath
-						return next()
+						console.log 'Skipping Hidden Document:', fileRelativePath
+						return nextFile false
+					
+					# Stat file
 					fs.stat fileFullPath, (err,fileStat) ->
+						# Check error
 						throw err if err
-						parseFile fileFullPath,fileRelativePath,fileStat,(fileMeta) ->
-							callback fileMeta, next
+
+						# Parse file
+						parseFile fileFullPath,fileRelativePath,fileStat, (fileMeta) ->
+							# Were we ignored?
+							if fileMeta.ignore
+								console.log 'Skipping Ignored Document:', fileRelativePath
+								return nextFile false
+							
+							# We are cared about! Yay!
+							else
+								callback fileMeta, nextFile
 				# Dir Action
 				false,
 				# Next
 				(err) ->
-					console.log 'Failed to parse the directory:',fullPath
-					throw err if err
-					next()
+					# Error
+					if err
+						console.log 'Failed to parse the directory:',fullPath
+					
+					# Continue
+					next err
 			)
 		
 		# Parse Files
 		async.parallel [
 			# Layouts
-			(callback) -> parseFiles(
+			(taskCompleted) -> parseFiles(
 				# Full Path
 				layoutsSrcPath,
-				# One Parsed
-				(fileMeta,next) ->
+				# Callback: Each File
+				(fileMeta,nextFile) ->
 					# Prepare
 					layout = new Layout()
 
@@ -285,19 +301,25 @@ class Docpad
 					# Save
 					layout.save()
 					console.log 'Parsed Layout:', layout.relativeBase
-					next()
+					nextFile false
 				,
 				# All Parsed
-				->
+				(err) ->
+					# Error
+					if err
+						console.log 'Failed to parse layouts'
+						throw err
+					
+					# Success
 					console.log 'Parsed Layouts'
-					callback()
+					taskCompleted()
 			),
 			# Documents
-			(callback) -> parseFiles(
+			(taskCompleted) -> parseFiles(
 				# Full Path
 				documentsSrcPath,
 				# One Parsed
-				(fileMeta,next) ->
+				(fileMeta,nextFile) ->
 					# Prepare
 					document = new Document()
 
@@ -308,12 +330,18 @@ class Docpad
 					# Save
 					document.save()
 					console.log 'Parsed Document:', document.relativeBase
-					next()
+					nextFile false
 				,
 				# All Parsed
-				->
+				(err) ->
+					# Error
+					if err
+						console.log 'Failed to parse documents'
+						throw err
+					
+					# Success
 					console.log 'Parsed Document'
-					callback()
+					taskCompleted()
 			)
 		],
 		->
