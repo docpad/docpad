@@ -8,7 +8,6 @@ gfm = false
 jade = false
 eco = false
 watchTree = false
-async = false
 util = false
 
 
@@ -116,63 +115,73 @@ class Docpad
 	action: (action) ->
 		switch action
 			when 'skeleton'
-				@skeletonAction -> 
+				@skeletonAction (err) -> 
+					throw err  if err
 					process.exit()
 			
 			when 'generate'
-				@generateAction -> 
+				@generateAction (err) -> 
+					throw err  if err
 					process.exit()
 			
 			when 'watch'
-				@watchAction ->
+				@watchAction (err) ->
+					throw err  if err
 					console.log 'DocPad is now watching you...'
 			
 			when 'server'
-				@serverAction ->
-					console.log 'DocPad is now servering you...'
+				@serverAction (err) ->
+					throw err  if err
+					console.log 'DocPad is now serving you...'
 			
 			else
-				@skeletonAction => @generateAction => @serverAction => @watchAction =>
-					console.log 'DocPad is is now watching and serving you...'
+				@skeletonAction (err) =>
+					throw err  if err
+					@generateAction (err) =>
+						throw err  if err
+						@serverAction (err) =>
+							throw err  if err
+							@watchAction (err) =>
+								throw err  if err
+								console.log 'DocPad is is now watching and serving you...'
 	
 	# Clean the database
 	generateClean: (next) ->
 		# Requires
-		async = require 'async'		unless async
+		util = require 'bal-util'  unless util
 		
 		# Prepare
-		console.log 'Cleaning files'
+		console.log 'Cleaning Files'
 
-		# Timeout
-		timeoutCallback = ->
-			throw new Error 'Could not connect to the mongod'	
-		timeout = setTimeout timeoutCallback, 1500
+		# Async
+		util.parallel \
+			# Tasks
+			[
+				(next) =>
+					@Layouts.remove {}, (err) ->
+						unless err
+							console.log 'Cleaned Layouts'
+						next err
+				
+				(next) =>
+					@Documents.remove {}, (err) ->
+						unless err
+							console.log 'Cleaned Documents'
+						next err
+			],
+			# Completed
+			(err) ->
+				unless err
+					console.log 'Cleaned Files'
+				next err
 
-		# Handle
-		async.parallel [
-			(callback) =>
-				@Layouts.remove {}, (err) ->
-					throw err if err
-					console.log 'Cleaned layouts'
-					callback()
-			(callback) =>
-				@Documents.remove {}, (err) ->
-					throw err if err
-					console.log 'Cleaned documents'
-					callback()
-		],
-		->
-			clearTimeout timeout
-			console.log 'Cleaned files'
-			next()
-	
 	# Parse the files
-	generateParse: (next) ->
+	generateParse: (nextTask) ->
 		# Requires
-		yaml = require 'yaml'							unless yaml
-		gfm = require 'github-flavored-markdown'		unless gfm
-		jade = require 'jade'							unless jade
-		async = require 'async'		unless async
+		util = require 'bal-util'  unless util
+		yaml = require 'yaml'  unless yaml
+		gfm = require 'github-flavored-markdown'  unless gfm
+		jade = require 'jade'  unless jade
 		
 		# Prepare
 		Layout = @Layout
@@ -195,7 +204,7 @@ class Docpad
 
 			# Read the file
 			fs.readFile fileFullPath, (err,data) ->
-				throw err if err
+				return next err  if err
 				
 				# Handle data
 				fileData = data.toString()
@@ -245,7 +254,7 @@ class Docpad
 				next fileMeta
 		
 		# Files Parser
-		parseFiles = (fullPath,callback,next) ->
+		parseFiles = (fullPath,callback,nextTask) ->
 			util.scandir(
 				# Path
 				fullPath,
@@ -253,19 +262,19 @@ class Docpad
 				(fileFullPath,fileRelativePath,nextFile) ->
 					# Ignore hidden files
 					if path.basename(fileFullPath).startsWith('.')
-						console.log 'Skipping Hidden Document:', fileRelativePath
+						console.log 'Hidden Document:', fileRelativePath
 						return nextFile false
 					
 					# Stat file
 					fs.stat fileFullPath, (err,fileStat) ->
 						# Check error
-						throw err if err
+						return nextFile err  if err
 
 						# Parse file
 						parseFile fileFullPath,fileRelativePath,fileStat, (fileMeta) ->
 							# Were we ignored?
 							if fileMeta.ignore
-								console.log 'Skipping Ignored Document:', fileRelativePath
+								console.log 'Ignored Document:', fileRelativePath
 								return nextFile false
 							
 							# We are cared about! Yay!
@@ -275,78 +284,69 @@ class Docpad
 				false,
 				# Next
 				(err) ->
-					# Error
 					if err
 						console.log 'Failed to parse the directory:',fullPath
-					
-					# Continue
-					next err
+					nextTask err
 			)
 		
 		# Parse Files
-		async.parallel [
-			# Layouts
-			(taskCompleted) -> parseFiles(
-				# Full Path
-				layoutsSrcPath,
-				# Callback: Each File
-				(fileMeta,nextFile) ->
-					# Prepare
-					layout = new Layout()
+		util.parallel \
+			# Tasks
+			[
+				# Layouts
+				(taskCompleted) -> parseFiles(
+					# Full Path
+					layoutsSrcPath,
+					# Callback: Each File
+					(fileMeta,nextFile) ->
+						# Prepare
+						layout = new Layout()
 
-					# Apply
-					for own key, fileMetaValue of fileMeta
-						layout[key] = fileMetaValue
-					
-					# Save
-					layout.save()
-					console.log 'Parsed Layout:', layout.relativeBase
-					nextFile false
-				,
-				# All Parsed
-				(err) ->
-					# Error
-					if err
-						console.log 'Failed to parse layouts'
-						throw err
-					
-					# Success
-					console.log 'Parsed Layouts'
-					taskCompleted()
-			),
-			# Documents
-			(taskCompleted) -> parseFiles(
-				# Full Path
-				documentsSrcPath,
-				# One Parsed
-				(fileMeta,nextFile) ->
-					# Prepare
-					document = new Document()
+						# Apply
+						for own key, fileMetaValue of fileMeta
+							layout[key] = fileMetaValue
+						
+						# Save
+						layout.save()
+						console.log 'Parsed Layout:', layout.relativeBase
+						nextFile false
+					,
+					# All Parsed
+					(err) ->
+						unless err
+							console.log 'Parsed Layouts'
+						taskCompleted err
+				),
+				# Documents
+				(taskCompleted) -> parseFiles(
+					# Full Path
+					documentsSrcPath,
+					# One Parsed
+					(fileMeta,nextFile) ->
+						# Prepare
+						document = new Document()
 
-					# Apply
-					for own key, fileMetaValue of fileMeta
-						document[key] = fileMetaValue
-					
-					# Save
-					document.save()
-					console.log 'Parsed Document:', document.relativeBase
-					nextFile false
-				,
-				# All Parsed
-				(err) ->
-					# Error
-					if err
-						console.log 'Failed to parse documents'
-						throw err
-					
-					# Success
-					console.log 'Parsed Document'
-					taskCompleted()
-			)
-		],
-		->
-			console.log 'Parsed Files'
-			next()
+						# Apply
+						for own key, fileMetaValue of fileMeta
+							document[key] = fileMetaValue
+						
+						# Save
+						document.save()
+						console.log 'Parsed Document:', document.relativeBase
+						nextFile false
+					,
+					# All Parsed
+					(err) ->
+						unless err
+							console.log 'Parsed Documents'
+						taskCompleted err
+				)
+			],
+			# Completed
+			(err) ->
+				unless err
+					console.log 'Parsed Files'
+				nextTask err
 		
 	# Generate relations
 	generateRelations: (next) ->
@@ -364,14 +364,14 @@ class Docpad
 
 		# Find documents
 		Documents.find {}, (err,documents,length) ->
-			throw err if err
+			return tasks.exit err  if err
 			tasks.total += length
 			documents.forEach (document) ->
 				# Find related documents
 				Documents.find {tags:{'$in':document.tags}}, (err,relatedDocuments) ->
 					# Check
 					if err
-						throw err
+						return tasks.exit err
 					else if relatedDocuments.length is 0
 						return tasks.complete false
 
@@ -380,7 +380,7 @@ class Docpad
 					relatedDocuments.sort (a,b) ->
 						return a.tags.hasCount(document.tags) < b.tags.hasCount(document.tags)
 					.forEach (relatedDocument) ->
-						if document.url is relatedDocument.url then return
+						return null  if document.url is relatedDocument.url
 						relatedDocumentsArray.push relatedDocument
 				
 					# Save
@@ -407,8 +407,10 @@ class Docpad
 				# Find parent
 				Layouts.findOne {relativeBase:child.layout}, (err,parent) ->
 					# Check
-					if err then throw err
-					else if not parent then throw new Error 'Could not find the layout: '+child.layout
+					if err
+						return next err
+					else if not parent
+						return next new Error 'Could not find the layout: '+child.layout
 					
 					# Render parent
 					layoutData.content = content
@@ -459,7 +461,7 @@ class Docpad
 	
 	# Write files
 	generateWriteFiles: (next) ->
-		console.log 'Starting write files'
+		console.log 'Copying Files'
 		util.cpdir(
 			# Src Path
 			@srcPath+'/files',
@@ -467,24 +469,27 @@ class Docpad
 			@outPath
 			# Next
 			(err) ->
-				throw err if err
-				next()
+				unless err
+					console.log 'Copied Files'
+				next err
 		)
 	
 	# Write documents
 	generateWriteDocuments: (next) ->
 		Documents = @Documents
 		outPath = @outPath
-		console.log 'Starting write documents'
+		console.log 'Writing Documents'
 
 		# Async
 		tasks = new util.Group (err) ->
-			console.log 'Rendered Documents'
 			next err
 		
 		# Find documents
 		Documents.find {}, (err,documents,length) ->
-			throw err if err
+			# Error
+			return tasks.exit err  if err
+			
+			# Cycle
 			tasks.total += length
 			documents.forEach (document) ->
 				# Generate path
@@ -492,34 +497,41 @@ class Docpad
 
 				# Ensure path
 				util.ensurePath path.dirname(fileFullPath), (err) ->
-					throw err if err
+					# Error
+					return tasks.exit err  if err
+					
 					# Write document
 					fs.writeFile fileFullPath, document.contentRendered, (err) ->
-						throw err if err
-						tasks.complete false
+						tasks.complete err
 
 	# Write
 	generateWrite: (next) ->
 		# Requires
-		async = require 'async'		unless async
+		util = require 'bal-util'  unless util
 		
 		# Handle
-		console.log 'Starting write'
-		async.parallel [
-			# Files
-			(callback) =>
-				@generateWriteFiles (err) ->
-					throw err if err
-					callback()
-			# Documents
-			(callback) =>
-				@generateWriteDocuments (err) ->
-					throw err if err
-					callback()
-		],
-		-> 
-			console.log 'Completed write'
-			next()
+		console.log 'Writing Files'
+		util.parallel \
+			# Tasks
+			[
+				# Files
+				(next) =>
+					@generateWriteFiles (err) ->
+						unless err
+							console.log 'Wrote Layouts'
+						next err
+				# Documents
+				(next) =>
+					@generateWriteDocuments (err) ->
+						unless err
+							console.log 'Wrote Documents'
+						next err
+			],
+			# Completed
+			(err) ->
+				unless err
+					console.log 'Wrote Files'
+				next err
 	
 	# Generate
 	generateAction: (next) ->
@@ -535,7 +547,7 @@ class Docpad
 		# Check
 		if @generating
 			console.log 'Generate request received, but we are already busy generating...'
-			return
+			return next false
 		else
 			console.log 'Generating...'
 			@generating = true
@@ -553,17 +565,22 @@ class Docpad
 			util.rmdir docpad.outPath, (err,list,tree) ->
 				if err
 					console.log 'Failed to clean the out path '+docpad.outPath
-					throw err
+					return next err
 				console.log 'Cleaned the out path'
-				docpad.generateClean ->
-					docpad.generateParse ->
-						docpad.generateRelations ->
-							docpad.generateRender ->
-								docpad.generateWrite ->
-									console.log 'Website Generated'
-									docpad.cleanModels()
-									docpad.generating = false
-									next()
+				docpad.generateClean (err) ->
+					return next err  if err
+					docpad.generateParse (err) ->
+						return next err  if err
+						docpad.generateRelations (err) ->
+							return next err  if err
+							docpad.generateRender (err) ->
+								return next err  if err
+								docpad.generateWrite (err) ->
+									unless err
+										console.log 'Website Generated'
+										docpad.cleanModels()
+										docpad.generating = false
+									next err
 	
 	# Watch
 	watchAction: (next) ->
@@ -614,9 +631,9 @@ class Docpad
 			else
 				console.log 'Copying the skeleton ['+skeleton+'] to ['+toPath+']'
 				util.cpdir skeletonPath, toPath, (err) ->
-					console.log 'done'
-					throw err if err
-					next()
+					unless err
+						console.log 'Copied the skeleton'
+					next err
 	
 	# Server
 	serverAction: (next) ->
