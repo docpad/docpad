@@ -4,7 +4,7 @@ path = require 'path'
 sys = require 'sys'
 express = false
 yaml = false
-gfm = false
+md = false
 jade = false
 eco = false
 watchTree = false
@@ -180,7 +180,7 @@ class Docpad
 		# Requires
 		util = require 'bal-util'  unless util
 		yaml = require 'yaml'  unless yaml
-		gfm = require 'github-flavored-markdown'  unless gfm
+		md = require 'discount'  unless md
 		jade = require 'jade'  unless jade
 		
 		# Prepare
@@ -209,7 +209,7 @@ class Docpad
 				# Handle data
 				fileData = data.toString()
 				fileSplit = fileData.split '---'
-				if fileSplit.length is 3 and !fileSplit[0]
+				if fileSplit.length >= 3 and !fileSplit[0]
 					# Extract parts
 					fileHead = fileSplit[1].replace(/\t/g,'    ').replace(/\s+$/m,'').replace(/\r\n?/g,'\n')+'\n'
 					fileBody = fileSplit.slice(2).join('---')
@@ -224,7 +224,7 @@ class Docpad
 					when '.jade'
 						result = jade.render fileBody
 					when '.md'
-						fileMeta.content = gfm.parse fileBody
+						fileMeta.content = md.parse fileBody
 					else
 						fileMeta.content = fileBody
 				
