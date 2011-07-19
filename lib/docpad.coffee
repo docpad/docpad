@@ -29,7 +29,7 @@ Date::toShortDateString = ->
 Date::toISODateString = Date::toIsoDateString = ->
 	pad = (n) ->
 		if n < 10 then ('0'+n) else n
-	
+
 	# Return
 	@getUTCFullYear()+'-'+
 		pad(@getUTCMonth()+1)+'-'+
@@ -70,18 +70,18 @@ class Docpad
 		date: new Date()
 		title: ''
 	Document: class
-		layout: '' 
-		fullPath: '' 
-		relativePath: '' 
-		relativeBase: '' 
+		layout: ''
+		fullPath: ''
+		relativePath: ''
+		relativeBase: ''
 		url: ''
-		tags: [] 
+		tags: []
 		relatedDocuments: []
-		body: '' 
-		contentRaw: '' 
-		content: '' 
-		contentRendered: '' 
-		date: new Date() 
+		body: ''
+		contentRaw: ''
+		content: ''
+		contentRendered: ''
+		date: new Date()
 		title: ''
 		slug: ''
 		ignore: false
@@ -115,25 +115,25 @@ class Docpad
 	action: (action) ->
 		switch action
 			when 'skeleton'
-				@skeletonAction (err) -> 
+				@skeletonAction (err) ->
 					throw err  if err
 					process.exit()
-			
+
 			when 'generate'
-				@generateAction (err) -> 
+				@generateAction (err) ->
 					throw err  if err
 					process.exit()
-			
+
 			when 'watch'
 				@watchAction (err) ->
 					throw err  if err
 					console.log 'DocPad is now watching you...'
-			
+
 			when 'server'
 				@serverAction (err) ->
 					throw err  if err
 					console.log 'DocPad is now serving you...'
-			
+
 			else
 				@skeletonAction (err) =>
 					throw err  if err
@@ -144,12 +144,12 @@ class Docpad
 							@watchAction (err) =>
 								throw err  if err
 								console.log 'DocPad is is now watching and serving you...'
-	
+
 	# Clean the database
 	generateClean: (next) ->
 		# Requires
 		util = require 'bal-util'  unless util
-		
+
 		# Prepare
 		console.log 'Cleaning Files'
 
@@ -162,7 +162,7 @@ class Docpad
 						unless err
 							console.log 'Cleaned Layouts'
 						next err
-				
+
 				(next) =>
 					@Documents.remove {}, (err) ->
 						unless err
@@ -182,7 +182,7 @@ class Docpad
 		yaml = require 'yaml'  unless yaml
 		gfm = require 'github-flavored-markdown'  unless gfm
 		jade = require 'jade'  unless jade
-		
+
 		# Prepare
 		Layout = @Layout
 		Document = @Document
@@ -205,11 +205,11 @@ class Docpad
 			# Read the file
 			fs.readFile fileFullPath, (err,data) ->
 				return next err  if err
-				
+
 				# Handle data
 				fileData = data.toString()
 				fileSplit = fileData.split '---'
-				if fileSplit.length is 3 and !fileSplit[0]
+				if fileSplit.length >= 3 and !fileSplit[0]
 					# Extract parts
 					fileHead = fileSplit[1].replace(/\t/g,'    ').replace(/\s+$/m,'').replace(/\r\n?/g,'\n')+'\n'
 					fileBody = fileSplit.slice(2).join('---')
@@ -217,7 +217,7 @@ class Docpad
 				else
 					# Extract part
 					fileBody = fileData
-				
+
 				# Markup
 				fileMeta.extension = path.extname fileFullPath
 				switch fileMeta.extension
@@ -227,7 +227,7 @@ class Docpad
 						fileMeta.content = gfm.parse fileBody
 					else
 						fileMeta.content = fileBody
-				
+
 				# Temp
 				fullDirPath = path.dirname fileFullPath
 				relativeDirPath = path.dirname(fileRelativePath).replace(/^\.$/,'')
@@ -249,10 +249,10 @@ class Docpad
 						fileMeta.url = '/'+fileMeta.relativeBase+'.html'
 					else
 						fileMeta.url = '/'+fileMeta.relativeBase+fileMeta.extension
-				
+
 				# Store fileMeta
 				next fileMeta
-		
+
 		# Files Parser
 		parseFiles = (fullPath,callback,nextTask) ->
 			util.scandir(
@@ -264,7 +264,7 @@ class Docpad
 					if path.basename(fileFullPath).startsWith('.')
 						console.log 'Hidden Document:', fileRelativePath
 						return nextFile false
-					
+
 					# Stat file
 					fs.stat fileFullPath, (err,fileStat) ->
 						# Check error
@@ -276,7 +276,7 @@ class Docpad
 							if fileMeta.ignore
 								console.log 'Ignored Document:', fileRelativePath
 								return nextFile false
-							
+
 							# We are cared about! Yay!
 							else
 								callback fileMeta, nextFile
@@ -288,7 +288,7 @@ class Docpad
 						console.log 'Failed to parse the directory:',fullPath
 					nextTask err
 			)
-		
+
 		# Parse Files
 		util.parallel \
 			# Tasks
@@ -305,7 +305,7 @@ class Docpad
 						# Apply
 						for own key, fileMetaValue of fileMeta
 							layout[key] = fileMetaValue
-						
+
 						# Save
 						layout.save()
 						console.log 'Parsed Layout:', layout.relativeBase
@@ -329,7 +329,7 @@ class Docpad
 						# Apply
 						for own key, fileMetaValue of fileMeta
 							document[key] = fileMetaValue
-						
+
 						# Save
 						document.save()
 						console.log 'Parsed Document:', document.relativeBase
@@ -347,7 +347,7 @@ class Docpad
 				unless err
 					console.log 'Parsed Files'
 				nextTask err
-		
+
 	# Generate relations
 	generateRelations: (next) ->
 		# Requires
@@ -382,12 +382,12 @@ class Docpad
 					.forEach (relatedDocument) ->
 						return null  if document.url is relatedDocument.url
 						relatedDocumentsArray.push relatedDocument
-				
+
 					# Save
 					document.relatedDocuments = relatedDocumentsArray
 					document.save()
 					tasks.complete false
-	
+
 	# Generate render
 	generateRender: (next) ->
 		Layouts = @Layouts
@@ -399,7 +399,7 @@ class Docpad
 			rendered = document.content
 			rendered = eco.render rendered, layoutData
 			return rendered
-		
+
 		# Render recursive helper
 		_renderRecursive = (content,child,layoutData,next) ->
 			# Handle parent
@@ -411,7 +411,7 @@ class Docpad
 						return next err
 					else if not parent
 						return next new Error 'Could not find the layout: '+child.layout
-					
+
 					# Render parent
 					layoutData.content = content
 					content = _render parent, layoutData
@@ -421,17 +421,17 @@ class Docpad
 			# Handle loner
 			else
 				next content
-		
+
 		# Render
 		render = (document,layoutData,next) ->
 			# Render original
 			renderedContent = _render document, layoutData
-			
+
 			# Wrap in parents
 			_renderRecursive renderedContent, document, layoutData, (contentRendered) ->
 				document.contentRendered = contentRendered
 				next false
-		
+
 		# Async
 		tasks = new util.Group (err) -> next err
 
@@ -458,7 +458,7 @@ class Docpad
 				# next
 				tasks.completer()
 			)
-	
+
 	# Write files
 	generateWriteFiles: (next) ->
 		console.log 'Copying Files'
@@ -473,7 +473,7 @@ class Docpad
 					console.log 'Copied Files'
 				next err
 		)
-	
+
 	# Write documents
 	generateWriteDocuments: (next) ->
 		Documents = @Documents
@@ -483,12 +483,12 @@ class Docpad
 		# Async
 		tasks = new util.Group (err) ->
 			next err
-		
+
 		# Find documents
 		Documents.find {}, (err,documents,length) ->
 			# Error
 			return tasks.exit err  if err
-			
+
 			# Cycle
 			tasks.total += length
 			documents.forEach (document) ->
@@ -499,7 +499,7 @@ class Docpad
 				util.ensurePath path.dirname(fileFullPath), (err) ->
 					# Error
 					return tasks.exit err  if err
-					
+
 					# Write document
 					fs.writeFile fileFullPath, document.contentRendered, (err) ->
 						tasks.complete err
@@ -508,7 +508,7 @@ class Docpad
 	generateWrite: (next) ->
 		# Requires
 		util = require 'bal-util'  unless util
-		
+
 		# Handle
 		console.log 'Writing Files'
 		util.parallel \
@@ -532,7 +532,7 @@ class Docpad
 				unless err
 					console.log 'Wrote Files'
 				next err
-	
+
 	# Generate
 	generateAction: (next) ->
 		# Requires
@@ -540,7 +540,7 @@ class Docpad
 			queryEngine = true
 			require 'query-engine'
 		util = require 'bal-util'	unless util
-		
+
 		# Prepare
 		docpad = @
 
@@ -551,16 +551,16 @@ class Docpad
 		else
 			console.log 'Generating...'
 			@generating = true
-		
+
 		# Continue
 		path.exists @srcPath, (exists) ->
 			# Check
 			if exists is false
 				throw new Error 'Cannot generate website as the src dir was not found'
-			
+
 			# Log
 			console.log 'Cleaning the out path'
-			
+
 			# Continue
 			util.rmdir docpad.outPath, (err,list,tree) ->
 				if err
@@ -581,7 +581,7 @@ class Docpad
 										docpad.cleanModels()
 										docpad.generating = false
 									next err
-	
+
 	# Watch
 	watchAction: (next) ->
 		# Requires
@@ -610,7 +610,7 @@ class Docpad
 
 		# Next
 		next false
-	
+
 	# Skeleton
 	skeletonAction: (next) ->
 		# Requires
@@ -634,7 +634,7 @@ class Docpad
 					unless err
 						console.log 'Copied the skeleton'
 					next err
-	
+
 	# Server
 	serverAction: (next) ->
 		# Requires
@@ -654,7 +654,7 @@ class Docpad
 				@server.use express.static @outPath, maxAge: @maxAge
 			else
 				@server.use express.static @outPath
-		
+
 		# Route something
 		@server.get /^\/docpad/, (req,res) ->
 			res.send 'DocPad!'
@@ -671,7 +671,7 @@ class Docpad
 							res.send(data.toString())
 				else
 					next false
-		
+
 		# Start server listening
 		if listen
 			@server.listen @port
@@ -679,7 +679,7 @@ class Docpad
 
 		# Forward
 		next false
-	
+
 # API
 docpad =
 	createInstance: (config) ->
