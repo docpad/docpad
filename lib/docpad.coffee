@@ -660,7 +660,7 @@ class Docpad
 			res.send 'DocPad!'
 
 		# Try .html for urls with no extension
-		@server.get /\/[a-z0-9]+\/?$/i, (req,res,next) =>
+		@server.all /\/[a-z0-9]+\/?$/i, (req,res,next) =>
 			filePath = @outPath+req.url.replace(/\.\./g,'')+'.html' # stop tricktsers
 			path.exists filePath, (exists) ->
 				if exists
