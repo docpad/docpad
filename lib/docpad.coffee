@@ -1,11 +1,26 @@
+###
+Docpad by Benjamin Lupton
+The easiest way to generate your static website.
+
+Recent things since last release:
+	
+	1. Added plugin infrastructure
+	2. Moved clean urls to plugin
+	3. Moved relations to plugin
+	4. Moved jade and markdown parsing to plugin
+
+Things to do before next release:
+
+	1. Add plugin scanning and loading
+	2. Add better commenting structure (like Buildr's)
+###
+
 # Requirements
 fs = require 'fs'
 path = require 'path'
 sys = require 'sys'
 express = false
 yaml = false
-gfm = false
-jade = false
 eco = false
 watchTree = false
 util = false
@@ -87,6 +102,49 @@ class Docpad
 		ignore: false
 	Layouts: {}
 	Documents: {}
+	
+
+	# =====================================
+	# Plugins
+
+	Plugins: class
+
+		Helpers: []
+		Parsers: {}
+
+		# =================================
+		# Register
+
+		# Register Parser
+		registerParser: (Parser) ->
+			@Parsers[Parser.inExtension] = Parser
+		
+		# Register Helper
+		registerHelper: (Helper) ->
+			@Helpers.push Helper
+		
+
+		# =================================
+		# Trigger
+
+		triggerHelpers: (eventName,data,next) ->
+			# Async
+			tasks = new util.Group (err) ->
+				console.log "Helpers completed for #{eventName}"
+				next err
+			
+		# Trigger the parser for our file
+		# next(err)
+		triggerParser: ({fileMeta},next) ->
+			if @Parsers[fileMeta.extension]?
+				Parser = @Parsers[fileMeta.extension]
+				Parser.parseContent fileMeta.content, (err,content) ->
+					next err  if err
+					fileMeta.content = content
+					fileMeta.url = '/'+fileMeta.relativeBase+Parser.outExtension
+					next false
+			else
+				next false
 
 	# Init
 	constructor: ({command,rootPath,outPath,srcPath,skeletonsPath,maxAge,port,server}={}) ->
@@ -188,6 +246,7 @@ class Docpad
 		Document = @Document
 		Layouts = @Layouts
 		Documents = @Documents
+		Plugins = @Plugins
 
 		# Paths
 		layoutsSrcPath = @srcPath+'/layouts'
@@ -220,13 +279,7 @@ class Docpad
 
 				# Markup
 				fileMeta.extension = path.extname fileFullPath
-				switch fileMeta.extension
-					when '.jade'
-						result = jade.render fileBody
-					when '.md'
-						fileMeta.content = gfm.parse fileBody
-					else
-						fileMeta.content = fileBody
+				fileMeta.content = fileBody
 
 				# Temp
 				fullDirPath = path.dirname fileFullPath
@@ -244,20 +297,22 @@ class Docpad
 				fileMeta.id = fileMeta.slug
 
 				# Update Url
-				switch fileMeta.extension
-					when '.jade','.md'
-						fileMeta.url = '/'+fileMeta.relativeBase+'.html'
-					else
-						fileMeta.url = '/'+fileMeta.relativeBase+fileMeta.extension
-
-				# Store fileMeta
-				next fileMeta
+				fileMeta.url = '/'+fileMeta.relativeBase+fileMeta.extension
+				
+				# Parsers
+				Plugins.triggerParser {fileMeta}, (err) ->
+					return next err  if err
+					# Plugins
+					Plugins.triggerHelpers 'parseFileAction', {fileMeta}, (err) ->
+						# Forward
+						return next err, fileMeta
 
 		# Files Parser
 		parseFiles = (fullPath,callback,nextTask) ->
 			util.scandir(
 				# Path
 				fullPath,
+
 				# File Action
 				(fileFullPath,fileRelativePath,nextFile) ->
 					# Ignore hidden files
@@ -271,7 +326,9 @@ class Docpad
 						return nextFile err  if err
 
 						# Parse file
-						parseFile fileFullPath,fileRelativePath,fileStat, (fileMeta) ->
+						parseFile fileFullPath,fileRelativePath,fileStat, (err,fileMeta) ->
+							return nextFile err  if err
+
 							# Were we ignored?
 							if fileMeta.ignore
 								console.log 'Ignored Document:', fileRelativePath
@@ -280,8 +337,10 @@ class Docpad
 							# We are cared about! Yay!
 							else
 								callback fileMeta, nextFile
+				
 				# Dir Action
 				false,
+
 				# Next
 				(err) ->
 					if err
@@ -351,7 +410,7 @@ class Docpad
 	# Generate relations
 	generateRelations: (next) ->
 		# Requires
-		eco = require 'eco'	unless eco
+		eco = require 'eco'	 unless eco
 
 		# Prepare
 		Documents = @Documents
@@ -439,25 +498,30 @@ class Docpad
 		Site = site =
 			date: new Date()
 
-		# Find documents
+		# Prepare template data
 		documents = Documents.find({}).sort({'date':-1})
-		tasks.total += documents.length
-		documents.forEach (document) ->
-			render(
-				# Document
-				document
-				# layoutData
-				{
-					documents: documents
-					document: document
-					Documents: documents
-					Document: document
-					site: site
-					Site: site
-				}
-				# next
-				tasks.completer()
-			)
+		templateData = 
+			documents: documents
+			document: document
+			Documents: documents
+			Document: document
+			site: site
+			Site: site
+		
+		# Trigger Helpers
+		@Plugins.triggerHelpers 'renderAction', {documents,templateData}, (err) ->
+			return next err  if err
+			# Render documents
+			tasks.total += documents.length
+			documents.forEach (document) ->
+				render(
+					# Document
+					document
+					# layoutData
+					layoutData
+					# next
+					tasks.completer()
+				)
 
 	# Write files
 	generateWriteFiles: (next) ->
@@ -567,20 +631,32 @@ class Docpad
 					console.log 'Failed to clean the out path '+docpad.outPath
 					return next err
 				console.log 'Cleaned the out path'
+				# Generate Clean
 				docpad.generateClean (err) ->
 					return next err  if err
-					docpad.generateParse (err) ->
+					# Clean Completed
+					docpad.triggerHelpers 'cleanCompleted', {}, (err) ->
 						return next err  if err
-						docpad.generateRelations (err) ->
+						# Generate Parse
+						docpad.generateParse (err) ->
 							return next err  if err
-							docpad.generateRender (err) ->
+							# Parse Completed
+							docpad.triggerHelpers 'parseCompleted', {}, (err) ->
 								return next err  if err
-								docpad.generateWrite (err) ->
-									unless err
-										console.log 'Website Generated'
-										docpad.cleanModels()
-										docpad.generating = false
-									next err
+								# Generate Render
+								docpad.generateRender (err) ->
+									return next err  if err
+									# Render Completed
+									docpad.triggerHelpers 'renderCompleted', {}, (err) ->
+										return next err  if err
+										docpad.generateWrite (err) ->
+											# Write Completed
+											docpad.triggerHelpers 'writeCompleted', {}, (err) ->
+												unless err
+													console.log 'Website Generated'
+													docpad.cleanModels()
+													docpad.generating = false
+												next err
 
 	# Watch
 	watchAction: (next) ->
@@ -658,27 +734,16 @@ class Docpad
 		# Route something
 		@server.get /^\/docpad/, (req,res) ->
 			res.send 'DocPad!'
-
-		# Try .html for urls with no extension
-		@server.all /\/[a-z0-9]+\/?$/i, (req,res,next) =>
-			filePath = @outPath+req.url.replace(/\.\./g,'')+'.html' # stop tricktsers
-			path.exists filePath, (exists) ->
-				if exists
-					fs.readFile filePath, (err,data) ->
-						if err
-							res.send(err.message, 500)
-						else
-							res.send(data.toString())
-				else
-					next false
-
+		
 		# Start server listening
 		if listen
 			@server.listen @port
 			console.log 'Express server listening on port %d and directory %s', @server.address().port, @outPath
 
-		# Forward
-		next false
+		# Plugins
+		@Plugins.triggerHelpers 'serverAction', {server}, (err) ->
+			# Forward
+			next err
 
 # API
 docpad =
