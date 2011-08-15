@@ -24,6 +24,7 @@ yaml = false
 eco = false
 watchTree = false
 util = false
+queryEngine = false
 
 
 # -------------------------------------
@@ -107,7 +108,7 @@ class Docpad
 	# =====================================
 	# Plugins
 
-	Plugins: class
+	Plugins:
 
 		Helpers: []
 		Parsers: {}
@@ -158,17 +159,16 @@ class Docpad
 		@maxAge = maxAge if maxAge
 		@server = server if server
 
-		# Models
-		@cleanModels = (next) =>
-			Layouts = @Layouts = {}
-			Documents = @Documents = {}
-			@Layout::save = ->
-				Layouts[@id] = @
-			@Document::save = ->
-				Documents[@id] = @
-			next false  if next
-		@cleanModels()
-
+	# Clean Models
+	cleanModels: (next) ->
+		Layouts = @Layouts = new queryEngine.Collection
+		Documents = @Documents = new queryEngine.Collection
+		@Layout::save = ->
+			Layouts[@id] = @
+		@Document::save = ->
+			Documents[@id] = @
+		next false  if next
+	
 	# Handle
 	action: (action) ->
 		switch action
@@ -209,8 +209,11 @@ class Docpad
 		util = require 'bal-util'  unless util
 
 		# Prepare
-		console.log 'Cleaning Files'
+		console.log 'Cleaning'
 
+		# Models
+		@cleanModels()
+		
 		# Async
 		util.parallel \
 			# Tasks
@@ -230,7 +233,7 @@ class Docpad
 			# Completed
 			(err) ->
 				unless err
-					console.log 'Cleaned Files'
+					console.log 'Cleaned'
 				next err
 
 	# Parse the files
@@ -601,8 +604,7 @@ class Docpad
 	generateAction: (next) ->
 		# Requires
 		unless queryEngine
-			queryEngine = true
-			require 'query-engine'
+			queryEngine = require 'query-engine'
 		util = require 'bal-util'	unless util
 
 		# Prepare
@@ -635,23 +637,23 @@ class Docpad
 				docpad.generateClean (err) ->
 					return next err  if err
 					# Clean Completed
-					docpad.triggerHelpers 'cleanCompleted', {}, (err) ->
+					docpad.Plugins.triggerHelpers 'cleanCompleted', {}, (err) ->
 						return next err  if err
 						# Generate Parse
 						docpad.generateParse (err) ->
 							return next err  if err
 							# Parse Completed
-							docpad.triggerHelpers 'parseCompleted', {}, (err) ->
+							docpad.Plugins.triggerHelpers 'parseCompleted', {}, (err) ->
 								return next err  if err
 								# Generate Render
 								docpad.generateRender (err) ->
 									return next err  if err
 									# Render Completed
-									docpad.triggerHelpers 'renderCompleted', {}, (err) ->
+									docpad.Plugins.triggerHelpers 'renderCompleted', {}, (err) ->
 										return next err  if err
 										docpad.generateWrite (err) ->
 											# Write Completed
-											docpad.triggerHelpers 'writeCompleted', {}, (err) ->
+											docpad.Plugins.triggerHelpers 'writeCompleted', {}, (err) ->
 												unless err
 													console.log 'Website Generated'
 													docpad.cleanModels()
