@@ -146,6 +146,7 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 	- No longer uses MongoDB/Mongoose! We now use [Query-Engine](https://github.com/balupton/query-engine.npm) which doesn't need any database server :)
 	- Watching files now working even better
 	- Now supports clean urls :)
+	- Fixed Jade rendering
 
 - v0.8 May 23, 2011
 	- Now supports mutliple skeletons

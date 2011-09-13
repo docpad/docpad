@@ -222,7 +222,7 @@ class Docpad
 				fileMeta.extension = path.extname fileFullPath
 				switch fileMeta.extension
 					when '.jade'
-						result = jade.render fileBody
+						fileMeta.content = jade.render fileBody
 					when '.md'
 						fileMeta.content = gfm.parse fileBody
 					else
