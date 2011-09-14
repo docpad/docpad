@@ -1,18 +1,6 @@
 ###
 Docpad by Benjamin Lupton
 The easiest way to generate your static website.
-
-Recent things since last release:
-	
-	1. Added plugin infrastructure
-	2. Moved clean urls to plugin
-	3. Moved relations to plugin
-	4. Moved jade and markdown parsing to plugin
-
-Things to do before next release:
-
-	1. Add plugin scanning and loading
-	2. Add better commenting structure (like Buildr's)
 ###
 
 # Requirements
