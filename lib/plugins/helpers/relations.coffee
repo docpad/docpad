@@ -1,13 +1,14 @@
 # Requires
-DocpadHelper = require "#{__dirname}/../helper.coffee"
+DocpadHelper = require "#{__dirname}/../../plugin.coffee"
 
-# Define Relations Helper
-class RelationsHelper extends DocpadHelper
+# Define Relations Plugin
+class RelationsPlugin extends DocpadPlugin
+	# Plugin Name
+	name: 'relations'
 
-	# Generate relations
-	parsingCompleted: ({docpad},next) ->
+	# Parsing all files has finished
+	parseFinished: ({docpad},next) ->
 		# Requires
-		eco = require 'eco'  unless eco
 		util = require 'bal-util'  unless util
 
 		# Prepare
@@ -30,7 +31,7 @@ class RelationsHelper extends DocpadHelper
 					if err
 						return tasks.exit err
 					else if relatedDocuments.length is 0
-						return tasks.complete false
+						return tasks.complete null
 
 					# Fetch
 					relatedDocumentsArray = []
@@ -43,7 +44,7 @@ class RelationsHelper extends DocpadHelper
 					# Save
 					document.relatedDocuments = relatedDocumentsArray
 					document.save()
-					tasks.complete false
+					tasks.complete()
 
-# Export Relations Helper
-module.exports = RelationsHelper
+# Export Relations Plugin
+module.exports = RelationsPlugin

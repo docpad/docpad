@@ -1,8 +1,12 @@
 # Requires
-DocpadHelper = require "#{__dirname}/../helper.coffee"
+DocpadHelper = require "#{__dirname}/../../plugin.coffee"
 
-# Define Clean Urls Helper
-class CleanUrlsHelper extends DocpadHelper
+# Define Clean Urls Plugin
+class CleanUrlsPlugin extends DocpadPlugin
+	# Plugin Name
+	name: 'cleanUrls'
+
+	# Run when the server setup has finished
 	serverSetup: ({docpad,server},next) ->
 		# Try .html for urls with no extension
 		docpad.server.all /\/[a-z0-9]+\/?$/i, (req,res,next) =>
@@ -15,7 +19,7 @@ class CleanUrlsHelper extends DocpadHelper
 						else
 							res.send(data.toString())
 				else
-					next false
+					next()
 
-# Export Clean Urls Helper
-module.exports = CleanUrlsHelper
+# Export Clean Urls Plugin
+module.exports = CleanUrlsPlugin

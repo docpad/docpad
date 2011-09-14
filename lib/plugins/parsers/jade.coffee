@@ -1,14 +1,19 @@
 # Requires
-DocpadParser = require "#{__dirname}/../parser.coffee"
-gfm = false
+DocpadPlugin = require "#{__dirname}/../../plugin.coffee"
 
-# Define Markdown Parser
-class MarkdownParser extends DocpadParser
-	inExtension: '.jade'
-	outExtension: '.html'
-	parseContent: (content,next) ->
-		result = jade.render content
-		next false, result
+# Define Jade Plugin
+class JadePlugin extends DocpadPlugin
+	# Plugin Name
+	name: 'jade'
 
-# Export Markdown Parser
-module.exports = MarkdownParser
+	# Parse Extensions
+	parseExtensions: '.jade'
+
+	# Parse a document
+	parseDocument: ({fileMeta}, next) ->
+		fileMeta.extension = '.html'
+		fileMeta.content = jade.render fileMeta.content
+		next()
+
+# Export Jade Plugin
+module.exports = JadePlugin

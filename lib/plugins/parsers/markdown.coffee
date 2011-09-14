@@ -1,14 +1,19 @@
 # Requires
-DocpadParser = require "#{__dirname}/../parser.coffee"
-gfm = false
+DocpadPlugin = require "#{__dirname}/../../plugin.coffee"
 
-# Define Markdown Parser
-class MarkdownParser extends DocpadParser
-	inExtension: '.md'
-	outExtension: '.html'
-	parseContent: (content,next) ->
-		result = gfm.parse content
-		next false, result
+# Define Markdown Plugin
+class MarkdownPlugin extends DocpadPlugin
+	# Plugin Name
+	name: 'markdown'
 
-# Export Markdown Parser
-module.exports = MarkdownParser
+	# Parse Extensions
+	parseExtensions: '.md'
+
+	# Parse a document
+	parseDocument: ({fileMeta}, next) ->
+		fileMeta.extension = '.html'
+		fileMeta.content = markdown.parse fileMeta.content
+		next()
+
+# Export Markdown Plugin
+module.exports = MarkdownPlugin
