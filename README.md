@@ -123,12 +123,15 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 * [Express.js](http://expressjs.com) - The "Server" in Server Side Javascript
 * [Query-Engine](https://github.com/balupton/query-engine.npm) - The MongoDB Query-Engine without the Database
 * [CoffeeScript](http://jashkenas.github.com/coffee-script) - JavaScript Made Easy
-* [Async](https://github.com/caolan/async) - Asynchrounous Programming Made Easy
+* [Caterpillar](https://github.com/balupton/caterpillar.npm) - Logging Made Easy
+* [Bal-Util](https://github.com/balupton/bal-util.npm) - Node.js Made Easy
+* [YAML](https://github.com/visionmedia/js-yaml) - Data Made Easy
 
 ### Markup Languges
 
 * [Markdown](http://daringfireball.net/projects/markdown/basics) - Markup Made Easy
 * [Jade](https://github.com/visionmedia/jade) - HTML Made Easy
+* [Haml](https://github.com/visionmedia/haml.js) - Markup Haiku
 
 ### Template Engines
 
@@ -141,6 +144,12 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 
 
 ## History
+
+- v0.10 September 14, 2011
+	- Plugin infrastructure
+	- Better logging through [Caterpillar](https://github.com/balupton/caterpillar.npm)
+	- Added [Haml](https://github.com/visionmedia/haml.js) support
+	- Fixed [Jade](https://github.com/visionmedia/jade) support
 
 - v0.9 July 6, 2011
 	- No longer uses MongoDB/Mongoose! We now use [Query-Engine](https://github.com/balupton/query-engine.npm) which doesn't need any database server :)
