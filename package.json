@@ -52,7 +52,8 @@
 		"yaml": "=0.2.1",
 		"watch-tree": "=0.1.1",
 		"bal-util": "=0.6.0",
-		"caterpillar": "=0.1.1"
+		"caterpillar": "=0.1.1",
+		"hamljs": "=0.5.1"
 	},
 	"engines" : {
 		"node": ">=0.4.0"

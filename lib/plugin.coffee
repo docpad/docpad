@@ -11,14 +11,14 @@ class DocpadPlugin
 	priority: 500
 
 	# Scan these extensions
-	parseExtensions: false
+	parseExtensions: []
 
 	# Constructor
 	constructor: ->
 		if !@name
 			throw new Error 'Plugin must have a name'
 		
-		if typeof @parseExtensions is 'String'
+		if typeof @parseExtensions is 'string'
 			@parseExtensions = @parseExtensions.split(/,\s/g)
 	
 	# ---------------------------------
@@ -40,8 +40,12 @@ class DocpadPlugin
 	parseFinished: ({docpad},next) ->
 		next null
 	
+	# Rendering has started
+	renderStarted: ({docpad,templateData},next) ->
+		next null
+	
 	# Rendering a file has started
-	renderFileStarted: ({docpad,templateData},next) ->
+	renderFileStarted: ({docpad,document,templateData},next) ->
 		next null
 	
 	# Run when rendering all files has finished
