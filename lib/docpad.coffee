@@ -19,11 +19,12 @@ Things to do before next release:
 fs = require 'fs'
 path = require 'path'
 sys = require 'sys'
+caterpillar = require 'caterpillar'
+util = require 'bal-util'
 express = false
 yaml = false
 eco = false
 watchTree = false
-util = false
 queryEngine = false
 
 
@@ -71,6 +72,7 @@ class Docpad
 
 	# Docpad
 	generating: false
+	loading: true
 	server: null
 	port: 9778
 
@@ -105,47 +107,107 @@ class Docpad
 	Documents: {}
 	
 
-	# =====================================
+	# ---------------------------------
 	# Plugins
 
-	Plugins:
+	# Plugins Array
+	PluginsArray: []
 
-		Helpers: []
-		Parsers: {}
+	# Plugins Object
+	PluginsObject: {}
+	
+	# Register a Plugin
+	# next(err)
+	registerPlugin: (plugin,next) ->
+		# Prepare
+		error = null
 
-		# =================================
-		# Register
-
-		# Register Parser
-		registerParser: (Parser) ->
-			@Parsers[Parser.inExtension] = Parser
+		# Register Plugin
+		if plugin instanceof Plugin
+			@PluginsObject[plugin.name] = plugin
+			@PluginsArray.push plugin
+			@PluginsArray.sort (a,b) -> a.priority < b.priority
+		else if typeof plugin is 'String'
+			try
+				@registerPlugin require plugin
+			catch err
+				error = new Error 'Unknown plugin: '+plugin
+		else
+			error = new Eerror 'Unknown plugin: '+plugin
 		
-		# Register Helper
-		registerHelper: (Helper) ->
-			@Helpers.push Helper
+		# Forward
+		next error
+
+	# Trigger a plugin event
+	# next(err)
+	triggerEvent: (eventName,data,next) ->
+		# Async
+		tasks = new util.Group (err) ->
+			console.log "Plugins completed for #{eventName}"
+			next err
+		tasks.total = @PluginsArray.length
+
+		# Cycle
+		for plugin in @PluginsArray
+			data.docpad = @
+			plugin[eventName].apply plugin, [data,tasks.completer()]
+
+	# Trigger a parseFile event
+	# next(err)
+	triggerParseFileEvent: (data,next) ->
+		# Sync
+		tasks = new util.Group (err) ->
+			console.log "Parsers completed for #{eventName}"
+			next err
+
+		if fileMeta.parsers and fileMeta.parsers.length
+			for pluginName in fileMeta.parsers
+				plugin = @getPlugin pluginName
+				continue  unless plugin
+				tasks.push (-> (plugin,data,queue) ->
+					plugin.parseContent.apply plugin, [data,queue.completer()]
+				)(plugin,data,queue)
+		else
+			for plugin in @PluginArray
+				if fileMeta.extension in plugin.parseExtensions
+					tasks.push (-> (plugin,data,queue) ->
+						plugin.parseContent.apply plugin, [data,queue.completer()]
+					)(plugin,data,queue)
 		
-
-		# =================================
-		# Trigger
-
-		triggerHelpers: (eventName,data,next) ->
+		tasks.sync()
+	
+	# Load Plugins
+	loadPlugins: (pluginsPath, next) ->
+		unless pluginsPath
 			# Async
 			tasks = new util.Group (err) ->
-				console.log "Helpers completed for #{eventName}"
+				console.log "Plugins loaded for #{pluginsPath}"
 				next err
 			
-		# Trigger the parser for our file
-		# next(err)
-		triggerParser: ({fileMeta},next) ->
-			if @Parsers[fileMeta.extension]?
-				Parser = @Parsers[fileMeta.extension]
-				Parser.parseContent fileMeta.content, (err,content) ->
-					next err  if err
-					fileMeta.content = content
-					fileMeta.url = '/'+fileMeta.relativeBase+Parser.outExtension
-					next false
-			else
-				next false
+			tasks.push => @loadPlugins "#{__dirname}/plugins"
+			if @rootPath isnt __dirname
+				tasks.push => @loadPlugins "#{@rootPath}/plugins"
+			
+			tasks.async()
+		else
+			util.scandir(
+				# Path
+				pluginsPath,
+
+				# File Action
+				(fileFullPath,fileRelativePath,nextFile) =>
+					@registerPlugin fileFullPath, nextFile
+				
+				# Dir Action
+				false,
+
+				# Next
+				next
+			)
+
+
+	# ---------------------------------
+	# Main
 
 	# Init
 	constructor: ({command,rootPath,outPath,srcPath,skeletonsPath,maxAge,port,server}={}) ->
@@ -158,6 +220,9 @@ class Docpad
 		@port = port if port
 		@maxAge = maxAge if maxAge
 		@server = server if server
+		@loadPlugins =>
+			caterpillar.log 'info', 'finished loading'
+			@loading = true
 
 	# Clean Models
 	cleanModels: (next) ->
@@ -167,7 +232,7 @@ class Docpad
 			Layouts[@id] = @
 		@Document::save = ->
 			Documents[@id] = @
-		next false  if next
+		next()  if next
 	
 	# Handle
 	action: (action) ->
@@ -205,9 +270,6 @@ class Docpad
 
 	# Clean the database
 	generateClean: (next) ->
-		# Requires
-		util = require 'bal-util'  unless util
-
 		# Prepare
 		console.log 'Cleaning'
 
@@ -239,17 +301,14 @@ class Docpad
 	# Parse the files
 	generateParse: (nextTask) ->
 		# Requires
-		util = require 'bal-util'  unless util
 		yaml = require 'yaml'  unless yaml
-		gfm = require 'github-flavored-markdown'  unless gfm
-		jade = require 'jade'  unless jade
 
 		# Prepare
+		docpad = @
 		Layout = @Layout
 		Document = @Document
 		Layouts = @Layouts
 		Documents = @Documents
-		Plugins = @Plugins
 
 		# Paths
 		layoutsSrcPath = @srcPath+'/layouts'
@@ -303,10 +362,14 @@ class Docpad
 				fileMeta.url = '/'+fileMeta.relativeBase+fileMeta.extension
 				
 				# Parsers
-				Plugins.triggerParser {fileMeta}, (err) ->
+				docpad.triggerParseFileEvent {fileMeta}, (err) ->
 					return next err  if err
+						
+					# Update Url
+					fileMeta.url = '/'+fileMeta.relativeBase+fileMeta.extension
+					
 					# Plugins
-					Plugins.triggerHelpers 'parseFileAction', {fileMeta}, (err) ->
+					docpad.triggerEvent 'parseFileFinished', {fileMeta}, (err) ->
 						# Forward
 						return next err, fileMeta
 
@@ -321,7 +384,7 @@ class Docpad
 					# Ignore hidden files
 					if path.basename(fileFullPath).startsWith('.')
 						console.log 'Hidden Document:', fileRelativePath
-						return nextFile false
+						return nextFile()
 
 					# Stat file
 					fs.stat fileFullPath, (err,fileStat) ->
@@ -335,7 +398,7 @@ class Docpad
 							# Were we ignored?
 							if fileMeta.ignore
 								console.log 'Ignored Document:', fileRelativePath
-								return nextFile false
+								return nextFile()
 
 							# We are cared about! Yay!
 							else
@@ -371,7 +434,7 @@ class Docpad
 						# Save
 						layout.save()
 						console.log 'Parsed Layout:', layout.relativeBase
-						nextFile false
+						nextFile()
 					,
 					# All Parsed
 					(err) ->
@@ -395,7 +458,7 @@ class Docpad
 						# Save
 						document.save()
 						console.log 'Parsed Document:', document.relativeBase
-						nextFile false
+						nextFile()
 					,
 					# All Parsed
 					(err) ->
@@ -435,7 +498,7 @@ class Docpad
 					if err
 						return tasks.exit err
 					else if relatedDocuments.length is 0
-						return tasks.complete false
+						return tasks.complete()
 
 					# Fetch
 					relatedDocumentsArray = []
@@ -448,7 +511,7 @@ class Docpad
 					# Save
 					document.relatedDocuments = relatedDocumentsArray
 					document.save()
-					tasks.complete false
+					tasks.complete()
 
 	# Generate render
 	generateRender: (next) ->
@@ -492,7 +555,7 @@ class Docpad
 			# Wrap in parents
 			_renderRecursive renderedContent, document, layoutData, (contentRendered) ->
 				document.contentRendered = contentRendered
-				next false
+				next()
 
 		# Async
 		tasks = new util.Group (err) -> next err
@@ -512,7 +575,7 @@ class Docpad
 			Site: site
 		
 		# Trigger Helpers
-		@Plugins.triggerHelpers 'renderAction', {documents,templateData}, (err) ->
+		@triggerEvent 'renderFileStarted', {documents,templateData}, (err) ->
 			return next err  if err
 			# Render documents
 			tasks.total += documents.length
@@ -573,9 +636,6 @@ class Docpad
 
 	# Write
 	generateWrite: (next) ->
-		# Requires
-		util = require 'bal-util'  unless util
-
 		# Handle
 		console.log 'Writing Files'
 		util.parallel \
@@ -605,7 +665,6 @@ class Docpad
 		# Requires
 		unless queryEngine
 			queryEngine = require 'query-engine'
-		util = require 'bal-util'	unless util
 
 		# Prepare
 		docpad = @
@@ -613,7 +672,7 @@ class Docpad
 		# Check
 		if @generating
 			console.log 'Generate request received, but we are already busy generating...'
-			return next false
+			return next()
 		else
 			console.log 'Generating...'
 			@generating = true
@@ -637,23 +696,23 @@ class Docpad
 				docpad.generateClean (err) ->
 					return next err  if err
 					# Clean Completed
-					docpad.Plugins.triggerHelpers 'cleanCompleted', {}, (err) ->
+					docpad.triggerEvent 'cleanFinished', {}, (err) ->
 						return next err  if err
 						# Generate Parse
 						docpad.generateParse (err) ->
 							return next err  if err
 							# Parse Completed
-							docpad.Plugins.triggerHelpers 'parseCompleted', {}, (err) ->
+							docpad.triggerEvent 'parseFinished', {}, (err) ->
 								return next err  if err
 								# Generate Render
 								docpad.generateRender (err) ->
 									return next err  if err
 									# Render Completed
-									docpad.Plugins.triggerHelpers 'renderCompleted', {}, (err) ->
+									docpad.triggerEvent 'renderFinished', {}, (err) ->
 										return next err  if err
 										docpad.generateWrite (err) ->
 											# Write Completed
-											docpad.Plugins.triggerHelpers 'writeCompleted', {}, (err) ->
+											docpad.triggerEvent 'writeFinished', {}, (err) ->
 												unless err
 													console.log 'Website Generated'
 													docpad.cleanModels()
@@ -687,13 +746,10 @@ class Docpad
 		console.log 'Watching setup'
 
 		# Next
-		next false
+		next()
 
 	# Skeleton
 	skeletonAction: (next) ->
-		# Requires
-		util = require 'bal-util'	unless util
-
 		# Prepare
 		docpad = @
 		skeleton = (process.argv.length >= 3 and process.argv[2] is 'skeleton' and process.argv[3]) || 'balupton'
@@ -705,7 +761,7 @@ class Docpad
 		path.exists docpad.srcPath, (exists) ->
 			if exists
 				console.log 'Cannot place skeleton as the desired structure already exists'
-				next false
+				next()
 			else
 				console.log 'Copying the skeleton ['+skeleton+'] to ['+toPath+']'
 				util.cpdir skeletonPath, toPath, (err) ->
@@ -743,7 +799,7 @@ class Docpad
 			console.log 'Express server listening on port %d and directory %s', @server.address().port, @outPath
 
 		# Plugins
-		@Plugins.triggerHelpers 'serverAction', {server}, (err) ->
+		@triggerEvent 'serverFinished', {server}, (err) ->
 			# Forward
 			next err
 
