@@ -27,6 +27,13 @@ eco = false
 watchTree = false
 queryEngine = false
 
+# Logger
+logger = new caterpillar.Logger
+	transports:
+		level: 6
+		formatter:
+			module: module
+
 
 # -------------------------------------
 # Prototypes
@@ -73,6 +80,7 @@ class Docpad
 	# Docpad
 	generating: false
 	loading: true
+	generateTimeout: null
 	server: null
 	port: 9778
 
@@ -122,18 +130,25 @@ class Docpad
 		# Prepare
 		error = null
 
-		# Register Plugin
-		if plugin instanceof Plugin
+		# Plugin Path
+		if typeof plugin is 'string'
+			try
+				pluginPath = plugin
+				plugin = require pluginPath
+				return @registerPlugin plugin, next
+			catch err
+				logger.log 'warn', 'Unable to load plugin', pluginPath
+				logger.log 'debug', err
+		
+		# Loaded Plugin
+		else if plugin and (plugin.name? or plugin::name?)
 			@PluginsObject[plugin.name] = plugin
 			@PluginsArray.push plugin
 			@PluginsArray.sort (a,b) -> a.priority < b.priority
-		else if typeof plugin is 'String'
-			try
-				@registerPlugin require plugin
-			catch err
-				error = new Error 'Unknown plugin: '+plugin
+		
+		# Unknown Plugin Type
 		else
-			error = new Eerror 'Unknown plugin: '+plugin
+			logger.log 'warn', 'Unknown plugin type', plugin
 		
 		# Forward
 		next error
@@ -143,7 +158,7 @@ class Docpad
 	triggerEvent: (eventName,data,next) ->
 		# Async
 		tasks = new util.Group (err) ->
-			console.log "Plugins completed for #{eventName}"
+			logger.log "Plugins completed for #{eventName}"
 			next err
 		tasks.total = @PluginsArray.length
 
@@ -157,7 +172,7 @@ class Docpad
 	triggerParseFileEvent: (data,next) ->
 		# Sync
 		tasks = new util.Group (err) ->
-			console.log "Parsers completed for #{eventName}"
+			logger.log "Parsers completed for #{eventName}"
 			next err
 
 		if fileMeta.parsers and fileMeta.parsers.length
@@ -181,14 +196,15 @@ class Docpad
 		unless pluginsPath
 			# Async
 			tasks = new util.Group (err) ->
-				console.log "Plugins loaded for #{pluginsPath}"
+				logger.log "Plugins loaded for #{pluginsPath}"
 				next err
 			
-			tasks.push => @loadPlugins "#{__dirname}/plugins"
-			if @rootPath isnt __dirname
-				tasks.push => @loadPlugins "#{@rootPath}/plugins"
+			tasks.push => @loadPlugins "#{__dirname}/plugins", tasks.completer()
+			if @rootPath isnt __dirname and path.existsSync "#{@rootPath}/plugins"
+				tasks.push => @loadPlugins "#{@rootPath}/plugins", tasks.completer()
 			
 			tasks.async()
+
 		else
 			util.scandir(
 				# Path
@@ -220,9 +236,9 @@ class Docpad
 		@port = port if port
 		@maxAge = maxAge if maxAge
 		@server = server if server
-		@loadPlugins =>
-			caterpillar.log 'info', 'finished loading'
-			@loading = true
+		@loadPlugins null, =>
+			logger.log 'info', 'Finished loading'
+			@loading = false
 
 	# Clean Models
 	cleanModels: (next) ->
@@ -250,12 +266,12 @@ class Docpad
 			when 'watch'
 				@watchAction (err) ->
 					throw err  if err
-					console.log 'DocPad is now watching you...'
+					logger.log 'DocPad is now watching you...'
 
 			when 'server'
 				@serverAction (err) ->
 					throw err  if err
-					console.log 'DocPad is now serving you...'
+					logger.log 'DocPad is now serving you...'
 
 			else
 				@skeletonAction (err) =>
@@ -266,12 +282,12 @@ class Docpad
 							throw err  if err
 							@watchAction (err) =>
 								throw err  if err
-								console.log 'DocPad is is now watching and serving you...'
+								logger.log 'DocPad is is now watching and serving you...'
 
 	# Clean the database
 	generateClean: (next) ->
 		# Prepare
-		console.log 'Cleaning'
+		logger.log 'Cleaning'
 
 		# Models
 		@cleanModels()
@@ -283,19 +299,19 @@ class Docpad
 				(next) =>
 					@Layouts.remove {}, (err) ->
 						unless err
-							console.log 'Cleaned Layouts'
+							logger.log 'Cleaned Layouts'
 						next err
 
 				(next) =>
 					@Documents.remove {}, (err) ->
 						unless err
-							console.log 'Cleaned Documents'
+							logger.log 'Cleaned Documents'
 						next err
 			],
 			# Completed
 			(err) ->
 				unless err
-					console.log 'Cleaned'
+					logger.log 'Cleaned'
 				next err
 
 	# Parse the files
@@ -383,7 +399,7 @@ class Docpad
 				(fileFullPath,fileRelativePath,nextFile) ->
 					# Ignore hidden files
 					if path.basename(fileFullPath).startsWith('.')
-						console.log 'Hidden Document:', fileRelativePath
+						logger.log 'Hidden Document:', fileRelativePath
 						return nextFile()
 
 					# Stat file
@@ -397,7 +413,7 @@ class Docpad
 
 							# Were we ignored?
 							if fileMeta.ignore
-								console.log 'Ignored Document:', fileRelativePath
+								logger.log 'Ignored Document:', fileRelativePath
 								return nextFile()
 
 							# We are cared about! Yay!
@@ -410,7 +426,7 @@ class Docpad
 				# Next
 				(err) ->
 					if err
-						console.log 'Failed to parse the directory:',fullPath
+						logger.log 'Failed to parse the directory:',fullPath
 					nextTask err
 			)
 
@@ -433,13 +449,13 @@ class Docpad
 
 						# Save
 						layout.save()
-						console.log 'Parsed Layout:', layout.relativeBase
+						logger.log 'Parsed Layout:', layout.relativeBase
 						nextFile()
 					,
 					# All Parsed
 					(err) ->
 						unless err
-							console.log 'Parsed Layouts'
+							logger.log 'Parsed Layouts'
 						taskCompleted err
 				),
 				# Documents
@@ -457,20 +473,20 @@ class Docpad
 
 						# Save
 						document.save()
-						console.log 'Parsed Document:', document.relativeBase
+						logger.log 'Parsed Document:', document.relativeBase
 						nextFile()
 					,
 					# All Parsed
 					(err) ->
 						unless err
-							console.log 'Parsed Documents'
+							logger.log 'Parsed Documents'
 						taskCompleted err
 				)
 			],
 			# Completed
 			(err) ->
 				unless err
-					console.log 'Parsed Files'
+					logger.log 'Parsed Files'
 				nextTask err
 
 	# Generate relations
@@ -480,11 +496,11 @@ class Docpad
 
 		# Prepare
 		Documents = @Documents
-		console.log 'Generating Relations'
+		logger.log 'Generating Relations'
 
 		# Async
 		tasks = new util.Group (err) ->
-			console.log 'Generated Relations'
+			logger.log 'Generated Relations'
 			next err
 
 		# Find documents
@@ -517,7 +533,7 @@ class Docpad
 	generateRender: (next) ->
 		Layouts = @Layouts
 		Documents = @Documents
-		console.log 'Generating Render'
+		logger.log 'Generating Render'
 
 		# Render helper
 		_render = (document,layoutData) ->
@@ -591,7 +607,7 @@ class Docpad
 
 	# Write files
 	generateWriteFiles: (next) ->
-		console.log 'Copying Files'
+		logger.log 'Copying Files'
 		util.cpdir(
 			# Src Path
 			@srcPath+'/files',
@@ -600,7 +616,7 @@ class Docpad
 			# Next
 			(err) ->
 				unless err
-					console.log 'Copied Files'
+					logger.log 'Copied Files'
 				next err
 		)
 
@@ -608,7 +624,7 @@ class Docpad
 	generateWriteDocuments: (next) ->
 		Documents = @Documents
 		outPath = @outPath
-		console.log 'Writing Documents'
+		logger.log 'Writing Documents'
 
 		# Async
 		tasks = new util.Group (err) ->
@@ -637,7 +653,7 @@ class Docpad
 	# Write
 	generateWrite: (next) ->
 		# Handle
-		console.log 'Writing Files'
+		logger.log 'Writing Files'
 		util.parallel \
 			# Tasks
 			[
@@ -645,19 +661,19 @@ class Docpad
 				(next) =>
 					@generateWriteFiles (err) ->
 						unless err
-							console.log 'Wrote Layouts'
+							logger.log 'Wrote Layouts'
 						next err
 				# Documents
 				(next) =>
 					@generateWriteDocuments (err) ->
 						unless err
-							console.log 'Wrote Documents'
+							logger.log 'Wrote Documents'
 						next err
 			],
 			# Completed
 			(err) ->
 				unless err
-					console.log 'Wrote Files'
+					logger.log 'Wrote Files'
 				next err
 
 	# Generate
@@ -669,12 +685,29 @@ class Docpad
 		# Prepare
 		docpad = @
 
+		# Clear
+		if @generateTimeout
+			clearTimeout(@generateTimeout)
+			@generateTimeout = null
+
 		# Check
-		if @generating
-			console.log 'Generate request received, but we are already busy generating...'
-			return next()
+		if @loading
+			logger.log 'notice', 'Generate request received, but we still loading... waiting...'
+			@generateTimeout = setTimeout(
+				=>
+					@generateAction next
+				500
+			)
+			return
+		else if @generating
+			logger.log 'notice', 'Generate request received, but we are already busy generating... waiting...'
+			@generateTimeout = setTimeout(
+				=>
+					@generateAction next
+				500
+			)
 		else
-			console.log 'Generating...'
+			logger.log 'Generating...'
 			@generating = true
 
 		# Continue
@@ -684,14 +717,14 @@ class Docpad
 				throw new Error 'Cannot generate website as the src dir was not found'
 
 			# Log
-			console.log 'Cleaning the out path'
+			logger.log 'Cleaning the out path'
 
 			# Continue
 			util.rmdir docpad.outPath, (err,list,tree) ->
 				if err
-					console.log 'Failed to clean the out path '+docpad.outPath
+					logger.log 'Failed to clean the out path '+docpad.outPath
 					return next err
-				console.log 'Cleaned the out path'
+				logger.log 'Cleaned the out path'
 				# Generate Clean
 				docpad.generateClean (err) ->
 					return next err  if err
@@ -714,7 +747,7 @@ class Docpad
 											# Write Completed
 											docpad.triggerEvent 'writeFinished', {}, (err) ->
 												unless err
-													console.log 'Website Generated'
+													logger.log 'Website Generated'
 													docpad.cleanModels()
 													docpad.generating = false
 												next err
@@ -728,22 +761,22 @@ class Docpad
 		docpad = @
 
 		# Log
-		console.log 'Setting up watching...'
+		logger.log 'Setting up watching...'
 
 		# Watch the src directory
 		watcher = watchTree.watchTree(docpad.srcPath)
 		watcher.on 'fileDeleted', (path) ->
 			docpad.generateAction ->
-				console.log 'Regenerated due to file delete at '+(new Date()).toLocaleString()
+				logger.log 'Regenerated due to file delete at '+(new Date()).toLocaleString()
 		watcher.on 'fileCreated', (path,stat) ->
 			docpad.generateAction ->
-				console.log 'Regenerated due to file create at '+(new Date()).toLocaleString()
+				logger.log 'Regenerated due to file create at '+(new Date()).toLocaleString()
 		watcher.on 'fileModified', (path,stat) ->
 			docpad.generateAction ->
-				console.log 'Regenerated due to file change at '+(new Date()).toLocaleString()
+				logger.log 'Regenerated due to file change at '+(new Date()).toLocaleString()
 
 		# Log
-		console.log 'Watching setup'
+		logger.log 'Watching setup'
 
 		# Next
 		next()
@@ -760,13 +793,13 @@ class Docpad
 		# Copy
 		path.exists docpad.srcPath, (exists) ->
 			if exists
-				console.log 'Cannot place skeleton as the desired structure already exists'
+				logger.log 'Cannot place skeleton as the desired structure already exists'
 				next()
 			else
-				console.log 'Copying the skeleton ['+skeleton+'] to ['+toPath+']'
+				logger.log 'Copying the skeleton ['+skeleton+'] to ['+toPath+']'
 				util.cpdir skeletonPath, toPath, (err) ->
 					unless err
-						console.log 'Copied the skeleton'
+						logger.log 'Copied the skeleton'
 					next err
 
 	# Server
@@ -796,7 +829,7 @@ class Docpad
 		# Start server listening
 		if listen
 			@server.listen @port
-			console.log 'Express server listening on port %d and directory %s', @server.address().port, @outPath
+			logger.log 'Express server listening on port %d and directory %s', @server.address().port, @outPath
 
 		# Plugins
 		@triggerEvent 'serverFinished', {server}, (err) ->
