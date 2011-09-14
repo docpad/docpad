@@ -1,5 +1,5 @@
 # Requires
-DocpadHelper = require "#{__dirname}/../../plugin.coffee"
+DocpadPlugin = require "#{__dirname}/../../plugin.coffee"
 
 # Define Relations Plugin
 class RelationsPlugin extends DocpadPlugin

@@ -1,5 +1,5 @@
 # Requires
-DocpadHelper = require "#{__dirname}/../../plugin.coffee"
+DocpadPlugin = require "#{__dirname}/../../plugin.coffee"
 
 # Define Clean Urls Plugin
 class CleanUrlsPlugin extends DocpadPlugin
