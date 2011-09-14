@@ -7,17 +7,14 @@ class RelationsPlugin extends DocpadPlugin
 	name: 'relations'
 
 	# Parsing all files has finished
-	parseFinished: ({docpad},next) ->
-		# Requires
-		util = require 'bal-util'  unless util
-
+	parseFinished: ({docpad,logger,util},next) ->
 		# Prepare
 		Documents = docpad.Documents
-		console.log 'Generating Relations'
+		logger.log 'debug', 'Generating relations'
 
 		# Async
 		tasks = new util.Group (err) ->
-			console.log 'Generated Relations'
+			logger.log 'debug', 'Generated relations'
 			next err
 
 		# Find documents

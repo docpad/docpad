@@ -1,5 +1,7 @@
 # Requires
 DocpadPlugin = require "#{__dirname}/../../plugin.coffee"
+path = require 'path'
+fs = require 'fs'
 
 # Define Clean Urls Plugin
 class CleanUrlsPlugin extends DocpadPlugin
@@ -7,9 +9,9 @@ class CleanUrlsPlugin extends DocpadPlugin
 	name: 'cleanUrls'
 
 	# Run when the server setup has finished
-	serverSetup: ({docpad,server},next) ->
+	serverFinished: ({docpad,server},next) ->
 		# Try .html for urls with no extension
-		docpad.server.all /\/[a-z0-9]+\/?$/i, (req,res,next) =>
+		docpad.server.all /\/[a-z0-9\-]+\/?$/i, (req,res,next) =>
 			filePath = docpad.outPath+req.url.replace(/\.\./g,'')+'.html' # stop tricktsers
 			path.exists filePath, (exists) ->
 				if exists
@@ -20,6 +22,7 @@ class CleanUrlsPlugin extends DocpadPlugin
 							res.send(data.toString())
 				else
 					next()
+		next()
 
 # Export Clean Urls Plugin
 module.exports = CleanUrlsPlugin

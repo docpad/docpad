@@ -1,5 +1,6 @@
 # Requires
 DocpadPlugin = require "#{__dirname}/../../plugin.coffee"
+jade = require 'jade'
 
 # Define Jade Plugin
 class JadePlugin extends DocpadPlugin

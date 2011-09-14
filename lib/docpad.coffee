@@ -65,6 +65,9 @@ Date::toISODateString = Date::toIsoDateString = ->
 String::startsWith = (prefix) ->
 	return @indexOf(prefix) is 0
 
+String::finishesWith = (suffix) ->
+	return @indexOf(suffix) is @length-1
+
 # -------------------------------------
 # Main
 
@@ -142,6 +145,7 @@ class Docpad
 		
 		# Loaded Plugin
 		else if plugin and (plugin.name? or plugin::name?)
+			plugin = new plugin  if typeof plugin is 'function'
 			@PluginsObject[plugin.name] = plugin
 			@PluginsArray.push plugin
 			@PluginsArray.sort (a,b) -> a.priority < b.priority
@@ -152,51 +156,67 @@ class Docpad
 		
 		# Forward
 		next error
+	
+	# Get a plugin by it's name
+	getPlugin: (pluginName) ->
+		@PluginsObject[pluginName]
 
 	# Trigger a plugin event
 	# next(err)
 	triggerEvent: (eventName,data,next) ->
 		# Async
 		tasks = new util.Group (err) ->
-			logger.log "Plugins completed for #{eventName}"
+			logger.log 'debug', "Plugins completed for #{eventName}"
 			next err
 		tasks.total = @PluginsArray.length
 
 		# Cycle
 		for plugin in @PluginsArray
 			data.docpad = @
+			data.logger = logger
+			data.util = util
 			plugin[eventName].apply plugin, [data,tasks.completer()]
 
 	# Trigger a parseFile event
 	# next(err)
 	triggerParseFileEvent: (data,next) ->
+		# Prepare
+		fileMeta = data.fileMeta
+		count = 0
+
 		# Sync
 		tasks = new util.Group (err) ->
-			logger.log "Parsers completed for #{eventName}"
+			logger.log 'debug', "Parsers completed for #{fileMeta.relativePath}"
 			next err
 
 		if fileMeta.parsers and fileMeta.parsers.length
 			for pluginName in fileMeta.parsers
 				plugin = @getPlugin pluginName
 				continue  unless plugin
-				tasks.push (-> (plugin,data,queue) ->
-					plugin.parseContent.apply plugin, [data,queue.completer()]
-				)(plugin,data,queue)
+				++count
+				tasks.push ((plugin,data,tasks) -> ->
+					console.log plugin
+					plugin.parseDocument.apply plugin, [data,tasks.completer()]
+				)(plugin,data,tasks)
 		else
-			for plugin in @PluginArray
-				if fileMeta.extension in plugin.parseExtensions
-					tasks.push (-> (plugin,data,queue) ->
-						plugin.parseContent.apply plugin, [data,queue.completer()]
-					)(plugin,data,queue)
+			for plugin in @PluginsArray
+				if plugin.parseExtensions and fileMeta.extension in plugin.parseExtensions
+					++count
+					tasks.push ((plugin,data,tasks) -> ->
+						plugin.parseDocument.apply plugin, [data,tasks.completer()]
+					)(plugin,data,tasks)
 		
-		tasks.sync()
+		if count
+			tasks.sync()
+		else
+			next()
 	
 	# Load Plugins
 	loadPlugins: (pluginsPath, next) ->
 		unless pluginsPath
 			# Async
 			tasks = new util.Group (err) ->
-				logger.log "Plugins loaded for #{pluginsPath}"
+				logger.log 'debug', 'Plugins loaded'
 				next err
 			
 			tasks.push => @loadPlugins "#{__dirname}/plugins", tasks.completer()
@@ -218,7 +238,9 @@ class Docpad
 				false,
 
 				# Next
-				next
+				(err) ->
+					logger.log 'debug', "Plugins loaded for #{pluginsPath}"
+					next err
 			)
 
 
@@ -266,12 +288,12 @@ class Docpad
 			when 'watch'
 				@watchAction (err) ->
 					throw err  if err
-					logger.log 'DocPad is now watching you...'
+					logger.log 'info', 'DocPad is now watching you...'
 
 			when 'server'
 				@serverAction (err) ->
 					throw err  if err
-					logger.log 'DocPad is now serving you...'
+					logger.log 'info', 'DocPad is now serving you...'
 
 			else
 				@skeletonAction (err) =>
@@ -282,12 +304,12 @@ class Docpad
 							throw err  if err
 							@watchAction (err) =>
 								throw err  if err
-								logger.log 'DocPad is is now watching and serving you...'
+								logger.log 'info', 'DocPad is is now watching and serving you...'
 
 	# Clean the database
 	generateClean: (next) ->
 		# Prepare
-		logger.log 'Cleaning'
+		logger.log 'debug', 'Cleaning started'
 
 		# Models
 		@cleanModels()
@@ -299,19 +321,19 @@ class Docpad
 				(next) =>
 					@Layouts.remove {}, (err) ->
 						unless err
-							logger.log 'Cleaned Layouts'
+							logger.log 'debug', 'Cleaned layouts'
 						next err
 
 				(next) =>
 					@Documents.remove {}, (err) ->
 						unless err
-							logger.log 'Cleaned Documents'
+							logger.log 'debug', 'Cleaned documents'
 						next err
 			],
 			# Completed
 			(err) ->
 				unless err
-					logger.log 'Cleaned'
+					logger.log 'debug', 'Cleaning finished'
 				next err
 
 	# Parse the files
@@ -326,6 +348,9 @@ class Docpad
 		Layouts = @Layouts
 		Documents = @Documents
 
+		# Log
+		logger.log 'debug', 'Parsing files'
+
 		# Paths
 		layoutsSrcPath = @srcPath+'/layouts'
 		documentsSrcPath = @srcPath+'/documents'
@@ -338,6 +363,9 @@ class Docpad
 			fileSplit = []
 			fileHead = ''
 			fileBody = ''
+
+			# Log
+			logger.log 'debug', 'Parsing the file ['+fileRelativePath+']'
 
 			# Read the file
 			fs.readFile fileFullPath, (err,data) ->
@@ -364,6 +392,7 @@ class Docpad
 				relativeDirPath = path.dirname(fileRelativePath).replace(/^\.$/,'')
 
 				# Update Meta
+				fileMeta.parsers = []
 				fileMeta.contentRaw = fileData
 				fileMeta.fullPath = fileFullPath
 				fileMeta.relativePath = fileRelativePath
@@ -380,7 +409,7 @@ class Docpad
 				# Parsers
 				docpad.triggerParseFileEvent {fileMeta}, (err) ->
 					return next err  if err
-						
+					
 					# Update Url
 					fileMeta.url = '/'+fileMeta.relativeBase+fileMeta.extension
 					
@@ -398,8 +427,8 @@ class Docpad
 				# File Action
 				(fileFullPath,fileRelativePath,nextFile) ->
 					# Ignore hidden files
-					if path.basename(fileFullPath).startsWith('.')
-						logger.log 'Hidden Document:', fileRelativePath
+					if path.basename(fileFullPath).startsWith('.') or path.basename(fileFullPath).finishesWith('~')
+						logger.log 'info', 'Ignored hidden document:', fileRelativePath
 						return nextFile()
 
 					# Stat file
@@ -413,7 +442,7 @@ class Docpad
 
 							# Were we ignored?
 							if fileMeta.ignore
-								logger.log 'Ignored Document:', fileRelativePath
+								logger.log 'info', 'Ignored document:', fileRelativePath
 								return nextFile()
 
 							# We are cared about! Yay!
@@ -426,7 +455,7 @@ class Docpad
 				# Next
 				(err) ->
 					if err
-						logger.log 'Failed to parse the directory:',fullPath
+						logger.log 'warn', 'Failed to parse the directory:', fullPath, err
 					nextTask err
 			)
 
@@ -449,13 +478,13 @@ class Docpad
 
 						# Save
 						layout.save()
-						logger.log 'Parsed Layout:', layout.relativeBase
+						logger.log 'debug', 'Parsed layout:', layout.relativeBase
 						nextFile()
 					,
 					# All Parsed
 					(err) ->
 						unless err
-							logger.log 'Parsed Layouts'
+							logger.log 'debug', 'Parsed layouts'
 						taskCompleted err
 				),
 				# Documents
@@ -473,76 +502,42 @@ class Docpad
 
 						# Save
 						document.save()
-						logger.log 'Parsed Document:', document.relativeBase
+						logger.log 'debug', 'Parsed document:', document.relativeBase
 						nextFile()
 					,
 					# All Parsed
 					(err) ->
 						unless err
-							logger.log 'Parsed Documents'
+							logger.log 'debug', 'Parsing documents finished'
+						else
+							logger.log 'err', 'Parsing documents failed', err
 						taskCompleted err
 				)
 			],
 			# Completed
 			(err) ->
 				unless err
-					logger.log 'Parsed Files'
+					logger.log 'debug', 'Parsed files'
 				nextTask err
-
-	# Generate relations
-	generateRelations: (next) ->
-		# Requires
-		eco = require 'eco'	 unless eco
-
-		# Prepare
-		Documents = @Documents
-		logger.log 'Generating Relations'
-
-		# Async
-		tasks = new util.Group (err) ->
-			logger.log 'Generated Relations'
-			next err
-
-		# Find documents
-		Documents.find {}, (err,documents,length) ->
-			return tasks.exit err  if err
-			tasks.total += length
-			documents.forEach (document) ->
-				# Find related documents
-				Documents.find {tags:{'$in':document.tags}}, (err,relatedDocuments) ->
-					# Check
-					if err
-						return tasks.exit err
-					else if relatedDocuments.length is 0
-						return tasks.complete()
-
-					# Fetch
-					relatedDocumentsArray = []
-					relatedDocuments.sort (a,b) ->
-						return a.tags.hasCount(document.tags) < b.tags.hasCount(document.tags)
-					.forEach (relatedDocument) ->
-						return null  if document.url is relatedDocument.url
-						relatedDocumentsArray.push relatedDocument
-
-					# Save
-					document.relatedDocuments = relatedDocumentsArray
-					document.save()
-					tasks.complete()
 
 	# Generate render
 	generateRender: (next) ->
+		# Requires
+		eco = require 'eco'	 unless eco
 		Layouts = @Layouts
 		Documents = @Documents
-		logger.log 'Generating Render'
+
+		# Log
+		logger.log 'debug', 'Rendering'
 
 		# Render helper
-		_render = (document,layoutData) ->
+		_render = (document,templateData) ->
 			rendered = document.content
-			rendered = eco.render rendered, layoutData
+			rendered = eco.render rendered, templateData
 			return rendered
 
 		# Render recursive helper
-		_renderRecursive = (content,child,layoutData,next) ->
+		_renderRecursive = (content,child,templateData,next) ->
 			# Handle parent
 			if child.layout
 				# Find parent
@@ -554,22 +549,25 @@ class Docpad
 						return next new Error 'Could not find the layout: '+child.layout
 
 					# Render parent
-					layoutData.content = content
-					content = _render parent, layoutData
+					templateData.content = content
+					content = _render parent, templateData
 
 					# Recurse
-					_renderRecursive content, parent, layoutData, next
+					_renderRecursive content, parent, templateData, next
 			# Handle loner
 			else
 				next content
 
 		# Render
-		render = (document,layoutData,next) ->
+		render = (document,templateData,next) ->
+			# Adjust templateData
+			templateData.document = templateData.Document = document
+
 			# Render original
-			renderedContent = _render document, layoutData
+			renderedContent = _render document, templateData
 
 			# Wrap in parents
-			_renderRecursive renderedContent, document, layoutData, (contentRendered) ->
+			_renderRecursive renderedContent, document, templateData, (contentRendered) ->
 				document.contentRendered = contentRendered
 				next()
 
@@ -584,14 +582,14 @@ class Docpad
 		documents = Documents.find({}).sort({'date':-1})
 		templateData = 
 			documents: documents
-			document: document
+			document: null
 			Documents: documents
-			Document: document
+			Document: null
 			site: site
 			Site: site
 		
 		# Trigger Helpers
-		@triggerEvent 'renderFileStarted', {documents,templateData}, (err) ->
+		@triggerEvent 'renderStarted', {documents,templateData}, (err) ->
 			return next err  if err
 			# Render documents
 			tasks.total += documents.length
@@ -599,15 +597,15 @@ class Docpad
 				render(
 					# Document
 					document
-					# layoutData
-					layoutData
+					# templateData
+					templateData
 					# next
 					tasks.completer()
 				)
 
 	# Write files
 	generateWriteFiles: (next) ->
-		logger.log 'Copying Files'
+		logger.log 'debug', 'Copying files'
 		util.cpdir(
 			# Src Path
 			@srcPath+'/files',
@@ -616,7 +614,7 @@ class Docpad
 			# Next
 			(err) ->
 				unless err
-					logger.log 'Copied Files'
+					logger.log 'debug', 'Copied files'
 				next err
 		)
 
@@ -624,7 +622,7 @@ class Docpad
 	generateWriteDocuments: (next) ->
 		Documents = @Documents
 		outPath = @outPath
-		logger.log 'Writing Documents'
+		logger.log 'debug', 'Writing documents'
 
 		# Async
 		tasks = new util.Group (err) ->
@@ -653,7 +651,7 @@ class Docpad
 	# Write
 	generateWrite: (next) ->
 		# Handle
-		logger.log 'Writing Files'
+		logger.log 'debug', 'Writing files'
 		util.parallel \
 			# Tasks
 			[
@@ -661,19 +659,19 @@ class Docpad
 				(next) =>
 					@generateWriteFiles (err) ->
 						unless err
-							logger.log 'Wrote Layouts'
+							logger.log 'debug', 'Wrote layouts'
 						next err
 				# Documents
 				(next) =>
 					@generateWriteDocuments (err) ->
 						unless err
-							logger.log 'Wrote Documents'
+							logger.log 'debug', 'Wrote documents'
 						next err
 			],
 			# Completed
 			(err) ->
 				unless err
-					logger.log 'Wrote Files'
+					logger.log 'debug', 'Wrote files'
 				next err
 
 	# Generate
@@ -707,7 +705,7 @@ class Docpad
 				500
 			)
 		else
-			logger.log 'Generating...'
+			logger.log 'info', 'Generating...'
 			@generating = true
 
 		# Continue
@@ -717,14 +715,14 @@ class Docpad
 				throw new Error 'Cannot generate website as the src dir was not found'
 
 			# Log
-			logger.log 'Cleaning the out path'
+			logger.log 'debug', 'Cleaning the out path'
 
 			# Continue
 			util.rmdir docpad.outPath, (err,list,tree) ->
 				if err
-					logger.log 'Failed to clean the out path '+docpad.outPath
+					logger.log 'err', 'Failed to clean the out path', docpad.outPath
 					return next err
-				logger.log 'Cleaned the out path'
+				logger.log 'debug', 'Cleaned the out path'
 				# Generate Clean
 				docpad.generateClean (err) ->
 					return next err  if err
@@ -747,7 +745,7 @@ class Docpad
 											# Write Completed
 											docpad.triggerEvent 'writeFinished', {}, (err) ->
 												unless err
-													logger.log 'Website Generated'
+													logger.log 'info', 'Generated'
 													docpad.cleanModels()
 													docpad.generating = false
 												next err
@@ -761,7 +759,7 @@ class Docpad
 		docpad = @
 
 		# Log
-		logger.log 'Setting up watching...'
+		logger.log 'Watching setup starting...'
 
 		# Watch the src directory
 		watcher = watchTree.watchTree(docpad.srcPath)
@@ -793,13 +791,13 @@ class Docpad
 		# Copy
 		path.exists docpad.srcPath, (exists) ->
 			if exists
-				logger.log 'Cannot place skeleton as the desired structure already exists'
+				logger.log 'notice', 'Cannot place skeleton as the desired structure already exists'
 				next()
 			else
-				logger.log 'Copying the skeleton ['+skeleton+'] to ['+toPath+']'
+				logger.log 'info', 'Copying the skeleton ['+skeleton+'] to ['+toPath+']'
 				util.cpdir skeletonPath, toPath, (err) ->
 					unless err
-						logger.log 'Copied the skeleton'
+						logger.log 'info', 'Copied the skeleton'
 					next err
 
 	# Server
@@ -829,10 +827,10 @@ class Docpad
 		# Start server listening
 		if listen
 			@server.listen @port
-			logger.log 'Express server listening on port %d and directory %s', @server.address().port, @outPath
+			logger.log 'info', 'Express server listening on port', @server.address().port, 'and directory', @outPath
 
 		# Plugins
-		@triggerEvent 'serverFinished', {server}, (err) ->
+		@triggerEvent 'serverFinished', {@server}, (err) ->
 			# Forward
 			next err
 

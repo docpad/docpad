@@ -1,5 +1,6 @@
 # Requires
 DocpadPlugin = require "#{__dirname}/../../plugin.coffee"
+gfm = require 'github-flavored-markdown'
 
 # Define Markdown Plugin
 class MarkdownPlugin extends DocpadPlugin
@@ -12,7 +13,7 @@ class MarkdownPlugin extends DocpadPlugin
 	# Parse a document
 	parseDocument: ({fileMeta}, next) ->
 		fileMeta.extension = '.html'
-		fileMeta.content = markdown.parse fileMeta.content
+		fileMeta.content = gfm.parse fileMeta.content
 		next()
 
 # Export Markdown Plugin
