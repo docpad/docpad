@@ -147,8 +147,9 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 
 - v0.10 September 14, 2011
 	- Plugin infrastructure
-	- [Haml](https://github.com/visionmedia/haml.js) support
 	- Better logging through [Caterpillar](https://github.com/balupton/caterpillar.npm)
+	- Added [Haml](https://github.com/visionmedia/haml.js) support
+	- Fixed [Jade](https://github.com/visionmedia/jade) support
 
 - v0.9 July 6, 2011
 	- No longer uses MongoDB/Mongoose! We now use [Query-Engine](https://github.com/balupton/query-engine.npm) which doesn't need any database server :)
