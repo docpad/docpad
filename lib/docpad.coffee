@@ -238,7 +238,7 @@ class Docpad
 	# Init
 	constructor: ({command,rootPath,outPath,srcPath,skeletonsPath,maxAge,port,server}={}) ->
 		# Options
-		command = command || process.argv[2] || false
+		command = command || false
 		@rootPath = rootPath || process.cwd()
 		@outPath = outPath || @rootPath+'/'+@outPath
 		@srcPath = srcPath || @rootPath+'/'+@srcPath
