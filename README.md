@@ -127,14 +127,11 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 * [Bal-Util](https://github.com/balupton/bal-util.npm) - Node.js Made Easy
 * [YAML](https://github.com/visionmedia/js-yaml) - Data Made Easy
 
-### Markup Languges
+### Renderers
 
 * [Markdown](http://daringfireball.net/projects/markdown/basics) - Markup Made Easy
 * [Jade](https://github.com/visionmedia/jade) - HTML Made Easy
 * [Haml](https://github.com/visionmedia/haml.js) - Markup Haiku
-
-### Template Engines
-
 * [Eco](https://github.com/sstephenson/eco) - Templating Made Easy
 
 
@@ -144,6 +141,11 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 
 
 ## History
+
+- v0.11-beta September 15, 2011
+	- The concept of template engines and markup languages have been merged into the concept of renderers
+	- Clean urls plugin could do with some work
+	- Documentation of the new document extension handling needs to be done
 
 - v0.10 September 14, 2011
 	- Plugin infrastructure
@@ -155,7 +157,6 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 	- No longer uses MongoDB/Mongoose! We now use [Query-Engine](https://github.com/balupton/query-engine.npm) which doesn't need any database server :)
 	- Watching files now working even better
 	- Now supports clean urls :)
-	- Fixed Jade rendering
 
 - v0.8 May 23, 2011
 	- Now supports mutliple skeletons

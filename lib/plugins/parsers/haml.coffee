@@ -4,17 +4,22 @@ haml = require 'hamljs'
 
 # Define Haml Plugin
 class HamlPlugin extends DocpadPlugin
-	# Plugin Name
+	# Plugin name
 	name: 'haml'
 
-	# Parse Extensions
-	parseExtensions: '.haml'
+	# Plugin priority
+	priority: 725
 
-	# Parse a document
-	parseDocument: ({fileMeta}, next) ->
-		fileMeta.extension = '.html'
-		fileMeta.content = haml.render fileMeta.content
-		next()
+	# Plugin extensions
+	extensions: ['haml']
+
+	# Render some content
+	renderFile: ({fileMeta,templateData}, next) ->
+		try
+			fileMeta.content = haml.render fileMeta.content, locals: templateData
+		catch err
+			return next err
+		next null
 
 # Export Haml Plugin
 module.exports = HamlPlugin
