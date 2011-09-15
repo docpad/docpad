@@ -4,17 +4,22 @@ jade = require 'jade'
 
 # Define Jade Plugin
 class JadePlugin extends DocpadPlugin
-	# Plugin Name
+	# Plugin name
 	name: 'jade'
 
-	# Parse Extensions
-	parseExtensions: '.jade'
+	# Plugin priority
+	priority: 725
 
-	# Parse a document
-	parseDocument: ({fileMeta}, next) ->
-		fileMeta.extension = '.html'
-		fileMeta.content = jade.render fileMeta.content
-		next()
+	# Plugin extensions
+	extensions: ['jade']
+
+	# Render some content
+	renderFile: ({fileMeta,templateData}, next) ->
+		try
+			fileMeta.content = jade.compile(fileMeta.content, {})(templateData)
+		catch err
+			return next err
+		next null
 
 # Export Jade Plugin
 module.exports = JadePlugin

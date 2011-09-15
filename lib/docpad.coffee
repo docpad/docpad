@@ -18,7 +18,7 @@ queryEngine = false
 # Logger
 logger = new caterpillar.Logger
 	transports:
-		level: 6
+		level: 7
 		formatter:
 			module: module
 
@@ -165,33 +165,43 @@ class Docpad
 			data.util = util
 			plugin[eventName].apply plugin, [data,tasks.completer()]
 
-	# Trigger a parseFile event
+	# Trigger the renderFile event
 	# next(err)
-	triggerParseFileEvent: (data,next) ->
+	triggerRenderFileEvent: (data,next) ->
 		# Prepare
 		fileMeta = data.fileMeta
 		count = 0
 
 		# Sync
 		tasks = new util.Group (err) ->
-			logger.log 'debug', "Parsers completed for #{fileMeta.relativePath}"
+			logger.log 'debug', "Renderers completed for #{fileMeta.relativePath}"
 			next err
 
-		if fileMeta.parsers and fileMeta.parsers.length
-			for pluginName in fileMeta.parsers
+		if fileMeta.renderers and fileMeta.renderers.length
+			for pluginName in fileMeta.renderers
 				plugin = @getPlugin pluginName
 				continue  unless plugin
 				++count
 				tasks.push ((plugin,data,tasks) -> ->
 					console.log plugin
-					plugin.parseDocument.apply plugin, [data,tasks.completer()]
+					plugin.renderFile.apply plugin, [data,tasks.completer()]
 				)(plugin,data,tasks)
 		else
 			for plugin in @PluginsArray
-				if plugin.parseExtensions and fileMeta.extension in plugin.parseExtensions
+				runPlugin = false
+
+				if plugin.extensions is true
+					runPlugin = true
+				else if plugin.extensions
+					for extension in fileMeta.extensions
+						if extension in plugin.extensions
+							runPlugin = true
+							break
+				
+				if runPlugin
 					++count
 					tasks.push ((plugin,data,tasks) -> ->
-						plugin.parseDocument.apply plugin, [data,tasks.completer()]
+						plugin.renderFile.apply plugin, [data,tasks.completer()]
 					)(plugin,data,tasks)
 		
 		if count
@@ -371,40 +381,35 @@ class Docpad
 					# Extract part
 					fileBody = fileData
 
-				# Markup
-				fileMeta.extension = path.extname fileFullPath
-				fileMeta.content = fileBody
+				# Extensions
+				fileMeta.basename = path.basename fileFullPath
+				fileMeta.extensions = fileMeta.basename.split /\./g
+				fileMeta.extensions.shift()
+				fileMeta.extension = fileMeta.extensions[0]
+				fileMeta.filename = fileMeta.basename.replace(/\..*/, '')
 
 				# Temp
 				fullDirPath = path.dirname fileFullPath
 				relativeDirPath = path.dirname(fileRelativePath).replace(/^\.$/,'')
 
 				# Update Meta
-				fileMeta.parsers = []
+				fileMeta.content = fileBody
+				fileMeta.contentSrc = fileBody
 				fileMeta.contentRaw = fileData
 				fileMeta.fullPath = fileFullPath
 				fileMeta.relativePath = fileRelativePath
-				fileMeta.relativeBase = (if relativeDirPath.length then relativeDirPath+'/' else '')+path.basename(fileRelativePath,path.extname(fileRelativePath))
+				fileMeta.relativeBase = (if relativeDirPath.length then relativeDirPath+'/' else '')+fileMeta.filename
 				fileMeta.body = fileBody
 				fileMeta.title = fileMeta.title || path.basename(fileFullPath)
 				fileMeta.date = new Date(fileMeta.date || fileStat.ctime)
 				fileMeta.slug = util.generateSlugSync fileMeta.relativeBase
 				fileMeta.id = fileMeta.slug
+				fileMeta.url = '/'+fileMeta.relativeBase+'.'+fileMeta.extension
 
-				# Update Url
-				fileMeta.url = '/'+fileMeta.relativeBase+fileMeta.extension
-				
-				# Parsers
-				docpad.triggerParseFileEvent {fileMeta}, (err) ->
-					return next err  if err
-					
-					# Update Url
-					fileMeta.url = '/'+fileMeta.relativeBase+fileMeta.extension
-					
-					# Plugins
-					docpad.triggerEvent 'parseFileFinished', {fileMeta}, (err) ->
-						# Forward
-						return next err, fileMeta
+				# Plugins
+				docpad.triggerEvent 'parseFileFinished', {fileMeta}, (err) ->
+					# Forward
+					return next err, fileMeta
 
 		# Files Parser
 		parseFiles = (fullPath,callback,nextTask) ->
@@ -511,7 +516,7 @@ class Docpad
 	# Generate render
 	generateRender: (next) ->
 		# Requires
-		eco = require 'eco'	 unless eco
+		docpad = @
 		Layouts = @Layouts
 		Documents = @Documents
 
@@ -519,10 +524,12 @@ class Docpad
 		logger.log 'debug', 'Rendering'
 
 		# Render helper
-		_render = (document,templateData) ->
-			rendered = document.content
-			rendered = eco.render rendered, templateData
-			return rendered
+		_renderFile = (fileMeta,templateData,next) ->
+			fileMeta.content = fileMeta.contentSrc
+			docpad.triggerRenderFileEvent {fileMeta,templateData}, (err) ->
+				renderedContent = fileMeta.content
+				fileMeta.content = fileMeta.contentSrc
+				return next err, renderedContent
 
 		# Render recursive helper
 		_renderRecursive = (content,child,templateData,next) ->
@@ -534,30 +541,30 @@ class Docpad
 					if err
 						return next err
 					else if not parent
-						return next new Error 'Could not find the layout: '+child.layout
+						err = new Error 'Could not find the layout: '+child.layout
+						return next err
 
 					# Render parent
 					templateData.content = content
-					content = _render parent, templateData
-
-					# Recurse
-					_renderRecursive content, parent, templateData, next
+					_renderFile parent, templateData, (err,content) ->
+						return next err  if err
+						_renderRecursive content, parent, templateData, next
+					
 			# Handle loner
 			else
 				next content
 
 		# Render
-		render = (document,templateData,next) ->
+		renderDocument = (document,templateData,next) ->
 			# Adjust templateData
 			templateData.document = templateData.Document = document
 
 			# Render original
-			renderedContent = _render document, templateData
-
-			# Wrap in parents
-			_renderRecursive renderedContent, document, templateData, (contentRendered) ->
-				document.contentRendered = contentRendered
-				next()
+			_renderFile document, templateData, (err,content) ->
+				# Wrap in parents
+				_renderRecursive content, document, templateData, (contentRendered) ->
+					document.contentRendered = contentRendered
+					next()
 
 		# Async
 		tasks = new util.Group (err) -> next err
@@ -582,7 +589,7 @@ class Docpad
 			# Render documents
 			tasks.total += documents.length
 			documents.forEach (document) ->
-				render(
+				renderDocument(
 					# Document
 					document
 					# templateData
