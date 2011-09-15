@@ -13,16 +13,16 @@ program
 	.option('-z, --server'							, 'wth is this? ** FIX ME **')
 	.parse(process.argv)
 
-config = {
-	'command'				: ( if (program.command 			is true) then 'cmd' else undefined ),
-	'rootPath'			: ( if (program.rootpath 			is true) then 'root' else './' ),
-	'outPath'				: ( if (program.outpath 			is true) then 'out' else './out' ),
-	'srcPath'				: ( if (program.srcpath 			is true) then 'src' else './src' ),
-	'skeletonsPath'	: ( if (program.skeletonspath is true) then 'skel' else './skeletons' ),
-	'maxAge'				: ( if (program.maxage 				is true) then 'maxage' else undefined ),
-	'port'					: ( if (program.listen 				is true) then 'port' else 9788 ),
-	'server'				: ( program.server? )
-}
+config = 	
+	command				: ( program.command  			),
+	rootPath			: ( program.rootpath 			),
+	outPath				: ( program.outpath 			),
+	srcPath				: ( program.srcpath				),
+	skeletonsPath	: ( program.skeletonspath ),
+	maxage				: ( program.maxage 				),
+	port					: ( program.listen 				),
+	server				: ( program.server 				)
+
 #create a config object and call the istance with the
 #docpad.createInstance(config).action process.argv[2] || false
 console.log(config)
