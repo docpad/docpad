@@ -14,9 +14,9 @@ class JadePlugin extends DocpadPlugin
 	extensions: ['jade']
 
 	# Render some content
-	renderFile: ({fileMeta,templateData}, next) ->
+	renderFile: ({file,templateData}, next) ->
 		try
-			fileMeta.content = jade.compile(fileMeta.content, {})(templateData)
+			file.content = jade.compile(file.content, {})(templateData)
 		catch err
 			return next err
 		next null

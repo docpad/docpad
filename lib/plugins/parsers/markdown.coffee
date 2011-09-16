@@ -14,9 +14,9 @@ class MarkdownPlugin extends DocpadPlugin
 	extensions: ['md','markdown']
 
 	# Render some content
-	renderFile: ({fileMeta,templateData}, next) ->
+	renderFile: ({file,templateData}, next) ->
 		try
-			fileMeta.content = markdown.parse fileMeta.content
+			file.content = markdown.parse file.content
 		catch err
 			return next err
 		next null

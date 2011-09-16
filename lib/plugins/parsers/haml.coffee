@@ -14,9 +14,9 @@ class HamlPlugin extends DocpadPlugin
 	extensions: ['haml']
 
 	# Render some content
-	renderFile: ({fileMeta,templateData}, next) ->
+	renderFile: ({file,templateData}, next) ->
 		try
-			fileMeta.content = haml.render fileMeta.content, locals: templateData
+			file.content = haml.render file.content, locals: templateData
 		catch err
 			return next err
 		next null
