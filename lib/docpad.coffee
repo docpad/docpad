@@ -57,6 +57,12 @@ String::finishesWith = (suffix) ->
 
 
 # -------------------------------------
+# Collections
+
+Layouts = {}
+Documents = {}
+
+# -------------------------------------
 # Models
 
 class File
@@ -72,6 +78,7 @@ class File
 	content: null
 	contentSrc: null
 	contentRaw: null
+	contentRendered: null
 
 	# User
 	title: null
@@ -86,12 +93,16 @@ class File
 	constructor: (fullPath,relativePath) ->
 		@fullPath = fullPath
 		@relativePath = relativePath
+		@extensions = []
 		@tags = []
 		@relatedDocuments = []
 
 	# Load
 	# next(err)
 	load: (next) ->
+		# Log
+		logger.log 'debug', "Reading the file #{@relativePath}"
+
 		# Async
 		tasks = new util.Group (err) =>
 			if err
@@ -152,9 +163,49 @@ class File
 
 			# Complete
 			tasks.complete()
+	
+	# getParent
+	# next(err,layout)
+	getLayout: (next) ->
+		# Find parent
+		Layouts.findOne {relativeBase:@layout}, (err,layout) ->
+			# Check
+			if err
+				return next err
+			else if not layout
+				err = new Error 'Could not find the layout: '+@layout
+				return next err
+			else
+				return next null, layout
+
+	# Render
+	# next(err)
+	render: (triggerRenderEvent,templateData,next) ->
+		# Log
+		logger.log 'debug', "Rendering the file #{@relativePath}"
+
+		# Render
+		@content = @contentSrc
+		triggerRenderEvent {file:@,templateData}, (err) =>
+			return next err  if err
+
+			# Fetch
+			@contentRendered = @content
+			@content = @contentSrc
+
+			# Recurse
+			if @layout
+				@getLayout (err,layout) =>
+					return next err  if err
+					templateData.content = @contentRendered
+					layout.render triggerRenderEvent, templateData, (err) =>
+						@contentRendered = layout.contentRendered
+						next err
+			else
+				next err
+
 
 class Layout extends File
-	
 class Document extends File
 
 
@@ -181,19 +232,17 @@ class Docpad
 	# Models
 	Layout: Layout
 	Document: Document
-	Layouts: {}
-	Documents: {}
+	Layouts: Layouts
+	Documents: Documents
+	
+	# Plugins
+	PluginsArray: []
+	PluginsObject: {}
 	
 
 	# ---------------------------------
 	# Plugins
 
-	# Plugins Array
-	PluginsArray: []
-
-	# Plugins Object
-	PluginsObject: {}
-	
 	# Register a Plugin
 	# next(err)
 	registerPlugin: (plugin,next) ->
@@ -246,18 +295,19 @@ class Docpad
 
 	# Trigger the renderFile event
 	# next(err)
-	triggerRenderFileEvent: (data,next) ->
+	triggerRenderEvent: (data,next) ->
 		# Prepare
-		fileMeta = data.fileMeta
+		file = data.file
+		templateData = data.templateData
 		count = 0
 
 		# Sync
 		tasks = new util.Group (err) ->
-			logger.log 'debug', "Renderers completed for #{fileMeta.relativePath}"
+			logger.log 'debug', "Renderers completed for #{file.relativePath}"
 			next err
 
-		if fileMeta.renderers and fileMeta.renderers.length
-			for pluginName in fileMeta.renderers
+		if file.renderers and file.renderers.length
+			for pluginName in file.renderers
 				plugin = @getPlugin pluginName
 				continue  unless plugin
 				++count
@@ -271,7 +321,7 @@ class Docpad
 				if plugin.extensions is true
 					runPlugin = true
 				else if plugin.extensions
-					for extension in fileMeta.extensions
+					for extension in file.extensions
 						if extension in plugin.extensions
 							runPlugin = true
 							break
@@ -326,6 +376,8 @@ class Docpad
 	# Init
 	constructor: ({command,rootPath,outPath,srcPath,skeletonsPath,maxAge,port,server}={}) ->
 		# Options
+		@PluginsArray = []
+		@PluginsObject = {}
 		command = command || process.argv[2] || false
 		@rootPath = rootPath || process.cwd()
 		@outPath = outPath || @rootPath+'/'+@outPath
@@ -341,14 +393,13 @@ class Docpad
 
 	# Clean Models
 	cleanModels: (next) ->
-		Layouts = @Layouts = new queryEngine.Collection
-		Documents = @Documents = new queryEngine.Collection
-		@Layout::save = ->
+		@Layouts = Layouts = new queryEngine.Collection
+		@Documents = Documents = new queryEngine.Collection
+		Layout::save = ->
 			Layouts[@id] = @
-		@Document::save = ->
+		Document::save = ->
 			Documents[@id] = @
 		next()  if next
-	
 
 	# Handle
 	action: (action) ->
@@ -423,13 +474,7 @@ class Docpad
 	generateParse: (nextTask) ->
 		# Requires
 		yaml = require 'yaml'  unless yaml
-
-		# Prepare
 		docpad = @
-		Layout = @Layout
-		Document = @Document
-		Layouts = @Layouts
-		Documents = @Documents
 
 		# Log
 		logger.log 'debug', 'Parsing files'
@@ -497,59 +542,11 @@ class Docpad
 
 	# Generate render
 	generateRender: (next) ->
-		# Requires
 		docpad = @
-		Layouts = @Layouts
-		Documents = @Documents
-
-		# Log
-		logger.log 'debug', 'Rendering'
-
-		# Render helper
-		_renderFile = (fileMeta,templateData,next) ->
-			fileMeta.content = fileMeta.contentSrc
-			docpad.triggerRenderFileEvent {fileMeta,templateData}, (err) ->
-				renderedContent = fileMeta.content
-				fileMeta.content = fileMeta.contentSrc
-				return next err, renderedContent
-
-		# Render recursive helper
-		_renderRecursive = (content,child,templateData,next) ->
-			# Handle parent
-			if child.layout
-				# Find parent
-				Layouts.findOne {relativeBase:child.layout}, (err,parent) ->
-					# Check
-					if err
-						return next err
-					else if not parent
-						err = new Error 'Could not find the layout: '+child.layout
-						return next err
-
-					# Render parent
-					templateData.content = content
-					_renderFile parent, templateData, (err,content) ->
-						return next err  if err
-						_renderRecursive content, parent, templateData, next
-					
-			# Handle loner
-			else
-				next content
-
-		# Render
-		renderDocument = (document,templateData,next) ->
-			# Adjust templateData
-			templateData.document = templateData.Document = document
-
-			# Render original
-			_renderFile document, templateData, (err,content) ->
-				# Wrap in parents
-				_renderRecursive content, document, templateData, (contentRendered) ->
-					document.contentRendered = contentRendered
-					next()
 
 		# Async
-		tasks = new util.Group (err) -> next err
+		tasks = new util.Group (err) ->
+			next err
 
 		# Prepare site data
 		Site = site =
@@ -571,12 +568,11 @@ class Docpad
 			# Render documents
 			tasks.total += documents.length
 			documents.forEach (document) ->
-				renderDocument(
-					# Document
-					document
-					# templateData
+				templateData.document = templateData.Document = document
+				document.render(
+					(args...) ->
+						docpad.triggerRenderEvent.apply(docpad,args)
 					templateData
-					# next
 					tasks.completer()
 				)
 
@@ -599,7 +595,6 @@ class Docpad
 
 	# Write documents
 	generateWriteDocuments: (next) ->
-		Documents = @Documents
 		outPath = @outPath
 		logger.log 'debug', 'Writing documents'
 
@@ -630,28 +625,23 @@ class Docpad
 	# Write
 	generateWrite: (next) ->
 		# Handle
-		logger.log 'debug', 'Writing files'
-		util.parallel \
-			# Tasks
-			[
-				# Files
-				(next) =>
-					@generateWriteFiles (err) ->
-						unless err
-							logger.log 'debug', 'Wrote layouts'
-						next err
-				# Documents
-				(next) =>
-					@generateWriteDocuments (err) ->
-						unless err
-							logger.log 'debug', 'Wrote documents'
-						next err
-			],
-			# Completed
-			(err) ->
-				unless err
-					logger.log 'debug', 'Wrote files'
-				next err
+		logger.log 'debug', 'Writing everything'
+
+		# Async
+		tasks = new util.Group (err) ->
+			logger.log 'debug', 'Wrote everything'  unless err
+			next err
+		tasks.total = 2
+
+		# Files
+		@generateWriteFiles (err) ->
+			logger.log 'debug', 'Wrote files'  unless err
+			next err
+		
+		# Documents
+		@generateWriteDocuments (err) ->
+			logger.log 'debug', 'Wrote documents'  unless err
+			next err
 
 
 	# Generate

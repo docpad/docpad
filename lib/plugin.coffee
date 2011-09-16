@@ -28,10 +28,6 @@ class DocpadPlugin
 	cleanFinished: ({docpad},next) ->
 		next null
 
-	# Parsing a file has finished
-	parseFileFinished: ({docpad,fileMeta},next) ->
-		next null
-	
 	# Parsing all files has finished
 	parseFinished: ({docpad},next) ->
 		next null
@@ -41,7 +37,7 @@ class DocpadPlugin
 		next null
 	
 	# Render a file
-	renderFile: ({docpad,fileMeta,templateData},next) ->
+	renderFile: ({docpad,file,templateData},next) ->
 		next null
 	
 	# Rendering all files has finished

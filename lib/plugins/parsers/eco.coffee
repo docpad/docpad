@@ -14,9 +14,9 @@ class EcoPlugin extends DocpadPlugin
 	extensions: true
 
 	# Render some content
-	renderFile: ({fileMeta,templateData}, next) ->
+	renderFile: ({file,templateData}, next) ->
 		try
-			fileMeta.content = eco.render fileMeta.content, templateData
+			file.content = eco.render file.content, templateData
 		catch err
 			return next err
 		next null
