@@ -96,6 +96,9 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 		git clone git://github.com/balupton/docpad.git
 		cd docpad
 		git checkout v0.11
+		npm install
+		git submodule init
+		git submodule update
 		npm link
 
 
