@@ -1,3 +1,6 @@
 [submodule "skeletons/balupton"]
 	path = skeletons/balupton
 	url = git://github.com/balupton/balupton.docpad.git
+[submodule "skeletons/bootstrap"]
+	path = skeletons/bootstrap
+	url = git://github.com/balupton/bootstrap.docpad.git

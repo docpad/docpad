@@ -36,7 +36,7 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 		<div><%-@content%></div>
 		```
 
-	- And a document at `src/documents/posts/hello.md`, which contains:
+	- And a document at `src/documents/posts/hello.html.md`, which contains:
 
 		``` html
 		---
@@ -130,9 +130,9 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 ### Renderers
 
 * [Markdown](http://daringfireball.net/projects/markdown/basics) - Markup Made Easy
+* [Eco](https://github.com/sstephenson/eco) - Templating Made Easy
 * [Jade](https://github.com/visionmedia/jade) - HTML Made Easy
 * [Haml](https://github.com/visionmedia/haml.js) - Markup Haiku
-* [Eco](https://github.com/sstephenson/eco) - Templating Made Easy
 
 
 ## Learning
@@ -146,6 +146,10 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 	- The concept of template engines and markup languages have been merged into the concept of renderers
 	- Clean urls plugin could do with some work
 	- Documentation of the new document extension handling needs to be done
+	- Ordering of parsers in regards to extensions should be right to left
+	- Currently breaks backwards compatibility which needs to be fixed...
+		- Output extension should be the first extension of the most parent layout they use
+		- With this, it is still possible to inherit backwards compatibility
 
 - v0.10 September 14, 2011
 	- Plugin infrastructure
