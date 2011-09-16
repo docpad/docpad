@@ -22,7 +22,6 @@ logger = new caterpillar.Logger
 		formatter:
 			module: module
 
-
 # -------------------------------------
 # Prototypes
 
@@ -56,8 +55,111 @@ String::startsWith = (prefix) ->
 String::finishesWith = (suffix) ->
 	return @indexOf(suffix) is @length-1
 
+
 # -------------------------------------
-# Main
+# Models
+
+class File
+	# Auto
+	id: null
+	basename: null
+	extensions: []
+	extension: null
+	filename: null
+	fullPath: null
+	relativePath: null
+	relativeBase: null
+	content: null
+	contentSrc: null
+	contentRaw: null
+
+	# User
+	title: null
+	date: null
+	slug: null
+	url: null
+	ignore: false
+	tags: []
+	relatedDocuments: []
+
+	# Constructor
+	constructor: (fullPath,relativePath) ->
+		@fullPath = fullPath
+		@relativePath = relativePath
+		@tags = []
+		@relatedDocuments = []
+
+	# Load
+	# next(err)
+	load: (next) ->
+		# Async
+		tasks = new util.Group (err) =>
+			if err
+				logger.log 'err', "Failed to read the file #{@relativePath}"
+			else
+				logger.log 'debug', "Read the file #{@relativePath}"
+			next err
+		tasks.total = 2
+
+		# Stat the file
+		fs.stat @fullPath, (err,fileStat) =>
+			return next err  if err
+			@date = fileStat.ctime
+			tasks.complete()
+
+		# Read the file
+		fs.readFile @fullPath, (err,data) =>
+			return next err  if err
+
+			# Handle data
+			fileData = data.toString()
+			fileSplit = fileData.split '---'
+			fileMeta = {}
+			if fileSplit.length >= 3 and !fileSplit[0]
+				# Extract parts
+				fileHead = fileSplit[1].replace(/\t/g,'    ').replace(/\s+$/m,'').replace(/\r\n?/g,'\n')+'\n'
+				fileBody = fileSplit.slice(2).join('---')
+				fileMeta = yaml.eval fileHead
+			else
+				# Extract part
+				fileBody = fileData
+
+			# Extensions
+			@basename = path.basename @fullPath
+			@extensions = @basename.split /\./g
+			@extensions.shift()
+			@extension = @extensions[0]
+			@filename = @basename.replace(/\..*/, '')
+
+			# Temp
+			fullDirPath = path.dirname @fullPath
+			relativeDirPath = path.dirname(@relativePath).replace(/^\.$/,'')
+
+			# Update Meta
+			@content = fileBody
+			@contentSrc = fileBody
+			@contentRaw = fileData
+			@relativeBase = (if relativeDirPath.length then relativeDirPath+'/' else '')+@filename
+			@title = @title || path.basename(@fullPath)
+			@date = new Date(@date)  if @date
+			@slug = util.generateSlugSync @relativeBase
+			@id = @slug
+			@url = '/'+@relativeBase+'.'+@extension
+
+			# Apply User Meta
+			for own key, value of fileMeta
+				@[key] = value
+
+			# Complete
+			tasks.complete()
+
+class Layout extends File
+	
+class Document extends File
+
+
+# -------------------------------------
+# Docpad
 
 class Docpad
 
@@ -77,32 +179,8 @@ class Docpad
 	port: 9778
 
 	# Models
-	Layout: class
-		layout: ''
-		fullPath: ''
-		relativePath: ''
-		relativeBase: ''
-		body: ''
-		contentRaw: ''
-		content: ''
-		date: new Date()
-		title: ''
-	Document: class
-		layout: ''
-		fullPath: ''
-		relativePath: ''
-		relativeBase: ''
-		url: ''
-		tags: []
-		relatedDocuments: []
-		body: ''
-		contentRaw: ''
-		content: ''
-		contentRendered: ''
-		date: new Date()
-		title: ''
-		slug: ''
-		ignore: false
+	Layout: Layout
+	Document: Document
 	Layouts: {}
 	Documents: {}
 	
@@ -184,7 +262,6 @@ class Docpad
 				continue  unless plugin
 				++count
 				tasks.push ((plugin,data,tasks) -> ->
-					console.log plugin
 					plugin.renderFile.apply plugin, [data,tasks.completer()]
 				)(plugin,data,tasks)
 		else
@@ -261,6 +338,7 @@ class Docpad
 			logger.log 'info', 'Finished loading'
 			@loading = false
 
+
 	# Clean Models
 	cleanModels: (next) ->
 		Layouts = @Layouts = new queryEngine.Collection
@@ -271,6 +349,7 @@ class Docpad
 			Documents[@id] = @
 		next()  if next
 	
+
 	# Handle
 	action: (action) ->
 		switch action
@@ -305,6 +384,7 @@ class Docpad
 								throw err  if err
 								logger.log 'info', 'DocPad is is now watching and serving you...'
 
+
 	# Clean the database
 	generateClean: (next) ->
 		# Prepare
@@ -314,26 +394,30 @@ class Docpad
 		@cleanModels()
 		
 		# Async
-		util.parallel \
-			# Tasks
-			[
-				(next) =>
-					@Layouts.remove {}, (err) ->
-						unless err
-							logger.log 'debug', 'Cleaned layouts'
-						next err
+		tasks = new util.Group (err) ->
+			logger.log 'debug', 'Cleaning finished'  unless err
+			next err
+		tasks.total = 2
 
-				(next) =>
-					@Documents.remove {}, (err) ->
-						unless err
-							logger.log 'debug', 'Cleaned documents'
-						next err
-			],
-			# Completed
-			(err) ->
-				unless err
-					logger.log 'debug', 'Cleaning finished'
-				next err
+		# Layouts
+		@Layouts.remove {}, (err) ->
+			logger.log 'debug', 'Cleaned layouts'  unless err
+			tasks.complete err
+		
+		# Documents
+		@Documents.remove {}, (err) ->
+			logger.log 'debug', 'Cleaned documents'  unless err
+			tasks.complete err
+	
+
+	# Check if the file path is ignored
+	# next(err,ignore)
+	filePathIgnored: (fileFullPath,next) ->
+		if path.basename(fileFullPath).startsWith('.') or path.basename(fileFullPath).finishesWith('~')
+			next null, true
+		else
+			next null, false
+
 
 	# Parse the files
 	generateParse: (nextTask) ->
@@ -354,165 +438,62 @@ class Docpad
 		layoutsSrcPath = @srcPath+'/layouts'
 		documentsSrcPath = @srcPath+'/documents'
 
-		# File Parser
-		parseFile = (fileFullPath,fileRelativePath,fileStat,next) ->
-			# Prepare
-			fileMeta = {}
-			fileData = ''
-			fileSplit = []
-			fileHead = ''
-			fileBody = ''
+		# Async
+		tasks = new util.Group (err) ->
+			logger.log 'debug', 'Parsed files'  unless err
+			nextTask err
+		tasks.total = 2
 
-			# Log
-			logger.log 'debug', 'Parsing the file ['+fileRelativePath+']'
+		# Layouts
+		util.scandir(
+			# Path
+			layoutsSrcPath,
 
-			# Read the file
-			fs.readFile fileFullPath, (err,data) ->
-				return next err  if err
-
-				# Handle data
-				fileData = data.toString()
-				fileSplit = fileData.split '---'
-				if fileSplit.length >= 3 and !fileSplit[0]
-					# Extract parts
-					fileHead = fileSplit[1].replace(/\t/g,'    ').replace(/\s+$/m,'').replace(/\r\n?/g,'\n')+'\n'
-					fileBody = fileSplit.slice(2).join('---')
-					fileMeta = yaml.eval fileHead
-				else
-					# Extract part
-					fileBody = fileData
-
-				# Extensions
-				fileMeta.basename = path.basename fileFullPath
-				fileMeta.extensions = fileMeta.basename.split /\./g
-				fileMeta.extensions.shift()
-				fileMeta.extension = fileMeta.extensions[0]
-				fileMeta.filename = fileMeta.basename.replace(/\..*/, '')
-
-				# Temp
-				fullDirPath = path.dirname fileFullPath
-				relativeDirPath = path.dirname(fileRelativePath).replace(/^\.$/,'')
-
-				# Update Meta
-				fileMeta.content = fileBody
-				fileMeta.contentSrc = fileBody
-				fileMeta.contentRaw = fileData
-				fileMeta.fullPath = fileFullPath
-				fileMeta.relativePath = fileRelativePath
-				fileMeta.relativeBase = (if relativeDirPath.length then relativeDirPath+'/' else '')+fileMeta.filename
-				fileMeta.body = fileBody
-				fileMeta.title = fileMeta.title || path.basename(fileFullPath)
-				fileMeta.date = new Date(fileMeta.date || fileStat.ctime)
-				fileMeta.slug = util.generateSlugSync fileMeta.relativeBase
-				fileMeta.id = fileMeta.slug
-				fileMeta.url = '/'+fileMeta.relativeBase+'.'+fileMeta.extension
-
-				# Plugins
-				docpad.triggerEvent 'parseFileFinished', {fileMeta}, (err) ->
-					# Forward
-					return next err, fileMeta
-
-		# Files Parser
-		parseFiles = (fullPath,callback,nextTask) ->
-			util.scandir(
-				# Path
-				fullPath,
-
-				# File Action
-				(fileFullPath,fileRelativePath,nextFile) ->
-					# Ignore hidden files
-					if path.basename(fileFullPath).startsWith('.') or path.basename(fileFullPath).finishesWith('~')
-						logger.log 'info', 'Ignored hidden document:', fileRelativePath
-						return nextFile()
-
-					# Stat file
-					fs.stat fileFullPath, (err,fileStat) ->
-						# Check error
+			# File Action
+			(fileFullPath,fileRelativePath,nextFile) ->
+				# Ignore?
+				docpad.filePathIgnored fileFullPath, (err,ignore) ->
+					return nextFile(err)  if err or ignore
+					layout = new Layout fileFullPath, fileRelativePath
+					layout.load (err) ->
 						return nextFile err  if err
-
-						# Parse file
-						parseFile fileFullPath,fileRelativePath,fileStat, (err,fileMeta) ->
-							return nextFile err  if err
-
-							# Were we ignored?
-							if fileMeta.ignore
-								logger.log 'info', 'Ignored document:', fileRelativePath
-								return nextFile()
-
-							# We are cared about! Yay!
-							else
-								callback fileMeta, nextFile
-				
-				# Dir Action
-				false,
-
-				# Next
-				(err) ->
-					if err
-						logger.log 'warn', 'Failed to parse the directory:', fullPath, err
-					nextTask err
-			)
-
-		# Parse Files
-		util.parallel \
-			# Tasks
-			[
-				# Layouts
-				(taskCompleted) -> parseFiles(
-					# Full Path
-					layoutsSrcPath,
-					# Callback: Each File
-					(fileMeta,nextFile) ->
-						# Prepare
-						layout = new Layout()
-
-						# Apply
-						for own key, fileMetaValue of fileMeta
-							layout[key] = fileMetaValue
-
-						# Save
 						layout.save()
-						logger.log 'debug', 'Parsed layout:', layout.relativeBase
-						nextFile()
-					,
-					# All Parsed
-					(err) ->
-						unless err
-							logger.log 'debug', 'Parsed layouts'
-						taskCompleted err
-				),
-				# Documents
-				(taskCompleted) -> parseFiles(
-					# Full Path
-					documentsSrcPath,
-					# One Parsed
-					(fileMeta,nextFile) ->
-						# Prepare
-						document = new Document()
+						nextFile err
+				
+			# Dir Action
+			false,
 
-						# Apply
-						for own key, fileMetaValue of fileMeta
-							document[key] = fileMetaValue
-
-						# Save
-						document.save()
-						logger.log 'debug', 'Parsed document:', document.relativeBase
-						nextFile()
-					,
-					# All Parsed
-					(err) ->
-						unless err
-							logger.log 'debug', 'Parsing documents finished'
-						else
-							logger.log 'err', 'Parsing documents failed', err
-						taskCompleted err
-				)
-			],
-			# Completed
+			# Next
 			(err) ->
-				unless err
-					logger.log 'debug', 'Parsed files'
-				nextTask err
+				logger.log 'warn', 'Failed to parse layouts', err  if err
+				tasks.complete err
+		)
+
+		# Documents
+		util.scandir(
+			# Path
+			documentsSrcPath,
+
+			# File Action
+			(fileFullPath,fileRelativePath,nextFile) ->
+				# Ignore?
+				docpad.filePathIgnored fileFullPath, (err,ignore) ->
+					return nextFile(err)  if err or ignore
+					document = new Document fileFullPath, fileRelativePath
+					document.load (err) ->
+						return nextFile err  if err
+						document.save()
+						nextFile err
+			
+			# Dir Action
+			false,
+
+			# Next
+			(err) ->
+				logger.log 'warn', 'Failed to parse documents', err  if err
+				tasks.complete err
+		)
+
 
 	# Generate render
 	generateRender: (next) ->
@@ -599,6 +580,7 @@ class Docpad
 					tasks.completer()
 				)
 
+
 	# Write files
 	generateWriteFiles: (next) ->
 		logger.log 'debug', 'Copying files'
@@ -613,6 +595,7 @@ class Docpad
 					logger.log 'debug', 'Copied files'
 				next err
 		)
+
 
 	# Write documents
 	generateWriteDocuments: (next) ->
@@ -634,7 +617,6 @@ class Docpad
 			documents.forEach (document) ->
 				# Generate path
 				fileFullPath = outPath+'/'+document.url #relativeBase+'.html'
-
 				# Ensure path
 				util.ensurePath path.dirname(fileFullPath), (err) ->
 					# Error
@@ -643,6 +625,7 @@ class Docpad
 					# Write document
 					fs.writeFile fileFullPath, document.contentRendered, (err) ->
 						tasks.complete err
+
 
 	# Write
 	generateWrite: (next) ->
@@ -669,6 +652,7 @@ class Docpad
 				unless err
 					logger.log 'debug', 'Wrote files'
 				next err
+
 
 	# Generate
 	generateAction: (next) ->
@@ -746,6 +730,7 @@ class Docpad
 													docpad.generating = false
 												next err
 
+
 	# Watch
 	watchAction: (next) ->
 		# Requires
@@ -775,6 +760,7 @@ class Docpad
 		# Next
 		next()
 
+
 	# Skeleton
 	skeletonAction: (next) ->
 		# Prepare
@@ -795,6 +781,7 @@ class Docpad
 					unless err
 						logger.log 'info', 'Copied the skeleton'
 					next err
+
 
 	# Server
 	serverAction: (next) ->
@@ -829,6 +816,7 @@ class Docpad
 		@triggerEvent 'serverFinished', {@server}, (err) ->
 			# Forward
 			next err
+
 
 # API
 docpad =
