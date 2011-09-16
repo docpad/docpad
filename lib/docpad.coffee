@@ -66,6 +66,7 @@ class Docpad
 	outPath: 'out'
 	srcPath: 'src'
 	skeletonsPath: 'skeletons'
+	defaultSkeleton: 'bootstrap'
 	maxAge: false
 
 	# Docpad
@@ -778,7 +779,7 @@ class Docpad
 	skeletonAction: (next) ->
 		# Prepare
 		docpad = @
-		skeleton = (process.argv.length >= 3 and process.argv[2] is 'skeleton' and process.argv[3]) || 'balupton'
+		skeleton = (process.argv.length >= 3 and process.argv[2] is 'skeleton' and process.argv[3]) || @defaultSkeleton
 		skeletonPath = @skeletonsPath + '/' + skeleton
 		toPath = (process.argv.length >= 5 and process.argv[2] is 'skeleton' and process.argv[4]) || @rootPath
 		toPath = util.prefixPathSync(toPath,@rootPath)
@@ -831,6 +832,7 @@ class Docpad
 
 # API
 docpad =
+	Docpad: Docpad
 	createInstance: (config) ->
 		return new Docpad(config)
 
