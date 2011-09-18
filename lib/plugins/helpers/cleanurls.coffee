@@ -12,6 +12,7 @@ class CleanUrlsPlugin extends DocpadPlugin
 	serverFinished: ({docpad,server},next) ->
 		# Try .html for urls with no extension
 		docpad.server.all /\/[a-z0-9\-]+\/?$/i, (req,res,next) =>
+			# should can for relativeBase
 			filePath = docpad.outPath+req.url.replace(/\.\./g,'')+'.html' # stop tricktsers
 			path.exists filePath, (exists) ->
 				if exists

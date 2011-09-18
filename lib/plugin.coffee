@@ -4,14 +4,14 @@ class DocpadPlugin
 	# ---------------------------------
 	# Variables
 
-	# Plugin Name
+	# Plugin name
 	name: null
 
-	# Plugin Priority
+	# Plugin priority
 	priority: 500
 
 	# Scan these extensions
-	parseExtensions: []
+	extensions: []
 
 	# Constructor
 	constructor: ->
@@ -28,35 +28,27 @@ class DocpadPlugin
 	cleanFinished: ({docpad},next) ->
 		next null
 
-	# Parse a file
-	parseFile: ({docpad,fileMeta},next) ->
-		next null
-	
-	# Parsing a file has finished
-	parseFileFinished: ({docpad,fileMeta},next) ->
-		next null
-	
 	# Parsing all files has finished
 	parseFinished: ({docpad},next) ->
 		next null
 	
-	# Rendering has started
+	# Rendering all files has started
 	renderStarted: ({docpad,templateData},next) ->
 		next null
 	
-	# Rendering a file has started
-	renderFileStarted: ({docpad,document,templateData},next) ->
+	# Render a file
+	renderFile: ({docpad,file,templateData},next) ->
 		next null
 	
-	# Run when rendering all files has finished
+	# Rendering all files has finished
 	renderFinished: ({docpad},next) ->
 		next null
 
-	# Run when writing all files has finished
+	# Writing all files has finished
 	writeFinished: ({docpad},next) ->
 		next null
 
-	# Run when the server setup has finished
+	# Setting up the server has finished
 	serverFinished: ({docpad,server},next) ->
 		next null
 
