@@ -13,9 +13,9 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 			- files
 			- layouts
 
-2. And you were to create the following files:
+1. And you were to create the following files:
 
-	- A layout at `src/layouts/default.html`, which contains
+	- A layout at `src/layouts/default.html.eco`, which contains
 		
 		``` html
 		<html>
@@ -26,7 +26,7 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 		</html>
 		```
 
-	- And a layout at `src/layouts/post.html`, which contains:
+	- And a layout at `src/layouts/post.html.eco`, which contains:
 
 		``` html
 		---
@@ -46,7 +46,7 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 		Hello **World!**
 		```
 
-3. Then when you generate your website with docpad you will get a html file at `out/posts/hello.html`, which contains:
+1. Then when you generate your website with docpad you will get a html file at `out/posts/hello.html`, which contains:
 
 	``` html
 	<html>
@@ -58,13 +58,13 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 	</html>
 	```
 
-4. And any files that you have in `src/files` will be copied to the `out` directory. E.g. `src/files/styles/style.css` -> `out/styles/style.css`
+1. And any files that you have in `src/files` will be copied to the `out` directory. E.g. `src/files/styles/style.css` -> `out/styles/style.css`
 
-5. Allowing you to easily generate a website which only changes (and automatically updates) when a document changes (which when you think about it; is the majority of websites)
+1. Allowing you to easily generate a website which only changes (and automatically updates) when a document changes (which when you think about it; is the majority of websites)
 
-6. Cool, now what was with the `<%=...%>` and `<%-...%>` parts which were substituted away?
+1. Cool, now what was with the `<%=...%>` and `<%-...%>` parts which were substituted away?
 
-	- This is possible because we parse the documents and layouts through a template rendering engine. The template rendering engine we use is [Eco](https://github.com/sstephenson/eco) which allows you to do some pretty nifty things. In fact we can display the all titles and links of our posts with the following html:
+	- This is possible because we parse the documents and layouts through a template rendering engine. The template rendering engine used in this example was [Eco](https://github.com/sstephenson/eco) (hence the `.eco` extensions of the layouts). Templating engines allows you to do some pretty nifty things, in fact we could display the all titles and links of our posts with the following html:
 		
 		``` html
 		<% for Document in @Documents: %>
@@ -73,10 +73,15 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 			<% end %>
 		<% end %>
 		```
+	
+	- DocPad also supports a series of other templating engines which are listed later on :-)
 
-6. Cool that makes sense... now how did `Hello **World!**` in our document get converted into `Hello <strong>World!</strong>`?
 
-	- That was possible as that file was a [Markdown](http://daringfireball.net/projects/markdown/basics) file (i.e. it had the `.md` extension). Markdown is a great markup language as with it you have an extremely simple and readable document which generates a rich semantic HTML document. DocPad also supports a series of other markup languages which are listed later on.
+1. Cool that makes sense... now how did `Hello **World!**` in our document get converted into `Hello <strong>World!</strong>`?
+
+	- That was possible as that file was a [Markdown](http://daringfireball.net/projects/markdown/basics) file (i.e. it had the `.md` extension). Markdown is a great markup language as with it you have an extremely simple and readable document which generates a rich semantic HTML document.
+
+	- DocPad also supports a series of other markup languages which are listed later on :-)
 
 
 ## Installing
@@ -143,7 +148,11 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 * [Markdown](http://daringfireball.net/projects/markdown/basics) - Markup Made Easy
 * [Eco](https://github.com/sstephenson/eco) - Templating Made Easy
 * [Jade](https://github.com/visionmedia/jade) - HTML Made Easy
-* [Haml](https://github.com/visionmedia/haml.js) - Markup Haiku
+* [HAML](https://github.com/visionmedia/haml.js) - Markup Haiku
+
+### Extensions
+
+DocPad is also quite extensible, it's easy to add support for new renderers and even add funky new functionality ontop of docpad! [Check out what others are making](https://github.com/balupton/docpad/wiki/Extensions), or [learn to make your own extensions here.](https://github.com/balupton/docpad/wiki/Extending)
 
 
 ## Learning
