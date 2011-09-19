@@ -64,7 +64,7 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 
 1. Cool, now what was with the `<%=...%>` and `<%-...%>` parts which were substituted away?
 
-	- This is possible because we parse the documents and layouts through a template rendering engine. The template rendering engine used in this example was [Eco](https://github.com/sstephenson/eco) (hence the `.eco` extensions of the layouts). Templating engines allows you to do some pretty nifty things, in fact we could display the all titles and links of our posts with the following html:
+	- This is possible because we parse the documents and layouts through a template rendering engine. The template rendering engine used in this example was [Eco](https://github.com/sstephenson/eco) (hence the `.eco` extensions of the layouts). Templating engines allows you to do some pretty nifty things, in fact we could display all the titles and links of our posts with the following:
 		
 		``` html
 		<% for Document in @Documents: %>
@@ -79,7 +79,7 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 
 1. Cool that makes sense... now how did `Hello **World!**` in our document get converted into `Hello <strong>World!</strong>`?
 
-	- That was possible as that file was a [Markdown](http://daringfireball.net/projects/markdown/basics) file (i.e. it had the `.md` extension). Markdown is a great markup language as with it you have an extremely simple and readable document which generates a rich semantic HTML document.
+	- That was possible as that file was a [Markdown](http://daringfireball.net/projects/markdown/basics) file (hence the `.md` extension it had). Markdown is a great markup language as with it you have an extremely simple and readable document which generates a rich semantic HTML document.
 
 	- DocPad also supports a series of other markup languages which are listed later on :-)
 
