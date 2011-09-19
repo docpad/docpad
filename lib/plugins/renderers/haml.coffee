@@ -10,16 +10,15 @@ class HamlPlugin extends DocpadPlugin
 	# Plugin priority
 	priority: 725
 
-	# Plugin extensions
-	extensions: ['haml']
-
 	# Render some content
-	renderFile: ({file,templateData}, next) ->
-		try
-			file.content = haml.render file.content, locals: templateData
-		catch err
-			return next err
-		next null
+	render: ({inExtension,outExtension,templateData,file}, next) ->
+		if inExtension is 'haml'
+			try
+				file.content = haml.render file.content, locals: templateData
+				next()
+			catch err
+				return next err
+		else next()
 
 # Export Haml Plugin
 module.exports = HamlPlugin

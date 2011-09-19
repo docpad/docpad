@@ -10,16 +10,15 @@ class MarkdownPlugin extends DocpadPlugin
 	# Plugin priority
 	priority: 700
 
-	# Plugin extensions
-	extensions: ['md','markdown']
-
 	# Render some content
-	renderFile: ({file,templateData}, next) ->
-		try
-			file.content = markdown.parse file.content
-		catch err
-			return next err
-		next null
+	render: ({inExtension,outExtension,templateData,file}, next) ->
+		if inExtension in ['md','markdown']
+			try
+				file.content = markdown.parse file.content
+				next()
+			catch err
+				return next err
+		else next()
 
 # Export Markdown Plugin
 module.exports = MarkdownPlugin
