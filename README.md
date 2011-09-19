@@ -26,7 +26,7 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 		</html>
 		```
 
-	- And a layout at `src/layouts/post.html.eco`, which contains:
+	- And another layout at `src/layouts/post.html.eco`, which contains:
 
 		``` html
 		---
