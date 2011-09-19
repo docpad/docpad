@@ -376,13 +376,9 @@ class Docpad
 	# Init
 	constructor: ({command,rootPath,outPath,srcPath,skeletonsPath,maxAge,port,server}={}) ->
 		# Options
-<<<<<<< HEAD
-		command = command || false
-=======
 		@PluginsArray = []
 		@PluginsObject = {}
-		command = command || process.argv[2] || false
->>>>>>> docpad_balupton/v0.11
+		command = command || false
 		@rootPath = rootPath || process.cwd()
 		@outPath = outPath || @rootPath+'/'+@outPath
 		@srcPath = srcPath || @rootPath+'/'+@srcPath
@@ -393,7 +389,7 @@ class Docpad
 		@loadPlugins null, =>
 			logger.log 'info', 'Finished loading'
 			@loading = false
-
+		this.action(command)
 
 	# Clean Models
 	cleanModels: (next) ->
@@ -811,38 +807,6 @@ class Docpad
 			# Forward
 			next err
 
-
-<<<<<<< HEAD
-
-program = require 'commander'
-
-program
-	.version('0.0.1')
-	.option('-c, --cmd <cmd>'						, 'Launch specific command (skeleton|generate|watch|server|all) <cmd>')
-	.option('-r, --rootpath <root>'			, 'Use specified <root> path or defaults to ' + __dirname)
-	.option('-o, --outpath <out>'				, 'Use specified <out> path or defaults to ' + __dirname + '/out')
-	.option('-s, --srcpath <src>'				, 'Use specified <src> path or defaults to ' + __dirname + '/src')
-	.option('-S, --skeletonspath <skel>', 'Use specified <skel> skeleton path or defaults to ' + __dirname + '/skeletons')
-	.option('-m, --maxage <maxage>'			, 'Set maxAge at the specified <maxage> value')
-	.option('-l, --listen <port>'				, 'Make server listen on <port> or defaults to 9788', parseInt) 
-	.option('-z, --server'							, 'wth is this? ** FIX ME **')
-	.parse(process.argv)
-
-config = 	
-	command				: ( program.cmd 		 			),
-	rootPath			: ( program.rootpath 			),
-	outPath				: ( program.outpath 			),
-	srcPath				: ( program.srcpath				),
-	skeletonsPath	: ( program.skeletonspath ),
-	maxage				: ( program.maxage 				),
-	port					: ( program.listen 				),
-	server				: ( program.server 				)
-
-##create a config object and call the istance with the
-# docpad.createInstance(config) or false
-
-=======
->>>>>>> docpad_balupton/v0.11
 # API
 docpad =
 	Docpad: Docpad
