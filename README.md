@@ -73,15 +73,10 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 			<% end %>
 		<% end %>
 		```
-	
-	- DocPad also supports a series of other templating engines which are listed later on :-)
-
 
 1. Cool that makes sense... now how did `Hello **World!**` in our document get converted into `Hello <strong>World!</strong>`?
 
-	- That was possible as that file was a [Markdown](http://daringfireball.net/projects/markdown/basics) file (hence the `.md` extension it had). Markdown is a great markup language as with it you have an extremely simple and readable document which generates a rich semantic HTML document.
-
-	- DocPad also supports a series of other markup languages which are listed later on :-)
+	- That was possible as that file was a [Markdown](http://daringfireball.net/projects/markdown/basics) file (hence the `.md` extension it had). Markdown is fantastic for working with text based documents, as it really allows you to focus in on your content instead of the syntax for formatting the document!
 
 
 ## Installing
