@@ -141,6 +141,7 @@ class File
 			@extensions = @basename.split /\./g
 			@extensions.shift()
 			@extension = @extensions[0]
+			@extensionRendered = @extension
 			@filename = @basename.replace(/\..*/, '')
 
 			# Temp
@@ -157,14 +158,20 @@ class File
 			@date = new Date(@date)  if @date
 			@slug = util.generateSlugSync @relativeBase
 			@id = @slug
-			@url = '/'+@relativeBase+'.'+@extension
+			
+			# Refresh data
+			@refresh()
 
-			# Apply User Meta
+			# Apply user meta
 			for own key, value of fileMeta
 				@[key] = value
 
 			# Complete
 			tasks.complete()
+	
+	# Refresh data
+	refresh: ->
+		@url = '/'+@relativeBase+'.'+@extensionRendered
 	
 	# getParent
 	# next(err,layout)
@@ -181,7 +188,7 @@ class File
 				return next null, layout
 
 	# Render
-	# next(err)
+	# next(err,finalExtension)
 	render: (triggerRenderEvent,templateData,next) ->
 		# Log
 		logger.log 'debug', "Rendering the file #{@relativePath}"
@@ -199,6 +206,8 @@ class File
 					templateData.content = @contentRendered
 					layout.render triggerRenderEvent, templateData, (err) =>
 						@contentRendered = layout.contentRendered
+						@extensionRendered = layout.extension
+						@refresh()
 						logger.log 'debug', "Rendering completed for #{@relativePath}"
 						next err
 			else
