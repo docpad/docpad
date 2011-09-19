@@ -10,16 +10,15 @@ class EcoPlugin extends DocpadPlugin
 	# Plugin priority
 	priority: 750
 
-	# Plugin extensions
-	extensions: true
-
 	# Render some content
-	renderFile: ({file,templateData}, next) ->
-		try
-			file.content = eco.render file.content, templateData
-		catch err
-			return next err
-		next null
+	render: ({inExtension,outExtension,templateData,file}, next) ->
+		if inExtension is 'eco'
+			try
+				file.content = eco.render file.content, templateData
+				next()
+			catch err
+				return next err
+		else next()
 
 # Export Eco Plugin
 module.exports = EcoPlugin
