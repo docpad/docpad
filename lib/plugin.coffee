@@ -37,7 +37,7 @@ class DocpadPlugin
 		next null
 	
 	# Render a file
-	renderFile: ({docpad,file,templateData},next) ->
+	render: ({docpad,inExtension,outExtension,templateData,file}, next) ->
 		next null
 	
 	# Rendering all files has finished
