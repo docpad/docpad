@@ -14,6 +14,7 @@ yaml = false
 eco = false
 watchTree = false
 queryEngine = false
+growl = false
 
 # Logger
 logger = new caterpillar.Logger
@@ -140,6 +141,7 @@ class File
 			@extensions = @basename.split /\./g
 			@extensions.shift()
 			@extension = @extensions[0]
+			@extensionRendered = @extension
 			@filename = @basename.replace(/\..*/, '')
 
 			# Temp
@@ -150,19 +152,26 @@ class File
 			@content = fileBody
 			@contentSrc = fileBody
 			@contentRaw = fileData
+			@contentRendered = fileBody
 			@relativeBase = (if relativeDirPath.length then relativeDirPath+'/' else '')+@filename
 			@title = @title || path.basename(@fullPath)
 			@date = new Date(@date)  if @date
 			@slug = util.generateSlugSync @relativeBase
 			@id = @slug
-			@url = '/'+@relativeBase+'.'+@extension
+			
+			# Refresh data
+			@refresh()
 
-			# Apply User Meta
+			# Apply user meta
 			for own key, value of fileMeta
 				@[key] = value
 
 			# Complete
 			tasks.complete()
+	
+	# Refresh data
+	refresh: ->
+		@url = '/'+@relativeBase+'.'+@extensionRendered
 	
 	# getParent
 	# next(err,layout)
@@ -179,30 +188,70 @@ class File
 				return next null, layout
 
 	# Render
-	# next(err)
+	# next(err,finalExtension)
 	render: (triggerRenderEvent,templateData,next) ->
 		# Log
 		logger.log 'debug', "Rendering the file #{@relativePath}"
 
-		# Render
+		# Prepare
+		@contentRendered = @content
 		@content = @contentSrc
-		triggerRenderEvent {file:@,templateData}, (err) =>
-			return next err  if err
 
-			# Fetch
-			@contentRendered = @content
-			@content = @contentSrc
-
-			# Recurse
+		# Async
+		tasks = new util.Group (err) =>
+			# Wrap in layout
 			if @layout
 				@getLayout (err,layout) =>
 					return next err  if err
 					templateData.content = @contentRendered
 					layout.render triggerRenderEvent, templateData, (err) =>
 						@contentRendered = layout.contentRendered
+						@extensionRendered = layout.extension
+						@refresh()
+						logger.log 'debug', "Rendering completed for #{@relativePath}"
 						next err
 			else
+				logger.log 'debug', "Rendering completed for #{@relativePath}"
 				next err
+		tasks.total = @extensions.length-1
+
+		# Check tasks
+		if tasks.total <= 0
+			# No rendering necessary
+			tasks.total = 1
+			tasks.complete()
+			return
+		
+		# Clone extensions
+		extensions = []
+		for extension in @extensions
+			extensions.unshift extension
+
+		# Cycle through all the extension groups
+		previousExtension = null
+		for extension in extensions
+			# Has a previous extension
+			if previousExtension
+				# Event Data
+				eventData =
+					inExtension: previousExtension
+					outExtension: extension
+					templateData: templateData
+					file: @
+				
+				# Render through plugins
+				triggerRenderEvent eventData, (err) =>
+					return tasks.exit err  if err
+
+					# Update rendered content
+					@contentRendered = @content
+					@content = @contentSrc
+
+					# Complete
+					tasks.complete err
+			
+			# Cycle
+			previousExtension = extension
 
 
 class Layout extends File
@@ -293,50 +342,6 @@ class Docpad
 			data.util = util
 			plugin[eventName].apply plugin, [data,tasks.completer()]
 
-	# Trigger the renderFile event
-	# next(err)
-	triggerRenderEvent: (data,next) ->
-		# Prepare
-		file = data.file
-		templateData = data.templateData
-		count = 0
-
-		# Sync
-		tasks = new util.Group (err) ->
-			logger.log 'debug', "Renderers completed for #{file.relativePath}"
-			next err
-
-		if file.renderers and file.renderers.length
-			for pluginName in file.renderers
-				plugin = @getPlugin pluginName
-				continue  unless plugin
-				++count
-				tasks.push ((plugin,data,tasks) -> ->
-					plugin.renderFile.apply plugin, [data,tasks.completer()]
-				)(plugin,data,tasks)
-		else
-			for plugin in @PluginsArray
-				runPlugin = false
-
-				if plugin.extensions is true
-					runPlugin = true
-				else if plugin.extensions
-					for extension in file.extensions
-						if extension in plugin.extensions
-							runPlugin = true
-							break
-				
-				if runPlugin
-					++count
-					tasks.push ((plugin,data,tasks) -> ->
-						plugin.renderFile.apply plugin, [data,tasks.completer()]
-					)(plugin,data,tasks)
-		
-		if count
-			tasks.sync()
-		else
-			next()
-	
 	# Load Plugins
 	loadPlugins: (pluginsPath, next) ->
 		unless pluginsPath
@@ -561,6 +566,11 @@ class Docpad
 			Document: null
 			site: site
 			Site: site
+
+		# Prepare event
+		triggerRenderEvent = (args...) ->
+			args.unshift('render')
+			docpad.triggerEvent.apply(docpad,args)
 		
 		# Trigger Helpers
 		@triggerEvent 'renderStarted', {documents,templateData}, (err) ->
@@ -570,8 +580,7 @@ class Docpad
 			documents.forEach (document) ->
 				templateData.document = templateData.Document = document
 				document.render(
-					(args...) ->
-						docpad.triggerRenderEvent.apply(docpad,args)
+					triggerRenderEvent
 					templateData
 					tasks.completer()
 				)
@@ -647,8 +656,8 @@ class Docpad
 	# Generate
 	generateAction: (next) ->
 		# Requires
-		unless queryEngine
-			queryEngine = require 'query-engine'
+		queryEngine = require('query-engine')  unless queryEngine
+		growl = require('growl')  unless growl
 
 		# Prepare
 		docpad = @
@@ -715,6 +724,7 @@ class Docpad
 											# Write Completed
 											docpad.triggerEvent 'writeFinished', {}, (err) ->
 												unless err
+													growl.notify 'Website Generated'
 													logger.log 'info', 'Generated'
 													docpad.cleanModels()
 													docpad.generating = false
