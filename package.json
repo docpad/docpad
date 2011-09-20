@@ -53,7 +53,9 @@
 		"watch-tree": "=0.1.1",
 		"bal-util": "=0.6.0",
 		"caterpillar": "=0.1.1",
-		"hamljs": "=0.5.1"
+		"hamljs": "=0.5.1",
+		"commander": "=0.1.0",
+		"growl": "=1.1.0"
 	},
 	"engines" : {
 		"node": ">=0.4.0"
