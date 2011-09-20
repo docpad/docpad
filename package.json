@@ -61,7 +61,7 @@
 		"node": ">=0.4.0"
 	},
 	"bin": {
-		"docpad": "./bin/docpad.coffee"
+		"docpad": "./bin/docpad"
 	},
 	"directories": {
 		"lib": "lib"
