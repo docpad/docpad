@@ -264,10 +264,10 @@ class Document extends File
 class Docpad
 
 	# Options
-	rootPath: null
+	rootPath: ''
 	outPath: 'out'
 	srcPath: 'src'
-	skeletonsPath: 'skeletons'
+	skeletonsPath: __dirname + '/../' + 'skeletons'
 	defaultSkeleton: 'bootstrap'
 	maxAge: false
 
@@ -387,7 +387,7 @@ class Docpad
 		@rootPath = rootPath || process.cwd()
 		@outPath = outPath || @rootPath+'/'+@outPath
 		@srcPath = srcPath || @rootPath+'/'+@srcPath
-		@skeletonsPath = skeletonsPath || __dirname+'/../'+@skeletonsPath
+		@skeletonsPath = skeletonsPath || @skeletonsPath
 		@port = port if port
 		@maxAge = maxAge if maxAge
 		@server = server if server
@@ -765,9 +765,8 @@ class Docpad
 	skeletonAction: (next) ->
 		# Prepare
 		docpad = @
-		skeleton = (process.argv.length >= 3 and process.argv[2] is 'skeleton' and process.argv[3]) || @defaultSkeleton
-		skeletonPath = @skeletonsPath + '/' + skeleton
-		toPath = (process.argv.length >= 5 and process.argv[2] is 'skeleton' and process.argv[4]) || @rootPath
+		skeletonPath = ( if ( @skeletonsPath is ( __dirname + '/../' + 'skeletons' ) ) then @skeletonsPath + '/' + @defaultSkeleton else @skeletonsPath )
+		toPath = @rootPath
 		toPath = util.prefixPathSync(toPath,@rootPath)
 
 		# Copy
@@ -776,7 +775,7 @@ class Docpad
 				logger.log 'notice', 'Cannot place skeleton as the desired structure already exists'
 				next()
 			else
-				logger.log 'info', 'Copying the skeleton ['+skeleton+'] to ['+toPath+']'
+				logger.log 'info', 'Copying the skeleton ['+skeletonPath+'] to ['+toPath+']'
 				util.cpdir skeletonPath, toPath, (err) ->
 					unless err
 						logger.log 'info', 'Copied the skeleton'
