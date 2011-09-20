@@ -1,37 +1,49 @@
 #!/usr/bin/env coffee
-docpad = require (__dirname + '/../lib/docpad.coffee')
-fs = require('fs')
-packageJSON = JSON.parse(fs.readFileSync(__dirname + '/../package.json'))
+###
+DocPad command line interface by Benjamin Lupton and ~eldios
+
+$ docpad
+> Welcome to DocPad!
+> You current working directory isn't currently setup for docpad, would you like us to?
+>     
+###
+
+# Requires
+docpad = require "#{__dirname}/../lib/docpad.coffee"
+fs = require 'fs'
 program = require 'commander'
+packageJSON = JSON.parse fs.readFileSync("#{__dirname}/../package.json").toString()
 cwd = process.cwd()
 
-
+# Options
 program
-	.version(packageJSON.version)
-	.option('-c, --cmd <cmd>'						, 'Launch specific command (skeleton|generate|watch|server|all) <cmd>')
-	.option('-r, --rootpath <root>'			, 'Use specified <root> path or defaults to ' + cwd )
-	.option('-o, --outpath <out>'				, 'Use specified <out> path or defaults to ' + cwd + '/out')
-	.option('-s, --srcpath <src>'				, 'Use specified <src> path or defaults to ' + cwd + '/src')
-	.option('-S, --skeletonspath <skel>', 'Use specified <skel> skeletons starting setup or defaults to ' + cwd + '/skeletons/bootstrap')
-	.option('-m, --maxage <maxage>'			, 'Set maxAge at the specified <maxage> value')
-	.option('-l, --listen <port>'				, 'Make server listen on <port> or defaults to 9788', parseInt) 
-	.option('-z, --server'							, 'wth is this? ** FIX ME **')
-	.option('-d, --debug'								, 'enable Debug')
-	.parse(process.argv)
+	.version(
+		packageJSON.version
+	)
+	.option(
+		'-s, --skeleton <skeleton>'
+		"The skeleton to create your project from, defaults to #{__dirname}/skeletons/bootstrap"
+	)
+	.option(
+		'-p, --port <port>'
+		"The port to use for the docpad server <port>, defaults to 9788"
+		parseInt
+	) 
+	.option(
+		'-d, --debug [level]'
+		"The level of debug messages you would like to display, if specified defaults to 7, otherwise 6"
+		parseInt
+	)
 
+# Load
+program.parse process.argv
 config = 	
-	command				: ( program.cmd 		 											),
-	rootPath			: ( program.rootpath or cwd 							),
-	outPath				: ( program.outpath  or cwd + '/out'			),
-	srcPath				: ( program.srcpath  or cwd + '/src'			),
-	skeletonsPath	: ( program.skeletonspath or __dirname+'/../skeletons' ),
-	maxAge				: ( program.maxage 				),
-	port					: ( program.listen 				),
-	server				: ( program.server 				)
+	skeleton: program.skeleton
+	port: program.port
+	logLevel: if program.debug is true then 7 else 6
 
-##create a config object and call the istance with the
-if (program.cmd)
-	docpad.createInstance(config) or false
-else 
-	program.emit('help')
-	
+# Start
+docpad.createInstance(config) or false
+
+# Log
+console.log config.logLevel
