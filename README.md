@@ -166,19 +166,13 @@ DocPad is also quite extensible, it's easy to add support for new renderers and 
 
 ## History
 
-- v1.0-beta September 20, 2011
-	- v0.x users need to follow this upgrade guide [to be done]
+- v1.0 September 20, 2011
+	- [Upgrade guide for v0.x users](https://github.com/balupton/docpad/wiki/Upgrading)
 	- The concept of template engines and markup languages have been merged into the concept of renderers
 	- Added [CoffeeKup](http://coffeekup.org/) renderer
 		- Including support for coffee <-> js, and coffeekup <-> html
 	- Added a [Commander.js](https://github.com/visionmedia/commander.js) based CLI thanks to [~eldios](https://github.com/eldios)
 	- Added support for [Growl](http://growl.info/) notificaitons
-	- TODO:
-		- Clean urls plugin could do with some work
-		- Documentation of the new document extension handling needs to be done
-		- Documentation on plugin handling needs to be done
-		- Do the upgrade guide
-
 
 - v0.10 September 14, 2011
 	- Plugin infrastructure
