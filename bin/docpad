@@ -7,7 +7,6 @@ DocPad command line interface by Benjamin Lupton and ~eldios
 Docpad = require "#{__dirname}/../lib/docpad.coffee"
 fs = require 'fs'
 program = require "#{__dirname}/../node_modules/commander/index.js"
-packageJSON = JSON.parse fs.readFileSync("#{__dirname}/../package.json").toString()
 cwd = process.cwd()
 
 
@@ -15,7 +14,7 @@ cwd = process.cwd()
 # Configuration
 
 # Version
-program.version packageJSON.version
+program.version Docpad.Docpad::version
 
 # Help
 program.on '--help', ->
