@@ -15,13 +15,7 @@ eco = false
 watchTree = false
 queryEngine = false
 growl = false
-
-# Logger
-logger = new caterpillar.Logger
-	transports:
-		level: 7
-		formatter:
-			module: module
+logger = false
 
 # -------------------------------------
 # Prototypes
@@ -270,6 +264,7 @@ class Docpad
 	skeletonsPath: "#{__dirname}/../skeletons"
 	skeletonPath: 'bootstrap'
 	maxAge: false
+	logLevel: 6
 
 	# Docpad
 	generating: false
@@ -379,7 +374,7 @@ class Docpad
 	# Main
 
 	# Init
-	constructor: ({rootPath,outPath,srcPath,skeletonsPath,skeletonPath,maxAge,port,server}={}) ->
+	constructor: ({rootPath,outPath,srcPath,skeletonsPath,skeletonPath,maxAge,port,server,logLevel}={}) ->
 		# Options
 		@PluginsArray = []
 		@PluginsObject = {}
@@ -391,6 +386,11 @@ class Docpad
 		@port = port  if port
 		@maxAge = maxAge  if maxAge
 		@server = server  if server
+		logger = new caterpillar.Logger
+			transports:
+				level: logLevel or @logLevel
+				formatter:
+					module: module
 		@loadPlugins null, =>
 			logger.log 'info', 'Finished loading'
 			@loading = false
@@ -587,7 +587,7 @@ class Docpad
 
 	# Write files
 	generateWriteFiles: (next) ->
-		logger.log 'debug', 'Copying files'
+		logger.log 'debug', 'Writing files'
 		util.cpdir(
 			# Src Path
 			@srcPath+'/files',
@@ -595,8 +595,7 @@ class Docpad
 			@outPath
 			# Next
 			(err) ->
-				unless err
-					logger.log 'debug', 'Copied files'
+				logger.log 'debug', 'Wrote files'  unless err
 				next err
 		)
 
@@ -608,6 +607,7 @@ class Docpad
 
 		# Async
 		tasks = new util.Group (err) ->
+			logger.log 'debug', 'Wrote documents'  unless err
 			next err
 
 		# Find documents
@@ -642,14 +642,10 @@ class Docpad
 		tasks.total = 2
 
 		# Files
-		@generateWriteFiles (err) ->
-			logger.log 'debug', 'Wrote files'  unless err
-			next err
+		@generateWriteFiles tasks.completer()
 		
 		# Documents
-		@generateWriteDocuments (err) ->
-			logger.log 'debug', 'Wrote documents'  unless err
-			next err
+		@generateWriteDocuments tasks.completer()
 
 
 	# Generate
@@ -723,7 +719,7 @@ class Docpad
 											# Write Completed
 											docpad.triggerEvent 'writeFinished', {}, (err) ->
 												unless err
-													growl.notify 'Website Generated'
+													growl.notify (new Date()).toLocaleTimeString(), title: 'Website Generated'
 													logger.log 'info', 'Generated'
 													docpad.cleanModels()
 													docpad.generating = false
