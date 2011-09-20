@@ -6,7 +6,7 @@ DocPad command line interface by Benjamin Lupton and ~eldios
 # Requires
 Docpad = require "#{__dirname}/../lib/docpad.coffee"
 fs = require 'fs'
-program = require 'commander'
+program = require "#{__dirname}/../node_modules/commander/index.js"
 packageJSON = JSON.parse fs.readFileSync("#{__dirname}/../package.json").toString()
 cwd = process.cwd()
 
