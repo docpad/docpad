@@ -55,7 +55,10 @@
 		"caterpillar": "=0.1.1",
 		"hamljs": "=0.5.1",
 		"commander": "=0.1.0",
-		"growl": "=1.1.0"
+		"growl": "=1.1.0",
+		"coffeekup": "=0.3.0",
+		"js2coffee": "=0.1.1",
+		"html2coffeekup-bal": "=0.0.4"
 	},
 	"engines" : {
 		"node": ">=0.4.0"

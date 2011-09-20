@@ -193,6 +193,8 @@ class File
 
 		# Async
 		tasks = new util.Group (err) =>
+			next err  if err
+
 			# Wrap in layout
 			if @layout
 				@getLayout (err,layout) =>
@@ -207,6 +209,7 @@ class File
 			else
 				logger.log 'debug', "Rendering completed for #{@relativePath}"
 				next err
+		
 		tasks.total = @extensions.length-1
 
 		# Check tasks
@@ -410,35 +413,38 @@ class Docpad
 		switch action
 			when 'skeleton', 'scaffold'
 				@skeletonAction (err) ->
-					throw err  if err
+					return @error(err)  if err
 					process.exit()
 
 			when 'generate'
 				@generateAction (err) ->
-					throw err  if err
+					return @error(err)  if err
 					process.exit()
 
 			when 'watch'
 				@watchAction (err) ->
-					throw err  if err
+					return @error(err)  if err
 					logger.log 'info', 'DocPad is now watching you...'
 
 			when 'server', 'serve'
 				@serverAction (err) ->
-					throw err  if err
+					return @error(err)  if err
 					logger.log 'info', 'DocPad is now serving you...'
 
 			else
 				@skeletonAction (err) =>
-					throw err  if err
+					return @error(err)  if err
 					@generateAction (err) =>
-						throw err  if err
+						return @error(err)  if err
 						@serverAction (err) =>
-							throw err  if err
+							return @error(err)  if err
 							@watchAction (err) =>
-								throw err  if err
+								return @error(err)  if err
 								logger.log 'info', 'DocPad is is now watching and serving you...'
-
+	
+	# Handle an error
+	error: (err) ->
+		logger.log 'err', "An error occured: #{err}\n", err  if err
 
 	# Clean the database
 	generateClean: (next) ->
@@ -619,7 +625,7 @@ class Docpad
 			tasks.total += length
 			documents.forEach (document) ->
 				# Generate path
-				fileFullPath = "#{outPath}/document.url" #relativeBase+'.html'
+				fileFullPath = "#{outPath}/#{document.url}" #relativeBase+'.html'
 				# Ensure path
 				util.ensurePath path.dirname(fileFullPath), (err) ->
 					# Error
@@ -686,7 +692,7 @@ class Docpad
 		path.exists @srcPath, (exists) ->
 			# Check
 			if exists is false
-				throw new Error 'Cannot generate website as the src dir was not found'
+				return next new Error 'Cannot generate website as the src dir was not found'
 
 			# Log
 			logger.log 'debug', 'Cleaning the out path'
