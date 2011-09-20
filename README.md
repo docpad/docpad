@@ -95,7 +95,7 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 
 		git clone git://github.com/balupton/docpad.git
 		cd docpad
-		git checkout v0.11
+		git checkout v1.0
 		npm install
 		git submodule init
 		git submodule update
@@ -133,17 +133,20 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 * [Node.js](http://nodejs.org) - Server Side Javascript
 * [Express.js](http://expressjs.com) - The "Server" in Server Side Javascript
 * [Query-Engine](https://github.com/balupton/query-engine.npm) - The MongoDB Query-Engine without the Database
-* [CoffeeScript](http://jashkenas.github.com/coffee-script) - JavaScript Made Easy
-* [Caterpillar](https://github.com/balupton/caterpillar.npm) - Logging Made Easy
-* [Bal-Util](https://github.com/balupton/bal-util.npm) - Node.js Made Easy
-* [YAML](https://github.com/visionmedia/js-yaml) - Data Made Easy
+* [CoffeeScript](http://jashkenas.github.com/coffee-script) - JavaScript made easy
+* [Caterpillar](https://github.com/balupton/caterpillar.npm) - Logging made easy
+* [Bal-Util](https://github.com/balupton/bal-util.npm) - Node.js made easy
+* [YAML](https://github.com/visionmedia/js-yaml) - Data made easy
+* [Commander.js](https://github.com/visionmedia/commander.js) - Console apps made easy
 
 ### Renderers
 
-* [Markdown](http://daringfireball.net/projects/markdown/basics) - Markup Made Easy
-* [Eco](https://github.com/sstephenson/eco) - Templating Made Easy
-* [Jade](https://github.com/visionmedia/jade) - HTML Made Easy
-* [HAML](https://github.com/visionmedia/haml.js) - Markup Haiku
+* [Markdown](http://daringfireball.net/projects/markdown/basics) - markup made easy
+* [Eco](https://github.com/sstephenson/eco) - Templating made easy
+* [CoffeeKup](http://coffeekup.org/) - HTML as CoffeeScript
+* [Jade](http://jade-lang.com/) - HTML made easy
+* [HAML](http://haml-lang.com/) - Markup haiku
+
 
 ### Extensions
 
@@ -157,15 +160,18 @@ DocPad is also quite extensible, it's easy to add support for new renderers and 
 
 ## History
 
-- v0.11-beta September 15, 2011
+- v1.0-beta September 20, 2011
+	- v0.x users need to follow this upgrade guide [to be done]
 	- The concept of template engines and markup languages have been merged into the concept of renderers
-	- Clean urls plugin could do with some work
-	- Documentation of the new document extension handling needs to be done
-	- Ordering of parsers in regards to extensions should be right to left
-	- Currently breaks backwards compatibility which needs to be fixed...
-		- Output extension should be the first extension of the most parent layout they use
-		- With this, it is still possible to inherit backwards compatibility
-	- Implemented the CLI thanks to [~eldios](https://github.com/eldios)
+	- Added [CoffeeKup](http://coffeekup.org/) renderer
+		- Including support for coffee <-> js, and coffeekup <-> html
+	- Added a [Commander.js](https://github.com/visionmedia/commander.js) based CLI thanks to [~eldios](https://github.com/eldios)
+	- TODO:
+		- Clean urls plugin could do with some work
+		- Documentation of the new document extension handling needs to be done
+		- Documentation on plugin handling needs to be done
+		- Do the upgrade guide
+
 
 - v0.10 September 14, 2011
 	- Plugin infrastructure
