@@ -107,11 +107,11 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 
 - To generate the rendered website, watch the files for changes, and run the docpad server
 	
-		docpad
+		docpad run
 
 - To generate a basic website structure in the current working directory
 
-		docpad skeleton
+		docpad scaffold
 
 - To regenerate the rendered website
 
