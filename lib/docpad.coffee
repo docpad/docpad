@@ -9,6 +9,7 @@ path = require 'path'
 sys = require 'sys'
 caterpillar = require 'caterpillar'
 util = require 'bal-util'
+exec = require('child_process').exec
 express = false
 yaml = false
 eco = false
@@ -264,6 +265,7 @@ class Docpad
 	rootPath: null
 	outPath: 'out'
 	srcPath: 'src'
+	corePath: "#{__dirname}/.."
 	skeletonsPath: "#{__dirname}/../skeletons"
 	skeletonPath: 'bootstrap'
 	maxAge: false
@@ -273,6 +275,7 @@ class Docpad
 	generating: false
 	loading: true
 	generateTimeout: null
+	actionTimeout: null
 	server: null
 	port: 9778
 
@@ -285,92 +288,7 @@ class Docpad
 	# Plugins
 	PluginsArray: []
 	PluginsObject: {}
-	
 
-	# ---------------------------------
-	# Plugins
-
-	# Register a Plugin
-	# next(err)
-	registerPlugin: (plugin,next) ->
-		# Prepare
-		error = null
-
-		# Plugin Path
-		if typeof plugin is 'string'
-			try
-				pluginPath = plugin
-				plugin = require pluginPath
-				return @registerPlugin plugin, next
-			catch err
-				logger.log 'warn', 'Unable to load plugin', pluginPath
-				logger.log 'debug', err
-		
-		# Loaded Plugin
-		else if plugin and (plugin.name? or plugin::name?)
-			plugin = new plugin  if typeof plugin is 'function'
-			@PluginsObject[plugin.name] = plugin
-			@PluginsArray.push plugin
-			@PluginsArray.sort (a,b) -> a.priority < b.priority
-		
-		# Unknown Plugin Type
-		else
-			logger.log 'warn', 'Unknown plugin type', plugin
-		
-		# Forward
-		next error
-	
-	# Get a plugin by it's name
-	getPlugin: (pluginName) ->
-		@PluginsObject[pluginName]
-
-	# Trigger a plugin event
-	# next(err)
-	triggerEvent: (eventName,data,next) ->
-		# Async
-		tasks = new util.Group (err) ->
-			logger.log 'debug', "Plugins completed for #{eventName}"
-			next err
-		tasks.total = @PluginsArray.length
-
-		# Cycle
-		for plugin in @PluginsArray
-			data.docpad = @
-			data.logger = logger
-			data.util = util
-			plugin[eventName].apply plugin, [data,tasks.completer()]
-
-	# Load Plugins
-	loadPlugins: (pluginsPath, next) ->
-		unless pluginsPath
-			# Async
-			tasks = new util.Group (err) ->
-				logger.log 'debug', 'Plugins loaded'
-				next err
-			
-			tasks.push => @loadPlugins "#{__dirname}/plugins", tasks.completer()
-			if @rootPath isnt __dirname and path.existsSync "#{@rootPath}/plugins"
-				tasks.push => @loadPlugins "#{@rootPath}/plugins", tasks.completer()
-			
-			tasks.async()
-
-		else
-			util.scandir(
-				# Path
-				pluginsPath,
-
-				# File Action
-				(fileFullPath,fileRelativePath,nextFile) =>
-					@registerPlugin fileFullPath, nextFile
-				
-				# Dir Action
-				false,
-
-				# Next
-				(err) ->
-					logger.log 'debug', "Plugins loaded for #{pluginsPath}"
-					next err
-			)
 
 
 	# ---------------------------------
@@ -381,22 +299,35 @@ class Docpad
 		# Options
 		@PluginsArray = []
 		@PluginsObject = {}
-		@rootPath = path.normalize(rootPath || process.cwd())
-		@outPath = path.normalize(outPath || "#{@rootPath}/#{@outPath}")
-		@srcPath = path.normalize(srcPath || "#{@rootPath}/#{@srcPath}")
-		@skeletonsPath = path.normalize(skeletonsPath || @skeletonsPath)
-		@skeletonPath = path.normalize(skeletonPath || util.prefixPathSync(@skeletonPath, @skeletonsPath))
 		@port = port  if port
 		@maxAge = maxAge  if maxAge
 		@server = server  if server
+		@rootPath = path.normalize(rootPath || process.cwd())
+		@outPath = path.normalize(outPath || "#{@rootPath}/#{@outPath}")
+		@srcPath = path.normalize(srcPath || "#{@rootPath}/#{@srcPath}")
+
 		logger = new caterpillar.Logger
 			transports:
 				level: logLevel or @logLevel
 				formatter:
 					module: module
-		@loadPlugins null, =>
-			logger.log 'info', 'Finished loading'
-			@loading = false
+		
+		@initSkeletons =>
+			@skeletonsPath = path.normalize(skeletonsPath || @skeletonsPath)
+			@skeletonPath = util.prefixPathSync(
+				path.normalize(skeletonPath || @skeletonPath),
+				@skeletonsPath
+			)
+			@loadPlugins null, =>
+				logger.log 'info', 'Finished loading'
+				@loading = false
+	
+	
+	# Initialise the Skeletons
+	initSkeletons: (next) ->
+		child = exec 'git submodule init; git submodule update', {cwd: @corePath}, (err,stdout,stderr) =>
+		child.on 'exit', (code,signal) ->
+			next()
 
 	# Clean Models
 	cleanModels: (next) ->
@@ -408,8 +339,25 @@ class Docpad
 			Documents[@id] = @
 		next()  if next
 
+
 	# Handle
 	action: (action) ->
+		# Clear
+		if @actionTimeout
+			clearTimeout(@actionTimeout)
+			@actionTimeout = null
+
+		# Check
+		if @loading
+			logger.log 'notice', 'Action received, but we still loading... waiting...'
+			@actionTimeout = setTimeout(
+				=>
+					@action action
+				500
+			)
+			return
+		
+		# Handle
 		switch action
 			when 'skeleton', 'scaffold'
 				@skeletonAction (err) ->
@@ -446,6 +394,100 @@ class Docpad
 	error: (err) ->
 		logger.log 'err', "An error occured: #{err}\n", err  if err
 
+
+
+	# ---------------------------------
+	# Plugins
+
+	# Register a Plugin
+	# next(err)
+	registerPlugin: (plugin,next) ->
+		# Prepare
+		error = null
+
+		# Plugin Path
+		if typeof plugin is 'string'
+			try
+				pluginPath = plugin
+				plugin = require pluginPath
+				return @registerPlugin plugin, next
+			catch err
+				logger.log 'warn', 'Unable to load plugin', pluginPath
+				logger.log 'debug', err
+		
+		# Loaded Plugin
+		else if plugin and (plugin.name? or plugin::name?)
+			plugin = new plugin  if typeof plugin is 'function'
+			@PluginsObject[plugin.name] = plugin
+			@PluginsArray.push plugin
+			@PluginsArray.sort (a,b) -> a.priority < b.priority
+		
+		# Unknown Plugin Type
+		else
+			logger.log 'warn', 'Unknown plugin type', plugin
+		
+		# Forward
+		next error
+	
+
+	# Get a plugin by it's name
+	getPlugin: (pluginName) ->
+		@PluginsObject[pluginName]
+
+
+	# Trigger a plugin event
+	# next(err)
+	triggerEvent: (eventName,data,next) ->
+		# Async
+		tasks = new util.Group (err) ->
+			logger.log 'debug', "Plugins completed for #{eventName}"
+			next err
+		tasks.total = @PluginsArray.length
+
+		# Cycle
+		for plugin in @PluginsArray
+			data.docpad = @
+			data.logger = logger
+			data.util = util
+			plugin[eventName].apply plugin, [data,tasks.completer()]
+
+
+	# Load Plugins
+	loadPlugins: (pluginsPath, next) ->
+		unless pluginsPath
+			# Async
+			tasks = new util.Group (err) ->
+				logger.log 'debug', 'Plugins loaded'
+				next err
+			
+			tasks.push => @loadPlugins "#{__dirname}/plugins", tasks.completer()
+			if @rootPath isnt __dirname and path.existsSync "#{@rootPath}/plugins"
+				tasks.push => @loadPlugins "#{@rootPath}/plugins", tasks.completer()
+			
+			tasks.async()
+
+		else
+			util.scandir(
+				# Path
+				pluginsPath,
+
+				# File Action
+				(fileFullPath,fileRelativePath,nextFile) =>
+					@registerPlugin fileFullPath, nextFile
+				
+				# Dir Action
+				false,
+
+				# Next
+				(err) ->
+					logger.log 'debug', "Plugins loaded for #{pluginsPath}"
+					next err
+			)
+
+
+	# ---------------------------------
+	# Actions
+
 	# Clean the database
 	generateClean: (next) ->
 		# Prepare
@@ -469,7 +511,7 @@ class Docpad
 		@Documents.remove {}, (err) ->
 			logger.log 'debug', 'Cleaned documents'  unless err
 			tasks.complete err
-	
+
 
 	# Check if the file path is ignored
 	# next(err,ignore)
@@ -669,15 +711,7 @@ class Docpad
 			@generateTimeout = null
 
 		# Check
-		if @loading
-			logger.log 'notice', 'Generate request received, but we still loading... waiting...'
-			@generateTimeout = setTimeout(
-				=>
-					@generateAction next
-				500
-			)
-			return
-		else if @generating
+		if @generating
 			logger.log 'notice', 'Generate request received, but we are already busy generating... waiting...'
 			@generateTimeout = setTimeout(
 				=>
