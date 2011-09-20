@@ -138,6 +138,7 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 * [Bal-Util](https://github.com/balupton/bal-util.npm) - Node.js made easy
 * [YAML](https://github.com/visionmedia/js-yaml) - Data made easy
 * [Commander.js](https://github.com/visionmedia/commander.js) - Console apps made easy
+* [Node-Growl](https://github.com/visionmedia/node-growl) - Notifications made easy
 
 ### Renderers
 
@@ -166,6 +167,7 @@ DocPad is also quite extensible, it's easy to add support for new renderers and 
 	- Added [CoffeeKup](http://coffeekup.org/) renderer
 		- Including support for coffee <-> js, and coffeekup <-> html
 	- Added a [Commander.js](https://github.com/visionmedia/commander.js) based CLI thanks to [~eldios](https://github.com/eldios)
+	- Added support for [Growl](http://growl.info/) notificaitons
 	- TODO:
 		- Clean urls plugin could do with some work
 		- Documentation of the new document extension handling needs to be done
