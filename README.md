@@ -165,6 +165,7 @@ DocPad is also quite extensible, it's easy to add support for new renderers and 
 	- Currently breaks backwards compatibility which needs to be fixed...
 		- Output extension should be the first extension of the most parent layout they use
 		- With this, it is still possible to inherit backwards compatibility
+	- Implemented the CLI thanks to [~eldios](https://github.com/eldios)
 
 - v0.10 September 14, 2011
 	- Plugin infrastructure
