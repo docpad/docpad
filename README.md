@@ -173,6 +173,7 @@ DocPad is also quite extensible, it's easy to add support for new renderers and 
 		- Including support for coffee <-> js, and coffeekup <-> html
 	- Added a [Commander.js](https://github.com/visionmedia/commander.js) based CLI thanks to [~eldios](https://github.com/eldios)
 	- Added support for [Growl](http://growl.info/) notificaitons
+	- Added asynchronous version comparison
 
 - v0.10 September 14, 2011
 	- Plugin infrastructure
