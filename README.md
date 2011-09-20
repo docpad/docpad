@@ -83,9 +83,9 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 
 1. [Install Node.js](https://github.com/balupton/node/wiki/Installing-Node.js)
 
-1. Install [CoffeeScript](http://jashkenas.github.com/coffee-script/)
+1. Install Dependencies
 		
-		npm -g install coffee-script
+		npm -g install coffee-script commander cson
 
 1. Install DocPad
 
