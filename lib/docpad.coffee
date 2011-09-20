@@ -171,7 +171,7 @@ class File
 	
 	# Refresh data
 	refresh: ->
-		@url = '/'+@relativeBase+'.'+@extensionRendered
+		@url = "/#{@relativeBase}.#{@extensionRendered}"
 	
 	# getParent
 	# next(err,layout)
@@ -182,7 +182,7 @@ class File
 			if err
 				return next err
 			else if not layout
-				err = new Error 'Could not find the layout: '+@layout
+				err = new Error "Could not find the layout: #{@layout}"
 				return next err
 			else
 				return next null, layout
@@ -264,11 +264,11 @@ class Document extends File
 class Docpad
 
 	# Options
-	rootPath: ''
+	rootPath: null
 	outPath: 'out'
 	srcPath: 'src'
-	skeletonsPath: __dirname + '/../' + 'skeletons'
-	defaultSkeleton: 'bootstrap'
+	skeletonsPath: "#{__dirname}/../skeletons"
+	skeletonPath: 'bootstrap'
 	maxAge: false
 
 	# Docpad
@@ -379,22 +379,21 @@ class Docpad
 	# Main
 
 	# Init
-	constructor: ({command,rootPath,outPath,srcPath,skeletonsPath,maxAge,port,server}={}) ->
+	constructor: ({rootPath,outPath,srcPath,skeletonsPath,skeletonPath,maxAge,port,server}={}) ->
 		# Options
 		@PluginsArray = []
 		@PluginsObject = {}
-		command = command || false
-		@rootPath = rootPath || process.cwd()
-		@outPath = outPath || @rootPath+'/'+@outPath
-		@srcPath = srcPath || @rootPath+'/'+@srcPath
-		@skeletonsPath = skeletonsPath || @skeletonsPath
-		@port = port if port
-		@maxAge = maxAge if maxAge
-		@server = server if server
+		@rootPath = path.normalize(rootPath || process.cwd())
+		@outPath = path.normalize(outPath || "#{@rootPath}/#{@outPath}")
+		@srcPath = path.normalize(srcPath || "#{@rootPath}/#{@srcPath}")
+		@skeletonsPath = path.normalize(skeletonsPath || @skeletonsPath)
+		@skeletonPath = path.normalize(skeletonPath || util.prefixPathSync(@skeletonPath, @skeletonsPath))
+		@port = port  if port
+		@maxAge = maxAge  if maxAge
+		@server = server  if server
 		@loadPlugins null, =>
 			logger.log 'info', 'Finished loading'
 			@loading = false
-		this.action(command)
 
 	# Clean Models
 	cleanModels: (next) ->
@@ -409,7 +408,7 @@ class Docpad
 	# Handle
 	action: (action) ->
 		switch action
-			when 'skeleton'
+			when 'skeleton', 'scaffold'
 				@skeletonAction (err) ->
 					throw err  if err
 					process.exit()
@@ -424,12 +423,12 @@ class Docpad
 					throw err  if err
 					logger.log 'info', 'DocPad is now watching you...'
 
-			when 'server'
+			when 'server', 'serve'
 				@serverAction (err) ->
 					throw err  if err
 					logger.log 'info', 'DocPad is now serving you...'
 
-			when 'all'
+			else
 				@skeletonAction (err) =>
 					throw err  if err
 					@generateAction (err) =>
@@ -620,7 +619,7 @@ class Docpad
 			tasks.total += length
 			documents.forEach (document) ->
 				# Generate path
-				fileFullPath = outPath+'/'+document.url #relativeBase+'.html'
+				fileFullPath = "#{outPath}/document.url" #relativeBase+'.html'
 				# Ensure path
 				util.ensurePath path.dirname(fileFullPath), (err) ->
 					# Error
@@ -765,9 +764,8 @@ class Docpad
 	skeletonAction: (next) ->
 		# Prepare
 		docpad = @
-		skeletonPath = ( if ( @skeletonsPath is ( __dirname + '/../' + 'skeletons' ) ) then @skeletonsPath + '/' + @defaultSkeleton else @skeletonsPath )
+		fromPath = @skeletonPath
 		toPath = @rootPath
-		toPath = util.prefixPathSync(toPath,@rootPath)
 
 		# Copy
 		path.exists docpad.srcPath, (exists) ->
@@ -775,8 +773,8 @@ class Docpad
 				logger.log 'notice', 'Cannot place skeleton as the desired structure already exists'
 				next()
 			else
-				logger.log 'info', 'Copying the skeleton ['+skeletonPath+'] to ['+toPath+']'
-				util.cpdir skeletonPath, toPath, (err) ->
+				logger.log 'info', "Copying the skeleton [#{fromPath}] to [#{toPath}]"
+				util.cpdir fromPath, toPath, (err) ->
 					unless err
 						logger.log 'info', 'Copied the skeleton'
 					next err
