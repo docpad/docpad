@@ -10,6 +10,8 @@ sys = require 'sys'
 caterpillar = require 'caterpillar'
 util = require 'bal-util'
 exec = require('child_process').exec
+versionCompare = false
+request = false
 express = false
 yaml = false
 eco = false
@@ -17,6 +19,7 @@ watchTree = false
 queryEngine = false
 growl = false
 logger = false
+packageJSON = JSON.parse fs.readFileSync("#{__dirname}/../package.json").toString()
 
 # -------------------------------------
 # Prototypes
@@ -270,6 +273,7 @@ class Docpad
 	skeletonPath: 'bootstrap'
 	maxAge: false
 	logLevel: 6
+	version: packageJSON.version
 
 	# Docpad
 	generating: false
@@ -312,6 +316,8 @@ class Docpad
 				formatter:
 					module: module
 		
+		@compareVersions()
+		
 		@initSkeletons =>
 			@skeletonsPath = path.normalize(skeletonsPath || @skeletonsPath)
 			@skeletonPath = util.prefixPathSync(
@@ -322,6 +328,20 @@ class Docpad
 				logger.log 'info', 'Finished loading'
 				@loading = false
 	
+	# Compare versions
+	compareVersions: ->
+		versionCompare = require 'version-compare'  unless versionCompare
+		request = require 'request'  unless request
+		request 'https://raw.github.com/balupton/docpad/master/package.json', (err,response,body) =>
+			if not err and response.statusCode == 200
+				data = JSON.parse body
+				unless versionCompare(@version,data.version,'>=')
+					logger.log 'notice', """
+						There is a new version of docpad available, you should probably upgrade...
+						current version:  #{@version}
+						new version:      #{data.version}
+						grab it here:     #{data.homepage}
+						"""
 	
 	# Initialise the Skeletons
 	initSkeletons: (next) ->
