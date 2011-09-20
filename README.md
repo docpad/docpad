@@ -105,6 +105,11 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 
 ## Using
 
+- Firstly, make a directory for your new website and cd into it.
+
+		mkdir my-new-website
+		cd my-new-website
+
 - To generate the rendered website, watch the files for changes, and run the docpad server
 	
 		docpad run
