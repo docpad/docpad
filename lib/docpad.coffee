@@ -790,6 +790,11 @@ class Docpad
 			listen = true
 			@server = express.createServer()
 
+		# Plugins
+		@triggerEvent 'serverBeforeConfiguration', {@server}, (err) ->
+			# Forward
+			next err
+
 		# Configuration
 		@server.configure =>
 			# Routing

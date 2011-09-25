@@ -1,0 +1,197 @@
+#!/usr/bin/env coffee
+
+# Read a wordpress mysql database and dump post in markdown format
+
+# Requires
+try
+	fs = require 'fs'
+	sys = require 'sys'
+	mysql = require 'mysql'
+	program = require 'commander'
+	require 'datejs'
+	events = require 'events'
+	emitter = new events.EventEmitter()
+	path = require 'path'
+catch error
+	console.log error
+	return
+
+# Help
+program.on '--help', ->
+  console.log('  Example:')
+  console.log('')
+  console.log('    $ wordpress --host localhost --port 3306  --database wordpress --username root --password root --charset 33 --output src/documents/markups --domains http://www.mywordpresdomain.com --layout default')
+  console.log('      chartset 33: UTF8_GENERAL_CI')
+  console.log('      chartset 48: LATIN1_GENERAL_CI')
+  console.log('')
+
+# Options
+program
+  .version('0.0.1')
+  .option('-h, --host <hostname>', "specify the host name of mysql database", 'localhost')
+  .option('-P, --port <port>', "specify the port of mysql database", parseInt, 3306)
+  .option('-d, --database <database>', "specify the name of mysql database", 'wordpress')
+  .option('-u, --username <username>', "specify the username of mysql database", 'root')
+  .option('-p, --password <password>', "specify the password of mysql database", 'root')
+  .option('-e, --charset <charset>', "specify the charset to read database", '33')
+  .option('-o, --output <output>', "specify the ouput directory", 'src/documents/markups')
+  .option('-D, --domains <domains>', "specify the old blog domains")
+  .option('-l, --layout <layout>', "specify the layout in header", 'default')
+
+# Process Arguments
+program.parse process.argv
+
+console.log('Wordpress to DocPad with:')
+console.log('  - host: ' + program.host)
+console.log('  - port: ' + program.port)
+console.log('  - database: ' + program.database)
+console.log('  - username: ' + program.username)
+console.log('  - password: ' + program.password)
+console.log('  - charset: ' + program.charset)
+console.log('  - output: ' + program.output)
+console.log('  - domains: ' + program.domains)
+console.log('  - domains: ' + program.layout)
+console.log('')
+
+# MySQL client
+client = mysql.createClient({ host: program.host, port: program.port, user: program.username, password: program.password, charsetNumber: program.charset })
+console.log('Using \'' + program.database + '\' database.')
+console.log('')
+client.useDatabase(program.database)
+
+# mkdir -p
+mkdirP = (p, mode, f) ->
+  cb = f || () ->
+  ps = path.normalize(p).split('/')
+  if p.charAt(0) != '/'
+    cb('Relative path: ' + p)
+    return
+  path.exists p, (exists) ->
+    if exists
+      cb()
+    else
+      mkdirP ps.slice(0,-1).join('/'), mode, (err) ->
+        if err && err.errno != process.EEXIST
+          cb(err)
+        else
+          console.log('Creating directory ' + p)
+          fs.mkdir(p, mode, cb);
+
+# Create output directory
+directory = path.join process.cwd(), program.output
+mkdirP directory, 0755
+
+# Processing posts
+optionsQuery = "select option_name, option_value from wp_options where option_name = 'permalink_structure' or option_name = 'tag_base' or option_name = 'category_base'";
+postsQuery = "select post_title, post_name, display_name, post_content, post_excerpt, post_date, wp_posts.ID, guid from wp_posts left join wp_users on wp_posts.post_author = wp_users.id where post_status = 'publish' and post_type = 'post'";
+tagsQuery = "select tm.term_id, tm.name, tr.object_id from wp_term_relationships tr 
+  inner join wp_term_taxonomy tt on tr.term_taxonomy_id = tt.term_taxonomy_id 
+  inner join wp_terms tm on tm.term_id=tt.term_id  
+  where tr.object_id=? and tt.taxonomy = 'post_tag'";
+categoriesQuery = "select tm.term_id, tm.name, tr.object_id from wp_term_relationships tr
+  inner join wp_term_taxonomy tt on tr.term_taxonomy_id = tt.term_taxonomy_id
+  inner join wp_terms tm on tm.term_id=tt.term_id
+  where tr.object_id=? and tt.taxonomy = 'category' order by term_order";
+
+client.endIfEmptyQueue = () ->
+  if client._queue.length == 0
+    client.end()
+
+client.query(optionsQuery, (err, results, fields) =>
+  throw err if err?
+  console.log 'Found ' + results.length + ' options.'
+  options = {}
+  for result in results
+    options[''+result.option_name+''] = result.option_value
+  # http://codex.wordpress.org/Using_Permalinks#Using_only_.25postname.25
+  # options.permalink_structure = options.permalink_structure + '%hour%/%minute%/%second%/%post_id%'
+  console.log(options)
+  emitter.emit('posts', options)
+).addListener('end', client.endIfEmptyQueue);
+
+emitter.on('posts', (options) =>
+  client.query(postsQuery, (err, posts, fields) =>
+    throw err if err?
+    console.log 'Found ' + posts.length + ' blog entries'
+    for post in posts
+      post.tags = []
+      post.categories = []
+      # replace URLs
+      if program.domains
+        domains = program.domains.split(',')
+        for domain in domains
+          post.post_excerpt = post.post_excerpt.replace(new RegExp(domain + "/wp-content/uploads/", "g"), "/images/")
+          post.post_content = post.post_content.replace(new RegExp(domain + "/wp-content/uploads/", "g"), "/images/")
+          post.post_excerpt = post.post_excerpt.replace(new RegExp(domain, "g"), "")
+          post.post_content = post.post_content.replace(new RegExp(domain, "g"), "")
+      emitter.emit('tag', post, options)
+  ).addListener('end', client.endIfEmptyQueue);
+)
+
+emitter.on('tag', (post, options) =>
+  client.query(tagsQuery, [post.ID], (err, tags, fields) =>
+    throw err if err?
+    for tag in tags
+      post.tags.push(tag.name)
+    emitter.emit('categories', post, options)
+  ).addListener('end', client.endIfEmptyQueue);
+)
+
+emitter.on('categories', (post, options) =>
+  client.query(categoriesQuery, [post.ID], (err, categories, fields) =>
+    throw err if err?
+    for category in categories
+      post.categories.push(category.name)
+    emitter.emit('end', post, options)
+  ).addListener('end', client.endIfEmptyQueue);
+)
+
+emitter.on('end', (post, options) =>
+  post.markdownName = post.post_date.toString('yyyy-MM-dd') + '-' + post.post_name + '.html.markdown'
+  filename = path.join(directory, post.markdownName)
+  console.log 'Writing blog entry \'' + post.post_title + '\' to ' + post.markdownName
+  fileStream = fs.createWriteStream(filename, {'flags': 'w'});
+  fileStream.write('---\n')
+  fileStream.write('layout: ' + program.layout + '\n')
+  if post.post_title
+    fileStream.write('title: ' + post.post_title.replace(':', '-').replace('\'', '\'\'') + '\n')
+  fileStream.write('date: \'' + post.post_date.toISOString() + '\'\n')
+  if post.display_name
+    fileStream.write('author: ' + post.display_name + '\n')
+  fileStream.write('aliases: [')
+  if post.guid
+    newguid = post.guid
+    if program.domains
+      domains = program.domains.split ','
+      for domain in domains
+        newguid = newguid.replace(new RegExp(domain, "g"), "")
+    fileStream.write('\'' + newguid + '\', ')
+  if options.permalink_structure
+    permalink = options.permalink_structure.replace(/%year%/g, post.post_date.toString('yyyy')).replace(/%monthnum%/g, post.post_date.toString('MM')).replace(/%day%/g, post.post_date.toString('dd')).replace(/%hour%/g, post.post_date.toString('HH')).replace(/%minute%/g, post.post_date.toString('mm')).replace(/%second%/g, post.post_date.toString('ss')).replace(/%post_id%/g, post.ID).replace(/%postname%/g, post.post_name)
+    fileStream.write('\'' + permalink + '\'')
+  fileStream.write(']\n')
+  if post.categories
+    fileStream.write('categories: [')
+    append = false
+    for category in post.categories
+      if append
+        fileStream.write(',')
+      fileStream.write(category)
+      append = true
+    fileStream.write(']\n')
+  if post.tags
+    fileStream.write('tags: [')
+    append = false
+    for tag in post.tags
+      if append
+        fileStream.write(',')
+      fileStream.write(tag)
+      append = true
+    fileStream.write(']\n')
+  if post.post_excerpt
+    fileStream.write('excerpt: ' + post.post_excerpt + '\n')
+  fileStream.write('---\n')
+  fileStream.write('\n')
+  fileStream.write(post.post_content)
+)
+
