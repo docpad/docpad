@@ -23,10 +23,9 @@ class BuildrPlugin extends DocpadPlugin
 			# Execute buildr.coffee
 			child.kill()  if child
 			child = exec "coffee #{buildrPath}", (err, stdout, stderr) ->
-				return next(err)  if err
 				console.log stdout.replace(/\s+$/,'')  if stdout
 				console.log stderr.replace(/\s+$/,'')  if stderr
-				next()
+				next err
 
 # Export Buildr Plugin
 module.exports = BuildrPlugin

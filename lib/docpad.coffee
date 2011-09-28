@@ -318,14 +318,17 @@ class Docpad
 		
 		@compareVersions()
 		
-		@initSkeletons =>
+		@initSkeletons (err) =>
+			if err
+				logger.log 'error', 'An error occured', err
+				throw err
+			
 			@skeletonsPath = path.normalize(skeletonsPath || @skeletonsPath)
 			@skeletonPath = util.prefixPathSync(
 				path.normalize(skeletonPath || @skeletonPath),
 				@skeletonsPath
 			)
 			@loadPlugins null, =>
-				logger.log 'info', 'Finished loading'
 				@loading = false
 	
 	# Compare versions
@@ -349,8 +352,23 @@ class Docpad
 	
 	# Initialise the Skeletons
 	initSkeletons: (next) ->
-		child = exec 'git submodule init; git submodule update; git submodule foreach --recursive "git submodule init; git submodule update"', {cwd: @corePath}, (err,stdout,stderr) =>
-		child.on 'exit', (code,signal) ->
+		snoring = false
+		notice = setTimeout(
+			->
+				snoring = true
+				logger.log 'notice', "Looks like we have some updates to do... grab a coffee, we'll be a few minutes"
+			2000
+		)
+
+		child = exec 'git submodule init; git submodule update; git submodule foreach --recursive "git checkout master; git submodule init; git submodule update; npm install"', {cwd: @corePath}, (err,stdout,stderr) ->
+			clearTimeout notice
+			
+			if err
+				console.log stdout.replace(/\s+$/,'')  if stdout
+				console.log stderr.replace(/\s+$/,'')  if stderr
+				return next(err)  
+
+			logger.log 'notice', 'Update completed successfully. You can wake up now :-)'  if snoring
 			next()
 
 	# Clean Models
@@ -376,11 +394,10 @@ class Docpad
 
 		# Check
 		if @loading
-			logger.log 'notice', 'Action received, but we still loading... waiting...'
 			@actionTimeout = setTimeout(
 				=>
 					@action(action, next)
-				500
+				1000
 			)
 			return
 		
