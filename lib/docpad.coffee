@@ -365,7 +365,10 @@ class Docpad
 
 
 	# Handle
-	action: (action, complete = -> process.exit()) ->
+	action: (action,next=null) ->
+		# Prepare
+		next or= -> process.exit()
+
 		# Clear
 		if @actionTimeout
 			clearTimeout(@actionTimeout)
@@ -376,7 +379,7 @@ class Docpad
 			logger.log 'notice', 'Action received, but we still loading... waiting...'
 			@actionTimeout = setTimeout(
 				=>
-					@action action, complete
+					@action(action, next)
 				500
 			)
 			return
@@ -386,12 +389,12 @@ class Docpad
 			when 'skeleton', 'scaffold'
 				@skeletonAction (err) ->
 					return @error(err)  if err
-					complete()
+					next()
 
 			when 'generate'
 				@generateAction (err) ->
 					return @error(err)  if err
-					complete()
+					next()
 
 			when 'watch'
 				@watchAction (err) ->
