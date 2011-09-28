@@ -166,12 +166,17 @@ DocPad is also quite extensible, it's easy to add support for new renderers and 
 
 ## History
 
+- v1.1 September 28, 2011
+	- Added a [buildr](http://github.com/balupton/buildr.npm) plugin and updated the bootstrap skeleton to support it
+	- The `action` method now supports an optional callback - thanks to [#41](https://github.com/balupton/docpad/pull/41) by [Aaron Powell](https://github.com/aaronpowell)
+	- Added a try..catch around the version detection to ensure it never kills docpad if something goes wrong
+
 - v1.0 September 20, 2011
 	- [Upgrade guide for v0.x users](https://github.com/balupton/docpad/wiki/Upgrading)
 	- The concept of template engines and markup languages have been merged into the concept of renderers
 	- Added [CoffeeKup](http://coffeekup.org/) renderer
 		- Including support for coffee <-> js, and coffeekup <-> html
-	- Added a [Commander.js](https://github.com/visionmedia/commander.js) based CLI thanks to [~eldios](https://github.com/eldios)
+	- Added a [Commander.js](https://github.com/visionmedia/commander.js) based CLI - thanks to [~eldios](https://github.com/eldios)
 	- Added support for [Growl](http://growl.info/) notificaitons
 	- Added asynchronous version comparison
 
