@@ -438,7 +438,7 @@ class Docpad
 								return tasks.complete(err)  
 							
 							# Complete
-							logger.log 'notice', "[#{skeleton}] Initialised NPM for Skeleton"
+							logger.log 'debug', "[#{skeleton}] Initialised NPM for Skeleton"
 							tasks.complete()
 					)
 		)
