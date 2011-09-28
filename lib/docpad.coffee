@@ -10,16 +10,16 @@ sys = require 'sys'
 caterpillar = require 'caterpillar'
 util = require 'bal-util'
 exec = require('child_process').exec
+growl = require('growl')
 versionCompare = false
 request = false
 express = false
 yaml = false
-eco = false
 watchTree = false
 queryEngine = false
-growl = false
 logger = false
 packageJSON = JSON.parse fs.readFileSync("#{__dirname}/../package.json").toString()
+
 
 # -------------------------------------
 # Prototypes
@@ -818,7 +818,6 @@ class Docpad
 	generateAction: (next) ->
 		# Requires
 		queryEngine = require('query-engine')  unless queryEngine
-		growl = require('growl')  unless growl
 
 		# Prepare
 		docpad = @
