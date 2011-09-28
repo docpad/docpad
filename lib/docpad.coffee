@@ -330,22 +330,26 @@ class Docpad
 	
 	# Compare versions
 	compareVersions: ->
-		versionCompare = require 'version-compare'  unless versionCompare
-		request = require 'request'  unless request
-		request 'https://raw.github.com/balupton/docpad/master/package.json', (err,response,body) =>
-			if not err and response.statusCode == 200
-				data = JSON.parse body
-				unless versionCompare(@version,data.version,'>=')
-					logger.log 'notice', """
-						There is a new version of docpad available, you should probably upgrade...
-						current version:  #{@version}
-						new version:      #{data.version}
-						grab it here:     #{data.homepage}
-						"""
+		try
+			versionCompare = require 'version-compare'  unless versionCompare
+			request = require 'request'  unless request
+			request 'https://raw.github.com/balupton/docpad/master/package.json', (err,response,body) =>
+				if not err and response.statusCode == 200
+					data = JSON.parse body
+					unless versionCompare(@version,data.version,'>=')
+						growl.notify 'There is a new version of docpad available'
+						logger.log 'notice', """
+							There is a new version of docpad available, you should probably upgrade...
+							current version:  #{@version}
+							new version:      #{data.version}
+							grab it here:     #{data.homepage}
+							"""
+		catch err
+			false
 	
 	# Initialise the Skeletons
 	initSkeletons: (next) ->
-		child = exec 'git submodule init; git submodule update', {cwd: @corePath}, (err,stdout,stderr) =>
+		child = exec 'git submodule init; git submodule update; git submodule foreach --recursive "git submodule init; git submodule update"', {cwd: @corePath}, (err,stdout,stderr) =>
 		child.on 'exit', (code,signal) ->
 			next()
 
