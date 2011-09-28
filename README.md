@@ -169,7 +169,7 @@ DocPad is awesomely extensible, it's easy to add support for new renderers and e
 	- Added a [buildr](http://github.com/balupton/buildr.npm) plugin and updated the bootstrap skeleton to support it
 	- The `action` method now supports an optional callback - thanks to [#41](https://github.com/balupton/docpad/pull/41) by [Aaron Powell](https://github.com/aaronpowell)
 	- Added a try..catch around the version detection to ensure it never kills docpad if something goes wrong
-	- Added better initialisation, will now perform a recursive submodule init and update, as well as a recursive npm install
+	- Skeletons have been removed from the repository due to circular references. The chosen skeleton is now pulled during the skeleton action. We also now perform a recursive git submodule init and update, as well as a npm install if necessary.
 
 - v1.0 September 20, 2011
 	- [Upgrade guide for v0.x users](https://github.com/balupton/docpad/wiki/Upgrading)
