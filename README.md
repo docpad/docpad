@@ -133,7 +133,7 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 
 ## Created With
 
-### General
+### Core
 
 * [Node.js](http://nodejs.org) - Server Side Javascript
 * [Express.js](http://expressjs.com) - The "Server" in Server Side Javascript
@@ -153,10 +153,9 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 * [Jade](http://jade-lang.com/) - HTML made easy
 * [HAML](http://haml-lang.com/) - Markup haiku
 
-
 ### Extensions
 
-DocPad is also quite extensible, it's easy to add support for new renderers and even add funky new functionality ontop of docpad! [Check out what others are making](https://github.com/balupton/docpad/wiki/Extensions), or [learn to make your own extensions here.](https://github.com/balupton/docpad/wiki/Extending)
+DocPad is awesomely extensible, it's easy to add support for new renderers and even add funky new functionality ontop of docpad! [Check out what others are making](https://github.com/balupton/docpad/wiki/Extensions), or [learn to make your own extensions here.](https://github.com/balupton/docpad/wiki/Extending)
 
 
 ## Learning
