@@ -360,9 +360,9 @@ class Docpad
 			2000
 		)
 
-		child = exec 'git submodule init; git submodule update; git submodule foreach --recursive "git checkout master; git submodule init; git submodule update; npm install"', {cwd: @corePath}, (err,stdout,stderr) ->
+		child = exec 'git init; git submodule init; git submodule update; git submodule foreach --recursive "git init; git checkout master; git submodule init; git submodule update; npm install"', {cwd: @corePath}, (err,stdout,stderr) ->
 			clearTimeout notice
-			
+
 			if err
 				console.log stdout.replace(/\s+$/,'')  if stdout
 				console.log stderr.replace(/\s+$/,'')  if stderr
@@ -855,10 +855,58 @@ class Docpad
 			else
 				logger.log 'info', "Copying the skeleton [#{fromPath}] to [#{toPath}]"
 				util.cpdir fromPath, toPath, (err) ->
-					unless err
-						logger.log 'info', 'Copied the skeleton'
-					next err
+					return next err  if err
+					logger.log 'info', 'Initialising the skeleton'
 
+					# Async
+					tasks = new util.Group (err) ->
+						logger.log 'debug', 'Initialised the skeleton'  unless err
+						next err
+					tasks.total = 2
+					
+					# Submodules
+					path.exists "#{toPath}/.gitmodules", (exists) ->
+						tasks.complete()  unless exists
+						logger.log 'notice', 'Initialising Subnmodules for Skeleton'
+						snoring = false
+						notice = setTimeout(
+							->
+								snoring = true
+								logger.log 'notice', "Submodules: This could take a while, grab a snickers"
+							2000
+						)
+						child = exec 'git init; git submodule init; git submodule update; git submodule foreach --recursive "git init; git checkout master; git submodule init; git submodule update"', {cwd: @toPath}, (err,stdout,stderr) ->
+							clearTimeout notice
+
+							if err
+								console.log stdout.replace(/\s+$/,'')  if stdout
+								console.log stderr.replace(/\s+$/,'')  if stderr
+								return tasks.complete(err)  
+
+							logger.log 'notice', "Submodules: It's been a while, you can wake up now :-)"  if snoring
+							tasks.complete()
+
+					# NPM
+					path.exists "#{toPath}/package.json", (exists) ->
+						tasks.complete()  unless exists
+						logger.log 'notice', 'Initialising NPM for Skeleton'
+						snoring = false
+						notice = setTimeout(
+							->
+								snoring = true
+								logger.log 'notice', "NPM: This could take a while, grab a snickers"
+							2000
+						)
+						child = exec 'npm install', {cwd: @toPath}, (err,stdout,stderr) ->
+							clearTimeout notice
+
+							if err
+								console.log stdout.replace(/\s+$/,'')  if stdout
+								console.log stderr.replace(/\s+$/,'')  if stderr
+								return tasks.complete(err)  
+
+							logger.log 'notice', "NPM: It's been a while, you can wake up now :-)"  if snoring
+							tasks.complete()
 
 	# Server
 	serverAction: (next) ->
