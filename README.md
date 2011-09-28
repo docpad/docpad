@@ -85,7 +85,7 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 
 1. Install dependencies
 		
-		npm -g install coffee-script buildr
+		npm -g install coffee-script
 
 1. Install DocPad
 
@@ -167,10 +167,9 @@ DocPad is awesomely extensible, it's easy to add support for new renderers and e
 
 - v1.1 September 28, 2011
 	- Added a [buildr](http://github.com/balupton/buildr.npm) plugin and updated the bootstrap skeleton to support it
-		- This supports javascript and css bundling, yay!
-		- Requires a new global dependency. Run `npm install -g buildr`
 	- The `action` method now supports an optional callback - thanks to [#41](https://github.com/balupton/docpad/pull/41) by [Aaron Powell](https://github.com/aaronpowell)
 	- Added a try..catch around the version detection to ensure it never kills docpad if something goes wrong
+	- Added better initialisation, will now perform a recursive submodule init and update, as well as a recursive npm install
 
 - v1.0 September 20, 2011
 	- [Upgrade guide for v0.x users](https://github.com/balupton/docpad/wiki/Upgrading)
