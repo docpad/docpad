@@ -269,8 +269,7 @@ class Docpad
 	outPath: 'out'
 	srcPath: 'src'
 	corePath: "#{__dirname}/.."
-	skeletonsPath: "#{__dirname}/../skeletons"
-	skeletonPath: 'bootstrap'
+	skeleton: 'bootstrap'
 	maxAge: false
 	logLevel: 6
 	version: packageJSON.version
@@ -293,13 +292,17 @@ class Docpad
 	PluginsArray: []
 	PluginsObject: {}
 
+	# Skeletons
+	skeletons:
+		bootstrap:
+			repo: 'https://github.com/balupton/bootstrap.docpad.git'
 
 
 	# ---------------------------------
 	# Main
 
 	# Init
-	constructor: ({rootPath,outPath,srcPath,skeletonsPath,skeletonPath,maxAge,port,server,logLevel}={}) ->
+	constructor: ({rootPath,outPath,srcPath,skeleton,maxAge,port,server,logLevel}={}) ->
 		# Options
 		@PluginsArray = []
 		@PluginsObject = {}
@@ -309,27 +312,22 @@ class Docpad
 		@rootPath = path.normalize(rootPath || process.cwd())
 		@outPath = path.normalize(outPath || "#{@rootPath}/#{@outPath}")
 		@srcPath = path.normalize(srcPath || "#{@rootPath}/#{@srcPath}")
+		@skeleton = skeleton  if skeleton
 
+		# Logger
 		logger = new caterpillar.Logger
 			transports:
 				level: logLevel or @logLevel
 				formatter:
 					module: module
 		
+		# Version Check
 		@compareVersions()
 		
-		@initSkeletons (err) =>
-			if err
-				logger.log 'error', 'An error occured', err
-				throw err
-			
-			@skeletonsPath = path.normalize(skeletonsPath || @skeletonsPath)
-			@skeletonPath = util.prefixPathSync(
-				path.normalize(skeletonPath || @skeletonPath),
-				@skeletonsPath
-			)
-			@loadPlugins null, =>
-				@loading = false
+		# Load Plugins
+		@loadPlugins null, =>
+			@loading = false
+
 	
 	# Compare versions
 	compareVersions: ->
@@ -350,26 +348,101 @@ class Docpad
 		catch err
 			false
 	
-	# Initialise the Skeletons
-	initSkeletons: (next) ->
+
+	# Initialise the Skeleton
+	initialiseSkeleton: (skeleton, destinationPath, next) ->
+		# Prepare
+		skeletonRepo = @skeletons[skeleton].repo
+		logger.log 'info', "[#{skeleton}] Initialising the Skeleton to #{destinationPath}"
 		snoring = false
 		notice = setTimeout(
 			->
 				snoring = true
-				logger.log 'notice', "Looks like we have some updates to do... grab a coffee, we'll be a few minutes"
+				logger.log 'notice', "[#{skeleton}] This could take a while, grab a snickers"
 			2000
 		)
 
-		child = exec 'git init; git submodule init; git submodule update; git submodule foreach --recursive "git init; git checkout master; git submodule init; git submodule update; npm install"', {cwd: @corePath}, (err,stdout,stderr) ->
-			clearTimeout notice
+		# Async
+		tasks = new util.Group (err) ->
+			logger.log 'info', "[#{skeleton}] Initialised the Skeleton"  unless err
+			next err
+		tasks.total = 2
+		
+		# Pull
+		logger.log 'debug', "[#{skeleton}] Pulling in the Skeleton"
+		child = exec(
+			# Command
+			"git init; git remote add skeleton #{skeletonRepo}; git pull skeleton master"
+			
+			# Options
+			{
+				cwd: destinationPath
+			}
 
-			if err
-				console.log stdout.replace(/\s+$/,'')  if stdout
-				console.log stderr.replace(/\s+$/,'')  if stderr
-				return next(err)  
+			# Next
+			(err,stdout,stderr) ->
+				# Output
+				if err
+					console.log stdout.replace(/\s+$/,'')  if stdout
+					console.log stderr.replace(/\s+$/,'')  if stderr
+					return next err
+				
+				# Log
+				logger.log 'debug', "[#{skeleton}] Pulled in the Skeleton"
 
-			logger.log 'notice', 'Update completed successfully. You can wake up now :-)'  if snoring
-			next()
+				# Submodules
+				path.exists "#{destinationPath}/.gitmodules", (exists) ->
+					tasks.complete()  unless exists
+					logger.log 'debug', "[#{skeleton}] Initialising Submodules for Skeleton"
+					child = exec(
+						# Command
+						'git submodule init; git submodule update; git submodule foreach --recursive "git init; git checkout master; git submodule init; git submodule update"'
+						
+						# Options
+						{
+							cwd: destinationPath
+						}
+
+						# Next
+						(err,stdout,stderr) ->
+							# Output
+							if err
+								console.log stdout.replace(/\s+$/,'')  if stdout
+								console.log stderr.replace(/\s+$/,'')  if stderr
+								return tasks.complete(err)  
+							
+							# Complete
+							logger.log 'debug', "[#{skeleton}] Initalised Submodules for Skeleton"
+							tasks.complete()
+					)
+				
+				# NPM
+				path.exists "#{destinationPath}/package.json", (exists) ->
+					tasks.complete()  unless exists
+					logger.log 'debug', "[#{skeleton}] Initialising NPM for Skeleton"
+					child = exec(
+						# Command
+						'npm install'
+
+						# Options
+						{
+							cwd: destinationPath
+						}
+
+						# Next
+						(err,stdout,stderr) ->
+							# Output
+							if err
+								console.log stdout.replace(/\s+$/,'')  if stdout
+								console.log stderr.replace(/\s+$/,'')  if stderr
+								return tasks.complete(err)  
+							
+							# Complete
+							logger.log 'notice', "[#{skeleton}] Initialised NPM for Skeleton"
+							tasks.complete()
+					)
+		)
+			
 
 	# Clean Models
 	cleanModels: (next) ->
@@ -434,6 +507,7 @@ class Docpad
 								return @error(err)  if err
 								logger.log 'info', 'DocPad is is now watching and serving you...'
 	
+
 	# Handle an error
 	error: (err) ->
 		logger.log 'err', "An error occured: #{err}\n", err  if err
@@ -844,69 +918,21 @@ class Docpad
 	skeletonAction: (next) ->
 		# Prepare
 		docpad = @
-		fromPath = @skeletonPath
-		toPath = @rootPath
+		skeleton = @skeleton
+		destinationPath = @rootPath
 
 		# Copy
-		path.exists docpad.srcPath, (exists) ->
+		path.exists docpad.srcPath, (exists) =>
+			# Check
 			if exists
 				logger.log 'notice', 'Cannot place skeleton as the desired structure already exists'
-				next()
-			else
-				logger.log 'info', "Copying the skeleton [#{fromPath}] to [#{toPath}]"
-				util.cpdir fromPath, toPath, (err) ->
-					return next err  if err
-					logger.log 'info', 'Initialising the skeleton'
+				return next()
+			
+			# Initialise Skeleton
+			logger.log 'info', "About to initialise the skeleton [#{skeleton}] to [#{destinationPath}]"
+			@initialiseSkeleton skeleton, destinationPath, (err) ->
+				return next err
 
-					# Async
-					tasks = new util.Group (err) ->
-						logger.log 'debug', 'Initialised the skeleton'  unless err
-						next err
-					tasks.total = 2
-					
-					# Submodules
-					path.exists "#{toPath}/.gitmodules", (exists) ->
-						tasks.complete()  unless exists
-						logger.log 'notice', 'Initialising Subnmodules for Skeleton'
-						snoring = false
-						notice = setTimeout(
-							->
-								snoring = true
-								logger.log 'notice', "Submodules: This could take a while, grab a snickers"
-							2000
-						)
-						child = exec 'git init; git submodule init; git submodule update; git submodule foreach --recursive "git init; git checkout master; git submodule init; git submodule update"', {cwd: @toPath}, (err,stdout,stderr) ->
-							clearTimeout notice
-
-							if err
-								console.log stdout.replace(/\s+$/,'')  if stdout
-								console.log stderr.replace(/\s+$/,'')  if stderr
-								return tasks.complete(err)  
-
-							logger.log 'notice', "Submodules: It's been a while, you can wake up now :-)"  if snoring
-							tasks.complete()
-
-					# NPM
-					path.exists "#{toPath}/package.json", (exists) ->
-						tasks.complete()  unless exists
-						logger.log 'notice', 'Initialising NPM for Skeleton'
-						snoring = false
-						notice = setTimeout(
-							->
-								snoring = true
-								logger.log 'notice', "NPM: This could take a while, grab a snickers"
-							2000
-						)
-						child = exec 'npm install', {cwd: @toPath}, (err,stdout,stderr) ->
-							clearTimeout notice
-
-							if err
-								console.log stdout.replace(/\s+$/,'')  if stdout
-								console.log stderr.replace(/\s+$/,'')  if stderr
-								return tasks.complete(err)  
-
-							logger.log 'notice', "NPM: It's been a while, you can wake up now :-)"  if snoring
-							tasks.complete()
 
 	# Server
 	serverAction: (next) ->
