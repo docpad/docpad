@@ -2,7 +2,7 @@
 DocpadPlugin = require "#{__dirname}/../../plugin.coffee"
 markdown = require 'github-flavored-markdown'
 
-# Define Markdown Plugin
+# Define Plugin
 class MarkdownPlugin extends DocpadPlugin
 	# Plugin name
 	name: 'markdown'
@@ -12,13 +12,14 @@ class MarkdownPlugin extends DocpadPlugin
 
 	# Render some content
 	render: ({inExtension,outExtension,templateData,file}, next) ->
-		if inExtension in ['md','markdown']
-			try
+		tru
+			if inExtension in ['md','markdown']
 				file.content = markdown.parse file.content
 				next()
-			catch err
-				return next err
-		else next()
+			else
+				next()
+		catch err
+			return next(err)
 
-# Export Markdown Plugin
+# Export Plugin
 module.exports = MarkdownPlugin
