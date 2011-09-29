@@ -10,47 +10,41 @@ class DocpadPlugin
 	# Plugin priority
 	priority: 500
 
-	# Scan these extensions
-	extensions: []
-
 	# Constructor
 	constructor: ->
 		if !@name
 			throw new Error 'Plugin must have a name'
-		
-		if typeof @parseExtensions is 'string'
-			@parseExtensions = @parseExtensions.split(/,\s/g)
-	
+
 	# ---------------------------------
 	# Events
 
 	# Cleaning has finished
 	cleanFinished: ({docpad},next) ->
-		next null
+		next()
 
 	# Parsing all files has finished
 	parseFinished: ({docpad},next) ->
-		next null
+		next()
 	
 	# Rendering all files has started
 	renderStarted: ({docpad,templateData},next) ->
-		next null
+		next()
 	
 	# Render a file
 	render: ({docpad,inExtension,outExtension,templateData,file}, next) ->
-		next null
+		next()
 	
 	# Rendering all files has finished
 	renderFinished: ({docpad},next) ->
-		next null
+		next()
 
 	# Writing all files has finished
 	writeFinished: ({docpad},next) ->
-		next null
+		next()
 
 	# Setting up the server has finished
 	serverFinished: ({docpad,server},next) ->
-		next null
+		next()
 
 
 # Export Docpad Plugin
