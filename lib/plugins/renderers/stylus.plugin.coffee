@@ -2,7 +2,7 @@
 DocpadPlugin = require "#{__dirname}/../../plugin.coffee"
 stylus = require 'stylus'
 
-# Define Stylus Plugin
+# Define Plugin
 class StylusPlugin extends DocpadPlugin
 	# Plugin name
 	name: 'stylus'
@@ -12,15 +12,16 @@ class StylusPlugin extends DocpadPlugin
 
 	# Render some content
 	render: ({inExtension,outExtension,templateData,file}, next) ->
-		if inExtension is 'stylus'
-			try
+		try
+			if inExtension is 'stylus'
 				stylus.render file.content, {filename: file.basename}, (err,output) ->
 					return next err  if err
 					file.content = output
 					next()
-			catch err
-				return next err
-		else next()
+			else
+				next()
+		catch err
+			return next err
 
-# Export Stylus Plugin
+# Export Plugin
 module.exports = StylusPlugin

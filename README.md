@@ -170,6 +170,7 @@ DocPad is awesomely extensible, it's easy to add support for new renderers and e
 	- Added a [Stylus](http://learnboost.github.com/stylus/) renderer
 	- Plugins now conform to a .plugin.coffee naming standard
 	- Dependencies now allow for minor patches
+	- Added support for HTML to Jade rendering thanks to [Don Park](https://github.com/donpark)'s [html2jade](https://github.com/donpark/html2jade)
 
 - v1.1 September 28, 2011
 	- Added a [buildr](http://github.com/balupton/buildr.npm) plugin and updated the bootstrap skeleton to support it

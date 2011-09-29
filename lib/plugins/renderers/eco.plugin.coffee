@@ -2,7 +2,7 @@
 DocpadPlugin = require "#{__dirname}/../../plugin.coffee"
 eco = require 'eco'
 
-# Define Eco Plugin
+# Define Plugin
 class EcoPlugin extends DocpadPlugin
 	# Plugin name
 	name: 'eco'
@@ -12,13 +12,14 @@ class EcoPlugin extends DocpadPlugin
 
 	# Render some content
 	render: ({inExtension,outExtension,templateData,file}, next) ->
-		if inExtension is 'eco'
-			try
+		try
+			if inExtension is 'eco'
 				file.content = eco.render file.content, templateData
 				next()
-			catch err
-				return next err
-		else next()
+			else
+				next()
+		catch err
+			return next(err)
 
-# Export Eco Plugin
+# Export Plugin
 module.exports = EcoPlugin

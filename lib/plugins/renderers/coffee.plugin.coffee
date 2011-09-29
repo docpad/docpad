@@ -6,7 +6,7 @@ coffee = require 'coffee-script'
 js2coffee = require 'js2coffee/lib/js2coffee.coffee'
 html2ckConvertor = new html2ck.Converter()
 
-# Define Coffee Plugin
+# Define Plugin
 class CoffeePlugin extends DocpadPlugin
 	# Plugin name
 	name: 'coffee'
@@ -33,5 +33,5 @@ class CoffeePlugin extends DocpadPlugin
 		catch err
 			return next err
 
-# Export Coffee Plugin
+# Export Plugin
 module.exports = CoffeePlugin
