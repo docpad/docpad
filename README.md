@@ -95,7 +95,7 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 
 		git clone git://github.com/balupton/docpad.git
 		cd docpad
-		git checkout v1.0
+		git branch -v
 		npm install
 		git submodule init
 		git submodule update
@@ -147,11 +147,12 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 
 ### Renderers
 
-* [Markdown](http://daringfireball.net/projects/markdown/basics) - markup made easy
+* [Markdown](http://daringfireball.net/projects/markdown/basics) - Rich text made easy
 * [Eco](https://github.com/sstephenson/eco) - Templating made easy
-* [CoffeeKup](http://coffeekup.org/) - HTML as CoffeeScript
-* [Jade](http://jade-lang.com/) - HTML made easy
+* [CoffeeKup](http://coffeekup.org/) - Markup as CoffeeScript
+* [Jade](http://jade-lang.com/) - Markup made easy
 * [HAML](http://haml-lang.com/) - Markup haiku
+* [Stylus](http://learnboost.github.com/stylus/) - CSS made easy
 
 ### Extensions
 
@@ -164,6 +165,11 @@ DocPad is awesomely extensible, it's easy to add support for new renderers and e
 
 
 ## History
+
+- v1.2 September 29, 2011
+	- Added a [Stylus](http://learnboost.github.com/stylus/) renderer
+	- Plugins now conform to a .plugin.coffee naming standard
+	- Dependencies now allow for minor patches
 
 - v1.1 September 28, 2011
 	- Added a [buildr](http://github.com/balupton/buildr.npm) plugin and updated the bootstrap skeleton to support it

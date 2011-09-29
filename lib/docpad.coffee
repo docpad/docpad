@@ -539,6 +539,7 @@ class Docpad
 			@PluginsObject[plugin.name] = plugin
 			@PluginsArray.push plugin
 			@PluginsArray.sort (a,b) -> a.priority < b.priority
+			logger.log 'debug', "Loaded plugin [#{plugin.name}]"
 		
 		# Unknown Plugin Type
 		else
@@ -591,7 +592,8 @@ class Docpad
 
 				# File Action
 				(fileFullPath,fileRelativePath,nextFile) =>
-					@registerPlugin fileFullPath, nextFile
+					if /\.plugin\.[a-zA-Z0-9]+/.test(fileRelativePath)
+						@registerPlugin fileFullPath, nextFile
 				
 				# Dir Action
 				false,
