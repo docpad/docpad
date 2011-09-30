@@ -13,7 +13,7 @@ class MarkdownPlugin extends DocpadPlugin
 	# Render some content
 	render: ({inExtension,outExtension,templateData,file}, next) ->
 		tru
-			if inExtension in ['md','markdown']
+			if inExtension in ['md','markdown'] and outExtension is 'html'
 				file.content = markdown.parse file.content
 				next()
 			else
