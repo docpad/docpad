@@ -153,7 +153,7 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 - [Markdown](http://daringfireball.net/projects/markdown/basics) to HTML `.html.md|markdown`
 - [Eco](https://github.com/sstephenson/eco) to anything `.anything.eco`
 - [CoffeeKup](http://coffeekup.org/) to anything `.anything.ck|coffeekup|coffee` and HTML to CoffeeKup `.ck|coffeekup|coffee.html`
-- [Jade](http://jade-lang.com/) to anything `.anything.jade` and HTML to Jade (`.jade.html`)
+- [Jade](http://jade-lang.com/) to anything `.anything.jade` and HTML to Jade `.jade.html`
 - [HAML](http://haml-lang.com/) to anything `.anything.haml`
 
 #### Styles
@@ -162,7 +162,7 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 
 #### Scripts
 
-- [CoffeeScript](http://jashkenas.github.com/coffee-script/) to JavaScript `.js.coffee`, and JavaScript to CoffeeScript `.coffee.js`
+- [CoffeeScript](http://jashkenas.github.com/coffee-script/) to JavaScript `.js.coffee` and JavaScript to CoffeeScript `.coffee.js`
 
 
 ### Extensions
@@ -202,9 +202,9 @@ DocPad is awesomely extensible, it's easy to add support for new renderers and e
 	- [Upgrade guide for v0.x users](https://github.com/balupton/docpad/wiki/Upgrading)
 	- The concept of template engines and markup languages have been merged into the concept of renderers
 	- Coffee Plugin
-		- Added [CoffeeKup](http://coffeekup.org/) to anything, and HTML to CoffeeKup support
+		- Added [CoffeeKup](http://coffeekup.org/) to anything and HTML to CoffeeKup support
 			- Uses [Maurice Machado's](https://github.com/mauricemach) [CoffeeKup](https://github.com/mauricemach/coffeekup) and [Brandon Bloom's](https://github.com/brandonbloom) [Html2CoffeeKup](https://github.com/brandonbloom/html2coffeekup)
-		- Added [CoffeeScript](http://jashkenas.github.com/coffee-script/) to JavaScript, and JavaScript to CoffeeScript support
+		- Added [CoffeeScript](http://jashkenas.github.com/coffee-script/) to JavaScript and JavaScript to CoffeeScript support
 			- Uses [Jeremy Ashkenas's](https://github.com/jashkenas) [CoffeeScript](https://github.com/jashkenas/coffee-script/) and [Rico Sta. Cruz's](https://github.com/rstacruz) [Js2Coffee](https://github.com/rstacruz/js2coffee)
 	- Added a [Commander.js](https://github.com/visionmedia/commander.js) based CLI
 		- Thanks to [~eldios](https://github.com/eldios)
