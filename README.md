@@ -135,28 +135,40 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 
 ### Core
 
-* [Node.js](http://nodejs.org) - Server Side Javascript
-* [Express.js](http://expressjs.com) - The "Server" in Server Side Javascript
-* [Query-Engine](https://github.com/balupton/query-engine.npm) - The MongoDB Query-Engine without the Database
-* [CoffeeScript](http://jashkenas.github.com/coffee-script) - JavaScript made easy
-* [Caterpillar](https://github.com/balupton/caterpillar.npm) - Logging made easy
-* [Bal-Util](https://github.com/balupton/bal-util.npm) - Node.js made easy
-* [YAML](https://github.com/visionmedia/js-yaml) - Data made easy
-* [Commander.js](https://github.com/visionmedia/commander.js) - Console apps made easy
-* [Node-Growl](https://github.com/visionmedia/node-growl) - Notifications made easy
+- [Node.js](http://nodejs.org) - Server Side Javascript
+- [Express.js](http://expressjs.com) - The "Server" in Server Side Javascript
+- [Query-Engine](https://github.com/balupton/query-engine.npm) - The MongoDB Query-Engine without the Database
+- [CoffeeScript](http://jashkenas.github.com/coffee-script) - JavaScript made easy
+- [Caterpillar](https://github.com/balupton/caterpillar.npm) - Logging made easy
+- [Bal-Util](https://github.com/balupton/bal-util.npm) - Node.js made easy
+- [YAML](https://github.com/visionmedia/js-yaml) - Data made easy
+- [Commander.js](https://github.com/visionmedia/commander.js) - Console apps made easy
+- [Node-Growl](https://github.com/visionmedia/node-growl) - Notifications made easy
+
 
 ### Renderers
 
-* [Markdown](http://daringfireball.net/projects/markdown/basics) - Rich text made easy
-* [Eco](https://github.com/sstephenson/eco) - Templating made easy
-* [CoffeeKup](http://coffeekup.org/) - Markup as CoffeeScript
-* [Jade](http://jade-lang.com/) - Markup made easy
-* [HAML](http://haml-lang.com/) - Markup haiku
-* [Stylus](http://learnboost.github.com/stylus/) - CSS made easy
+#### Markups
+
+- [Markdown](http://daringfireball.net/projects/markdown/basics) to HTML `.html.md|markdown`
+- [Eco](https://github.com/sstephenson/eco) to anything `.anything.eco`
+- [CoffeeKup](http://coffeekup.org/) to anything `.anything.ck|coffeekup|coffee` and HTML to CoffeeKup `.ck|coffeekup|coffee.html`
+- [Jade](http://jade-lang.com/) to anything `.anything.jade` and HTML to Jade (`.jade.html`)
+- [HAML](http://haml-lang.com/) to anything `.anything.haml`
+
+#### Styles
+
+- [Stylus](http://learnboost.github.com/stylus/) to CSS `.css.stylus`
+
+#### Scripts
+
+- [CoffeeScript](http://jashkenas.github.com/coffee-script/) to JavaScript `.js.coffee`, and JavaScript to CoffeeScript `.coffee.js`
+
 
 ### Extensions
 
 DocPad is awesomely extensible, it's easy to add support for new renderers and even add funky new functionality ontop of docpad! [Check out what others are making](https://github.com/balupton/docpad/wiki/Extensions), or [learn to make your own extensions here.](https://github.com/balupton/docpad/wiki/Extending)
+
 
 
 ## Learning
@@ -167,31 +179,47 @@ DocPad is awesomely extensible, it's easy to add support for new renderers and e
 ## History
 
 - v1.2 September 29, 2011
-	- Added a [Stylus](http://learnboost.github.com/stylus/) renderer
 	- Plugins now conform to a .plugin.coffee naming standard
 	- Dependencies now allow for minor patches
-	- Added support for HTML to Jade rendering thanks to [Don Park](https://github.com/donpark)'s [html2jade](https://github.com/donpark/html2jade)
+	- Stylus Plugin
+		- Added [Stylus](http://learnboost.github.com/stylus/) to CSS support
+			- Uses [TJ Holowaychuk/LearnBoost's](https://github.com/learnboost) [Stylus](https://github.com/learnboost/stylus)
+	- Jade Plugin
+		- Added HTML to Jade support
+			- Uses [Don Park's](https://github.com/donpark) [Html2Jade](https://github.com/donpark/html2jade)
+	- Coffee Plugin
+		- Added CoffeeCSS to CSS support
+			- Uses [James Campos's](https://github.com/aeosynth) [CCSS](https://github.com/aeosynth/ccss)
 
 - v1.1 September 28, 2011
-	- Added a [buildr](http://github.com/balupton/buildr.npm) plugin and updated the bootstrap skeleton to support it
-	- The `action` method now supports an optional callback - thanks to [#41](https://github.com/balupton/docpad/pull/41) by [Aaron Powell](https://github.com/aaronpowell)
+	- Added [Buildr](http://github.com/balupton/buildr.npm) Plugin so you can now bundle your scripts and styles together :-)
+	- The `action` method now supports an optional callback
+		- Thanks to [#41](https://github.com/balupton/docpad/pull/41) by [Aaron Powell](https://github.com/aaronpowell)
 	- Added a try..catch around the version detection to ensure it never kills docpad if something goes wrong
 	- Skeletons have been removed from the repository due to circular references. The chosen skeleton is now pulled during the skeleton action. We also now perform a recursive git submodule init and update, as well as a npm install if necessary.
 
 - v1.0 September 20, 2011
 	- [Upgrade guide for v0.x users](https://github.com/balupton/docpad/wiki/Upgrading)
 	- The concept of template engines and markup languages have been merged into the concept of renderers
-	- Added [CoffeeKup](http://coffeekup.org/) renderer
-		- Including support for coffee <-> js, and coffeekup <-> html
-	- Added a [Commander.js](https://github.com/visionmedia/commander.js) based CLI - thanks to [~eldios](https://github.com/eldios)
+	- Coffee Plugin
+		- Added [CoffeeKup](http://coffeekup.org/) to anything, and HTML to CoffeeKup support
+			- Uses [Maurice Machado's](https://github.com/mauricemach) [CoffeeKup](https://github.com/mauricemach/coffeekup) and [Brandon Bloom's](https://github.com/brandonbloom) [Html2CoffeeKup](https://github.com/brandonbloom/html2coffeekup)
+		- Added [CoffeeScript](http://jashkenas.github.com/coffee-script/) to JavaScript, and JavaScript to CoffeeScript support
+			- Uses [Jeremy Ashkenas's](https://github.com/jashkenas) [CoffeeScript](https://github.com/jashkenas/coffee-script/) and [Rico Sta. Cruz's](https://github.com/rstacruz) [Js2Coffee](https://github.com/rstacruz/js2coffee)
+	- Added a [Commander.js](https://github.com/visionmedia/commander.js) based CLI
+		- Thanks to [~eldios](https://github.com/eldios)
 	- Added support for [Growl](http://growl.info/) notificaitons
 	- Added asynchronous version comparison
 
 - v0.10 September 14, 2011
 	- Plugin infrastructure
 	- Better logging through [Caterpillar](https://github.com/balupton/caterpillar.npm)
-	- Added [Haml](https://github.com/visionmedia/haml.js) support
-	- Fixed [Jade](https://github.com/visionmedia/jade) support
+	- HAML Plugin
+		- Added [HAML](http://haml-lang.com/) to anything support
+			- Uses [TJ Holowaychuk's](https://github.com/visionmedia) [HAML](https://github.com/visionmedia/haml.js) support
+	- Jade Plugin
+		- Added [Jade](http://jade-lang.com/) to anything support
+			- Uses [TJ Holowaychuk's](https://github.com/visionmedia) [Jade](https://github.com/visionmedia/jade)
 
 - v0.9 July 6, 2011
 	- No longer uses MongoDB/Mongoose! We now use [Query-Engine](https://github.com/balupton/query-engine.npm) which doesn't need any database server :)
