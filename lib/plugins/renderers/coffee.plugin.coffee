@@ -41,7 +41,7 @@ class CoffeePlugin extends DocpadPlugin
 				next()
 			
 			# CoffeeCSS to CSS
-			else if inExtension in ['coffee','ccss'] and outExtension is 'css'
+			else if inExtension in ['coffeecss','coffee','ccss'] and outExtension is 'css'
 				file.content = ccss.compile coffee.eval file.content
 				next()
 			
