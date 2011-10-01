@@ -725,7 +725,7 @@ class Docpad
 			date: new Date()
 
 		# Prepare template data
-		documents = Documents.find({}).sort({'date':-1})
+		documents = Documents.find({}).sort (a,b) -> new Date(b.date) - new Date(a.date)
 		templateData = 
 			documents: documents
 			document: null
