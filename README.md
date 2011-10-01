@@ -159,7 +159,7 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 #### Styles
 
 - [Stylus](http://learnboost.github.com/stylus/) to CSS `.css.stylus`
-- [CCSS](https://github.com/aeosynth/ccss) to CSS `.css.css|coffee`
+- [CCSS](https://github.com/aeosynth/ccss) to CSS `.css.ccss|coffeecss|coffee`
 
 #### Scripts
 
