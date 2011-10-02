@@ -159,7 +159,7 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 #### Styles
 
 - [Stylus](http://learnboost.github.com/stylus/) to CSS `.css.stylus`
-- [CCSS](https://github.com/aeosynth/ccss) to CSS `.css.ccss|coffeecss|coffee`
+- [CoffeeCSS](https://github.com/aeosynth/ccss) to CSS `.css.ccss|coffeecss|coffee`
 
 #### Scripts
 
@@ -186,10 +186,10 @@ DocPad is awesomely extensible, it's easy to add support for new renderers and e
 		- Added [Stylus](http://learnboost.github.com/stylus/) to CSS support
 			- Uses [TJ Holowaychuk/LearnBoost's](https://github.com/learnboost) [Stylus](https://github.com/learnboost/stylus)
 	- Jade Plugin
-		- Added HTML to Jade support
+		- Added HTML to [Jade](http://jade-lang.com/) support
 			- Uses [Don Park's](https://github.com/donpark) [Html2Jade](https://github.com/donpark/html2jade)
 	- Coffee Plugin
-		- Added CoffeeCSS to CSS support
+		- Added [CoffeeCSS](https://github.com/aeosynth/ccss) to CSS support
 			- Uses [James Campos's](https://github.com/aeosynth) [CCSS](https://github.com/aeosynth/ccss)
 
 - v1.1 September 28, 2011
