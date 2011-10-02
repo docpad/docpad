@@ -129,7 +129,7 @@ class File
 				# Extract parts
 				fileHead = fileSplit[1].replace(/\t/g,'    ').replace(/\s+$/m,'').replace(/\r\n?/g,'\n')+'\n'
 				fileBody = fileSplit.slice(2).join('---')
-				fileMeta = yaml.eval fileHead
+				fileMeta = yaml.eval(fileHead) or {}
 			else
 				# Extract part
 				fileBody = fileData
@@ -159,12 +159,14 @@ class File
 			# Refresh data
 			@refresh()
 
-			# Correct meta data
-			fileMeta.date = new Date(fileMeta.date)  if fileMeta.date or false
+			# Meta Data
+			if fileMeta
+				# Correct meta data
+				fileMeta.date = new Date(fileMeta.date)  if fileMeta.date? and fileMeta.date
 
-			# Apply user meta
-			for own key, value of fileMeta
-				@[key] = value
+				# Apply user meta
+				for own key, value of fileMeta
+					@[key] = value
 			
 			# Complete
 			tasks.complete()
