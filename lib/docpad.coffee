@@ -114,7 +114,7 @@ class File
 		# Stat the file
 		fs.stat @fullPath, (err,fileStat) =>
 			return next err  if err
-			@date = fileStat.ctime
+			@date = new Date(fileStat.ctime)  unless @date
 			tasks.complete()
 
 		# Read the file
@@ -153,17 +153,19 @@ class File
 			@contentRendered = fileBody
 			@relativeBase = (if relativeDirPath.length then relativeDirPath+'/' else '')+@filename
 			@title = @title || path.basename(@fullPath)
-			@date = new Date(@date)  if @date
 			@slug = util.generateSlugSync @relativeBase
 			@id = @slug
 			
 			# Refresh data
 			@refresh()
 
+			# Correct meta data
+			fileMeta.date = new Date(fileMeta.date)  if fileMeta.date or false
+
 			# Apply user meta
 			for own key, value of fileMeta
 				@[key] = value
-
+			
 			# Complete
 			tasks.complete()
 	

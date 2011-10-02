@@ -191,6 +191,8 @@ DocPad is awesomely extensible, it's easy to add support for new renderers and e
 	- Coffee Plugin
 		- Added [CoffeeCSS](https://github.com/aeosynth/ccss) to CSS support
 			- Uses [James Campos's](https://github.com/aeosynth) [CCSS](https://github.com/aeosynth/ccss)
+	- Fixed incorrect date sorting for documents
+		- Thanks to [Olivier Bazoud](https://github.com/obazoud) for the heads up
 
 - v1.1 September 28, 2011
 	- Added [Buildr](http://github.com/balupton/buildr.npm) Plugin so you can now bundle your scripts and styles together :-)
