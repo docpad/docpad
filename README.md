@@ -131,7 +131,7 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 		docpad server
 
 
-## Supported
+## Supports
 
 ### Markups
 
@@ -150,7 +150,7 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 
 - [CoffeeScript](http://jashkenas.github.com/coffee-script/) to JavaScript `.js.coffee` and JavaScript to CoffeeScript `.coffee.js`
 
-### Meta Parsers
+### Parsers
 
 - [YAML](https://github.com/visionmedia/js-yaml) with `--- yaml` (default)
 - [CoffeeScript](http://jashkenas.github.com/coffee-script/) with `--- coffee`
