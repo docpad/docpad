@@ -14,7 +14,7 @@ class StylusPlugin extends DocpadPlugin
 	render: ({inExtension,outExtension,templateData,file}, next) ->
 		try
 			if inExtension is 'stylus' and outExtension is 'css'
-				stylus.render file.content, {filename: file.basename}, (err,output) ->
+				stylus.render file.content, {filename: file.filename}, (err,output) ->
 					return next err  if err
 					file.content = output
 					next()

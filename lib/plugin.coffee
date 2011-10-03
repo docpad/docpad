@@ -1,4 +1,4 @@
-# Define Docpad Plugin
+# Define Plugin
 class DocpadPlugin
 
 	# ---------------------------------
@@ -26,6 +26,10 @@ class DocpadPlugin
 	parseFinished: ({docpad},next) ->
 		next()
 	
+	# Contextualizing all files has finished
+	contextualizeFinished: ({docpad},next) ->
+		next()
+	
 	# Rendering all files has started
 	renderStarted: ({docpad,templateData},next) ->
 		next()
@@ -47,5 +51,5 @@ class DocpadPlugin
 		next()
 
 
-# Export Docpad Plugin
+# Export Plugin
 module.exports = DocpadPlugin

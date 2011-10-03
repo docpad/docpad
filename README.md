@@ -131,24 +131,9 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 		docpad server
 
 
-## Created With
+## Supported
 
-### Core
-
-- [Node.js](http://nodejs.org) - Server Side Javascript
-- [Express.js](http://expressjs.com) - The "Server" in Server Side Javascript
-- [Query-Engine](https://github.com/balupton/query-engine.npm) - The MongoDB Query-Engine without the Database
-- [CoffeeScript](http://jashkenas.github.com/coffee-script) - JavaScript made easy
-- [Caterpillar](https://github.com/balupton/caterpillar.npm) - Logging made easy
-- [Bal-Util](https://github.com/balupton/bal-util.npm) - Node.js made easy
-- [YAML](https://github.com/visionmedia/js-yaml) - Data made easy
-- [Commander.js](https://github.com/visionmedia/commander.js) - Console apps made easy
-- [Node-Growl](https://github.com/visionmedia/node-growl) - Notifications made easy
-
-
-### Renderers
-
-#### Markups
+### Markups
 
 - [Markdown](http://daringfireball.net/projects/markdown/basics) to HTML `.html.md|markdown`
 - [Eco](https://github.com/sstephenson/eco) to anything `.anything.eco`
@@ -156,28 +141,52 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 - [Jade](http://jade-lang.com/) to anything `.anything.jade` and HTML to Jade `.jade.html`
 - [HAML](http://haml-lang.com/) to anything `.anything.haml`
 
-#### Styles
+### Styles
 
 - [Stylus](http://learnboost.github.com/stylus/) to CSS `.css.stylus`
 - [CoffeeCSS](https://github.com/aeosynth/ccss) to CSS `.css.ccss|coffeecss|coffee`
 
-#### Scripts
+### Scripts
 
 - [CoffeeScript](http://jashkenas.github.com/coffee-script/) to JavaScript `.js.coffee` and JavaScript to CoffeeScript `.coffee.js`
 
+### Meta Parsers
 
-### Extensions
+- [YAML](https://github.com/visionmedia/js-yaml) with `--- yaml` (default)
+- [CoffeeScript](http://jashkenas.github.com/coffee-script/) with `--- coffee`
 
-DocPad is awesomely extensible, it's easy to add support for new renderers and even add funky new functionality ontop of docpad! [Check out what others are making](https://github.com/balupton/docpad/wiki/Extensions), or [learn to make your own extensions here.](https://github.com/balupton/docpad/wiki/Extending)
+## Extensions
+
+DocPad is awesomely extensible, and by default includes a fair few extensions. It's also incredibly easy to empower docpad even further by writing your own extensions.
+
+- [Check out this wiki page to discover information about the extensions bundled with docpad, and other extensions people are writing](https://github.com/balupton/docpad/wiki/Extensions)
+
+- [Check out this wiki page to discover how to extend docpad even further with your own extensions](https://github.com/balupton/docpad/wiki/Extending)
 
 
+## Wiki
 
-## Learning
-
-[To learn more about DocPad (including using and extending it) visit its wiki here](https://github.com/balupton/docpad/wiki)
+[This has just been a small taste of DocPad, head over to the wiki to see how truly deep the rabit hole goes](https://github.com/balupton/docpad/wiki)
 
 
 ## History
+
+- v1.3 October 3, 2011
+	- Parsing is now split into two parts `parsing` and `contextualizing`
+		- Contextualizing is used to determine the result filename, and title if title was not set
+	- The code is now more concise
+		- File class moved to `lib/file.coffee`
+		- Prototypes moved to `lib/prototypes.coffee`
+		- Version checking moved to bal-util
+	- File properties have changed
+		- `basename` is extensionless
+		- `filename` now contains the file's extnesions
+		- `id` is now the `relativeBase` instead of the `slug`
+		- `extensionRendered` is the result extension
+		- `filenameRendered` is the result filename: `"#{basename}.#{extensionRendered}"
+		- `title` if now set to `filenameRendered` if not set
+	- Added support for different meta parsers, starting with [CoffeeScript](http://jashkenas.github.com/coffee-script/) and [YAML](https://github.com/visionmedia/js-yaml) support. YAML is still the default meta parser.
+	- The YAML dependency is specifically set now to v0.2.1 as the newer version has a bug in it.
 
 - v1.2 September 29, 2011
 	- Plugins now conform to a .plugin.coffee naming standard
