@@ -216,6 +216,9 @@ class File
 		tasks = new util.Group (err) =>
 			return next(err)  if err
 
+			# Reset content
+			@content = @contentSrc
+
 			# Wrap in layout
 			if @layout
 				@getLayout (err,layout) =>
@@ -229,10 +232,8 @@ class File
 				@logger.log 'debug', "Rendering completed for #{@relativePath}"
 				next err
 		
-		tasks.total = @extensions.length-1
-
 		# Check tasks
-		if tasks.total <= 0
+		if @extensions.length <= 1
 			# No rendering necessary
 			tasks.total = 1
 			tasks.complete()
@@ -248,26 +249,32 @@ class File
 		for extension in extensions
 			# Has a previous extension
 			if previousExtension
-				# Event Data
-				eventData =
+				# Event data
+				eventData = 
 					inExtension: previousExtension
 					outExtension: extension
 					templateData: templateData
 					file: @
 				
-				# Render through plugins
-				@triggerRenderEvent eventData, (err) =>
-					return tasks.exit err  if err
+				# Create a task to run
+				tasks.push ((eventData) => =>
+					# Render through plugins
+					@triggerRenderEvent eventData, (err) =>
+						return tasks.exit(err)  if err
 
-					# Update rendered content
-					@contentRendered = @content
-					@content = @contentSrc
+						# Update rendered content
+						@contentRendered = @content
 
-					# Complete
-					tasks.complete err
-			
+						# Complete
+						tasks.complete(err)
+				
+				)(eventData)
+
 			# Cycle
 			previousExtension = extension
+		
+		# Run tasks synchronously
+		tasks.sync()
 
 		# Chain
 		@
