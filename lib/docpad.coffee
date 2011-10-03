@@ -11,263 +11,17 @@ caterpillar = require 'caterpillar'
 util = require 'bal-util'
 exec = require('child_process').exec
 growl = require('growl')
-versionCompare = false
-request = false
 express = false
-yaml = false
 watchTree = false
 queryEngine = false
-logger = false
 packageJSON = JSON.parse fs.readFileSync("#{__dirname}/../package.json").toString()
-
-
-# -------------------------------------
-# Prototypes
-
-Array::hasCount = (arr) ->
-	count = 0
-	for a in this
-		for b in arr
-			if a is b
-				++count
-				break
-	return count
-
-Date::toShortDateString = ->
-	return this.toDateString().replace(/^[^\s]+\s/,'')
-
-Date::toISODateString = Date::toIsoDateString = ->
-	pad = (n) ->
-		if n < 10 then ('0'+n) else n
-
-	# Return
-	@getUTCFullYear()+'-'+
-		pad(@getUTCMonth()+1)+'-'+
-		pad(@getUTCDate())+'T'+
-		pad(@getUTCHours())+':'+
-		pad(@getUTCMinutes())+':'+
-		pad(@getUTCSeconds())+'Z'
-
-String::startsWith = (prefix) ->
-	return @indexOf(prefix) is 0
-
-String::finishesWith = (suffix) ->
-	return @indexOf(suffix) is @length-1
-
-
-# -------------------------------------
-# Collections
-
-Layouts = {}
-Documents = {}
-
-# -------------------------------------
-# Models
-
-class File
-	# Auto
-	id: null
-	basename: null
-	extensions: []
-	extension: null
-	filename: null
-	fullPath: null
-	relativePath: null
-	relativeBase: null
-	content: null
-	contentSrc: null
-	contentRaw: null
-	contentRendered: null
-
-	# User
-	title: null
-	date: null
-	slug: null
-	url: null
-	ignore: false
-	tags: []
-	relatedDocuments: []
-
-	# Constructor
-	constructor: (fullPath,relativePath) ->
-		@fullPath = fullPath
-		@relativePath = relativePath
-		@extensions = []
-		@tags = []
-		@relatedDocuments = []
-
-	# Load
-	# next(err)
-	load: (next) ->
-		# Log
-		logger.log 'debug', "Reading the file #{@relativePath}"
-
-		# Async
-		tasks = new util.Group (err) =>
-			if err
-				logger.log 'err', "Failed to read the file #{@relativePath}"
-			else
-				logger.log 'debug', "Read the file #{@relativePath}"
-			next err
-		tasks.total = 2
-
-		# Stat the file
-		fs.stat @fullPath, (err,fileStat) =>
-			return next err  if err
-			@date = new Date(fileStat.ctime)  unless @date
-			tasks.complete()
-
-		# Read the file
-		fs.readFile @fullPath, (err,data) =>
-			return next err  if err
-
-			# Handle data
-			fileData = data.toString()
-			fileSplit = fileData.split '---'
-			fileMeta = {}
-			if fileSplit.length >= 3 and !fileSplit[0]
-				# Extract parts
-				fileHead = fileSplit[1].replace(/\t/g,'    ').replace(/\s+$/m,'').replace(/\r\n?/g,'\n')+'\n'
-				fileBody = fileSplit.slice(2).join('---')
-				fileMeta = yaml.eval(fileHead) or {}
-			else
-				# Extract part
-				fileBody = fileData
-
-			# Extensions
-			@basename = path.basename @fullPath
-			@extensions = @basename.split /\./g
-			@extensions.shift()
-			@extension = @extensions[0]
-			@extensionRendered = @extension
-			@filename = @basename.replace(/\..*/, '')
-
-			# Temp
-			fullDirPath = path.dirname @fullPath
-			relativeDirPath = path.dirname(@relativePath).replace(/^\.$/,'')
-
-			# Update Meta
-			@content = fileBody
-			@contentSrc = fileBody
-			@contentRaw = fileData
-			@contentRendered = fileBody
-			@relativeBase = (if relativeDirPath.length then relativeDirPath+'/' else '')+@filename
-			@title = @title || path.basename(@fullPath)
-			@slug = util.generateSlugSync @relativeBase
-			@id = @slug
-			
-			# Refresh data
-			@refresh()
-
-			# Meta Data
-			if fileMeta
-				# Correct meta data
-				fileMeta.date = new Date(fileMeta.date)  if fileMeta.date? and fileMeta.date
-
-				# Apply user meta
-				for own key, value of fileMeta
-					@[key] = value
-			
-			# Complete
-			tasks.complete()
-	
-	# Refresh data
-	refresh: ->
-		@url = "/#{@relativeBase}.#{@extensionRendered}"
-	
-	# getParent
-	# next(err,layout)
-	getLayout: (next) ->
-		# Find parent
-		Layouts.findOne {relativeBase:@layout}, (err,layout) ->
-			# Check
-			if err
-				return next err
-			else if not layout
-				err = new Error "Could not find the layout: #{@layout}"
-				return next err
-			else
-				return next null, layout
-
-	# Render
-	# next(err,finalExtension)
-	render: (triggerRenderEvent,templateData,next) ->
-		# Log
-		logger.log 'debug', "Rendering the file #{@relativePath}"
-
-		# Prepare
-		@contentRendered = @content
-		@content = @contentSrc
-
-		# Async
-		tasks = new util.Group (err) =>
-			next err  if err
-
-			# Wrap in layout
-			if @layout
-				@getLayout (err,layout) =>
-					return next err  if err
-					templateData.content = @contentRendered
-					layout.render triggerRenderEvent, templateData, (err) =>
-						@contentRendered = layout.contentRendered
-						@extensionRendered = layout.extension
-						@refresh()
-						logger.log 'debug', "Rendering completed for #{@relativePath}"
-						next err
-			else
-				logger.log 'debug', "Rendering completed for #{@relativePath}"
-				next err
-		
-		tasks.total = @extensions.length-1
-
-		# Check tasks
-		if tasks.total <= 0
-			# No rendering necessary
-			tasks.total = 1
-			tasks.complete()
-			return
-		
-		# Clone extensions
-		extensions = []
-		for extension in @extensions
-			extensions.unshift extension
-
-		# Cycle through all the extension groups
-		previousExtension = null
-		for extension in extensions
-			# Has a previous extension
-			if previousExtension
-				# Event Data
-				eventData =
-					inExtension: previousExtension
-					outExtension: extension
-					templateData: templateData
-					file: @
-				
-				# Render through plugins
-				triggerRenderEvent eventData, (err) =>
-					return tasks.exit err  if err
-
-					# Update rendered content
-					@contentRendered = @content
-					@content = @contentSrc
-
-					# Complete
-					tasks.complete err
-			
-			# Cycle
-			previousExtension = extension
-
-
-class Layout extends File
-class Document extends File
+require "#{__dirname}/prototypes.coffee"
 
 
 # -------------------------------------
 # Docpad
 
 class Docpad
-
 	# Options
 	rootPath: null
 	outPath: 'out'
@@ -285,16 +39,18 @@ class Docpad
 	actionTimeout: null
 	server: null
 	port: 9778
+	logger: null
 
 	# Models
-	Layout: Layout
-	Document: Document
-	Layouts: Layouts
-	Documents: Documents
+	File: null
+	Layout: null
+	Document: null
+	layouts: null
+	documents: null
 	
 	# Plugins
-	PluginsArray: []
-	PluginsObject: {}
+	pluginsArray: []
+	pluginsObject: {}
 
 	# Skeletons
 	skeletons:
@@ -308,8 +64,8 @@ class Docpad
 	# Init
 	constructor: ({rootPath,outPath,srcPath,skeleton,maxAge,port,server,logLevel}={}) ->
 		# Options
-		@PluginsArray = []
-		@PluginsObject = {}
+		@pluginsArray = []
+		@pluginsObject = {}
 		@port = port  if port
 		@maxAge = maxAge  if maxAge
 		@server = server  if server
@@ -319,43 +75,82 @@ class Docpad
 		@skeleton = skeleton  if skeleton
 
 		# Logger
-		logger = new caterpillar.Logger
+		@logger = new caterpillar.Logger
 			transports:
 				level: logLevel or @logLevel
 				formatter:
 					module: module
 		
 		# Version Check
-		@compareVersions()
+		@compareVersion()
 		
 		# Load Plugins
 		@loadPlugins null, =>
 			@loading = false
+	
+	# Layout Document
+	createDocument: (data) ->
+		# Create
+		document = new @Document(data)
+		docpad = @
 
+		# Prepare event
+		document.layouts = @layouts
+		document.logger = @logger
+		document.triggerRenderEvent = (args...) ->
+			args.unshift('render')
+			docpad.triggerEvent.apply(docpad,args)
+		
+		# Return document
+		document
 	
+	# Create Layout
+	createLayout: (data) ->
+		# Create
+		layout = new @Layout(data)
+		docpad = @
+
+		# Prepare
+		layout.layouts = @layouts
+		layout.logger = @logger
+		layout.triggerRenderEvent = (args...) ->
+			args.unshift('render')
+			docpad.triggerEvent.apply(docpad,args)
+		
+		# Return layout
+		layout
+
+	# Clean Models
+	cleanModels: (next) ->
+		File = @File = require("#{__dirname}/file.coffee")
+		Layout = @Layout = class extends File
+		Document = @Document = class extends File
+		layouts = @layouts = new queryEngine.Collection
+		documents = @documents = new queryEngine.Collection
+		Layout::save = ->
+			layouts[@id] = @
+		Document::save = ->
+			documents[@id] = @
+		next()  if next
+
 	# Compare versions
-	compareVersions: ->
-		try
-			versionCompare = require 'version-compare'  unless versionCompare
-			request = require 'request'  unless request
-			request 'https://raw.github.com/balupton/docpad/master/package.json', (err,response,body) =>
-				if not err and response.statusCode == 200
-					data = JSON.parse body
-					unless versionCompare(@version,data.version,'>=')
-						growl.notify 'There is a new version of docpad available'
-						logger.log 'notice', """
-							There is a new version of docpad available, you should probably upgrade...
-							current version:  #{@version}
-							new version:      #{data.version}
-							grab it here:     #{data.homepage}
-							"""
-		catch err
-			false
-	
+	compareVersion: ->
+		util.packageCompare
+			local: "#{__dirname}/../package.json"
+			remote: 'https://raw.github.com/balupton/docpad/master/package.json'
+			newVersionCallback: (details) =>
+				growl.notify 'There is a new version of docpad available'
+				@logger.log 'notice', """
+					There is a new version of docpad available, you should probably upgrade...
+					current version:  #{details.local.version}
+					new version:      #{details.remote.version}
+					grab it here:     #{details.remote.homepage}
+					"""
 
 	# Initialise the Skeleton
 	initialiseSkeleton: (skeleton, destinationPath, next) ->
 		# Prepare
+		logger = @logger
 		skeletonRepo = @skeletons[skeleton].repo
 		logger.log 'info', "[#{skeleton}] Initialising the Skeleton to #{destinationPath}"
 		snoring = false
@@ -446,22 +241,11 @@ class Docpad
 							tasks.complete()
 					)
 		)
-			
-
-	# Clean Models
-	cleanModels: (next) ->
-		@Layouts = Layouts = new queryEngine.Collection
-		@Documents = Documents = new queryEngine.Collection
-		Layout::save = ->
-			Layouts[@id] = @
-		Document::save = ->
-			Documents[@id] = @
-		next()  if next
-
-
+	
 	# Handle
 	action: (action,next=null) ->
 		# Prepare
+		logger = @logger
 		next or= -> process.exit()
 
 		# Clear
@@ -514,7 +298,7 @@ class Docpad
 
 	# Handle an error
 	error: (err) ->
-		logger.log 'err', "An error occured: #{err}\n", err  if err
+		@logger.log 'err', "An error occured: #{err}\n", err  if err
 
 
 
@@ -525,6 +309,7 @@ class Docpad
 	# next(err)
 	registerPlugin: (plugin,next) ->
 		# Prepare
+		logger = @logger
 		error = null
 
 		# Plugin Path
@@ -540,9 +325,9 @@ class Docpad
 		# Loaded Plugin
 		else if plugin and (plugin.name? or plugin::name?)
 			plugin = new plugin  if typeof plugin is 'function'
-			@PluginsObject[plugin.name] = plugin
-			@PluginsArray.push plugin
-			@PluginsArray.sort (a,b) -> a.priority < b.priority
+			@pluginsObject[plugin.name] = plugin
+			@pluginsArray.push plugin
+			@pluginsArray.sort (a,b) -> a.priority < b.priority
 			logger.log 'debug', "Loaded plugin [#{plugin.name}]"
 		
 		# Unknown Plugin Type
@@ -555,20 +340,21 @@ class Docpad
 
 	# Get a plugin by it's name
 	getPlugin: (pluginName) ->
-		@PluginsObject[pluginName]
+		@pluginsObject[pluginName]
 
 
 	# Trigger a plugin event
 	# next(err)
 	triggerEvent: (eventName,data,next) ->
 		# Async
+		logger = @logger
 		tasks = new util.Group (err) ->
 			logger.log 'debug', "Plugins completed for #{eventName}"
 			next err
-		tasks.total = @PluginsArray.length
+		tasks.total = @pluginsArray.length
 
 		# Cycle
-		for plugin in @PluginsArray
+		for plugin in @pluginsArray
 			data.docpad = @
 			data.logger = logger
 			data.util = util
@@ -577,6 +363,10 @@ class Docpad
 
 	# Load Plugins
 	loadPlugins: (pluginsPath, next) ->
+		# Prepare
+		logger = @logger
+
+		# Load
 		unless pluginsPath
 			# Async
 			tasks = new util.Group (err) ->
@@ -598,6 +388,8 @@ class Docpad
 				(fileFullPath,fileRelativePath,nextFile) =>
 					if /\.plugin\.[a-zA-Z0-9]+/.test(fileRelativePath)
 						@registerPlugin fileFullPath, nextFile
+					else
+						nextFile()
 				
 				# Dir Action
 				false,
@@ -615,6 +407,7 @@ class Docpad
 	# Clean the database
 	generateClean: (next) ->
 		# Prepare
+		logger = @logger
 		logger.log 'debug', 'Cleaning started'
 
 		# Models
@@ -627,12 +420,12 @@ class Docpad
 		tasks.total = 2
 
 		# Layouts
-		@Layouts.remove {}, (err) ->
+		@layouts.remove {}, (err) ->
 			logger.log 'debug', 'Cleaned layouts'  unless err
 			tasks.complete err
 		
 		# Documents
-		@Documents.remove {}, (err) ->
+		@documents.remove {}, (err) ->
 			logger.log 'debug', 'Cleaned documents'  unless err
 			tasks.complete err
 
@@ -647,12 +440,10 @@ class Docpad
 
 
 	# Parse the files
-	generateParse: (nextTask) ->
+	generateParse: (next) ->
 		# Requires
-		yaml = require 'yaml'  unless yaml
+		logger = @logger
 		docpad = @
-
-		# Log
 		logger.log 'debug', 'Parsing files'
 
 		# Paths
@@ -661,8 +452,9 @@ class Docpad
 
 		# Async
 		tasks = new util.Group (err) ->
+			return next(err)  if err
 			logger.log 'debug', 'Parsed files'  unless err
-			nextTask err
+			next()
 		tasks.total = 2
 
 		# Layouts
@@ -675,7 +467,10 @@ class Docpad
 				# Ignore?
 				docpad.filePathIgnored fileFullPath, (err,ignore) ->
 					return nextFile(err)  if err or ignore
-					layout = new Layout fileFullPath, fileRelativePath
+					layout = docpad.createLayout(
+							fullPath: fileFullPath
+							relativePath: fileRelativePath
+					)
 					layout.load (err) ->
 						return nextFile err  if err
 						layout.save()
@@ -700,7 +495,10 @@ class Docpad
 				# Ignore?
 				docpad.filePathIgnored fileFullPath, (err,ignore) ->
 					return nextFile(err)  if err or ignore
-					document = new Document fileFullPath, fileRelativePath
+					document = docpad.createDocument(
+						fullPath: fileFullPath
+						relativePath: fileRelativePath
+					)
 					document.load (err) ->
 						return nextFile err  if err
 						document.save()
@@ -715,21 +513,46 @@ class Docpad
 				tasks.complete err
 		)
 
-
-	# Generate render
-	generateRender: (next) ->
+	# Generate contextualize
+	generateContextualize: (next) ->
+		# Prepare
 		docpad = @
+		logger = @logger
+		logger.log 'debug', 'Contextualizing files'
 
 		# Async
 		tasks = new util.Group (err) ->
-			next err
+			return next(err)  if err
+			logger.log 'debug', 'Contextualized files'
+			next()
+		
+		# Fetch
+		documents = @documents.find({}).sort({'date':-1})
+		tasks.total += documents.length
 
+		# Scan all documents
+		documents.forEach (document) ->
+			document.contextualize tasks.completer()
+
+	# Generate render
+	generateRender: (next) ->
+		# Prepare
+		docpad = @
+		logger = @logger
+		logger.log 'debug', 'Rendering files'
+
+		# Async
+		tasks = new util.Group (err) ->
+			return next(err)  if err
+			logger.log 'debug', 'Rendered files'
+			next()
+		
 		# Prepare site data
 		Site = site =
 			date: new Date()
 
 		# Prepare template data
-		documents = Documents.find({}).sort({'date':-1})
+		documents = @documents.find({}).sort({'date':-1})
 		templateData = 
 			documents: documents
 			document: null
@@ -738,11 +561,6 @@ class Docpad
 			site: site
 			Site: site
 
-		# Prepare event
-		triggerRenderEvent = (args...) ->
-			args.unshift('render')
-			docpad.triggerEvent.apply(docpad,args)
-		
 		# Trigger Helpers
 		@triggerEvent 'renderStarted', {documents,templateData}, (err) ->
 			return next err  if err
@@ -751,7 +569,6 @@ class Docpad
 			documents.forEach (document) ->
 				templateData.document = templateData.Document = document
 				document.render(
-					triggerRenderEvent
 					templateData
 					tasks.completer()
 				)
@@ -759,7 +576,11 @@ class Docpad
 
 	# Write files
 	generateWriteFiles: (next) ->
+		# Prepare
+		logger = @logger
 		logger.log 'debug', 'Writing files'
+
+		# Write
 		util.cpdir(
 			# Src Path
 			@srcPath+'/files',
@@ -774,6 +595,8 @@ class Docpad
 
 	# Write documents
 	generateWriteDocuments: (next) ->
+		# Prepare
+		logger = @logger
 		outPath = @outPath
 		logger.log 'debug', 'Writing documents'
 
@@ -783,7 +606,7 @@ class Docpad
 			next err
 
 		# Find documents
-		Documents.find {}, (err,documents,length) ->
+		@documents.find {}, (err,documents,length) ->
 			# Error
 			return tasks.exit err  if err
 
@@ -804,7 +627,8 @@ class Docpad
 
 	# Write
 	generateWrite: (next) ->
-		# Handle
+		# Prepare
+		logger = @logger
 		logger.log 'debug', 'Writing everything'
 
 		# Async
@@ -822,11 +646,10 @@ class Docpad
 
 	# Generate
 	generateAction: (next) ->
-		# Requires
-		queryEngine = require('query-engine')  unless queryEngine
-
 		# Prepare
 		docpad = @
+		logger = @logger
+		queryEngine = require('query-engine')  unless queryEngine
 
 		# Clear
 		if @generateTimeout
@@ -860,44 +683,52 @@ class Docpad
 					logger.log 'err', 'Failed to clean the out path', docpad.outPath
 					return next err
 				logger.log 'debug', 'Cleaned the out path'
+
 				# Generate Clean
 				docpad.generateClean (err) ->
 					return next err  if err
 					# Clean Completed
 					docpad.triggerEvent 'cleanFinished', {}, (err) ->
 						return next err  if err
+
 						# Generate Parse
 						docpad.generateParse (err) ->
 							return next err  if err
 							# Parse Completed
 							docpad.triggerEvent 'parseFinished', {}, (err) ->
 								return next err  if err
-								# Generate Render
-								docpad.generateRender (err) ->
-									return next err  if err
-									# Render Completed
-									docpad.triggerEvent 'renderFinished', {}, (err) ->
-										return next err  if err
-										docpad.generateWrite (err) ->
-											# Write Completed
-											docpad.triggerEvent 'writeFinished', {}, (err) ->
-												unless err
-													growl.notify (new Date()).toLocaleTimeString(), title: 'Website Generated'
-													logger.log 'info', 'Generated'
-													docpad.cleanModels()
-													docpad.generating = false
-												next err
+
+								# Generate Contextualize
+								docpad.generateContextualize (err) ->
+										# Contextualize Completed
+										docpad.triggerEvent 'contextualizeFinished', {}, (err) ->
+											return next err  if err
+
+											# Generate Render
+											docpad.generateRender (err) ->
+												return next err  if err
+												# Render Completed
+												docpad.triggerEvent 'renderFinished', {}, (err) ->
+													return next err  if err
+
+													# Generate Write
+													docpad.generateWrite (err) ->
+														# Write Completed
+														docpad.triggerEvent 'writeFinished', {}, (err) ->
+															return next(err)  if err
+															growl.notify (new Date()).toLocaleTimeString(), title: 'Website Generated'
+															logger.log 'info', 'Generated'
+															docpad.cleanModels()
+															docpad.generating = false
+															next()
 
 
 	# Watch
 	watchAction: (next) ->
-		# Requires
-		watchTree = require 'watch-tree'	unless watchTree
-
 		# Prepare
+		logger = @logger
 		docpad = @
-
-		# Log
+		watchTree = require 'watch-tree'	unless watchTree
 		logger.log 'Watching setup starting...'
 
 		# Watch the src directory
@@ -922,6 +753,7 @@ class Docpad
 	# Skeleton
 	skeletonAction: (next) ->
 		# Prepare
+		logger = @logger
 		docpad = @
 		skeleton = @skeleton
 		destinationPath = @rootPath
@@ -941,7 +773,8 @@ class Docpad
 
 	# Server
 	serverAction: (next) ->
-		# Requires
+		# Prepare
+		logger = @logger
 		express = require 'express'			unless express
 
 		# Server

@@ -1,6 +1,6 @@
 {
 	"name": "docpad",
-	"version": "1.2.5",
+	"version": "1.3.0",
 	"description": "DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written in CoffeeScript+Node.js instead of Ruby, and also allows the template engine complete access to the document model. This means you have unlimited power as a CMS and the simplicity of a notepad.",
 	"homepage": "https://github.com/balupton/docpad",
 	"keywords": [
@@ -44,27 +44,25 @@
 		"url" : "http://github.com/balupton/docpad.git"
 	},
 	"dependencies": {
-		"query-engine": "0.5.x",
-		"github-flavored-markdown": "1.x.x",
-		"jade": "0.15.x",
-		"eco": "1.1.x",
+		"bal-util": "0.7.x",
 		"express": "2.4.x",
-		"yaml": "0.2.x",
+		"query-engine": "0.5.x",
 		"watch-tree": "0.1.x",
-		"bal-util": "0.6.x",
 		"caterpillar": "0.1.x",
-		"hamljs": "0.5.x",
 		"commander": "0.1.x",
 		"growl": "1.1.x",
+		"yaml": "0.2.1",
 		"coffee-script": "1.1.x",
+		"github-flavored-markdown": "1.x.x",
+		"jade": "0.16.x",
+		"eco": "1.1.x",
+		"hamljs": "0.5.x",
 		"coffeekup": "0.3.x",
 		"js2coffee": "0.1.x",
 		"html2jade": "0.0.7",
 		"html2coffeekup-bal": "0.0.x",
 		"stylus": "0.16.x",
-		"ccss": "0.1.x",
-		"version-compare": "0.1.x",
-		"request": "2.1.x"
+		"ccss": "0.1.x"
 	},
 	"engines" : {
 		"node": ">=0.4.0"

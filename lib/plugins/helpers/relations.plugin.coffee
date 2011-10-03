@@ -9,7 +9,7 @@ class RelationsPlugin extends DocpadPlugin
 	# Parsing all files has finished
 	parseFinished: ({docpad,logger,util},next) ->
 		# Prepare
-		Documents = docpad.Documents
+		documents = docpad.documents
 		logger.log 'debug', 'Generating relations'
 
 		# Async
@@ -18,12 +18,12 @@ class RelationsPlugin extends DocpadPlugin
 			next err
 
 		# Find documents
-		Documents.find {}, (err,documents,length) ->
+		documents.find {}, (err,docs,length) ->
 			return tasks.exit err  if err
 			tasks.total = length
-			documents.forEach (document) ->
+			docs.forEach (document) ->
 				# Find related documents
-				Documents.find {tags:{'$in':document.tags}}, (err,relatedDocuments) ->
+				documents.find {tags:{'$in':document.tags}}, (err,relatedDocuments) ->
 					# Check
 					if err
 						return tasks.exit err
