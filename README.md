@@ -158,8 +158,7 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 
 ## Extensions
 
-DocPad is awesomely extensible, and by default [includes a fair few extensions](https://github.com/balupton/docpad/wiki/Extensions). [It's also incredibly easy to empower docpad even further by writing your own extensions.](https://github.com/balupton/docpad/wiki/Extending)
-
+DocPad is awesomely extensible, it's easy to add support for new renderers and even add funky new functionality ontop of docpad! 'Check out what others are making](https://github.com/balupton/docpad/wiki/Extensions), or [learn to make your own extensions here.](https://github.com/balupton/docpad/wiki/Extending)
 
 ## Wiki
 
