@@ -580,17 +580,23 @@ class Docpad
 		logger = @logger
 		logger.log 'debug', 'Writing files'
 
-		# Write
-		util.cpdir(
-			# Src Path
-			@srcPath+'/files',
-			# Out Path
-			@outPath
-			# Next
-			(err) ->
-				logger.log 'debug', 'Wrote files'  unless err
-				next err
-		)
+		# Determine Path
+		filesPath = @srcPath+'/files'
+		path.exists filesPath, (exists) ->
+			# Public Path
+			filesPath = @srcPath+'/public'  unless exists
+
+			# Write
+			util.cpdir(
+				# Src Path
+				filesPath,
+				# Out Path
+				@outPath
+				# Next
+				(err) ->
+					logger.log 'debug', 'Wrote files'  unless err
+					next err
+			)
 
 
 	# Write documents
