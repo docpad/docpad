@@ -184,6 +184,7 @@ DocPad is awesomely extensible, it's easy to add support for new renderers and e
 	- Added support for different meta parsers, starting with [CoffeeScript](http://jashkenas.github.com/coffee-script/) and [YAML](https://github.com/visionmedia/js-yaml) support. YAML is still the default meta parser.
 	- The YAML dependency is specifically set now to v0.2.1 as the newer version has a bug in it.
 	- Fixed multiple renderers for a single document. E.g. `file.html.md.eco`
+	- Now also supports using `###` along with `---` for wrapping the meta data
 
 - v1.2 September 29, 2011
 	- Plugins now conform to a .plugin.coffee naming standard

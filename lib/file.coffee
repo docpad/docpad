@@ -87,17 +87,18 @@ class File
 		fileMeta = {}
 	
 		# YAML
-		match = /^\s*--- ?(\w*)\s*/.exec(fileData)
+		match = /^\s*([\-\#]+) ?(\w*)\s*/.exec(fileData)
 		if match
 			# Positions
+			seperator = match[1]
 			a = match[0].length
-			b = fileData.indexOf('\n---',a)+1
+			b = fileData.indexOf("\n#{seperator}",a)+1
 			c = b+3
 
 			# Parts
 			fileHead = fileData.substring(a,b)
 			fileBody = fileData.substring(c)
-			parser = match[1] or 'yaml'
+			parser = match[2] or 'yaml'
 
 			# Language
 			switch parser
