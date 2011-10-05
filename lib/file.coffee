@@ -87,7 +87,7 @@ class File
 		fileMeta = {}
 	
 		# YAML
-		match = /^\s*([\-\#]+) ?(\w*)\s*/.exec(fileData)
+		match = /^\s*([\-\#][\-\#][\-\#]+) ?(\w*)\s*/.exec(fileData)
 		if match
 			# Positions
 			seperator = match[1]
