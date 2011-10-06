@@ -582,7 +582,7 @@ class Docpad
 
 		# Determine Path
 		filesPath = @srcPath+'/files'
-		path.exists filesPath, (exists) ->
+		path.exists filesPath, (exists) =>
 			# Public Path
 			filesPath = @srcPath+'/public'  unless exists
 
