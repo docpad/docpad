@@ -2,9 +2,9 @@
 
 Initiatially web development was pretty easy, you just wrote a bunch of files. These days, it's a lot more complicated than that. Things like databases and synchronisation get in the way and slow you down, plus it's just not fun and intuitive anymore still having to use the same languges as you did 10 years ago. The web has come a long way since then.
 
-DocPad takes that good simple approach of writing files from the good ol' days, and wraps it together with the most awesome new innovations to provide a really really intuitive solution for developing websites in this new HTML5 era.
+DocPad takes that good simple approach of writing files from the good ol' days, and wraps it together with the most awesome new innovations to provide an intuitive solution for developing websites in this new HTML5 era.
 
-You can write your website as a bunch of files, in whatever markup/language you want, with templates so you don't have to repeat yourself, and docpad will handle the rest. It's seriously never been this intuitively easy before - and we're really excited about that.
+You can write your website as a bunch of files, in whatever markup/language you want, with access to template engines and meta data so you don't have to repeat yourself, and docpad will handle the rest nicely for you. It's seriously never been this intuitive and easy before! We're really excited about that.
 
 
 ## Template engine? Markup? Walk me through it...
