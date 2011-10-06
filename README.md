@@ -12,8 +12,8 @@ DocPad takes that good ol' simple approach of writing files and wraps it with th
 	> - myWebsite
 		- src
 			- documents
-			- files
 			- layouts
+			- public
 
 1. And you were to create the following files:
 
@@ -60,7 +60,7 @@ DocPad takes that good ol' simple approach of writing files and wraps it with th
 	</html>
 	```
 
-1. And any files that you have in `src/files` will be copied to the `out` directory. E.g. `src/files/styles/style.css` -> `out/styles/style.css`
+1. And any files that you have in `src/public` will be copied to the `out` directory. E.g. `src/public/styles/style.css` -> `out/styles/style.css`
 
 1. Allowing you to easily generate a website which only changes (and automatically updates) when a document changes (which when you think about it; is the majority of websites)
 
@@ -189,6 +189,7 @@ Thanks. DocPad loves you.
 	- The YAML dependency is specifically set now to v0.2.1 as the newer version has a bug in it.
 	- Fixed multiple renderers for a single document. E.g. `file.html.md.eco`
 	- Now also supports using `###` along with `---` for wrapping the meta data
+	- Supports the `public` alias for the `files` directory
 
 - v1.2 September 29, 2011
 	- Plugins now conform to a .plugin.coffee naming standard
