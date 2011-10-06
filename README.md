@@ -1,9 +1,13 @@
-# DocPad: It's Like Jekyll.
+# DocPad. It makes web development intuitive again.
 
-DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written in CoffeeScript+Node.js instead of Ruby, and also allows the template engine complete access to the document model. This means you have unlimited power as a CMS and the simplicity of a notepad.
+Initiatially web development was pretty easy, you just wrote a bunch of files. These days, it's a lot more complicated than that. Things like databases and synchronisation get in the way and slow you down, plus it's just not fun and intuitive anymore still having to use the same languges as you did 10 years ago. The web has come a long way since then, so why don't you?
+
+DocPad takes that good simple approach of writing files from the good ol' days, and wraps it together with the most awesome new innovations to provide a really really intuitive solution for developing websites in this new HTML5 era.
+
+You can write your website as a bunch of files, in whatever markup/language you want, with templates so you don't have to repeat yourself, and docpad will handle the rest. It's seriously never been this intuitively easy before - and we're really excited about that.
 
 
-## Huh?
+## Template engine? Markup? I'm confused... No problem!
 
 1. Say you were to create the following website structure:
 
@@ -156,13 +160,15 @@ DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written i
 - [CoffeeScript](http://jashkenas.github.com/coffee-script/) with `--- coffee`
 
 
-## Extensions
+## About
 
-DocPad is awesomely extensible, it's easy to add support for new renderers and even add funky new functionality ontop of docpad! 'Check out what others are making](https://github.com/balupton/docpad/wiki/Extensions), or [learn to make your own extensions here.](https://github.com/balupton/docpad/wiki/Extending)
+DocPad is getting pretty popular these days... you can check out [a bunch of websites already using it here](https://github.com/balupton/docpad/wiki/Showcase), and [discover the awesomely handsome crew behind the community here](https://github.com/balupton/docpad/wiki/Users). Ocassionally we also hold [events and competitions](https://github.com/balupton/docpad/wiki/Events) where you can learn more about docpad, hack with others together, and win some cool stuff! Nifty.
 
-## Wiki
+On that note, DocPad is awesomely extensible. You can [download other people's plugins](https://github.com/balupton/docpad/wiki/Extensions) and use them in real quick, or even [write your own in matters of minutes.](https://github.com/balupton/docpad/wiki/Extending)
 
-[This has just been a small taste of DocPad, head over to the wiki to see how truly deep the rabit hole goes](https://github.com/balupton/docpad/wiki)
+[Best yet, definitely check out the entire wiki, as this has just been a small taste of it's awesomeness, and there is plenty awesomness left to be discovered.](https://github.com/balupton/docpad/wiki)
+
+Thanks. DocPad loves you.
 
 
 ## History
