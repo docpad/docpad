@@ -1,6 +1,6 @@
 # DocPad. It makes web development intuitive again.
 
-Initiatially web development was pretty easy, you just wrote a bunch of files. These days, it's a lot more complicated than that. Things like databases and synchronisation get in the way and slow you down, plus it's just not fun and intuitive anymore still having to use the same languges as you did 10 years ago. The web has come a long way since then, so why don't you?
+Initiatially web development was pretty easy, you just wrote a bunch of files. These days, it's a lot more complicated than that. Things like databases and synchronisation get in the way and slow you down, plus it's just not fun and intuitive anymore still having to use the same languges as you did 10 years ago. The web has come a long way since then.
 
 DocPad takes that good simple approach of writing files from the good ol' days, and wraps it together with the most awesome new innovations to provide a really really intuitive solution for developing websites in this new HTML5 era.
 
