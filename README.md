@@ -7,7 +7,7 @@ DocPad takes that good simple approach of writing files from the good ol' days, 
 You can write your website as a bunch of files, in whatever markup/language you want, with templates so you don't have to repeat yourself, and docpad will handle the rest. It's seriously never been this intuitively easy before - and we're really excited about that.
 
 
-## Template engine? Markup? I'm confused... No problem!
+## Template engine? Markup? Walk me through it...
 
 1. Say you were to create the following website structure:
 
