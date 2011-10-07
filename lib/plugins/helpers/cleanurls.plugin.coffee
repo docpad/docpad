@@ -9,7 +9,7 @@ class CleanUrlsPlugin extends DocpadPlugin
 	name: 'cleanUrls'
 
 	# Plugin state
-	enable: false
+	enable: true
 
 	# Run when the server setup has finished
 	serverFinished: ({docpad,server},next) ->

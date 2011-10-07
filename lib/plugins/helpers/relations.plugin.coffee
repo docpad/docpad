@@ -7,7 +7,7 @@ class RelationsPlugin extends DocpadPlugin
 	name: 'relations'
 
 	# Plugin state
-	enable: false
+	enable: true
 
 	# Parsing all files has finished
 	parseFinished: ({docpad,logger,util},next) ->
