@@ -7,7 +7,7 @@ class RelationsPlugin extends DocpadPlugin
 	name: 'relations'
 
 	# Parsing all files has finished
-	parseFinished: ({docpad,logger,util},next) ->
+	contextualizeFinished: ({docpad,logger,util},next) ->
 		# Prepare
 		documents = docpad.documents
 		logger.log 'debug', 'Generating relations'
