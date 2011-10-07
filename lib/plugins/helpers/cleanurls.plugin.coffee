@@ -8,6 +8,9 @@ class CleanUrlsPlugin extends DocpadPlugin
 	# Plugin Name
 	name: 'cleanUrls'
 
+	# Plugin state
+	enable: false
+
 	# Run when the server setup has finished
 	serverFinished: ({docpad,server},next) ->
 		# Try .html for urls with no extension

@@ -7,6 +7,9 @@ class StylusPlugin extends DocpadPlugin
 	# Plugin name
 	name: 'stylus'
 
+	# Plugin state
+	enable: true
+
 	# Plugin priority
 	priority: 725
 

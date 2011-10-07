@@ -7,6 +7,9 @@ class MarkdownPlugin extends DocpadPlugin
 	# Plugin name
 	name: 'markdown'
 
+	# Plugin state
+	enable: true
+
 	# Plugin priority
 	priority: 700
 

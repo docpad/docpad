@@ -12,6 +12,9 @@ class CoffeePlugin extends DocpadPlugin
 	# Plugin name
 	name: 'coffee'
 
+	# Plugin state
+	enable: true
+
 	# Plugin priority
 	priority: 700
 
