@@ -293,7 +293,7 @@ class Docpad
 							return @error(err)  if err
 							@watchAction (err) =>
 								return @error(err)  if err
-								logger.log 'info', 'DocPad is is now watching and serving you...'
+								logger.log 'info', 'DocPad is now watching and serving you...'
 	
 
 	# Handle an error
