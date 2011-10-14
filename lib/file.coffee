@@ -180,7 +180,7 @@ class File
 	# next(err,layout)
 	getLayout: (next) ->
 		# Check
-		return next new Error('This document doe snot have a layout')  unless @layout
+		return next new Error('This document does not have a layout')  unless @layout
 
 		# Find parent
 		@layouts.findOne {relativeBase:@layout}, (err,layout) =>
