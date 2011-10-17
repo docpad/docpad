@@ -15,7 +15,9 @@ class JadePlugin extends DocpadPlugin
 	render: ({inExtension,outExtension,templateData,file}, next) ->
 		try
 			if inExtension is 'jade'
-				file.content = jade.compile(file.content, {})(templateData)
+				file.content = jade.compile(file.content, {
+					filename: file.fullPath
+				})(templateData)
 				next()
 			else if outExtension is 'jade' and inExtension is 'html'
 				html2jade.convertHtml file.content, {}, (err,result) ->
