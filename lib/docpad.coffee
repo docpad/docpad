@@ -501,6 +501,13 @@ class Docpad
 					)
 					document.load (err) ->
 						return nextFile err  if err
+
+						# Ignored?
+						if document.ignore or document.ignored or document.skip or document.published is false or document.draft is true
+							logger.log 'info', 'Skipped manually ignored document:', document.relativePath
+							return nextFile()
+						
+						# Save Document
 						document.save()
 						nextFile err
 			
@@ -621,6 +628,7 @@ class Docpad
 			documents.forEach (document) ->
 				# Generate path
 				fileFullPath = "#{outPath}/#{document.url}" #relativeBase+'.html'
+				
 				# Ensure path
 				util.ensurePath path.dirname(fileFullPath), (err) ->
 					# Error
