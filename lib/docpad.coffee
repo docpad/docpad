@@ -127,9 +127,9 @@ class Docpad
 		Document = @Document = class extends File
 		layouts = @layouts = new queryEngine.Collection
 		documents = @documents = new queryEngine.Collection
-		Layout::save = ->
+		Layout::store = ->
 			layouts[@id] = @
-		Document::save = ->
+		Document::store = ->
 			documents[@id] = @
 		next()  if next
 
@@ -475,7 +475,7 @@ class Docpad
 					)
 					layout.load (err) ->
 						return nextFile err  if err
-						layout.save()
+						layout.store()
 						nextFile err
 				
 			# Dir Action
@@ -509,8 +509,8 @@ class Docpad
 							logger.log 'info', 'Skipped manually ignored document:', document.relativePath
 							return nextFile()
 						
-						# Save Document
-						document.save()
+						# Store Document
+						document.store()
 						nextFile err
 			
 			# Dir Action
@@ -735,7 +735,6 @@ class Docpad
 															return next(err)  if err
 															growl.notify (new Date()).toLocaleTimeString(), title: 'Website Generated'
 															logger.log 'info', 'Generated'
-															docpad.cleanModels()
 															docpad.generating = false
 															next()
 
@@ -803,12 +802,25 @@ class Docpad
 
 		# Configuration
 		@server.configure =>
+			if listen
+				# POST Middleware
+				@server.use express.bodyParser()
+				@server.use express.methodOverride()
+
+				# Router Middleware
+				@server.use @server.router
+
 			# Routing
 			if @maxAge
 				@server.use express.static @outPath, maxAge: @maxAge
 			else
 				@server.use express.static @outPath
 
+			if listen
+				# 404 Middleware
+				@server.use (req,res,next) ->
+					res.send(404)
+				
 		# Route something
 		@server.get /^\/docpad/, (req,res) ->
 			res.send 'DocPad!'
