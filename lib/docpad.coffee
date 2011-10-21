@@ -298,7 +298,9 @@ class Docpad
 
 	# Handle an error
 	error: (err) ->
-		@logger.log 'err', "An error occured: #{err}\n", err  if err
+		return  unless err
+		@logger.log 'err', 'An error occured:', err.message, err.stack
+
 
 
 
@@ -561,6 +563,7 @@ class Docpad
 		# Prepare template data
 		documents = @documents.find({}).sort({'date':-1})
 		templateData = 
+			require: require
 			documents: documents
 			document: null
 			Documents: documents

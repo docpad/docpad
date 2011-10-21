@@ -261,7 +261,10 @@ class File
 				tasks.push ((eventData) => =>
 					# Render through plugins
 					@triggerRenderEvent eventData, (err) =>
-						return tasks.exit(err)  if err
+						# Error?
+						if err
+							@logger.log 'warn', 'Something went wrong while rendering:', @relativePath
+							return tasks.exit(err)
 
 						# Update rendered content
 						@contentRendered = @content

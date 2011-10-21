@@ -147,6 +147,7 @@ DocPad takes that good ol' simple approach of writing files and wraps it with th
 
 - [Stylus](http://learnboost.github.com/stylus/) to CSS `.css.styl|stylus`
 - [CoffeeCSS](https://github.com/aeosynth/ccss) to CSS `.css.ccss|coffeecss|coffee`
+- [LessCSS](http://lesscss.org/) to CSS `.css.less`
 
 ### Scripts
 
@@ -170,6 +171,15 @@ Thanks. DocPad loves you.
 
 
 ## History
+
+- v1.4 October 22, 2011
+	- Template engines now have access to node.js's `require`
+	- Less Plugin
+		- Added [LessCSS](http://lesscss.org/) to CSS support
+			- Uses [Alexis Sellier's](https://github.com/cloudhead) [Less.js](https://github.com/cloudhead/less.js)
+	- Fixed NPM warning about incorrect property name
+	- Logged errors will now also output their stacktraces for easier debugging
+	- If an error occurs during rendering of a document, docpad will let us know which document it happened on
 
 - v1.3 October 3, 2011
 	- Parsing is now split into two parts `parsing` and `contextualizing`
@@ -291,6 +301,7 @@ DocPad wouldn't be possible if it wasn't for the following libaries
 - [Don Park's](https://github.com/donpark) [Html2Jade](https://github.com/donpark/html2jade) - HTML to Jade Converter
 - [Brandon Bloom's](https://github.com/brandonbloom) [Html2CoffeeKup](https://github.com/brandonbloom/html2coffeekup)- HTML to CoffeeKup Converter
 - [TJ Holowaychuk/LearnBoost's](https://github.com/learnboost) [Stylus](https://github.com/learnboost/stylus) - Expressive, robust, feature-rich CSS language
+- [Alexis Sellier's](https://github.com/cloudhead) [Less.js](https://github.com/cloudhead/less.js) - Leaner CSS
 
 
 ## License
