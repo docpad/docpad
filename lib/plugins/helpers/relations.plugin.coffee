@@ -40,7 +40,7 @@ class RelationsPlugin extends DocpadPlugin
 
 					# Save
 					document.relatedDocuments = relatedDocumentsArray
-					document.save()
+					document.store()
 					tasks.complete()
 
 # Export Relations Plugin
