@@ -115,7 +115,10 @@ class File
 				switch @fileHeadParser
 					when 'coffee', 'cson'
 						coffee = require('coffee-script')  unless coffee
-						@fileMeta = coffee.eval(@fileHead)
+						if coffee.VERSION is '1.1.1'
+							@fileMeta = eval coffee.compile "return (#{@fileHead})", filename: @fullPath
+						else
+							@fileMeta = coffee.eval @fileHead, filename: @fullPath
 					
 					when 'yaml'
 						yaml = require('yaml')  unless yaml
@@ -142,7 +145,7 @@ class File
 		# Handle urls
 		@addUrl @fileMeta.urls  if @fileMeta.urls?
 		@addUrl @fileMeta.url  if @fileMeta.url?
-		
+
 		# Apply user meta
 		for own key, value of @fileMeta
 			@[key] = value
