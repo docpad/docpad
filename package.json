@@ -52,7 +52,8 @@
 		"commander": ">=0.1.x",
 		"growl": "1.1.x",
 		"yaml": "0.2.1",
-		"coffee-script": "1.1.1"
+		"coffee-script": "1.1.1",
+		"js2coffee": "0.1.x"
 	},
 	"engines" : {
 		"node": ">=0.4.0"

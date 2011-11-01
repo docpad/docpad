@@ -472,12 +472,12 @@ class Docpad
 							relativePath: fileRelativePath
 					)
 					layout.load (err) ->
-						return nextFile err  if err
+						return nextFile(err)  if err
 						layout.store()
 						nextFile err
 				
 			# Dir Action
-			false,
+			null,
 
 			# Next
 			(err) ->
@@ -512,7 +512,7 @@ class Docpad
 						nextFile err
 			
 			# Dir Action
-			false,
+			null,
 
 			# Next
 			(err) ->
@@ -636,6 +636,7 @@ class Docpad
 					return tasks.exit err  if err
 
 					# Write document
+					logger.log 'debug', "Writing file #{document.relativePath}, #{document.url}"
 					fs.writeFile fileFullPath, document.contentRendered, (err) ->
 						tasks.complete err
 
@@ -738,6 +739,7 @@ class Docpad
 
 
 	# Watch
+	# NOTE: Watching a directory and all it's contents (including subdirs and their contents) appears to be quite expiremental in node.js - if you know of a watching library that is quite stable, then please let me know - b@lupton.cc
 	watchAction: (next) ->
 		# Prepare
 		logger = @logger
@@ -824,14 +826,25 @@ class Docpad
 				# Router Middleware
 				@server.use @server.router
 
-			# Routing
+			# Static
 			if @maxAge
 				@server.use express.static @outPath, maxAge: @maxAge
 			else
 				@server.use express.static @outPath
+			
+			# Routing
+			@server.use (req,res,next) =>
+				@documents.findOne {urls:{'$in':req.url}}, (err,document) =>
+					console.log req.url, document
+					if err
+						@error err
+						res.send(err.message, 500)
+					else if document
+						res.send(document.contentRendered)
+					next(err)
 
+			# 404 Middleware
 			if listen
-				# 404 Middleware
 				@server.use (req,res,next) ->
 					res.send(404)
 				
