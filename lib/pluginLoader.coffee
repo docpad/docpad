@@ -21,20 +21,25 @@ class PluginLoader
 	dirPath: null
 
 	# Plugin name
-	name: null
+	pluginName: null
 
 	# Constructor
 	constructor: (dirPath) ->
 		# Apply
 		@dirPath = dirPath
-		@name = path.dirname(dirPath)
+		@pluginName = path.basename(dirPath)
 	
 	# Exists
 	# next(err,exists)
 	exists: (next) ->
+		# Check 
+		if @pluginPath
+			next(null,true)
+			return @
+
 		# Package.json
-		packagePath = "#{dirPath}/package.json"
-		pluginPath = "#{dirPath}/#{@name}.plugin.coffee"
+		packagePath = "#{@dirPath}/package.json"
+		pluginPath = "#{@dirPath}/#{@pluginName}.plugin.coffee"
 		path.exists packagePath, (exists) =>
 			unless exists
 				path.exists pluginPath, (exists) =>
@@ -54,19 +59,51 @@ class PluginLoader
 						catch err
 							return next(err,false)
 						
-						pluginPath =  @packageData.main? and @packageData.main or pluginPath
+						pluginPath =  @packageData.main? and path.join(@dirPath, @pluginPath) or pluginPath
 						path.exists pluginPath, (exists) =>
 							unless exists
 								return next(null,false)  
 							else
 								@pluginPath = pluginPath
 								return next(null,true)
+		return @
 	
 	# Load
-	# next(err)
+	# next(err,pluginClass)
 	load: (next) ->
+		# Check if exists
+		if @pluginPath is null
+			@exists (err,exists) =>
+				return next(err,null)  if err or not exists
+				return @load(next)
+			return @
+		
+		# It doesn't exist
+		else if @pluginPath is false
+			next(null,null)
+			return @
+		
+		# We're already loaded
+		if @pluginClass
+			next(null,@pluginClass)
+			return @
+
+		# Load
 		try
 			@pluginClass = require(@pluginPath)
 		catch err
-			return next(err,false)
-		next(@pluginClass)
+			return next(err,null)
+		
+		# Return loaded
+		next(null,@pluginClass)
+		return @
+	
+	# Create Instance
+	# next(err,instance)
+	create: (next) ->
+		# Loaded
+		
+
+
+# Export
+module.exports = PluginLoader
