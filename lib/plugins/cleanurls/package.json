@@ -1,15 +1,12 @@
 {
-	"name": "docpad",
-	"version": "1.4.0",
-	"description": "DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written in CoffeeScript+Node.js instead of Ruby, and also allows the template engine complete access to the document model. This means you have unlimited power as a CMS and the simplicity of a notepad.",
+	"name": "docpad-cleanurls",
+	"version": "0.1.0",
+	"description": "Adds support for Clean Urls to DocPad",
 	"homepage": "https://github.com/balupton/docpad",
 	"keywords": [
-		"javascript",
-		"dms",
-		"documents",
-		"generator",
-		"website",
-		"cms"
+		"docpad",
+		"clean urls",
+		"seo"
 	],
 	"author": {
 		"name": "Benjamin Lupton",
@@ -44,15 +41,6 @@
 		"url": "http://github.com/balupton/docpad.git"
 	},
 	"dependencies": {
-		"bal-util": "0.7.x",
-		"express": "2.4.x",
-		"query-engine": "0.5.x",
-		"watch-tree": "0.1.x",
-		"caterpillar": "0.1.x",
-		"commander": "0.1.x",
-		"growl": "1.1.x",
-		"yaml": "0.2.1",
-		"coffee-script": "1.1.x"
 	},
 	"engines" : {
 		"node": ">=0.4.0"
@@ -61,10 +49,7 @@
 		"docpad": "./bin/docpad"
 	},
 	"directories": {
-		"lib": "lib"
+		"lib": "."
 	},
-	"main": "./lib/docpad.coffee",
-	"docpad": {
-		"plugins": true
-	}
+	"main": "./cleanurls.plugin.coffee"
 }

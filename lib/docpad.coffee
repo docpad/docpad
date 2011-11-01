@@ -15,6 +15,7 @@ express = false
 watchTree = false
 queryEngine = false
 packageJSON = JSON.parse fs.readFileSync("#{__dirname}/../package.json").toString()
+PluginLoader = require "#{__dirname}/pluginloader.coffee"
 require "#{__dirname}/prototypes.coffee"
 
 
@@ -307,38 +308,6 @@ class Docpad
 	# ---------------------------------
 	# Plugins
 
-	# Register a Plugin
-	# next(err)
-	registerPlugin: (plugin,next) ->
-		# Prepare
-		logger = @logger
-		error = null
-
-		# Plugin Path
-		if typeof plugin is 'string'
-			try
-				pluginPath = plugin
-				plugin = require pluginPath
-				return @registerPlugin plugin, next
-			catch err
-				logger.log 'warn', 'Unable to load plugin', pluginPath
-				logger.log 'debug', err
-		
-		# Loaded Plugin
-		else if plugin and (plugin.name? or plugin::name?)
-			plugin = new plugin  if typeof plugin is 'function'
-			@pluginsObject[plugin.name] = plugin
-			@pluginsArray.push plugin
-			@pluginsArray.sort (a,b) -> a.priority < b.priority
-			logger.log 'debug', "Loaded plugin [#{plugin.name}]"
-		
-		# Unknown Plugin Type
-		else
-			logger.log 'warn', 'Unknown plugin type', plugin
-		
-		# Forward
-		next error
-	
 
 	# Get a plugin by it's name
 	getPlugin: (pluginName) ->
@@ -372,7 +341,7 @@ class Docpad
 		unless pluginsPath
 			# Async
 			tasks = new util.Group (err) ->
-				logger.log 'debug', 'Plugins loaded'
+				logger.log 'debug', 'All plugins loaded'
 				next err
 			
 			tasks.push => @loadPlugins "#{__dirname}/plugins", tasks.completer()
@@ -388,18 +357,33 @@ class Docpad
 
 				# File Action
 				(fileFullPath,fileRelativePath,nextFile) =>
-					if /\.plugin\.[a-zA-Z0-9]+/.test(fileRelativePath)
-						@registerPlugin fileFullPath, nextFile
-					else
-						nextFile()
+					nextFile(null,true) # Skip all files
 				
 				# Dir Action
-				false,
-
+				(fileFullPath,fileRelativePath,nextFile) =>
+					return nextFile(null,false)  if fileFullPath is pluginsPath
+					pluginLoader = new PluginLoader(fileFullPath)
+					logger.log 'debug', "Loading plugin #{pluginLoader.pluginName}"
+					pluginLoader.load (err,pluginClass) ->
+						console.log err, pluginClass, pluginLoader
+						return nextFile(err,true)  if err
+						if pluginClass
+							try
+								pluginInstance = new pluginClass
+								@pluginsObject[pluginLoader.pluginName] = pluginInstance
+								@pluginsArray.push pluginInstance
+								@pluginsArray.sort (a,b) -> a.priority < b.priority
+								logger.log 'debug', "Loaded plugin #{pluginLoader.pluginName}"
+							catch err
+								logger.log 'debug', "Failed to load plugin #{pluginLoader.pluginName}"
+						else
+							logger.log 'debug', "Did not load the plugin #{pluginLoader.pluginName}"
+						nextFile(null,true)
+				
 				# Next
 				(err) ->
 					logger.log 'debug', "Plugins loaded for #{pluginsPath}"
-					next err
+					next(err)
 			)
 
 
@@ -679,7 +663,7 @@ class Docpad
 			@generateTimeout = setTimeout(
 				=>
 					@generateAction next
-				500
+				1000
 			)
 		else
 			logger.log 'info', 'Generating...'

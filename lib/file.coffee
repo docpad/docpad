@@ -36,6 +36,7 @@ class File
 	date: null
 	slug: null
 	url: null
+	urls: []
 	ignore: false
 	tags: []
 	relatedDocuments: []
@@ -48,6 +49,7 @@ class File
 		@tags = []
 		@relatedDocuments = []
 		@fileMeta = {}
+		@urls = []
 
 		# Copy over meta data
 		for own key, value of fileMeta
@@ -136,7 +138,11 @@ class File
 	
 		# Correct meta data
 		@fileMeta.date = new Date(@fileMeta.date)  if @fileMeta.date? and @fileMeta.date
-
+		
+		# Handle urls
+		@addUrl @fileMeta.urls  if @fileMeta.urls?
+		@addUrl @fileMeta.url  if @fileMeta.url?
+		
 		# Apply user meta
 		for own key, value of @fileMeta
 			@[key] = value
@@ -145,11 +151,30 @@ class File
 		next()
 		@
 	
+	# Add a url
+	addUrl: (url) ->
+		# Multiple Urls
+		if url instanceof Array
+			for newUrl in url
+				@addUrl(url)
+		
+		# Single Url
+		else if url
+			found = false
+			for own existingUrl in @urls
+				if existingUrl is url
+					found = true
+					break
+			@urls.push(url)  if not found
+		
+		# Chain
+		@
+	
 	# Write the file
 	# next(err)
 	write: (next) ->
 		# Log
-		@logger.log 'info', "Writing the file #{@fullPath}"
+		@logger.log 'debug', "Writing the file #{@fullPath}"
 
 		# Prepare
 		js2coffee = require('js2coffee/lib/js2coffee.coffee')  unless js2coffee
@@ -164,7 +189,7 @@ class File
 			return next(err)  if err
 			
 			# Log
-			@logger.log 'info', "Wrote the file #{@fullPath}", @fileHead
+			@logger.log 'info', "Wrote the file #{@fullPath}"
 
 			# Next
 			next()
@@ -211,6 +236,7 @@ class File
 			@url or= "/#{@relativeBase}.#{@extensionRendered}"
 			@slug or= util.generateSlugSync @relativeBase
 			@title or= @filenameRendered
+			@addUrl @url
 			next()
 		
 		# Chain
