@@ -1,6 +1,6 @@
 # Requires
 DocpadPlugin = require "#{__dirname}/../../plugin.coffee"
-less = require 'less'
+less = require 'less-0.5.x'
 path = require 'path'
 
 # Define Plugin

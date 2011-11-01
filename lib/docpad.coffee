@@ -12,10 +12,10 @@ util = require 'bal-util'
 exec = require('child_process').exec
 growl = require('growl')
 express = false
-watchTree = false
+watch = false
 queryEngine = false
 packageJSON = JSON.parse fs.readFileSync("#{__dirname}/../package.json").toString()
-PluginLoader = require "#{__dirname}/pluginloader.coffee"
+PluginLoader = require "#{__dirname}/plugin-loader.coffee"
 require "#{__dirname}/prototypes.coffee"
 
 
@@ -86,7 +86,8 @@ class Docpad
 		@compareVersion()
 		
 		# Load Plugins
-		@loadPlugins null, =>
+		@loadPlugins null, (err) =>
+			@error(err)  if err
 			@loading = false
 	
 	# Layout Document
@@ -332,59 +333,72 @@ class Docpad
 			plugin[eventName].apply plugin, [data,tasks.completer()]
 
 
+
 	# Load Plugins
 	loadPlugins: (pluginsPath, next) ->
 		# Prepare
 		logger = @logger
 
-		# Load
+		# Default Load
 		unless pluginsPath
 			# Async
 			tasks = new util.Group (err) ->
 				logger.log 'debug', 'All plugins loaded'
 				next err
 			
+			# Load in the docpad and local plugin directories
 			tasks.push => @loadPlugins "#{__dirname}/plugins", tasks.completer()
 			if @rootPath isnt __dirname and path.existsSync "#{@rootPath}/plugins"
 				tasks.push => @loadPlugins "#{@rootPath}/plugins", tasks.completer()
 			
+			# Execute the loading asynchronously
 			tasks.async()
 
+		# Specific Load
 		else
+			logger.log 'debug', "Plugins loading for #{pluginsPath}"
 			util.scandir(
 				# Path
 				pluginsPath,
 
-				# File Action
-				(fileFullPath,fileRelativePath,nextFile) =>
-					nextFile(null,true) # Skip all files
-				
-				# Dir Action
-				(fileFullPath,fileRelativePath,nextFile) =>
+				# Skip files
+				false,
+
+				# Handle directories
+				(fileFullPath,fileRelativePath,_nextFile) =>
+					# Prepare
 					return nextFile(null,false)  if fileFullPath is pluginsPath
-					pluginLoader = new PluginLoader(fileFullPath)
-					logger.log 'debug', "Loading plugin #{pluginLoader.pluginName}"
-					pluginLoader.load (err,pluginClass) ->
-						console.log err, pluginClass, pluginLoader
-						return nextFile(err,true)  if err
-						if pluginClass
-							try
-								pluginInstance = new pluginClass
-								@pluginsObject[pluginLoader.pluginName] = pluginInstance
-								@pluginsArray.push pluginInstance
-								@pluginsArray.sort (a,b) -> a.priority < b.priority
-								logger.log 'debug', "Loaded plugin #{pluginLoader.pluginName}"
-							catch err
-								logger.log 'debug', "Failed to load plugin #{pluginLoader.pluginName}"
-						else
-							logger.log 'debug', "Did not load the plugin #{pluginLoader.pluginName}"
-						nextFile(null,true)
+					nextFile = (err,skip) =>
+						if err
+							logger.log 'warn', "Failed to load the plugin #{loader.pluginName}"
+							console.log err
+						_nextFile(null,skip)
+					
+					# Load
+					loader = new PluginLoader(fileFullPath)
+					logger.log 'debug', "Loading plugin #{loader.pluginName}"
+					loader.exists (err,exists) =>
+						return nextFile(err,true)  if err or not exists
+						loader.install (err) =>
+							return nextFile(err,true)  if err
+							loader.require (err) =>
+								return nextFile(err,true)  if err
+								loader.create {}, (err,pluginInstance) =>
+									return nextFile(err,true)  if err
+									@pluginsObject[loader.pluginName] = pluginInstance
+									@pluginsArray.push pluginInstance
+									logger.log 'debug', "Loaded plugin #{loader.pluginName}"
+									return nextFile(null,true)
 				
 				# Next
-				(err) ->
+				(err) =>
+					@pluginsArray.sort (a,b) -> a.priority < b.priority
 					logger.log 'debug', "Plugins loaded for #{pluginsPath}"
 					next(err)
 			)
+		
+		# Chain
+		@
 
 
 	# ---------------------------------
@@ -728,26 +742,42 @@ class Docpad
 		# Prepare
 		logger = @logger
 		docpad = @
-		watchTree = require 'watch-tree'	unless watchTree
+		watch = require 'nodewatch'  unless watch
 		logger.log 'Watching setup starting...'
+		watch.setMaxListeners(0)
 
-		# Watch the src directory
-		watcher = watchTree.watchTree(docpad.srcPath)
-		watcher.on 'fileDeleted', (path) ->
-			docpad.generateAction ->
-				logger.log 'Regenerated due to file delete at '+(new Date()).toLocaleString()
-		watcher.on 'fileCreated', (path,stat) ->
-			docpad.generateAction ->
-				logger.log 'Regenerated due to file create at '+(new Date()).toLocaleString()
-		watcher.on 'fileModified', (path,stat) ->
-			docpad.generateAction ->
-				logger.log 'Regenerated due to file change at '+(new Date()).toLocaleString()
+		# Scan the directories inside the srcPath
+		util.scandir(
+			# Path
+			docpad.srcPath,
 
-		# Log
-		logger.log 'Watching setup'
+			# Handle files
+			false
 
-		# Next
-		next()
+			# Handle directories
+			(fileFullPath,fileRelativePath,nextFile) =>
+				# Watch the src directory
+				watch.add(fileFullPath)
+
+				# Continue
+				nextFile()
+
+			# Next
+			(err) =>
+				# Watch the src directory
+				watch.add(docpad.srcPath)
+
+				# Changer
+				watch.onChange (file,prev,curr) ->
+					docpad.generateAction ->
+						logger.log 'Regenerated due to file watch at '+(new Date()).toLocaleString()
+
+				# Log
+				logger.log 'Watching setup'
+
+				# Next
+				next()
+		)
 
 
 	# Skeleton
