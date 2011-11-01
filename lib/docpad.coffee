@@ -283,6 +283,7 @@ class Docpad
 				@serverAction (err) ->
 					return @error(err)  if err
 					logger.log 'info', 'DocPad is now serving you...'
+					next()
 
 			else
 				@skeletonAction (err) =>
@@ -796,27 +797,26 @@ class Docpad
 
 		# Server
 		if @server
-			listen = false
+			logger.log 'info', 'Docpad uses a provided server'
 		else
-			listen = true
 			@server = express.createServer()
 
-		# Configuration
-		@server.configure =>
-			# Routing
-			if @maxAge
-				@server.use express.static @outPath, maxAge: @maxAge
-			else
-				@server.use express.static @outPath
+			# Configuration
+			@server.configure =>
+				# Routing
+				if @maxAge
+					@server.use express.static @outPath, maxAge: @maxAge
+				else
+					@server.use express.static @outPath
 
-		# Route something
-		@server.get /^\/docpad/, (req,res) ->
-			res.send 'DocPad!'
+			# Route something
+			@server.get /^\/docpad/, (req,res) ->
+				res.send 'DocPad!'
 		
-		# Start server listening
-		if listen
-			@server.listen @port
-			logger.log 'info', 'Express server listening on port', @server.address().port, 'and directory', @outPath
+			# Start server listening
+			if listen
+				@server.listen @port
+				logger.log 'info', 'Express server listening on port', @server.address().port, 'and directory', @outPath
 
 		# Plugins
 		@triggerEvent 'serverFinished', {@server}, (err) ->
