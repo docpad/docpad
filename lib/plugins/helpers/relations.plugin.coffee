@@ -6,6 +6,9 @@ class RelationsPlugin extends DocpadPlugin
 	# Plugin Name
 	name: 'relations'
 
+	# Plugin state
+	enable: true
+
 	# Parsing all files has finished
 	contextualizeFinished: ({docpad,logger,util},next) ->
 		# Prepare

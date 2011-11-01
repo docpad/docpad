@@ -353,15 +353,18 @@ class Docpad
 		tasks = new util.Group (err) ->
 			logger.log 'debug', "Plugins completed for #{eventName}"
 			next err
-		tasks.total = @pluginsArray.length
+		for plugin in @pluginsArray
+			tasks.total++ if plugin.enable
 
 		# Cycle
 		for plugin in @pluginsArray
-			data.docpad = @
-			data.logger = logger
-			data.util = util
-			plugin[eventName].apply plugin, [data,tasks.completer()]
-
+			if plugin.enable
+				data.docpad = @
+				data.logger = logger
+				data.util = util
+				plugin[eventName].apply plugin, [data,tasks.completer()]
+			else
+				tasks.completer()
 
 	# Load Plugins
 	loadPlugins: (pluginsPath, next) ->

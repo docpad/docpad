@@ -8,6 +8,9 @@ class JadePlugin extends DocpadPlugin
 	# Plugin name
 	name: 'jade'
 
+	# Plugin state
+	enable: true
+
 	# Plugin priority
 	priority: 725
 

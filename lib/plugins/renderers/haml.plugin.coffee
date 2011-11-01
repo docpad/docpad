@@ -7,6 +7,9 @@ class HamlPlugin extends DocpadPlugin
 	# Plugin name
 	name: 'haml'
 
+	# Plugin state
+	enable: true
+
 	# Plugin priority
 	priority: 725
 

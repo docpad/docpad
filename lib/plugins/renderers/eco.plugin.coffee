@@ -7,6 +7,9 @@ class EcoPlugin extends DocpadPlugin
 	# Plugin name
 	name: 'eco'
 
+	# Plugin state
+	enable: true
+
 	# Plugin priority
 	priority: 750
 

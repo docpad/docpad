@@ -9,6 +9,9 @@ class BuildrPlugin extends DocpadPlugin
 	# Plugin Name
 	name: 'buildr'
 
+	# Plugin state
+	enable: true
+
 	# Writing all files has finished
 	writeFinished: ({docpad},next) ->
 		# Run buildr.coffee on the outpath
