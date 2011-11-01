@@ -43,7 +43,7 @@
 		"url": "http://github.com/balupton/docpad.git"
 	},
 	"dependencies": {
-		"coffee-script": "1.1.x",
+		"coffee-script": "1.1.1",
 		"coffeekup": "0.3.x",
 		"js2coffee": "0.1.x",
 		"ccss": "0.1.x",

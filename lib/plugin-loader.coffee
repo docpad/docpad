@@ -1,6 +1,7 @@
 # Requires
 path = require 'path'
 fs = require 'fs'
+exec = require('child_process').exec
 
 # Define Plugin Loader
 class PluginLoader
@@ -30,13 +31,9 @@ class PluginLoader
 		@pluginName = path.basename(dirPath)
 	
 	# Exists
+	# Loads in the plugin either via a package.json file, or a guessing based on the name
 	# next(err,exists)
 	exists: (next) ->
-		# Check 
-		if @pluginPath
-			next(null,true)
-			return @
-
 		# Package.json
 		packagePath = "#{@dirPath}/package.json"
 		pluginPath = "#{@dirPath}/#{@pluginName}.plugin.coffee"
@@ -66,43 +63,61 @@ class PluginLoader
 							else
 								@pluginPath = pluginPath
 								return next(null,true)
+		
+		# Chain
 		return @
 	
-	# Load
-	# next(err,pluginClass)
-	load: (next) ->
-		# Check if exists
-		if @pluginPath is null
-			@exists (err,exists) =>
-				return next(err,null)  if err or not exists
-				return @load(next)
-			return @
-		
-		# It doesn't exist
-		else if @pluginPath is false
-			next(null,null)
-			return @
-		
-		# We're already loaded
-		if @pluginClass
-			next(null,@pluginClass)
-			return @
+	# Install
+	# Installs the plugins dependencies via NPM
+	# next(err)
+	install: (next) ->
+		# Execute npm install inside the pugin directory
+		child = exec(
+			# Command
+			'npm install'
 
+			# Options
+			{ cwd: @dirPath }
+
+			# Callback
+			(error, stdout, stderr) ->
+				# Output
+				if error
+					console.log stdout.replace(/\s+$/,'')  if stdout
+					console.log stderr.replace(/\s+$/,'')  if stderr
+				
+				# Forward
+				next(error)
+		)
+
+		# Chain
+		return @
+
+	# Require
+	# next(err,pluginClass)
+	require: (next) ->
 		# Load
 		try
 			@pluginClass = require(@pluginPath)
+			next(null,@pluginClass)
 		catch err
-			return next(err,null)
+			next(err,null)
 		
-		# Return loaded
-		next(null,@pluginClass)
+		# Chain
 		return @
 	
 	# Create Instance
-	# next(err,instance)
-	create: (next) ->
-		# Loaded
+	# next(err,pluginInstance)
+	create: (config,next) ->
+		# Load
+		try
+			pluginInstance = new @pluginClass config
+			next(null,pluginInstance)
+		catch err
+			next(err,null)
 		
+		# Chain
+		return @
 
 
 # Export

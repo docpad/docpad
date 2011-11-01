@@ -51,7 +51,8 @@
 		"caterpillar": "0.1.x",
 		"commander": ">=0.1.x",
 		"growl": "1.1.x",
-		"yaml": "0.2.1"
+		"yaml": "0.2.1",
+		"coffee-script": "1.1.1"
 	},
 	"engines" : {
 		"node": ">=0.4.0"
