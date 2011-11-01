@@ -69,7 +69,8 @@
 		"node": ">=0.4.0"
 	},
 	"bin": {
-		"docpad": "./bin/docpad"
+		"docpad": "./bin/docpad",
+		"wordpress": "./bin/wordpress"
 	},
 	"directories": {
 		"lib": "lib"

@@ -46,6 +46,10 @@ class DocpadPlugin
 	writeFinished: ({docpad},next) ->
 		next()
 
+	# Insert your add-on configuration
+	serverBeforeConfiguration: ({docpad,server},next) ->
+		next()
+
 	# Setting up the server has finished
 	serverFinished: ({docpad,server},next) ->
 		next()
