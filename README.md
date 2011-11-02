@@ -93,16 +93,7 @@ DocPad takes that good ol' simple approach of writing files and wraps it with th
 
 		npm -g install docpad
 
-1. _or... install the cutting edge version_
-
-		git clone git://github.com/balupton/docpad.git
-		cd docpad
-		git branch -v
-		npm install
-		git submodule init
-		git submodule update
-		npm link
-
+1. _or... [install the cutting edge version](https://github.com/balupton/docpad/wiki/Testing)_
 
 
 ## Using
@@ -178,6 +169,10 @@ Thanks. DocPad loves you.
 	- New plugin architecture
 		- Plugins now must be inside their own directory, which can have it's own `package.json` file
 		- Plugin developers refer to the upgrade guide
+	- Clean urls have been redone
+		- Documents can now have multiple urls. These are user customisable via the `urls` property.
+	- Support for document updating/writing has been added
+	- 
 	- STILL UNDER DEVELOPMENT
 
 - v1.4 October 22, 2011
