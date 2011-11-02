@@ -172,6 +172,14 @@ Thanks. DocPad loves you.
 
 ## History
 
+- v2.0 November 2, 2011
+	- [Upgrade guide for 1.x users](https://github.com/balupton/docpad/wiki/Upgrading)
+	- Node 0.5, 0.6 compatibility
+	- New plugin architecture
+		- Plugins now must be inside their own directory, which can have it's own `package.json` file
+		- Plugin developers refer to the upgrade guide
+	- STILL UNDER DEVELOPMENT
+
 - v1.4 October 22, 2011
 	- Template engines now have access to node.js's `require`
 	- Less Plugin
