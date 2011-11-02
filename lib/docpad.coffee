@@ -835,7 +835,6 @@ class Docpad
 			# Routing
 			@server.use (req,res,next) =>
 				@documents.findOne {urls:{'$in':req.url}}, (err,document) =>
-					console.log req.url, document
 					if err
 						@error err
 						res.send(err.message, 500)
