@@ -87,11 +87,11 @@ DocPad takes that good ol' simple approach of writing files and wraps it with th
 
 1. Install dependencies
 		
-		npm -g install coffee-script
+		npm install -g coffee-script@1.1.1
 
 1. Install DocPad
 
-		npm -g install docpad
+		npm install -g docpad
 
 1. _or... [install the cutting edge version](https://github.com/balupton/docpad/wiki/Testing)_
 
