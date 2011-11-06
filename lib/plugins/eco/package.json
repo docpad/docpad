@@ -44,7 +44,7 @@
 		"url": "http://github.com/balupton/docpad.git"
 	},
 	"dependencies": {
-		"eco": "1.1.x"
+		"eco": "1.0.x"
 	},
 	"engines" : {
 		"node": ">=0.4.0"

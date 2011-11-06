@@ -172,7 +172,6 @@ Thanks. DocPad loves you.
 	- Clean urls have been redone
 		- Documents can now have multiple urls. These are user customisable via the `urls` property.
 	- Support for document updating/writing has been added
-	- 
 	- STILL UNDER DEVELOPMENT
 
 - v1.4 October 22, 2011
