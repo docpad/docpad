@@ -1,5 +1,6 @@
 # Requires
 DocpadPlugin = require "#{__dirname}/../../plugin.coffee"
+util = require 'bal-util'
 
 # Define Relations Plugin
 class RelationsPlugin extends DocpadPlugin
@@ -7,7 +8,7 @@ class RelationsPlugin extends DocpadPlugin
 	name: 'relations'
 
 	# Parsing all files has finished
-	contextualizeFinished: ({docpad,logger,util},next) ->
+	parseAfter: ({docpad,logger},next) ->
 		# Prepare
 		documents = docpad.documents
 		logger.log 'debug', 'Generating relations'

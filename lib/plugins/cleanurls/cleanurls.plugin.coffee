@@ -2,6 +2,7 @@
 DocpadPlugin = require "#{__dirname}/../../plugin.coffee"
 path = require 'path'
 fs = require 'fs'
+util = require 'bal-util'
 
 # Define Clean Urls Plugin
 class CleanUrlsPlugin extends DocpadPlugin
@@ -9,7 +10,7 @@ class CleanUrlsPlugin extends DocpadPlugin
 	name: 'cleanUrls'
 
 	# Parsing all files has finished
-	contextualizeFinished: ({docpad,logger,util},next) ->
+	parseAfter: ({docpad,logger},next) ->
 		# Prepare
 		documents = docpad.documents
 		logger.log 'debug', 'Creating clean urls'

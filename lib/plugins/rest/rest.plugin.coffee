@@ -7,11 +7,11 @@ class RestPlugin extends DocpadPlugin
 	name: 'rest'
 
 	# Run when the server setup has finished
-	serverFinished: ({docpad,server},next) ->
+	serverAfter: ({docpad,server},next) ->
 		# Hook into all post requests
 		docpad.server.post /./, (req,res,next) =>
 			# Check is maintainer
-			unless @docpad.getPlugin('authenticate').isMaintainer()
+			if @config.requireAuthentication and @docpad.getPlugin('authenticate').isMaintainer() is false
 				res.send(405) # Not authorized
 				return next()
 

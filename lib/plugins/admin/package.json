@@ -53,5 +53,10 @@
 	"directories": {
 		"lib": "."
 	},
-	"main": "./admin.plugin.coffee"
+	"main": "./admin.plugin.coffee",
+	"docpad": {
+		"plugin": {
+			"requireAuthentication": false
+		}
+	}
 }

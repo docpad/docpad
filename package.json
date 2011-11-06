@@ -67,7 +67,9 @@
 	},
 	"main": "./lib/docpad.coffee",
 	"docpad": {
-		"plugins": {
+		"enabledPlugins": {
+			"admin": false,
+			"rest": false
 		}
 	}
 }
