@@ -40,6 +40,15 @@ class DocpadPlugin
 	# ---------------------------------
 	# Events
 
+	# Generate is starting
+	generateBefore: ({},next) ->
+		next()
+
+	# Generate has finished
+	generateAfter: ({},next) ->
+		next()
+
+
 	# Cleaning is starting
 	cleanBefore: ({},next) ->
 		next()

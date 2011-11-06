@@ -10,18 +10,23 @@ class AdminPlugin extends DocpadPlugin
 	# Plugin Name
 	name: 'admin'
 
-###
-	# Add in a Script
-	beforeRender: ({templateData}) ->
-		templateData.scripts.push '''
-			<script src="/docpad/admin.js"></script>
+	# Administration Blocks
+	renderBefore: ({templateData}, next) ->
+		templateData.blocks.scripts.push '''
+			<script src="/_docpad/plugins/admin/scripts/script.js"></script>
 		'''
+		next()
 	
-	# Server
-	afterServer: ({server}) ->
-		server.get '/docpad/admin.js', (req,res,next) ->
-			res.send fs.readFileSync "#{__dirname}"/
-###
+	# Adminstration Website
+	writeAfter: ({},next) ->
+		docpad = require(@docpad.mainPath).createInstance(
+			rootPath: __dirname,
+			outPath: "#{@docpad.outPath}/_docpad/plugins/admin"
+			logLevel: @docpad.logLevel
+			config:
+				enableUnlistedPlugins: false
+				enabledPlugins: 'coffee'
+		).action 'generate', next
 
 # Export Plugin
 module.exports = AdminPlugin

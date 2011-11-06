@@ -10,7 +10,7 @@ class BuildrPlugin extends DocpadPlugin
 	name: 'buildr'
 
 	# Writing all files has finished
-	writeFinished: ({docpad},next) ->
+	writeAfter: ({docpad},next) ->
 		# Run buildr.coffee on the outpath
 		
 		# Fetch the buildrPath
