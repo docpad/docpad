@@ -8,9 +8,9 @@ js2coffee = null
 
 # Define
 class File
-	# Required
+	# Inherited
+	docpad: null
 	layouts: []
-	triggerRenderEvent: null
 	logger: null
 
 	# Auto
@@ -42,9 +42,8 @@ class File
 	relatedDocuments: []
 
 	# Constructor
-	constructor: (fileMeta) ->
+	constructor: ({@docpad,@layouts,@logger,meta}) ->
 		# Delete prototype references
-		@layouts = []
 		@extensions = []
 		@tags = []
 		@relatedDocuments = []
@@ -52,7 +51,7 @@ class File
 		@urls = []
 
 		# Copy over meta data
-		for own key, value of fileMeta
+		for own key, value of meta
 			@[key] = value
 
 	# Load
@@ -96,7 +95,7 @@ class File
 		@fileHead = null
 		@fileMeta = {}
 	
-		# YAML
+		# Meta Data
 		match = /^\s*([\-\#][\-\#][\-\#]+) ?(\w*)\s*/.exec(fileData)
 		if match
 			# Positions
@@ -329,7 +328,7 @@ class File
 				# Create a task to run
 				tasks.push ((eventData) => =>
 					# Render through plugins
-					@triggerRenderEvent eventData, (err) =>
+					@docpad.triggerEvent 'render', eventData, (err) =>
 						# Error?
 						if err
 							@logger.log 'warn', 'Something went wrong while rendering:', @relativePath

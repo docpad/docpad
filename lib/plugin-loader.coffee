@@ -1,6 +1,7 @@
 # Requires
 path = require 'path'
 fs = require 'fs'
+_ = require 'underscore'
 exec = require('child_process').exec
 
 # Define Plugin Loader
@@ -11,6 +12,9 @@ class PluginLoader
 
 	# The parsed contents of the plugin's package.json file
 	packageData: {}
+
+	# The plugin configuration to load into it
+	pluginConfig: {}
 
 	# The full path of the plugin's main file
 	pluginPath: null
@@ -25,10 +29,9 @@ class PluginLoader
 	pluginName: null
 
 	# Constructor
-	constructor: (dirPath) ->
+	constructor: ({@docpad,@dirPath}) ->
 		# Apply
-		@dirPath = dirPath
-		@pluginName = path.basename(dirPath)
+		@pluginName = path.basename(@dirPath)
 	
 	# Exists
 	# Loads in the plugin either via a package.json file, or a guessing based on the name
@@ -55,6 +58,9 @@ class PluginLoader
 							@packageData = JSON.parse data.toString()
 						catch err
 							return next(err,false)
+						return next(null,false)  unless @packageData
+
+						@pluginConfig = @packageData.docpad and @packageData.docpad.plugin or {}
 						
 						pluginPath =  @packageData.main? and path.join(@dirPath, @pluginPath) or pluginPath
 						path.exists pluginPath, (exists) =>
@@ -108,9 +114,12 @@ class PluginLoader
 	
 	# Create Instance
 	# next(err,pluginInstance)
-	create: (config,next) ->
+	create: (userConfiguration={},next) ->
 		# Load
 		try
+			docpadConfiguration = @docpad.config.plugins[@pluginName] or {}
+			config = _.extend {}, @pluginConfig, docpadConfiguration, userConfiguration
+			config.docpad = @docpad
 			pluginInstance = new @pluginClass config
 			next(null,pluginInstance)
 		catch err
