@@ -167,7 +167,7 @@ Thanks. DocPad loves you.
 - v2.0 November 2, 2011
 	- [Upgrade guide for 1.x users](https://github.com/balupton/docpad/wiki/Upgrading)
 	- Tested and working on Node 0.4, 0.5, and 0.6
-		- With Node 0.6 it works on Windows
+		- Windows support is still to come - [track it's progress here](https://github.com/balupton/docpad/issues/26)
 	- New plugin architecture
 		- Plugins must now be isolated in their own directory
 		- Plugins can now have their own `package.json` file
