@@ -432,7 +432,7 @@ class Docpad
 					# Check
 					unless enabled
 						# Skip
-						logger.log 'info', "Skipping plugin #{pluginName}"
+						logger.log 'debug', "Skipping plugin #{pluginName}"
 						return nextFile(null,true)
 					else
 						# Load
@@ -819,19 +819,22 @@ class Docpad
 					# Generate Parse
 					docpad.generateParse (err) ->
 						return next(err)  if err
-						# Generate Render
+						# Generate Render (First Pass)
 						docpad.generateRender (err) ->
 							return next(err)  if err
-							# Generate Write
-							docpad.generateWrite (err) ->
-								# Before
-								docpad.triggerEvent 'generateAfter', {}, (err) =>
-									return next(err)  if err
-									# Generated
-									growl.notify (new Date()).toLocaleTimeString(), title: 'Website Generated'
-									logger.log 'info', 'Generated'
-									docpad.generating = false
-									next()
+							# Generate Render (Second Pass)
+							docpad.generateRender (err) ->
+								return next(err)  if err
+								# Generate Write
+								docpad.generateWrite (err) ->
+									# Before
+									docpad.triggerEvent 'generateAfter', {}, (err) =>
+										return next(err)  if err
+										# Generated
+										growl.notify (new Date()).toLocaleTimeString(), title: 'Website Generated'
+										logger.log 'info', 'Generated'
+										docpad.generating = false
+										next()
 
 		# Chain
 		@
