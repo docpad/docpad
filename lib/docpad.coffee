@@ -9,7 +9,7 @@ path = require 'path'
 sys = require 'util'
 caterpillar = require 'caterpillar'
 util = require 'bal-util'
-exec = require('child_process').exec
+child_process = require('child_process')
 growl = require('growl')
 express = false
 watch = false
@@ -17,6 +17,22 @@ queryEngine = false
 _ = require 'underscore'
 PluginLoader = require "#{__dirname}/plugin-loader.coffee"
 require "#{__dirname}/prototypes.coffee"
+exec = (commands,options,callback) ->
+	# Sync
+	tasks = new util.Group callback
+	
+	# Tasks
+	commands = [commands]  unless commands instanceof Array
+	for command in commands
+		console.log "Adding [#{command}]"
+		tasks.push ->
+			console.log "Running [#{command}] [#{tasks.queueIndex}]"
+			child_process.exec command, options, tasks.completer()
+
+	# Execute the tasks synchronously
+	console.log require('util').inspect tasks.queue
+	tasks.sync()
+
 
 # -------------------------------------
 # Docpad
@@ -212,8 +228,12 @@ class Docpad
 		# Pull
 		logger.log 'debug', "[#{skeleton}] Pulling in the Skeleton"
 		child = exec(
-			# Command
-			"git init; git remote add skeleton #{skeletonRepo}; git pull skeleton master"
+			# Commands
+			[
+				"git init"
+				"git remote add skeleton #{skeletonRepo}"
+				"git pull skeleton master"
+			]
 			
 			# Options
 			{
@@ -236,8 +256,15 @@ class Docpad
 					tasks.complete()  unless exists
 					logger.log 'debug', "[#{skeleton}] Initialising Submodules for Skeleton"
 					child = exec(
-						# Command
-						'git submodule init; git submodule update; git submodule foreach --recursive "git init; git checkout master; git submodule init; git submodule update"'
+						# Commands
+						[
+							'git submodule init'
+							'git submodule update'
+							'git submodule foreach --recursive "git init"'
+							'git submodule foreach --recursive "git checkout master"'
+							'git submodule foreach --recursive "git submodule init"'
+							'git submodule foreach --recursive "git submodule update"'
+						]
 						
 						# Options
 						{
