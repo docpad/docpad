@@ -188,7 +188,7 @@ Thanks. DocPad loves you.
 			- See `/nifty/client-side-editing.html` example in the [kitchensink skeleton](https://github.com/balupton/kitchensink.docpad)
 		- SASS plugin
 			- Adds [SASS](http://sass-lang.com/) to CSS support
-				- Uses [TJ Holowaychuk/LearnBoost's](https://github.com/learnboost) [Sass.js](https://github.com/visionmedia/sass.js/tree/)
+				- Uses [TJ Holowaychuk's](https://github.com/visionmedia) [Sass.js](https://github.com/visionmedia/sass.js)
 
 - v1.4 October 22, 2011
 	- Template engines now have access to node.js's `require`
@@ -313,7 +313,7 @@ DocPad wouldn't be possible if it wasn't for the following libaries _(in alphabe
 
 - [James Campos'](https://github.com/aeosynth) [CCSS](https://github.com/aeosynth/ccss) - CSS as CoffeeScript
 - [Jeremy Ashkenas'](https://github.com/jashkenas) [CoffeeScript](http://jashkenas.github.com/coffee-script) - JavaScript made easy
-- [Jeremy Ashkenas'/DocumentCloud's](https://github.com/documentcloud/underscore) [Underscore](https://github.com/documentcloud/underscore)
+- [Jeremy Ashkenas/DocumentCloud's](https://github.com/documentcloud/underscore) [Underscore](https://github.com/documentcloud/underscore) - The utility-belt library for JavaScript
 
 - [Maurice Machado's](https://github.com/mauricemach) [CoffeeKup](https://github.com/mauricemach/coffeekup) - Markup as CoffeeScript
 
