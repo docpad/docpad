@@ -1,11 +1,10 @@
 # Requires
 DocpadPlugin = require "#{__dirname}/../../plugin.coffee"
 ck = require 'coffeekup'
-html2ck = require 'html2coffeekup-bal'
+html2ck = require 'html2coffeekup'
 coffee = require 'coffee-script'
 js2coffee = require 'js2coffee/lib/js2coffee.coffee'
 ccss = require 'ccss'
-html2ckConvertor = new html2ck.Converter()
 
 # Define Plugin
 class CoffeePlugin extends DocpadPlugin
@@ -25,9 +24,14 @@ class CoffeePlugin extends DocpadPlugin
 			
 			# HTML to CoffeeKup
 			else if inExtension is 'html' and outExtension in ['coffeekup','ck','coffee']
-				html2ckConvertor.convert file.content, (err,content) ->
+				outputStream = {
+					content: ''
+					write: (content) ->
+						@content += content
+				}
+				html2ck.convert file.content, outputStream, (err) ->
 					next err  if err
-					file.content = content
+					file.content = outputStream.content
 					next()
 			
 			# CoffeeScript to JavaScript

@@ -47,7 +47,7 @@
 		"coffeekup": "0.3.x",
 		"js2coffee": "0.1.x",
 		"ccss": "0.1.x",
-		"html2coffeekup-bal": "0.0.x"
+		"html2coffeekup": "1.4.x"
 	},
 	"engines" : {
 		"node": ">=0.4.0"
