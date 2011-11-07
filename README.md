@@ -2,7 +2,7 @@
 
 Initially web development was pretty easy, you just wrote a bunch of files and you got your website. These days, it's a lot more complicated than that. Things like databases, synchronisation, legacy frameworks and languages all slow the entire process down into a painful crawl. _It doesn't have to be like that._
 
-DocPad takes that good ol' simple approach of writing files and wraps it with the most awesome new innovations providing a new intuitive solution for developing websites in this new HTML5 era.
+DocPad takes that good ol' simple approach of writing files and wraps it with the best modern innovations, providing an awesome intuitive, liberating and empowering solution for HTML5 web development.
 
 
 ## Let's take a look
@@ -166,13 +166,28 @@ Thanks. DocPad loves you.
 - v2.0 November 2, 2011
 	- [Upgrade guide for 1.x users](https://github.com/balupton/docpad/wiki/Upgrading)
 	- Node 0.5, 0.6 compatibility
+		- This brings forth Windows compatibility
 	- New plugin architecture
-		- Plugins now must be inside their own directory, which can have it's own `package.json` file
-		- Plugin developers refer to the upgrade guide
-	- Clean urls have been redone
-		- Documents can now have multiple urls. These are user customisable via the `urls` property.
-	- Support for document updating/writing has been added
-	- STILL UNDER DEVELOPMENT
+		- Plugins must now be isolated in their own directory
+		- Plugins can now have their own `package.json` file
+			- Use this for specifying plugin configuration, dependencies, etc
+		- Plugin events have been renamed to before/after
+			- New before/after events have been added
+		- `docpad` and `logger` are now local variables, rather than passed arguments
+			- Arguments are still kept for backwards compatibility - this may change
+	- Generation changes
+		- Rendering is now a 2-pass process
+		- Contextualize is now a sub-step of parse, instead of it's own main step
+			- Better simplicity, less complexity
+		- Documents can now have multiple urls
+			- These are customisable via the document's `urls` array property
+	- New plugins
+		- REST plugin supports saving document data via POST (disabled by default)
+		- Administration plugin adds front-end admin functionality (disabled by default)
+			- See `/nifty/client-side-editing.html` example in the [kitchensink skeleton](https://github.com/balupton/kitchensink.docpad)
+	- STILL UNDER DEVELOPMENT, TODO
+		- Test 0.4 compatability
+		- 
 
 - v1.4 October 22, 2011
 	- Template engines now have access to node.js's `require`

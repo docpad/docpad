@@ -1,7 +1,7 @@
 {
-	"name": "docpad-stylus",
+	"name": "docpad-sass",
 	"version": "0.1.0",
-	"description": "Adds support for the Stylus CSS pre-processor to DocPad.",
+	"description": "Adds support for the SASS CSS pre-processor to DocPad.",
 	"homepage": "https://github.com/balupton/docpad",
 	"keywords": [
 		"docpad",
@@ -43,8 +43,7 @@
 		"url": "http://github.com/balupton/docpad.git"
 	},
 	"dependencies": {
-		"stylus": "0.16.x",
-		"nib": "0.2.x"
+		"sass": "0.5.x"
 	},
 	"engines" : {
 		"node": ">=0.4.0"
@@ -55,5 +54,5 @@
 	"directories": {
 		"lib": "."
 	},
-	"main": "./stylus.plugin.coffee"
+	"main": "./sass.plugin.coffee"
 }
