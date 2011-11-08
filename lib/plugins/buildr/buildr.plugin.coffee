@@ -14,7 +14,7 @@ class BuildrPlugin extends DocpadPlugin
 		# Run buildr.coffee on the outpath
 		
 		# Fetch the buildrPath
-		buildrPath = path.normalize "#{docpad.rootPath}/buildr.coffee"
+		buildrPath = path.normalize "#{docpad.config.rootPath}/buildr.coffee"
 
 		# Check if it exists
 		path.exists buildrPath, (exists) ->

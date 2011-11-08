@@ -4,7 +4,6 @@ ck = null
 html2ck = null
 coffee = null
 js2coffee = null
-ccss = null
 
 # Define Plugin
 class CoffeePlugin extends DocpadPlugin
@@ -48,12 +47,9 @@ class CoffeePlugin extends DocpadPlugin
 				file.content = js2coffee.build file.content
 				next()
 			
-			# CoffeeCSS to CSS
-			else if inExtension in ['coffeecss','coffee','ccss'] and outExtension is 'css'
-				ccss = require 'ccss'  unless ccss
-				file.content = ccss.compile coffee.eval file.content
-				next()
-			
+			# Removed the CoffeeCSS plugin as it was causing issues in the new version
+			# Either caused by docpad v2.0, node.js 0.6, or coffee-script 1.1.1
+
 			# Other
 			else
 				next()

@@ -19,13 +19,12 @@ class AdminPlugin extends DocpadPlugin
 	
 	# Adminstration Website
 	writeAfter: ({},next) ->
-		docpad = require(@docpad.mainPath).createInstance(
+		docpad = require(@docpad.config.mainPath).createInstance(
 			rootPath: __dirname,
-			outPath: "#{@docpad.outPath}/_docpad/plugins/admin"
-			logLevel: @docpad.logLevel
-			config:
-				enableUnlistedPlugins: false
-				enabledPlugins: 'coffee'
+			outPath: "#{@docpad.config.outPath}/_docpad/plugins/admin"
+			logLevel: @docpad.config.logLevel
+			enableUnlistedPlugins: false
+			enabledPlugins: 'coffee'
 		).action 'generate', next
 
 # Export Plugin

@@ -46,7 +46,6 @@
 		"coffee-script": "1.1.1",
 		"coffeekup": "0.3.x",
 		"js2coffee": "0.1.x",
-		"ccss": "0.1.x",
 		"html2coffeekup": "1.4.x"
 	},
 	"engines" : {
