@@ -137,7 +137,6 @@ DocPad takes that good ol' simple approach of writing files and wraps it with th
 ### Styles
 
 - [Stylus](http://learnboost.github.com/stylus/) to CSS `.css.styl|stylus`
-- [CoffeeCSS](https://github.com/aeosynth/ccss) to CSS `.css.ccss|coffeecss|coffee`
 - [LessCSS](http://lesscss.org/) to CSS `.css.less`
 - [SASS](http://sass-lang.com/) to CSS `.css.sass|scss`
 
@@ -168,6 +167,8 @@ Thanks. DocPad loves you.
 	- [Upgrade guide for 1.x users](https://github.com/balupton/docpad/wiki/Upgrading)
 	- Tested and working on Node 0.4, 0.5, and 0.6
 		- Windows support is still to come - [track it's progress here](https://github.com/balupton/docpad/issues/26)
+	- Configurable via `package.json`
+		- DocPad is now configurable via it's and your website's `package.json` file
 	- New plugin architecture
 		- Plugins must now be isolated in their own directory
 		- Plugins can now have their own `package.json` file
@@ -182,13 +183,15 @@ Thanks. DocPad loves you.
 			- Better simplicity, less complexity
 		- Documents can now have multiple urls
 			- These are customisable via the document's `urls` array property
-	- New plugins
+	- Plugin Changes
 		- REST plugin supports saving document data via POST (disabled by default)
 		- Administration plugin adds front-end admin functionality (disabled by default)
 			- See `/nifty/client-side-editing.html` example in the [kitchensink skeleton](https://github.com/balupton/kitchensink.docpad)
 		- SASS plugin
 			- Adds [SASS](http://sass-lang.com/) to CSS support
 				- Uses [TJ Holowaychuk's](https://github.com/visionmedia) [Sass.js](https://github.com/visionmedia/sass.js)
+		- Coffee Plugin
+			- Removed CoffeeCSS support as was playing up
 
 - v1.4 October 22, 2011
 	- Template engines now have access to node.js's `require`

@@ -32,6 +32,9 @@ class PluginLoader
 	constructor: ({@docpad,@dirPath}) ->
 		# Apply
 		@pluginName = path.basename(@dirPath)
+		@pluginClass = {}
+		@pluginConfig = {}
+		@packageData = {}
 	
 	# Exists
 	# Loads in the plugin either via a package.json file, or a guessing based on the name
