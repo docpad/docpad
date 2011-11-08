@@ -1,10 +1,10 @@
 # Requires
 DocpadPlugin = require "#{__dirname}/../../plugin.coffee"
-ck = require 'coffeekup'
-html2ck = require 'html2coffeekup'
-coffee = require 'coffee-script'
-js2coffee = require 'js2coffee/lib/js2coffee.coffee'
-ccss = require 'ccss'
+ck = null
+html2ck = null
+coffee = null
+js2coffee = null
+ccss = null
 
 # Define Plugin
 class CoffeePlugin extends DocpadPlugin
@@ -19,11 +19,13 @@ class CoffeePlugin extends DocpadPlugin
 		try
 			# CoffeeKup to anything
 			if inExtension in ['coffeekup','ck'] or (inExtension is 'coffee' and !(outExtension in ['js','css']))
+				ck = require 'coffeekup'  unless ck
 				file.content = ck.render file.content, templateData
 				next()
 			
 			# HTML to CoffeeKup
 			else if inExtension is 'html' and outExtension in ['coffeekup','ck','coffee']
+				html2ck = require 'html2coffeekup'  unless html2ck
 				outputStream = {
 					content: ''
 					write: (content) ->
@@ -36,16 +38,19 @@ class CoffeePlugin extends DocpadPlugin
 			
 			# CoffeeScript to JavaScript
 			else if inExtension is 'coffee' and outExtension is 'js'
+				coffee = require 'coffee-script'  unless coffee
 				file.content = coffee.compile file.content
 				next()
 			
 			# JavaScript to CoffeeScript
 			else if inExtension is 'js' and outExtension is 'coffee'
+				js2coffee = require 'js2coffee/lib/js2coffee.coffee'  unless js2coffee
 				file.content = js2coffee.build file.content
 				next()
 			
 			# CoffeeCSS to CSS
 			else if inExtension in ['coffeecss','coffee','ccss'] and outExtension is 'css'
+				ccss = require 'ccss'  unless ccss
 				file.content = ccss.compile coffee.eval file.content
 				next()
 			

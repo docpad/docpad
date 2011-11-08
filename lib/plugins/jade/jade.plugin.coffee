@@ -1,7 +1,7 @@
 # Requires
 DocpadPlugin = require "#{__dirname}/../../plugin.coffee"
-jade = require 'jade'
-html2jade = require 'html2jade'
+jade = null
+html2jade = null
 
 # Define Plugin
 class JadePlugin extends DocpadPlugin
@@ -15,11 +15,13 @@ class JadePlugin extends DocpadPlugin
 	render: ({inExtension,outExtension,templateData,file}, next) ->
 		try
 			if inExtension is 'jade'
+				jade = require 'jade'  unless jade
 				file.content = jade.compile(file.content, {
 					filename: file.fullPath
 				})(templateData)
 				next()
 			else if outExtension is 'jade' and inExtension is 'html'
+				html2jade = require 'html2jade'  unless html2jade
 				html2jade.convertHtml file.content, {}, (err,result) ->
 					return next(err)  if err
 					file.content = result

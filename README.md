@@ -164,7 +164,7 @@ Thanks. DocPad loves you.
 
 ## History
 
-- v2.0 November 2, 2011
+- v2.0 November 8, 2011
 	- [Upgrade guide for 1.x users](https://github.com/balupton/docpad/wiki/Upgrading)
 	- Tested and working on Node 0.4, 0.5, and 0.6
 		- Windows support is still to come - [track it's progress here](https://github.com/balupton/docpad/issues/26)

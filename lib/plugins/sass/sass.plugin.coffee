@@ -1,6 +1,6 @@
 # Requires
 DocpadPlugin = require "#{__dirname}/../../plugin.coffee"
-sass = require 'sass'
+sass = null
 
 # Define Plugin
 class SassPlugin extends DocpadPlugin
@@ -14,6 +14,7 @@ class SassPlugin extends DocpadPlugin
 	render: ({inExtension,outExtension,templateData,file}, next) ->
 		try
 			if inExtension in ['sass','scss'] and outExtension is 'css'
+				sass = require 'sass'  unless sass
 				file.content = sass.render file.content, filename: file.fullPath
 				next()
 			else
