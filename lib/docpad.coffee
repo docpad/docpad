@@ -1,21 +1,37 @@
 ###
 Docpad by Benjamin Lupton
-The easiest way to generate your static website.
+Intuitive Web Development
 ###
 
 # Requirements
 fs = require 'fs'
 path = require 'path'
-sys = require 'sys'
+sys = require 'util'
 caterpillar = require 'caterpillar'
 util = require 'bal-util'
-exec = require('child_process').exec
+child_process = require('child_process')
 growl = require('growl')
 express = false
-watchTree = false
+watch = false
 queryEngine = false
-packageJSON = JSON.parse fs.readFileSync("#{__dirname}/../package.json").toString()
+_ = require 'underscore'
+PluginLoader = require "#{__dirname}/plugin-loader.coffee"
 require "#{__dirname}/prototypes.coffee"
+exec = (commands,options,callback) ->
+	# Sync
+	tasks = new util.Group callback
+	
+	# Tasks
+	commands = [commands]  unless commands instanceof Array
+	for command in commands
+		console.log "Adding [#{command}]"
+		tasks.push ->
+			console.log "Running [#{command}] [#{tasks.queueIndex}]"
+			child_process.exec command, options, tasks.completer()
+
+	# Execute the tasks synchronously
+	console.log require('util').inspect tasks.queue
+	tasks.sync()
 
 
 # -------------------------------------
@@ -27,12 +43,19 @@ class Docpad
 	outPath: 'out'
 	srcPath: 'src'
 	corePath: "#{__dirname}/.."
+	libPath: "#{__dirname}"
+	mainPath: "#{__dirname}/docpad.coffee"
+	layoutsPath: null
+	documentsPath: null
+	publicPath: null
 	skeleton: 'bootstrap'
 	maxAge: false
 	logLevel: 6
-	version: packageJSON.version
 
 	# Docpad
+	version: null
+	packageData: null
+	config: null
 	generating: false
 	loading: true
 	generateTimeout: null
@@ -62,8 +85,9 @@ class Docpad
 	# Main
 
 	# Init
-	constructor: ({rootPath,outPath,srcPath,skeleton,maxAge,port,server,logLevel}={}) ->
+	constructor: ({rootPath,outPath,srcPath,skeleton,maxAge,port,server,logLevel,config}={}) ->
 		# Options
+		@config = {}
 		@pluginsArray = []
 		@pluginsObject = {}
 		@port = port  if port
@@ -72,71 +96,104 @@ class Docpad
 		@rootPath = path.normalize(rootPath || process.cwd())
 		@outPath = path.normalize(outPath || "#{@rootPath}/#{@outPath}")
 		@srcPath = path.normalize(srcPath || "#{@rootPath}/#{@srcPath}")
+		@layoutsPath = @srcPath+'/layouts'
+		@documentsPath = @srcPath+'/documents'
+		@publicPath = @srcPath+'/public'
 		@skeleton = skeleton  if skeleton
 
 		# Logger
+		@logLevel = logLevel or @logLevel
 		@logger = new caterpillar.Logger
 			transports:
-				level: logLevel or @logLevel
+				level: @logLevel
 				formatter:
 					module: module
 		
+		# Configure
+		@loadConfiguration(config)
+
 		# Version Check
 		@compareVersion()
 		
 		# Load Plugins
-		@loadPlugins null, =>
+		@loadPlugins null, (err) =>
+			@error(err)  if err
 			@loading = false
 	
-	# Layout Document
-	createDocument: (data) ->
-		# Create
-		document = new @Document(data)
-		docpad = @
+	# Load Configuration
+	loadConfiguration: (config={}) ->
+		# Prepare
+		@config =
+			enableUnlistedPlugins: true
+			enabledPlugins: {}
+			plugins: {}
 
-		# Prepare event
-		document.layouts = @layouts
-		document.logger = @logger
-		document.triggerRenderEvent = (args...) ->
-			args.unshift('render')
-			docpad.triggerEvent.apply(docpad,args)
+		# Docpad Configuration
+		@packageData = JSON.parse(fs.readFileSync("#{@corePath}/package.json").toString()) or {}
+		@version = @packageData.version
+		_.extend @config, @packageData.docpad or {}
+
+		# Website Configuration
+		try
+			websiteData = JSON.parse(fs.readFileSync("#{@rootPath}/package.json").toString()) or {}
+			_.extend @config, websiteData.docpad or {}
+		catch err
+			@error('Failed to load the website configuration')
 		
-		# Return document
-		document
+		# User Configuration
+		_.extend @config, config
+		
+		# Prepare enabled plugins
+		if typeof @config.enabledPlugins is 'string'
+			enabledPlugins = {}
+			for enabledPlugin in @config.enabledPlugins.split(/[ ,]+/)
+				enabledPlugins[enabledPlugin] = true
+			@config.enabledPlugins = enabledPlugins
+		
+		# Chain
+		@
+	
+	# Layout Document
+	createDocument: (meta={}) ->
+		# Prepare
+		config = docpad: @, layouts: @layouts, logger: @logger, meta: meta
+		
+		# Create and return
+		document = new @Document config
 	
 	# Create Layout
-	createLayout: (data) ->
-		# Create
-		layout = new @Layout(data)
-		docpad = @
-
+	createLayout: (meta={}) ->
 		# Prepare
-		layout.layouts = @layouts
-		layout.logger = @logger
-		layout.triggerRenderEvent = (args...) ->
-			args.unshift('render')
-			docpad.triggerEvent.apply(docpad,args)
-		
-		# Return layout
-		layout
+		config = docpad: @, layouts: @layouts, logger: @logger, meta: meta
+
+		# Create and return
+		layout = new @Layout config
 
 	# Clean Models
 	cleanModels: (next) ->
-		File = @File = require("#{__dirname}/file.coffee")
+		# Prepare
+		File = @File = require("#{@libPath}/file.coffee")
 		Layout = @Layout = class extends File
 		Document = @Document = class extends File
 		layouts = @layouts = new queryEngine.Collection
 		documents = @documents = new queryEngine.Collection
-		Layout::save = ->
+		
+		# Extend
+		Layout::store = ->
 			layouts[@id] = @
-		Document::save = ->
+		Document::store = ->
 			documents[@id] = @
+		
+		# Next
 		next()  if next
+
+		# Chain
+		@
 
 	# Compare versions
 	compareVersion: ->
 		util.packageCompare
-			local: "#{__dirname}/../package.json"
+			local: "#{@corePath}/package.json"
 			remote: 'https://raw.github.com/balupton/docpad/master/package.json'
 			newVersionCallback: (details) =>
 				growl.notify 'There is a new version of docpad available'
@@ -146,6 +203,7 @@ class Docpad
 					new version:      #{details.remote.version}
 					grab it here:     #{details.remote.homepage}
 					"""
+		@
 
 	# Initialise the Skeleton
 	initialiseSkeleton: (skeleton, destinationPath, next) ->
@@ -164,14 +222,18 @@ class Docpad
 		# Async
 		tasks = new util.Group (err) ->
 			logger.log 'info', "[#{skeleton}] Initialised the Skeleton"  unless err
-			next err
+			next(err)
 		tasks.total = 2
 		
 		# Pull
 		logger.log 'debug', "[#{skeleton}] Pulling in the Skeleton"
 		child = exec(
-			# Command
-			"git init; git remote add skeleton #{skeletonRepo}; git pull skeleton master"
+			# Commands
+			[
+				"git init"
+				"git remote add skeleton #{skeletonRepo}"
+				"git pull skeleton master"
+			]
 			
 			# Options
 			{
@@ -184,7 +246,7 @@ class Docpad
 				if err
 					console.log stdout.replace(/\s+$/,'')  if stdout
 					console.log stderr.replace(/\s+$/,'')  if stderr
-					return next err
+					return next(err)
 				
 				# Log
 				logger.log 'debug', "[#{skeleton}] Pulled in the Skeleton"
@@ -194,8 +256,15 @@ class Docpad
 					tasks.complete()  unless exists
 					logger.log 'debug', "[#{skeleton}] Initialising Submodules for Skeleton"
 					child = exec(
-						# Command
-						'git submodule init; git submodule update; git submodule foreach --recursive "git init; git checkout master; git submodule init; git submodule update"'
+						# Commands
+						[
+							'git submodule init'
+							'git submodule update'
+							'git submodule foreach --recursive "git init"'
+							'git submodule foreach --recursive "git checkout master"'
+							'git submodule foreach --recursive "git submodule init"'
+							'git submodule foreach --recursive "git submodule update"'
+						]
 						
 						# Options
 						{
@@ -241,6 +310,9 @@ class Docpad
 							tasks.complete()
 					)
 		)
+
+		# Chain
+		@
 	
 	# Handle
 	action: (action,next=null) ->
@@ -294,12 +366,16 @@ class Docpad
 							@watchAction (err) =>
 								return @error(err)  if err
 								logger.log 'info', 'DocPad is now watching and serving you...'
+		
+		# Chain
+		@
 	
 
 	# Handle an error
 	error: (err) ->
 		return  unless err
 		@logger.log 'err', 'An error occured:', err.message, err.stack
+		@
 
 
 
@@ -307,38 +383,6 @@ class Docpad
 	# ---------------------------------
 	# Plugins
 
-	# Register a Plugin
-	# next(err)
-	registerPlugin: (plugin,next) ->
-		# Prepare
-		logger = @logger
-		error = null
-
-		# Plugin Path
-		if typeof plugin is 'string'
-			try
-				pluginPath = plugin
-				plugin = require pluginPath
-				return @registerPlugin plugin, next
-			catch err
-				logger.log 'warn', 'Unable to load plugin', pluginPath
-				logger.log 'debug', err
-		
-		# Loaded Plugin
-		else if plugin and (plugin.name? or plugin::name?)
-			plugin = new plugin  if typeof plugin is 'function'
-			@pluginsObject[plugin.name] = plugin
-			@pluginsArray.push plugin
-			@pluginsArray.sort (a,b) -> a.priority < b.priority
-			logger.log 'debug', "Loaded plugin [#{plugin.name}]"
-		
-		# Unknown Plugin Type
-		else
-			logger.log 'warn', 'Unknown plugin type', plugin
-		
-		# Forward
-		next error
-	
 
 	# Get a plugin by it's name
 	getPlugin: (pluginName) ->
@@ -352,55 +396,96 @@ class Docpad
 		logger = @logger
 		tasks = new util.Group (err) ->
 			logger.log 'debug', "Plugins completed for #{eventName}"
-			next err
+			next(err)
 		tasks.total = @pluginsArray.length
 
 		# Cycle
 		for plugin in @pluginsArray
-			data.docpad = @
-			data.logger = logger
-			data.util = util
-			plugin[eventName].apply plugin, [data,tasks.completer()]
+			plugin.triggerEvent eventName, data, tasks.completer()
+		
+		# Chain
+		@
 
 
 	# Load Plugins
 	loadPlugins: (pluginsPath, next) ->
 		# Prepare
 		logger = @logger
+		docpad = @
 
-		# Load
+		# Default Load
 		unless pluginsPath
 			# Async
 			tasks = new util.Group (err) ->
-				logger.log 'debug', 'Plugins loaded'
-				next err
+				logger.log 'debug', 'All plugins loaded'
+				next(err)
 			
-			tasks.push => @loadPlugins "#{__dirname}/plugins", tasks.completer()
+			# Load in the docpad and local plugin directories
+			tasks.push => @loadPlugins "#{@libPath}/plugins", tasks.completer()
 			if @rootPath isnt __dirname and path.existsSync "#{@rootPath}/plugins"
 				tasks.push => @loadPlugins "#{@rootPath}/plugins", tasks.completer()
 			
+			# Execute the loading asynchronously
 			tasks.async()
 
+		# Specific Load
 		else
+			logger.log 'debug', "Plugins loading for #{pluginsPath}"
 			util.scandir(
 				# Path
 				pluginsPath,
 
-				# File Action
-				(fileFullPath,fileRelativePath,nextFile) =>
-					if /\.plugin\.[a-zA-Z0-9]+/.test(fileRelativePath)
-						@registerPlugin fileFullPath, nextFile
-					else
-						nextFile()
-				
-				# Dir Action
+				# Skip files
 				false,
 
+				# Handle directories
+				(fileFullPath,fileRelativePath,_nextFile) =>
+					# Prepare
+					return nextFile(null,false)  if fileFullPath is pluginsPath
+					nextFile = (err,skip) =>
+						if err
+							logger.log 'warn', "Failed to load the plugin #{loader.pluginName}. The error follows"
+							@error err
+						_nextFile(null,skip)
+
+					# Prepare
+					loader = new PluginLoader dirPath: fileFullPath, docpad: docpad
+					pluginName = loader.pluginName
+					enabled = (
+						(@config.enableUnlistedPlugins  and  @config.enabledPlugins[pluginName]? is false)  or
+						@config.enabledPlugins[pluginName] is true
+					)
+
+					# Check
+					unless enabled
+						# Skip
+						logger.log 'debug', "Skipping plugin #{pluginName}"
+						return nextFile(null,true)
+					else
+						# Load
+						logger.log 'debug', "Loading plugin #{pluginName}"
+						loader.exists (err,exists) =>
+							return nextFile(err,true)  if err or not exists
+							loader.install (err) =>
+								return nextFile(err,true)  if err
+								loader.require (err) =>
+									return nextFile(err,true)  if err
+									loader.create {}, (err,pluginInstance) =>
+										return nextFile(err,true)  if err
+										@pluginsObject[loader.pluginName] = pluginInstance
+										@pluginsArray.push pluginInstance
+										logger.log 'debug', "Loaded plugin #{pluginName}"
+										return nextFile(null,true)
+					
 				# Next
-				(err) ->
+				(err) =>
+					@pluginsArray.sort (a,b) -> a.priority < b.priority
 					logger.log 'debug', "Plugins loaded for #{pluginsPath}"
-					next err
+					next(err)
 			)
+		
+		# Chain
+		@
 
 
 	# ---------------------------------
@@ -408,29 +493,58 @@ class Docpad
 
 	# Clean the database
 	generateClean: (next) ->
-		# Prepare
-		logger = @logger
-		logger.log 'debug', 'Cleaning started'
+		# Before
+		@triggerEvent 'cleanBefore', {}, (err) =>
+			return next(err)  if err
 
-		# Models
-		@cleanModels()
+			# Prepare
+			docpad = @
+			logger = @logger
+			logger.log 'debug', 'Cleaning started'
+
+			# Models
+			@cleanModels()
+			
+			# Async
+			tasks = new util.Group (err) ->
+				# After
+				docpad.triggerEvent 'cleanAfter', {}, (err) ->
+					logger.log 'debug', 'Cleaning finished'  unless err
+					next(err)
+			tasks.total = 6
+
+			# Files
+			util.rmdir @outPath, (err,list,tree) ->
+				logger.log 'debug', 'Cleaned files'  unless err
+				tasks.complete err
+
+			# Layouts
+			@layouts.remove {}, (err) ->
+				logger.log 'debug', 'Cleaned layouts'  unless err
+				tasks.complete err
+			
+			# Documents
+			@documents.remove {}, (err) ->
+				logger.log 'debug', 'Cleaned documents'  unless err
+				tasks.complete err
+			
+			# Ensure Layouts
+			util.ensurePath @layoutsPath, (err) ->
+				logger.log 'debug', 'Ensured layouts'  unless err
+				tasks.complete err
+			
+			# Ensure Documents
+			util.ensurePath @documentsPath, (err) ->
+				logger.log 'debug', 'Ensured documents'  unless err
+				tasks.complete err
 		
-		# Async
-		tasks = new util.Group (err) ->
-			logger.log 'debug', 'Cleaning finished'  unless err
-			next err
-		tasks.total = 2
-
-		# Layouts
-		@layouts.remove {}, (err) ->
-			logger.log 'debug', 'Cleaned layouts'  unless err
-			tasks.complete err
+			# Ensure Public
+			util.ensurePath @publicPath, (err) ->
+				logger.log 'debug', 'Ensured public'  unless err
+				tasks.complete err
 		
-		# Documents
-		@documents.remove {}, (err) ->
-			logger.log 'debug', 'Cleaned documents'  unless err
-			tasks.complete err
-
+		# Chain
+		@
 
 	# Check if the file path is ignored
 	# next(err,ignore)
@@ -439,100 +553,113 @@ class Docpad
 			next null, true
 		else
 			next null, false
-
+		
+		# Chain
+		@
 
 	# Parse the files
 	generateParse: (next) ->
-		# Requires
-		logger = @logger
-		docpad = @
-		logger.log 'debug', 'Parsing files'
-
-		# Paths
-		layoutsSrcPath = @srcPath+'/layouts'
-		documentsSrcPath = @srcPath+'/documents'
-
-		# Async
-		tasks = new util.Group (err) ->
+		# Before
+		@triggerEvent 'parseBefore', {}, (err) =>
 			return next(err)  if err
-			logger.log 'debug', 'Parsed files'  unless err
-			next()
-		tasks.total = 2
 
-		# Layouts
-		util.scandir(
-			# Path
-			layoutsSrcPath,
+			# Requires
+			docpad = @
+			logger = @logger
+			logger.log 'debug', 'Parsing files'
 
-			# File Action
-			(fileFullPath,fileRelativePath,nextFile) ->
-				# Ignore?
-				docpad.filePathIgnored fileFullPath, (err,ignore) ->
-					return nextFile(err)  if err or ignore
-					layout = docpad.createLayout(
+			# Async
+			tasks = new util.Group (err) ->
+				# Check
+				return next(err)  if err
+				# Contextualize
+				docpad.generateParseContextualize (err) ->
+					return next(err)  if err
+					# After
+					docpad.triggerEvent 'parseAfter', {}, (err) ->
+						logger.log 'debug', 'Parsed files'  unless err
+						next(err)
+			
+			# Tasks
+			tasks.total = 2
+
+			# Layouts
+			util.scandir(
+				# Path
+				@layoutsPath,
+
+				# File Action
+				(fileFullPath,fileRelativePath,nextFile) ->
+					# Ignore?
+					docpad.filePathIgnored fileFullPath, (err,ignore) ->
+						return nextFile(err)  if err or ignore
+						layout = docpad.createLayout(
+								fullPath: fileFullPath
+								relativePath: fileRelativePath
+						)
+						layout.load (err) ->
+							return nextFile(err)  if err
+							layout.store()
+							nextFile err
+					
+				# Dir Action
+				null,
+
+				# Next
+				(err) ->
+					logger.log 'warn', 'Failed to parse layouts', err  if err
+					tasks.complete err
+			)
+
+			# Documents
+			util.scandir(
+				# Path
+				@documentsPath,
+
+				# File Action
+				(fileFullPath,fileRelativePath,nextFile) ->
+					# Ignore?
+					docpad.filePathIgnored fileFullPath, (err,ignore) ->
+						return nextFile(err)  if err or ignore
+						document = docpad.createDocument(
 							fullPath: fileFullPath
 							relativePath: fileRelativePath
-					)
-					layout.load (err) ->
-						return nextFile err  if err
-						layout.save()
-						nextFile err
+						)
+						document.load (err) ->
+							return nextFile err  if err
+
+							# Ignored?
+							if document.ignore or document.ignored or document.skip or document.published is false or document.draft is true
+								logger.log 'info', 'Skipped manually ignored document:', document.relativePath
+								return nextFile()
+							
+							# Store Document
+							document.store()
+							nextFile err
 				
-			# Dir Action
-			false,
+				# Dir Action
+				null,
 
-			# Next
-			(err) ->
-				logger.log 'warn', 'Failed to parse layouts', err  if err
-				tasks.complete err
-		)
+				# Next
+				(err) ->
+					logger.log 'warn', 'Failed to parse documents', err  if err
+					tasks.complete err
+			)
 
-		# Documents
-		util.scandir(
-			# Path
-			documentsSrcPath,
-
-			# File Action
-			(fileFullPath,fileRelativePath,nextFile) ->
-				# Ignore?
-				docpad.filePathIgnored fileFullPath, (err,ignore) ->
-					return nextFile(err)  if err or ignore
-					document = docpad.createDocument(
-						fullPath: fileFullPath
-						relativePath: fileRelativePath
-					)
-					document.load (err) ->
-						return nextFile err  if err
-
-						# Ignored?
-						if document.ignore or document.ignored or document.skip or document.published is false or document.draft is true
-							logger.log 'info', 'Skipped manually ignored document:', document.relativePath
-							return nextFile()
-						
-						# Save Document
-						document.save()
-						nextFile err
-			
-			# Dir Action
-			false,
-
-			# Next
-			(err) ->
-				logger.log 'warn', 'Failed to parse documents', err  if err
-				tasks.complete err
-		)
-
-	# Generate contextualize
-	generateContextualize: (next) ->
+		# Chain
+		@
+	
+	# Generate Parse: Contextualize
+	generateParseContextualize: (next) ->
 		# Prepare
 		docpad = @
 		logger = @logger
-		logger.log 'debug', 'Contextualizing files'
+		logger.log 'debug', 'Parsing files: Contextualizing files'
 
 		# Async
 		tasks = new util.Group (err) ->
 			return next(err)  if err
-			logger.log 'debug', 'Contextualized files'
+			logger.log 'debug', 'Parsing files: Contextualized files'
 			next()
 		
 		# Fetch
@@ -542,6 +669,9 @@ class Docpad
 		# Scan all documents
 		documents.forEach (document) ->
 			document.contextualize tasks.completer()
+
+		# Chain
+		@
 
 	# Generate render
 	generateRender: (next) ->
@@ -553,8 +683,10 @@ class Docpad
 		# Async
 		tasks = new util.Group (err) ->
 			return next(err)  if err
-			logger.log 'debug', 'Rendered files'
-			next()
+			# After
+			docpad.triggerEvent 'renderAfter', {}, (err) ->
+				logger.log 'debug', 'Rendered files'  unless err
+				next(err)
 		
 		# Prepare site data
 		Site = site =
@@ -570,10 +702,13 @@ class Docpad
 			Document: null
 			site: site
 			Site: site
+			blocks:
+				scripts: []
+				styles: []
 
-		# Trigger Helpers
-		@triggerEvent 'renderStarted', {documents,templateData}, (err) ->
-			return next err  if err
+		# Before
+		@triggerEvent 'renderBefore', {documents,templateData}, (err) ->
+			return next(err)  if err
 			# Render documents
 			tasks.total += documents.length
 			documents.forEach (document) ->
@@ -583,6 +718,8 @@ class Docpad
 					tasks.completer()
 				)
 
+		# Chain
+		@
 
 	# Write files
 	generateWriteFiles: (next) ->
@@ -590,24 +727,20 @@ class Docpad
 		logger = @logger
 		logger.log 'debug', 'Writing files'
 
-		# Determine Path
-		filesPath = @srcPath+'/files'
-		path.exists filesPath, (exists) =>
-			# Public Path
-			filesPath = @srcPath+'/public'  unless exists
+		# Write
+		util.cpdir(
+			# Src Path
+			@publicPath,
+			# Out Path
+			@outPath
+			# Next
+			(err) ->
+				logger.log 'debug', 'Wrote files'  unless err
+				next(err)
+		)
 
-			# Write
-			util.cpdir(
-				# Src Path
-				filesPath,
-				# Out Path
-				@outPath
-				# Next
-				(err) ->
-					logger.log 'debug', 'Wrote files'  unless err
-					next err
-			)
-
+		# Chain
+		@
 
 	# Write documents
 	generateWriteDocuments: (next) ->
@@ -619,7 +752,7 @@ class Docpad
 		# Async
 		tasks = new util.Group (err) ->
 			logger.log 'debug', 'Wrote documents'  unless err
-			next err
+			next(err)
 
 		# Find documents
 		@documents.find {}, (err,documents,length) ->
@@ -638,134 +771,146 @@ class Docpad
 					return tasks.exit err  if err
 
 					# Write document
+					logger.log 'debug', "Writing file #{document.relativePath}, #{document.url}"
 					fs.writeFile fileFullPath, document.contentRendered, (err) ->
 						tasks.complete err
 
+		# Chain
+		@
 
 	# Write
 	generateWrite: (next) ->
-		# Prepare
-		logger = @logger
-		logger.log 'debug', 'Writing everything'
+		# Before
+		@triggerEvent 'writeBefore', {}, (err) =>
+			return next(err)  if err
+				
+			# Prepare
+			docpad = @
+			logger = @logger
+			logger.log 'debug', 'Writing everything'
 
-		# Async
-		tasks = new util.Group (err) ->
-			logger.log 'debug', 'Wrote everything'  unless err
-			next err
-		tasks.total = 2
+			# Async
+			tasks = new util.Group (err) ->
+				return next(err)  if err
+				# After
+				docpad.triggerEvent 'writeAfter', {}, (err) ->
+					logger.log 'debug', 'Wrote everything'  unless err
+					next(err)
+			tasks.total = 2
 
-		# Files
-		@generateWriteFiles tasks.completer()
-		
-		# Documents
-		@generateWriteDocuments tasks.completer()
+			# Files
+			@generateWriteFiles tasks.completer()
+			
+			# Documents
+			@generateWriteDocuments tasks.completer()
 
+		# Chain
+		@
 
 	# Generate
 	generateAction: (next) ->
-		# Prepare
-		docpad = @
-		logger = @logger
-		queryEngine = require('query-engine')  unless queryEngine
+		# Before
+		@triggerEvent 'generateBefore', {}, (err) =>
+			return next(err)  if err
+			
+			# Prepare
+			docpad = @
+			logger = @logger
+			queryEngine = require('query-engine')  unless queryEngine
 
-		# Clear
-		if @generateTimeout
-			clearTimeout(@generateTimeout)
-			@generateTimeout = null
+			# Clear
+			if @generateTimeout
+				clearTimeout(@generateTimeout)
+				@generateTimeout = null
 
-		# Check
-		if @generating
-			logger.log 'notice', 'Generate request received, but we are already busy generating... waiting...'
-			@generateTimeout = setTimeout(
-				=>
-					@generateAction next
-				500
-			)
-		else
-			logger.log 'info', 'Generating...'
-			@generating = true
-
-		# Continue
-		path.exists @srcPath, (exists) ->
 			# Check
-			if exists is false
-				return next new Error 'Cannot generate website as the src dir was not found'
-
-			# Log
-			logger.log 'debug', 'Cleaning the out path'
+			if @generating
+				logger.log 'notice', 'Generate request received, but we are already busy generating... waiting...'
+				@generateTimeout = setTimeout(
+					=>
+						@generateAction next
+					1000
+				)
+			else
+				logger.log 'info', 'Generating...'
+				@generating = true
 
 			# Continue
-			util.rmdir docpad.outPath, (err,list,tree) ->
-				if err
-					logger.log 'err', 'Failed to clean the out path', docpad.outPath
-					return next err
-				logger.log 'debug', 'Cleaned the out path'
-
+			path.exists @srcPath, (exists) ->
+				# Check
+				if exists is false
+					return next new Error 'Cannot generate website as the src dir was not found'
 				# Generate Clean
 				docpad.generateClean (err) ->
-					return next err  if err
-					# Clean Completed
-					docpad.triggerEvent 'cleanFinished', {}, (err) ->
-						return next err  if err
+					return next(err)  if err
+					# Generate Parse
+					docpad.generateParse (err) ->
+						return next(err)  if err
+						# Generate Render (First Pass)
+						docpad.generateRender (err) ->
+							return next(err)  if err
+							# Generate Render (Second Pass)
+							docpad.generateRender (err) ->
+								return next(err)  if err
+								# Generate Write
+								docpad.generateWrite (err) ->
+									# Before
+									docpad.triggerEvent 'generateAfter', {}, (err) =>
+										return next(err)  if err
+										# Generated
+										growl.notify (new Date()).toLocaleTimeString(), title: 'Website Generated'
+										logger.log 'info', 'Generated'
+										docpad.generating = false
+										next()
 
-						# Generate Parse
-						docpad.generateParse (err) ->
-							return next err  if err
-							# Parse Completed
-							docpad.triggerEvent 'parseFinished', {}, (err) ->
-								return next err  if err
-
-								# Generate Contextualize
-								docpad.generateContextualize (err) ->
-										# Contextualize Completed
-										docpad.triggerEvent 'contextualizeFinished', {}, (err) ->
-											return next err  if err
-
-											# Generate Render
-											docpad.generateRender (err) ->
-												return next err  if err
-												# Render Completed
-												docpad.triggerEvent 'renderFinished', {}, (err) ->
-													return next err  if err
-
-													# Generate Write
-													docpad.generateWrite (err) ->
-														# Write Completed
-														docpad.triggerEvent 'writeFinished', {}, (err) ->
-															return next(err)  if err
-															growl.notify (new Date()).toLocaleTimeString(), title: 'Website Generated'
-															logger.log 'info', 'Generated'
-															docpad.cleanModels()
-															docpad.generating = false
-															next()
-
+		# Chain
+		@
 
 	# Watch
+	# NOTE: Watching a directory and all it's contents (including subdirs and their contents) appears to be quite expiremental in node.js - if you know of a watching library that is quite stable, then please let me know - b@lupton.cc
 	watchAction: (next) ->
 		# Prepare
 		logger = @logger
 		docpad = @
-		watchTree = require 'watch-tree'	unless watchTree
+		watch = require 'nodewatch'  unless watch
 		logger.log 'Watching setup starting...'
+		watch.setMaxListeners(0)
 
-		# Watch the src directory
-		watcher = watchTree.watchTree(docpad.srcPath)
-		watcher.on 'fileDeleted', (path) ->
-			docpad.generateAction ->
-				logger.log 'Regenerated due to file delete at '+(new Date()).toLocaleString()
-		watcher.on 'fileCreated', (path,stat) ->
-			docpad.generateAction ->
-				logger.log 'Regenerated due to file create at '+(new Date()).toLocaleString()
-		watcher.on 'fileModified', (path,stat) ->
-			docpad.generateAction ->
-				logger.log 'Regenerated due to file change at '+(new Date()).toLocaleString()
+		# Scan the directories inside the srcPath
+		util.scandir(
+			# Path
+			docpad.srcPath,
 
-		# Log
-		logger.log 'Watching setup'
+			# Handle files
+			false
 
-		# Next
-		next()
+			# Handle directories
+			(fileFullPath,fileRelativePath,nextFile) =>
+				# Watch the src directory
+				watch.add(fileFullPath)
 
+				# Continue
+				nextFile()
+
+			# Next
+			(err) =>
+				# Watch the src directory
+				watch.add(docpad.srcPath)
+
+				# Changer
+				watch.onChange (file,prev,curr) ->
+					docpad.generateAction ->
+						logger.log 'Regenerated due to file watch at '+(new Date()).toLocaleString()
+
+				# Log
+				logger.log 'Watching setup'
+
+				# Next
+				next()
+		)
+
+		# Chain
+		@
 
 	# Skeleton
 	skeletonAction: (next) ->
@@ -785,43 +930,75 @@ class Docpad
 			# Initialise Skeleton
 			logger.log 'info', "About to initialise the skeleton [#{skeleton}] to [#{destinationPath}]"
 			@initialiseSkeleton skeleton, destinationPath, (err) ->
-				return next err
+				return next(err)
 
+		# Chain
+		@
 
 	# Server
 	serverAction: (next) ->
-		# Prepare
-		logger = @logger
-		express = require 'express'			unless express
+		# Before
+		@triggerEvent 'serverBefore', {@server}, (err) =>
+			return next(err)  if err
 
-		# Server
-		if @server
-			listen = false
-		else
-			listen = true
-			@server = express.createServer()
+			# Prepare
+			logger = @logger
+			express = require 'express'			unless express
 
-		# Configuration
-		@server.configure =>
-			# Routing
-			if @maxAge
-				@server.use express.static @outPath, maxAge: @maxAge
+			# Server
+			if @server
+				listen = false
 			else
-				@server.use express.static @outPath
+				listen = true
+				@server = express.createServer()
 
-		# Route something
-		@server.get /^\/docpad/, (req,res) ->
-			res.send 'DocPad!'
-		
-		# Start server listening
-		if listen
-			@server.listen @port
-			logger.log 'info', 'Express server listening on port', @server.address().port, 'and directory', @outPath
+			# Configuration
+			@server.configure =>
+				if listen
+					# POST Middleware
+					@server.use express.bodyParser()
+					@server.use express.methodOverride()
 
-		# Plugins
-		@triggerEvent 'serverFinished', {@server}, (err) ->
-			# Forward
-			next err
+					# Router Middleware
+					@server.use @server.router
+
+				# Static
+				if @maxAge
+					@server.use express.static @outPath, maxAge: @maxAge
+				else
+					@server.use express.static @outPath
+				
+				# Routing
+				@server.use (req,res,next) =>
+					@documents.findOne {urls:{'$in':req.url}}, (err,document) =>
+						if err
+							@error err
+							res.send(err.message, 500)
+						else if document
+							res.send(document.contentRendered)
+						next(err)
+
+				# 404 Middleware
+				if listen
+					@server.use (req,res,next) ->
+						res.send(404)
+					
+			# Route something
+			@server.get /^\/docpad/, (req,res) ->
+				res.send 'DocPad!'
+			
+			# Start server listening
+			if listen
+				@server.listen @port
+				logger.log 'info', 'Express server listening on port', @server.address().port, 'and directory', @outPath
+
+			# After
+			@triggerEvent 'serverAfter', {@server}, (err) ->
+				logger.log 'debug', 'Server setup'  unless err
+				next(err)
+
+		# Chain
+		@
 
 # API
 docpad =

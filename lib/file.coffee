@@ -2,13 +2,15 @@
 util = require 'bal-util'
 fs = require 'fs'
 path = require 'path'
+coffee = null
 yaml = null
+js2coffee = null
 
 # Define
 class File
-	# Required
+	# Inherited
+	docpad: null
 	layouts: []
-	triggerRenderEvent: null
 	logger: null
 
 	# Auto
@@ -24,26 +26,32 @@ class File
 	contentSrc: null
 	contentRaw: null
 	contentRendered: null
+	fileMeta: {}
+	fileHead: null
+	fileBody: null
+	fileHeadParser: null
 
 	# User
 	title: null
 	date: null
 	slug: null
 	url: null
+	urls: []
 	ignore: false
 	tags: []
 	relatedDocuments: []
 
 	# Constructor
-	constructor: (fileMeta) ->
+	constructor: ({@docpad,@layouts,@logger,meta}) ->
 		# Delete prototype references
-		@layouts = []
 		@extensions = []
 		@tags = []
 		@relatedDocuments = []
+		@fileMeta = {}
+		@urls = []
 
 		# Copy over meta data
-		for own key, value of fileMeta
+		for own key, value of meta
 			@[key] = value
 
 	# Load
@@ -83,10 +91,11 @@ class File
 	parse: (fileData,next) ->
 		# Handle data
 		fileData = fileData.replace(/\r\n?/gm,'\n').replace(/\t/g,'    ')
-		fileBody = fileData
-		fileMeta = {}
+		@fileBody = fileData
+		@fileHead = null
+		@fileMeta = {}
 	
-		# YAML
+		# Meta Data
 		match = /^\s*([\-\#][\-\#][\-\#]+) ?(\w*)\s*/.exec(fileData)
 		if match
 			# Positions
@@ -96,40 +105,98 @@ class File
 			c = b+3
 
 			# Parts
-			fileHead = fileData.substring(a,b)
-			fileBody = fileData.substring(c)
-			parser = match[2] or 'yaml'
+			@fileHead = fileData.substring(a,b)
+			@fileBody = fileData.substring(c)
+			@fileHeadParser = match[2] or 'yaml'
 
 			# Language
-			switch parser
-				when 'coffee', 'cson'
-					coffee = require 'coffee-script'  unless coffee
-					fileMeta = coffee.eval(fileHead)
-				
-				when 'yaml'
-					yaml = require 'yaml'  unless yaml
-					fileMeta = yaml.eval(fileHead)
-				
-				else
-					err = new Error("Unknown meta parser [#{parser}]")
-					return next(err)
-
+			try
+				switch @fileHeadParser
+					when 'coffee', 'cson'
+						coffee = require('coffee-script')  unless coffee
+						if coffee.VERSION is '1.1.1'
+							@fileMeta = eval coffee.compile "return (#{@fileHead})", filename: @fullPath
+						else
+							@fileMeta = coffee.eval @fileHead, filename: @fullPath
+					
+					when 'yaml'
+						yaml = require('yaml')  unless yaml
+						@fileMeta = yaml.eval(@fileHead)
+					
+					else
+						@fileMeta = {}
+						err = new Error("Unknown meta parser [#{@fileHeadParser}]")
+						return next(err)
+			catch err
+				return next(err)
+		
 		# Update Meta
-		@content = fileBody
-		@contentSrc = fileBody
-		@contentRaw = fileData
-		@contentRendered = fileBody
+		@fileMeta or= {}
+		@content = @fileBody
+		@contentSrc = @fileBody
+		@contentRaw = @fileData
+		@contentRendered = @fileBody
 		@title = @title or @basename or @filename
 	
 		# Correct meta data
-		fileMeta.date = new Date(fileMeta.date)  if fileMeta.date? and fileMeta.date
+		@fileMeta.date = new Date(@fileMeta.date)  if @fileMeta.date? and @fileMeta.date
+		
+		# Handle urls
+		@addUrl @fileMeta.urls  if @fileMeta.urls?
+		@addUrl @fileMeta.url  if @fileMeta.url?
 
 		# Apply user meta
-		for own key, value of fileMeta
+		for own key, value of @fileMeta
 			@[key] = value
 		
 		# Next
 		next()
+		@
+	
+	# Add a url
+	addUrl: (url) ->
+		# Multiple Urls
+		if url instanceof Array
+			for newUrl in url
+				@addUrl(url)
+		
+		# Single Url
+		else if url
+			found = false
+			for own existingUrl in @urls
+				if existingUrl is url
+					found = true
+					break
+			@urls.push(url)  if not found
+		
+		# Chain
+		@
+	
+	# Write the file
+	# next(err)
+	write: (next) ->
+		# Log
+		@logger.log 'debug', "Writing the file #{@fullPath}"
+
+		# Prepare
+		js2coffee = require('js2coffee/lib/js2coffee.coffee')  unless js2coffee
+		
+		# Prepare data
+		fileMetaString = "var a = #{JSON.stringify @fileMeta};"
+		@fileHead = js2coffee.build(fileMetaString).replace(/a =\s+|^  /mg,'')
+		fileData = "### #{@fileHeadParser}\n#{@fileHead}\n###\n\n" + @fileBody.replace(/^\s+/,'')
+
+		# Write data
+		fs.writeFile @fullPath, fileData, (err) =>
+			return next(err)  if err
+			
+			# Log
+			@logger.log 'info', "Wrote the file #{@fullPath}"
+
+			# Next
+			next()
+		
+		# Chain
 		@
 	
 	# Normalise data
@@ -171,6 +238,7 @@ class File
 			@url or= "/#{@relativeBase}.#{@extensionRendered}"
 			@slug or= util.generateSlugSync @relativeBase
 			@title or= @filenameRendered
+			@addUrl @url
 			next()
 		
 		# Chain
@@ -260,7 +328,7 @@ class File
 				# Create a task to run
 				tasks.push ((eventData) => =>
 					# Render through plugins
-					@triggerRenderEvent eventData, (err) =>
+					@docpad.triggerEvent 'render', eventData, (err) =>
 						# Error?
 						if err
 							@logger.log 'warn', 'Something went wrong while rendering:', @relativePath

@@ -2,52 +2,99 @@
 class DocpadPlugin
 
 	# ---------------------------------
+	# Inherited
+
+	# Docpad
+	docpad: null
+
+
+	# ---------------------------------
 	# Variables
 
 	# Plugin name
 	name: null
 
+	# Plugin config
+	config: {}
+
 	# Plugin priority
 	priority: 500
 
 	# Constructor
-	constructor: ->
+	constructor: (@config={}) ->
+		@docpad = @config.docpad
+		@name or= @config.name  if @config.name
 		if !@name
 			throw new Error 'Plugin must have a name'
 
+	# Trigger Event
+	triggerEvent: (eventName, data={}, next) ->
+		# Here only for legacy reasons
+		data.docpad = @docpad
+		data.logger = @docpad.logger
+
+		# Trigger
+		@[eventName](data, next)
+
+		
 	# ---------------------------------
 	# Events
 
-	# Cleaning has finished
-	cleanFinished: ({docpad},next) ->
+	# Generate is starting
+	generateBefore: ({},next) ->
 		next()
 
+	# Generate has finished
+	generateAfter: ({},next) ->
+		next()
+
+
+	# Cleaning is starting
+	cleanBefore: ({},next) ->
+		next()
+
+	# Cleaning has finished
+	cleanAfter: ({},next) ->
+		next()
+
+
+	# Parsing all files is starting
+	parseBefore: ({},next) ->
+		next()
+	
 	# Parsing all files has finished
-	parseFinished: ({docpad},next) ->
+	parseAfter: ({},next) ->
 		next()
 	
-	# Contextualizing all files has finished
-	contextualizeFinished: ({docpad},next) ->
-		next()
-	
+
 	# Rendering all files has started
-	renderStarted: ({docpad,templateData},next) ->
+	renderBefore: ({templateData},next) ->
 		next()
 	
 	# Render a file
-	render: ({docpad,inExtension,outExtension,templateData,file}, next) ->
+	render: ({inExtension,outExtension,templateData,file}, next) ->
 		next()
 	
 	# Rendering all files has finished
-	renderFinished: ({docpad},next) ->
+	renderAfter: ({},next) ->
+		next()
+
+
+	# Writing all files is starting
+	writeBefore: ({},next) ->
 		next()
 
 	# Writing all files has finished
-	writeFinished: ({docpad},next) ->
+	writeAfter: ({},next) ->
 		next()
 
+	
+	# Setting up the server is starting
+	serverBefore: ({},next) ->
+		next()
+	
 	# Setting up the server has finished
-	serverFinished: ({docpad,server},next) ->
+	serverAfter: ({server},next) ->
 		next()
 
 

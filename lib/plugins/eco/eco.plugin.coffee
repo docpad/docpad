@@ -1,6 +1,6 @@
 # Requires
 DocpadPlugin = require "#{__dirname}/../../plugin.coffee"
-eco = require 'eco'
+eco = null
 
 # Define Plugin
 class EcoPlugin extends DocpadPlugin
@@ -14,6 +14,7 @@ class EcoPlugin extends DocpadPlugin
 	render: ({inExtension,outExtension,templateData,file}, next) ->
 		try
 			if inExtension is 'eco'
+				eco = require 'eco'  unless eco
 				file.content = eco.render file.content, templateData
 				next()
 			else
