@@ -1,7 +1,7 @@
 # Requires
 DocpadPlugin = require "#{__dirname}/../../plugin.coffee"
-stylus = require 'stylus'
-nib = require 'nib'
+stylus = null
+nib = null
 
 # Define Plugin
 class StylusPlugin extends DocpadPlugin
@@ -15,14 +15,24 @@ class StylusPlugin extends DocpadPlugin
 	render: ({inExtension,outExtension,templateData,file}, next) ->
 		try
 			if inExtension in ['styl','stylus'] and outExtension is 'css'
-				stylus(file.content)
+				# Load stylus
+				stylus = require 'stylus'  unless stylus
+				
+				# Create our style
+				style = stylus(file.content)
 					.set('filename', file.fullPath)
-					.set('compress', true)
-					.use(nib())
-					.render (err,output) ->
-						return next err  if err
-						file.content = output
-						next()
+					.set('compress', @config.compress)
+				
+				# Use nib if we want to
+				if @config.useNib
+					nib = require 'nib'  unless nib
+					style.use(nib())
+
+				# Render our style
+				style.render (err,output) ->
+					return next err  if err
+					file.content = output
+					next()
 			else
 				next()
 		catch err

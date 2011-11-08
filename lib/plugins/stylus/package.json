@@ -55,5 +55,11 @@
 	"directories": {
 		"lib": "."
 	},
-	"main": "./stylus.plugin.coffee"
+	"main": "./stylus.plugin.coffee",
+	"docpad": {
+		"plugin": {
+			"useNib": true,
+			"compress": true
+		}
+	}
 }
