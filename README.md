@@ -2,7 +2,7 @@
 
 Initially web development was pretty easy, you just wrote a bunch of files and you got your website. These days, it's a lot more complicated than that. Things like databases, synchronisation, legacy frameworks and languages all slow the entire process down into a painful crawl. _It doesn't have to be like that._
 
-DocPad takes that good ol' simple approach of writing files and wraps it with the most awesome new innovations providing a new intuitive solution for developing websites in this new HTML5 era.
+DocPad takes that good ol' simple approach of writing files and wraps it with the best modern innovations, providing an awesome intuitive, liberating and empowering solution for HTML5 web development.
 
 
 ## Let's take a look
@@ -87,22 +87,13 @@ DocPad takes that good ol' simple approach of writing files and wraps it with th
 
 1. Install dependencies
 		
-		npm -g install coffee-script
+		npm install -g coffee-script@1.1.1
 
 1. Install DocPad
 
-		npm -g install docpad
+		npm install -g docpad
 
-1. _or... install the cutting edge version_
-
-		git clone git://github.com/balupton/docpad.git
-		cd docpad
-		git branch -v
-		npm install
-		git submodule init
-		git submodule update
-		npm link
-
+1. _or... [install the cutting edge version](https://github.com/balupton/docpad/wiki/Testing)_
 
 
 ## Using
@@ -148,6 +139,7 @@ DocPad takes that good ol' simple approach of writing files and wraps it with th
 - [Stylus](http://learnboost.github.com/stylus/) to CSS `.css.styl|stylus`
 - [CoffeeCSS](https://github.com/aeosynth/ccss) to CSS `.css.ccss|coffeecss|coffee`
 - [LessCSS](http://lesscss.org/) to CSS `.css.less`
+- [SASS](http://sass-lang.com/) to CSS `.css.sass|scss`
 
 ### Scripts
 
@@ -171,6 +163,32 @@ Thanks. DocPad loves you.
 
 
 ## History
+
+- v2.0 November 8, 2011
+	- [Upgrade guide for 1.x users](https://github.com/balupton/docpad/wiki/Upgrading)
+	- Tested and working on Node 0.4, 0.5, and 0.6
+		- Windows support is still to come - [track it's progress here](https://github.com/balupton/docpad/issues/26)
+	- New plugin architecture
+		- Plugins must now be isolated in their own directory
+		- Plugins can now have their own `package.json` file
+			- Use this for specifying plugin configuration, dependencies, etc
+		- Plugin events have been renamed to before/after
+			- New before/after events have been added
+		- `docpad` and `logger` are now local variables, rather than passed arguments
+			- Arguments are still kept for backwards compatibility - this may change
+	- Generation changes
+		- Rendering is now a 2-pass process
+		- Contextualize is now a sub-step of parse, instead of it's own main step
+			- Better simplicity, less complexity
+		- Documents can now have multiple urls
+			- These are customisable via the document's `urls` array property
+	- New plugins
+		- REST plugin supports saving document data via POST (disabled by default)
+		- Administration plugin adds front-end admin functionality (disabled by default)
+			- See `/nifty/client-side-editing.html` example in the [kitchensink skeleton](https://github.com/balupton/kitchensink.docpad)
+		- SASS plugin
+			- Adds [SASS](http://sass-lang.com/) to CSS support
+				- Uses [TJ Holowaychuk's](https://github.com/visionmedia) [Sass.js](https://github.com/visionmedia/sass.js)
 
 - v1.4 October 22, 2011
 	- Template engines now have access to node.js's `require`
@@ -206,7 +224,7 @@ Thanks. DocPad loves you.
 	- Dependencies now allow for minor patches
 	- Stylus Plugin
 		- Added [Stylus](http://learnboost.github.com/stylus/) to CSS support
-			- Uses [TJ Holowaychuk/LearnBoost's](https://github.com/learnboost) [Stylus](https://github.com/learnboost/stylus)
+			- Uses [TJ Holowaychuk's](https://github.com/learnboost) [Stylus](https://github.com/learnboost/stylus)
 	- Jade Plugin
 		- Added HTML to [Jade](http://jade-lang.com/) support
 			- Uses [Don Park's](https://github.com/donpark) [Html2Jade](https://github.com/donpark/html2jade)
@@ -241,7 +259,7 @@ Thanks. DocPad loves you.
 	- Better logging through [Caterpillar](https://github.com/balupton/caterpillar.npm)
 	- HAML Plugin
 		- Added [HAML](http://haml-lang.com/) to anything support
-			- Uses [TJ Holowaychuk's](https://github.com/visionmedia) [HAML](https://github.com/visionmedia/haml.js) support
+			- Uses [TJ Holowaychuk's](https://github.com/visionmedia) [HAML](https://github.com/visionmedia/haml.js)
 	- Jade Plugin
 		- Added [Jade](http://jade-lang.com/) to anything support
 			- Uses [TJ Holowaychuk's](https://github.com/visionmedia) [Jade](https://github.com/visionmedia/jade)
@@ -281,27 +299,36 @@ Thanks. DocPad loves you.
 
 ## Thanks
 
-DocPad wouldn't be possible if it wasn't for the following libaries
+DocPad wouldn't be possible if it wasn't for the following libaries _(in alphabetical order)_
+
+- [Alexis Sellier's](https://github.com/cloudhead) [Less.js](https://github.com/cloudhead/less.js) - Leaner CSS
+- [Andrew Schaaf's](https://github.com/tafa) [Watch-Tree](https://github.com/tafa/node-watch-tree) - Node.js file watching made easy
+
+- [Benjamin Lupton's](https://github.com/balupton) [Bal-Util](https://github.com/balupton/bal-util.npm) - Node.js made easy
+- [Benjamin Lupton's](https://github.com/balupton) [Caterpillar](https://github.com/balupton/caterpillar.npm) - Logging made easy
+- [Benjamin Lupton's](https://github.com/balupton) [Query-Engine](https://github.com/balupton/query-engine.npm) - The MongoDB Query-Engine without the Database
+- [Brandon Bloom's](https://github.com/brandonbloom) [Html2CoffeeKup](https://github.com/brandonbloom/html2coffeekup)- HTML to CoffeeKup Converter
+
+- [Don Park's](https://github.com/donpark) [Html2Jade](https://github.com/donpark/html2jade) - HTML to Jade Converter
+
+- [James Campos'](https://github.com/aeosynth) [CCSS](https://github.com/aeosynth/ccss) - CSS as CoffeeScript
+- [Jeremy Ashkenas'](https://github.com/jashkenas) [CoffeeScript](http://jashkenas.github.com/coffee-script) - JavaScript made easy
+- [Jeremy Ashkenas/DocumentCloud's](https://github.com/documentcloud/underscore) [Underscore](https://github.com/documentcloud/underscore) - The utility-belt library for JavaScript
+
+- [Maurice Machado's](https://github.com/mauricemach) [CoffeeKup](https://github.com/mauricemach/coffeekup) - Markup as CoffeeScript
+
+- [TJ Holowaychuk's](https://github.com/visionmedia) [Commander.js](https://github.com/visionmedia/commander.js) - Console apps made easy
+- [TJ Holowaychuk's](https://github.com/visionmedia) [Express.js](https://github.com/visionmedia/express) - The "Server" in Server Side Javascript 	
+- [TJ Holowaychuk's](https://github.com/visionmedia) [Haml.js](https://github.com/visionmedia/haml.js) - Markup haiku
+- [TJ Holowaychuk's](https://github.com/visionmedia) [Jade](https://github.com/visionmedia/jade) - A robust, elegant, feature rich template engine
+- [TJ Holowaychuk's](https://github.com/visionmedia) [Node-Growl](https://github.com/visionmedia/node-growl) - Notifications made easy
+- [TJ Holowaychuk's](https://github.com/visionmedia) [Sass.js](https://github.com/visionmedia/sass.js) - Syntactically awesome stylesheets
+- [TJ Holowaychuk/LearnBoost's](https://github.com/learnboost) [Stylus](https://github.com/learnboost/stylus) - Expressive, robust, feature-rich CSS language
+- [TJ Holowaychuk's](https://github.com/visionmedia) [YAML](https://github.com/visionmedia/js-yaml) - Data made easy
+
+- [Sam Stephenson's](https://github.com/sstephenson) [Eco](https://github.com/sstephenson/eco) - Embedded CoffeeScript templates
 
 - [Ryan Dahl's](https://github.com/ry) [Node.js](http://nodejs.org) - Server Side Javascript	
-- [Jeremy Ashkenas's](https://github.com/jashkenas) [CoffeeScript](http://jashkenas.github.com/coffee-script) - JavaScript made easy
-- [TJ Holowaychuk's](https://github.com/visionmedia) [Express.js](https://github.com/visionmedia/express) - The "Server" in Server Side Javascript 	
-- [Benjamin Lupton's](https://github.com/balupton) [Query-Engine](https://github.com/balupton/query-engine.npm) - The MongoDB Query-Engine without the Database
-- [Benjamin Lupton's](https://github.com/balupton) [Caterpillar](https://github.com/balupton/caterpillar.npm) - Logging made easy
-- [Benjamin Lupton's](https://github.com/balupton) [Bal-Util](https://github.com/balupton/bal-util.npm) - Node.js made easy
-- [TJ Holowaychuk's](https://github.com/visionmedia) [Commander.js](https://github.com/visionmedia/commander.js) - Console apps made easy
-- [TJ Holowaychuk's](https://github.com/visionmedia) [YAML](https://github.com/visionmedia/js-yaml) - Data made easy
-- [Andrew Schaaf's](https://github.com/tafa) [Watch-Tree](https://github.com/tafa/node-watch-tree) - Node.js file watching made easy
-- [TJ Holowaychuk's](https://github.com/visionmedia) [Node-Growl](https://github.com/visionmedia/node-growl) - Notifications made easy
-- [TJ Holowaychuk's](https://github.com/visionmedia) [HAML](https://github.com/visionmedia/haml.js) - Markup haiku
-- [TJ Holowaychuk's](https://github.com/visionmedia) [Jade](https://github.com/visionmedia/jade) - A robust, elegant, feature rich template engine
-- [Maurice Machado's](https://github.com/mauricemach) [CoffeeKup](https://github.com/mauricemach/coffeekup) - Markup as CoffeeScript
-- [James Campos's](https://github.com/aeosynth) [CCSS](https://github.com/aeosynth/ccss) - CSS as CoffeeScript
-- [Sam Stephenson's](https://github.com/sstephenson) [Eco](https://github.com/sstephenson/eco) - Embedded CoffeeScript templates
-- [Don Park's](https://github.com/donpark) [Html2Jade](https://github.com/donpark/html2jade) - HTML to Jade Converter
-- [Brandon Bloom's](https://github.com/brandonbloom) [Html2CoffeeKup](https://github.com/brandonbloom/html2coffeekup)- HTML to CoffeeKup Converter
-- [TJ Holowaychuk/LearnBoost's](https://github.com/learnboost) [Stylus](https://github.com/learnboost/stylus) - Expressive, robust, feature-rich CSS language
-- [Alexis Sellier's](https://github.com/cloudhead) [Less.js](https://github.com/cloudhead/less.js) - Leaner CSS
 
 
 ## License

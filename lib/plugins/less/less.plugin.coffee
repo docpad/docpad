@@ -1,6 +1,7 @@
 # Requires
 DocpadPlugin = require "#{__dirname}/../../plugin.coffee"
-less = require 'less'
+path = null
+less = null
 
 # Define Plugin
 class LessPlugin extends DocpadPlugin
@@ -14,10 +15,15 @@ class LessPlugin extends DocpadPlugin
 	render: ({inExtension,outExtension,templateData,file}, next) ->
 		try
 			if inExtension is 'less' and outExtension is 'css'
+				# Load
+				path = require 'path'  unless path
+				less = require 'less-clean'  unless less
+
 				# Prepare
 				srcPath = file.fullPath
+				dirPath = path.dirname(srcPath)
 				options = 
-					paths: [srcPath]
+					paths: [dirPath]
 					optimization: 1
 					compress: true
 
