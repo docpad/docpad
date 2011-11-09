@@ -158,7 +158,7 @@ class File
 		# Multiple Urls
 		if url instanceof Array
 			for newUrl in url
-				@addUrl(url)
+				@addUrl(newUrl)
 		
 		# Single Url
 		else if url
@@ -199,7 +199,7 @@ class File
 		# Chain
 		@
 	
-	# Normalise data
+	# Normalize data
 	# next(err)
 	normalize: (next) ->
 		# Prepare

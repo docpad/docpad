@@ -2,7 +2,7 @@
 
 Initially web development was pretty easy, you just wrote a bunch of files and you got your website. These days, it's a lot more complicated than that. Things like databases, synchronisation, legacy frameworks and languages all slow the entire process down into a painful crawl. _It doesn't have to be like that._
 
-DocPad takes that good ol' simple approach of writing files and wraps it with the best modern innovations, providing an awesome intuitive, liberating and empowering solution for HTML5 web development.
+DocPad takes that good ol' simple approach of writing files and wraps it with the best modern innovations, providing an awesome intuitive, liberating and empowering solution for HTML5 web design & development.
 
 
 ## Let's take a look
@@ -87,7 +87,7 @@ DocPad takes that good ol' simple approach of writing files and wraps it with th
 
 1. Install dependencies
 		
-		npm install -g coffee-script@1.1.1
+		npm install -g coffee-script
 
 1. Install DocPad
 
