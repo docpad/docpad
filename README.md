@@ -95,6 +95,7 @@ DocPad takes that good ol' simple approach of writing files and wraps it with th
 
 1. _or... [install the cutting edge version](https://github.com/balupton/docpad/wiki/Testing)_
 
+_Getting errors? [Try troubleshooting](https://github.com/balupton/docpad/wiki/Troubleshooting)_
 
 ## Using
 
@@ -123,6 +124,7 @@ DocPad takes that good ol' simple approach of writing files and wraps it with th
 
 		docpad server
 
+_Getting errors? [Try troubleshooting](https://github.com/balupton/docpad/wiki/Troubleshooting)_
 
 ## Supports
 
