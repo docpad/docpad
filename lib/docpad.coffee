@@ -230,7 +230,7 @@ class Docpad
 		@
 
 	# Initialise the Skeleton
-	initialiseSkeleton: (skeleton, destinationPath, next) ->
+	initializeSkeleton: (skeleton, destinationPath, next) ->
 		# Prepare
 		logger = @logger
 		skeletonRepo = @config.skeletons[skeleton].repo
@@ -957,8 +957,8 @@ class Docpad
 				return next()
 			
 			# Initialise Skeleton
-			logger.log 'info', "About to initialise the skeleton [#{skeleton}] to [#{destinationPath}]"
-			@initialiseSkeleton skeleton, destinationPath, (err) ->
+			logger.log 'info', "About to initialize the skeleton [#{skeleton}] to [#{destinationPath}]"
+			@initializeSkeleton skeleton, destinationPath, (err) ->
 				return next(err)
 
 		# Chain
