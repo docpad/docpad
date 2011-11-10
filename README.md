@@ -21,7 +21,7 @@ DocPad takes that good ol' simple approach of writing files and wraps it with th
 		
 		``` html
 		<html>
-			<head><title><%=@Document.title%></title></head>
+			<head><title><%=@document.title%></title></head>
 			<body>
 				<%-@content%>
 			</body>
@@ -34,7 +34,7 @@ DocPad takes that good ol' simple approach of writing files and wraps it with th
 		---
 		layout: default
 		---
-		<h1><%=@Document.title%></h1>
+		<h1><%=@document.title%></h1>
 		<div><%-@content%></div>
 		```
 
@@ -69,9 +69,9 @@ DocPad takes that good ol' simple approach of writing files and wraps it with th
 	- This is possible because we parse the documents and layouts through a template rendering engine. The template rendering engine used in this example was [Eco](https://github.com/sstephenson/eco) (hence the `.eco` extensions of the layouts). Templating engines allows you to do some pretty nifty things, in fact we could display all the titles and links of our posts with the following:
 		
 		``` html
-		<% for Document in @Documents: %>
-			<% if Document.url.indexOf('/posts') is 0: %>
-				<a href="<%= Document.url %>"><%= Document.title %></a><br/>
+		<% for document in @documents: %>
+			<% if document.url.indexOf('/posts') is 0: %>
+				<a href="<%= document.url %>"><%= document.title %></a><br/>
 			<% end %>
 		<% end %>
 		```
