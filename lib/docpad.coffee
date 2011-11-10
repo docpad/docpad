@@ -81,6 +81,7 @@ class Docpad
 	loading: true
 	generateTimeout: null
 	actionTimeout: null
+	templateData: {}
 
 	# Models
 	File: null
@@ -102,6 +103,7 @@ class Docpad
 		# Destruct prototype references
 		@pluginsArray = []
 		@pluginsObject = {}
+		@templateData = {}
 
 		# Apply configuration
 		@applyConfiguration(config)
@@ -701,6 +703,12 @@ class Docpad
 
 		# Chain
 		@
+	
+	# Render a document
+	render: (document,data,next) ->
+		templateData = _.extend {}, @templateData, data
+		templateData.document = document
+		document.render templateData, next
 
 	# Generate render
 	generateRender: (next) ->
@@ -717,35 +725,26 @@ class Docpad
 				logger.log 'debug', 'Rendered files'  unless err
 				next(err)
 		
-		# Prepare site data
-		Site = site =
-			date: new Date()
-
 		# Prepare template data
 		documents = @documents.find({}).sort({'date':-1})
-		templateData = 
+		@templateData =
 			require: require
 			documents: documents
 			document: null
-			Documents: documents
-			Document: null
-			site: site
-			Site: site
+			site:
+				date: new Date()
 			blocks:
 				scripts: []
 				styles: []
 
 		# Before
-		@triggerEvent 'renderBefore', {documents,templateData}, (err) ->
+		@triggerEvent 'renderBefore', {documents,@templateData}, (err) =>
 			return next(err)  if err
 			# Render documents
 			tasks.total += documents.length
-			documents.forEach (document) ->
-				templateData.document = templateData.Document = document
-				document.render(
-					templateData
-					tasks.completer()
-				)
+			documents.forEach (document) =>
+				return tasks.complete()  if document.dynamic
+				@render document, {}, tasks.completer()
 
 		# Chain
 		@
@@ -791,6 +790,9 @@ class Docpad
 			# Cycle
 			tasks.total += length
 			documents.forEach (document) ->
+				# Dynamic
+				return tasks.complete()  if document.dynamic
+
 				# Generate path
 				fileFullPath = "#{outPath}/#{document.url}" #relativeBase+'.html'
 				
@@ -1000,13 +1002,27 @@ class Docpad
 				# Routing
 				@server.use (req,res,next) =>
 					return next()  unless @documents
-					@documents.findOne {urls:{'$in':req.url}}, (err,document) =>
+					cleanUrl = req.url.replace(/\?.*/,'')
+					@documents.findOne {urls:{'$in':cleanUrl}}, (err,document) =>
 						if err
 							@error err
 							res.send(err.message, 500)
+							next(err)
 						else if document
-							res.send(document.contentRendered)
-						next(err)
+							if document.dynamic
+								@render document, req: req, (err) =>
+									if err
+										@error err
+										res.send(err.message, 500)
+										next(err)
+									else
+										res.send(document.contentRendered)
+										next()
+							else
+								res.send(document.contentRendered)
+								next()
+						else
+							next()
 
 				# 404 Middleware
 				if listen

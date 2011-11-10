@@ -32,6 +32,7 @@ class File
 	fileHeadParser: null
 
 	# User
+	dynamic: false
 	title: null
 	date: null
 	slug: null
