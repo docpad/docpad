@@ -4,8 +4,9 @@ DocPad command line interface by Benjamin Lupton and ~eldios
 ###
 
 # Requires
-Docpad = require "#{__dirname}/../lib/docpad.coffee"
 fs = require 'fs'
+path = require 'path'
+Docpad = require "#{__dirname}/../lib/docpad.coffee"
 program = require "#{__dirname}/../node_modules/commander/index.js"
 cwd = process.cwd()
 
@@ -13,8 +14,15 @@ cwd = process.cwd()
 # -------------------------------------
 # Configuration
 
+# Load
+docpadPackagePath = "#{__dirname}/../package.json"
+if path.existsSync docpadPackagePath
+	docpadPackageData = JSON.parse(fs.readFileSync(docpadPackagePath).toString()) or {}
+else
+	docpadPackageData = {}
+
 # Version
-program.version Docpad.Docpad::version
+program.version  docpadPackageData.version or 'unknown'
 
 # Help
 program.on '--help', ->

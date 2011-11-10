@@ -165,6 +165,13 @@ Thanks. DocPad loves you.
 
 ## History
 
+- v2.1 November 10, 2011
+	- Support for dynamic documents
+		- These are re-rendered on each request, must use the docpad server
+		- See the search example in the [kitchensink skeleton](https://github.com/balupton/kitchensink.docpad)
+	- Removed deprecated `@Document`, `@Documents`, and `@Site` from the `templateData` (the variables available to the templates). Use their lowercase equivalants instead. This can cause backwards compatibility problems with your templates, the console will notify you if there is a problem.
+	- Fixed `docpad --version` returning `null` instead of the docpad version
+
 - v2.0 November 8, 2011
 	- [Upgrade guide for 1.x users](https://github.com/balupton/docpad/wiki/Upgrading)
 	- Tested and working on Node 0.4, 0.5, and 0.6
@@ -188,7 +195,7 @@ Thanks. DocPad loves you.
 	- Plugin Changes
 		- REST plugin supports saving document data via POST (disabled by default)
 		- Administration plugin adds front-end admin functionality (disabled by default)
-			- See `/nifty/client-side-editing.html` example in the [kitchensink skeleton](https://github.com/balupton/kitchensink.docpad)
+			- See the client side editing example in the [kitchensink skeleton](https://github.com/balupton/kitchensink.docpad)
 		- SASS plugin
 			- Adds [SASS](http://sass-lang.com/) to CSS support
 				- Uses [TJ Holowaychuk's](https://github.com/visionmedia) [Sass.js](https://github.com/visionmedia/sass.js)
