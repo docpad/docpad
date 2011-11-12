@@ -90,11 +90,6 @@ class PluginLoader
 
 			# Callback
 			(error, stdout, stderr) ->
-				# Output
-				if error
-					console.log stdout.replace(/\s+$/,'')  if stdout
-					console.log stderr.replace(/\s+$/,'')  if stderr
-				
 				# Forward
 				next(error)
 		)

@@ -398,9 +398,9 @@ class Docpad
 	
 
 	# Handle an error
-	error: (err) ->
+	error: (err,type='err') ->
 		return  unless err
-		@logger.log 'err', 'An error occured:', err.message, err.stack
+		@logger.log type, 'An error occured:', err.message, err.stack
 		@
 
 
@@ -476,7 +476,7 @@ class Docpad
 				nextFile = (err,skip) =>
 					if err
 						logger.log 'warn', "Failed to load the plugin #{loader.pluginName} at #{fileFullPath}. The error follows"
-						@error err
+						@error err, 'warn'
 					_nextFile(null,skip)
 
 				# Prepare
@@ -708,7 +708,9 @@ class Docpad
 	render: (document,data,next) ->
 		templateData = _.extend {}, @templateData, data
 		templateData.document = document
-		document.render templateData, next
+		document.render templateData, (err) =>
+			@error err  if err
+			next()
 
 	# Generate render
 	generateRender: (next) ->
@@ -793,17 +795,17 @@ class Docpad
 				# Dynamic
 				return tasks.complete()  if document.dynamic
 
-				# Generate path
-				fileFullPath = "#{outPath}/#{document.url}" #relativeBase+'.html'
+				# OutPath
+				document.outPath = "#{outPath}/#{document.url}"
 				
 				# Ensure path
-				util.ensurePath path.dirname(fileFullPath), (err) ->
+				util.ensurePath path.dirname(document.outPath), (err) ->
 					# Error
 					return tasks.exit err  if err
 
 					# Write document
 					logger.log 'debug', "Writing file #{document.relativePath}, #{document.url}"
-					fs.writeFile fileFullPath, document.contentRendered, (err) ->
+					fs.writeFile document.outPath, document.contentRendered, (err) ->
 						tasks.complete err
 
 		# Chain
@@ -900,6 +902,12 @@ class Docpad
 	# Watch
 	# NOTE: Watching a directory and all it's contents (including subdirs and their contents) appears to be quite expiremental in node.js - if you know of a watching library that is quite stable, then please let me know - b@lupton.cc
 	watchAction: (next) ->
+		# Check
+		if process.platform is 'win32'
+			@logger.log 'warn', 'Watching not yet supported on windows...'
+			next()
+			return @
+		
 		# Prepare
 		logger = @logger
 		docpad = @
@@ -993,12 +1001,6 @@ class Docpad
 					# Router Middleware
 					@server.use @server.router
 
-				# Static
-				if @config.maxAge
-					@server.use express.static @config.outPath, maxAge: @config.maxAge
-				else
-					@server.use express.static @config.outPath
-				
 				# Routing
 				@server.use (req,res,next) =>
 					return next()  unless @documents
@@ -1007,23 +1009,26 @@ class Docpad
 						if err
 							@error err
 							res.send(err.message, 500)
-							next(err)
 						else if document
+							res.contentType(document.outPath)
 							if document.dynamic
 								@render document, req: req, (err) =>
 									if err
 										@error err
 										res.send(err.message, 500)
-										next(err)
 									else
 										res.send(document.contentRendered)
-										next()
 							else
 								res.send(document.contentRendered)
-								next()
 						else
 							next()
 
+				# Static
+				if @config.maxAge
+					@server.use express.static @config.outPath, maxAge: @config.maxAge
+				else
+					@server.use express.static @config.outPath
+				
 				# 404 Middleware
 				if listen
 					@server.use (req,res,next) ->

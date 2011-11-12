@@ -20,6 +20,7 @@ class File
 	extension: null
 	filename: null
 	fullPath: null
+	outPath: null
 	relativePath: null
 	relativeBase: null
 	content: null
@@ -208,7 +209,7 @@ class File
 		@basename = @filename  if !@basename and @filename
 		@fullPath = @basename  if !@fullPath and @basename
 		@relativePath = @fullPath  if !@relativePath and @fullPath
-		
+
 		# Names
 		@basename = path.basename(@fullPath)
 		@filename = @basename
