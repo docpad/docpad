@@ -25,6 +25,10 @@ class CleanUrlsPlugin extends DocpadPlugin
 			return tasks.exit err  if err
 			tasks.total = length
 			docs.forEach (document) ->
+				# Index URL
+				if /index\.html$/i.test document.url
+					document.addUrl document.url.replace(/index\.html$/i,'')
+				
 				# Extesionless URL
 				if /\.html$/i.test document.url
 					document.addUrl document.url.replace(/\.html$/i,'')
