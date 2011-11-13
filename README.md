@@ -81,6 +81,59 @@ DocPad takes that good ol' simple approach of writing files and wraps it with th
 	- That was possible as that file was a [Markdown](http://daringfireball.net/projects/markdown/basics) file (hence the `.md` extension it had). Markdown is fantastic for working with text based documents, as it really allows you to focus in on your content instead of the syntax for formatting the document!
 
 
+
+## Supports
+
+### Markups
+
+- [Markdown](http://daringfireball.net/projects/markdown/basics) to HTML `.html.md|markdown`
+- [Eco](https://github.com/sstephenson/eco) to anything `.anything.eco`
+- [CoffeeKup](http://coffeekup.org/) to anything `.anything.ck|coffeekup|coffee` and HTML to CoffeeKup `.ck|coffeekup|coffee.html`
+- [Jade](http://jade-lang.com/) to anything `.anything.jade` and HTML to Jade `.jade.html`
+- [HAML](http://haml-lang.com/) to anything `.anything.haml`
+
+### Styles
+
+- [Stylus](http://learnboost.github.com/stylus/) to CSS `.css.styl|stylus`
+- [LessCSS](http://lesscss.org/) to CSS `.css.less`
+- [SASS](http://sass-lang.com/) to CSS `.css.sass|scss`
+
+### Scripts
+
+- [CoffeeScript](http://jashkenas.github.com/coffee-script/) to JavaScript `.js.coffee` and JavaScript to CoffeeScript `.coffee.js`
+
+### Parsers
+
+- [YAML](https://github.com/visionmedia/js-yaml) with `--- yaml` (default)
+- [CoffeeScript](http://jashkenas.github.com/coffee-script/) with `--- coffee`
+
+### Features
+
+- Runs on Node.js 0.4, 0.5, and 0.6
+- Can run on windows
+- Dynamic documents
+	- Allows you to have documents that re-render on each request
+- Ability to extend the server yourself
+	- This allows you to utilise docpad while adding in your own server-side logic
+- Version checking
+	- Always stay up to date
+- Mix and match renderers; e.g. `file.html.md.eco`
+- Easy plugin infrastructure
+
+
+
+## About
+
+DocPad is getting pretty popular these days... you can check out [a bunch of websites already using it here](https://github.com/balupton/docpad/wiki/Showcase), and [discover the awesomely handsome crew behind the community here](https://github.com/balupton/docpad/wiki/Users). Ocassionally we also hold [events and competitions](https://github.com/balupton/docpad/wiki/Events) where you can learn more about docpad, hack with others together, and win some cool stuff! Nifty.
+
+On that note, DocPad is awesomely extensible. You can [download other people's plugins](https://github.com/balupton/docpad/wiki/Extensions) and use them in real quick, or even [write your own in matters of minutes.](https://github.com/balupton/docpad/wiki/Extending)
+
+[Best yet, definitely check out the entire wiki, as this has just been a small taste of it's awesomeness, and there is plenty awesomness left to be discovered.](https://github.com/balupton/docpad/wiki)
+
+Thanks. DocPad loves you.
+
+
+
 ## Installing
 
 1. [Install Node.js](https://github.com/balupton/node/wiki/Installing-Node.js)
@@ -95,7 +148,11 @@ DocPad takes that good ol' simple approach of writing files and wraps it with th
 
 1. _or... [install the cutting edge version](https://github.com/balupton/docpad/wiki/Testing)_
 
+1. If you also want growl notifications (OSX), then install [the growl command line tool here](http://growl.cachefly.net/GrowlNotify-1.3.zip)
+
 _Getting errors? [Try troubleshooting](https://github.com/balupton/docpad/wiki/Troubleshooting)_
+
+
 
 ## Using
 
@@ -126,44 +183,12 @@ _Getting errors? [Try troubleshooting](https://github.com/balupton/docpad/wiki/T
 
 _Getting errors? [Try troubleshooting](https://github.com/balupton/docpad/wiki/Troubleshooting)_
 
-## Supports
-
-### Markups
-
-- [Markdown](http://daringfireball.net/projects/markdown/basics) to HTML `.html.md|markdown`
-- [Eco](https://github.com/sstephenson/eco) to anything `.anything.eco`
-- [CoffeeKup](http://coffeekup.org/) to anything `.anything.ck|coffeekup|coffee` and HTML to CoffeeKup `.ck|coffeekup|coffee.html`
-- [Jade](http://jade-lang.com/) to anything `.anything.jade` and HTML to Jade `.jade.html`
-- [HAML](http://haml-lang.com/) to anything `.anything.haml`
-
-### Styles
-
-- [Stylus](http://learnboost.github.com/stylus/) to CSS `.css.styl|stylus`
-- [LessCSS](http://lesscss.org/) to CSS `.css.less`
-- [SASS](http://sass-lang.com/) to CSS `.css.sass|scss`
-
-### Scripts
-
-- [CoffeeScript](http://jashkenas.github.com/coffee-script/) to JavaScript `.js.coffee` and JavaScript to CoffeeScript `.coffee.js`
-
-### Parsers
-
-- [YAML](https://github.com/visionmedia/js-yaml) with `--- yaml` (default)
-- [CoffeeScript](http://jashkenas.github.com/coffee-script/) with `--- coffee`
-
-
-## About
-
-DocPad is getting pretty popular these days... you can check out [a bunch of websites already using it here](https://github.com/balupton/docpad/wiki/Showcase), and [discover the awesomely handsome crew behind the community here](https://github.com/balupton/docpad/wiki/Users). Ocassionally we also hold [events and competitions](https://github.com/balupton/docpad/wiki/Events) where you can learn more about docpad, hack with others together, and win some cool stuff! Nifty.
-
-On that note, DocPad is awesomely extensible. You can [download other people's plugins](https://github.com/balupton/docpad/wiki/Extensions) and use them in real quick, or even [write your own in matters of minutes.](https://github.com/balupton/docpad/wiki/Extending)
-
-[Best yet, definitely check out the entire wiki, as this has just been a small taste of it's awesomeness, and there is plenty awesomness left to be discovered.](https://github.com/balupton/docpad/wiki)
-
-Thanks. DocPad loves you.
 
 
 ## History
+
+- v2.2 November 10, 2011
+	- Expiremental support for watching on windows
 
 - v2.1 November 10, 2011
 	- Support for dynamic documents
@@ -319,6 +344,7 @@ DocPad wouldn't be possible if it wasn't for the following libaries _(in alphabe
 - [Benjamin Lupton's](https://github.com/balupton) [Bal-Util](https://github.com/balupton/bal-util.npm) - Node.js made easy
 - [Benjamin Lupton's](https://github.com/balupton) [Caterpillar](https://github.com/balupton/caterpillar.npm) - Logging made easy
 - [Benjamin Lupton's](https://github.com/balupton) [Query-Engine](https://github.com/balupton/query-engine.npm) - The MongoDB Query-Engine without the Database
+- [Benjamin Lupton's](https://github.com/balupton) [Watchr](https://github.com/balupton/watchr) - Node.js recursive directory watching made easy
 - [Brandon Bloom's](https://github.com/brandonbloom) [Html2CoffeeKup](https://github.com/brandonbloom/html2coffeekup)- HTML to CoffeeKup Converter
 
 - [Don Park's](https://github.com/donpark) [Html2Jade](https://github.com/donpark/html2jade) - HTML to Jade Converter
