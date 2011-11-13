@@ -14,7 +14,7 @@ class HamlPlugin extends DocpadPlugin
 	render: ({inExtension,outExtension,templateData,file}, next) ->
 		try
 			if inExtension is 'haml'
-				haml = require 'hamljs'  unless haml
+				haml = require 'haml'  unless haml
 				file.content = haml.render file.content, locals: templateData
 				next()
 			else
