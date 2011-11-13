@@ -10,10 +10,10 @@ sys = require 'util'
 caterpillar = require 'caterpillar'
 util = require 'bal-util'
 child_process = require('child_process')
-growl = require('growl')
-express = false
-watch = false
-queryEngine = false
+growl = null
+express = null
+watch = null
+queryEngine = null
 _ = require 'underscore'
 PluginLoader = require "#{__dirname}/plugin-loader.coffee"
 require "#{__dirname}/prototypes.coffee"
@@ -72,6 +72,8 @@ class Docpad
 		# Logger
 		logLevel: 6
 		logger: null
+		growl: true
+		checkVersion: true
 
 	# Docpad
 	version: null
@@ -218,11 +220,12 @@ class Docpad
 
 	# Compare versions
 	compareVersion: ->
+		return @  unless @config.checkVersion
 		util.packageCompare
 			local: "#{@config.corePath}/package.json"
 			remote: 'https://raw.github.com/balupton/docpad/master/package.json'
 			newVersionCallback: (details) =>
-				growl.notify 'There is a new version of docpad available'
+				@notify 'There is a new version of docpad available'
 				@logger.log 'notice', """
 					There is a new version of docpad available, you should probably upgrade...
 					current version:  #{details.local.version}
@@ -399,10 +402,15 @@ class Docpad
 
 	# Handle an error
 	error: (err,type='err') ->
-		return  unless err
+		return @  unless err
 		@logger.log type, 'An error occured:', err.message, err.stack
 		@
 
+	# Perform a growl notification
+	notify: (args...) =>
+		return @  unless @config.growl
+		growl = require('growl')  unless growl
+		growl.notify.apply(growl,args)
 
 
 
@@ -849,6 +857,7 @@ class Docpad
 			# Prepare
 			docpad = @
 			logger = @logger
+			notify = @notify
 			queryEngine = require('query-engine')  unless queryEngine
 
 			# Clear
@@ -888,10 +897,10 @@ class Docpad
 								# Generate Write
 								docpad.generateWrite (err) ->
 									# Before
-									docpad.triggerEvent 'generateAfter', {}, (err) =>
+									docpad.triggerEvent 'generateAfter', {}, (err) ->
 										return next(err)  if err
 										# Generated
-										growl.notify (new Date()).toLocaleTimeString(), title: 'Website Generated'
+										notify (new Date()).toLocaleTimeString(), title: 'Website Generated'
 										logger.log 'info', 'Generated'
 										docpad.generating = false
 										next()
@@ -902,53 +911,20 @@ class Docpad
 	# Watch
 	# NOTE: Watching a directory and all it's contents (including subdirs and their contents) appears to be quite expiremental in node.js - if you know of a watching library that is quite stable, then please let me know - b@lupton.cc
 	watchAction: (next) ->
-		# Check
-		if process.platform is 'win32'
-			@logger.log 'warn', 'Watching not yet supported on windows...'
-			next()
-			return @
-		
 		# Prepare
 		logger = @logger
 		docpad = @
-		watch = require 'nodewatch'  unless watch
+		watch = require('watchr').watch  unless watch
 		logger.log 'Watching setup starting...'
-		watch.setMaxListeners(0)
 
-		# Scan the directories inside the srcPath
-		util.scandir(
-			# Path
-			docpad.config.srcPath,
+		# Watch the src directory recursively
+		watch docpad.config.srcPath, ->
+			docpad.generateAction ->
+				logger.log 'Regenerated due to file watch at '+(new Date()).toLocaleString()
 
-			# Handle files
-			false
-
-			# Handle directories
-			(fileFullPath,fileRelativePath,nextFile) =>
-				# Watch the src directory
-				watch.add(fileFullPath)
-
-				# Continue
-				nextFile()
-
-			# Next
-			(err) =>
-				# Watch the src directory
-				watch.add(docpad.config.srcPath)
-
-				# Changer
-				watch.onChange (file,prev,curr) ->
-					docpad.generateAction ->
-						logger.log 'Regenerated due to file watch at '+(new Date()).toLocaleString()
-
-				# Log
-				logger.log 'Watching setup'
-
-				# Next
-				next()
-		)
-
-		# Chain
+		# Done
+		logger.log 'Watching setup'
+		next()
 		@
 
 	# Skeleton
