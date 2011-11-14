@@ -187,8 +187,16 @@ _Getting errors? [Try troubleshooting](https://github.com/balupton/docpad/wiki/T
 
 ## History
 
-- v2.2 November 10, 2011
-	- Expiremental support for watching on windows
+- v2.2 November 14, 2011
+	- Windows support!
+	- Now uses [Benjamin Lupton's](https://github.com/balupton) [Watchr](https://github.com/balupton/watchr) as the watcher library
+		- Provides windows support
+	- Now uses [Tim Caswell's](https://github.com/creationix) [Haml.js](https://github.com/creationix/haml-js) as the haml library
+		- Provides windows support
+	- Bug fixes
+		- Works with zero documents
+		- Works with empty `package.json`
+		- Fixed mime-type problems with documents
 
 - v2.1 November 10, 2011
 	- Support for dynamic documents
@@ -355,16 +363,16 @@ DocPad wouldn't be possible if it wasn't for the following libaries _(in alphabe
 
 - [Maurice Machado's](https://github.com/mauricemach) [CoffeeKup](https://github.com/mauricemach/coffeekup) - Markup as CoffeeScript
 
+- [Sam Stephenson's](https://github.com/sstephenson) [Eco](https://github.com/sstephenson/eco) - Embedded CoffeeScript templates
+
+- [Tim Caswell's](https://github.com/creationix) [Haml.js](https://github.com/creationix/haml-js) - Markup haiku
 - [TJ Holowaychuk's](https://github.com/visionmedia) [Commander.js](https://github.com/visionmedia/commander.js) - Console apps made easy
-- [TJ Holowaychuk's](https://github.com/visionmedia) [Express.js](https://github.com/visionmedia/express) - The "Server" in Server Side Javascript 	
-- [TJ Holowaychuk's](https://github.com/visionmedia) [Haml.js](https://github.com/visionmedia/haml.js) - Markup haiku
+- [TJ Holowaychuk's](https://github.com/visionmedia) [Express.js](https://github.com/visionmedia/express) - The "Server" in Server Side Javascript
 - [TJ Holowaychuk's](https://github.com/visionmedia) [Jade](https://github.com/visionmedia/jade) - A robust, elegant, feature rich template engine
 - [TJ Holowaychuk's](https://github.com/visionmedia) [Node-Growl](https://github.com/visionmedia/node-growl) - Notifications made easy
 - [TJ Holowaychuk's](https://github.com/visionmedia) [Sass.js](https://github.com/visionmedia/sass.js) - Syntactically awesome stylesheets
 - [TJ Holowaychuk/LearnBoost's](https://github.com/learnboost) [Stylus](https://github.com/learnboost/stylus) - Expressive, robust, feature-rich CSS language
 - [TJ Holowaychuk's](https://github.com/visionmedia) [YAML](https://github.com/visionmedia/js-yaml) - Data made easy
-
-- [Sam Stephenson's](https://github.com/sstephenson) [Eco](https://github.com/sstephenson/eco) - Embedded CoffeeScript templates
 
 - [Ryan Dahl's](https://github.com/ry) [Node.js](http://nodejs.org) - Server Side Javascript	
 
