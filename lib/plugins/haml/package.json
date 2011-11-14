@@ -44,7 +44,7 @@
 		"url": "http://github.com/balupton/docpad.git"
 	},
 	"dependencies": {
-		"hamljs": ">=0.4.x"
+		"haml": ">=0.4.x"
 	},
 	"engines" : {
 		"node": ">=0.4.0"
