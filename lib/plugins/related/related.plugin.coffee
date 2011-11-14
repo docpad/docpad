@@ -21,15 +21,13 @@ class RelationsPlugin extends DocpadPlugin
 		# Find documents
 		documents.find {}, (err,docs,length) ->
 			return tasks.exit err  if err
+			return tasks.exit()  unless length
 			tasks.total = length
 			docs.forEach (document) ->
 				# Find related documents
 				documents.find {tags:{'$in':document.tags}}, (err,relatedDocuments) ->
-					# Check
-					if err
-						return tasks.exit err
-					else if relatedDocuments.length is 0
-						return tasks.complete()
+					return tasks.exit err  if err
+					return tasks.complete()  unless relatedDocuments.length
 
 					# Fetch
 					relatedDocumentsArray = []

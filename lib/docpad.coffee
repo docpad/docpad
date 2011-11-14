@@ -118,19 +118,19 @@ class Docpad
 
 		# Docpad Configuration
 		docpadPackagePath = "#{config.corePath}/package.json"
+		docpadPackageData = {}
 		if path.existsSync docpadPackagePath
-			docpadPackageData = JSON.parse(fs.readFileSync(docpadPackagePath).toString()) or {}
+			try
+				docpadPackageData = JSON.parse(fs.readFileSync(docpadPackagePath).toString()) or {}
 			@version = docpadPackageData.version
-		else
-			docpadPackageData = {}
 		docpadPackageData.docpad or= {}
 	
 		# Website Configuration
 		websitePackagePath = "#{config.rootPath}/package.json"
+		websitePackageData = {}
 		if path.existsSync websitePackagePath
-			websitePackageData = JSON.parse(fs.readFileSync(websitePackagePath).toString()) or {}
-		else
-			websitePackageData = {}
+			try
+				websitePackageData = JSON.parse(fs.readFileSync(websitePackagePath).toString()) or {}
 		websitePackageData.docpad or= {}
 		
 		# Apply Configuration
@@ -429,11 +429,12 @@ class Docpad
 		# Async
 		logger = @logger
 		tasks = new util.Group (err) ->
-			logger.log 'debug', "Plugins completed for #{eventName}"
+			logger.log 'debug', "Plugins finished for #{eventName}"
 			next(err)
 		tasks.total = @pluginsArray.length
 
 		# Cycle
+		logger.log 'debug', "Plugins started for #{eventName}"
 		for plugin in @pluginsArray
 			plugin.triggerEvent eventName, data, tasks.completer()
 		
@@ -703,6 +704,7 @@ class Docpad
 		
 		# Fetch
 		documents = @documents.find({}).sort({'date':-1})
+		return tasks.exit()  unless documents.length
 		tasks.total += documents.length
 
 		# Scan all documents
@@ -737,6 +739,7 @@ class Docpad
 		
 		# Prepare template data
 		documents = @documents.find({}).sort({'date':-1})
+		return tasks.exit()  unless documents.length
 		@templateData =
 			require: require
 			documents: documents
@@ -796,6 +799,7 @@ class Docpad
 		@documents.find {}, (err,documents,length) ->
 			# Error
 			return tasks.exit err  if err
+			return tasks.exit()  unless length
 
 			# Cycle
 			tasks.total += length
@@ -1016,9 +1020,12 @@ class Docpad
 			
 			# Start server listening
 			if listen
-				@server.listen @config.port
-				logger.log 'info', 'Express server listening on port', @server.address().port, 'and directory', @config.outPath
-
+				result = @server.listen @config.port
+				try
+					logger.log 'info', 'Web server listening on port', @server.address().port, 'and directory', @config.outPath
+				catch err
+					logger.log 'err', "Could not start the web server, chances are the desired port #{@config.port} is already in use"
+					
 			# After
 			@triggerEvent 'serverAfter', {@server}, (err) ->
 				logger.log 'debug', 'Server setup'  unless err
