@@ -990,7 +990,7 @@ class Docpad
 							@error err
 							res.send(err.message, 500)
 						else if document
-							res.contentType(document.outPath)
+							res.contentType(document.outPath or document.url)
 							if document.dynamic
 								@render document, req: req, (err) =>
 									if err
