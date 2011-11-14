@@ -23,6 +23,7 @@ class CleanUrlsPlugin extends DocpadPlugin
 		# Find documents
 		documents.find {}, (err,docs,length) ->
 			return tasks.exit err  if err
+			return tasks.exit()  unless length
 			tasks.total = length
 			docs.forEach (document) ->
 				# Index URL
