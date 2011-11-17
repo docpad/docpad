@@ -1,4 +1,4 @@
-Array::hasCount = (arr) ->
+Array::hasCount or= (arr) ->
 	count = 0
 	for a in this
 		for b in arr
@@ -7,10 +7,16 @@ Array::hasCount = (arr) ->
 				break
 	return count
 
-Date::toShortDateString = ->
+Array::has or= (thing) ->
+	for value in @
+		if thing is value
+			return true
+	return false
+
+Date::toShortDateString or= ->
 	return @toDateString().replace(/^[^\s]+\s/,'')
 
-Date::toISODateString = Date::toIsoDateString = ->
+Date::toISODateString or= Date::toIsoDateString = ->
 	pad = (n) ->
 		if n < 10 then ('0'+n) else n
 
@@ -22,8 +28,8 @@ Date::toISODateString = Date::toIsoDateString = ->
 		pad(@getUTCMinutes())+':'+
 		pad(@getUTCSeconds())+'Z'
 
-String::startsWith = (prefix) ->
+String::startsWith or= (prefix) ->
 	return @indexOf(prefix) is 0
 
-String::finishesWith = (suffix) ->
+String::finishesWith or= (suffix) ->
 	return @indexOf(suffix) is @length-1

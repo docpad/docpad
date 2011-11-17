@@ -66,11 +66,12 @@ class Docpad
 		
 		# Server
 		server: null
+		extendServer: true
 		port: 9778
 		maxAge: false
 
 		# Logger
-		logLevel: 6
+		logLevel: null
 		logger: null
 		growl: true
 		checkVersion: true
@@ -160,12 +161,18 @@ class Docpad
 		@config.publicPath = "#{@config.srcPath}/public"
 
 		# Logger
+		unless @config.logLevel?
+			@config.logLevel = if process.argv.has('-d') then 7 else 6
 		@logger = @config.logger or= new caterpillar.Logger
 			transports:
 				level: @config.logLevel
 				formatter:
 					module: module
 		
+		# Bind the error handler, so we don't crash on errors
+		process.on 'uncaughtException', (err) =>
+			@error err
+
 		# Version Check
 		@compareVersion()
 		
@@ -178,9 +185,26 @@ class Docpad
 		
 		# Load Plugins
 		@loadPlugins (err) =>
-			@error(err)  if err
+			return @error(err)  if err
 			@loading = false
-	
+
+	# Create snore
+	createSnore: (message) ->
+		logger = @logger
+		snore =
+			snoring: false
+			timer: setTimeout(
+				->
+					snore.clear()
+					snore.snoring = true
+					logger.log 'notice', message
+				5000
+			)
+			clear: ->
+				if snore.timer
+					clearTimeout(snore.timer)
+					snore.timer = false
+
 	# Layout Document
 	createDocument: (meta={}) ->
 		# Prepare
@@ -240,16 +264,11 @@ class Docpad
 		logger = @logger
 		skeletonRepo = @config.skeletons[skeleton].repo
 		logger.log 'info', "[#{skeleton}] Initialising the Skeleton to #{destinationPath}"
-		snoring = false
-		notice = setTimeout(
-			->
-				snoring = true
-				logger.log 'notice', "[#{skeleton}] This could take a while, grab a snickers"
-			2000
-		)
+		snore = @createSnore "[#{skeleton}] This could take a while, grab a snickers"
 
 		# Async
 		tasks = new util.Group (err) ->
+			snore.clear()
 			logger.log 'info', "[#{skeleton}] Initialised the Skeleton"  unless err
 			next(err)
 		tasks.total = 2
@@ -347,7 +366,6 @@ class Docpad
 	action: (action,next=null) ->
 		# Prepare
 		logger = @logger
-		next or= -> process.exit()
 
 		# Clear
 		if @actionTimeout
@@ -358,7 +376,7 @@ class Docpad
 		if @loading
 			@actionTimeout = setTimeout(
 				=>
-					@action(action, next)
+					@action(action,next)
 				1000
 			)
 			return
@@ -368,24 +386,29 @@ class Docpad
 			when 'skeleton', 'scaffold'
 				@skeletonAction (err) ->
 					return @error(err)  if err
+					next or= -> process.exit()
 					next()
 
 			when 'generate'
 				@generateAction (err) ->
 					return @error(err)  if err
+					next or= -> process.exit()
 					next()
 
 			when 'watch'
 				@watchAction (err) ->
 					return @error(err)  if err
-					logger.log 'info', 'DocPad is now watching you...'
+					next or= -> logger.log 'info', 'DocPad is now watching you...'
+					next()
 
 			when 'server', 'serve'
 				@serverAction (err) ->
 					return @error(err)  if err
-					logger.log 'info', 'DocPad is now serving you...'
+					next or= -> logger.log 'info', 'DocPad is now serving you...'
+					next()
 
 			else
+				next or= -> logger.log 'info', 'DocPad is now watching and serving you...'
 				@skeletonAction (err) =>
 					return @error(err)  if err
 					@generateAction (err) =>
@@ -394,7 +417,7 @@ class Docpad
 							return @error(err)  if err
 							@watchAction (err) =>
 								return @error(err)  if err
-								logger.log 'info', 'DocPad is now watching and serving you...'
+								next()
 		
 		# Chain
 		@
@@ -446,9 +469,12 @@ class Docpad
 		# Prepare
 		logger = @logger
 		docpad = @
+		snore = @createSnore "We're preparing your plugins, this may take a while the first time. Perhaps grab a snickers?"
 
 		# Async
 		tasks = new util.Group (err) ->
+			snore.clear()
+			return next(err)  if err
 			logger.log 'debug', 'All plugins loaded'
 			next(err)
 		
@@ -738,11 +764,13 @@ class Docpad
 				next(err)
 		
 		# Prepare template data
-		documents = @documents.find({}).sort({'date':-1})
+		documents = @documents.find({}).sort('date': -1)
 		return tasks.exit()  unless documents.length
 		@templateData =
 			require: require
+			docpad: @
 			documents: documents
+			database: @documents
 			document: null
 			site:
 				date: new Date()
@@ -965,15 +993,12 @@ class Docpad
 			express = require 'express'			unless express
 
 			# Server
-			if @server
-				listen = false
-			else
-				listen = true
+			unless @server
 				@server = express.createServer()
 
 			# Configuration
 			@server.configure =>
-				if listen
+				if @config.extendServer
 					# POST Middleware
 					@server.use express.bodyParser()
 					@server.use express.methodOverride()
@@ -1010,7 +1035,7 @@ class Docpad
 					@server.use express.static @config.outPath
 				
 				# 404 Middleware
-				if listen
+				if @config.extendServer
 					@server.use (req,res,next) ->
 						res.send(404)
 					
@@ -1019,7 +1044,7 @@ class Docpad
 				res.send 'DocPad!'
 			
 			# Start server listening
-			if listen
+			if @config.extendServer
 				result = @server.listen @config.port
 				try
 					logger.log 'info', 'Web server listening on port', @server.address().port, 'and directory', @config.outPath
