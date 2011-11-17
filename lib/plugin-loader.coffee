@@ -78,12 +78,17 @@ class PluginLoader
 	
 	# Install
 	# Installs the plugins dependencies via NPM
+	# It doesn't appear that the npm module yet supports parallel processing
+	# So until it does, then we have to spawn it instead
 	# next(err)
 	install: (next) ->
+		# Fetch the npm path
+		npmPath = path.resolve @docpad.config.corePath,'node_modules','npm','bin','npm-cli.js'
+
 		# Execute npm install inside the pugin directory
 		child = exec(
 			# Command
-			'npm install'
+			"#{npmPath} install"
 
 			# Options
 			{ cwd: @dirPath }
