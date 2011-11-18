@@ -88,7 +88,7 @@ class PluginLoader
 		# Execute npm install inside the pugin directory
 		child = exec(
 			# Command
-			"#{npmPath} install"
+			"node #{npmPath} install"
 
 			# Options
 			{ cwd: @dirPath }
