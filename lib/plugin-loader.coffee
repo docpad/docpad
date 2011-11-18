@@ -83,12 +83,14 @@ class PluginLoader
 	# next(err)
 	install: (next) ->
 		# Fetch the npm path
+		nodePath = if /node$/.test(process.execPath) then process.execPath else 'node'
 		npmPath = path.resolve @docpad.config.corePath,'node_modules','npm','bin','npm-cli.js'
+		command = "#{nodePath} #{npmPath} install"
 
 		# Execute npm install inside the pugin directory
 		child = exec(
 			# Command
-			"node #{npmPath} install"
+			command
 
 			# Options
 			{ cwd: @dirPath }
