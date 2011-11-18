@@ -187,6 +187,19 @@ _Getting errors? [Try troubleshooting](https://github.com/balupton/docpad/wiki/T
 
 ## History
 
+- v2.3 November 18, 2011
+	- [Heroku](https://heroku.com/) support
+	- Added `extendServer` configuration option
+		- Now, by default, even if the server is provided, we will extend it. If you do not want this, set this configuration option to `false`.
+	- Made it easier to load docpad as an easier
+	- Instead of crashing when an uncaught error happens, it'll output it and keep running as often they are not major problems.
+	- The log messages and next handling in `docpad.action` has been cleaned up
+		- Now those log messages are contained within the default next handler, so if you provide a custom default next handler you'll have to do your own success log messages
+	- [NPM](https://github.com/isaacs/npm) is now installed locally
+		- This is to ensure it's availability on cloud servers
+	- DocPad will now try and figure out the node executable location to provide greater compatibility on cloud servers
+	- If the plugin installations are taking a while, you'll get informed of this, rather than just staring at a blank blinking cursor
+
 - v2.2 November 14, 2011
 	- Windows support!
 	- Now uses [Benjamin Lupton's](https://github.com/balupton) [Watchr](https://github.com/balupton/watchr) as the watcher library
