@@ -101,6 +101,7 @@ DocPad takes that good ol' simple approach of writing files and wraps it with th
 ### Scripts
 
 - [CoffeeScript](http://jashkenas.github.com/coffee-script/) to JavaScript `.js.coffee` and JavaScript to CoffeeScript `.coffee.js`
+- [Roy](http://roy.brianmckenna.org/) to JavaScript `.js.roy`
 
 ### Parsers
 
@@ -199,6 +200,8 @@ _Getting errors? [Try troubleshooting](https://github.com/balupton/docpad/wiki/T
 		- This is to ensure it's availability on cloud servers
 	- DocPad will now try and figure out the node executable location to provide greater compatibility on cloud servers
 	- If the plugin installations are taking a while, you'll get informed of this, rather than just staring at a blank blinking cursor
+	- Roy plugin
+		- Adds [Roy](http://roy.brianmckenna.org/) to JavaScript support `.js.roy`
 
 - v2.2 November 14, 2011
 	- Windows support!
@@ -366,7 +369,8 @@ DocPad wouldn't be possible if it wasn't for the following libaries _(in alphabe
 - [Benjamin Lupton's](https://github.com/balupton) [Caterpillar](https://github.com/balupton/caterpillar.npm) - Logging made easy
 - [Benjamin Lupton's](https://github.com/balupton) [Query-Engine](https://github.com/balupton/query-engine.npm) - The MongoDB Query-Engine without the Database
 - [Benjamin Lupton's](https://github.com/balupton) [Watchr](https://github.com/balupton/watchr) - Node.js recursive directory watching made easy
-- [Brandon Bloom's](https://github.com/brandonbloom) [Html2CoffeeKup](https://github.com/brandonbloom/html2coffeekup)- HTML to CoffeeKup Converter
+- [Brandon Bloom's](https://github.com/brandonbloom) [Html2CoffeeKup](https://github.com/brandonbloom/html2coffeekup) - HTML to CoffeeKup Converter
+- [Brian McKenna's](http://brianmckenna.org/) [Roy](https://bitbucket.org/puffnfresh/roy) - JavaScript melded with static language features
 
 - [Don Park's](https://github.com/donpark) [Html2Jade](https://github.com/donpark/html2jade) - HTML to Jade Converter
 
