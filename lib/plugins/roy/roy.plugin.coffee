@@ -15,7 +15,7 @@ class RoyPlugin extends DocpadPlugin
 		try
 			if inExtension in ['roy'] and outExtension is 'js'
 				roy = require('roy')  unless roy
-				file.content = roy.compile(file.content).output
+				file.content = roy.compile(file.content.replace(/^\s+/,'')).output
 				next()
 			else
 				next()
