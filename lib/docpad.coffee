@@ -366,6 +366,7 @@ class Docpad
 	action: (action,next=null) ->
 		# Prepare
 		logger = @logger
+		next or= ->
 
 		# Clear
 		if @actionTimeout
@@ -381,34 +382,38 @@ class Docpad
 			)
 			return
 		
+		# Multiple actions?
+		actions = action.split ' '
+		if actions.length > 1
+			tasks = new util.Group next
+			tasks.total = actions.length
+			for action in actions
+				@action action, tasks.completer()
+			return @
+		
 		# Handle
 		switch action
 			when 'skeleton', 'scaffold'
 				@skeletonAction (err) ->
 					return @error(err)  if err
-					next or= -> process.exit()
-					next()
+					next()  if next
 
 			when 'generate'
 				@generateAction (err) ->
 					return @error(err)  if err
-					next or= -> process.exit()
-					next()
+					next()  if next
 
 			when 'watch'
 				@watchAction (err) ->
 					return @error(err)  if err
-					next or= -> logger.log 'info', 'DocPad is now watching you...'
-					next()
+					next()  if next
 
 			when 'server', 'serve'
 				@serverAction (err) ->
 					return @error(err)  if err
-					next or= -> logger.log 'info', 'DocPad is now serving you...'
-					next()
+					next()  if next
 
 			else
-				next or= -> logger.log 'info', 'DocPad is now watching and serving you...'
 				@skeletonAction (err) =>
 					return @error(err)  if err
 					@generateAction (err) =>
@@ -417,7 +422,7 @@ class Docpad
 							return @error(err)  if err
 							@watchAction (err) =>
 								return @error(err)  if err
-								next()
+								next()  if next
 		
 		# Chain
 		@
@@ -996,9 +1001,10 @@ class Docpad
 			unless @server
 				@server = express.createServer()
 
-			# Configuration
-			@server.configure =>
-				if @config.extendServer
+			# Extend the server
+			if @config.extendServer
+				# Configure the server
+				@server.configure =>
 					# POST Middleware
 					@server.use express.bodyParser()
 					@server.use express.methodOverride()
@@ -1006,51 +1012,49 @@ class Docpad
 					# Router Middleware
 					@server.use @server.router
 
-				# Routing
-				@server.use (req,res,next) =>
-					return next()  unless @documents
-					cleanUrl = req.url.replace(/\?.*/,'')
-					@documents.findOne {urls:{'$in':cleanUrl}}, (err,document) =>
-						if err
-							@error err
-							res.send(err.message, 500)
-						else if document
-							res.contentType(document.outPath or document.url)
-							if document.dynamic
-								@render document, req: req, (err) =>
-									if err
-										@error err
-										res.send(err.message, 500)
-									else
-										res.send(document.contentRendered)
+					# Routing
+					@server.use (req,res,next) =>
+						return next()  unless @documents
+						cleanUrl = req.url.replace(/\?.*/,'')
+						@documents.findOne {urls:{'$in':cleanUrl}}, (err,document) =>
+							if err
+								@error err
+								res.send(err.message, 500)
+							else if document
+								res.contentType(document.outPath or document.url)
+								if document.dynamic
+									@render document, req: req, (err) =>
+										if err
+											@error err
+											res.send(err.message, 500)
+										else
+											res.send(document.contentRendered)
+								else
+									res.send(document.contentRendered)
 							else
-								res.send(document.contentRendered)
-						else
-							next()
+								next()
 
-				# Static
-				if @config.maxAge
-					@server.use express.static @config.outPath, maxAge: @config.maxAge
-				else
-					@server.use express.static @config.outPath
-				
-				# 404 Middleware
-				if @config.extendServer
+					# Static
+					if @config.maxAge
+						@server.use express.static @config.outPath, maxAge: @config.maxAge
+					else
+						@server.use express.static @config.outPath
+					
+					# 404 Middleware
 					@server.use (req,res,next) ->
 						res.send(404)
-					
-			# Route something
+				
+				# Start the server
+				result = @server.listen @config.port
+				try
+					logger.log 'info', 'Web server listening on port', @server.address().port, 'on directory', @config.outPath
+				catch err
+					logger.log 'err', "Could not start the web server, chances are the desired port #{@config.port} is already in use"
+			
+			# Route docpad
 			@server.get /^\/docpad/, (req,res) ->
 				res.send 'DocPad!'
 			
-			# Start server listening
-			if @config.extendServer
-				result = @server.listen @config.port
-				try
-					logger.log 'info', 'Web server listening on port', @server.address().port, 'and directory', @config.outPath
-				catch err
-					logger.log 'err', "Could not start the web server, chances are the desired port #{@config.port} is already in use"
-					
 			# After
 			@triggerEvent 'serverAfter', {@server}, (err) ->
 				logger.log 'debug', 'Server setup'  unless err
