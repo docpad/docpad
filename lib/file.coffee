@@ -136,7 +136,7 @@ class File
 		@fileMeta or= {}
 		@content = @fileBody
 		@contentSrc = @fileBody
-		@contentRaw = @fileData
+		@contentRaw = fileData
 		@contentRendered = @fileBody
 		@title = @title or @basename or @filename
 	
