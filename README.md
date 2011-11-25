@@ -188,6 +188,12 @@ _Getting errors? [Try troubleshooting](https://github.com/balupton/docpad/wiki/T
 
 ## History
 
+- v2.4 November 26, 2011
+	- AutoUpdate plugin
+		- Automatically refreshes the user's current page when the website is regenerated
+		- Very useful for development, though you probably want to disable it for production
+		- Enabled by default
+
 - v2.3 November 18, 2011
 	- [Heroku](https://heroku.com/) support
 	- Added `extendServer` configuration option
