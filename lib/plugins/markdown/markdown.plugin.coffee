@@ -1,6 +1,6 @@
 # Requires
 DocpadPlugin = require "#{__dirname}/../../plugin.coffee"
-markdown = null
+markdown = require('github-flavored-markdown')
 
 # Define Plugin
 class MarkdownPlugin extends DocpadPlugin
@@ -14,8 +14,7 @@ class MarkdownPlugin extends DocpadPlugin
 	render: ({inExtension,outExtension,templateData,file}, next) ->
 		try
 			if inExtension in ['md','markdown'] and outExtension is 'html'
-				markdown = require('markdown').markdown  unless markdown
-				file.content = markdown.toHTML file.content
+				file.content = markdown.parse file.content
 				next()
 			else
 				next()
