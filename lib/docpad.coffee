@@ -394,22 +394,22 @@ class Docpad
 		# Handle
 		switch action
 			when 'skeleton', 'scaffold'
-				@skeletonAction (err) ->
+				@skeletonAction (err) =>
 					return @error(err)  if err
 					next()  if next
 
 			when 'generate'
-				@generateAction (err) ->
+				@generateAction (err) =>
 					return @error(err)  if err
 					next()  if next
 
 			when 'watch'
-				@watchAction (err) ->
+				@watchAction (err) =>
 					return @error(err)  if err
 					next()  if next
 
 			when 'server', 'serve'
-				@serverAction (err) ->
+				@serverAction (err) =>
 					return @error(err)  if err
 					next()  if next
 
