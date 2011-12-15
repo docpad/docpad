@@ -57,5 +57,12 @@
 	"directories": {
 		"lib": "."
 	},
-	"main": "./coffee.plugin.coffee"
+	"main": "./coffee.plugin.coffee",
+	"docpad": {
+		"plugin": {
+			"coffeekup": {
+				"format": false
+			}
+		}
+	}
 }

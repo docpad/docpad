@@ -19,7 +19,7 @@ class CoffeePlugin extends DocpadPlugin
 			# CoffeeKup to anything
 			if inExtension in ['coffeekup','ck'] or (inExtension is 'coffee' and !(outExtension in ['js','css']))
 				ck = require 'coffeekup'  unless ck
-				file.content = ck.render file.content, templateData
+				file.content = ck.render file.content, templateData, (@config.coffeekup or {})
 				next()
 			
 			# HTML to CoffeeKup

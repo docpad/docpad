@@ -44,7 +44,7 @@
 		"url": "http://github.com/balupton/docpad.git"
 	},
 	"dependencies": {
-		"jade": "0.17.x",
+		"jade": "0.19.x",
 		"html2jade": "0.1.x"
 	},
 	"engines" : {
