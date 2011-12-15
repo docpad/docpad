@@ -43,8 +43,8 @@
 		"url": "http://github.com/balupton/docpad.git"
 	},
 	"dependencies": {
-		"stylus": "0.19.x",
-		"nib": "0.2.x"
+		"stylus": "0.20.x",
+		"nib": "0.3.x"
 	},
 	"engines" : {
 		"node": ">=0.4.0"

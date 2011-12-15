@@ -188,6 +188,28 @@ _Getting errors? [Try troubleshooting](https://github.com/balupton/docpad/wiki/T
 
 ## History
 
+- v2.5 December 15, 2011
+	- Swapped out [Dominic Baggott's](https://github.com/evilstreak) [Markdown.js](http://github.com/evilstreak/markdown-js) for [Isaac Z. Schlueter's](https://github.com/isaacs) [Github-Flavored-Markdown](https://github.com/isaacs/github-flavored-markdown)
+		- Now adds support for inline html in markdown files
+			- Closes #107
+	- Fixed plugins installing on windows
+		- Had to upgrade NPM from 1.0.x to 1.1.x
+		- Closes #111
+	- Fixed the error: `Object #<Object> has no method 'error'`
+		- Fixes #106
+	- Fixed `html2jade` on windows
+		- Closes #110
+	- Can now pass over options to the coffeekup renderer inside the coffee plugin
+		- E.g. set `docpad: plugins: coffee: coffeekup: format: true` to have tidy html output
+		- Thanks to [Changwoo Park](https://github.com/pismute)
+	- Updated depdencies
+		- Commander 0.3.x -> 0.5.x [- changelog](https://github.com/visionmedia/commander.js/blob/master/History.md)
+		- Growl 1.1.x -> 1.2.x [- changelog](https://github.com/visionmedia/node-growl/blob/master/History.md)
+		- NPM 1.0.x -> 1.1.x
+		- Jade 0.17.x -> 0.19.x [- changelog](https://github.com/visionmedia/jade/blob/master/History.md)
+		- Stylus 0.19.x -> 0.20.x [- changelog](https://github.com/LearnBoost/stylus/blob/master/History.md)
+		- Nib 0.2.x -> 0.3.x [- changelog](https://github.com/visionmedia/nib/blob/master/History.md)
+
 - v2.4 November 26, 2011
 	- AutoUpdate plugin
 		- Automatically refreshes the user's current page when the website is regenerated

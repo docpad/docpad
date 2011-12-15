@@ -21,7 +21,12 @@ class JadePlugin extends DocpadPlugin
 				})(templateData)
 				next()
 			else if outExtension is 'jade' and inExtension is 'html'
-				html2jade = require 'html2jade'  unless html2jade
+				try
+					unless html2jade
+						html2jade = require 'html2jade'
+				catch err
+					unless html2jade
+						html2jade = require path.resolve(__dirname, 'node_modules', 'html2jade', 'lib', 'html2jade.coffee')
 				html2jade.convertHtml file.content, {}, (err,result) ->
 					return next(err)  if err
 					file.content = result
