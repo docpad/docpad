@@ -1,7 +1,6 @@
 # Requires
 DocpadPlugin = require "#{__dirname}/../../plugin.coffee"
 jade = null
-html2jade = null
 
 # Define Plugin
 class JadePlugin extends DocpadPlugin
@@ -20,17 +19,6 @@ class JadePlugin extends DocpadPlugin
 					filename: file.fullPath
 				})(templateData)
 				next()
-			else if outExtension is 'jade' and inExtension is 'html'
-				try
-					unless html2jade
-						html2jade = require 'html2jade'
-				catch err
-					unless html2jade
-						html2jade = require path.resolve(__dirname, 'node_modules', 'html2jade', 'lib', 'html2jade.coffee')
-				html2jade.convertHtml file.content, {}, (err,result) ->
-					return next(err)  if err
-					file.content = result
-					next()
 			else
 				next()
 		catch err

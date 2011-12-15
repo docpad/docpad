@@ -1,6 +1,6 @@
 {
 	"name": "docpad-jade",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "Adds support for the Jade templating engine to DocPad.",
 	"homepage": "https://github.com/balupton/docpad",
 	"keywords": [
@@ -44,8 +44,7 @@
 		"url": "http://github.com/balupton/docpad.git"
 	},
 	"dependencies": {
-		"jade": "0.19.x",
-		"html2jade": "0.1.x"
+		"jade": "0.19.x"
 	},
 	"engines" : {
 		"node": ">=0.4.0"
