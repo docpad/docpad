@@ -1,11 +1,11 @@
 {
-	"name": "docpad-haml",
+	"name": "docpad-html2jade",
 	"version": "0.1.0",
-	"description": "Adds support for the HAML templating engine to DocPad.",
+	"description": "Adds support for HTML to the Jade templating engine in DocPad.",
 	"homepage": "https://github.com/balupton/docpad",
 	"keywords": [
 		"docpad",
-		"haml",
+		"jade",
 		"templating",
 		"templates",
 		"render",
@@ -44,7 +44,7 @@
 		"url": "http://github.com/balupton/docpad.git"
 	},
 	"dependencies": {
-		"haml": ">=0.4.0"
+		"html2jade": "0.1.x"
 	},
 	"engines" : {
 		"node": ">=0.4.0"
@@ -55,5 +55,5 @@
 	"directories": {
 		"lib": "."
 	},
-	"main": "./haml.plugin.coffee"
+	"main": "./html2jade.plugin.coffee"
 }

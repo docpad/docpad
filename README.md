@@ -192,8 +192,9 @@ _Getting errors? [Try troubleshooting](https://github.com/balupton/docpad/wiki/T
 	- Swapped out [Dominic Baggott's](https://github.com/evilstreak) [Markdown.js](http://github.com/evilstreak/markdown-js) for [Isaac Z. Schlueter's](https://github.com/isaacs) [Github-Flavored-Markdown](https://github.com/isaacs/github-flavored-markdown)
 		- Now adds support for inline html in markdown files
 			- Closes #107
-	- Fixed plugins installing on windows
-		- Had to upgrade NPM from 1.0.x to 1.1.x
+	- Fixed plugin installation on windows
+		- Had to disable the AutoUpdate and Html2Jade plugins
+		- Had to use the global npm instance on windows
 		- Closes #111
 	- Fixed the error: `Object #<Object> has no method 'error'`
 		- Fixes #106
@@ -202,6 +203,13 @@ _Getting errors? [Try troubleshooting](https://github.com/balupton/docpad/wiki/T
 	- Can now pass over options to the coffeekup renderer inside the coffee plugin
 		- E.g. set `docpad: plugins: coffee: coffeekup: format: true` to have tidy html output
 		- Thanks to [Changwoo Park](https://github.com/pismute)
+	- Disabled the following plugins by default
+		- Admin
+		- Authenticate
+		- Rest
+		- AutoUpdate
+		- Buildr
+		- Html2Jade
 	- Updated depdencies
 		- Commander 0.3.x -> 0.5.x [- changelog](https://github.com/visionmedia/commander.js/blob/master/History.md)
 		- Growl 1.1.x -> 1.2.x [- changelog](https://github.com/visionmedia/node-growl/blob/master/History.md)
@@ -401,6 +409,9 @@ DocPad wouldn't be possible if it wasn't for the following libaries _(in alphabe
 - [Brian McKenna's](http://brianmckenna.org/) [Roy](https://bitbucket.org/puffnfresh/roy) - JavaScript melded with static language features
 
 - [Don Park's](https://github.com/donpark) [Html2Jade](https://github.com/donpark/html2jade) - HTML to Jade Converter
+
+- [Isaac Z. Schlueter's](https://github.com/isaacs) [Github-Flavored-Markdown](https://github.com/isaacs/github-flavored-markdown) - Github's flavor of markdown
+- [Isaac Z. Schlueter's](https://github.com/isaacs) [NPM](https://github.com/isaacs/npm) - The node package manager
 
 - [James Campos'](https://github.com/aeosynth) [CCSS](https://github.com/aeosynth/ccss) - CSS as CoffeeScript
 - [Jeremy Ashkenas'](https://github.com/jashkenas) [CoffeeScript](http://jashkenas.github.com/coffee-script) - JavaScript made easy
