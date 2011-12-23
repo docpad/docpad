@@ -550,7 +550,7 @@ class Docpad
 				
 			# Next
 			(err) =>
-				@pluginsArray.sort (a,b) -> a.priority < b.priority
+				@pluginsArray.sort (a,b) -> a.priority - b.priority
 				logger.log 'debug', "Plugins loaded for #{pluginsPath}"
 				next(err)
 		)
