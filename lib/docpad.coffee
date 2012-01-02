@@ -1,5 +1,5 @@
 ###
-Docpad by Benjamin Lupton
+DocPad by Benjamin Lupton
 Intuitive Web Development
 ###
 
@@ -7,16 +7,21 @@ Intuitive Web Development
 fs = require 'fs'
 path = require 'path'
 sys = require 'util'
+child_process = require 'child_process'
+EventEmitter = require('events').EventEmitter
+
 caterpillar = require 'caterpillar'
 util = require 'bal-util'
-child_process = require('child_process')
+_ = require 'underscore'
+
 growl = null
 express = null
 watch = null
 queryEngine = null
-_ = require 'underscore'
+
 PluginLoader = require "#{__dirname}/plugin-loader.coffee"
 require "#{__dirname}/prototypes.coffee"
+
 exec = (commands,options,callback) ->
 	# Sync
 	tasks = new util.Group callback
@@ -33,9 +38,9 @@ exec = (commands,options,callback) ->
 
 
 # -------------------------------------
-# Docpad
+# DocPad
 
-class Docpad
+class DocPad extends EventEmitter
 	# Configurable
 	config:
 		# Plugins
@@ -45,16 +50,24 @@ class Docpad
 			rest: false
 		plugins: {}
 		
-		# Skeletons
-		skeleton: 'kitchensink',
-		skeletons:
-			kitchensink:
-				repo: 'https://github.com/balupton/kitchensink.docpad.git'
+		# Exchange
+		exchange:
+			# Skeletons
+			skeletons:
+				kitchensink:
+					repo: 'https://github.com/balupton/kitchensink.docpad.git'
+					description: 'A skeleton that includes everything'
+				canvas:
+					repo: 'https://github.com/balupton/canvas.docpad.git'
+					description: 'A blank canvas for docpad'
+			# Plugins
+			plugins: {}
 		
 		# DocPad Paths
 		corePath: "#{__dirname}/.."
 		libPath: "#{__dirname}"
 		mainPath: "#{__dirname}/docpad.coffee"
+		pluginPath: "#{__dirname}/plugin.coffee"
 
 		# Website Paths
 		rootPath: null
@@ -76,7 +89,7 @@ class Docpad
 		growl: true
 		checkVersion: true
 
-	# Docpad
+	# DocPad
 	version: null
 	server: null
 	logger: null
@@ -117,7 +130,7 @@ class Docpad
 		config.corePath or= @config.corePath
 		config.rootPath or= process.cwd()
 
-		# Docpad Configuration
+		# DocPad Configuration
 		docpadPackagePath = "#{config.corePath}/package.json"
 		docpadPackageData = {}
 		if path.existsSync docpadPackagePath
@@ -1065,9 +1078,9 @@ class Docpad
 
 # API
 docpad =
-	Docpad: Docpad
+	DocPad: DocPad
 	createInstance: (config) ->
-		return new Docpad(config)
+		return new DocPad(config)
 
 # Export
 module.exports = docpad
