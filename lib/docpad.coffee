@@ -247,7 +247,7 @@ class Docpad
 		return @  unless @config.checkVersion
 		util.packageCompare
 			local: "#{@config.corePath}/package.json"
-			remote: 'https://raw.github.com/balupton/docpad/master/package.json'
+			remote: 'https://raw.github.com/bevry/docpad/master/package.json'
 			newVersionCallback: (details) =>
 				@notify 'There is a new version of docpad available'
 				@logger.log 'notice', """
@@ -438,7 +438,7 @@ class Docpad
 	notify: (args...) =>
 		return @  unless @config.growl
 		growl = require('growl')  unless growl
-		growl.notify.apply(growl,args)
+		growl.apply(growl,args)
 
 
 
