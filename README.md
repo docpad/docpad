@@ -448,5 +448,5 @@ DocPad wouldn't be possible if it wasn't for the following libaries _(in alphabe
 ## License
 
 Licensed under the [MIT License](https://github.com/bevry/docpad/blob/master/LICENSE.txt)
-<br/>Copyright (c) 2012 [Bevry Pty Ltd](http://bevry.me) <us@bevry.me>
-<br/>Copyright (c) 2011 [Benjamin Lupton](http://balupton.com) <b@lupton.cc>
+<br/>Copyright &copy; 2012 [Bevry Pty Ltd](http://bevry.me)
+<br/>Copyright &copy; 2011 [Benjamin Lupton](http://balupton.com)

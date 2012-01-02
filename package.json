@@ -1,6 +1,6 @@
 {
 	"name": "docpad",
-	"version": "2.6.0",
+	"version": "2.6.1",
 	"description": "DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written in CoffeeScript+Node.js instead of Ruby, and also allows the template engine complete access to the document model. This means you have unlimited power as a CMS and the simplicity of a notepad.",
 	"homepage": "https://github.com/bevry/docpad",
 	"keywords": [
@@ -36,7 +36,7 @@
 	"licenses": [
 		{
 			"type": "MIT",
-			"url": "http://creativecommons.org/licenses/MIT/"
+			"url": "https://github.com/bevry/docpad/blob/master/LICENSE.txt"
 		}
 	],
 	"repository" : {
