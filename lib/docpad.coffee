@@ -49,7 +49,7 @@ class Docpad
 		skeleton: 'kitchensink',
 		skeletons:
 			kitchensink:
-				repo: 'https://github.com/balupton/kitchensink.docpad.git'
+				repo: 'https://github.com/bevry/kitchensink.docpad.git'
 		
 		# DocPad Paths
 		corePath: "#{__dirname}/.."
