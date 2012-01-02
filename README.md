@@ -192,7 +192,7 @@ _Getting errors? [Try troubleshooting](https://github.com/bevry/docpad/wiki/Trou
 	- Transferred DocPad's ownership from [Benjamin Lupton](http://balupton.com) to [Bevry](http://bevry.me) (Benjamin's company)
 		- Things that have changed
 			- It is now easier for us to manage DocPad, its extensions, collaborators and future repositories
-				- Thanks to Github's [excellent organisation functionality](https://github.com/blog/674-introducing-organizations)
+				- Thanks to Github's excellent organisation functionality - https://github.com/blog/674-introducing-organizations
 			- DocPad is now supported and backed by a commercial entity, meaning that it won't go away
 		- Things that won't change
 			- DocPad will remain free as in beer, and free as in freedom
@@ -296,7 +296,7 @@ _Getting errors? [Try troubleshooting](https://github.com/bevry/docpad/wiki/Trou
 			- See the client side editing example in the [kitchensink skeleton](https://github.com/bevry/kitchensink.docpad)
 		- SASS plugin
 			- Adds [SASS](http://sass-lang.com/) to CSS support
-				- Uses [TJ Holowaychuk](https://github.com/visionmedia)'s [Sass.js](https://github.com/visionmedia/sass.js)
+				- Uses TJ Holowaychuk's Sass.js - https://github.com/visionmedia/sass.js
 		- Coffee Plugin
 			- Removed CoffeeCSS support as was playing up
 
