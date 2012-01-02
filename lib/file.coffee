@@ -116,10 +116,7 @@ class File
 				switch @fileHeadParser
 					when 'coffee', 'cson'
 						coffee = require('coffee-script')  unless coffee
-						if coffee.VERSION is '1.1.1'
-							@fileMeta = eval coffee.compile "return (#{@fileHead})", filename: @fullPath
-						else
-							@fileMeta = coffee.eval @fileHead, filename: @fullPath
+						@fileMeta = coffee.eval @fileHead, filename: @fullPath
 					
 					when 'yaml'
 						yaml = require('yaml')  unless yaml

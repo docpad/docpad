@@ -100,7 +100,7 @@ DocPad takes that good ol' simple approach of writing files and wraps it with th
 
 ### Scripts
 
-- [CoffeeScript](http://jashkenas.github.com/coffee-script/) to JavaScript `.js.coffee` and JavaScript to CoffeeScript `.coffee.js`
+- [CoffeeScript](http://coffeescript.org/) to JavaScript `.js.coffee` and JavaScript to CoffeeScript `.coffee.js`
 - [Roy](http://roy.brianmckenna.org/) to JavaScript `.js.roy`
 
 ### Parsers
@@ -125,11 +125,11 @@ DocPad takes that good ol' simple approach of writing files and wraps it with th
 
 ## About
 
-DocPad is getting pretty popular these days... you can check out [a bunch of websites already using it here](https://github.com/balupton/docpad/wiki/Showcase), and [discover the awesomely handsome crew behind the community here](https://github.com/balupton/docpad/wiki/Users). Ocassionally we also hold [events and competitions](https://github.com/balupton/docpad/wiki/Events) where you can learn more about docpad, hack with others together, and win some cool stuff! Nifty.
+DocPad is thriving these days... you can check out [a bunch of websites already using it here](https://github.com/bevry/docpad/wiki/Showcase), and [discover the awesomely handsome crew behind the community here](https://github.com/bevry/docpad/wiki/Users). Ocassionally we also hold [events and competitions](https://github.com/bevry/docpad/wiki/Events) where you can learn more about docpad, hack with others together, and win some cool stuff! Nifty.
 
-On that note, DocPad is awesomely extensible. You can [download other people's plugins](https://github.com/balupton/docpad/wiki/Extensions) and use them in real quick, or even [write your own in matters of minutes.](https://github.com/balupton/docpad/wiki/Extending)
+On that note, DocPad is awesomely extensible. You can [download other people's plugins](https://github.com/bevry/docpad/wiki/Extensions) and use them in real quick, or even [write your own in matters of minutes.](https://github.com/bevry/docpad/wiki/Extending)
 
-[Best yet, definitely check out the entire wiki, as this has just been a small taste of it's awesomeness, and there is plenty awesomness left to be discovered.](https://github.com/balupton/docpad/wiki)
+[Best yet, definitely check out the entire wiki, as this has just been a small taste of it's awesomeness, and there is plenty awesomness left to be discovered.](https://github.com/bevry/docpad/wiki)
 
 Thanks. DocPad loves you.
 
@@ -147,11 +147,11 @@ Thanks. DocPad loves you.
 
 		npm install -g docpad
 
-1. _or... [install the cutting edge version](https://github.com/balupton/docpad/wiki/Testing)_
+1. _or... [install the cutting edge version](https://github.com/bevry/docpad/wiki/Testing)_
 
 1. If you also want growl notifications (OSX), then install [the growl command line tool here](http://growl.cachefly.net/GrowlNotify-1.3.zip)
 
-_Getting errors? [Try troubleshooting](https://github.com/balupton/docpad/wiki/Troubleshooting)_
+_Getting errors? [Try troubleshooting](https://github.com/bevry/docpad/wiki/Troubleshooting)_
 
 
 
@@ -182,11 +182,26 @@ _Getting errors? [Try troubleshooting](https://github.com/balupton/docpad/wiki/T
 
 		docpad server
 
-_Getting errors? [Try troubleshooting](https://github.com/balupton/docpad/wiki/Troubleshooting)_
+_Getting errors? [Try troubleshooting](https://github.com/bevry/docpad/wiki/Troubleshooting)_
 
 
 
 ## History
+
+- v2.6 January 2, 2012
+	- Transferred DocPad's ownership from [Benjamin Lupton](http://balupton.com) to [Bevry](http://bevry.me) (Benjamin's company)
+		- Things that have changed
+			- It is now easier for us to manage DocPad, it's extensions, collaborators and future repositories
+				- Thanks to [GitHub's excellent organisation functionality](https://github.com/blog/674-introducing-organizations)
+			- DocPad is now supported and backed by a commercial entity, meaning that it won't go away
+		- Things that won't change
+			- DocPad will remain free as in beer, and free as in freedom
+			- DocPad will remain awesome
+		- If you are working on a cloned version of docpad, be sure to update your docpad's git repo address
+	- Fixed plugin priorities [#115](https://github.com/bevry/docpad/pull/115)
+	- Updated depdencies
+		- Growl 1.2.x -> 1.4.x [- changelog](https://github.com/visionmedia/node-growl/blob/master/History.md)
+		- CoffeeScript 1.1.3 -> 1.2.x [- changelog](http://coffeescript.org/#changelog)
 
 - v2.5 December 15, 2011
 	- Swapped out [Dominic Baggott's](https://github.com/evilstreak) [Markdown.js](http://github.com/evilstreak/markdown-js) for [Isaac Z. Schlueter's](https://github.com/isaacs) [Github-Flavored-Markdown](https://github.com/isaacs/github-flavored-markdown)
@@ -195,11 +210,9 @@ _Getting errors? [Try troubleshooting](https://github.com/balupton/docpad/wiki/T
 	- Fixed plugin installation on windows
 		- Had to disable the AutoUpdate and Html2Jade plugins
 		- Had to use the global npm instance on windows
-		- Closes #111
+		- Closes [#111](https://github.com/bevry/docpad/pull/111), [#110](https://github.com/bevry/docpad/pull/110)
 	- Fixed the error: `Object #<Object> has no method 'error'`
-		- Fixes #106
-	- Fixed `html2jade` on windows
-		- Closes #110
+		- Fixes [#106](https://github.com/bevry/docpad/pull/106)
 	- Can now pass over options to the coffeekup renderer inside the coffee plugin
 		- E.g. set `docpad: plugins: coffee: coffeekup: format: true` to have tidy html output
 		- Thanks to [Changwoo Park](https://github.com/pismute)
@@ -253,14 +266,14 @@ _Getting errors? [Try troubleshooting](https://github.com/balupton/docpad/wiki/T
 - v2.1 November 10, 2011
 	- Support for dynamic documents
 		- These are re-rendered on each request, must use the docpad server
-		- See the search example in the [kitchensink skeleton](https://github.com/balupton/kitchensink.docpad)
+		- See the search example in the [kitchensink skeleton](https://github.com/bevry/kitchensink.docpad)
 	- Removed deprecated `@Document`, `@Documents`, and `@Site` from the `templateData` (the variables available to the templates). Use their lowercase equivalants instead. This can cause backwards compatibility problems with your templates, the console will notify you if there is a problem.
 	- Fixed `docpad --version` returning `null` instead of the docpad version
 
 - v2.0 November 8, 2011
-	- [Upgrade guide for 1.x users](https://github.com/balupton/docpad/wiki/Upgrading)
+	- [Upgrade guide for 1.x users](https://github.com/bevry/docpad/wiki/Upgrading)
 	- Tested and working on Node 0.4, 0.5, and 0.6
-		- Windows support is still to come - [track it's progress here](https://github.com/balupton/docpad/issues/26)
+		- Windows support is still to come - [track it's progress here](https://github.com/bevry/docpad/issues/26)
 	- Configurable via `package.json`
 		- DocPad is now configurable via it's and your website's `package.json` file
 	- New plugin architecture
@@ -280,7 +293,7 @@ _Getting errors? [Try troubleshooting](https://github.com/balupton/docpad/wiki/T
 	- Plugin Changes
 		- REST plugin supports saving document data via POST (disabled by default)
 		- Administration plugin adds front-end admin functionality (disabled by default)
-			- See the client side editing example in the [kitchensink skeleton](https://github.com/balupton/kitchensink.docpad)
+			- See the client side editing example in the [kitchensink skeleton](https://github.com/bevry/kitchensink.docpad)
 		- SASS plugin
 			- Adds [SASS](http://sass-lang.com/) to CSS support
 				- Uses [TJ Holowaychuk's](https://github.com/visionmedia) [Sass.js](https://github.com/visionmedia/sass.js)
@@ -334,12 +347,12 @@ _Getting errors? [Try troubleshooting](https://github.com/balupton/docpad/wiki/T
 - v1.1 September 28, 2011
 	- Added [Buildr](http://github.com/balupton/buildr.npm) Plugin so you can now bundle your scripts and styles together :-)
 	- The `action` method now supports an optional callback
-		- Thanks to [#41](https://github.com/balupton/docpad/pull/41) by [Aaron Powell](https://github.com/aaronpowell)
+		- Thanks to [#41](https://github.com/bevry/docpad/pull/41) by [Aaron Powell](https://github.com/aaronpowell)
 	- Added a try..catch around the version detection to ensure it never kills docpad if something goes wrong
 	- Skeletons have been removed from the repository due to circular references. The chosen skeleton is now pulled during the skeleton action. We also now perform a recursive git submodule init and update, as well as a npm install if necessary.
 
 - v1.0 September 20, 2011
-	- [Upgrade guide for v0.x users](https://github.com/balupton/docpad/wiki/Upgrading)
+	- [Upgrade guide for v0.x users](https://github.com/bevry/docpad/wiki/Upgrading)
 	- The concept of template engines and markup languages have been merged into the concept of renderers
 	- Coffee Plugin
 		- Added [CoffeeKup](http://coffeekup.org/) to anything and HTML to CoffeeKup support
@@ -413,7 +426,6 @@ DocPad wouldn't be possible if it wasn't for the following libaries _(in alphabe
 - [Isaac Z. Schlueter's](https://github.com/isaacs) [Github-Flavored-Markdown](https://github.com/isaacs/github-flavored-markdown) - Github's flavor of markdown
 - [Isaac Z. Schlueter's](https://github.com/isaacs) [NPM](https://github.com/isaacs/npm) - The node package manager
 
-- [James Campos'](https://github.com/aeosynth) [CCSS](https://github.com/aeosynth/ccss) - CSS as CoffeeScript
 - [Jeremy Ashkenas'](https://github.com/jashkenas) [CoffeeScript](http://jashkenas.github.com/coffee-script) - JavaScript made easy
 - [Jeremy Ashkenas/DocumentCloud's](https://github.com/documentcloud/underscore) [Underscore](https://github.com/documentcloud/underscore) - The utility-belt library for JavaScript
 
@@ -435,5 +447,6 @@ DocPad wouldn't be possible if it wasn't for the following libaries _(in alphabe
 
 ## License
 
-Licensed under the [MIT License](http://creativecommons.org/licenses/MIT/)
-Copyright 2011 [Benjamin Arthur Lupton](http://balupton.com)
+Licensed under the [MIT License](https://github.com/bevry/docpad/blob/master/LICENSE.txt)
+<br/>Copyright (c) 2012 [Bevry Pty Ltd](http://bevry.me) <us@bevry.me>
+<br/>Copyright (c) 2011 [Benjamin Lupton](http://balupton.com) <b@lupton.cc>
