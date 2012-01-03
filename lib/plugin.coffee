@@ -26,76 +26,85 @@ class DocpadPlugin
 		@name or= @config.name  if @config.name
 		if !@name
 			throw new Error 'Plugin must have a name'
-
-	# Trigger Event
-	triggerEvent: (eventName, data={}, next) ->
-		# Here only for legacy reasons
-		data.docpad = @docpad
-		data.logger = @docpad.logger
-
-		# Trigger
-		@[eventName](data, next)
-
-		
+	
+	# Bind to an event
+	bind: (eventName,handler) ->
+		handler or= @[eventName]
+		if handler
+			@docpad.on eventName, handler
+		@
+	
+	# Bind all
+	bindAll: (eventNames) ->
+		if eventNames is 'string'
+			eventNames = eventNames.split /[,\s]+/g
+		for eventName in eventNames
+			handler = @[eventName]
+			if handler
+				@docpad.on eventName, handler
+		@
+	
 	# ---------------------------------
 	# Events
 
+	###
 	# Generate is starting
 	generateBefore: ({},next) ->
-		next()
+		next?()
 
 	# Generate has finished
 	generateAfter: ({},next) ->
-		next()
+		next?()
 
 
 	# Cleaning is starting
 	cleanBefore: ({},next) ->
-		next()
+		next?()
 
 	# Cleaning has finished
 	cleanAfter: ({},next) ->
-		next()
+		next?()
 
 
 	# Parsing all files is starting
 	parseBefore: ({},next) ->
-		next()
+		next?()
 	
 	# Parsing all files has finished
 	parseAfter: ({},next) ->
-		next()
+		next?()
 	
 
 	# Rendering all files has started
 	renderBefore: ({templateData},next) ->
-		next()
+		next?()
 	
 	# Render a file
 	render: ({inExtension,outExtension,templateData,file}, next) ->
-		next()
+		next?()
 	
 	# Rendering all files has finished
 	renderAfter: ({},next) ->
-		next()
+		next?()
 
 
 	# Writing all files is starting
 	writeBefore: ({},next) ->
-		next()
+		next?()
 
 	# Writing all files has finished
 	writeAfter: ({},next) ->
-		next()
+		next?()
 
 	
 	# Setting up the server is starting
 	serverBefore: ({},next) ->
-		next()
+		next?()
 	
 	# Setting up the server has finished
 	serverAfter: ({server},next) ->
-		next()
+		next?()
+	###
 
 
 # Export Plugin

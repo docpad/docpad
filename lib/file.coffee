@@ -71,7 +71,7 @@ class File
 				@normalize (err) =>
 					return next(err)  if err
 					@logger.log 'debug', "Read the file #{@relativePath}"
-					next()
+					next?()
 		tasks.total = 2
 
 		# Stat the file
@@ -116,10 +116,7 @@ class File
 				switch @fileHeadParser
 					when 'coffee', 'cson'
 						coffee = require('coffee-script')  unless coffee
-						if coffee.VERSION is '1.1.1'
-							@fileMeta = eval coffee.compile "return (#{@fileHead})", filename: @fullPath
-						else
-							@fileMeta = coffee.eval @fileHead, filename: @fullPath
+						@fileMeta = coffee.eval @fileHead, filename: @fullPath
 					
 					when 'yaml'
 						yaml = require('yaml')  unless yaml
@@ -152,7 +149,7 @@ class File
 			@[key] = value
 		
 		# Next
-		next()
+		next?()
 		@
 	
 	# Add a url
@@ -196,7 +193,7 @@ class File
 			@logger.log 'info', "Wrote the file #{@fullPath}"
 
 			# Next
-			next()
+			next?()
 		
 		# Chain
 		@
@@ -227,7 +224,7 @@ class File
 		@id = @relativeBase
 
 		# Next
-		next()
+		next?()
 		@
 	
 	# Contextualize data
@@ -241,7 +238,7 @@ class File
 			@slug or= util.generateSlugSync @relativeBase
 			@title or= @filenameRendered
 			@addUrl @url
-			next()
+			next?()
 		
 		# Chain
 		@
