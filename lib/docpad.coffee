@@ -112,6 +112,9 @@ class DocPad extends EventSystem
 
 	# Init
 	constructor: (config={}) ->
+		# Prepare
+		docpad = @
+
 		# Destruct prototype references
 		@pluginsArray = []
 		@pluginsObject = {}
@@ -120,7 +123,7 @@ class DocPad extends EventSystem
 		# Apply configuration
 		@loadConfiguration config, (err) ->
 			# Error?
-			return @error(err)  if err
+			return docpad.error(err)  if err
 
 			# Version Check
 			docpad.compareVersion()
@@ -138,15 +141,15 @@ class DocPad extends EventSystem
 			docpad.unblock 'generating, watching, serving', ->
 				docpad.finish 'loading', ->
 					next?(err)
-		
-		# Start loading
-		docpad.start 'loading', (err) =>
+	
+		# Block other events
+		docpad.block 'generating, watching, serving', (err) =>
 			return fatal(err)  if err
-
-			# Block other events
-			docpad.block 'generating, watching, serving', (err) =>
-				return fatal(err)  if err
 					
+			# Start loading
+			docpad.start 'loading', (err) =>
+				return fatal(err)  if err
+
 				# Ensure essentials
 				userConfig.corePath or= @config.corePath
 				userConfig.rootPath or= process.cwd()
@@ -215,12 +218,7 @@ class DocPad extends EventSystem
 					@config.enabledPlugins = enabledPlugins
 				
 				# Load Plugins
-				docpad.loadPlugins (err) ->
-					return complete(err)  if err
-					docpad.unblock 'generating, watching, serving', (err) ->
-						return complete(err)  if err
-						docpad.finish 'loading', (err) ->
-							return complete(err)  if err
+				docpad.loadPlugins complete
 
 	# Create snore
 	createSnore: (message) ->
@@ -477,7 +475,7 @@ class DocPad extends EventSystem
 	# Handle an error
 	error: (err,type='err') ->
 		return @  unless err
-		err = new Error(err)  unless err instanceof Err
+		err = new Error(err)  unless err instanceof Error
 		@logger.log type, 'An error occured:', err.message, err.stack
 		@
 
@@ -500,14 +498,31 @@ class DocPad extends EventSystem
 
 	# Trigger a plugin event
 	# next?(err)
-	triggerEvent: (eventName,data,next) ->
+	triggerPluginEvent: (eventName,data,next) ->
 		# Prepare
 		data or= data
 		data.logger = @logger
 		data.docpad = @
 
+		# Async
+		logger = @logger
+		tasks = new util.Group (err) ->
+			logger.log 'debug', "Plugins finished for #{eventName}"
+			next?(err)
+		tasks.total = @pluginsArray.length
+
+		# Cycle
+		logger.log 'debug', "Plugins started for #{eventName}"
+		for plugin in @pluginsArray
+			if typeof plugin[eventName] is 'function'
+				plugin[eventName] data, tasks.completer()
+			else
+				tasks.complete()
+		
+		###
 		# Trigger
 		@cycle eventName, data, next
+		###
 
 		# Chain
 		@
@@ -540,8 +555,9 @@ class DocPad extends EventSystem
 	# Load Plugins
 	loadPluginsIn: (pluginsPath, next) ->
 		# Prepare
-		logger = @logger
 		docpad = @
+		logger = @logger
+		config = @config
 
 		# Load Plugins
 		logger.log 'debug', "Plugins loading for #{pluginsPath}"
@@ -553,21 +569,22 @@ class DocPad extends EventSystem
 			false,
 
 			# Handle directories
-			(fileFullPath,fileRelativePath,_nextFile) =>
+			(fileFullPath,fileRelativePath,_nextFile) ->
 				# Prepare
 				return nextFile(null,false)  if fileFullPath is pluginsPath
-				nextFile = (err,skip) =>
+				nextFile = (err,skip) ->
 					if err
 						logger.log 'warn', "Failed to load the plugin #{loader.pluginName} at #{fileFullPath}. The error follows"
-						@error err, 'warn'
+						console.log err
+						docpad.error err, 'warn'
 					_nextFile(null,skip)
 
 				# Prepare
 				loader = new PluginLoader dirPath: fileFullPath, docpad: docpad
 				pluginName = loader.pluginName
 				enabled = (
-					(@config.enableUnlistedPlugins  and  @config.enabledPlugins[pluginName]? is false)  or
-					@config.enabledPlugins[pluginName] is true
+					(config.enableUnlistedPlugins  and  config.enabledPlugins[pluginName]? is false)  or
+					config.enabledPlugins[pluginName] is true
 				)
 
 				# Check
@@ -578,16 +595,16 @@ class DocPad extends EventSystem
 				else
 					# Load
 					logger.log 'debug', "Loading plugin #{pluginName}"
-					loader.exists (err,exists) =>
+					loader.exists (err,exists) ->
 						return nextFile(err,true)  if err or not exists
-						loader.install (err) =>
+						loader.install (err) ->
 							return nextFile(err,true)  if err
-							loader.require (err) =>
+							loader.require (err) ->
 								return nextFile(err,true)  if err
-								loader.create {}, (err,pluginInstance) =>
+								loader.create {}, (err,pluginInstance) ->
 									return nextFile(err,true)  if err
-									@pluginsObject[loader.pluginName] = pluginInstance
-									@pluginsArray.push pluginInstance
+									docpad.pluginsObject[loader.pluginName] = pluginInstance
+									docpad.pluginsArray.push pluginInstance
 									logger.log 'debug', "Loaded plugin #{pluginName}"
 									return nextFile(null,true)
 				
@@ -608,7 +625,7 @@ class DocPad extends EventSystem
 	# Clean the database
 	generateClean: (next) ->
 		# Before
-		@triggerEvent 'cleanBefore', {}, (err) =>
+		@triggerPluginEvent 'cleanBefore', {}, (err) =>
 			return next?(err)  if err
 
 			# Prepare
@@ -622,7 +639,7 @@ class DocPad extends EventSystem
 			# Async
 			tasks = new util.Group (err) ->
 				# After
-				docpad.triggerEvent 'cleanAfter', {}, (err) ->
+				docpad.triggerPluginEvent 'cleanAfter', {}, (err) ->
 					logger.log 'debug', 'Cleaning finished'  unless err
 					next?(err)
 			tasks.total = 6
@@ -674,7 +691,7 @@ class DocPad extends EventSystem
 	# Parse the files
 	generateParse: (next) ->
 		# Before
-		@triggerEvent 'parseBefore', {}, (err) =>
+		@triggerPluginEvent 'parseBefore', {}, (err) =>
 			return next?(err)  if err
 
 			# Requires
@@ -690,7 +707,7 @@ class DocPad extends EventSystem
 				docpad.generateParseContextualize (err) ->
 					return next?(err)  if err
 					# After
-					docpad.triggerEvent 'parseAfter', {}, (err) ->
+					docpad.triggerPluginEvent 'parseAfter', {}, (err) ->
 						logger.log 'debug', 'Parsed files'  unless err
 						next?(err)
 			
@@ -807,7 +824,7 @@ class DocPad extends EventSystem
 		tasks = new util.Group (err) ->
 			return next?(err)  if err
 			# After
-			docpad.triggerEvent 'renderAfter', {}, (err) ->
+			docpad.triggerPluginEvent 'renderAfter', {}, (err) ->
 				logger.log 'debug', 'Rendered files'  unless err
 				next?(err)
 		
@@ -825,9 +842,12 @@ class DocPad extends EventSystem
 			blocks:
 				scripts: []
 				styles: []
+				meta: [
+					'<meta http-equiv="X-Powered-By" content="DocPad"/>'
+				]
 
 		# Before
-		@triggerEvent 'renderBefore', {documents,@templateData}, (err) =>
+		@triggerPluginEvent 'renderBefore', {documents,@templateData}, (err) =>
 			return next?(err)  if err
 			# Render documents
 			tasks.total += documents.length
@@ -914,7 +934,7 @@ class DocPad extends EventSystem
 			tasks = new util.Group (err) ->
 				return next?(err)  if err
 				# After
-				docpad.triggerEvent 'writeAfter', {}, (err) ->
+				docpad.triggerPluginEvent 'writeAfter', {}, (err) ->
 					logger.log 'debug', 'Wrote everything'  unless err
 					next?(err)
 			tasks.total = 2
@@ -940,9 +960,12 @@ class DocPad extends EventSystem
 		fatal = (err) ->
 			docpad.fatal(err,next)
 		complete = (err) ->
-			docpad.unblock 'loading', ->
+			next?(err)  if err
+			docpad.unblock 'loading', (err) ->
+				fatal(err)  if err
 				docpad.finish 'generating', ->
-					next?(err)
+					fatal(err)  if err
+					next?()
 		
 		# Block loading
 		docpad.block 'loading', (err) ->
@@ -952,7 +975,7 @@ class DocPad extends EventSystem
 				return fatal(err)  if err
 				logger.log 'info', 'Generating...'
 				# Plugins
-				docpad.triggerPluginEvent 'serverBefore', server: docpad.server, (err) ->
+				docpad.triggerPluginEvent 'generateBefore', server: docpad.server, (err) ->
 					return complete(err)  if err
 					# Continue
 					path.exists docpad.config.srcPath, (exists) ->
@@ -978,7 +1001,7 @@ class DocPad extends EventSystem
 											docpad.unblock 'loading', (err) ->
 												return complete(err)  if err	
 												# Plugins
-												docpad.triggerPluginEvent 'serverAfter', server: docpad.server, (err) ->
+												docpad.triggerPluginEvent 'generateAfter', server: docpad.server, (err) ->
 													return complete(err)  if err
 													# Finished
 													docpad.finished 'generating', (err) ->
@@ -1004,32 +1027,58 @@ class DocPad extends EventSystem
 		fatal = (err) ->
 			docpad.fatal(err,next)
 		complete = (err) ->
-			docpad.unblock 'loading', ->
-				docpad.finish 'watching', ->
-					next?(err)
+			next?(err)  if err
+			# Finish
+			docpad.finish 'watching', ->
+				fatal(err)  if err
+				# Unblock
+				docpad.unblock 'loading', (err) ->
+					fatal(err)  if err
+					# Next
+					next?()
+		watch = ->
+			# Block loading
+			docpad.block 'loading', (err) ->
+				return next?(err)  if err
+				docpad.start 'watching', (err) ->
+					# Prepare
+					logger.log 'Watching setup starting...'
+
+					# Watch the source directory
+					watchr.watch docpad.config.srcPath, ->
+						# What to do when a file has changed
+						docpad.action 'generated', (err) ->
+							docpad.error(err)  if err
+							logger.log 'Regenerated due to file watch at '+(new Date()).toLocaleString()
+					
+					# Completed
+					logger.log 'Watching setup'
+					complete()
 		
-		# Block loading
-		docpad.block 'loading', (err) ->
-			return next?(err)  if err
-			docpad.start 'watching', (err) ->
-				# Prepare
-				logger.log 'Watching setup starting...'
 
+		# Unwatch if loading started
+		docpad.when 'loading:started', (err) ->
+			return fatal(err)  if err
+			# Unwatch the source directory
+			watchr.unwatch docpad.config.srcPath
+
+			# Watch when loading finished
+			docpad.onceFinished 'loading', (err) ->
+				return fatal(err)  if err
 				# Watch the source directory
-				watchr.watch docpad.config.srcPath, ->
-					docpad.action 'generated', (err) ->
-						docpad.error(err)  if err
-						logger.log 'Regenerated due to file watch at '+(new Date()).toLocaleString()
-				
-				# Unwatch if loaded
-				docpad.once 'loading:started', (err) ->
-					return fatal(err)  if err
-					# Unwatch the source directory
-					watchr.unwatch docpad.config.srcPath
+				watch()
+		
+		# Unwatch if generating started
+		docpad.whenFinished 'generating:started', (err) ->
+			return fatal(err)  if err
+			# Unwatch the source directory
+			watchr.unwatch docpad.config.srcPath
 
-				# Completed
-				logger.log 'Watching setup'
-				complete()
+			# Watch when generating finished
+			docpad.onceFinished 'generating', (err) ->
+				return fatal(err)  if err
+				# Watch the source directory
+				watch()
 		
 		# Chain
 		@
@@ -1046,12 +1095,18 @@ class DocPad extends EventSystem
 		fatal = (err) ->
 			docpad.fatal(err,next)
 		complete = (err) ->
-			docpad.unblock 'loading', ->
-				docpad.finish 'skeleton', ->
-					next?(err)
+			next?(err)  if err
+			# Finish
+			docpad.finish 'skeleton', ->
+				fatal(err)  if err
+				# Unblock
+				docpad.unblock 'loading, generating', (err) ->
+					fatal(err)  if err
+					# Next
+					next?()
 
 		# Block loading
-		docpad.block 'loading', (err) ->
+		docpad.block 'loading, generating', (err) ->
 			return fatal(err)  if err
 			docpad.start 'skeleton', (err) ->
 				return fatal(err)  if err
@@ -1082,10 +1137,14 @@ class DocPad extends EventSystem
 		fatal = (err) ->
 			docpad.fatal(err,next)
 		complete = (err) ->
-			docpad.unblock 'loading', (err) ->
-				return next?(err)  if err
-				docpad.finish 'serving', (err) ->
-					return next?(err)  if err
+			next?(err)  if err
+			# Finish
+			docpad.finish 'serving', ->
+				fatal(err)  if err
+				# Unblock
+				docpad.unblock 'loading', (err) ->
+					fatal(err)  if err
+					# Next
 					next?()
 		
 		# Block loading
@@ -1094,7 +1153,7 @@ class DocPad extends EventSystem
 			docpad.start 'serving', (err) ->
 				return fatal(err)  if err
 				# Plugins
-				docpad.triggerPluginEvent 'serverAfter', {}, (err) ->
+				docpad.triggerPluginEvent 'serverBefore', {}, (err) ->
 					return next?(err)  if err
 
 					# Server
@@ -1114,6 +1173,7 @@ class DocPad extends EventSystem
 								tools.push 'DocPad'
 								tools = tools.join(',')
 								res.header('X-Powered-By',tools)
+								next()
 
 							# Router Middleware
 							server.use server.router
@@ -1158,7 +1218,7 @@ class DocPad extends EventSystem
 							logger.log 'err', "Could not start the web server, chances are the desired port #{config.port} is already in use"
 					
 					# Plugins
-					triggerPluginEvent 'serverAfter', {server}, (err) ->
+					docpad.triggerPluginEvent 'serverAfter', {server}, (err) ->
 						return complete(err)  if err
 						# Complete
 						logger.log 'debug', 'Server setup'  unless err
