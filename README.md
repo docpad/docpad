@@ -188,6 +188,9 @@ _Getting errors? [Try troubleshooting](https://github.com/bevry/docpad/wiki/Trou
 
 ## History
 
+- v3.0 Unreleased
+	- Added a new event system
+
 - v2.6 January 2, 2012
 	- Transferred DocPad's ownership from [Benjamin Lupton](http://balupton.com) to [Bevry](http://bevry.me) (Benjamin's company)
 		- Things that have changed
