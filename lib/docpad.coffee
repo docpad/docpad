@@ -415,7 +415,7 @@ class DocPad extends EventSystem
 	# Handle
 	action: (action,next) ->
 		# Multiple actions?
-		actions = action.split ' '
+		actions = action.split /[,\s]+/g
 		if actions.length > 1
 			tasks = new util.Group next
 			tasks.total = actions.length
@@ -575,7 +575,6 @@ class DocPad extends EventSystem
 				nextFile = (err,skip) ->
 					if err
 						logger.log 'warn', "Failed to load the plugin #{loader.pluginName} at #{fileFullPath}. The error follows"
-						console.log err
 						docpad.error err, 'warn'
 					_nextFile(null,skip)
 
@@ -1157,8 +1156,9 @@ class DocPad extends EventSystem
 					return next?(err)  if err
 
 					# Server
-					server = docpad.server = express.createServer()  unless docpad.server
-
+					docpad.server = express.createServer()  unless docpad.server
+					server = docpad.server
+					
 					# Extend the server
 					if config.extendServer
 						# Configure the server
