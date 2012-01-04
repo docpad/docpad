@@ -327,7 +327,7 @@ class File
 				# Create a task to run
 				tasks.push ((eventData) => =>
 					# Render through plugins
-					@docpad.triggerEvent 'render', eventData, (err) =>
+					@docpad.triggerPluginEvent 'render', eventData, (err) =>
 						# Error?
 						if err
 							@logger.log 'warn', 'Something went wrong while rendering:', @relativePath
