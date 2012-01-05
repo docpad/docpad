@@ -6,7 +6,7 @@ DocPad command line interface by Benjamin Lupton and ~eldios
 # Requires
 fs = require 'fs'
 path = require 'path'
-Docpad = require "#{__dirname}/../lib/docpad.coffee"
+DocPad = require "#{__dirname}/../lib/docpad.coffee"
 program = require "#{__dirname}/../node_modules/commander/index.js"
 cwd = process.cwd()
 
@@ -14,32 +14,22 @@ cwd = process.cwd()
 # -------------------------------------
 # Configuration
 
-# Load
-docpadPackagePath = "#{__dirname}/../package.json"
-if path.existsSync docpadPackagePath
-	docpadPackageData = JSON.parse(fs.readFileSync(docpadPackagePath).toString()) or {}
-else
-	docpadPackageData = {}
+# Create DocPad Instance
+docpadConfig = 
+	command: false
+	skeleton: program.skeleton
+	port: program.port
+	logLevel: if program.debug is true then 7 else 6
+docpad = DocPad.createInstance(docpadConfig)
 
 # Version
-program.version  docpadPackageData.version or 'unknown'
-
-# Help
-program.on '--help', ->
-  console.log('  Examples:')
-  console.log('')
-  console.log('    $ docpad run')
-  console.log('    $ docpad -s bootstrap')
-  console.log('    $ docpad -p 80')
-  console.log('    $ docpad -d')
-  console.log('    $ docpad -s bootstrap -p 80 -d')
-  console.log('')
+program.version(docpad.version or 'unknown')
 
 # Options
 program
 	.option(
 		'-s, --skeleton <skeleton>'
-		"the skeleton to create your project from, defaults to #{__dirname}/skeletons/bootstrap"
+		"the skeleton to create your project from, defaults to bootstrap"
 	)
 	.option(
 		'-p, --port <port>'
@@ -53,15 +43,29 @@ program
 	)
 
 # Parse the Configuration
-parseConfiguration = (program,extra={}) ->
-	config = 	
-		command: false
-		skeleton: program.skeleton
-		port: program.port
-		logLevel: if program.debug is true then 7 else 6
-	for own key, value of extra
-		config[key] = value
-	config
+applyConfiguration = (docpadInstance, programConfig={}, customConfig={}) ->
+	# Apply program configuration
+	for own key, value of programConfig
+		if docpadInstance.config[key]?
+			docpadInstance.config[key] = value
+	# Apply custom configuration
+	for own key, value of customConfig
+		if docpadInstance.config[key]?
+			docpadInstance.config[key] = value
+	# Return updated config object
+	docpadInstance.config
+
+
+# -------------------------------------
+# Events
+
+# Completed an action
+# If we are in cli mode, then ask what is next
+actionCompleted = (err) ->
+	throw err  if err
+	if program.mode is 'cli'
+		console.log ''
+		program.emit 'cli', []
 
 
 # -------------------------------------
@@ -72,53 +76,87 @@ program
 	.command('run')
 	.description('does everyting: scaffold, generate, watch, server')
 	.action ->
-		config = parseConfiguration program
-		docpad = Docpad.createInstance config
-		docpad.action 'all'
+		applyConfiguration(docpad,program)
+		docpad.action 'all', actionCompleted
 
 # Skeleton
 program
 	.command('scaffold')
 	.description('fills the current working directory with the optional --skeleton')
-	.action (cmd) ->
-		config = parseConfiguration program
-		docpad = Docpad.createInstance config
-		docpad.action 'scaffold'
+	.action ->
+		applyConfiguration(docpad,program)
+		docpad.action 'scaffold', actionCompleted
 
 # Generate
 program
 	.command('generate')
 	.description('(re)generates the output')
-	.action (cmd) ->
-		config = parseConfiguration program
-		docpad = Docpad.createInstance config
-		docpad.action 'generate'
+	.action ->
+		applyConfiguration(docpad,program)
+		docpad.action 'generate', actionCompleted
 
 # Watch
 program
 	.command('watch')
 	.description('(re)generates the output whenever a change is made')
-	.action (cmd) ->
-		config = parseConfiguration program
-		docpad = Docpad.createInstance config
-		docpad.action 'watch'
+	.action ->
+		applyConfiguration(docpad,program)
+		docpad.action 'watch', actionCompleted
 
 # Server
 program
 	.command('server')
 	.description('creates a docpad server instance with the optional --port')
-	.action (cmd) ->
-		config = parseConfiguration program
-		docpad = Docpad.createInstance config
-		docpad.action 'server'
+	.action ->
+		applyConfiguration(docpad,program)
+		docpad.action 'server', actionCompleted
+
+# CLI
+program
+	.command('cli')
+	.description('start the interactive cli')
+	.action ->
+		program.mode = 'cli'
+		program.promptSingleLine 'What would you like to do now?\n> ',  (input) ->
+			args = input.split /\s+/g
+			if args.length
+				if args[0] is 'docpad'
+					args.shift()
+			args.unshift process.argv[0]
+			args.unshift process.argv[1]
+			program.parse args
+
+# exit
+program
+	.command('exit')
+	.description('exit the cli')
+	.action ->
+		process.exit(0)
+
+# Help
+program
+	.command('help')
+	.description('display the cli help')
+	.action ->
+		applyConfiguration(docpad,program)
+		console.log program.helpInformation()
+		actionCompleted()
+
+# Unknown
+program
+	.command('*')
+	.action ->
+		program.emit 'help', []
 
 
 # -------------------------------------
 # Initialise
 
-# Process Arguments
-program.parse process.argv
+# Welcome
+console.log(
+	'''
+	Welcome to DocPad'''
+)
 
-# Default Action
-if process.argv.length is 2
-	program.emit 'help'
+# Start
+program.parse process.argv
