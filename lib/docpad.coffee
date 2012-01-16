@@ -3,114 +3,220 @@ DocPad by Benjamin Lupton
 Intuitive Web Development
 ###
 
-# Requirements
+# =====================================
+# Requires
+
+# System
 fs = require 'fs'
 path = require 'path'
 sys = require 'util'
-child_process = require 'child_process'
 
+# Necessary
 caterpillar = require 'caterpillar'
 util = require 'bal-util'
 EventSystem = util.EventSystem
 _ = require 'underscore'
 
+# Optional
 growl = null
 express = null
 watchr = null
 queryEngine = null
 
+# Local
 PluginLoader = require "#{__dirname}/plugin-loader.coffee"
 require "#{__dirname}/prototypes.coffee"
 
-exec = (commands,options,callback) ->
-	# Sync
-	tasks = new util.Group callback
-	
-	# Tasks
-	commands = [commands]  unless commands instanceof Array
-	for command in commands
-		tasks.push ((command) -> ->
-			child_process.exec command, options, tasks.completer()
-		)(command)
 
-	# Execute the tasks synchronously
-	tasks.sync()
-
-
-# -------------------------------------
+# =====================================
 # DocPad
 
+###
+The DocPad Class
+It extends the EventSystem from bal-util to provide system events
+It allows us to support multiple instances of docpad at the same time
+###
 class DocPad extends EventSystem
-	# Configurable
-	config:
+
+	# =================================
+	# Configuration
+	
+	###
+	Exchange Configuration
+	Loaded from:
+		- a remote url upon initialisation
+		- then stored in ~/.docpad/exchange.json
+	Used to:
+		- store the information of available extensions for docpad
+	###
+	exchange:
+		# Skeletons
+		skeletons: {}
+		# Themes
+		themes: {}
 		# Plugins
-		enableUnlistedPlugins: true,
-		enabledPlugins:
-			admin: false
-			rest: false
+		plugins: {}
+
+	
+	###
+	Instance Configuration
+	Loaded from:
+		- the passed instanceConfiguration when creating a new docpad instance
+		- the detected websiteConfiguration inside ./package.json>docpad
+		- the default docpadConfiguration inside docpad/package.json>docpad
+		- the default prototypeConfiguration which we see here
+	###
+	config:
+		# -----------------------------
+		# Plugins
+
+		# Whether or not we should enable plugins that have not been listed or not
+		enableUnlistedPlugins: true
+
+		# Plugins which should be enabled or not pluginName: pluginEnabled
+		enabledPlugins: {}
+
+		# Configuration to pass to any plugins pluginName: pluginConfiguration
 		plugins: {}
 		
-		# Exchange
-		exchange:
-			# Skeletons
-			skeletons:
-				kitchensink:
-					repo: 'https://github.com/bevry/kitchensink.docpad.git'
-					description: 'A skeleton that includes everything'
-				canvas:
-					repo: 'https://github.com/bevry/canvas.docpad.git'
-					description: 'A blank canvas for docpad'
-			# Plugins
-			plugins: {}
-		
+
+		# -----------------------------
 		# DocPad Paths
+
+		# The doocpad directory
 		corePath: "#{__dirname}/.."
+
+		# The docpad library directory
 		libPath: "#{__dirname}"
+
+		# The main docpad file
 		mainPath: "#{__dirname}/docpad.coffee"
+
+		# The base docpad plugin file
 		pluginPath: "#{__dirname}/plugin.coffee"
 
+
+		# -----------------------------
 		# Website Paths
+
+		# The website directory
 		rootPath: null
+
+		# The website's out directory
 		outPath: 'out'
+
+		# The website's src directory
 		srcPath: 'src'
+
+		# The website's layouts directory
 		layoutsPath: null
+
+		# The website's document's directory
 		documentsPath: null
+
+		# The website's public directory
 		publicPath: null
 		
+		# -----------------------------
 		# Server
+
+		# A express server that we want docpad to use
 		server: null
+
+		# Whether or not we should extend the server with extra middleware and routing
 		extendServer: true
+
+		# The port that the server should use
 		port: 9778
+
+		# The caching time limit that is sent to the client
 		maxAge: false
 
-		# Logger
+
+		# -----------------------------
+		# Logging
+
+		# Which level of logging should we actually output
 		logLevel: null
+
+		# A caterpillar instance if we already have one
 		logger: null
+
+		# Whether or not to send notifications to growl when we have them
 		growl: true
+		
+
+		# -----------------------------
+		# Remote connection variables
+
+		# Our unique and anoynmous user identifer
+		# Used to provide completely anonymous user experience statistics back to the docpad server
+		anonId: null
+
+		# Our unique and anonymous cryptographic salt
+		# Used to securely and safely anonamize anything that could possibly be personaly identifiable when reporting statistics
+		anonSalt: null
+
+		# Whether or not we should submit user experience statistics back the the docpad server
+		track: true
+
+		# Whether or not to update our exchange data
+		updateExchange: true
+
+		# Whether or not to check for newer versions of DocPad
 		checkVersion: true
 
+
+	# =================================
+	# Variables
+
+	# ---------------------------------
 	# DocPad
+
+	# DocPad's version number
 	version: null
+
+	# The express server instance bound to docpad
 	server: null
+
+	# The caterpillar instance bound to docpad
 	logger: null
+
+	# The data which we pass over to your templates
 	templateData: {}
 
+	# ---------------------------------
 	# Models
+
+	# File class
 	File: null
+
+	# Layout class
 	Layout: null
+
+	# Document class
 	Document: null
+
+	# Layouts collection
 	layouts: null
+
+	# Documents collection
 	documents: null
 	
+	# ---------------------------------
 	# Plugins
+
+	# Loaded plugins sorted by priority
 	pluginsArray: []
+
+	# Loaded plugins indexed by name
 	pluginsObject: {}
 
 
-	# ---------------------------------
-	# Main
+	# =================================
+	# Initialisation Functions
 
-	# Init
+	# Construct DocPad
 	constructor: (config={}) ->
 		# Prepare
 		docpad = @
@@ -128,6 +234,7 @@ class DocPad extends EventSystem
 			# Version Check
 			docpad.compareVersion()
 	
+
 	# Load Configuration
 	loadConfiguration: (userConfig={},next) ->
 		# Prepare
@@ -220,92 +327,6 @@ class DocPad extends EventSystem
 				# Load Plugins
 				docpad.loadPlugins complete
 
-	# Create snore
-	createSnore: (message) ->
-		# Prepare
-		logger = @logger
-
-		# Create snore object
-		snore =
-			snoring: false
-			timer: setTimeout(
-				->
-					snore.clear()
-					snore.snoring = true
-					logger.log 'notice', message
-				5000
-			)
-			clear: ->
-				if snore.timer
-					clearTimeout(snore.timer)
-					snore.timer = false
-
-	# Layout Document
-	createDocument: (meta={}) ->
-		# Prepare
-		config =
-			docpad: @
-			layouts: @layouts
-			logger: @logger
-			meta: meta
-		
-		# Create and return
-		document = new @Document config
-	
-	# Create Layout
-	createLayout: (meta={}) ->
-		# Prepare
-		config =
-			docpad: @
-			layouts: @layouts
-			logger: @logger
-			meta: meta
-
-		# Create and return
-		layout = new @Layout config
-
-	# Clean Models
-	cleanModels: (next) ->
-		# Prepare
-		File = @File = require("#{@config.libPath}/file.coffee")
-		Layout = @Layout = class extends File
-		Document = @Document = class extends File
-		layouts = @layouts = new queryEngine.Collection
-		documents = @documents = new queryEngine.Collection
-		
-		# Extend
-		Layout::store = ->
-			layouts[@id] = @
-		Document::store = ->
-			documents[@id] = @
-		
-		# Next
-		next?()
-
-		# Chain
-		@
-
-	# Compare versions
-	compareVersion: ->
-		return @  unless @config.checkVersion
-
-		# Prepare
-		notify = @notify
-		logger = @logger
-
-		# Check
-		util.packageCompare
-			local: "#{@config.corePath}/package.json"
-			remote: 'https://raw.github.com/bevry/docpad/master/package.json'
-			newVersionCallback: (details) ->
-				docpad.notify 'There is a new version of docpad available'
-				docpad.logger.log 'notice', """
-					There is a new version of docpad available, you should probably upgrade...
-					current version:  #{details.local.version}
-					new version:      #{details.remote.version}
-					grab it here:     #{details.remote.homepage}
-					"""
-		@
 
 	# Initialise the Skeleton
 	initializeSkeleton: (skeleton, destinationPath, next) ->
@@ -412,51 +433,62 @@ class DocPad extends EventSystem
 		# Chain
 		@
 	
-	# Handle
-	action: (action,next) ->
-		# Multiple actions?
-		actions = action.split /[,\s]+/g
-		if actions.length > 1
-			tasks = new util.Group next
-			tasks.total = actions.length
-			for action in actions
-				@action action, tasks.completer()
-			return @
-		
-		# Handle
-		switch action
-			when 'skeleton', 'scaffold'
-				@skeletonAction (err) =>
-					return @error(err)  if err
-					next?()
 
-			when 'generate'
-				@generateAction (err) =>
-					return @error(err)  if err
-					next?()
+	# ---------------------------------
+	# Utilities
 
-			when 'watch'
-				@watchAction (err) =>
-					return @error(err)  if err
-					next?()
-
-			when 'server', 'serve'
-				@serverAction (err) =>
-					return @error(err)  if err
-					next?()
-
-			else
-				@skeletonAction (err) =>
-					return @error(err)  if err
-					@generateAction (err) =>
-						return @error(err)  if err
-						@serverAction (err) =>
-							return @error(err)  if err
-							@watchAction (err) =>
-								return @error(err)  if err
-								next?()
+	# Check if the file path is ignored
+	# next?(err,ignore)
+	filePathIgnored: (fileFullPath,next) ->
+		if path.basename(fileFullPath).startsWith('.') or path.basename(fileFullPath).finishesWith('~')
+			next?(null, true)
+		else
+			next?(null, false)
 		
 		# Chain
+		@
+	
+	# Create snore
+	createSnore: (message) ->
+		# Prepare
+		logger = @logger
+
+		# Create snore object
+		snore =
+			snoring: false
+			timer: setTimeout(
+				->
+					snore.clear()
+					snore.snoring = true
+					logger.log 'notice', message
+				5000
+			)
+			clear: ->
+				if snore.timer
+					clearTimeout(snore.timer)
+					snore.timer = false
+	
+
+	# Compare current DocPad version to the latest
+	compareVersion: ->
+		return @  unless @config.checkVersion
+
+		# Prepare
+		notify = @notify
+		logger = @logger
+
+		# Check
+		util.packageCompare
+			local: "#{@config.corePath}/package.json"
+			remote: 'https://raw.github.com/bevry/docpad/master/package.json'
+			newVersionCallback: (details) ->
+				docpad.notify 'There is a new version of docpad available'
+				docpad.logger.log 'notice', """
+					There is a new version of docpad available, you should probably upgrade...
+					current version:  #{details.local.version}
+					new version:      #{details.remote.version}
+					grab it here:     #{details.remote.homepage}
+					"""
 		@
 	
 
@@ -466,35 +498,113 @@ class DocPad extends EventSystem
 			@error(args[0])  if args[0]
 			next.apply(next,apply)  if typeof next is 'function'
 	
+	
 	# Handle a fatal error
 	fatal: (err) ->
 		return @  unless err
 		@error(error)
 		process.exit(-1)
+	
 
 	# Handle an error
 	error: (err,type='err') ->
+		# Check
 		return @  unless err
-		err = new Error(err)  unless err instanceof Error
-		@logger.log type, 'An error occured:', err.message, err.stack
+
+		# Log the error only if it hasn't been logged already
+		unless err.logged
+			err.logged = true
+			err = new Error(err)  unless err instanceof Error
+			err.logged = true
+			@logger.log type, 'An error occured:', err.message, err.stack
+			@emit 'error', err
+		
+		# Chain
 		@
+
 
 	# Perform a growl notification
 	notify: (args...) =>
+		# Check if we want to use growl
 		return @  unless @config.growl
+
+		# Load growl
 		growl = require('growl')  unless growl
+
+		# Use growl
 		growl.apply(growl,args)
+
+		# Chain
 		@
 
+
+	# ---------------------------------
+	# Models
+
+	# Layout Document
+	createDocument: (meta={}) ->
+		# Prepare
+		config =
+			docpad: @
+			layouts: @layouts
+			logger: @logger
+			meta: meta
+		
+		# Create and return
+		document = new @Document config
+	
+
+	# Create Layout
+	createLayout: (meta={}) ->
+		# Prepare
+		config =
+			docpad: @
+			layouts: @layouts
+			logger: @logger
+			meta: meta
+
+		# Create and return
+		layout = new @Layout config
+
+
+	# Clean Models
+	cleanModels: (next) ->
+		# Prepare
+		File = @File = require("#{@config.libPath}/file.coffee")
+		Layout = @Layout = class extends File
+		Document = @Document = class extends File
+		layouts = @layouts = new queryEngine.Collection
+		documents = @documents = new queryEngine.Collection
+		
+		# Extend
+		Layout::store = ->
+			layouts[@id] = @
+		Document::store = ->
+			documents[@id] = @
+		
+		# Next
+		next?()
+
+		# Chain
+		@
+	
+
+	# Render a document
+	render: (document,data,next) ->
+		templateData = _.extend {}, @templateData, data
+		templateData.document = document
+		document.render templateData, (err) =>
+			@error err  if err
+			next?()
 
 
 	# ---------------------------------
 	# Plugins
 
-
 	# Get a plugin by it's name
 	getPlugin: (pluginName) ->
 		@pluginsObject[pluginName]
+
 
 	# Trigger a plugin event
 	# next?(err)
@@ -527,6 +637,7 @@ class DocPad extends EventSystem
 		# Chain
 		@
 
+
 	# Load Plugins
 	loadPlugins: (next) ->
 		# Prepare
@@ -551,6 +662,7 @@ class DocPad extends EventSystem
 
 		# Chain
 		@
+
 
 	# Load Plugins
 	loadPluginsIn: (pluginsPath, next) ->
@@ -618,9 +730,62 @@ class DocPad extends EventSystem
 		@
 
 
-	# ---------------------------------
+
+	# =================================
 	# Actions
 
+	# Perform an action
+	# next(err)
+	action: (action,next) ->
+		# Multiple actions?
+		actions = action.split /[,\s]+/g
+		if actions.length > 1
+			tasks = new util.Group next
+			tasks.total = actions.length
+			for action in actions
+				@action action, tasks.completer()
+			return @
+		
+		# Handle
+		switch action
+			when 'skeleton', 'scaffold'
+				@skeletonAction (err) =>
+					return @error(err)  if err
+					next?()
+
+			when 'generate'
+				@generateAction (err) =>
+					return @error(err)  if err
+					next?()
+
+			when 'watch'
+				@watchAction (err) =>
+					return @error(err)  if err
+					next?()
+
+			when 'server', 'serve'
+				@serverAction (err) =>
+					return @error(err)  if err
+					next?()
+
+			else
+				@skeletonAction (err) =>
+					return @error(err)  if err
+					@generateAction (err) =>
+						return @error(err)  if err
+						@serverAction (err) =>
+							return @error(err)  if err
+							@watchAction (err) =>
+								return @error(err)  if err
+								next?()
+		
+		# Chain
+		@
+
+
+	# ---------------------------------
+	# Generate
+	
 	# Clean the database
 	generateClean: (next) ->
 		# Before
@@ -676,16 +841,6 @@ class DocPad extends EventSystem
 		# Chain
 		@
 
-	# Check if the file path is ignored
-	# next?(err,ignore)
-	filePathIgnored: (fileFullPath,next) ->
-		if path.basename(fileFullPath).startsWith('.') or path.basename(fileFullPath).finishesWith('~')
-			next?(null, true)
-		else
-			next?(null, false)
-		
-		# Chain
-		@
 
 	# Parse the files
 	generateParse: (next) ->
@@ -779,6 +934,7 @@ class DocPad extends EventSystem
 		# Chain
 		@
 	
+
 	# Generate Parse: Contextualize
 	generateParseContextualize: (next) ->
 		# Prepare
@@ -804,14 +960,7 @@ class DocPad extends EventSystem
 		# Chain
 		@
 	
-	# Render a document
-	render: (document,data,next) ->
-		templateData = _.extend {}, @templateData, data
-		templateData.document = document
-		document.render templateData, (err) =>
-			@error err  if err
-			next?()
-
+	
 	# Generate render
 	generateRender: (next) ->
 		# Prepare
@@ -857,6 +1006,7 @@ class DocPad extends EventSystem
 		# Chain
 		@
 
+
 	# Write files
 	generateWriteFiles: (next) ->
 		# Prepare
@@ -877,6 +1027,7 @@ class DocPad extends EventSystem
 
 		# Chain
 		@
+
 
 	# Write documents
 	generateWriteDocuments: (next) ->
@@ -918,6 +1069,7 @@ class DocPad extends EventSystem
 		# Chain
 		@
 
+
 	# Write
 	generateWrite: (next) ->
 		# Prepare
@@ -946,6 +1098,7 @@ class DocPad extends EventSystem
 
 		# Chain
 		@
+
 
 	# Generate
 	generateAction: (next) ->
@@ -1014,6 +1167,10 @@ class DocPad extends EventSystem
 		# Chain
 		@
 
+
+	# ---------------------------------
+	# Watch
+	
 	# Watch
 	# NOTE: Watching a directory and all it's contents (including subdirs and their contents) appears to be quite expiremental in node.js - if you know of a watching library that is quite stable, then please let me know - b@lupton.cc
 	watchAction: (next) ->
@@ -1082,6 +1239,10 @@ class DocPad extends EventSystem
 		# Chain
 		@
 
+
+	# ---------------------------------
+	# Skeleton
+	
 	# Skeleton
 	skeletonAction: (next) ->
 		# Prepare
@@ -1124,6 +1285,10 @@ class DocPad extends EventSystem
 		# Chain
 		@
 
+
+	# ---------------------------------
+	# Server
+	
 	# Server
 	serverAction: (next) ->
 		# Prepare
@@ -1213,7 +1378,12 @@ class DocPad extends EventSystem
 						# Start the server
 						result = server.listen config.port
 						try
-							logger.log 'info', 'Web server listening on port', server.address().port, 'on directory', config.outPath
+							address = server.address()
+							serverHostname = if address.address is '0.0.0.0' then 'localhost' else address.address
+							serverPort = address.port
+							serverLocation = "http://#{serverHostname}:#{serverPort}/"
+							serverDir = config.outPath
+							logger.log 'info', "DocPad listening to #{serverLocation} with directory #{serverDir}"
 						catch err
 							logger.log 'err', "Could not start the web server, chances are the desired port #{config.port} is already in use"
 					
@@ -1226,6 +1396,10 @@ class DocPad extends EventSystem
 
 		# Chain
 		@
+
+
+# =====================================
+# Export
 
 # API
 docpad =
