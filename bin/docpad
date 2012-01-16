@@ -21,6 +21,7 @@ docpadConfig =
 	port: program.port
 	logLevel: if program.debug is true then 7 else 6
 docpad = DocPad.createInstance(docpadConfig)
+logger = docpad.logger
 
 # Version
 program.version(docpad.version or 'unknown')
@@ -126,6 +127,14 @@ program
 			args.unshift process.argv[1]
 			program.parse args
 
+# Version
+program
+	.command('info')
+	.description('display information about our docpad instance')
+	.action ->
+		console.log require('util').inspect docpad.config
+		actionCompleted()
+
 # exit
 program
 	.command('exit')
@@ -153,10 +162,7 @@ program
 # Initialise
 
 # Welcome
-console.log(
-	'''
-	Welcome to DocPad'''
-)
+logger.log 'info', """Welcome to DocPad"""
 
 # Start
 program.parse process.argv
