@@ -66,15 +66,5 @@
 	"directories": {
 		"lib": "lib"
 	},
-	"main": "./lib/docpad.coffee",
-	"docpad": {
-		"enabledPlugins": {
-			"admin": false,
-			"authenticate": false,
-			"rest": false,
-			"autoupdate": false,
-			"buildr": false,
-			"html2jade": false
-		}
-	}
+	"main": "./lib/docpad.coffee"
 }
