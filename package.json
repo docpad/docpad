@@ -44,7 +44,7 @@
 		"url": "http://github.com/bevry/docpad.git"
 	},
 	"dependencies": {
-		"bal-util": "0.8.x",
+		"bal-util": "0.9.x",
 		"express": "2.5.x",
 		"query-engine": "0.5.x",
 		"watchr": "0.1.x",
