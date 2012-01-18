@@ -224,6 +224,11 @@ DocPad wouldn't be possible if it wasn't for the following libaries _(in alphabe
 - [Ryan Dahl's](https://github.com/ry) [Node.js](http://nodejs.org) - Server Side Javascript	
 
 
+## History
+
+Discover the history inside the `History.md` file
+
+
 ## License
 
 Licensed under the [MIT License](https://github.com/bevry/docpad/blob/master/LICENSE.txt)
