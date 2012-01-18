@@ -6,23 +6,60 @@ coffee = null
 yaml = null
 js2coffee = null
 
-# Define
+# ---------------------------------
+# DocPad File Class
+
 class File
-	# Inherited
+
+	# ---------------------------------
+	# Backreferences to DocPad
+
+	# The DocPad instance
 	docpad: null
+
+	# The available layouts in our DocPad instance
 	layouts: []
+
+	# The Caterpillar instance to use
 	logger: null
 
-	# Auto
+	# The out directory path to put the file
+	outDirPath: null
+
+
+	# ---------------------------------
+	# Automaticly set variables
+
+	# The unique document identifier
 	id: null
+	
+	# The filename without the extension
 	basename: null
-	extensions: []
-	extension: null
+
+	# The filename with the extension
 	filename: null
+
+	# The extensions the filename has, in reverse order (.md.eco -> [eco,md])
+	extensions: []
+
+	# The original first extension (.md.eco -> eco)
+	extension: null
+
+	# The final extension used on our rendered file (takes into accounts layouts)
+	extensionRendered: null
+
+	# The full path of our file, only necessary is calling @load
 	fullPath: null
+
+	# The final rendered path of our file 
 	outPath: null
+
+	# The relative path of our source file (with extensions)
 	relativePath: null
+
+	# The relative base of our source file (no extension)
 	relativeBase: null
+
 	content: null
 	contentSrc: null
 	contentRaw: null
@@ -32,16 +69,40 @@ class File
 	fileBody: null
 	fileHeadParser: null
 
-	# User
+
+	# ---------------------------------
+	# User set variables
+
+	# Whether or not this file should be re-rendered on each request
 	dynamic: false
+
+	# The title for this document
 	title: null
+
+	# The date object for this document
 	date: null
+
+	# The generated slug (url safe seo title) for this document
 	slug: null
+
+	# The url for this document
 	url: null
+
+	# Alternative urls for this document
 	urls: []
+
+	# Whether or not we ignore this document (do not render it)
 	ignore: false
+
+	# The tags for this document
 	tags: []
+
+	# Any related documents
 	relatedDocuments: []
+
+
+	# ---------------------------------
+	# Functions
 
 	# Constructor
 	constructor: ({@docpad,@layouts,@logger,meta}) ->
@@ -237,6 +298,7 @@ class File
 			@url or= "/#{@relativeBase}.#{@extensionRendered}"
 			@slug or= util.generateSlugSync @relativeBase
 			@title or= @filenameRendered
+			@outPath = if outDirPath then "#{@outDirPath}/#{@url}" else null
 			@addUrl @url
 			next?()
 		

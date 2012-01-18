@@ -1,8 +1,3 @@
-###
-DocPad by Benjamin Lupton
-Intuitive Web Development
-###
-
 # =====================================
 # Requires
 
@@ -39,23 +34,92 @@ It allows us to support multiple instances of docpad at the same time
 class DocPad extends EventSystem
 
 	# =================================
-	# Configuration
+	# Variables
 	
+	# ---------------------------------
+	# DocPad
+
+	# DocPad's version number
+	version: null
+
+	# The express server instance bound to docpad
+	server: null
+
+	# The caterpillar instance bound to docpad
+	logger: null
+
+	# The data which we pass over to your templates
+	templateData: {}
+	
+	
+	# ---------------------------------
+	# Models
+
+	# File class
+	File: null
+
+	# Layout class
+	Layout: null
+
+	# Document class
+	Document: null
+
+	# Layouts collection
+	layouts: null
+
+	# Documents collection
+	documents: null
+	
+
+	# ---------------------------------
+	# Plugins
+
+	# Loaded plugins sorted by priority
+	pluginsArray: []
+
+	# Loaded plugins indexed by name
+	pluginsObject: {}
+
+
+	# -----------------------------
+	# Paths
+
+	# The doocpad directory
+	corePath: "#{__dirname}/.."
+
+	# The docpad library directory
+	libPath: "#{__dirname}"
+
+	# The docpad plugins directory
+	pluginsPath: "#{__dirname}/exchange/plugins"
+
+	# The docpad skeletons directory
+	skeletonsPath: "#{__dirname}/exchange/skeletons"
+
+	# The main docpad file
+	mainPath: "#{__dirname}/docpad.coffee"
+
+	# The base docpad plugin file
+	pluginPath: "#{__dirname}/plugin.coffee"
+
+
+	# -----------------------------
+	# Configurations
+
 	###
 	Exchange Configuration
-	Loaded from:
+	Still to be decided how it should function for now.
+	Eventually it will be loaded from:
 		- a remote url upon initialisation
 		- then stored in ~/.docpad/exchange.json
 	Used to:
 		- store the information of available extensions for docpad
 	###
 	exchange:
-		# Skeletons
-		skeletons: {}
-		# Themes
-		themes: {}
 		# Plugins
 		plugins: {}
+		# Skeletons
+		skeletons: {}
 
 	
 	###
@@ -63,7 +127,6 @@ class DocPad extends EventSystem
 	Loaded from:
 		- the passed instanceConfiguration when creating a new docpad instance
 		- the detected websiteConfiguration inside ./package.json>docpad
-		- the default docpadConfiguration inside docpad/package.json>docpad
 		- the default prototypeConfiguration which we see here
 	###
 	config:
@@ -74,27 +137,18 @@ class DocPad extends EventSystem
 		enableUnlistedPlugins: true
 
 		# Plugins which should be enabled or not pluginName: pluginEnabled
-		enabledPlugins: {}
+		enabledPlugins:
+			# Disable certain experimental plugins
+			admin: false
+			authenticate: false
+			rest: false
+			autoupdate: false
+			buildr: false
+			html2jade: false
 
 		# Configuration to pass to any plugins pluginName: pluginConfiguration
 		plugins: {}
 		
-
-		# -----------------------------
-		# DocPad Paths
-
-		# The doocpad directory
-		corePath: "#{__dirname}/.."
-
-		# The docpad library directory
-		libPath: "#{__dirname}"
-
-		# The main docpad file
-		mainPath: "#{__dirname}/docpad.coffee"
-
-		# The base docpad plugin file
-		pluginPath: "#{__dirname}/plugin.coffee"
-
 
 		# -----------------------------
 		# Website Paths
@@ -116,6 +170,7 @@ class DocPad extends EventSystem
 
 		# The website's public directory
 		publicPath: null
+
 		
 		# -----------------------------
 		# Server
@@ -167,51 +222,6 @@ class DocPad extends EventSystem
 		checkVersion: true
 
 
-	# =================================
-	# Variables
-
-	# ---------------------------------
-	# DocPad
-
-	# DocPad's version number
-	version: null
-
-	# The express server instance bound to docpad
-	server: null
-
-	# The caterpillar instance bound to docpad
-	logger: null
-
-	# The data which we pass over to your templates
-	templateData: {}
-
-	# ---------------------------------
-	# Models
-
-	# File class
-	File: null
-
-	# Layout class
-	Layout: null
-
-	# Document class
-	Document: null
-
-	# Layouts collection
-	layouts: null
-
-	# Documents collection
-	documents: null
-	
-	# ---------------------------------
-	# Plugins
-
-	# Loaded plugins sorted by priority
-	pluginsArray: []
-
-	# Loaded plugins indexed by name
-	pluginsObject: {}
-
 
 	# =================================
 	# Initialisation Functions
@@ -233,10 +243,9 @@ class DocPad extends EventSystem
 
 			# Version Check
 			docpad.compareVersion()
-	
 
 	# Load Configuration
-	loadConfiguration: (userConfig={},next) ->
+	loadConfiguration: (instanceConfig={},next) ->
 		# Prepare
 		docpad = @
 		logger = @logger
@@ -258,20 +267,20 @@ class DocPad extends EventSystem
 				return fatal(err)  if err
 
 				# Ensure essentials
-				userConfig.corePath or= @config.corePath
-				userConfig.rootPath or= process.cwd()
+				instanceConfig.corePath or= @config.corePath
+				instanceConfig.rootPath or= process.cwd()
 
 				# DocPad Configuration
-				docpadPackagePath = "#{userConfig.corePath}/package.json"
+				docpadPackagePath = "#{instanceConfig.corePath}/package.json"
 				docpadPackageData = {}
 				if path.existsSync docpadPackagePath
 					try
 						docpadPackageData = JSON.parse(fs.readFileSync(docpadPackagePath).toString()) or {}
 					@version = docpadPackageData.version
 				docpadPackageData.docpad or= {}
-			
+				
 				# Website Configuration
-				websitePackagePath = "#{userConfig.rootPath}/package.json"
+				websitePackagePath = "#{instanceConfig.rootPath}/package.json"
 				websitePackageData = {}
 				if path.existsSync websitePackagePath
 					try
@@ -284,7 +293,7 @@ class DocPad extends EventSystem
 					@config
 					docpadPackageData.docpad
 					websitePackageData.docpad
-					userConfig
+					instanceConfig
 				)
 				
 				# Options
@@ -346,89 +355,43 @@ class DocPad extends EventSystem
 		
 		# Pull
 		logger.log 'debug', "[#{skeleton}] Pulling in the Skeleton"
-		child = exec(
-			# Commands
-			[
-				"git init"
-				"git remote add skeleton #{skeletonRepo}"
-				"git pull skeleton master"
-			]
+		util.gitPull destinationPath, skeletonRepo, (err,stdout,stderr) ->
+			# Output
+			if err
+				console.log stdout.replace(/\s+$/,'')  if stdout
+				console.log stderr.replace(/\s+$/,'')  if stderr
+				return next?(err)
 			
-			# Options
-			{
-				cwd: destinationPath
-			}
+			# Log
+			logger.log 'debug', "[#{skeleton}] Pulled in the Skeleton"
 
-			# Next
-			(err,stdout,stderr) ->
+			# Git Submodules
+			logger.log 'debug', "[#{skeleton}] Initialising Git Submodules for Skeleton"
+			util.initGitSubmodules destinationPath, (err,stdout,stderr) ->
 				# Output
 				if err
 					console.log stdout.replace(/\s+$/,'')  if stdout
 					console.log stderr.replace(/\s+$/,'')  if stderr
-					return next?(err)
+					return tasks.complete(err)  
 				
-				# Log
-				logger.log 'debug', "[#{skeleton}] Pulled in the Skeleton"
-
-				# Submodules
-				path.exists "#{destinationPath}/.gitmodules", (exists) ->
-					tasks.complete()  unless exists
-					logger.log 'debug', "[#{skeleton}] Initialising Submodules for Skeleton"
-					child = exec(
-						# Commands
-						[
-							'git submodule init'
-							'git submodule update'
-							'git submodule foreach --recursive "git init"'
-							'git submodule foreach --recursive "git checkout master"'
-							'git submodule foreach --recursive "git submodule init"'
-							'git submodule foreach --recursive "git submodule update"'
-						]
-						
-						# Options
-						{
-							cwd: destinationPath
-						}
-
-						# Next
-						(err,stdout,stderr) ->
-							# Output
-							if err
-								console.log stdout.replace(/\s+$/,'')  if stdout
-								console.log stderr.replace(/\s+$/,'')  if stderr
-								return tasks.complete(err)  
-							
-							# Complete
-							logger.log 'debug', "[#{skeleton}] Initalised Submodules for Skeleton"
-							tasks.complete()
-					)
-				
-				# NPM
-				path.exists "#{destinationPath}/package.json", (exists) ->
-					tasks.complete()  unless exists
-					logger.log 'debug', "[#{skeleton}] Initialising NPM for Skeleton"
-					child = exec(
-						# Command
-						'npm install'
-
-						# Options
-						{
-							cwd: destinationPath
-						}
-
-						# Next
-						(err,stdout,stderr) ->
-							# Output
-							if err
-								console.log stdout.replace(/\s+$/,'')  if stdout
-								console.log stderr.replace(/\s+$/,'')  if stderr
-								return tasks.complete(err)  
-							
-							# Complete
-							logger.log 'debug', "[#{skeleton}] Initialised NPM for Skeleton"
-							tasks.complete()
-					)
-		)
+				# Complete
+				logger.log 'debug', "[#{skeleton}] Initalised Git Submodules for Skeleton"
+				tasks.complete()
+			
+			# Node Modules
+			path.exists "#{destinationPath}/package.json", (exists) ->
+				tasks.complete()  unless exists
+				logger.log 'debug', "[#{skeleton}] Initialising Node Modules for Skeleton"
+				util.initNodeModules destinationPath, (err,stdout,stderr) ->
+					# Output
+					if err
+						console.log stdout.replace(/\s+$/,'')  if stdout
+						console.log stderr.replace(/\s+$/,'')  if stderr
+						return tasks.complete(err)  
+					
+					# Complete
+					logger.log 'debug', "[#{skeleton}] Initialised Node Modules for Skeleton"
+					tasks.complete()
 
 		# Chain
 		@
@@ -482,9 +445,9 @@ class DocPad extends EventSystem
 			local: "#{@config.corePath}/package.json"
 			remote: 'https://raw.github.com/bevry/docpad/master/package.json'
 			newVersionCallback: (details) ->
-				docpad.notify 'There is a new version of docpad available'
+				docpad.notify 'There is a new version of #{details.local.name} available'
 				docpad.logger.log 'notice', """
-					There is a new version of docpad available, you should probably upgrade...
+					There is a new version of #{details.local.name} available, you should probably upgrade...
 					current version:  #{details.local.version}
 					new version:      #{details.remote.version}
 					grab it here:     #{details.remote.homepage}
@@ -548,6 +511,7 @@ class DocPad extends EventSystem
 			docpad: @
 			layouts: @layouts
 			logger: @logger
+			outDirPath: @config.outPath
 			meta: meta
 		
 		# Create and return
@@ -1033,7 +997,6 @@ class DocPad extends EventSystem
 	generateWriteDocuments: (next) ->
 		# Prepare
 		logger = @logger
-		outPath = @config.outPath
 		logger.log 'debug', 'Writing documents'
 
 		# Async
@@ -1053,9 +1016,6 @@ class DocPad extends EventSystem
 				# Dynamic
 				return tasks.complete()  if document.dynamic
 
-				# OutPath
-				document.outPath = "#{outPath}/#{document.url}"
-				
 				# Ensure path
 				util.ensurePath path.dirname(document.outPath), (err) ->
 					# Error
@@ -1401,11 +1361,8 @@ class DocPad extends EventSystem
 # =====================================
 # Export
 
-# API
-docpad =
+# Export API
+module.exports = 
 	DocPad: DocPad
 	createInstance: (config) ->
 		return new DocPad(config)
-
-# Export
-module.exports = docpad
