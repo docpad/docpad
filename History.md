@@ -2,6 +2,8 @@
 
 - v3.2 Unreleased
 	- Cleaning architecture
+	- New plugin structure
+	- Added `File.writeRendered`
 	- Started to add offline installations
 	- Started to add support for multiple skeletons
 	- Started to add exchange (plugins, skeletons)
