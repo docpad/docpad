@@ -61,9 +61,6 @@ class Stats
 				tasks.complete(err)
 	
 
-	loadUserConfig: (next) ->
-		"~/.docpad.json"
-
 	# ---------------------------------
 	# Events
 

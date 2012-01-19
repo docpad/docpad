@@ -105,7 +105,7 @@ class File
 	# Functions
 
 	# Constructor
-	constructor: ({@docpad,@layouts,@logger,meta}) ->
+	constructor: ({@docpad,@layouts,@logger,@outDirPath,meta}) ->
 		# Delete prototype references
 		@extensions = []
 		@tags = []
@@ -127,23 +127,23 @@ class File
 		tasks = new util.Group (err) =>
 			if err
 				@logger.log 'err', "Failed to read the file #{@relativePath}"
-				return next(err)
+				return next?(err)
 			else
 				@normalize (err) =>
-					return next(err)  if err
+					return next?(err)  if err
 					@logger.log 'debug', "Read the file #{@relativePath}"
 					next?()
 		tasks.total = 2
 
 		# Stat the file
 		fs.stat @fullPath, (err,fileStat) =>
-			return next(err)  if err
+			return next?(err)  if err
 			@date = new Date(fileStat.ctime)  unless @date
 			tasks.complete()
 
 		# Read the file
 		fs.readFile @fullPath, (err,data) =>
-			return next(err)  if err
+			return next?(err)  if err
 			@parse data.toString(), tasks.completer()
 		
 		# Chain
@@ -186,9 +186,9 @@ class File
 					else
 						@fileMeta = {}
 						err = new Error("Unknown meta parser [#{@fileHeadParser}]")
-						return next(err)
+						return next?(err)
 			catch err
-				return next(err)
+				return next?(err)
 		
 		# Update Meta
 		@fileMeta or= {}
@@ -231,27 +231,51 @@ class File
 		
 		# Chain
 		@
+
+	# Write the rendered file
+	# next(err)
+	writeRendered: (next) ->
+		# Prepare
+		filePath = @outPath
+		
+		# Log
+		@logger.log 'debug', "Writing the rendered file #{filePath}"
+
+		# Write data
+		fs.writeFile filePath, @contentRendered, (err) =>
+			return next?(err)  if err
+			
+			# Log
+			@logger.log 'debug', "Wrote the rendered file #{filePath}"
+
+			# Next
+			next?()
+		
+		# Chain
+		@
+
 	
 	# Write the file
 	# next(err)
 	write: (next) ->
-		# Log
-		@logger.log 'debug', "Writing the file #{@fullPath}"
-
 		# Prepare
+		filePath = @fullPath
 		js2coffee = require('js2coffee/lib/js2coffee.coffee')  unless js2coffee
 		
+		# Log
+		@logger.log 'debug', "Writing the file #{filePath}"
+
 		# Prepare data
 		fileMetaString = "var a = #{JSON.stringify @fileMeta};"
 		@fileHead = js2coffee.build(fileMetaString).replace(/a =\s+|^  /mg,'')
 		fileData = "### #{@fileHeadParser}\n#{@fileHead}\n###\n\n" + @fileBody.replace(/^\s+/,'')
 
 		# Write data
-		fs.writeFile @fullPath, fileData, (err) =>
-			return next(err)  if err
+		fs.writeFile filePath, fileData, (err) =>
+			return next?(err)  if err
 			
 			# Log
-			@logger.log 'info', "Wrote the file #{@fullPath}"
+			@logger.log 'info', "Wrote the file #{filePath}"
 
 			# Next
 			next?()
@@ -298,7 +322,7 @@ class File
 			@url or= "/#{@relativeBase}.#{@extensionRendered}"
 			@slug or= util.generateSlugSync @relativeBase
 			@title or= @filenameRendered
-			@outPath = if outDirPath then "#{@outDirPath}/#{@url}" else null
+			@outPath = if @outDirPath then "#{@outDirPath}/#{@url}" else null
 			@addUrl @url
 			next?()
 		
@@ -309,28 +333,31 @@ class File
 	# next(err,layout)
 	getLayout: (next) ->
 		# Check
-		return next new Error('This document does not have a layout')  unless @layout
+		unless @layout
+			return next?(
+				new Error('This document does not have a layout')
+			)
 
 		# Find parent
 		@layouts.findOne {relativeBase:@layout}, (err,layout) =>
 			# Check
 			if err
-				return next(err)
+				return next?(err)
 			else if not layout
 				err = new Error "Could not find the layout: #{@layout}"
-				return next(err)
+				return next?(err)
 			else
-				return next(null, layout)
+				return next?(null, layout)
 	
 	# Get Eve
 	# next(err,layout)
 	getEve: (next) ->
 		if @layout
 			@getLayout (err,layout) ->
-				return next(err)  if err
+				return next?(err)  if err
 				layout.getEve(next)
 		else
-			next(null,@)
+			next?(null,@)
 	
 	# Render
 	# next(err,finalExtension)
@@ -344,7 +371,7 @@ class File
 
 		# Async
 		tasks = new util.Group (err) =>
-			return next(err)  if err
+			return next?(err)  if err
 
 			# Reset content
 			@content = @contentSrc
@@ -352,15 +379,15 @@ class File
 			# Wrap in layout
 			if @layout
 				@getLayout (err,layout) =>
-					return next(err)  if err
+					return next?(err)  if err
 					templateData.content = @contentRendered
 					layout.render templateData, (err) =>
 						@contentRendered = layout.contentRendered
 						@logger.log 'debug', "Rendering completed for #{@relativePath}"
-						next err
+						next?(err)
 			else
 				@logger.log 'debug', "Rendering completed for #{@relativePath}"
-				next err
+				next?(err)
 		
 		# Check tasks
 		if @extensions.length <= 1

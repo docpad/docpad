@@ -1,10 +1,10 @@
 # Define Plugin
-class DocpadPlugin
+class BasePlugin
 
 	# ---------------------------------
 	# Inherited
 
-	# Docpad
+	# DocPad Instance
 	docpad: null
 
 
@@ -108,4 +108,4 @@ class DocpadPlugin
 
 
 # Export Plugin
-module.exports = DocpadPlugin
+module.exports = BasePlugin

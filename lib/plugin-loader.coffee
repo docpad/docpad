@@ -7,6 +7,22 @@ exec = require('child_process').exec
 # Define Plugin Loader
 class PluginLoader
 
+	# ---------------------------------
+	# Constructed
+
+	# DocPad Instance
+	docpad: null
+
+	# BasePlugin Class
+	BasePlugin: null
+
+	# The full path of the plugin's directory
+	dirPath: null
+
+
+	# ---------------------------------
+	# Loaded
+
 	# The full path of the plugin's package.json file
 	packagePath: null
 
@@ -22,14 +38,12 @@ class PluginLoader
 	# The parsed content of the plugin's main file
 	pluginClass: {}
 
-	# The full path of the plugin's directory
-	dirPath: null
-
 	# Plugin name
 	pluginName: null
 
+
 	# Constructor
-	constructor: ({@docpad,@dirPath}) ->
+	constructor: ({@docpad,@dirPath,@BasePlugin}) ->
 		# Apply
 		@pluginName = path.basename(@dirPath)
 		@pluginClass = {}
@@ -89,7 +103,7 @@ class PluginLoader
 		# Local NPM on everything else
 		else
 			nodePath = if /node$/.test(process.execPath) then process.execPath else 'node'
-			npmPath = path.resolve @docpad.config.corePath,'node_modules','npm','bin','npm-cli.js'
+			npmPath = path.resolve @docpad.corePath,'node_modules','npm','bin','npm-cli.js'
 			command = "\"#{nodePath}\" \"#{npmPath}\" install"
 
 		# Execute npm install inside the pugin directory
@@ -114,7 +128,7 @@ class PluginLoader
 	require: (next) ->
 		# Load
 		try
-			@pluginClass = require(@pluginPath)
+			@pluginClass = require(@pluginPath)(@BasePlugin)
 			next(null,@pluginClass)
 		catch err
 			next(err,null)

@@ -19,8 +19,9 @@ watchr = null
 queryEngine = null
 
 # Local
-PluginLoader = require "#{__dirname}/plugin-loader.coffee"
-require "#{__dirname}/prototypes.coffee"
+PluginLoader = require("#{__dirname}/plugin-loader.coffee")
+BasePlugin = require("#{__dirname}/base-plugin.coffee")
+require("#{__dirname}/prototypes.coffee")
 
 
 # =====================================
@@ -98,9 +99,6 @@ class DocPad extends EventSystem
 
 	# The main docpad file
 	mainPath: "#{__dirname}/docpad.coffee"
-
-	# The base docpad plugin file
-	pluginPath: "#{__dirname}/plugin.coffee"
 
 
 	# -----------------------------
@@ -267,11 +265,10 @@ class DocPad extends EventSystem
 				return fatal(err)  if err
 
 				# Ensure essentials
-				instanceConfig.corePath or= @config.corePath
 				instanceConfig.rootPath or= process.cwd()
 
 				# DocPad Configuration
-				docpadPackagePath = "#{instanceConfig.corePath}/package.json"
+				docpadPackagePath = "#{@corePath}/package.json"
 				docpadPackageData = {}
 				if path.existsSync docpadPackagePath
 					try
@@ -442,7 +439,7 @@ class DocPad extends EventSystem
 
 		# Check
 		util.packageCompare
-			local: "#{@config.corePath}/package.json"
+			local: "#{@corePath}/package.json"
 			remote: 'https://raw.github.com/bevry/docpad/master/package.json'
 			newVersionCallback: (details) ->
 				docpad.notify 'There is a new version of #{details.local.name} available'
@@ -534,7 +531,7 @@ class DocPad extends EventSystem
 	# Clean Models
 	cleanModels: (next) ->
 		# Prepare
-		File = @File = require("#{@config.libPath}/file.coffee")
+		File = @File = require("#{@libPath}/file.coffee")
 		Layout = @Layout = class extends File
 		Document = @Document = class extends File
 		layouts = @layouts = new queryEngine.Collection
@@ -617,7 +614,7 @@ class DocPad extends EventSystem
 			next?(err)
 		
 		# Load in the docpad and local plugin directories
-		tasks.push => @loadPluginsIn "#{@config.libPath}/plugins", tasks.completer()
+		tasks.push => @loadPluginsIn @pluginsPath, tasks.completer()
 		if @config.rootPath isnt __dirname and path.existsSync "#{@config.rootPath}/plugins"
 			tasks.push => @loadPluginsIn "#{@config.rootPath}/plugins", tasks.completer()
 		
@@ -655,7 +652,7 @@ class DocPad extends EventSystem
 					_nextFile(null,skip)
 
 				# Prepare
-				loader = new PluginLoader dirPath: fileFullPath, docpad: docpad
+				loader = new PluginLoader dirPath: fileFullPath, docpad: docpad, BasePlugin: BasePlugin
 				pluginName = loader.pluginName
 				enabled = (
 					(config.enableUnlistedPlugins  and  config.enabledPlugins[pluginName]? is false)  or
@@ -1023,7 +1020,7 @@ class DocPad extends EventSystem
 
 					# Write document
 					logger.log 'debug', "Writing file #{document.relativePath}, #{document.url}"
-					fs.writeFile document.outPath, document.contentRendered, (err) ->
+					document.writeRendered (err) ->
 						tasks.complete err
 
 		# Chain

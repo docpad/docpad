@@ -210,6 +210,8 @@ DocPad wouldn't be possible if it wasn't for the following libaries _(in alphabe
 
 - [Maurice Machado's](https://github.com/mauricemach) [CoffeeKup](https://github.com/mauricemach/coffeekup) - Markup as CoffeeScript
 
+- [Ryan Dahl's](https://github.com/ry) [Node.js](http://nodejs.org) - Server Side Javascript	
+
 - [Sam Stephenson's](https://github.com/sstephenson) [Eco](https://github.com/sstephenson/eco) - Embedded CoffeeScript templates
 
 - [Tim Caswell's](https://github.com/creationix) [Haml.js](https://github.com/creationix/haml-js) - Markup haiku
@@ -220,8 +222,6 @@ DocPad wouldn't be possible if it wasn't for the following libaries _(in alphabe
 - [TJ Holowaychuk's](https://github.com/visionmedia) [Sass.js](https://github.com/visionmedia/sass.js) - Syntactically awesome stylesheets
 - [TJ Holowaychuk/LearnBoost's](https://github.com/learnboost) [Stylus](https://github.com/learnboost/stylus) - Expressive, robust, feature-rich CSS language
 - [TJ Holowaychuk's](https://github.com/visionmedia) [YAML](https://github.com/visionmedia/js-yaml) - Data made easy
-
-- [Ryan Dahl's](https://github.com/ry) [Node.js](http://nodejs.org) - Server Side Javascript	
 
 
 ## History
