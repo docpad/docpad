@@ -5,6 +5,7 @@
 fs = require 'fs'
 path = require 'path'
 sys = require 'util'
+request = require 'request'
 
 # Necessary
 caterpillar = require 'caterpillar'
@@ -91,18 +92,15 @@ class DocPad extends EventSystem
 	# The docpad library directory
 	libPath: "#{__dirname}"
 
-	# The docpad plugins directory
-	pluginsPath: "#{__dirname}/exchange/plugins"
-
-	# The docpad skeletons directory
-	skeletonsPath: "#{__dirname}/exchange/skeletons"
-
 	# The main docpad file
 	mainPath: "#{__dirname}/docpad.coffee"
 
+	# The docpad package.json path
+	packagePath: "#{__dirname}/package.json"
+
 
 	# -----------------------------
-	# Configurations
+	# Exchange
 
 	###
 	Exchange Configuration
@@ -118,6 +116,8 @@ class DocPad extends EventSystem
 		plugins: {}
 		# Skeletons
 		skeletons: {}
+		# Themes
+		themes: {}
 
 	
 	###
@@ -152,7 +152,7 @@ class DocPad extends EventSystem
 		# Website Paths
 
 		# The website directory
-		rootPath: null
+		rootPath: '.'
 
 		# The website's out directory
 		outPath: 'out'
@@ -161,13 +161,16 @@ class DocPad extends EventSystem
 		srcPath: 'src'
 
 		# The website's layouts directory
-		layoutsPath: null
+		layoutsPath: 'src/layouts'
 
 		# The website's document's directory
-		documentsPath: null
+		documentsPath: 'src/documents'
 
 		# The website's public directory
-		publicPath: null
+		publicPath: 'src/public'
+
+		# The website's package.json path
+		packagePath: 'package.json'
 
 		
 		# -----------------------------
@@ -219,6 +222,8 @@ class DocPad extends EventSystem
 		# Whether or not to check for newer versions of DocPad
 		checkVersion: true
 
+		# Exchange Database Url
+		exchangeUrl: 'http://registry.npmjs.org/'
 
 
 	# =================================
@@ -242,6 +247,22 @@ class DocPad extends EventSystem
 			# Version Check
 			docpad.compareVersion()
 
+	# Load a json path
+	# next(err,parsedData)
+	loadJsonPath: (next,path) ->
+		# Read local configuration
+		path.exists path, (exists) ->
+			return  if not exists
+			fs.readFile path, (err,data) ->
+				return next?(err)  if err
+				return next?()  unless data
+				try
+					parsedData = JSON.parse data.toString()
+				catch err
+					return next?(err)
+				finally
+					return next?(null,parsedData)
+	
 	# Load Configuration
 	loadConfiguration: (instanceConfig={},next) ->
 		# Prepare
@@ -264,74 +285,88 @@ class DocPad extends EventSystem
 			docpad.start 'loading', (err) =>
 				return fatal(err)  if err
 
-				# Ensure essentials
+				# Prepare
 				instanceConfig.rootPath or= process.cwd()
+				docpadPackagePath = @packagePath
+				websitePackagePath = path.resolve instanceConfig.rootPath, instanceConfig.packagePath
+				docpadConfig = {}
+				docpadConfig = {}
+				websiteConfig = {}
 
-				# DocPad Configuration
-				docpadPackagePath = "#{@corePath}/package.json"
-				docpadPackageData = {}
-				if path.existsSync docpadPackagePath
-					try
-						docpadPackageData = JSON.parse(fs.readFileSync(docpadPackagePath).toString()) or {}
-					@version = docpadPackageData.version
-				docpadPackageData.docpad or= {}
-				
-				# Website Configuration
-				websitePackagePath = "#{instanceConfig.rootPath}/package.json"
-				websitePackageData = {}
-				if path.existsSync websitePackagePath
-					try
-						websitePackageData = JSON.parse(fs.readFileSync(websitePackagePath).toString()) or {}
-				websitePackageData.docpad or= {}
-				
-				# Apply Configuration
-				@config = _.extend(
-					{}
-					@config
-					docpadPackageData.docpad
-					websitePackageData.docpad
-					instanceConfig
-				)
-				
-				# Options
-				@server = @config.server  if @config.server
-				@config.rootPath = path.normalize(@config.rootPath or process.cwd())
-				@config.outPath =
-					if @config.outPath.indexOf('/') is -1  and  @config.outPath.indexOf('\\') is -1
-						path.normalize("#{@config.rootPath}/#{@config.outPath}")
-					else
-						path.normalize(@config.outPath)
-				@config.srcPath = 
-					if @config.srcPath.indexOf('/') is -1  and  @config.srcPath.indexOf('\\') is -1
-						path.normalize("#{@config.rootPath}/#{@config.srcPath}")
-					else
-						path.normalize(@config.srcPath)
-				@config.layoutsPath = "#{@config.srcPath}/layouts"
-				@config.documentsPath = "#{@config.srcPath}/documents"
-				@config.publicPath = "#{@config.srcPath}/public"
+				# Async
+				tasks = new util.Group (err) ->
+					return fatal(err)  if err
 
-				# Logger
-				unless @config.logLevel?
-					@config.logLevel = if process.argv.has('-d') then 7 else 6
-				@logger = @config.logger or= new caterpillar.Logger
-					transports:
-						level: @config.logLevel
-						formatter:
-							module: module
-				
-				# Bind the error handler, so we don't crash on errors
-				process.on 'uncaughtException', (err) ->
-					docpad.error err
+					# Apply Configuration
+					@config = _.extend(
+						{}
+						@config
+						docpadConfig
+						websiteConfig
+						instanceConfig
+					)
+					
+					# Options
+					@server = @config.server  if @config.server
 
-				# Prepare enabled plugins
-				if typeof @config.enabledPlugins is 'string'
-					enabledPlugins = {}
-					for enabledPlugin in @config.enabledPlugins.split(/[ ,]+/)
-						enabledPlugins[enabledPlugin] = true
-					@config.enabledPlugins = enabledPlugins
+					# Noramlize and resolve the configuration paths
+					@config.rootPath = path.normalize(@config.rootPath or process.cwd())
+					@config.outPath = path.resolve @config.rootPath, @config.outPath
+					@config.srcPath = path.resolve @config.rootPath, @config.srcPath
+					@config.layoutsPath = path.resolve @config.rootPath, @config.layoutsPath
+					@config.documentsPath = path.resolve @config.rootPath, @config.documentsPath
+					@config.publicPath = path.resolve @config.rootPath, @config.publicPath
+
+					# Logger
+					unless @config.logLevel?
+						@config.logLevel = if process.argv.has('-d') then 7 else 6
+					@logger = @config.logger or= new caterpillar.Logger
+						transports:
+							level: @config.logLevel
+							formatter:
+								module: module
+					
+					# Bind the error handler, so we don't crash on errors
+					process.on 'uncaughtException', (err) ->
+						docpad.error err
+
+					# Prepare enabled plugins
+					if typeof @config.enabledPlugins is 'string'
+						enabledPlugins = {}
+						for enabledPlugin in @config.enabledPlugins.split(/[ ,]+/)
+							enabledPlugins[enabledPlugin] = true
+						@config.enabledPlugins = enabledPlugins
+					
+					# Load plugins then exit
+					docpad.loadPlugins complete
 				
-				# Load Plugins
-				docpad.loadPlugins complete
+
+				# Prepare configuration loading
+				tasks.total = 2
+				
+				# Load DocPad Configuration
+				@loadJsonPath docpadPackagePath, (err,data) ->
+					return tasks.complete(err)  if err
+					data or= {}
+					data.docpad or= {}
+
+					# Apply data to parent scope
+					docpadConfig = data.docpad
+
+					# Compelte the loading
+					tasks.complete()
+				
+				# Load DocPad Configuration
+				@loadJsonPath websitePackagePath, (err,data) ->
+					return tasks.complete(err)  if err
+					data or= {}
+					data.docpad or= {}
+
+					# Apply data to parent scope
+					websiteConfig = data.docpad
+
+					# Compelte the loading
+					tasks.complete()
 
 
 	# Initialise the Skeleton
@@ -393,6 +428,25 @@ class DocPad extends EventSystem
 		# Chain
 		@
 	
+
+	# ---------------------------------
+	# Exchange
+
+	# Update the Exchange
+	updateExchange: (next) ->
+		try
+			details.local = JSON.parse fs.readFileSync(local).toString()
+			request = require 'request'  unless request
+			request remote, (err,response,body) =>
+				if not err and response.statusCode is 200
+					details.remote = JSON.parse body
+					unless @versionCompare(details.local.version, '>=', details.remote.version)
+						newVersionCallback(details)  if newVersionCallback
+					else
+						oldVersionCallback(details)  if oldVersionCallback
+		catch err
+			errorCallback(err)  if errorCallback
+
 
 	# ---------------------------------
 	# Utilities
@@ -671,7 +725,7 @@ class DocPad extends EventSystem
 						return nextFile(err,true)  if err or not exists
 						loader.install (err) ->
 							return nextFile(err,true)  if err
-							loader.require (err) ->
+							loader.load (err) ->
 								return nextFile(err,true)  if err
 								loader.create {}, (err,pluginInstance) ->
 									return nextFile(err,true)  if err

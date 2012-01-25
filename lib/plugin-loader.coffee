@@ -41,6 +41,12 @@ class PluginLoader
 	# Plugin name
 	pluginName: null
 
+	# Node modules path
+	nodeModulesPath: null
+
+
+	# ---------------------------------
+	# Functions
 
 	# Constructor
 	constructor: ({@docpad,@dirPath,@BasePlugin}) ->
@@ -49,46 +55,55 @@ class PluginLoader
 		@pluginClass = {}
 		@pluginConfig = {}
 		@packageData = {}
+		@nodeModulesPath = path.resolve @dirPath, 'node_modules'
 	
 	# Exists
 	# Loads in the plugin either via a package.json file, or a guessing based on the name
 	# next(err,exists)
 	exists: (next) ->
 		# Package.json
-		packagePath = "#{@dirPath}/package.json"
-		pluginPath = "#{@dirPath}/#{@pluginName}.plugin.coffee"
+		packagePath = path.resolve @dirPath, "package.json"
+		pluginPath = path.resolve @dirPath, "#{@pluginName}.plugin.coffee"
 		path.exists packagePath, (exists) =>
 			unless exists
 				path.exists pluginPath, (exists) =>
 					unless exists
-						return next(null,false)  
+						return next?(null,false)  
 					else
 						@pluginPath = pluginPath
-						return next(null,true)
+						return next?(null,true)
 			else
 				@packagePath = packagePath
 				fs.readFile packagePath, (err,data) =>
 					if err
-						return next(err,false)
+						return next?(err,false)
 					else
 						try
 							@packageData = JSON.parse data.toString()
 						catch err
-							return next(err,false)
-						return next(null,false)  unless @packageData
+							return next?(err,false)
+						return next?(null,false)  unless @packageData
 
 						@pluginConfig = @packageData.docpad and @packageData.docpad.plugin or {}
 						
 						pluginPath =  @packageData.main? and path.join(@dirPath, @pluginPath) or pluginPath
 						path.exists pluginPath, (exists) =>
 							unless exists
-								return next(null,false)  
+								return next?(null,false)  
 							else
 								@pluginPath = pluginPath
-								return next(null,true)
+								return next?(null,true)
 		
 		# Chain
 		return @
+	
+	# Installed
+	# Has this plugin already been installed?
+	# next(err,installed)
+	installed: (next) ->
+		path.exists @nodeModulesPath, (exists) ->
+			next?(null,exists)
+		@
 	
 	# Install
 	# Installs the plugins dependencies via NPM
@@ -117,21 +132,22 @@ class PluginLoader
 			# Callback
 			(error, stdout, stderr) ->
 				# Forward
-				next(error)
+				next?(error)
 		)
 
 		# Chain
 		return @
 
-	# Require
+	# Load
+	# Load in the pluginClass from the pugin file
 	# next(err,pluginClass)
-	require: (next) ->
+	load: (next) ->
 		# Load
 		try
 			@pluginClass = require(@pluginPath)(@BasePlugin)
-			next(null,@pluginClass)
+			next?(null,@pluginClass)
 		catch err
-			next(err,null)
+			next?(err,null)
 		
 		# Chain
 		return @
@@ -145,9 +161,9 @@ class PluginLoader
 			config = _.extend {}, @pluginConfig, docpadConfiguration, userConfiguration
 			config.docpad = @docpad
 			pluginInstance = new @pluginClass config
-			next(null,pluginInstance)
+			next?(null,pluginInstance)
 		catch err
-			next(err,null)
+			next?(err,null)
 		
 		# Chain
 		return @

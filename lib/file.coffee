@@ -118,6 +118,7 @@ class File
 			@[key] = value
 
 	# Load
+	# Loads in the source file and parses it
 	# next(err)
 	load: (next) ->
 		# Log
@@ -136,10 +137,13 @@ class File
 		tasks.total = 2
 
 		# Stat the file
-		fs.stat @fullPath, (err,fileStat) =>
-			return next?(err)  if err
-			@date = new Date(fileStat.ctime)  unless @date
+		if @date
 			tasks.complete()
+		else
+			fs.stat @fullPath, (err,fileStat) =>
+				return next?(err)  if err
+				@date = new Date(fileStat.ctime)  unless @date
+				tasks.complete()
 
 		# Read the file
 		fs.readFile @fullPath, (err,data) =>
@@ -150,6 +154,7 @@ class File
 		@
 	
 	# Parse data
+	# Parses some data, and loads the meta data and content from it
 	# next(err)
 	parse: (fileData,next) ->
 		# Handle data
@@ -214,6 +219,7 @@ class File
 		@
 	
 	# Add a url
+	# Allows our file to support multiple urls
 	addUrl: (url) ->
 		# Multiple Urls
 		if url instanceof Array
@@ -284,6 +290,7 @@ class File
 		@
 	
 	# Normalize data
+	# Normalize any parsing we ahve done, for if a value updates it may have consequences on another value. This will ensure everything is okay.
 	# next(err)
 	normalize: (next) ->
 		# Prepare
@@ -313,6 +320,7 @@ class File
 		@
 	
 	# Contextualize data
+	# Put our data into perspective of the bigger picture. For instance, generate the url for it's rendered equivalant.
 	# next(err)
 	contextualize: (next) ->
 		@getEve (err,eve) =>
@@ -330,6 +338,7 @@ class File
 		@
 	
 	# Get Layout
+	# The the layout object that this file references (if any)
 	# next(err,layout)
 	getLayout: (next) ->
 		# Check
@@ -350,6 +359,7 @@ class File
 				return next?(null, layout)
 	
 	# Get Eve
+	# Get the most ancestoral layout we have (the very top one)
 	# next(err,layout)
 	getEve: (next) ->
 		if @layout
@@ -360,6 +370,7 @@ class File
 			next?(null,@)
 	
 	# Render
+	# Render this file
 	# next(err,finalExtension)
 	render: (templateData,next) ->
 		# Log
