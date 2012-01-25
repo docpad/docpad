@@ -29,6 +29,7 @@
 			- DocPad will remain awesome
 		- If you are working on a cloned version of docpad, be sure to update your docpad's git repo address
 	- Fixed plugin priorities [#115](https://github.com/bevry/docpad/pull/115)
+		- Thanks to [Changwoo Park](https://github.com/pismute)
 	- Updated depdencies
 		- Growl 1.2.x -> 1.4.x [- changelog](https://github.com/visionmedia/node-growl/blob/master/History.md)
 		- CoffeeScript 1.1.3 -> 1.2.x [- changelog](http://coffeescript.org/#changelog)
@@ -68,11 +69,11 @@
 		- Enabled by default
 
 - v2.3 November 18, 2011
-	- [Heroku](https://heroku.com/) support
+	- [Heroku](https://heroku.com/) server support
 	- Added `extendServer` configuration option
 		- Now, by default, even if the server is provided, we will extend it. If you do not want this, set this configuration option to `false`.
-	- Made it easier to load docpad as an easier
-	- Instead of crashing when an uncaught error happens, it'll output it and keep running as often they are not major problems.
+	- Made it easier to load docpad as a module
+	- Instead of crashing when an uncaught error happens, it'll output it and keep running
 	- The log messages and next handling in `docpad.action` has been cleaned up
 		- Now those log messages are contained within the default next handler, so if you provide a custom default next handler you'll have to do your own success log messages
 	- [NPM](https://github.com/isaacs/npm) is now installed locally
@@ -105,7 +106,7 @@
 	- Tested and working on Node 0.4, 0.5, and 0.6
 		- Windows support is still to come - [track it's progress here](https://github.com/bevry/docpad/issues/26)
 	- Configurable via `package.json`
-		- DocPad is now configurable via it's and your website's `package.json` file
+		- DocPad is now configurable via its and your website's `package.json` file
 	- New plugin architecture
 		- Plugins must now be isolated in their own directory
 		- Plugins can now have their own `package.json` file
@@ -145,7 +146,7 @@
 	- The code is now more concise
 		- File class moved to `lib/file.coffee`
 		- Prototypes moved to `lib/prototypes.coffee`
-		- Version checking moved to bal-util
+		- Version checking moved to the `bal-util` module
 	- File properties have changed
 		- `basename` is extensionless
 		- `filename` now contains the file's extnesions
@@ -153,14 +154,14 @@
 		- `extensionRendered` is the result extension
 		- `filenameRendered` is the result filename: `"#{basename}.#{extensionRendered}"
 		- `title` if now set to `filenameRendered` if not set
-	- Added support for different meta parsers, starting with [CoffeeScript](http://jashkenas.github.com/coffee-script/) and [YAML](https://github.com/visionmedia/js-yaml) support. YAML is still the default meta parser.
-	- The YAML dependency is specifically set now to v0.2.1 as the newer version has a bug in it.
+	- Added support for different meta parsers, starting with [CoffeeScript](http://jashkenas.github.com/coffee-script/) and [YAML](https://github.com/visionmedia/js-yaml) support. YAML is still the default meta parser
+	- The YAML dependency is specifically set now to v0.2.1 as the newer version has a bug in it
 	- Fixed multiple renderers for a single document. E.g. `file.html.md.eco`
 	- Now also supports using `###` along with `---` for wrapping the meta data
 	- Supports the `public` alias for the `files` directory
 
 - v1.2 September 29, 2011
-	- Plugins now conform to a .plugin.coffee naming standard
+	- Plugins now conform to a `.plugin.coffee` naming standard
 	- Dependencies now allow for minor patches
 	- Stylus Plugin
 		- Added [Stylus](http://learnboost.github.com/stylus/) to CSS support
@@ -172,7 +173,7 @@
 		- Added [CoffeeCSS](https://github.com/aeosynth/ccss) to CSS support
 			- Uses [James Campos's](https://github.com/aeosynth) [CCSS](https://github.com/aeosynth/ccss)
 	- Fixed incorrect date sorting for documents
-		- Thanks to [Olivier Bazoud](https://github.com/obazoud) for the heads up
+		- Thanks to [Olivier Bazoud](https://github.com/obazoud)
 
 - v1.1 September 28, 2011
 	- Added [Buildr](http://github.com/balupton/buildr.npm) Plugin so you can now bundle your scripts and styles together :-)
