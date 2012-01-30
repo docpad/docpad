@@ -19,7 +19,6 @@ docpadConfig =
 	command: false
 	skeleton: program.skeleton
 	port: program.port
-	logLevel: if program.debug is true then 7 else 6
 docpad = DocPad.createInstance(docpadConfig)
 logger = docpad.logger
 
@@ -68,6 +67,15 @@ actionCompleted = (err) ->
 		console.log ''
 		program.emit 'cli', []
 
+# Completed a docpad action
+docpadActionCompleted = (err) ->
+	console.log 'asd'
+	if err
+		logger.log 'error', "The action #{action} had problems"
+	else
+		logger.log 'info', "The action #{action} has completed successfully"
+	actionCompleted(err)
+
 
 # -------------------------------------
 # Commands
@@ -78,7 +86,7 @@ program
 	.description('does everyting: scaffold, generate, watch, server')
 	.action ->
 		applyConfiguration(docpad,program)
-		docpad.action 'all', actionCompleted
+		docpad.action 'all', docpadActionCompleted
 
 # Skeleton
 program
@@ -86,7 +94,7 @@ program
 	.description('fills the current working directory with the optional --skeleton')
 	.action ->
 		applyConfiguration(docpad,program)
-		docpad.action 'scaffold', actionCompleted
+		docpad.action 'scaffold', docpadActionCompleted
 
 # Generate
 program
@@ -94,7 +102,7 @@ program
 	.description('(re)generates the output')
 	.action ->
 		applyConfiguration(docpad,program)
-		docpad.action 'generate', actionCompleted
+		docpad.action 'generate', docpadActionCompleted
 
 # Watch
 program
@@ -102,7 +110,7 @@ program
 	.description('(re)generates the output whenever a change is made')
 	.action ->
 		applyConfiguration(docpad,program)
-		docpad.action 'watch', actionCompleted
+		docpad.action 'watch', docpadActionCompleted
 
 # Server
 program
@@ -110,7 +118,7 @@ program
 	.description('creates a docpad server instance with the optional --port')
 	.action ->
 		applyConfiguration(docpad,program)
-		docpad.action 'server', actionCompleted
+		docpad.action 'server', docpadActionCompleted
 
 # CLI
 program
@@ -160,9 +168,6 @@ program
 
 # -------------------------------------
 # Initialise
-
-# Welcome
-logger.log 'info', """Welcome to DocPad"""
 
 # Start
 program.parse process.argv
