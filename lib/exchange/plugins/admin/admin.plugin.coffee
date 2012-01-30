@@ -19,7 +19,7 @@ module.exports = (BasePlugin) ->
 		
 		# Adminstration Website
 		writeAfter: ({},next) ->
-			docpad = require(@docpad.config.mainPath).createInstance(
+			docpad = require(@docpad.mainPath).createInstance(
 				checkVersion: false
 				growl: false
 				rootPath: __dirname

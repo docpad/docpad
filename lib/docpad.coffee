@@ -98,6 +98,9 @@ class DocPad extends EventSystem
 	# The docpad package.json path
 	packagePath: "#{__dirname}/package.json"
 
+	# The docpad plugins directory
+	pluginsPath: "#{__dirname}/exchange/plugins"
+
 
 	# -----------------------------
 	# Exchange
@@ -172,6 +175,9 @@ class DocPad extends EventSystem
 		# The website's package.json path
 		packagePath: 'package.json'
 
+		# The website's plugins directory
+		pluginsPath: 'plugins'
+
 		
 		# -----------------------------
 		# Server
@@ -193,7 +199,7 @@ class DocPad extends EventSystem
 		# Logging
 
 		# Which level of logging should we actually output
-		logLevel: null
+		logLevel: (if process.argv.has('-d') then 7 else 6)
 
 		# A caterpillar instance if we already have one
 		logger: null
@@ -234,6 +240,12 @@ class DocPad extends EventSystem
 		# Prepare
 		docpad = @
 
+		# Initialise a default logger
+		@logger = new caterpillar.Logger
+			transports:
+				level: @config.logLevel
+				formatter: module: module
+
 		# Destruct prototype references
 		@pluginsArray = []
 		@pluginsObject = {}
@@ -249,11 +261,17 @@ class DocPad extends EventSystem
 
 	# Load a json path
 	# next(err,parsedData)
-	loadJsonPath: (next,path) ->
+	loadJsonPath: (jsonPath,next) ->
+		# Prepare
+		logger = @logger
+
+		# Log
+		logger.log 'debug', "Attempting to load the configuration file #{jsonPath}"
+
 		# Read local configuration
-		path.exists path, (exists) ->
-			return  if not exists
-			fs.readFile path, (err,data) ->
+		path.exists jsonPath, (exists) ->
+			return next?()  if not exists
+			fs.readFile jsonPath, (err,data) ->
 				return next?(err)  if err
 				return next?()  unless data
 				try
@@ -287,6 +305,7 @@ class DocPad extends EventSystem
 
 				# Prepare
 				instanceConfig.rootPath or= process.cwd()
+				instanceConfig.packagePath or=  @config.packagePath
 				docpadPackagePath = @packagePath
 				websitePackagePath = path.resolve instanceConfig.rootPath, instanceConfig.packagePath
 				docpadConfig = {}
@@ -294,7 +313,7 @@ class DocPad extends EventSystem
 				websiteConfig = {}
 
 				# Async
-				tasks = new util.Group (err) ->
+				tasks = new util.Group (err) =>
 					return fatal(err)  if err
 
 					# Apply Configuration
@@ -316,15 +335,13 @@ class DocPad extends EventSystem
 					@config.layoutsPath = path.resolve @config.rootPath, @config.layoutsPath
 					@config.documentsPath = path.resolve @config.rootPath, @config.documentsPath
 					@config.publicPath = path.resolve @config.rootPath, @config.publicPath
+					@config.pluginsPath = path.resolve @config.rootPath, @config.pluginsPath
 
 					# Logger
-					unless @config.logLevel?
-						@config.logLevel = if process.argv.has('-d') then 7 else 6
 					@logger = @config.logger or= new caterpillar.Logger
 						transports:
 							level: @config.logLevel
-							formatter:
-								module: module
+							formatter: module: module
 					
 					# Bind the error handler, so we don't crash on errors
 					process.on 'uncaughtException', (err) ->
@@ -516,7 +533,7 @@ class DocPad extends EventSystem
 	# Handle a fatal error
 	fatal: (err) ->
 		return @  unless err
-		@error(error)
+		@error(err)
 		process.exit(-1)
 	
 
@@ -670,7 +687,7 @@ class DocPad extends EventSystem
 		# Load in the docpad and local plugin directories
 		tasks.push => @loadPluginsIn @pluginsPath, tasks.completer()
 		if @config.rootPath isnt __dirname and path.existsSync "#{@config.rootPath}/plugins"
-			tasks.push => @loadPluginsIn "#{@config.rootPath}/plugins", tasks.completer()
+			tasks.push => @loadPluginsIn @config.pluginsPath, tasks.completer()
 		
 		# Execute the loading asynchronously
 		tasks.async()
@@ -698,7 +715,7 @@ class DocPad extends EventSystem
 			# Handle directories
 			(fileFullPath,fileRelativePath,_nextFile) ->
 				# Prepare
-				return nextFile(null,false)  if fileFullPath is pluginsPath
+				return _nextFile(null,false)  if fileFullPath is pluginsPath
 				nextFile = (err,skip) ->
 					if err
 						logger.log 'warn', "Failed to load the plugin #{loader.pluginName} at #{fileFullPath}. The error follows"
@@ -752,6 +769,9 @@ class DocPad extends EventSystem
 	# Perform an action
 	# next(err)
 	action: (action,next) ->
+		# Prepare
+		error = @error
+
 		# Multiple actions?
 		actions = action.split /[,\s]+/g
 		if actions.length > 1
@@ -765,33 +785,33 @@ class DocPad extends EventSystem
 		switch action
 			when 'skeleton', 'scaffold'
 				@skeletonAction (err) =>
-					return @error(err)  if err
+					return error(err)  if err
 					next?()
 
 			when 'generate'
 				@generateAction (err) =>
-					return @error(err)  if err
+					return error(err)  if err
 					next?()
 
 			when 'watch'
 				@watchAction (err) =>
-					return @error(err)  if err
+					return error(err)  if err
 					next?()
 
 			when 'server', 'serve'
 				@serverAction (err) =>
-					return @error(err)  if err
+					return error(err)  if err
 					next?()
 
 			else
 				@skeletonAction (err) =>
-					return @error(err)  if err
+					return error(err)  if err
 					@generateAction (err) =>
-						return @error(err)  if err
+						return error(err)  if err
 						@serverAction (err) =>
-							return @error(err)  if err
+							return error(err)  if err
 							@watchAction (err) =>
-								return @error(err)  if err
+								return error(err)  if err
 								next?()
 		
 		# Chain
