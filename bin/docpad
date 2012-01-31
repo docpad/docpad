@@ -16,10 +16,9 @@ cwd = process.cwd()
 
 # Create DocPad Instance
 docpadConfig = 
-	command: false
 	skeleton: program.skeleton
 	port: program.port
-docpad = DocPad.createInstance(docpadConfig)
+docpad = DocPad.createInstance docpadConfig
 logger = docpad.logger
 
 # Version
@@ -69,11 +68,10 @@ actionCompleted = (err) ->
 
 # Completed a docpad action
 docpadActionCompleted = (err) ->
-	console.log 'asd'
 	if err
-		logger.log 'error', "The action #{action} had problems"
+		logger.log 'error', "The DocPad action had problems"
 	else
-		logger.log 'info', "The action #{action} has completed successfully"
+		logger.log 'info', "The DocPad action has completed successfully"
 	actionCompleted(err)
 
 

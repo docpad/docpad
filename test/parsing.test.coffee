@@ -1,34 +1,40 @@
 # Requires
-assert = require 'assert'
-Docpad = require __dirname+'/../lib/docpad.coffee'
-
-# -------------------------------------
-# Data
-
-# Files
-files =
-	noMetaData: '''
-		This is a page with no meta data
-		'''
-	
-	withMetaData: '''
-		---
-		title: "Some awesome title goes here"
-		date: "2011-12-25"
-		---
-
-		This is a page with meta data
-		'''
+assert = require('assert')
+DocPad = require("#{__dirname}/../lib/docpad.coffee")
 
 
 # -------------------------------------
-# Tests
+# Configuration
 
-# Tests
+# Configure DocPad
+docpadConfig = 
+	outPath: "#{__dirname}/out"
+	srcPath: "#{__dirname}/src"
+
+# Fail on an uncaught error
+process.on 'uncaughtException', (err) ->
+	throw err
+
+
+# -------------------------------------
+# Run
+
+# Create docpad instance
+docpad = DocPad.createInstance docpadConfig, (err) ->
+	throw err  if err
+	logger = docpad.logger
+logger = docpad.logger
+
+
+# -------------------------------------
+# Test
+
 tests =
-	'parsing-noMetaData': ->
-		docpad = Docpad.createInstance()
-		file = docpad.createFile source: files.noMetaData
+	'parsing': ->
+		docpad.action 'run', (err) ->
+			throw err  if err
+			assert.ok true
+
 
 # -------------------------------------
 # Export
