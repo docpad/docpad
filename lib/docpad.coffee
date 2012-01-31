@@ -236,7 +236,8 @@ class DocPad extends EventSystem
 	# Initialisation Functions
 
 	# Construct DocPad
-	constructor: (config={}) ->
+	# next(err)
+	constructor: (config={},next) ->
 		# Prepare
 		docpad = @
 
@@ -245,7 +246,11 @@ class DocPad extends EventSystem
 			transports:
 				level: @config.logLevel
 				formatter: module: module
-
+		
+		# Bind the error handler, so we don't crash on errors
+		process.on 'uncaughtException', (err) ->
+			docpad.error err
+		
 		# Destruct prototype references
 		@pluginsArray = []
 		@pluginsObject = {}
@@ -258,6 +263,9 @@ class DocPad extends EventSystem
 
 			# Version Check
 			docpad.compareVersion()
+
+			# Next
+			next?()
 
 	# Load a json path
 	# next(err,parsedData)
@@ -336,16 +344,12 @@ class DocPad extends EventSystem
 					@config.documentsPath = path.resolve @config.rootPath, @config.documentsPath
 					@config.publicPath = path.resolve @config.rootPath, @config.publicPath
 					@config.pluginsPath = path.resolve @config.rootPath, @config.pluginsPath
-
+					
 					# Logger
 					@logger = @config.logger or= new caterpillar.Logger
 						transports:
 							level: @config.logLevel
 							formatter: module: module
-					
-					# Bind the error handler, so we don't crash on errors
-					process.on 'uncaughtException', (err) ->
-						docpad.error err
 
 					# Prepare enabled plugins
 					if typeof @config.enabledPlugins is 'string'
@@ -771,6 +775,7 @@ class DocPad extends EventSystem
 	action: (action,next) ->
 		# Prepare
 		error = @error
+		logger = @logger
 
 		# Multiple actions?
 		actions = action.split /[,\s]+/g
@@ -780,7 +785,10 @@ class DocPad extends EventSystem
 			for action in actions
 				@action action, tasks.completer()
 			return @
-		
+
+		# LOG
+		logger.log 'debug', "Performing the action #{action}"
+
 		# Handle
 		switch action
 			when 'skeleton', 'scaffold'
@@ -1143,12 +1151,11 @@ class DocPad extends EventSystem
 		fatal = (err) ->
 			docpad.fatal(err,next)
 		complete = (err) ->
-			next?(err)  if err
 			docpad.unblock 'loading', (err) ->
-				fatal(err)  if err
+				fatal(err)  if err  # continue on
 				docpad.finish 'generating', ->
-					fatal(err)  if err
-					next?()
+					fatal(err)  if err  # continue on
+					next?(err)
 		
 		# Block loading
 		docpad.block 'loading', (err) ->
@@ -1209,21 +1216,25 @@ class DocPad extends EventSystem
 		docpad = @
 		logger = @logger
 		watchr = require('watchr')  unless watchr
+		watchrInstance = null
 
 		# Exits
+		close = ->
+			if watchrInstance
+				watchrInstance.close()
+				watchrInstance = null
 		fatal = (err) ->
 			docpad.fatal(err,next)
 		complete = (err) ->
-			next?(err)  if err
 			# Finish
 			docpad.finish 'watching', ->
-				fatal(err)  if err
+				fatal(err)  if err  # continue on
 				# Unblock
 				docpad.unblock 'loading', (err) ->
-					fatal(err)  if err
+					fatal(err)  if err  # continue on
 					# Next
-					next?()
-		watch = ->
+					next?(err)
+		watch = (next) ->
 			# Block loading
 			docpad.block 'loading', (err) ->
 				return next?(err)  if err
@@ -1231,23 +1242,22 @@ class DocPad extends EventSystem
 					# Prepare
 					logger.log 'Watching setup starting...'
 
-					# Watch the source directory
-					watchr.watch docpad.config.srcPath, ->
+					# Prepare change handler
+					changeHappened = ->
 						# What to do when a file has changed
-						docpad.action 'generated', (err) ->
+						docpad.action 'generate', (err) ->
 							docpad.error(err)  if err
 							logger.log 'Regenerated due to file watch at '+(new Date()).toLocaleString()
-					
-					# Completed
-					logger.log 'Watching setup'
-					complete()
-		
 
+					# Watch the source directory
+					close()
+					watchrInstance = watchr.watch docpad.config.srcPath, changeHappened, next
+		
 		# Unwatch if loading started
 		docpad.when 'loading:started', (err) ->
 			return fatal(err)  if err
 			# Unwatch the source directory
-			watchr.unwatch docpad.config.srcPath
+			close()
 
 			# Watch when loading finished
 			docpad.onceFinished 'loading', (err) ->
@@ -1259,13 +1269,20 @@ class DocPad extends EventSystem
 		docpad.whenFinished 'generating:started', (err) ->
 			return fatal(err)  if err
 			# Unwatch the source directory
-			watchr.unwatch docpad.config.srcPath
+			close()
 
 			# Watch when generating finished
 			docpad.onceFinished 'generating', (err) ->
 				return fatal(err)  if err
 				# Watch the source directory
 				watch()
+		
+		# Watch
+		watch ->
+			# Completed
+			logger.log 'Watching setup'
+			complete()
+
 		
 		# Chain
 		@
@@ -1286,15 +1303,14 @@ class DocPad extends EventSystem
 		fatal = (err) ->
 			docpad.fatal(err,next)
 		complete = (err) ->
-			next?(err)  if err
 			# Finish
 			docpad.finish 'skeleton', ->
-				fatal(err)  if err
+				fatal(err)  if err  # continue on
 				# Unblock
 				docpad.unblock 'loading, generating', (err) ->
-					fatal(err)  if err
+					fatal(err)  if err  # continue on
 					# Next
-					next?()
+					next?(err)
 
 		# Block loading
 		docpad.block 'loading, generating', (err) ->
@@ -1330,17 +1346,16 @@ class DocPad extends EventSystem
 
 		# Exists
 		fatal = (err) ->
-			docpad.fatal(err,next)
+			return docpad.fatal(err,next)
 		complete = (err) ->
-			next?(err)  if err
 			# Finish
 			docpad.finish 'serving', ->
-				fatal(err)  if err
+				fatal(err)  if err  # continue on
 				# Unblock
 				docpad.unblock 'loading', (err) ->
-					fatal(err)  if err
+					fatal(err)  if err  # continue on
 					# Next
-					next?()
+					next?(err)
 		
 		# Block loading
 		docpad.block 'loading', (err) ->
@@ -1435,5 +1450,5 @@ class DocPad extends EventSystem
 # Export API
 module.exports = 
 	DocPad: DocPad
-	createInstance: (config) ->
-		return new DocPad(config)
+	createInstance: (config,next) ->
+		return new DocPad(config,next)
