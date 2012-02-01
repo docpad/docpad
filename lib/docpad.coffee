@@ -2,16 +2,16 @@
 # Requires
 
 # System
-fs = require 'fs'
-path = require 'path'
-sys = require 'util'
-request = require 'request'
+fs = require('fs')
+path = require('path')
+request = require('request')
+sys = require('util')
 
 # Necessary
-caterpillar = require 'caterpillar'
-util = require 'bal-util'
+_ = require('underscore')
+caterpillar = require('caterpillar')
+util = require('bal-util')
 EventSystem = util.EventSystem
-_ = require 'underscore'
 
 # Optional
 growl = null
@@ -344,7 +344,7 @@ class DocPad extends EventSystem
 					@config.documentsPath = path.resolve @config.rootPath, @config.documentsPath
 					@config.publicPath = path.resolve @config.rootPath, @config.publicPath
 					@config.pluginsPath = path.resolve @config.rootPath, @config.pluginsPath
-					
+
 					# Logger
 					@logger = @config.logger or= new caterpillar.Logger
 						transports:
@@ -960,6 +960,8 @@ class DocPad extends EventSystem
 							if document.ignore or document.ignored or document.skip or document.published is false or document.draft is true
 								logger.log 'info', 'Skipped manually ignored document:', document.relativePath
 								return nextFile()
+							else
+								logger.log 'debug', 'Loaded in the document:', document.relativePath
 							
 							# Store Document
 							document.store()
@@ -1321,7 +1323,7 @@ class DocPad extends EventSystem
 				path.exists docpad.config.srcPath, (exists) ->
 					# Check
 					if exists
-						logger.log 'notice', 'Cannot place skeleton as the desired structure already exists'
+						logger.log 'info', "Didn't place the skeleton as the desired structure already exists"
 						return complete()
 					
 					# Initialise Skeleton

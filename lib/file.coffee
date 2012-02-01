@@ -249,6 +249,7 @@ class File
 			@body = @data
 		
 		# Update meta data
+		@body = @body.replace(/^\n+/,'')
 		@meta or= {}
 		@content = @body
 		@title = @title or @basename or @filename
@@ -298,7 +299,7 @@ class File
 		@logger.log 'debug', "Writing the rendered file #{filePath}"
 
 		# Write data
-		fs.writeFile filePath, @contentRenderedWithLayouts, (err) =>
+		fs.writeFile filePath, @contentRendered, (err) =>
 			return next?(err)  if err
 			
 			# Log
