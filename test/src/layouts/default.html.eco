@@ -4,5 +4,8 @@ title: 'Default Layout'
 
 <html>
 	<head></head>
-	<body><%-@content%></body>
+	<body>
+		<div id="content"><%-@content%></div>
+		<code id="meta"><%-JSON.stringify @document.meta%></code>
+	</body>
 </html>
