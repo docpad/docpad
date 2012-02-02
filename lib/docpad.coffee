@@ -139,13 +139,24 @@ class DocPad extends EventSystem
 
 		# Plugins which should be enabled or not pluginName: pluginEnabled
 		enabledPlugins:
-			# Disable certain experimental plugins
-			admin: false
-			authenticate: false
-			rest: false
-			autoupdate: false
-			buildr: false
-			html2jade: false
+			# Enable only stable plugins by default
+			admin: false # not stable # not stable
+			authenticate: false # not stable
+			autoupdate: false # not stable
+			buildr: false # not stable
+			cleanurls: true
+			coffee: true
+			eco: true # has sys problem
+			haml: true
+			html2jade: false # not stable
+			jade: true
+			less: true
+			markdown: true
+			related: true
+			rest: false # not stable
+			roy: true # has sys problem
+			sass: true
+			stylus: true
 
 		# Configuration to pass to any plugins pluginName: pluginConfiguration
 		plugins: {}
