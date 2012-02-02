@@ -55,10 +55,10 @@
 		"coffee-script": "1.2.x",
 		"js2coffee": "0.1.x",
 		"underscore": "1.2.x",
-		"request": "2.9.x",
 		"npm": ">=1.0.x"
 	},
 	"devDependencies": {
+		"request": "2.9.x",
 		"mocha": "0.10.x"	
 	},
 	"engines" : {

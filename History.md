@@ -1,15 +1,21 @@
 ## History
 
 - v3.2 Unreleased
-	- Cleaning architecture
-	- New plugin structure
-	- Added `File.writeRendered`
-	- Started to add offline installations
-	- Started to add support for multiple skeletons
-	- Started to add exchange (plugins, skeletons)
-	- Started to add stats
-	- Started more involved comments
+	- Cleaned architecture
+	- Added unit tests (uses mocha)
+	- Better source code documentation
 	- Moved changelog from `README.md` to `History.md` as it was starting to get a bit long
+	- Added `File.writeRendered`
+	- Added `File.contentRenderedWithoutLayout`
+	- Watching will no longer watch hidden files
+	- Backwards compatibility breaks
+		- File property names have been changed
+		- New plugin structure
+	- Still in progress
+		- Offline installations
+		- Support for multiple skeletons
+		- Exchange
+		- Stats
 
 - v3.1 Unreleased
 	- Added an interactive cli

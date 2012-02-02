@@ -61,34 +61,33 @@ describe 'core', ->
 									done()
 				testMarkup(markupName,markupFile)  for own markupName, markupFile of {
 					coffeekup: 'coffeekup.html'
+					eco: 'eco.html'
 					haml: 'haml.html'
 					jade: 'jade.html'
+					'layout (1/2)': 'layout-single.html'
+					'layout (2/2)': 'layout-double.html'
+					less: 'less.css'
 					markdown: 'markdown.html'
+					'related (1/2)': 'related-1.html'
+					'related (2/2)': 'related-2.html'
+					roy: 'roy.js'
+					sass: 'sass.css'
 					stylus: 'stylus.css'
 					'stylus-nib': 'stylus-nib.css'
 				}
 
-			describe 'plugins', ->
-				describe 'cleanurls', ->
-					it 'should support urls without an extension', (done) ->
-						request "#{baseUrl}/markdown", (err,response,body) ->
-							throw err  if err
-							assert.equal(
-								fs.readFileSync("#{outExpectedPath}/markdown.html").toString()
-								body
-							)
-							done()
-			
 			describe 'server', ->
 				
 				it 'should serve generated documents', (done) ->
 					request "#{baseUrl}/markdown.html", (err,response,body) ->
 						throw err  if err
-						assert.equal(
-							fs.readFileSync("#{outExpectedPath}/markdown.html").toString()
-							body
-						)
-						done()
+						fs.readFile "#{outExpectedPath}/markdown.html", (err,actual) ->
+							throw err  if err
+							assert.equal(
+								actual.toString()
+								body
+							)
+							done()
 				
 				it 'should serve dynamic documents - part 1/2', (done) ->
 					request "#{baseUrl}/dynamic.html?name=ben", (err,response,body) ->
@@ -107,3 +106,16 @@ describe 'core', ->
 							body
 						)
 						done()
+			
+			describe 'plugins', ->
+				describe 'cleanurls', ->
+					it 'should support urls without an extension', (done) ->
+						request "#{baseUrl}/markdown", (err,response,body) ->
+							throw err  if err
+							fs.readFile "#{outExpectedPath}/markdown.html", (err,actual) ->
+								throw err  if err
+								assert.equal(
+									actual.toString()
+									body
+								)
+								done()
