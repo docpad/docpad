@@ -2,6 +2,7 @@
 util = require 'bal-util'
 fs = require 'fs'
 path = require 'path'
+_ = require 'underscore'
 coffee = null
 yaml = null
 js2coffee = null
@@ -292,6 +293,7 @@ class File
 				@getLayout (err,layout) =>
 					return next(err)  if err
 					templateData.content = @contentRendered
+					templateData.document = _.extend {}, layout.fileMeta, templateData.document
 					layout.render templateData, (err) =>
 						@contentRendered = layout.contentRendered
 						@logger.log 'debug', "Rendering completed for #{@relativePath}"
