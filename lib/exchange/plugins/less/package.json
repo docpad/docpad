@@ -2,7 +2,7 @@
 	"name": "docpad-less",
 	"version": "0.1.0",
 	"description": "Adds support for the LessCSS pre-processor to DocPad.",
-	"homepage": "https://github.com/balupton/docpad",
+	"homepage": "https://github.com/bevry/docpad",
 	"keywords": [
 		"docpad",
 		"less",
@@ -31,7 +31,7 @@
 		}
 	],
 	"bugs": {
-		"url": "https://github.com/balupton/docpad/issues"
+		"url": "https://github.com/bevry/docpad/issues"
 	},
 	"licenses": [
 		{
@@ -41,7 +41,7 @@
 	],
 	"repository" : {
 		"type": "git",
-		"url": "http://github.com/balupton/docpad.git"
+		"url": "http://github.com/bevry/docpad.git"
 	},
 	"dependencies": {
 		"less-clean": ">=1.1.x"

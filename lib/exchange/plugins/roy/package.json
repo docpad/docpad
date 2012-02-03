@@ -2,7 +2,7 @@
 	"name": "docpad-roy",
 	"version": "0.1.0",
 	"description": "Adds support for the Roy to javascript language to DocPad.",
-	"homepage": "https://github.com/balupton/docpad",
+	"homepage": "https://github.com/bevry/docpad",
 	"keywords": [
 		"docpad",
 		"roy",
@@ -29,7 +29,7 @@
 		}
 	],
 	"bugs": {
-		"url": "https://github.com/balupton/docpad/issues"
+		"url": "https://github.com/bevry/docpad/issues"
 	},
 	"licenses": [
 		{
@@ -39,7 +39,7 @@
 	],
 	"repository" : {
 		"type": "git",
-		"url": "http://github.com/balupton/docpad.git"
+		"url": "http://github.com/bevry/docpad.git"
 	},
 	"dependencies": {
 		"roy": "0.1.x"

@@ -2,7 +2,7 @@
 	"name": "docpad-autoupdate",
 	"version": "0.1.0",
 	"description": "Adds auto-updating the DocPad frontend",
-	"homepage": "https://github.com/balupton/docpad",
+	"homepage": "https://github.com/bevry/docpad",
 	"keywords": [
 		"docpad",
 		"autoupdate",
@@ -29,7 +29,7 @@
 		}
 	],
 	"bugs": {
-		"url": "https://github.com/balupton/docpad/issues"
+		"url": "https://github.com/bevry/docpad/issues"
 	},
 	"licenses": [
 		{
@@ -39,7 +39,7 @@
 	],
 	"repository" : {
 		"type": "git",
-		"url": "http://github.com/balupton/docpad.git"
+		"url": "http://github.com/bevry/docpad.git"
 	},
 	"dependencies": {
 		"now": "0.7.x"

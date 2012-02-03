@@ -2,7 +2,7 @@
 	"name": "docpad-eco",
 	"version": "0.1.0",
 	"description": "Adds support for the Eco templating engine to DocPad.",
-	"homepage": "https://github.com/balupton/docpad",
+	"homepage": "https://github.com/bevry/docpad",
 	"keywords": [
 		"docpad",
 		"eco",
@@ -31,7 +31,7 @@
 		}
 	],
 	"bugs": {
-		"url": "https://github.com/balupton/docpad/issues"
+		"url": "https://github.com/bevry/docpad/issues"
 	},
 	"licenses": [
 		{
@@ -41,10 +41,10 @@
 	],
 	"repository" : {
 		"type": "git",
-		"url": "http://github.com/balupton/docpad.git"
+		"url": "http://github.com/bevry/docpad.git"
 	},
 	"dependencies": {
-		"eco": "1.0.x"
+		"eco": "1.1.x"
 	},
 	"engines" : {
 		"node": ">=0.4.0"

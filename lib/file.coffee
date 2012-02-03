@@ -1,7 +1,7 @@
 # Requires
-util = require 'bal-util'
-fs = require 'fs'
-path = require 'path'
+util = require('bal-util')
+fs = require('fs')
+path = require('path')
 coffee = null
 yaml = null
 js2coffee = null
