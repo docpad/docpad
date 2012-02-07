@@ -40,8 +40,8 @@ class File
 	# "hello.md.eco" -> "eco"
 	extension: null
 
-	# The file's extensions as an array, in reverse order
-	# "hello.md.eco" -> ["eco","md"]
+	# The file's extensions as an array
+	# "hello.md.eco" -> ["md","eco"]
 	extensions: []
 
 	# The final extension used for our rendered file
@@ -155,6 +155,53 @@ class File
 		# Copy over meta data
 		for own key, value of meta
 			@[key] = value
+	
+	# Get Attributes
+	getAttributes: ->
+		# Prepare
+		attributes = {}
+		attributeNames = '''
+			id basename extension extensions extensionRendered filename filenameRendered fullPath outPath relativePath relativeBase
+			
+			data header parser meta body content rendered contentRendered contentRenderedWithoutLayouts contentRenderings contentRenderingsByLayout
+			
+			dynamic title date slug url urls ignore tags
+			'''.split(/\s+/g)
+		
+		# Discover
+		for attributeName in attributeNames
+			value = @[attributeName]
+			unless typeof value is 'function'
+				attributes[attributeName] = value
+		
+		# Return
+		attributes
+	
+	# Get Simple Attributes
+	# Without content references
+	getSimpleAttributes: ->
+		# Prepare
+		attributes = {}
+		attributeNames = '''
+			id basename extension extensions extensionRendered filename filenameRendered fullPath outPath relativePath relativeBase
+			
+			parser
+			
+			dynamic title date slug url urls ignore tags
+			'''.split(/\s+/g)
+		
+		# Discover
+		for attributeName in attributeNames
+			value = @[attributeName]
+			unless typeof value is 'function'
+				attributes[attributeName] = value
+		
+		# Return
+		attributes
+	
+	# To JSON
+	toJSON: ->
+		@getAttributes()
 
 	# Load
 	# Loads in the source file and parses it
@@ -364,7 +411,8 @@ class File
 		# Extension
 		@extensions = @filename.split /\./g
 		@extensions.shift()
-		@extension = @extensions[0]
+		@extension = @extensions[@extensions.length-1]
+		@extensionRendered = @extensions[0]
 
 		# Paths
 		fullDirPath = path.dirname(@fullPath) or ''
@@ -382,12 +430,12 @@ class File
 	contextualize: (next) ->
 		@getEve (err,eve) =>
 			return next(err)  if err
-			@extensionRendered = eve.extension
+			@extensionRendered = eve.extensionRendered
 			@filenameRendered = "#{@basename}.#{@extensionRendered}"
 			@url or= "/#{@relativeBase}.#{@extensionRendered}"
 			@slug or= util.generateSlugSync @relativeBase
 			@title or= @filenameRendered
-			@outPath = if @outDirPath then "#{@outDirPath}/#{@url}" else null
+			@outPath = if @outDirPath then path.join(@outDirPath,@url) else null
 			@addUrl @url
 			next?()
 		

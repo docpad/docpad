@@ -1,8 +1,16 @@
-# DocPad. It makes web development intuitive again.
+# DocPad. Intuitive web development.
 
 Initially web development was pretty easy, you just wrote a bunch of files and you got your website. These days, it's a lot more complicated than that. Things like databases, synchronisation, legacy frameworks and languages all slow the entire process down into a painful crawl. _It doesn't have to be like that._
 
 DocPad takes that good ol' simple approach of writing files and wraps it with the best modern innovations, providing an awesome intuitive, liberating and empowering solution for HTML5 web design & development.
+
+
+## For the seasoned web developer
+
+If your familiar with web development, this means that instead of writing your content inside rows of a database, you write your content as physical files (documents), which are then in turn parsed into a temporary in-memory database. This offers amazing ease-of-use and intuitiveness for the end-user as it's familiar and easy to maintain files, plus they need no installation. Added on top of this, static documents will generate static output files, whereas dynamic documents will be re-rendered on each request. This gives us the best of all worlds; for static content, DocPad functions as a static site generator, whereas for dynamic content, DocPad functions as a CGI server. For the developer it offers the same power, as you have access to the in-memory database, utilise dynamic pages, and extend the server with custom code if you wish. We also bundle in a liquid layout engine for all your layout and content abstraction needs.
+
+But perhaps the most amazing and ground-breaking thing about DocPad, is it is truly language agnostic. This is amazing, it allows you to instantly write individual documents in whatever language you choose - you can even mix and match languages for ultimate control, power, and simplicity. This one point is revolutionary! We really can't hold in our excitement about this one feature!!! It's truly legendary, empowering, earth-shattering, wowness. If you have a moment, we'd highly recommend you take a moment, right now, to imagine what web development would be like if you were no longer tied or locked in to a particular language, no longer limited or constrained by what language you were using. That at any given time you can start working with a new language, or perhaps an old language, but always the right language for the task at hand. Sure, go ahead now, and take this moment to think about this empowering discovery. We'll wait. Go ahead.
+
 
 
 ## Let's take a look
@@ -48,7 +56,7 @@ DocPad takes that good ol' simple approach of writing files and wraps it with th
 		Hello **World!**
 		```
 
-1. Then when you generate your website with docpad you will get a html file at `out/posts/hello.html`, which contains:
+1. Then when you generate your website with DocPad you will get a html file at `out/posts/hello.html`, which contains:
 
 	``` html
 	<html>
@@ -91,6 +99,9 @@ DocPad takes that good ol' simple approach of writing files and wraps it with th
 - [CoffeeKup](http://coffeekup.org/) to anything `.anything.ck|coffeekup|coffee` and HTML to CoffeeKup `.ck|coffeekup|coffee.html`
 - [Jade](http://jade-lang.com/) to anything `.anything.jade` and HTML to Jade `.jade.html`
 - [HAML](http://haml-lang.com/) to anything `.anything.haml`
+- [Ruby](http://www.ruby-lang.org/) to anything `.anything.rb|ruby`
+- [ERuby](http://en.wikipedia.org/wiki/ERuby) to anything `.anything.erb`
+- [PHP](http://php.net/) to anything `.anything.php`
 
 ### Styles
 
@@ -115,7 +126,7 @@ DocPad takes that good ol' simple approach of writing files and wraps it with th
 - Dynamic documents
 	- Allows you to have documents that re-render on each request
 - Ability to extend the server yourself
-	- This allows you to utilise docpad while adding in your own server-side logic
+	- This allows you to utilise DocPad while adding in your own server-side logic
 - Version checking
 	- Always stay up to date
 - Mix and match renderers; e.g. `file.html.md.eco`
@@ -125,7 +136,7 @@ DocPad takes that good ol' simple approach of writing files and wraps it with th
 
 ## About
 
-DocPad is thriving these days... you can check out [a bunch of websites already using it here](https://github.com/bevry/docpad/wiki/Showcase), and [discover the awesomely handsome crew behind the community here](https://github.com/bevry/docpad/wiki/Users). Ocassionally we also hold [events and competitions](https://github.com/bevry/docpad/wiki/Events) where you can learn more about docpad, hack with others together, and win some cool stuff! Nifty.
+DocPad is thriving these days... you can check out [a bunch of websites already using it here](https://github.com/bevry/docpad/wiki/Showcase), and [discover the awesomely handsome crew behind the community here](https://github.com/bevry/docpad/wiki/Users). Ocassionally we also hold [events and competitions](https://github.com/bevry/docpad/wiki/Events) where you can learn more about DocPad, hack with others together, and win some cool stuff! Nifty.
 
 On that note, DocPad is awesomely extensible. You can [download other people's plugins](https://github.com/bevry/docpad/wiki/Extensions) and use them in real quick, or even [write your own in matters of minutes.](https://github.com/bevry/docpad/wiki/Extending)
 
@@ -178,7 +189,7 @@ _Getting errors? [Try troubleshooting](https://github.com/bevry/docpad/wiki/Trou
 
 		docpad watch
 
-- To run the docpad server which allows you to access the generated website in a web browser
+- To run the DocPad server which allows you to access the generated website in a web browser
 
 		docpad server
 
@@ -191,7 +202,6 @@ _Getting errors? [Try troubleshooting](https://github.com/bevry/docpad/wiki/Trou
 DocPad wouldn't be possible if it wasn't for the following libaries _(in alphabetical order)_
 
 - [Alexis Sellier's](https://github.com/cloudhead) [Less.js](https://github.com/cloudhead/less.js) - Leaner CSS
-- [Andrew Schaaf's](https://github.com/tafa) [Watch-Tree](https://github.com/tafa/node-watch-tree) - Node.js file watching made easy
 
 - [Benjamin Lupton's](https://github.com/balupton) [Bal-Util](https://github.com/balupton/bal-util.npm) - Node.js made easy
 - [Benjamin Lupton's](https://github.com/balupton) [Caterpillar](https://github.com/balupton/caterpillar.npm) - Logging made easy
@@ -218,6 +228,7 @@ DocPad wouldn't be possible if it wasn't for the following libaries _(in alphabe
 - [TJ Holowaychuk's](https://github.com/visionmedia) [Commander.js](https://github.com/visionmedia/commander.js) - Console apps made easy
 - [TJ Holowaychuk's](https://github.com/visionmedia) [Express.js](https://github.com/visionmedia/express) - The "Server" in Server Side Javascript
 - [TJ Holowaychuk's](https://github.com/visionmedia) [Jade](https://github.com/visionmedia/jade) - A robust, elegant, feature rich template engine
+- [TJ Holowaychuk's](https://github.com/visionmedia) [Mocha](https://github.com/visionmedia/mocha) - Simple, Flexible, Fun Unit Testing
 - [TJ Holowaychuk's](https://github.com/visionmedia) [Node-Growl](https://github.com/visionmedia/node-growl) - Notifications made easy
 - [TJ Holowaychuk's](https://github.com/visionmedia) [Sass.js](https://github.com/visionmedia/sass.js) - Syntactically awesome stylesheets
 - [TJ Holowaychuk/LearnBoost's](https://github.com/learnboost) [Stylus](https://github.com/learnboost/stylus) - Expressive, robust, feature-rich CSS language
@@ -226,7 +237,7 @@ DocPad wouldn't be possible if it wasn't for the following libaries _(in alphabe
 
 ## History
 
-Discover the history inside the `History.md` file
+You can discover the history inside the [History.md](https://github.com/bevry/docpad/blob/master/History.md#files) file
 
 
 ## License

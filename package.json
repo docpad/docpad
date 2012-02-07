@@ -1,7 +1,7 @@
 {
 	"name": "docpad",
 	"version": "3.2.0",
-	"description": "DocPad (like Jekyll) is a static website generator, unlike Jekyll it's written in CoffeeScript+Node.js instead of Ruby, and also allows the template engine complete access to the document model. This means you have unlimited power as a CMS and the simplicity of a notepad.",
+	"description": "DocPad. Intuitive web development.",
 	"homepage": "https://github.com/bevry/docpad",
 	"keywords": [
 		"javascript",
@@ -44,10 +44,10 @@
 		"url": "http://github.com/bevry/docpad.git"
 	},
 	"dependencies": {
-		"bal-util": "0.9.x",
+		"bal-util": "1.1.x",
 		"express": "2.5.x",
-		"query-engine": "0.5.x",
-		"watchr": "0.1.x",
+		"query-engine": "0.6.x",
+		"watchr": "1.0.x",
 		"caterpillar": "0.1.x",
 		"commander": "0.5.x",
 		"growl": "1.4.x",

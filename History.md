@@ -7,6 +7,7 @@
 	- Moved changelog from `README.md` to `History.md` as it was starting to get a bit long
 	- Added `File.writeRendered`
 	- Added `File.contentRenderedWithoutLayout`
+	- Added support for [Ruby](http://www.ruby-lang.org/), [ERuby](http://en.wikipedia.org/wiki/ERuby) and [PHP](http://php.net/)
 	- Watching will no longer watch hidden files
 	- Backwards compatibility breaks
 		- File property names have been changed

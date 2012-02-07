@@ -42,6 +42,7 @@ describe 'core', ->
 			done()
 
 	it 'should run correctly', (done) ->
+		@timeout(10000)
 		docpad.action 'run', (err) ->
 			throw err  if err
 			done()
@@ -50,6 +51,7 @@ describe 'core', ->
 				testMarkup = (markupName,markupFile) ->
 					describe markupName, ->
 						it "should generate #{markupName} files", (done) ->
+							@timeout(5000)
 							fs.readFile "#{outExpectedPath}/#{markupFile}", (err,expecting) ->
 								throw err  if err
 								fs.readFile "#{outPath}/#{markupFile}", (err,actual) ->
@@ -62,15 +64,18 @@ describe 'core', ->
 				testMarkup(markupName,markupFile)  for own markupName, markupFile of {
 					coffeekup: 'coffeekup.html'
 					eco: 'eco.html'
+					eruby: 'eruby.html'
 					haml: 'haml.html'
 					jade: 'jade.html'
 					'layout (1/2)': 'layout-single.html'
 					'layout (2/2)': 'layout-double.html'
 					less: 'less.css'
 					markdown: 'markdown.html'
+					php: 'php.html'
 					'related (1/2)': 'related-1.html'
 					'related (2/2)': 'related-2.html'
 					roy: 'roy.js'
+					ruby: 'ruby.html'
 					sass: 'sass.css'
 					stylus: 'stylus.css'
 					'stylus-nib': 'stylus-nib.css'

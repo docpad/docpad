@@ -672,7 +672,7 @@ class DocPad extends EventSystem
 		logger.log 'debug', "Plugins started for #{eventName}"
 		for plugin in @pluginsArray
 			if typeof plugin[eventName] is 'function'
-				plugin[eventName] data, tasks.completer()
+				plugin[eventName](data, tasks.completer())
 			else
 				tasks.complete()
 		
