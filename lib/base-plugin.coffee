@@ -44,10 +44,10 @@ class BasePlugin
 				@docpad.on eventName, handler
 		@
 	
+	###
 	# ---------------------------------
 	# Events
 
-	###
 	# Generate is starting
 	generateBefore: ({},next) ->
 		next?()
