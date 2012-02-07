@@ -71,6 +71,7 @@ describe 'core', ->
 					'layout (2/2)': 'layout-double.html'
 					less: 'less.css'
 					markdown: 'markdown.html'
+					move: 'move.js'
 					php: 'php.html'
 					'related (1/2)': 'related-1.html'
 					'related (2/2)': 'related-2.html'

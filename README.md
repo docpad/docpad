@@ -113,6 +113,7 @@ But perhaps the most amazing and ground-breaking thing about DocPad, is it is tr
 
 - [CoffeeScript](http://coffeescript.org/) to JavaScript `.js.coffee` and JavaScript to CoffeeScript `.coffee.js`
 - [Roy](http://roy.brianmckenna.org/) to JavaScript `.js.roy`
+- [Move](http://movelang.org/) to JavaScript `.js.move`
 
 ### Parsers
 
@@ -220,6 +221,7 @@ DocPad wouldn't be possible if it wasn't for the following libaries _(in alphabe
 
 - [Maurice Machado's](https://github.com/mauricemach) [CoffeeKup](https://github.com/mauricemach/coffeekup) - Markup as CoffeeScript
 
+- [Rasmus Andersson's](https://github.com/rsms) [Move](https://github.com/rsms/move) - A simple, functional-biased, powerful javascript pre-precessor
 - [Ryan Dahl's](https://github.com/ry) [Node.js](http://nodejs.org) - Server Side Javascript	
 
 - [Sam Stephenson's](https://github.com/sstephenson) [Eco](https://github.com/sstephenson/eco) - Embedded CoffeeScript templates
