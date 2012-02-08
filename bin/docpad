@@ -94,6 +94,64 @@ program
 		applyConfiguration(docpad,program)
 		docpad.action 'scaffold', docpadActionCompleted
 
+# Render
+program
+	.command('render')
+	.description('render a given file path, if stdin is provided use that in combination')
+	.action ->
+		docpad.config.logLevel = 5
+		applyConfiguration(docpad,program)
+		logger.transports[0].config.level = 5
+
+		# Check
+		if program.args.length is 1
+			docpad.error("You must pass a filename to the render command")
+
+		# File details
+		document = docpad.createDocument()
+		document.filename = program.args[0]
+		document.fullPath = program.args[0]
+		documentData = ''
+
+		# Prepare
+		useStdin = true
+		renderDocument = ->
+			document.contextualize (err) ->
+				throw err  if err
+				docpad.action 'render', {document:document}, (err) ->
+					throw err  if err
+					console.log document.contentRendered
+					docpadActionCompleted()
+			
+		# Timeout if we don't have stdin
+		setTimeout(
+			->
+				# Skip if we are using stdin
+				return  if documentData.replace(/\s+/,'')
+				# Close stdin as we are not using it
+				useStdin = false
+				stdin.pause()
+				# Read the file like normal
+				document.load (err) ->
+					throw err  if err
+					renderDocument()
+			,1000
+		)
+
+		# Read stdin
+		stdin = process.stdin
+		stdin.resume()
+		stdin.setEncoding('utf8')
+		stdin.on 'data', (data) ->
+			documentData += data.toString()
+		process.stdin.on 'end', ->
+			return  unless useStdin
+			document.parse documentData, (err) ->
+				throw err  if err
+				document.normalize (err) ->
+					throw err  if err
+					renderDocument()
+
 # Generate
 program
 	.command('generate')

@@ -171,28 +171,65 @@ _Getting errors? [Try troubleshooting](https://github.com/bevry/docpad/wiki/Trou
 
 - Firstly, make a directory for your new website and cd into it
 
-		mkdir my-new-website
-		cd my-new-website
+	``` bash
+	mkdir my-new-website
+	cd my-new-website
+	```
 
 - To get started, simply run the following - it will run all the other commands at once
 	
-		docpad run
+	``` bash
+	docpad run
+	```
 
 - To generate a basic website structure in the current working directory if we don't already have one
 
-		docpad scaffold
+	``` bash
+	docpad scaffold
+	```
 
 - To regenerate the rendered website
 
-		docpad generate
+	``` bash
+	docpad generate
+	```
 
 - To regenerate the rendered website automatically whenever we make a change to a file
 
-		docpad watch
+	``` bash
+	docpad watch
+	```
 
 - To run the DocPad server which allows you to access the generated website in a web browser
 
-		docpad server
+	``` bash
+	docpad server
+	```
+
+- To render an individual file with DocPad programatically (will output to stdout)
+
+	``` bash
+	docpad render filePath
+	```
+
+	E.g. To render a markdown file and save the result to an output file, we would use:
+	
+	``` bash
+	docpad render inputMarkdownFile.html.md > outputMarkdownFile.html
+	```
+
+- To render stdin with DocPad programatically (will output to stdout)
+
+	``` bash
+	$content | docpad render sampleFileNameWithExtensions
+	```
+
+	E.g. To render passed markdown content and save the result to a file, we would use:
+	
+	``` bash
+	echo "**awesome**" | docpad render input.html.md > input.html
+	```
+
 
 _Getting errors? [Try troubleshooting](https://github.com/bevry/docpad/wiki/Troubleshooting)_
 
