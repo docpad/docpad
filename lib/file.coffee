@@ -204,9 +204,40 @@ class File
 		@getAttributes()
 
 	# Load
-	# Loads in the source file and parses it
-	# next(err)
+	# If the @fullPath exists, load the file
+	# If it doesn't, then parse and normalize the file
 	load: (next) ->
+		# Prepare
+		filePath = @relativePath or @fullPath or @filename
+
+		# Log
+		@logger.log 'debug', "Loading the file #{filePath}"
+		
+		# Handler
+		complete = (err) =>
+			return next?(err)  if err
+			@logger.log 'debug', "Loaded the file #{filePath}"
+			next?()
+
+		# Exists?
+		path.exists @fullPath, (exists) =>
+			# Read the file
+			if exists
+				@read(complete)
+			else
+				@parse @data, (err) =>
+					return next?(err)  if err
+					@normalize (err) =>
+						return next?(err)  if err
+						complete()
+		
+		# Chain
+		@
+
+	# Read
+	# Reads in the source file and parses it
+	# next(err)
+	read: (next) ->
 		# Log
 		@logger.log 'debug', "Reading the file #{@relativePath}"
 
@@ -429,7 +460,7 @@ class File
 	# next(err)
 	contextualize: (next) ->
 		@getEve (err,eve) =>
-			return next(err)  if err
+			return next?(err)  if err
 			@extensionRendered = eve.extensionRendered
 			@filenameRendered = "#{@basename}.#{@extensionRendered}"
 			@url or= "/#{@relativeBase}.#{@extensionRendered}"
