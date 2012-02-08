@@ -111,30 +111,33 @@ program
 		document = docpad.createDocument()
 		document.filename = program.args[0]
 		document.fullPath = program.args[0]
-		documentData = ''
+		document.data = ''
 
 		# Prepare
 		useStdin = true
 		renderDocument = ->
-			document.contextualize (err) ->
+			document.load (err) ->
 				throw err  if err
-				docpad.action 'render', {document:document}, (err) ->
+				document.contextualize (err) ->
 					throw err  if err
-					console.log document.contentRendered
-					docpadActionCompleted()
+					docpad.action 'render', {document:document}, (err) ->
+						throw err  if err
+						console.log document.contentRendered
+						#docpadActionCompleted()
+						process.exit(0)
 			
 		# Timeout if we don't have stdin
-		setTimeout(
+		timeout = setTimeout(
 			->
+				# Clear timeout
+				timeout = null
 				# Skip if we are using stdin
-				return  if documentData.replace(/\s+/,'')
+				return  if document.data.replace(/\s+/,'')
 				# Close stdin as we are not using it
 				useStdin = false
 				stdin.pause()
-				# Read the file like normal
-				document.load (err) ->
-					throw err  if err
-					renderDocument()
+				# Render the document
+				renderDocument()
 			,1000
 		)
 
@@ -143,14 +146,13 @@ program
 		stdin.resume()
 		stdin.setEncoding('utf8')
 		stdin.on 'data', (data) ->
-			documentData += data.toString()
+			document.data += data.toString()
 		process.stdin.on 'end', ->
 			return  unless useStdin
-			document.parse documentData, (err) ->
-				throw err  if err
-				document.normalize (err) ->
-					throw err  if err
-					renderDocument()
+			if timeout
+				clearTimeout(timeout)
+				timeout = null
+			renderDocument()
 
 # Generate
 program
