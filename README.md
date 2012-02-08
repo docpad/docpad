@@ -221,13 +221,13 @@ _Getting errors? [Try troubleshooting](https://github.com/bevry/docpad/wiki/Trou
 - To render stdin with DocPad programatically (will output to stdout)
 
 	``` bash
-	$content | docpad render sampleFileNameWithExtensions
+	echo $content | docpad render sampleFileNameWithExtensions
 	```
 
 	E.g. To render passed markdown content and save the result to a file, we would use:
 	
 	``` bash
-	echo "**awesome**" | docpad render input.html.md > input.html
+	echo "**awesome**" | docpad render input.html.md > output.html
 	```
 
 
