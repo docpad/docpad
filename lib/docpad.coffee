@@ -13,12 +13,6 @@ caterpillar = require('caterpillar')
 util = require('bal-util')
 EventSystem = util.EventSystem
 
-# Optional
-growl = null
-express = null
-watchr = null
-queryEngine = null
-
 # Local
 PluginLoader = require("#{__dirname}/plugin-loader.coffee")
 BasePlugin = require("#{__dirname}/base-plugin.coffee")
@@ -100,6 +94,9 @@ class DocPad extends EventSystem
 
 	# The docpad plugins directory
 	pluginsPath: "#{__dirname}/exchange/plugins"
+
+	# The docpad skeletons directory
+	skeletonsPath: "#{__dirname}/exchange/skeletons"
 
 
 	# -----------------------------
@@ -266,6 +263,9 @@ class DocPad extends EventSystem
 		@pluginsArray = []
 		@pluginsObject = {}
 		@templateData = {}
+
+		# Clean the models
+		@cleanModels()
 
 		# Apply configuration
 		@loadConfiguration config, (err) ->
@@ -575,7 +575,7 @@ class DocPad extends EventSystem
 		return @  unless @config.growl
 
 		# Load growl
-		growl = require('growl')  unless growl
+		growl = require('growl')
 
 		# Use growl
 		growl.apply(growl,args)
@@ -587,7 +587,7 @@ class DocPad extends EventSystem
 	# ---------------------------------
 	# Models
 
-	# Layout Document
+	# Instantiate a Document
 	createDocument: (meta={}) ->
 		# Prepare
 		config =
@@ -600,8 +600,7 @@ class DocPad extends EventSystem
 		# Create and return
 		document = new @Document config
 	
-
-	# Create Layout
+	# Instantiate a Layout
 	createLayout: (meta={}) ->
 		# Prepare
 		config =
@@ -616,6 +615,9 @@ class DocPad extends EventSystem
 
 	# Clean Models
 	cleanModels: (next) ->
+		# Require
+		queryEngine = require('query-engine')
+
 		# Prepare
 		File = @File = require("#{@libPath}/file.coffee")
 		Layout = @Layout = class extends File
@@ -781,13 +783,25 @@ class DocPad extends EventSystem
 	# =================================
 	# Actions
 
+	# Get the arguments for the action
+	# Using this contains the transparency with using opts, and not using opts
+	getActionArgs: (opts,next) ->
+		if typeof opts is 'function' and next? is false
+			next = opts
+			opts = {}
+		else
+			next or= null
+			opts or= {}
+		return {next,opts}
+
 	# Perform an action
 	# next(err)
-	action: (action,next) ->
+	action: (action,opts={},next) ->
 		# Prepare
+		{opts,next} = @getActionArgs(opts,next)
 		error = @error
 		logger = @logger
-
+		
 		# Multiple actions?
 		actions = action.split /[,\s]+/g
 		if actions.length > 1
@@ -797,39 +811,44 @@ class DocPad extends EventSystem
 				@action action, tasks.completer()
 			return @
 
-		# LOG
+		# Log
 		logger.log 'debug', "Performing the action #{action}"
 
 		# Handle
 		switch action
 			when 'skeleton', 'scaffold'
-				@skeletonAction (err) =>
+				@skeletonAction opts, (err) =>
 					return error(err)  if err
 					next?()
 
 			when 'generate'
-				@generateAction (err) =>
+				@generateAction opts, (err) =>
+					return error(err)  if err
+					next?()
+
+			when 'render'
+				@renderAction opts, (err) =>
 					return error(err)  if err
 					next?()
 
 			when 'watch'
-				@watchAction (err) =>
+				@watchAction opts, (err) =>
 					return error(err)  if err
 					next?()
 
 			when 'server', 'serve'
-				@serverAction (err) =>
+				@serverAction opts, (err) =>
 					return error(err)  if err
 					next?()
 
 			else
-				@skeletonAction (err) =>
+				@skeletonAction opts, (err) =>
 					return error(err)  if err
-					@generateAction (err) =>
+					@generateAction opts, (err) =>
 						return error(err)  if err
-						@serverAction (err) =>
+						@serverAction opts, (err) =>
 							return error(err)  if err
-							@watchAction (err) =>
+							@watchAction opts, (err) =>
 								return error(err)  if err
 								next?()
 		
@@ -1153,12 +1172,12 @@ class DocPad extends EventSystem
 
 
 	# Generate
-	generateAction: (next) ->
+	generateAction: (opts,next) ->
 		# Prepare
+		{opts,next} = @getActionArgs(opts,next)
 		docpad = @
 		logger = @logger
 		notify = @notify
-		queryEngine = require('query-engine')  unless queryEngine
 
 		# Exits
 		fatal = (err) ->
@@ -1220,15 +1239,60 @@ class DocPad extends EventSystem
 
 
 	# ---------------------------------
+	# Render
+	
+	# Render Action
+	renderAction: (opts,next) ->
+		# Prepare
+		{opts,next} = @getActionArgs(opts,next)
+		docpad = @
+		logger = @logger
+
+		# Config
+		document = opts.document
+		data = opts.data or {}
+		
+		# Check
+		return next? new Error('You must pass a document to the renderAction')  unless document
+
+		# Exits
+		fatal = (err) ->
+			docpad.fatal(err,next)
+		complete = (err) ->
+			# Finish
+			docpad.finish 'render', ->
+				fatal(err)  if err  # continue on
+				# Unblock
+				docpad.unblock 'loading, generating', (err) ->
+					fatal(err)  if err  # continue on
+					# Next
+					next?(err)
+
+		# Block loading
+		docpad.block 'loading, generating', (err) ->
+			return fatal(err)  if err
+			docpad.start 'render', (err) ->
+				return fatal(err)  if err
+				# Render
+				docpad.render document, data, complete
+
+		# Chain
+		@
+	
+
+	# ---------------------------------
 	# Watch
 	
 	# Watch
 	# NOTE: Watching a directory and all it's contents (including subdirs and their contents) appears to be quite expiremental in node.js - if you know of a watching library that is quite stable, then please let me know - b@lupton.cc
-	watchAction: (next) ->
+	watchAction: (opts,next) ->
+		# Require
+		watchr = require('watchr')
+
 		# Prepare
+		{opts,next} = @getActionArgs(opts,next)
 		docpad = @
 		logger = @logger
-		watchr = require('watchr')  unless watchr
 		watchrInstance = null
 
 		# Exits
@@ -1305,8 +1369,9 @@ class DocPad extends EventSystem
 	# Skeleton
 	
 	# Skeleton
-	skeletonAction: (next) ->
+	skeletonAction: (opts,next) ->
 		# Prepare
+		{opts,next} = @getActionArgs(opts,next)
 		docpad = @
 		logger = @logger
 		skeleton = @config.skeleton
@@ -1350,12 +1415,15 @@ class DocPad extends EventSystem
 	# Server
 	
 	# Server
-	serverAction: (next) ->
+	serverAction: (opts,next) ->
+		# Require
+		express = require('express')
+
 		# Prepare
+		{opts,next} = @getActionArgs(opts,next)
 		docpad = @
 		logger = @logger
 		config = @config
-		express = require 'express'  unless express
 
 		# Exists
 		fatal = (err) ->
