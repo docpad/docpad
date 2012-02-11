@@ -36,6 +36,7 @@ logger = null
 describe 'core', ->
 
 	it 'should instantiate correctly', (done) ->
+		@timeout(10000)
 		docpad = DocPad.createInstance docpadConfig, (err) ->
 			throw err  if err
 			logger = docpad.logger
@@ -66,6 +67,7 @@ describe 'core', ->
 					eco: 'eco.html'
 					eruby: 'eruby.html'
 					haml: 'haml.html'
+					hogan: 'hogan.html'
 					jade: 'jade.html'
 					'layout (1/2)': 'layout-single.html'
 					'layout (2/2)': 'layout-double.html'

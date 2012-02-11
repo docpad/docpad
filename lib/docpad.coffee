@@ -252,8 +252,8 @@ class DocPad extends EventSystem
 		# Initialise a default logger
 		@logger = new caterpillar.Logger
 			transports:
-				level: @config.logLevel
 				formatter: module: module
+		@setLogLevel(config.logLevel or @config.logLevel)
 		
 		# Bind the error handler, so we don't crash on errors
 		process.on 'uncaughtException', (err) ->
@@ -277,6 +277,11 @@ class DocPad extends EventSystem
 
 			# Next
 			next?()
+	
+	# Set Log Level
+	setLogLevel: (level) ->
+		@logger.setLevel(level)
+		@
 
 	# Load a json path
 	# next(err,parsedData)
@@ -357,10 +362,8 @@ class DocPad extends EventSystem
 					@config.pluginsPath = path.resolve @config.rootPath, @config.pluginsPath
 
 					# Logger
-					@logger = @config.logger or= new caterpillar.Logger
-						transports:
-							level: @config.logLevel
-							formatter: module: module
+					@logger = @config.logger  if @config.logger
+					@setLogLevel(@config.logLevel)
 
 					# Prepare enabled plugins
 					if typeof @config.enabledPlugins is 'string'

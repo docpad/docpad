@@ -99,9 +99,8 @@ program
 	.command('render')
 	.description('render a given file path, if stdin is provided use that in combination')
 	.action ->
-		docpad.config.logLevel = 5
 		applyConfiguration(docpad,program)
-		logger.transports[0].config.level = 5
+		docpad.setLogLevel(5)
 
 		# Check
 		if program.args.length is 1

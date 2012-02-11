@@ -58,7 +58,7 @@
 	- Fixed the error: `Object #<Object> has no method 'error'`
 		- Fixes [#106](https://github.com/bevry/docpad/pull/106)
 	- Can now pass over options to the coffeekup renderer inside the coffee plugin
-		- E.g. set `docpad: plugins: coffee: coffeekup: format: true` to have tidy html output
+		- E.g. set `docpad: plugins: coffee: coffeekup: format: true` to have it tidy the html output
 		- Thanks to [Changwoo Park](https://github.com/pismute)
 	- Disabled the following plugins by default
 		- Admin
@@ -142,7 +142,7 @@
 			- Adds [SASS](http://sass-lang.com/) to CSS support
 				- Uses TJ Holowaychuk's Sass.js - https://github.com/visionmedia/sass.js
 		- Coffee Plugin
-			- Removed CoffeeCSS support as was playing up
+			- Removed CoffeeCSS support as it had problems
 
 - v1.4 October 22, 2011
 	- Template engines now have access to node.js's `require`
