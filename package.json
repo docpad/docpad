@@ -48,7 +48,7 @@
 		"express": "2.5.x",
 		"query-engine": "0.6.x",
 		"watchr": "1.0.x",
-		"caterpillar": "0.1.x",
+		"caterpillar": "1.0.x",
 		"commander": "0.5.x",
 		"growl": "1.4.x",
 		"yaml": "0.2.1",
@@ -59,7 +59,7 @@
 	},
 	"devDependencies": {
 		"request": "2.9.x",
-		"mocha": "0.11.x"	
+		"mocha": "0.11.x"
 	},
 	"engines" : {
 		"node": ">=0.4.0"

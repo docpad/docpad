@@ -281,6 +281,6 @@ You can discover the history inside the [History.md](https://github.com/bevry/do
 
 ## License
 
-Licensed under the [MIT License](https://github.com/bevry/docpad/blob/master/LICENSE.txt)
+Licensed under the [MIT License](http://creativecommons.org/licenses/MIT/)
 <br/>Copyright &copy; 2012 [Bevry Pty Ltd](http://bevry.me)
 <br/>Copyright &copy; 2011 [Benjamin Lupton](http://balupton.com)
