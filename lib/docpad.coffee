@@ -793,8 +793,8 @@ class DocPad extends EventSystem
 			next = opts
 			opts = {}
 		else
-			next or= null
 			opts or= {}
+		next or= opts.next or null
 		return {next,opts}
 
 	# Perform an action
