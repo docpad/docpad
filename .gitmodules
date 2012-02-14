@@ -1,6 +1,0 @@
-[submodule "lib/exchange/skeletons/kitchensink.docpad"]
-	path = lib/exchange/skeletons/kitchensink.docpad
-	url = git://github.com/bevry/kitchensink.docpad.git
-[submodule "lib/exchange/skeletons/canvas.docpad"]
-	path = lib/exchange/skeletons/canvas.docpad
-	url = git@github.com:bevry/canvas.docpad.git
