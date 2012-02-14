@@ -5,13 +5,12 @@
 fs = require('fs')
 path = require('path')
 request = require('request')
-sys = require('util')
 
 # Necessary
 _ = require('underscore')
 caterpillar = require('caterpillar')
-util = require('bal-util')
-EventSystem = util.EventSystem
+balUtil = require('bal-util')
+EventSystem = balUtil.EventSystem
 
 # Local
 PluginLoader = require("#{__dirname}/plugin-loader.coffee")
@@ -337,7 +336,7 @@ class DocPad extends EventSystem
 				websiteConfig = {}
 
 				# Async
-				tasks = new util.Group (err) =>
+				tasks = new balUtil.Group (err) =>
 					return fatal(err)  if err
 
 					# Apply Configuration
@@ -414,7 +413,7 @@ class DocPad extends EventSystem
 		snore = @createSnore "[#{skeleton}] This could take a while, grab a snickers"
 
 		# Async
-		tasks = new util.Group (err) ->
+		tasks = new balUtil.Group (err) ->
 			snore.clear()
 			logger.log 'info', "[#{skeleton}] Initialised the Skeleton"  unless err
 			next?(err)
@@ -422,7 +421,7 @@ class DocPad extends EventSystem
 		
 		# Pull
 		logger.log 'debug', "[#{skeleton}] Pulling in the Skeleton"
-		util.gitPull destinationPath, skeletonRepo, (err,stdout,stderr) ->
+		balUtil.gitPull destinationPath, skeletonRepo, (err,stdout,stderr) ->
 			# Output
 			if err
 				console.log stdout.replace(/\s+$/,'')  if stdout
@@ -434,7 +433,7 @@ class DocPad extends EventSystem
 
 			# Git Submodules
 			logger.log 'debug', "[#{skeleton}] Initialising Git Submodules for Skeleton"
-			util.initGitSubmodules destinationPath, (err,stdout,stderr) ->
+			balUtil.initGitSubmodules destinationPath, (err,stdout,stderr) ->
 				# Output
 				if err
 					console.log stdout.replace(/\s+$/,'')  if stdout
@@ -449,7 +448,7 @@ class DocPad extends EventSystem
 			path.exists "#{destinationPath}/package.json", (exists) ->
 				tasks.complete()  unless exists
 				logger.log 'debug', "[#{skeleton}] Initialising Node Modules for Skeleton"
-				util.initNodeModules destinationPath, (err,stdout,stderr) ->
+				balUtil.initNodeModules destinationPath, (err,stdout,stderr) ->
 					# Output
 					if err
 						console.log stdout.replace(/\s+$/,'')  if stdout
@@ -527,7 +526,7 @@ class DocPad extends EventSystem
 		logger = @logger
 
 		# Check
-		util.packageCompare
+		balUtil.packageCompare
 			local: "#{@corePath}/package.json"
 			remote: 'https://raw.github.com/bevry/docpad/master/package.json'
 			newVersionCallback: (details) ->
@@ -668,7 +667,7 @@ class DocPad extends EventSystem
 
 		# Async
 		logger = @logger
-		tasks = new util.Group (err) ->
+		tasks = new balUtil.Group (err) ->
 			logger.log 'debug', "Plugins finished for #{eventName}"
 			next?(err)
 		tasks.total = @pluginsArray.length
@@ -698,7 +697,7 @@ class DocPad extends EventSystem
 		snore = @createSnore "We're preparing your plugins, this may take a while the first time. Perhaps grab a snickers?"
 
 		# Async
-		tasks = new util.Group (err) ->
+		tasks = new balUtil.Group (err) ->
 			snore.clear()
 			return next?(err)  if err
 			logger.log 'debug', 'All plugins loaded'
@@ -725,7 +724,7 @@ class DocPad extends EventSystem
 
 		# Load Plugins
 		logger.log 'debug', "Plugins loading for #{pluginsPath}"
-		util.scandir(
+		balUtil.scandir(
 			# Path
 			pluginsPath,
 
@@ -808,7 +807,7 @@ class DocPad extends EventSystem
 		# Multiple actions?
 		actions = action.split /[,\s]+/g
 		if actions.length > 1
-			tasks = new util.Group next
+			tasks = new balUtil.Group next
 			tasks.total = actions.length
 			for action in actions
 				@action action, tasks.completer()
@@ -877,7 +876,7 @@ class DocPad extends EventSystem
 			@cleanModels()
 			
 			# Async
-			tasks = new util.Group (err) ->
+			tasks = new balUtil.Group (err) ->
 				# After
 				docpad.triggerPluginEvent 'cleanAfter', {}, (err) ->
 					logger.log 'debug', 'Cleaning finished'  unless err
@@ -885,7 +884,7 @@ class DocPad extends EventSystem
 			tasks.total = 6
 
 			# Files
-			util.rmdir @config.outPath, (err,list,tree) ->
+			balUtil.rmdir @config.outPath, (err,list,tree) ->
 				logger.log 'debug', 'Cleaned files'  unless err
 				tasks.complete err
 
@@ -900,17 +899,17 @@ class DocPad extends EventSystem
 				tasks.complete err
 			
 			# Ensure Layouts
-			util.ensurePath @config.layoutsPath, (err) ->
+			balUtil.ensurePath @config.layoutsPath, (err) ->
 				logger.log 'debug', 'Ensured layouts'  unless err
 				tasks.complete err
 			
 			# Ensure Documents
-			util.ensurePath @config.documentsPath, (err) ->
+			balUtil.ensurePath @config.documentsPath, (err) ->
 				logger.log 'debug', 'Ensured documents'  unless err
 				tasks.complete err
 		
 			# Ensure Public
-			util.ensurePath @config.publicPath, (err) ->
+			balUtil.ensurePath @config.publicPath, (err) ->
 				logger.log 'debug', 'Ensured public'  unless err
 				tasks.complete err
 		
@@ -930,7 +929,7 @@ class DocPad extends EventSystem
 			logger.log 'debug', 'Parsing files'
 
 			# Async
-			tasks = new util.Group (err) ->
+			tasks = new balUtil.Group (err) ->
 				# Check
 				return next?(err)  if err
 				# Contextualize
@@ -945,7 +944,7 @@ class DocPad extends EventSystem
 			tasks.total = 2
 
 			# Layouts
-			util.scandir(
+			balUtil.scandir(
 				# Path
 				@config.layoutsPath,
 
@@ -973,7 +972,7 @@ class DocPad extends EventSystem
 			)
 
 			# Documents
-			util.scandir(
+			balUtil.scandir(
 				# Path
 				@config.documentsPath,
 
@@ -1021,7 +1020,7 @@ class DocPad extends EventSystem
 		logger.log 'debug', 'Parsing files: Contextualizing files'
 
 		# Async
-		tasks = new util.Group (err) ->
+		tasks = new balUtil.Group (err) ->
 			return next?(err)  if err
 			logger.log 'debug', 'Parsing files: Contextualized files'
 			next?()
@@ -1047,7 +1046,7 @@ class DocPad extends EventSystem
 		logger.log 'debug', 'Rendering files'
 
 		# Async
-		tasks = new util.Group (err) ->
+		tasks = new balUtil.Group (err) ->
 			return next?(err)  if err
 			# After
 			docpad.triggerPluginEvent 'renderAfter', {}, (err) ->
@@ -1092,7 +1091,7 @@ class DocPad extends EventSystem
 		logger.log 'debug', 'Writing files'
 
 		# Write
-		util.cpdir(
+		balUtil.cpdir(
 			# Src Path
 			@config.publicPath,
 			# Out Path
@@ -1114,7 +1113,7 @@ class DocPad extends EventSystem
 		logger.log 'debug', 'Writing documents'
 
 		# Async
-		tasks = new util.Group (err) ->
+		tasks = new balUtil.Group (err) ->
 			logger.log 'debug', 'Wrote documents'  unless err
 			next?(err)
 
@@ -1131,7 +1130,7 @@ class DocPad extends EventSystem
 				return tasks.complete()  if document.dynamic
 
 				# Ensure path
-				util.ensurePath path.dirname(document.outPath), (err) ->
+				balUtil.ensurePath path.dirname(document.outPath), (err) ->
 					# Error
 					return tasks.exit err  if err
 
@@ -1156,7 +1155,7 @@ class DocPad extends EventSystem
 			logger.log 'debug', 'Writing everything'
 
 			# Async
-			tasks = new util.Group (err) ->
+			tasks = new balUtil.Group (err) ->
 				return next?(err)  if err
 				# After
 				docpad.triggerPluginEvent 'writeAfter', {}, (err) ->
@@ -1379,6 +1378,7 @@ class DocPad extends EventSystem
 		logger = @logger
 		skeleton = @config.skeleton
 		destinationPath = @config.rootPath
+		selectSkeletonCallback = opts.selectSkeletonCallback or null
 
 		# Exits
 		fatal = (err) ->
@@ -1392,6 +1392,10 @@ class DocPad extends EventSystem
 					fatal(err)  if err  # continue on
 					# Next
 					next?(err)
+		useSkeleton = (skeleton) ->
+			logger.log 'info', "About to initialize the skeleton [#{skeleton}] to [#{destinationPath}]"
+			docpad.initializeSkeleton skeleton, destinationPath, (err) ->
+				return complete(err)
 
 		# Block loading
 		docpad.block 'loading, generating', (err) ->
@@ -1406,9 +1410,55 @@ class DocPad extends EventSystem
 						return complete()
 					
 					# Initialise Skeleton
-					logger.log 'info', "About to initialize the skeleton [#{skeleton}] to [#{destinationPath}]"
-					docpad.initializeSkeleton skeleton, destinationPath, (err) ->
-						return complete(err)
+					if skeleton
+						return useSkeleton(skeleton)
+					else
+						# Skeleton listing
+						skeletons = {}
+
+						# Ask about the skeletons
+						balUtil.scandir(
+							# Path
+							docpad.skeletonsPath
+							# File Action
+							false
+							# Dir Action
+							(fileFullPath,fileRelativePath,complete) ->
+								# Check if package.json exists
+								packagePath = path.join fileFullPath, 'package.json'
+								path.exists packagePath, (exists) ->
+									# Skip if it doesn't exist
+									return complete(null,true)  unless exists
+
+									# It does exist, let's get it's information
+									docpad.loadJsonPath packagePath, (err,data) ->
+										return complete(err,true)  if err
+
+										# Extract the name and description
+										id = fileRelativePath
+										name = data.name or fileRelativePath
+										description = data.description or ''
+										path = fileFullPath
+										
+										# Add it to the skeleton listing
+										skeletons[fileRelativePath] = {id,name,description,path}
+
+										# Complete
+										return complete(null,true)
+							# Next
+							(err) ->
+								# Check
+								return fatal(err)  if err
+
+								# Provide selection to the interface
+								selectSkeletonCallback skeletons, (err,skeleton) ->
+									# Check
+									return fatal(err)  if err
+
+									# Use the selected skeleton
+									return useSkeleton(skeleton)
+
+						)
 
 		# Chain
 		@

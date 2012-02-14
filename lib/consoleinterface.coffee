@@ -86,7 +86,7 @@ class ConsoleInterface
 		actions =
 			'run':
 				'does everyting: scaffold, generate, watch, server'
-			'scaffold':
+			'skeleton':
 				'fills the current working directory with the optional --skeleton'
 			'render':
 				'render a given file path, if stdin is provided use that in combination'
@@ -233,10 +233,31 @@ class ConsoleInterface
 	
 	skeleton: (next) ->
 		# Prepare
+		program = @program
 		docpad = @docpad
 		opts =
-			selectSkeleton: (skeletons,next) ->
-				next(skeletons[1])
+			selectSkeletonCallback: (skeletons,next) ->
+				ids = []
+
+				console.log '''
+					You are about to create your new DocPad project. Below is a list of skeletons that you can use to bootstrap your new project.
+
+					'''
+				
+				for own skeletonId, skeleton of skeletons
+					ids.push(skeletonId)
+					console.log """
+						\t#{skeletonId}
+						\t#{skeleton.description}
+
+						"""
+				
+				console.log '''
+					Which one will you use to bootstrap your new project?
+					'''
+				program.choose ids, (i) ->
+					skeletonId = ids[i]
+					next(skeletonId)
 		
 		# Handle
 		docpad.action 'skeleton', opts, next
