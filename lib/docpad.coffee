@@ -89,7 +89,7 @@ class DocPad extends EventSystem
 	mainPath: "#{__dirname}/docpad.coffee"
 
 	# The docpad package.json path
-	packagePath: "#{__dirname}/package.json"
+	packagePath: "#{__dirname}/../package.json"
 
 	# The docpad plugins directory
 	pluginsPath: "#{__dirname}/exchange/plugins"
@@ -248,7 +248,7 @@ class DocPad extends EventSystem
 		# Prepare
 		docpad = @
 
-		# Initialise a default logger
+		# Initialize a default logger
 		@logger = new caterpillar.Logger
 			transports:
 				formatter: module: module
@@ -371,9 +371,8 @@ class DocPad extends EventSystem
 							enabledPlugins[enabledPlugin] = true
 						@config.enabledPlugins = enabledPlugins
 					
-					# Load plugins then exit
-					docpad.loadPlugins complete
-				
+					# Initialize
+					@initialize complete
 
 				# Prepare configuration loading
 				tasks.total = 2
@@ -386,6 +385,9 @@ class DocPad extends EventSystem
 
 					# Apply data to parent scope
 					docpadConfig = data.docpad
+
+					# Version
+					docpad.version = data.version
 
 					# Compelte the loading
 					tasks.complete()
@@ -402,65 +404,161 @@ class DocPad extends EventSystem
 					# Compelte the loading
 					tasks.complete()
 
-
-	# Initialise the Skeleton
-	initializeSkeleton: (skeleton, destinationPath, next) ->
+	# Get Skeletons
+	# next(err,skeletons)
+	getSkeletons: (next) ->
 		# Prepare
 		docpad = @
 		logger = @logger
-		skeletonRepo = @config.skeletons[skeleton].repo
-		logger.log 'info', "[#{skeleton}] Initialising the Skeleton to #{destinationPath}"
-		snore = @createSnore "[#{skeleton}] This could take a while, grab a snickers"
+		skeletons = {}
+
+		# Ask about the skeletons
+		balUtil.scandir(
+			# Path
+			docpad.skeletonsPath
+			# File Action
+			false
+			# Dir Action
+			(fileFullPath,fileRelativePath,complete) ->
+				# Check if package.json exists
+				packagePath = path.join fileFullPath, 'package.json'
+				path.exists packagePath, (exists) ->
+					# Skip if it doesn't exist
+					return complete(null,true)  unless exists
+
+					# It does exist, let's get it's information
+					docpad.loadJsonPath packagePath, (err,data) ->
+						return complete(err,true)  if err
+						data or= {}
+
+						# Add it to the skeleton listing
+						skeletons[fileRelativePath] = data
+
+						# Complete
+						return complete(null,true)
+			# Next
+			(err) ->
+				# Check
+				return next(err)  if err
+
+				# Return the skeletons to the callback
+				next(null,skeletons)
+		)
+		
+		# Chain
+		@
+	
+	# Get Skeleton Path
+	getSkeletonPathSync: (skeleton) ->
+		# Return
+		skeletonPath = path.join @skeletonsPath, skeleton
+
+	# Initialize the Skeleton
+	initializeSkeleton: (skeleton, next) ->
+		# Prepare
+		docpad = @
+		logger = @logger
+		skeletonPath = @getSkeletonPathSync(skeleton)
+		packagePath = path.join skeletonPath, 'package.json'
+
+		logger.log 'debug', "[#{skeleton}] Initialising the Skeleton"
 
 		# Async
 		tasks = new balUtil.Group (err) ->
-			snore.clear()
-			logger.log 'info', "[#{skeleton}] Initialised the Skeleton"  unless err
+			# Check
+			return next?(err)  if err
+
+			# Initialized
+			logger.log 'debug', "[#{skeleton}] Initialized the Skeleton"  unless err
 			next?(err)
 		tasks.total = 2
-		
-		# Pull
-		logger.log 'debug', "[#{skeleton}] Pulling in the Skeleton"
-		balUtil.gitPull destinationPath, skeletonRepo, (err,stdout,stderr) ->
-			# Output
+	
+		# Git Submodules
+		logger.log 'debug', "[#{skeleton}] Initialising Git Submodules for Skeleton"
+		balUtil.initGitSubmodules skeletonPath, (err,results) ->
+			# Check
 			if err
-				console.log stdout.replace(/\s+$/,'')  if stdout
-				console.log stderr.replace(/\s+$/,'')  if stderr
-				return next?(err)
+				logger.log 'debug', results
+				return tasks.complete(err)  
 			
-			# Log
-			logger.log 'debug', "[#{skeleton}] Pulled in the Skeleton"
-
-			# Git Submodules
-			logger.log 'debug', "[#{skeleton}] Initialising Git Submodules for Skeleton"
-			balUtil.initGitSubmodules destinationPath, (err,stdout,stderr) ->
-				# Output
+			# Complete
+			logger.log 'debug', "[#{skeleton}] Initalised Git Submodules for Skeleton"
+			tasks.complete()
+		
+		# Node Modules
+		path.exists packagePath, (exists) ->
+			tasks.complete()  unless exists
+			logger.log 'debug', "[#{skeleton}] Initialising Node Modules for Skeleton"
+			balUtil.initNodeModules skeletonPath, (err,results) ->
+				# Check
 				if err
-					console.log stdout.replace(/\s+$/,'')  if stdout
-					console.log stderr.replace(/\s+$/,'')  if stderr
-					return tasks.complete(err)  
+					logger.log 'debug', results
+					return tasks.complete(err)
 				
 				# Complete
-				logger.log 'debug', "[#{skeleton}] Initalised Git Submodules for Skeleton"
+				logger.log 'debug', "[#{skeleton}] Initialized Node Modules for Skeleton"
 				tasks.complete()
-			
-			# Node Modules
-			path.exists "#{destinationPath}/package.json", (exists) ->
-				tasks.complete()  unless exists
-				logger.log 'debug', "[#{skeleton}] Initialising Node Modules for Skeleton"
-				balUtil.initNodeModules destinationPath, (err,stdout,stderr) ->
-					# Output
-					if err
-						console.log stdout.replace(/\s+$/,'')  if stdout
-						console.log stderr.replace(/\s+$/,'')  if stderr
-						return tasks.complete(err)  
-					
-					# Complete
-					logger.log 'debug', "[#{skeleton}] Initialised Node Modules for Skeleton"
-					tasks.complete()
 
 		# Chain
 		@
+	
+	# Initialize the Skeletons
+	# Gets the skeletons we have available
+	# And initializes each of them
+	initializeSkeletons: (next) ->
+		# Prepare
+		docpad = @
+		logger = @logger
+
+		# Log
+		logger.log 'debug', "Initialising skeletons started"
+		snore = @createSnore "We're preparing your skeletons, this may take a while the first time. Perhaps grab a snickers?"
+		
+		# Tasks
+		tasks = new balUtil.Group (err) ->
+			return next?(err)  if err
+
+			# Initialized Skeletons Successfully
+			snore.clear()
+			logger.log 'debug', "Initialising skeletons completed"
+			return next?(err)
+		
+		# Add Skeleton Init
+		addSkeleton = (skeletonId) ->
+			tasks.push (complete) ->
+				docpad.initializeSkeleton skeletonId, complete
+		
+		# Get the skeletons
+		@getSkeletons (err,skeletons) =>
+			# Check
+			return next(err)  if err
+
+			# Initialize them
+			for own skeletonId, skeletonData of skeletons
+				addSkeleton(skeletonId)  
+			
+			# Run them async
+			tasks.async()
+		
+		# Chain
+		@
+	
+	# Initialize DocPad
+	initialize: (next) ->
+		# Tasks
+		tasks = new balUtil.Group (err) ->
+			return next?(err)
+		tasks.total = 2
+
+		# Load plugins
+		@loadPlugins tasks.completer()
+	
+		# Initialize Skeletons
+		@initializeSkeletons tasks.completer()
+
+		# Chain
+		@
+
 	
 
 	# ---------------------------------
@@ -661,12 +759,12 @@ class DocPad extends EventSystem
 	# next?(err)
 	triggerPluginEvent: (eventName,data,next) ->
 		# Prepare
+		logger = @logger
 		data or= data
 		data.logger = @logger
 		data.docpad = @
 
 		# Async
-		logger = @logger
 		tasks = new balUtil.Group (err) ->
 			logger.log 'debug', "Plugins finished for #{eventName}"
 			next?(err)
@@ -818,6 +916,11 @@ class DocPad extends EventSystem
 
 		# Handle
 		switch action
+			when 'install', 'update'
+				@installAction opts, (err) =>
+					return error(err)  if err
+					next?()
+
 			when 'skeleton', 'scaffold'
 				@skeletonAction opts, (err) =>
 					return error(err)  if err
@@ -854,6 +957,27 @@ class DocPad extends EventSystem
 								return error(err)  if err
 								next?()
 		
+		# Chain
+		@
+
+
+
+	# ---------------------------------
+	# Install
+
+	# Install
+	# next(err)
+	installAction: (opts,next) ->
+		# Prepare
+		{opts,next} = @getActionArgs(opts,next)
+		docpad = @
+		logger = @logger
+		
+		# We are already initialized/installed (we do it on every init)
+		# So if we reach here then we installed successfully
+		logger.log 'info', 'DocPad installation was successfull'
+		next?()
+
 		# Chain
 		@
 
@@ -1369,7 +1493,7 @@ class DocPad extends EventSystem
 
 	# ---------------------------------
 	# Skeleton
-	
+
 	# Skeleton
 	skeletonAction: (opts,next) ->
 		# Prepare
@@ -1392,10 +1516,14 @@ class DocPad extends EventSystem
 					fatal(err)  if err  # continue on
 					# Next
 					next?(err)
-		useSkeleton = (skeleton) ->
-			logger.log 'info', "About to initialize the skeleton [#{skeleton}] to [#{destinationPath}]"
-			docpad.initializeSkeleton skeleton, destinationPath, (err) ->
-				return complete(err)
+		useSkeleton = (skeletonId) ->
+			# Copy over the skeleton
+			logger.log 'info', "Copying over the Skeleton"
+			skeletonPath = docpad.getSkeletonPathSync(skeletonId)
+			balUtil.cpdir skeletonPath, destinationPath, (err) ->
+				return complete(err)  if err
+				logger.log 'info', "Copied over the Skeleton"
+				return complete()
 
 		# Block loading
 		docpad.block 'loading, generating', (err) ->
@@ -1409,56 +1537,22 @@ class DocPad extends EventSystem
 						logger.log 'info', "Didn't place the skeleton as the desired structure already exists"
 						return complete()
 					
-					# Initialise Skeleton
+					# Initialize Skeleton
 					if skeleton
 						return useSkeleton(skeleton)
 					else
-						# Skeleton listing
-						skeletons = {}
+						# Get the skeletons
+						docpad.getSkeletons (err,skeletons) ->
+							# Check
+							return fatal(err)  if err
 
-						# Ask about the skeletons
-						balUtil.scandir(
-							# Path
-							docpad.skeletonsPath
-							# File Action
-							false
-							# Dir Action
-							(fileFullPath,fileRelativePath,complete) ->
-								# Check if package.json exists
-								packagePath = path.join fileFullPath, 'package.json'
-								path.exists packagePath, (exists) ->
-									# Skip if it doesn't exist
-									return complete(null,true)  unless exists
-
-									# It does exist, let's get it's information
-									docpad.loadJsonPath packagePath, (err,data) ->
-										return complete(err,true)  if err
-
-										# Extract the name and description
-										id = fileRelativePath
-										name = data.name or fileRelativePath
-										description = data.description or ''
-										path = fileFullPath
-										
-										# Add it to the skeleton listing
-										skeletons[fileRelativePath] = {id,name,description,path}
-
-										# Complete
-										return complete(null,true)
-							# Next
-							(err) ->
+							# Provide selection to the interface
+							selectSkeletonCallback skeletons, (err,skeleton) ->
 								# Check
 								return fatal(err)  if err
 
-								# Provide selection to the interface
-								selectSkeletonCallback skeletons, (err,skeleton) ->
-									# Check
-									return fatal(err)  if err
-
-									# Use the selected skeleton
-									return useSkeleton(skeleton)
-
-						)
+								# Use the selected skeleton
+								return useSkeleton(skeleton)
 
 		# Chain
 		@

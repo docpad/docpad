@@ -5,4 +5,7 @@ test:
 		--ignore-leaks \
 		--growl
 
-.PHONY: test
+install:
+	./bin/docpad install
+
+.PHONY: test install
