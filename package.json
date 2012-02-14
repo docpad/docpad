@@ -44,7 +44,7 @@
 		"url": "http://github.com/bevry/docpad.git"
 	},
 	"dependencies": {
-		"bal-util": "1.1.x",
+		"bal-util": "1.2.x",
 		"express": "2.5.x",
 		"query-engine": "0.6.x",
 		"watchr": "1.0.x",
@@ -64,11 +64,16 @@
 	"engines" : {
 		"node": ">=0.4.0"
 	},
+	"directories": {
+		"lib": "lib"
+	},
 	"bin": {
 		"docpad": "./bin/docpad"
 	},
-	"directories": {
-		"lib": "lib"
+	"scripts": {
+		"install": "make install",
+		"update": "make install",
+		"test": "make test"
 	},
 	"main": "./lib/docpad.coffee"
 }

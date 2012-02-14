@@ -18,11 +18,9 @@
 	- Backwards compatibility breaks
 		- File property names have been changed
 		- New plugin structure
-	- Still in progress
-		- Offline installations
-		- Support for multiple skeletons
-		- Exchange
-		- Stats
+	- Added offline installation support
+	- Added skeleton selection
+	- Added npm scripts for testing, installing and updating
 
 - v3.1 Unreleased
 	- Added an interactive cli

@@ -1,6 +1,7 @@
 # Requires
 fs = require('fs')
 path = require('path')
+{cliColor} = require('caterpillar')
 DocPad = require("#{__dirname}/docpad.coffee")
 
 # =================================
@@ -49,8 +50,6 @@ class ConsoleInterface
 			if program.mode is 'cli'
 				console.log ''
 				program.emit 'cli', []
-			else
-				process.exit()
 		
 		# Add the Action
 		addAction = (actionName,actionDescription) ->
@@ -96,6 +95,8 @@ class ConsoleInterface
 				'(re)generates the output whenever a change is made'
 			'server':
 				'creates a docpad server instance with the optional --port'
+			'install':
+				'ensure docpad is installed correctly'
 			'cli':
 				'start the interactive cli'
 			'exit':
@@ -112,6 +113,9 @@ class ConsoleInterface
 			.command('*')
 			.action ->
 				program.emit 'help', []
+		
+		# Log
+		logger.log 'info', "Welcome to DocPad v#{docpad.version}"
 				
 		# Start
 		@program.parse(process.argv)
@@ -160,6 +164,13 @@ class ConsoleInterface
 		# Handle
 		console.log require('util').inspect docpad.config
 		next()
+	
+	install: (next) ->
+		# Prepare
+		docpad = @docpad
+
+		# Handle
+		docpad.action('install',next)
 	
 	render: ->
 		# Prepare
@@ -220,9 +231,11 @@ class ConsoleInterface
 	run: (next) ->
 		# Prepare
 		docpad = @docpad
+		opts =
+			selectSkeletonCallback: @selectSkeletonCallback
 
 		# Handle
-		docpad.action('all',next)
+		docpad.action('all',opts,next)
 
 	server: (next) ->
 		# Prepare
@@ -231,36 +244,45 @@ class ConsoleInterface
 		# Handle
 		docpad.action('server',next)
 	
+	selectSkeletonCallback: (skeletons,next) =>
+		# Prepare
+		program = @program
+		docpad = @docpad
+		ids = []
+
+		# Show
+		console.log cliColor.bold '''
+			You are about to create your new project inside your current directory. Below is a list of skeletons to bootstrap your new project:
+
+			'''
+		for own skeletonId, skeleton of skeletons
+			ids.push(skeletonId)
+			console.log """
+				\t#{cliColor.bold(skeletonId)}
+				\t#{skeleton.description}
+
+				"""
+		
+		# Select
+		console.log cliColor.bold '''
+			Which skeleton will you use?
+			'''
+		program.choose ids, (i) ->
+			skeletonId = ids[i]
+			return next(null,skeletonId)
+		
+		# Chain
+		@
+	
 	skeleton: (next) ->
 		# Prepare
 		program = @program
 		docpad = @docpad
 		opts =
-			selectSkeletonCallback: (skeletons,next) ->
-				ids = []
-
-				console.log '''
-					You are about to create your new DocPad project. Below is a list of skeletons that you can use to bootstrap your new project.
-
-					'''
-				
-				for own skeletonId, skeleton of skeletons
-					ids.push(skeletonId)
-					console.log """
-						\t#{skeletonId}
-						\t#{skeleton.description}
-
-						"""
-				
-				console.log '''
-					Which one will you use to bootstrap your new project?
-					'''
-				program.choose ids, (i) ->
-					skeletonId = ids[i]
-					next(skeletonId)
+			selectSkeletonCallback: @selectSkeletonCallback
 		
 		# Handle
-		docpad.action 'skeleton', opts, next
+		docpad.action('skeleton', opts, next)
 	
 	watch: (next) ->
 		# Prepare
