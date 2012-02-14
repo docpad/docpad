@@ -105,7 +105,7 @@ class DocPad extends EventSystem
 	Exchange Configuration
 	Still to be decided how it should function for now.
 	Eventually it will be loaded from:
-		- a remote url upon initialisation
+		- a remote url upon initialization
 		- then stored in ~/.docpad/exchange.json
 	Used to:
 		- store the information of available extensions for docpad
@@ -113,8 +113,16 @@ class DocPad extends EventSystem
 	exchange:
 		# Plugins
 		plugins: {}
+
 		# Skeletons
-		skeletons: {}
+		skeletons:
+			'kitchensink.docpad':
+				'branch': 'docpad-3.x'
+				'repo': 'git://github.com/bevry/kitchensink.docpad.git'
+			'canvas.docpad':
+				'branch': 'docpad-3.x'
+				'repo': 'git@github.com:bevry/canvas.docpad.git'
+			
 		# Themes
 		themes: {}
 
@@ -240,7 +248,7 @@ class DocPad extends EventSystem
 
 
 	# =================================
-	# Initialisation Functions
+	# Initialization Functions
 
 	# Construct DocPad
 	# next(err)
@@ -461,7 +469,8 @@ class DocPad extends EventSystem
 		skeletonPath = @getSkeletonPathSync(skeleton)
 		packagePath = path.join skeletonPath, 'package.json'
 
-		logger.log 'debug', "[#{skeleton}] Initialising the Skeleton"
+		# Log
+		logger.log 'debug', "[#{skeleton}] Initializing the Skeleton"
 
 		# Async
 		tasks = new balUtil.Group (err) ->
@@ -474,7 +483,7 @@ class DocPad extends EventSystem
 		tasks.total = 2
 	
 		# Git Submodules
-		logger.log 'debug', "[#{skeleton}] Initialising Git Submodules for Skeleton"
+		logger.log 'debug', "[#{skeleton}] Initializing Git Submodules for Skeleton"
 		balUtil.initGitSubmodules skeletonPath, (err,results) ->
 			# Check
 			if err
@@ -488,7 +497,7 @@ class DocPad extends EventSystem
 		# Node Modules
 		path.exists packagePath, (exists) ->
 			tasks.complete()  unless exists
-			logger.log 'debug', "[#{skeleton}] Initialising Node Modules for Skeleton"
+			logger.log 'debug', "[#{skeleton}] Initializing Node Modules for Skeleton"
 			balUtil.initNodeModules skeletonPath, (err,results) ->
 				# Check
 				if err
@@ -511,7 +520,7 @@ class DocPad extends EventSystem
 		logger = @logger
 
 		# Log
-		logger.log 'debug', "Initialising skeletons started"
+		logger.log 'debug', "Initializing skeletons started"
 		snore = @createSnore "We're preparing your skeletons, this may take a while the first time. Perhaps grab a snickers?"
 		
 		# Tasks
@@ -520,7 +529,7 @@ class DocPad extends EventSystem
 
 			# Initialized Skeletons Successfully
 			snore.clear()
-			logger.log 'debug', "Initialising skeletons completed"
+			logger.log 'debug', "Initializing skeletons completed"
 			return next?(err)
 		
 		# Add Skeleton Init
@@ -529,7 +538,7 @@ class DocPad extends EventSystem
 				docpad.initializeSkeleton skeletonId, complete
 		
 		# Get the skeletons
-		@getSkeletons (err,skeletons) =>
+		docpad.getSkeletons (err,skeletons) ->
 			# Check
 			return next(err)  if err
 
@@ -545,17 +554,42 @@ class DocPad extends EventSystem
 	
 	# Initialize DocPad
 	initialize: (next) ->
+		# Prepare
+		docpad = @
+		logger = @logger
+
 		# Tasks
 		tasks = new balUtil.Group (err) ->
 			return next?(err)
 		tasks.total = 2
 
-		# Load plugins
-		@loadPlugins tasks.completer()
-	
-		# Initialize Skeletons
-		@initializeSkeletons tasks.completer()
-
+		# Log
+		logger.log 'debug', "Initializing Git Submodules for DocPad"
+		snore = @createSnore "We're initializing DocPad's Git Submodules, this may take a while the first time. Perhaps grab a snickers?"
+		
+		# Ensure skeletons path exists
+		balUtil.ensurePath docpad.skeletonsPath, (err) ->
+			# Check
+			return next(err)  if err
+			
+			# Initialize any Git Submodules that DocPad may be using
+			logger.log 'debug', "Initializing Git Submodules for DocPad"
+			balUtil.initGitSubmodules @corePath, (err,results) ->
+				# Check
+				if err
+					logger.log 'debug', results
+					return next(err)  if err
+				
+				# Complete
+				snore.clear()
+				logger.log 'debug', "Initialized Git Submodules for Skeletons"
+				
+				# Load plugins
+				docpad.loadPlugins tasks.completer()
+				
+				# Initialize Skeletons
+				docpad.initializeSkeletons tasks.completer()
+			
 		# Chain
 		@
 
