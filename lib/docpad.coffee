@@ -244,7 +244,7 @@ class DocPad extends EventSystem
 		checkVersion: true
 
 		# Exchange Database Url
-		exchangeUrl: 'http://registry.npmjs.org/'
+		exchangeUrl: 'http://bevry.iriscouch.com/docpad-registry/_design/app/_rewrite' # 'http://registry.npmjs.org/'
 
 
 	# =================================
@@ -571,7 +571,7 @@ class DocPad extends EventSystem
 		balUtil.ensurePath docpad.skeletonsPath, (err) ->
 			# Check
 			return next(err)  if err
-			
+
 			# Initialize any Git Submodules that DocPad may be using
 			logger.log 'debug', "Initializing Git Submodules for DocPad"
 			balUtil.initGitSubmodules @corePath, (err,results) ->
