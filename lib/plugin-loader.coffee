@@ -97,6 +97,26 @@ class PluginLoader
 		# Chain
 		return @
 	
+	# Supported
+	# Check if this plugin is supported on our platform
+	# next(err,supported)
+	supported: (next) ->
+		# Check support status
+		if @packageData and @packageData.platforms
+			platforms = @packageData.platforms or []
+			if process.platform in platforms
+				supported = true
+			else
+				supported = false
+		else
+			supported = true
+		
+		# Supported
+		next?(null,supported)
+
+		# Chain
+		@
+	
 	# Installed
 	# Has this plugin already been installed?
 	# next(err,installed)

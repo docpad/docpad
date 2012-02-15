@@ -121,7 +121,7 @@ class DocPad extends EventSystem
 				'repo': 'git://github.com/bevry/kitchensink.docpad.git'
 			'canvas.docpad':
 				'branch': 'docpad-3.x'
-				'repo': 'git@github.com:bevry/canvas.docpad.git'
+				'repo': 'git://github.com/bevry/canvas.docpad.git'
 			
 		# Themes
 		themes: {}
@@ -586,14 +586,19 @@ class DocPad extends EventSystem
 			tasks.push (complete) ->
 				docpad.installSkeleton skeletonId, complete
 		
-		# Cycle through the skeletons
-		for own skeletonId, skeletonDetails of @exchange.skeletons
-			# Initialise the skeleton
-			addInitSkeleton(skeletonId)  
+		# Ensure skeletons path exists
+		balUtil.ensurePath docpad.skeletonsPath, (err) ->
+			# Check
+			return next?(err)  if err
+
+			# Cycle through the skeletons
+			for own skeletonId, skeletonDetails of docpad.exchange.skeletons
+				# Initialise the skeleton
+				addInitSkeleton(skeletonId)  
+			
+			# Run them async
+			tasks.async()
 		
-		# Run them async
-		tasks.async()
-	
 		# Chain
 		@
 	
@@ -711,11 +716,17 @@ class DocPad extends EventSystem
 		# Check if we want to use growl
 		return @  unless @config.growl
 
-		# Load growl
-		growl = require('growl')
+		# Try
+		try
+			# Load growl
+			growl = require('growl')
 
-		# Use growl
-		growl.apply(growl,args)
+			# Use growl
+			growl.apply(growl,args)
+		
+		# Catch
+		catch err
+			# Ignore
 
 		# Chain
 		@
@@ -894,16 +905,18 @@ class DocPad extends EventSystem
 					logger.log 'debug', "Loading plugin #{pluginName}"
 					loader.exists (err,exists) ->
 						return nextFile(err,true)  if err or not exists
-						loader.install (err) ->
-							return nextFile(err,true)  if err
-							loader.load (err) ->
+						loader.supported (err,supported) ->
+							return nextFile(err,true)  if err or not supported
+							loader.install (err) ->
 								return nextFile(err,true)  if err
-								loader.create {}, (err,pluginInstance) ->
+								loader.load (err) ->
 									return nextFile(err,true)  if err
-									docpad.pluginsObject[loader.pluginName] = pluginInstance
-									docpad.pluginsArray.push pluginInstance
-									logger.log 'debug', "Loaded plugin #{pluginName}"
-									return nextFile(null,true)
+									loader.create {}, (err,pluginInstance) ->
+										return nextFile(err,true)  if err
+										docpad.pluginsObject[loader.pluginName] = pluginInstance
+										docpad.pluginsArray.push pluginInstance
+										logger.log 'debug', "Loaded plugin #{pluginName}"
+										return nextFile(null,true)
 				
 			# Next
 			(err) =>
