@@ -2,7 +2,6 @@
 path = require 'path'
 fs = require 'fs'
 _ = require 'underscore'
-exec = require('child_process').exec
 semver = require('semver')
 
 # Define Plugin Loader
@@ -96,7 +95,7 @@ class PluginLoader
 								return next?(null,true)
 		
 		# Chain
-		return @
+		@
 	
 	# Supported
 	# Check if this plugin is supported on our platform
@@ -135,42 +134,32 @@ class PluginLoader
 	# Has this plugin already been installed?
 	# next(err,installed)
 	installed: (next) ->
+		# Check if it is installed
 		path.exists @nodeModulesPath, (exists) ->
 			next?(null,exists)
+		
+		# Chain
 		@
 	
 	# Install
-	# Installs the plugins dependencies via NPM
-	# It doesn't appear that the npm module yet supports parallel processing
-	# So until it does, then we have to spawn it instead
+	# Installs the plugins node modules
 	# next(err)
 	install: (next) ->
-		# Global NPM on Windows
-		if /^win/.test(process.platform)
-			command = "npm install"
-		
-		# Local NPM on everything else
-		else
-			nodePath = if /node$/.test(process.execPath) then process.execPath else 'node'
-			npmPath = path.resolve @docpad.corePath,'node_modules','npm','bin','npm-cli.js'
-			command = "\"#{nodePath}\" \"#{npmPath}\" install"
+		# Prepare
+		docpad = @docpad
 
-		# Execute npm install inside the pugin directory
-		child = exec(
-			# Command
-			command
-
-			# Options
-			{ cwd: @dirPath }
-
-			# Callback
-			(error, stdout, stderr) ->
+		# Only install if we have a package path
+		if @packagePath
+			# Install npm modules
+			docpad.initNodeModules @dirPath, (err,results) ->
 				# Forward
-				next?(error)
-		)
-
+				return next?(err)
+		else
+			# Continue
+			next?()
+			
 		# Chain
-		return @
+		@
 
 	# Load
 	# Load in the pluginClass from the pugin file
@@ -184,7 +173,7 @@ class PluginLoader
 			next?(err,null)
 		
 		# Chain
-		return @
+		@
 	
 	# Create Instance
 	# next(err,pluginInstance)
@@ -200,7 +189,7 @@ class PluginLoader
 			next?(err,null)
 		
 		# Chain
-		return @
+		@
 
 
 # Export

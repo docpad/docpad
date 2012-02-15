@@ -8,5 +8,6 @@ install:
 
 clean:
 	rm -Rf node_modules/ npm-debug.log lib/exchange/skeletons lib/exchange/plugins/*/node_modules lib/exchange/plugins/*/npm-debug.log
+	npm install
 
 .PHONY: test install clean
