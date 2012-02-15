@@ -4,12 +4,16 @@
 	"description": "DocPad. Intuitive web development.",
 	"homepage": "https://github.com/bevry/docpad",
 	"keywords": [
-		"javascript",
-		"dms",
-		"documents",
+		"document management system",
+		"content management system",
+		"static site generator",
 		"generator",
+		"compiler",
+		"language agnostic",
+		"dms",
+		"cms",
 		"website",
-		"cms"
+		"blog"
 	],
 	"author": {
 		"name": "Bevry Pty Ltd",
