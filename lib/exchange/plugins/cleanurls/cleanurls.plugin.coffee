@@ -1,10 +1,5 @@
 # Export Plugin
 module.exports = (BasePlugin) ->
-	# Requires
-	path = require 'path'
-	fs = require 'fs'
-	util = require 'bal-util'
-
 	# Define Plugin
 	class CleanUrlsPlugin extends BasePlugin
 		# Plugin Name
@@ -12,12 +7,17 @@ module.exports = (BasePlugin) ->
 
 		# Parsing all files has finished
 		parseAfter: ({docpad,logger},next) ->
+			# Requires
+			path = require('path')
+			fs = require('fs')
+			balUtil = require('bal-util')
+
 			# Prepare
 			documents = docpad.documents
 			logger.log 'debug', 'Creating clean urls'
 
 			# Async
-			tasks = new util.Group (err) ->
+			tasks = new balUtil.Group (err) ->
 				logger.log 'debug', 'Created clean urls'
 				next err
 

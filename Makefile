@@ -6,4 +6,7 @@ test:
 install:
 	coffee ./bin/docpad install
 
-.PHONY: test install
+clean:
+	rm -Rf node_modules/ npm-debug.log lib/exchange/plugins/*/node_modules lib/exchange/plugins/*/npm-debug.log
+
+.PHONY: test install clean

@@ -1,10 +1,5 @@
 # Export Plugin
 module.exports = (BasePlugin) ->
-
-	# Requires
-	stylus = null
-	nib = null
-
 	# Define Plugin
 	class StylusPlugin extends BasePlugin
 		# Plugin name
@@ -18,7 +13,7 @@ module.exports = (BasePlugin) ->
 			try
 				if inExtension in ['styl','stylus'] and outExtension is 'css'
 					# Load stylus
-					stylus = require 'stylus'  unless stylus
+					stylus = require('stylus')
 					
 					# Create our style
 					style = stylus(file.content)
@@ -27,7 +22,7 @@ module.exports = (BasePlugin) ->
 					
 					# Use nib if we want to
 					if @config.useNib
-						nib = require 'nib'  unless nib
+						nib = require('nib')
 						style.use(nib())
 
 					# Render our style

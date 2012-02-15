@@ -1,8 +1,5 @@
 # Export Plugin
 module.exports = (BasePlugin) ->
-	# Requires
-	eco = null
-
 	# Define Plugin
 	class EcoPlugin extends BasePlugin
 		# Plugin name
@@ -15,7 +12,7 @@ module.exports = (BasePlugin) ->
 		render: ({inExtension,outExtension,templateData,file}, next) ->
 			try
 				if inExtension is 'eco'
-					eco = require 'eco'  unless eco
+					eco = require('eco')
 					file.content = eco.render file.content, templateData
 					next()
 				else

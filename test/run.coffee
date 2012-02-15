@@ -36,7 +36,7 @@ logger = null
 describe 'core', ->
 
 	it 'should instantiate correctly', (done) ->
-		@timeout(10000)
+		@timeout(60000)
 		docpad = DocPad.createInstance docpadConfig, (err) ->
 			throw err  if err
 			logger = docpad.logger

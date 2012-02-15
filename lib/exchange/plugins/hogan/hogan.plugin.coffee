@@ -1,8 +1,5 @@
 # Export Plugin
 module.exports = (BasePlugin) ->
-	# Requires
-	hogan = null
-
 	# Define Plugin
 	class HoganPlugin extends BasePlugin
 		# Plugin name
@@ -15,7 +12,7 @@ module.exports = (BasePlugin) ->
 		render: ({inExtension,outExtension,templateData,file}, next) ->
 			try
 				if inExtension is 'hogan'
-					hogan = require('hogan.js')  unless hogan
+					hogan = require('hogan.js')
 					file.content = hogan.compile(file.content).render(templateData)
 					next()
 				else

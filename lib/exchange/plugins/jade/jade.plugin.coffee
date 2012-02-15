@@ -1,8 +1,5 @@
 # Export Plugin
 module.exports = (BasePlugin) ->
-	# Requires
-	jade = null
-
 	# Define Plugin
 	class JadePlugin extends BasePlugin
 		# Plugin name
@@ -15,7 +12,7 @@ module.exports = (BasePlugin) ->
 		render: ({inExtension,outExtension,templateData,file}, next) ->
 			try
 				if inExtension is 'jade'
-					jade = require 'jade'  unless jade
+					jade = require('jade')
 					file.content = jade.compile(file.content, {
 						filename: file.fullPath
 					})(templateData)

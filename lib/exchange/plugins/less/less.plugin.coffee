@@ -1,9 +1,5 @@
 # Export Plugin
 module.exports = (BasePlugin) ->
-	# Requires
-	path = null
-	less = null
-
 	# Define Plugin
 	class LessPlugin extends BasePlugin
 		# Plugin name
@@ -16,9 +12,9 @@ module.exports = (BasePlugin) ->
 		render: ({inExtension,outExtension,templateData,file}, next) ->
 			try
 				if inExtension is 'less' and outExtension is 'css'
-					# Load
-					path = require 'path'  unless path
-					less = require 'less-clean'  unless less
+					# Requires
+					path = require('path')
+					less = require('less')
 
 					# Prepare
 					srcPath = file.fullPath

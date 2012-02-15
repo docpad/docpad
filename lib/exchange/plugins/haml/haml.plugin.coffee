@@ -1,8 +1,5 @@
 # Export Plugin
 module.exports = (BasePlugin) ->
-	# Requires
-	haml = null
-
 	# Define Plugin
 	class HamlPlugin extends BasePlugin
 		# Plugin name
@@ -15,7 +12,7 @@ module.exports = (BasePlugin) ->
 		render: ({inExtension,outExtension,templateData,file}, next) ->
 			try
 				if inExtension is 'haml'
-					haml = require 'haml'  unless haml
+					haml = require('haml')
 					file.content = haml.render file.content, locals: templateData
 					next()
 				else

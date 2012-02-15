@@ -5,10 +5,12 @@ ConsoleInterface = require("#{__dirname}/../lib/consoleinterface.coffee")
 # Create Program
 program = require("#{__dirname}/../node_modules/commander/index.js")
 
-# Create DocPad
-docpadConfig = 
-	skeleton: program.skeleton
-	port: program.port
+# Configure Instance
+docpadConfig = {}
+docpadConfig.skeleton = program.skeleton  if program.skeleton
+docpadConfig.port = program.port  if program.port
+
+# Create Instance
 docpad = DocPad.createInstance docpadConfig, (err) ->
 	# Check
 	throw err  if err

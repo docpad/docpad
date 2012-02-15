@@ -44,7 +44,7 @@
 		"url": "http://github.com/bevry/docpad.git"
 	},
 	"dependencies": {
-		"less-clean": ">=1.1.x"
+		"less": "1.2.x"
 	},
 	"engines" : {
 		"node": ">=0.4.0"
