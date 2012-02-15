@@ -1,3 +1,14 @@
+String::trim or= ->
+	@
+		.replace(/^\s+/,'')
+		.replace(/\s+$/,'')
+
+String::explode or= ->
+	@.split(/[,\s]+/g)
+
+String::startsWith or= (prefix) ->
+	@.substring(0,prefix.length) is prefix
+
 Array::hasCount or= (arr) ->
 	count = 0
 	for a in this

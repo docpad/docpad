@@ -1,124 +1,20 @@
 #!/usr/bin/env coffee
-###
-DocPad command line interface by Benjamin Lupton and ~eldios
-###
+DocPad = require("#{__dirname}/../lib/docpad.coffee")
+ConsoleInterface = require("#{__dirname}/../lib/consoleinterface.coffee")
 
-# Requires
-fs = require 'fs'
-path = require 'path'
-Docpad = require "#{__dirname}/../lib/docpad.coffee"
-program = require "#{__dirname}/../node_modules/commander/index.js"
-cwd = process.cwd()
+# Create Program
+program = require("#{__dirname}/../node_modules/commander/index.js")
 
+# Create DocPad
+docpadConfig = 
+	skeleton: program.skeleton
+	port: program.port
+docpad = DocPad.createInstance docpadConfig, (err) ->
+	# Check
+	throw err  if err
 
-# -------------------------------------
-# Configuration
+	# Create Console Interface
+	consoleInterface = new ConsoleInterface({docpad,program})
 
-# Load
-docpadPackagePath = "#{__dirname}/../package.json"
-if path.existsSync docpadPackagePath
-	docpadPackageData = JSON.parse(fs.readFileSync(docpadPackagePath).toString()) or {}
-else
-	docpadPackageData = {}
-
-# Version
-program.version  docpadPackageData.version or 'unknown'
-
-# Help
-program.on '--help', ->
-  console.log('  Examples:')
-  console.log('')
-  console.log('    $ docpad run')
-  console.log('    $ docpad -s bootstrap')
-  console.log('    $ docpad -p 80')
-  console.log('    $ docpad -d')
-  console.log('    $ docpad -s bootstrap -p 80 -d')
-  console.log('')
-
-# Options
-program
-	.option(
-		'-s, --skeleton <skeleton>'
-		"the skeleton to create your project from, defaults to #{__dirname}/skeletons/bootstrap"
-	)
-	.option(
-		'-p, --port <port>'
-		"the port to use for the docpad server <port>, defaults to 9788"
-		parseInt
-	) 
-	.option(
-		'-d, --debug [level]'
-		"the level of debug messages you would like to display, if specified defaults to 7, otherwise 6"
-		parseInt
-	)
-
-# Parse the Configuration
-parseConfiguration = (program,extra={}) ->
-	config = 	
-		command: false
-		skeleton: program.skeleton
-		port: program.port
-		logLevel: if program.debug is true then 7 else 6
-	for own key, value of extra
-		config[key] = value
-	config
-
-
-# -------------------------------------
-# Commands
-
-# Run
-program
-	.command('run')
-	.description('does everyting: scaffold, generate, watch, server')
-	.action ->
-		config = parseConfiguration program
-		docpad = Docpad.createInstance config
-		docpad.action 'all'
-
-# Skeleton
-program
-	.command('scaffold')
-	.description('fills the current working directory with the optional --skeleton')
-	.action (cmd) ->
-		config = parseConfiguration program
-		docpad = Docpad.createInstance config
-		docpad.action 'scaffold'
-
-# Generate
-program
-	.command('generate')
-	.description('(re)generates the output')
-	.action (cmd) ->
-		config = parseConfiguration program
-		docpad = Docpad.createInstance config
-		docpad.action 'generate'
-
-# Watch
-program
-	.command('watch')
-	.description('(re)generates the output whenever a change is made')
-	.action (cmd) ->
-		config = parseConfiguration program
-		docpad = Docpad.createInstance config
-		docpad.action 'watch'
-
-# Server
-program
-	.command('server')
-	.description('creates a docpad server instance with the optional --port')
-	.action (cmd) ->
-		config = parseConfiguration program
-		docpad = Docpad.createInstance config
-		docpad.action 'server'
-
-
-# -------------------------------------
-# Initialise
-
-# Process Arguments
-program.parse process.argv
-
-# Default Action
-if process.argv.length is 2
-	program.emit 'help'
+	# Start
+	consoleInterface.start()
