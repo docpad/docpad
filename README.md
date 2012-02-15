@@ -5,27 +5,18 @@ Initially web development was pretty easy, you just wrote a bunch of files and y
 
 DocPad takes that good ol' simple approach of writing files and wraps it with the best modern innovations, providing an awesome intuitive, liberating and empowering solution for HTML5 web design & development.
 
+At its core DocPad is a language agnostic document management system. This means you write your website as documents, in whatever language you wish, and DocPad will handle the compiling, templates and layouts for you. For static documents it will generate static files, for dynamic documents it'll re-render them on each request. You can utilise DocPad by itself, or use it as a module your own custom system. It's pretty cool, and well worth checking out. We love it.
 
-## What are the features of DocPad?
 
-- it's language agnostic, allowing you to write your documents in any language you wish, we already support over 10 languages (listed a few sections later)
-- you can mix and match renderers, allowing you to combine languages e.g. eco and markdown with `file.html.md.eco`
-- you can write both static and dynamic documents
-	- for static documents a static output file will be generated
-	- for dynamic documents they will be re-rendered on each request
-- it provides a liquid layout engine allowing you to wrap a document in an infinite amount of layouts
-- it provides an in-memory nosql database which you can query inside your documents or inside your app
-- you can use DocPad as a module inside a bigger application, allowing you to utilise DocPad's generation abilities but do the heavy lifting in your own application
-- it runs great on Linux, OSX, and Windows, as well as Node.js 0.4 and 0.6
-- it provides automatic version checking letting you know when it's time to update
-- you can add new features to DocPad easily and simply with its powerful plugin infrastucture
-- it provides you with skeletons which bootstrap your next project
 
 
 ## When would using DocPad be ideal?
 
-- for prototyping new interfaces which need to accommodate rapid change
-	- The ability to get up and running as quickly as possible with DocPad really helps here, along with it's support for pre-precessors and static site generation you can quickly move about your codebase and regig things when things need to change - without having to rewrite any architecture.
+- for learning and implementing new languages and web technologies into real-world applications
+	- DocPad's ability to run a potential infinite amount of languages is amazing, and as you are always working with a real website you're never forced to re-implement anything into another system.
+
+- for rapid prototyping of new interfaces which need to facilate changes quickly
+	- The ability to get up and running as quickly as possible with DocPad really helps here, along with its support for pre-precessors you can quickly move about your codebase and rejig things when things need to change - without having to rewrite any architecture.
 
 - for frontend prototypes which will be handed over to the backend developers for implementation
 	- Often to gain layouts, templating, and pre-precessor support we'll have to implement a web framework, a templating engine, and code a custom build script for each of our pre-precessors that we use. This takes a lot of uncessary time, and complicates things during handover to the backend developers who then need to learn the tools that you've used. Using DocPad we abstract all that difficulty and handle it beautifully, allowing you to just focus on the files you want to write, and we'll provide you with the layout engine, templating engine, and pre-precessor support you need. When it comes to handover, the backend developers will have your source files, as well as the compiled files allowing them to use whichever is easiest for them.
@@ -37,7 +28,30 @@ DocPad takes that good ol' simple approach of writing files and wraps it with th
 	- Combining DocPad's pre-precessor support and static site generation is amazing for developing thick client applications, as you can utilise the latest pre-precessors at any time, allowing you to focus on the problem, instead of how to implement the problem
 
 
+
+
+## What features does it support?
+
+- it's language agnostic, allowing you to write your documents in any language you wish, we already support over 10 languages (listed a few sections later)
+- it will watch your source files for changes, and ensure your website is up to date automatically
+- you'll get growl notifications every time we regenerate your website
+- you can mix and match renderers, allowing you to combine languages e.g. eco and markdown with `file.html.md.eco`
+- you can write both static and dynamic documents
+	- for static documents a static output file will be generated
+	- for dynamic documents they will be re-rendered on each request
+- it provides a liquid layout engine allowing you to wrap a document in an infinite amount of layouts
+- it provides an in-memory nosql database which you can query inside your documents or inside your app
+- you can use DocPad as a module inside a bigger application, allowing you to utilise DocPad's generation abilities but do the heavy lifting in your own application
+- it exposes the built-in [express.js](http://expressjs.com/) web server so you can extend it with your own routes and business logic
+- it runs great on Linux, OSX, and Windows, as well as Node.js 0.4 and 0.6
+- it provides automatic version checking letting you know when it's time to update
+- you can add new features to DocPad easily and simply with its powerful plugin infrastucture
+- it provides you with pre-made skeletons which can bootstrap your next project
+
+
+
 ## What languages does it support?
+
 
 ### Markups
 
@@ -50,11 +64,13 @@ DocPad takes that good ol' simple approach of writing files and wraps it with th
 - [ERuby](http://en.wikipedia.org/wiki/ERuby) to anything `.anything.erb`
 - [PHP](http://php.net/) to anything `.anything.php`
 
+
 ### Styles
 
 - [Stylus](http://learnboost.github.com/stylus/) to CSS `.css.styl|stylus`
 - [LessCSS](http://lesscss.org/) to CSS `.css.less`
 - [SASS](http://sass-lang.com/) to CSS `.css.sass|scss`
+
 
 ### Scripts
 
@@ -62,10 +78,14 @@ DocPad takes that good ol' simple approach of writing files and wraps it with th
 - [Roy](http://roy.brianmckenna.org/) to JavaScript `.js.roy`
 - [Move](http://movelang.org/) to JavaScript `.js.move`
 
+
 ### Parsers
 
 - [YAML](https://github.com/visionmedia/js-yaml) with `--- yaml` (default)
 - [CoffeeScript](http://jashkenas.github.com/coffee-script/) with `--- coffee`
+
+_Parsers are used inside the meta data areas of your content_
+
 
 
 ## How does it work?
@@ -143,16 +163,7 @@ DocPad takes that good ol' simple approach of writing files and wraps it with th
 
 	- That was possible as that file was a [Markdown](http://daringfireball.net/projects/markdown/basics) file (hence the `.md` extension it had). Markdown is fantastic for working with text based documents, as it really allows you to focus in on your content instead of the syntax for formatting the document!
 
-
-## About
-
-DocPad is doing great these days. You can check out [a bunch of websites already using it here](https://github.com/bevry/docpad/wiki/Showcase), and [discover the awesomely handsome crew behind the community here](https://github.com/bevry/docpad/wiki/Users). Ocassionally we also hold [events and competitions](https://github.com/bevry/docpad/wiki/Events) where you can learn more about DocPad, hack with others together, and win some cool stuff! Nifty.
-
-On that note, DocPad is awesomely extensible. You can [download other people's plugins](https://github.com/bevry/docpad/wiki/Extensions) and use them in real quick, or even [write your own in matters of minutes.](https://github.com/bevry/docpad/wiki/Extending)
-
-[Best yet, definitely check out the entire wiki, as this has just been a small taste of it's awesomeness, and there is plenty awesomness left to be discovered.](https://github.com/bevry/docpad/wiki)
-
-Thanks. DocPad loves you!!!
+1. Great thanks! I think I will give it a go right now!
 
 
 
@@ -171,6 +182,7 @@ Thanks. DocPad loves you!!!
 1. If you also want growl notifications (OSX), then install [the growl command line tool here](http://growl.cachefly.net/GrowlNotify-1.3.zip)
 
 _Getting errors? [Try troubleshooting](https://github.com/bevry/docpad/wiki/Troubleshooting)_
+
 
 
 
@@ -242,48 +254,25 @@ _Getting errors? [Try troubleshooting](https://github.com/bevry/docpad/wiki/Trou
 
 
 
+
 ## Thanks
 
-DocPad wouldn't be possible if it wasn't for the following libaries _(in alphabetical order)_
+DocPad is doing great these days, thanks to people like you! You can check out [a bunch of websites already using it here](https://github.com/bevry/docpad/wiki/Showcase), and [discover the awesomely handsome crew behind the community here](https://github.com/bevry/docpad/wiki/Users). Ocassionally we also hold [events and competitions](https://github.com/bevry/docpad/wiki/Events) where you can learn more about DocPad, hack with others together, and win some cool stuff! Nifty.
 
-- [Alexis Sellier's](https://github.com/cloudhead) [Less.js](https://github.com/cloudhead/less.js) - Leaner CSS
+On that note, DocPad is awesomely extensible. You can [download other people's plugins](https://github.com/bevry/docpad/wiki/Extensions) and use them in real quick, or even [write your own in matters of minutes.](https://github.com/bevry/docpad/wiki/Extending)
 
-- [Benjamin Lupton's](https://github.com/balupton) [Bal-Util](https://github.com/balupton/bal-util.npm) - Node.js made easy
-- [Benjamin Lupton's](https://github.com/balupton) [Caterpillar](https://github.com/balupton/caterpillar.npm) - Logging made easy
-- [Benjamin Lupton's](https://github.com/balupton) [Query-Engine](https://github.com/balupton/query-engine.npm) - The MongoDB Query-Engine without the Database
-- [Benjamin Lupton's](https://github.com/balupton) [Watchr](https://github.com/balupton/watchr) - Node.js recursive directory watching made easy
-- [Brandon Bloom's](https://github.com/brandonbloom) [Html2CoffeeKup](https://github.com/brandonbloom/html2coffeekup) - HTML to CoffeeKup Converter
-- [Brian McKenna's](http://brianmckenna.org/) [Roy](https://bitbucket.org/puffnfresh/roy) - JavaScript melded with static language features
+[Best yet, definitely check out the entire wiki, as this has just been a small taste of it's awesomeness, and there is plenty awesomness left to be discovered.](https://github.com/bevry/docpad/wiki)
 
-- [Don Park's](https://github.com/donpark) [Html2Jade](https://github.com/donpark/html2jade) - HTML to Jade Converter
+Thanks! DocPad loves you!!!
 
-- [Isaac Z. Schlueter's](https://github.com/isaacs) [Github-Flavored-Markdown](https://github.com/isaacs/github-flavored-markdown) - Github's flavor of markdown
-- [Isaac Z. Schlueter's](https://github.com/isaacs) [NPM](https://github.com/isaacs/npm) - The node package manager
 
-- [Jeremy Ashkenas'](https://github.com/jashkenas) [CoffeeScript](http://jashkenas.github.com/coffee-script) - JavaScript made easy
-- [Jeremy Ashkenas/DocumentCloud's](https://github.com/documentcloud/underscore) [Underscore](https://github.com/documentcloud/underscore) - The utility-belt library for JavaScript
-
-- [Maurice Machado's](https://github.com/mauricemach) [CoffeeKup](https://github.com/mauricemach/coffeekup) - Markup as CoffeeScript
-
-- [Rasmus Andersson's](https://github.com/rsms) [Move](https://github.com/rsms/move) - A simple, functional-biased, powerful javascript pre-precessor
-- [Ryan Dahl's](https://github.com/ry) [Node.js](http://nodejs.org) - Server Side Javascript	
-
-- [Sam Stephenson's](https://github.com/sstephenson) [Eco](https://github.com/sstephenson/eco) - Embedded CoffeeScript templates
-
-- [Tim Caswell's](https://github.com/creationix) [Haml.js](https://github.com/creationix/haml-js) - Markup haiku
-- [TJ Holowaychuk's](https://github.com/visionmedia) [Commander.js](https://github.com/visionmedia/commander.js) - Console apps made easy
-- [TJ Holowaychuk's](https://github.com/visionmedia) [Express.js](https://github.com/visionmedia/express) - The "Server" in Server Side Javascript
-- [TJ Holowaychuk's](https://github.com/visionmedia) [Jade](https://github.com/visionmedia/jade) - A robust, elegant, feature rich template engine
-- [TJ Holowaychuk's](https://github.com/visionmedia) [Mocha](https://github.com/visionmedia/mocha) - Simple, Flexible, Fun Unit Testing
-- [TJ Holowaychuk's](https://github.com/visionmedia) [Node-Growl](https://github.com/visionmedia/node-growl) - Notifications made easy
-- [TJ Holowaychuk's](https://github.com/visionmedia) [Sass.js](https://github.com/visionmedia/sass.js) - Syntactically awesome stylesheets
-- [TJ Holowaychuk/LearnBoost's](https://github.com/learnboost) [Stylus](https://github.com/learnboost/stylus) - Expressive, robust, feature-rich CSS language
-- [TJ Holowaychuk's](https://github.com/visionmedia) [YAML](https://github.com/visionmedia/js-yaml) - Data made easy
 
 
 ## History
 
 You can discover the history inside the [History.md](https://github.com/bevry/docpad/blob/master/History.md#files) file
+
+
 
 
 ## License
