@@ -59,6 +59,7 @@ At its core DocPad is a language agnostic document management system. This means
 - [CoffeeKup](http://coffeekup.org/) to anything `.anything.ck|coffeekup|coffee` and HTML to CoffeeKup `.ck|coffeekup|coffee.html`
 - [Jade](http://jade-lang.com/) to anything `.anything.jade` and HTML to Jade `.jade.html`
 - [HAML](http://haml-lang.com/) to anything `.anything.haml`
+- [Hogan/Mustache](http://twitter.github.com/hogan.js/) to anything `.anything.hogan`
 - [Ruby](http://www.ruby-lang.org/) to anything `.anything.rb|ruby`
 - [ERuby](http://en.wikipedia.org/wiki/ERuby) to anything `.anything.erb`
 - [PHP](http://php.net/) to anything `.anything.php`

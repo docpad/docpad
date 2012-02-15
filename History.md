@@ -1,6 +1,6 @@
 ## History
 
-- v3.2 Unreleased
+- v3.2 February 15, 2012
 	- Cleaned architecture
 	- Added unit tests (uses mocha)
 	- Better source code documentation
@@ -13,6 +13,7 @@
 		- [ERuby](http://en.wikipedia.org/wiki/ERuby)
 		- [PHP](http://php.net/)
 		- [Move](http://movelang.org/)
+		- [Hogan/Mustache](http://twitter.github.com/hogan.js/)
 	- Added the ability to render files programatically via the command line
 		- See the readme for usage instructions and more information
 	- Backwards compatibility breaks
@@ -21,13 +22,28 @@
 	- Added offline installation support
 	- Added skeleton selection
 	- Added npm scripts for testing, installing and updating
+	- Closes
+		- #130 - As a Maintainer, I want unit tests, so that I can automatically ensure everything works
+		- #127 - As a User, I want support for Move, so I can write my javascript in my preferred language
+		- #122 - As a User, I want to be able to get the rendered content without the layout, so that I can include it inside other documents
+		- #98 - As a User, I want offline creation, so I can create new docpad projects offline
+		- #97 - Watching is unusable when combined with hidden files from IDEs and SVN
+		- #57 - Offline Setup: Skeletons needs to be cached for future offline installs
+		- #55 - As a User, I want support for Moustache, so that I can use my preferred markup
+		
 
 - v3.1 Unreleased
 	- Added an interactive cli
+	- Closes
+		- #125 - As a User, I want an Interactive CLI, so that I can do more with DocPad's CLI
+
+		
 
 - v3.0 Unreleased
 	- Added a new event system
-
+	- Closes
+		- #60 - DocPad needs a better event system
+		
 
 - v2.6 January 2, 2012
 	- Transferred DocPad's ownership from [Benjamin Lupton](http://balupton.com) to [Bevry](http://bevry.me) (Benjamin's company)
