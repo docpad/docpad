@@ -1,6 +1,7 @@
 # DocPad. Intuitive web development.
 
-[![Flattr this project](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=balupton&url=https://github.com/bevry/docpad&title=DocPad&language=&tags=github&category=software) 
+<a href="http://flattr.com/thing/344188/balupton-on-Flattr" target="_blank">
+<img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr this project" title="Flattr this project" border="0" /></a>
 
 Initially web development was pretty easy, you just wrote a bunch of files and you got your website. These days, it's a lot more complicated than that. Things like databases, synchronisation, legacy frameworks and languages all slow the entire process down into a painful crawl. _It doesn't have to be like that._
 
