@@ -1,9 +1,5 @@
 # Export Plugin
 module.exports = (BasePlugin) ->
-
-	# Requires
-	sass = null
-
 	# Define Plugin
 	class SassPlugin extends BasePlugin
 		# Plugin name
@@ -16,7 +12,10 @@ module.exports = (BasePlugin) ->
 		render: ({inExtension,outExtension,templateData,file}, next) ->
 			try
 				if inExtension in ['sass','scss'] and outExtension is 'css'
-					sass = require 'sass'  unless sass
+					# Requires
+					sass = require('sass')
+
+					# REnder
 					file.content = sass.render file.content, filename: file.fullPath
 					next()
 				else

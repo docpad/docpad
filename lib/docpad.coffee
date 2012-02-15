@@ -4,7 +4,6 @@
 # System
 fs = require('fs')
 path = require('path')
-request = require('request')
 
 # Necessary
 _ = require('underscore')
@@ -379,8 +378,8 @@ class DocPad extends EventSystem
 							enabledPlugins[enabledPlugin] = true
 						@config.enabledPlugins = enabledPlugins
 					
-					# Load the plugins
-					@loadPlugins complete
+					# Initialize
+					@initialize complete
 
 				# Prepare configuration loading
 				tasks.total = 2
@@ -515,7 +514,7 @@ class DocPad extends EventSystem
 		# Requires internet access
 		initGitPull = (next) ->
 			logger.log 'debug', "Initializing git pulls for the skeleton #{skeletonId}"
-			commands = ["git init", "git pull origin #{skeletonDetails.branch}"]
+			command = "git pull origin #{skeletonDetails.branch}"
 			balUtil.exec commands, {cwd:skeletonPath}, (err,results) ->
 				# Check
 				if err
@@ -602,25 +601,34 @@ class DocPad extends EventSystem
 		# Chain
 		@
 	
+	# Initialize
+	# next(err)
+	initialize: (next) ->
+		# Prepare
+		docpad = @
+		logger = @logger
 
-	# ---------------------------------
-	# Exchange
+		# Tasks
+		tasks = new balUtil.Group (err) ->
+			return next?(err)  if err
+			logger.log 'debug', "Initialized DocPad"
+			return next?(err)
+		tasks.total = 2
+		
+		# Log
+		logger.log 'debug', "Initializing DocPad"
 
-	# Update the Exchange
-	updateExchange: (next) ->
-		try
-			details.local = JSON.parse fs.readFileSync(local).toString()
-			request = require 'request'  unless request
-			request remote, (err,response,body) =>
-				if not err and response.statusCode is 200
-					details.remote = JSON.parse body
-					unless @versionCompare(details.local.version, '>=', details.remote.version)
-						newVersionCallback(details)  if newVersionCallback
-					else
-						oldVersionCallback(details)  if oldVersionCallback
-		catch err
-			errorCallback(err)  if errorCallback
+		# Load the plugins
+		@loadPlugins tasks.completer()
 
+		# Load the skeletons
+		path.exists docpad.skeletonsPath, (exists) ->
+			return tasks.complete()  if exists
+			@installSkeletons tasks.completer()
+		
+		# Chain
+		@
+	
 
 	# ---------------------------------
 	# Utilities
@@ -884,11 +892,15 @@ class DocPad extends EventSystem
 				nextFile = (err,skip) ->
 					if err
 						logger.log 'warn', "Failed to load the plugin #{loader.pluginName} at #{fileFullPath}. The error follows"
-						docpad.error err, 'warn'
+						docpad.error(err, 'warn')
 					_nextFile(null,skip)
 
 				# Prepare
-				loader = new PluginLoader dirPath: fileFullPath, docpad: docpad, BasePlugin: BasePlugin
+				loader = new PluginLoader(
+					dirPath: fileFullPath
+					docpad: docpad
+					BasePlugin: BasePlugin
+				)
 				pluginName = loader.pluginName
 				enabled = (
 					(config.enableUnlistedPlugins  and  config.enabledPlugins[pluginName]? is false)  or

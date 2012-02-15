@@ -1,9 +1,5 @@
 # Export Plugin
 module.exports = (BasePlugin) ->
-	# Requires
-	path = null
-	html2jade = null
-
 	# Define Plugin
 	class Html2JadePlugin extends BasePlugin
 		# Plugin name
@@ -16,10 +12,10 @@ module.exports = (BasePlugin) ->
 		render: ({inExtension,outExtension,templateData,file}, next) ->
 			try
 				if outExtension is 'jade' and inExtension is 'html'
-					path = require 'path'  unless path
+					path = require('path')
 					try
 						unless html2jade
-							html2jade = require 'html2jade'
+							html2jade = require('html2jade')
 					catch err
 						unless html2jade
 							html2jade = require path.resolve(__dirname, 'node_modules', 'html2jade', 'lib', 'html2jade.coffee')

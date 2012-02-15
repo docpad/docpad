@@ -1,8 +1,5 @@
 # Export Plugin
 module.exports = (BasePlugin) ->
-	# Requires
-	util = require 'bal-util'
-
 	# Define Relations Plugin
 	class RelationsPlugin extends BasePlugin
 		# Plugin Name
@@ -10,13 +7,16 @@ module.exports = (BasePlugin) ->
 
 		# Parsing all files has finished
 		parseAfter: ({logger},next) ->
+			# Requires
+			balUtil = require('bal-util')
+
 			# Prepare
 			docpad = @docpad
 			documents = docpad.documents
 			logger.log 'debug', 'Generating relations'
 
 			# Async
-			tasks = new util.Group (err) ->
+			tasks = new balUtil.Group (err) ->
 				logger.log 'debug', 'Generated relations'
 				next err
 

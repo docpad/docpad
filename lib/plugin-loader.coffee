@@ -3,6 +3,7 @@ path = require 'path'
 fs = require 'fs'
 _ = require 'underscore'
 exec = require('child_process').exec
+semver = require('semver')
 
 # Define Plugin Loader
 class PluginLoader
@@ -101,15 +102,28 @@ class PluginLoader
 	# Check if this plugin is supported on our platform
 	# next(err,supported)
 	supported: (next) ->
-		# Check support status
+		# Prepare
+		supported = true
+
+		# Check platform
 		if @packageData and @packageData.platforms
 			platforms = @packageData.platforms or []
-			if process.platform in platforms
-				supported = true
-			else
+			unless process.platform in platforms
 				supported = false
-		else
-			supported = true
+		
+		# Check engines
+		if @packageData and @packageData.engines
+			engines = @packageData.engines or {}
+			
+			# Node engine
+			if engines.node?
+				unless semver.satisfies(process.version, engines.node)
+					supported = false
+			
+			# DocPad engine
+			if engines.docpad?
+				unless semver.satisfies(@docpad.version, engines.docpad)
+					supported = false
 		
 		# Supported
 		next?(null,supported)

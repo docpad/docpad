@@ -1,11 +1,5 @@
 # Export Plugin
 module.exports = (BasePlugin) ->
-	# Requires
-	ck = null
-	html2ck = null
-	coffee = null
-	js2coffee = null
-
 	# Define Plugin
 	class CoffeePlugin extends BasePlugin
 		# Plugin name
@@ -19,13 +13,13 @@ module.exports = (BasePlugin) ->
 			try
 				# CoffeeKup to anything
 				if inExtension in ['coffeekup','ck'] or (inExtension is 'coffee' and !(outExtension in ['js','css']))
-					ck = require 'coffeekup'  unless ck
+					ck = require('coffeekup')
 					file.content = ck.render file.content, templateData, (@config.coffeekup or {})
 					next()
 				
 				# HTML to CoffeeKup
 				else if inExtension is 'html' and outExtension in ['coffeekup','ck','coffee']
-					html2ck = require 'html2coffeekup'  unless html2ck
+					html2ck = require('html2coffeekup')
 					outputStream = {
 						content: ''
 						write: (content) ->
@@ -38,13 +32,13 @@ module.exports = (BasePlugin) ->
 				
 				# CoffeeScript to JavaScript
 				else if inExtension is 'coffee' and outExtension is 'js'
-					coffee = require 'coffee-script'  unless coffee
+					coffee = require('coffee-script')
 					file.content = coffee.compile file.content
 					next()
 				
 				# JavaScript to CoffeeScript
 				else if inExtension is 'js' and outExtension is 'coffee'
-					js2coffee = require 'js2coffee/lib/js2coffee.coffee'  unless js2coffee
+					js2coffee = require('js2coffee/lib/js2coffee.coffee')
 					file.content = js2coffee.build file.content
 					next()
 				

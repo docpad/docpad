@@ -1,8 +1,5 @@
 # Export Plugin
 module.exports = (BasePlugin) ->
-	# Requires
-	markdown = require('github-flavored-markdown')
-
 	# Define Plugin
 	class MarkdownPlugin extends BasePlugin
 		# Plugin name
@@ -15,6 +12,10 @@ module.exports = (BasePlugin) ->
 		render: ({inExtension,outExtension,templateData,file}, next) ->
 			try
 				if inExtension in ['md','markdown'] and outExtension is 'html'
+					# Requires
+					markdown = require('github-flavored-markdown')
+
+					# Render
 					file.content = markdown.parse file.content
 					next()
 				else

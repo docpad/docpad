@@ -1,8 +1,5 @@
 # Export Plugin
 module.exports = (BasePlugin) ->
-	# Required
-	roy = null
-
 	# Define Plugin
 	class RoyPlugin extends BasePlugin
 		# Plugin name
@@ -15,7 +12,10 @@ module.exports = (BasePlugin) ->
 		render: ({inExtension,outExtension,templateData,file}, next) ->
 			try
 				if inExtension in ['roy'] and outExtension is 'js'
-					roy = require('roy')  unless roy
+					# Requires
+					roy = require('roy')
+
+					# Render
 					file.content = roy.compile(file.content.replace(/^\s+/,'')).output
 					next()
 				else

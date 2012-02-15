@@ -1,8 +1,5 @@
 # Export Plugin
 module.exports = (BasePlugin) ->
-	# Required
-	roy = null
-
 	# Define Plugin
 	class MovePlugin extends BasePlugin
 		# Plugin name
@@ -15,7 +12,10 @@ module.exports = (BasePlugin) ->
 		render: ({inExtension,outExtension,templateData,file}, next) ->
 			try
 				if inExtension in ['move'] and outExtension is 'js'
-					move = require('move')  unless roy
+					# Requires
+					move = require('move')
+
+					# Render
 					file.content = move.compile(file.content)
 					next()
 				else
