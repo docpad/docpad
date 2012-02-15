@@ -73,7 +73,7 @@
 	"scripts": {
 		"install": "coffee ./bin/docpad install",
 		"update": "coffee ./bin/docpad install",
-		"test": "./node_modules/.bin/mocha  --reporter spec  --ui bdd  --ignore-leaks  --growl"
+		"test": "node ./node_modules/mocha/bin/mocha  --reporter spec  --ui bdd  --ignore-leaks  --growl"
 	},
 	"main": "./lib/docpad.coffee"
 }

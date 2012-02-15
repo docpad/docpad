@@ -379,8 +379,8 @@ class DocPad extends EventSystem
 							enabledPlugins[enabledPlugin] = true
 						@config.enabledPlugins = enabledPlugins
 					
-					# Initialize
-					@initialize complete
+					# Load the plugins
+					@loadPlugins complete
 
 				# Prepare configuration loading
 				tasks.total = 2
@@ -411,6 +411,7 @@ class DocPad extends EventSystem
 
 					# Compelte the loading
 					tasks.complete()
+
 
 	# Get Skeletons
 	# next(err,skeletons)
@@ -461,16 +462,17 @@ class DocPad extends EventSystem
 		# Return
 		skeletonPath = path.join @skeletonsPath, skeleton
 
-	# Initialize the Skeleton
-	initializeSkeleton: (skeleton, next) ->
+	# Install a Skeleton
+	installSkeleton: (skeletonId, next) ->
 		# Prepare
 		docpad = @
 		logger = @logger
-		skeletonPath = @getSkeletonPathSync(skeleton)
+		skeletonDetails = @exchange.skeletons[skeletonId] or {}
+		skeletonPath = @getSkeletonPathSync(skeletonId)
 		packagePath = path.join skeletonPath, 'package.json'
 
 		# Log
-		logger.log 'debug', "[#{skeleton}] Initializing the Skeleton"
+		logger.log 'debug', "Installing the skeleton #{skeletonId}"
 
 		# Async
 		tasks = new balUtil.Group (err) ->
@@ -478,50 +480,97 @@ class DocPad extends EventSystem
 			return next?(err)  if err
 
 			# Initialized
-			logger.log 'debug', "[#{skeleton}] Initialized the Skeleton"  unless err
-			next?(err)
-		tasks.total = 2
-	
-		# Git Submodules
-		logger.log 'debug', "[#{skeleton}] Initializing Git Submodules for Skeleton"
-		balUtil.initGitSubmodules skeletonPath, (err,results) ->
-			# Check
-			if err
-				logger.log 'debug', results
-				return tasks.complete(err)  
-			
-			# Complete
-			logger.log 'debug', "[#{skeleton}] Initalised Git Submodules for Skeleton"
-			tasks.complete()
+			logger.log 'debug', "Installed the skeleton #{skeletonId}"  unless err
+			return next?(err)
 		
-		# Node Modules
-		path.exists packagePath, (exists) ->
-			tasks.complete()  unless exists
-			logger.log 'debug', "[#{skeleton}] Initializing Node Modules for Skeleton"
-			balUtil.initNodeModules skeletonPath, (err,results) ->
+		# Init node modules
+		initNodeModules = (next) ->
+			path.exists packagePath, (exists) ->
+				return next?()  unless exists
+				logger.log 'debug', "Initializing node modules for the skeleton #{skeletonId}"
+				balUtil.initNodeModules skeletonPath, (err,results) ->
+					# Check
+					if err
+						logger.log 'debug', results
+						return next?(err)
+					
+					# Complete
+					logger.log 'debug', "Initialized node modules for the skeleton #{skeletonId}"
+					return next?()
+		
+		# Init git submodules
+		initGitSubmodules = (next) ->
+			logger.log 'debug', "Initializing git submodules for the skeleton #{skeletonId}"
+			balUtil.initGitSubmodules skeletonPath, (err,results) ->
 				# Check
 				if err
 					logger.log 'debug', results
-					return tasks.complete(err)
+					return next?(err)  
 				
 				# Complete
-				logger.log 'debug', "[#{skeleton}] Initialized Node Modules for Skeleton"
-				tasks.complete()
+				logger.log 'debug', "Initialized git submodules for the skeleton #{skeletonId}"
+				return next?()
+		
+		# Init git pull
+		# Requires internet access
+		initGitPull = (next) ->
+			logger.log 'debug', "Initializing git pulls for the skeleton #{skeletonId}"
+			commands = ["git init", "git pull origin #{skeletonDetails.branch}"]
+			balUtil.exec commands, {cwd:skeletonPath}, (err,results) ->
+				# Check
+				if err
+					logger.log 'debug', results
+					return next?(err)  
+				
+				# Complete
+				logger.log 'debug', "Initializing git pull for the skeleton #{skeletonId}"
+				return next?()
+		
+		# Init git repo
+		# Requires internet access
+		initGitRepo = (next) ->
+			logger.log 'debug', "Initializing git repo for the skeleton #{skeletonId}"
+			command = "git clone  --branch #{skeletonDetails.branch}  --recursive  #{skeletonDetails.repo}  #{skeletonPath}"
+			balUtil.exec command, {cwd: @corePath}, (err,results) ->
+				# Check
+				if err
+					logger.log 'debug', results
+					return next?(err) 
+				
+				# Complete
+				logger.log 'debug', "Initialized git repo for the skeleton #{skeletonId}"
+				return next?()
+				
+		
+		# Check if the skeleton path already exists
+		path.exists skeletonPath, (exists) ->
+			# It doesn't exist
+			if not exists
+				tasks.total = 1
+				initGitRepo (err) ->
+					return next?(err)  if err
+					initNodeModules tasks.completer()
+			
+			# It does exist
+			else
+				tasks.total = 2
+				initGitPull (err) ->
+					return next?(err)  if err
+					initGitSubmodules tasks.completer()
+					initNodeModules tasks.completer()
 
 		# Chain
 		@
 	
-	# Initialize the Skeletons
-	# Gets the skeletons we have available
-	# And initializes each of them
-	initializeSkeletons: (next) ->
+	# Install the skeletons
+	installSkeletons: (next) ->
 		# Prepare
 		docpad = @
 		logger = @logger
 
 		# Log
-		logger.log 'debug', "Initializing skeletons started"
-		snore = @createSnore "We're preparing your skeletons, this may take a while the first time. Perhaps grab a snickers?"
+		logger.log 'debug', "Installing skeletons"
+		snore = @createSnore "We're installing your skeletons, this may take a while the first time. Perhaps grab a snickers?"
 		
 		# Tasks
 		tasks = new balUtil.Group (err) ->
@@ -529,70 +578,24 @@ class DocPad extends EventSystem
 
 			# Initialized Skeletons Successfully
 			snore.clear()
-			logger.log 'debug', "Initializing skeletons completed"
+			logger.log 'debug', "Installed skeletons completed"
 			return next?(err)
 		
-		# Add Skeleton Init
-		addSkeleton = (skeletonId) ->
+		# Add Init Skeleton
+		addInitSkeleton = (skeletonId) ->
 			tasks.push (complete) ->
-				docpad.initializeSkeleton skeletonId, complete
+				docpad.installSkeleton skeletonId, complete
 		
-		# Get the skeletons
-		docpad.getSkeletons (err,skeletons) ->
-			# Check
-			return next(err)  if err
-
-			# Initialize them
-			for own skeletonId, skeletonData of skeletons
-				addSkeleton(skeletonId)  
-			
-			# Run them async
-			tasks.async()
+		# Cycle through the skeletons
+		for own skeletonId, skeletonDetails of @exchange.skeletons
+			# Initialise the skeleton
+			addInitSkeleton(skeletonId)  
 		
-		# Chain
-		@
+		# Run them async
+		tasks.async()
 	
-	# Initialize DocPad
-	initialize: (next) ->
-		# Prepare
-		docpad = @
-		logger = @logger
-
-		# Tasks
-		tasks = new balUtil.Group (err) ->
-			return next?(err)
-		tasks.total = 2
-
-		# Log
-		logger.log 'debug', "Initializing Git Submodules for DocPad"
-		snore = @createSnore "We're initializing DocPad's Git Submodules, this may take a while the first time. Perhaps grab a snickers?"
-		
-		# Ensure skeletons path exists
-		balUtil.ensurePath docpad.skeletonsPath, (err) ->
-			# Check
-			return next(err)  if err
-
-			# Initialize any Git Submodules that DocPad may be using
-			logger.log 'debug', "Initializing Git Submodules for DocPad"
-			balUtil.initGitSubmodules @corePath, (err,results) ->
-				# Check
-				if err
-					logger.log 'debug', results
-					return next(err)  if err
-				
-				# Complete
-				snore.clear()
-				logger.log 'debug', "Initialized Git Submodules for Skeletons"
-				
-				# Load plugins
-				docpad.loadPlugins tasks.completer()
-				
-				# Initialize Skeletons
-				docpad.initializeSkeletons tasks.completer()
-			
 		# Chain
 		@
-
 	
 
 	# ---------------------------------
@@ -1006,11 +1009,12 @@ class DocPad extends EventSystem
 		{opts,next} = @getActionArgs(opts,next)
 		docpad = @
 		logger = @logger
-		
-		# We are already initialized/installed (we do it on every init)
-		# So if we reach here then we installed successfully
-		logger.log 'info', 'DocPad installation was successfull'
-		next?()
+
+		# Setup out skeletons
+		@installSkeletons (err) ->
+			return next?(err)  if err
+			logger.log 'info', 'DocPad installation was successfull'
+			return next?()
 
 		# Chain
 		@
