@@ -1,0 +1,9 @@
+<html>
+	<head>
+		<title><%=@document.title or 'Untitled'%></title>
+	</head>
+	<body>
+		<div id="content"><%-@content%></div>
+		<code id="meta"><%-JSON.stringify @document.meta%></code>
+	</body>
+</html>

@@ -1,64 +1,243 @@
 # Requires
-util = require 'bal-util'
-fs = require 'fs'
-path = require 'path'
+util = require('bal-util')
+fs = require('fs')
+path = require('path')
 coffee = null
 yaml = null
 js2coffee = null
 
-# Define
+# ---------------------------------
+# DocPad File Class
+
 class File
-	# Inherited
+
+	# ---------------------------------
+	# Backreferences to DocPad
+
+	# The DocPad instance
 	docpad: null
+
+	# The available layouts in our DocPad instance
 	layouts: []
+
+	# The Caterpillar instance to use
 	logger: null
 
-	# Auto
-	id: null
-	basename: null
-	extensions: []
-	extension: null
-	filename: null
-	fullPath: null
-	outPath: null
-	relativePath: null
-	relativeBase: null
-	content: null
-	contentSrc: null
-	contentRaw: null
-	contentRendered: null
-	fileMeta: {}
-	fileHead: null
-	fileBody: null
-	fileHeadParser: null
+	# The out directory path to put the file
+	outDirPath: null
 
-	# User
+
+	# ---------------------------------
+	# Automaticly set variables
+
+	# The unique document identifier
+	id: null
+	
+	# The file's name without the extension
+	basename: null
+
+	# The file's last extension
+	# "hello.md.eco" -> "eco"
+	extension: null
+
+	# The file's extensions as an array
+	# "hello.md.eco" -> ["md","eco"]
+	extensions: []
+
+	# The final extension used for our rendered file
+	# Takes into accounts layouts
+	# "layout.html", "post.md.eco" -> "html"
+	extensionRendered: null
+
+	# The file's name with the extension
+	filename: null
+
+	# The file's name with the rendered extension
+	filenameRendered: null
+
+	# The full path of our file, only necessary if called by @load
+	fullPath: null
+
+	# The final rendered path of our file
+	outPath: null
+
+	# The relative path of our source file (with extensions)
+	relativePath: null
+
+	# The relative base of our source file (no extension)
+	relativeBase: null
+
+
+	# ---------------------------------
+	# Content variables
+
+	# The contents of the file, includes the the meta data (header) and the content (body)
+	data: null
+
+	# The file meta data (header) in string format before it has been parsed
+	header: null
+
+	# The parser to use for the file's meta data (header)
+	parser: null
+
+	# The parsed file meta data (header)
+	meta: {}
+
+	# The file content (body) before rendering, excludes the meta data (header)
+	body: null
+
+	# The file content (body) during rendering, represents the current state of the content
+	content: null
+
+	# Have we been rendered yet?
+	rendered: false
+
+	# The rendered content (after it has been wrapped in the layouts)
+	contentRendered: false
+
+	# The rendered content (before being passed through the layouts)
+	contentRenderedWithoutLayouts: null
+
+	# The stages of the content rendering
+	# [{layout:String,content:String,extension:String}]
+	contentRenderings: []
+
+	# The stages of the content rendering indexed by the layout
+	# layoutName: {[content:String,extension:String]}
+	contentRenderingsByLayout: {}
+
+
+	# ---------------------------------
+	# User set variables
+
+	# Whether or not this file should be re-rendered on each request
 	dynamic: false
+
+	# The title for this document
 	title: null
+
+	# The date object for this document
 	date: null
+
+	# The generated slug (url safe seo title) for this document
 	slug: null
+
+	# The url for this document
 	url: null
+
+	# Alternative urls for this document
 	urls: []
+
+	# Whether or not we ignore this document (do not render it)
 	ignore: false
+
+	# The tags for this document
 	tags: []
+
+	# Any related documents
 	relatedDocuments: []
 
+
+	# ---------------------------------
+	# Functions
+
 	# Constructor
-	constructor: ({@docpad,@layouts,@logger,meta}) ->
+	constructor: ({@docpad,@layouts,@logger,@outDirPath,meta}) ->
 		# Delete prototype references
 		@extensions = []
+		@meta = {}
+		@contentRenderings = []
+		@contentRenderingsByLayout = {}
+		@urls = []
 		@tags = []
 		@relatedDocuments = []
-		@fileMeta = {}
-		@urls = []
 
 		# Copy over meta data
 		for own key, value of meta
 			@[key] = value
+	
+	# Get Attributes
+	getAttributes: ->
+		# Prepare
+		attributes = {}
+		attributeNames = '''
+			id basename extension extensions extensionRendered filename filenameRendered fullPath outPath relativePath relativeBase
+			
+			data header parser meta body content rendered contentRendered contentRenderedWithoutLayouts contentRenderings contentRenderingsByLayout
+			
+			dynamic title date slug url urls ignore tags
+			'''.split(/\s+/g)
+		
+		# Discover
+		for attributeName in attributeNames
+			value = @[attributeName]
+			unless typeof value is 'function'
+				attributes[attributeName] = value
+		
+		# Return
+		attributes
+	
+	# Get Simple Attributes
+	# Without content references
+	getSimpleAttributes: ->
+		# Prepare
+		attributes = {}
+		attributeNames = '''
+			id basename extension extensions extensionRendered filename filenameRendered fullPath outPath relativePath relativeBase
+			
+			parser
+			
+			dynamic title date slug url urls ignore tags
+			'''.split(/\s+/g)
+		
+		# Discover
+		for attributeName in attributeNames
+			value = @[attributeName]
+			unless typeof value is 'function'
+				attributes[attributeName] = value
+		
+		# Return
+		attributes
+	
+	# To JSON
+	toJSON: ->
+		@getAttributes()
 
 	# Load
-	# next(err)
+	# If the @fullPath exists, load the file
+	# If it doesn't, then parse and normalize the file
 	load: (next) ->
+		# Prepare
+		filePath = @relativePath or @fullPath or @filename
+
+		# Log
+		@logger.log 'debug', "Loading the file #{filePath}"
+		
+		# Handler
+		complete = (err) =>
+			return next?(err)  if err
+			@logger.log 'debug', "Loaded the file #{filePath}"
+			next?()
+
+		# Exists?
+		path.exists @fullPath, (exists) =>
+			# Read the file
+			if exists
+				@read(complete)
+			else
+				@parse @data, (err) =>
+					return next?(err)  if err
+					@normalize (err) =>
+						return next?(err)  if err
+						complete()
+		
+		# Chain
+		@
+
+	# Read
+	# Reads in the source file and parses it
+	# next(err)
+	read: (next) ->
 		# Log
 		@logger.log 'debug', "Reading the file #{@relativePath}"
 
@@ -66,93 +245,110 @@ class File
 		tasks = new util.Group (err) =>
 			if err
 				@logger.log 'err', "Failed to read the file #{@relativePath}"
-				return next(err)
+				return next?(err)
 			else
 				@normalize (err) =>
-					return next(err)  if err
+					return next?(err)  if err
 					@logger.log 'debug', "Read the file #{@relativePath}"
-					next()
+					next?()
 		tasks.total = 2
 
 		# Stat the file
-		fs.stat @fullPath, (err,fileStat) =>
-			return next(err)  if err
-			@date = new Date(fileStat.ctime)  unless @date
+		if @date
 			tasks.complete()
+		else
+			fs.stat @fullPath, (err,fileStat) =>
+				return next?(err)  if err
+				@date = new Date(fileStat.ctime)  unless @date
+				tasks.complete()
 
 		# Read the file
 		fs.readFile @fullPath, (err,data) =>
-			return next(err)  if err
+			return next?(err)  if err
 			@parse data.toString(), tasks.completer()
 		
 		# Chain
 		@
 	
 	# Parse data
+	# Parses some data, and loads the meta data and content from it
 	# next(err)
 	parse: (fileData,next) ->
-		# Handle data
-		fileData = fileData.replace(/\r\n?/gm,'\n').replace(/\t/g,'    ')
-		@fileBody = fileData
-		@fileHead = null
-		@fileMeta = {}
+		# Prepare
+		fileData = (fileData or '').replace(/\r\n?/gm,'\n').replace(/\t/g,'    ')
+
+		# Reset
+		@data = fileData
+		@header = null
+		@parser = null
+		@meta = {}
+		@body = null
+		@content = null
+		@rendered = false
+		@contentRendered = null
+		@contentRenderedWithoutLayouts = null
+		@contentRenderings = []
+		@contentRenderingsByLayout = {}
+		@extensionRendered = null
+		@filenameRendered = null
 	
 		# Meta Data
-		match = /^\s*([\-\#][\-\#][\-\#]+) ?(\w*)\s*/.exec(fileData)
+		match = /^\s*([\-\#][\-\#][\-\#]+) ?(\w*)\s*/.exec(@data)
 		if match
 			# Positions
 			seperator = match[1]
 			a = match[0].length
-			b = fileData.indexOf("\n#{seperator}",a)+1
+			b = @data.indexOf("\n#{seperator}",a)+1
 			c = b+3
 
 			# Parts
-			@fileHead = fileData.substring(a,b)
-			@fileBody = fileData.substring(c)
-			@fileHeadParser = match[2] or 'yaml'
+			@header = @data.substring(a,b)
+			@body = @data.substring(c)
+			@parser = match[2] or 'yaml'
 
 			# Language
 			try
-				switch @fileHeadParser
+				switch @parser
 					when 'coffee', 'cson'
 						coffee = require('coffee-script')  unless coffee
-						@fileMeta = coffee.eval @fileHead, filename: @fullPath
+						@meta = coffee.eval @header, filename: @fullPath
 					
 					when 'yaml'
 						yaml = require('yaml')  unless yaml
-						@fileMeta = yaml.eval(@fileHead)
+						@meta = yaml.eval(@header)
 					
 					else
-						@fileMeta = {}
-						err = new Error("Unknown meta parser [#{@fileHeadParser}]")
-						return next(err)
+						@meta = {}
+						err = new Error("Unknown meta parser [#{@parser}]")
+						return next?(err)
 			catch err
-				return next(err)
+				return next?(err)
+		else
+			@body = @data
 		
-		# Update Meta
-		@fileMeta or= {}
-		@content = @fileBody
-		@contentSrc = @fileBody
-		@contentRaw = fileData
-		@contentRendered = @fileBody
+		# Update meta data
+		@body = @body.replace(/^\n+/,'')
+		@meta or= {}
+		@content = @body
 		@title = @title or @basename or @filename
 	
 		# Correct meta data
-		@fileMeta.date = new Date(@fileMeta.date)  if @fileMeta.date? and @fileMeta.date
+		@meta.date = new Date(@meta.date)  if @meta.date? and @meta.date
 		
 		# Handle urls
-		@addUrl @fileMeta.urls  if @fileMeta.urls?
-		@addUrl @fileMeta.url  if @fileMeta.url?
+		@addUrl @meta.urls  if @meta.urls?
+		@addUrl @meta.url  if @meta.url?
 
 		# Apply user meta
-		for own key, value of @fileMeta
+		for own key, value of @meta
 			@[key] = value
 		
 		# Next
-		next()
+		next?()
 		@
 	
 	# Add a url
+	# Allows our file to support multiple urls
 	addUrl: (url) ->
 		# Multiple Urls
 		if url instanceof Array
@@ -170,35 +366,66 @@ class File
 		
 		# Chain
 		@
+
+	# Write the rendered file
+	# next(err)
+	writeRendered: (next) ->
+		# Prepare
+		filePath = @outPath
+		
+		# Log
+		@logger.log 'debug', "Writing the rendered file #{filePath}"
+
+		# Write data
+		fs.writeFile filePath, @contentRendered, (err) =>
+			return next?(err)  if err
+			
+			# Log
+			@logger.log 'debug', "Wrote the rendered file #{filePath}"
+
+			# Next
+			next?()
+		
+		# Chain
+		@
+
 	
 	# Write the file
 	# next(err)
 	write: (next) ->
-		# Log
-		@logger.log 'debug', "Writing the file #{@fullPath}"
-
 		# Prepare
+		fullPath = @fullPath
 		js2coffee = require('js2coffee/lib/js2coffee.coffee')  unless js2coffee
 		
+		# Log
+		@logger.log 'debug', "Writing the file #{filePath}"
+
 		# Prepare data
-		fileMetaString = "var a = #{JSON.stringify @fileMeta};"
-		@fileHead = js2coffee.build(fileMetaString).replace(/a =\s+|^  /mg,'')
-		fileData = "### #{@fileHeadParser}\n#{@fileHead}\n###\n\n" + @fileBody.replace(/^\s+/,'')
+		header = 'var a = '+JSON.stringify(@meta)
+		header = js2coffee.build(header).replace(/a =\s+|^  /mg,'')
+		body = @body.replace(/^\s+/,'')
+		data = "### #{@parser}\n#{header}\n###\n\n#{body}"
+
+		# Apply
+		@header = header
+		@body = body
+		@data = data
 
 		# Write data
-		fs.writeFile @fullPath, fileData, (err) =>
-			return next(err)  if err
+		fs.writeFile @fullPath, @data, (err) =>
+			return next?(err)  if err
 			
 			# Log
-			@logger.log 'info', "Wrote the file #{@fullPath}"
+			@logger.log 'info', "Wrote the file #{fullPath}"
 
 			# Next
-			next()
+			next?()
 		
 		# Chain
 		@
 	
 	# Normalize data
+	# Normalize any parsing we ahve done, for if a value updates it may have consequences on another value. This will ensure everything is okay.
 	# next(err)
 	normalize: (next) ->
 		# Prepare
@@ -215,7 +442,8 @@ class File
 		# Extension
 		@extensions = @filename.split /\./g
 		@extensions.shift()
-		@extension = @extensions[0]
+		@extension = @extensions[@extensions.length-1]
+		@extensionRendered = @extensions[0]
 
 		# Paths
 		fullDirPath = path.dirname(@fullPath) or ''
@@ -224,128 +452,201 @@ class File
 		@id = @relativeBase
 
 		# Next
-		next()
+		next?()
 		@
 	
 	# Contextualize data
+	# Put our data into perspective of the bigger picture. For instance, generate the url for it's rendered equivalant.
 	# next(err)
 	contextualize: (next) ->
 		@getEve (err,eve) =>
-			return next(err)  if err
-			@extensionRendered = eve.extension
+			return next?(err)  if err
+			@extensionRendered = eve.extensionRendered
 			@filenameRendered = "#{@basename}.#{@extensionRendered}"
 			@url or= "/#{@relativeBase}.#{@extensionRendered}"
 			@slug or= util.generateSlugSync @relativeBase
 			@title or= @filenameRendered
+			@outPath = if @outDirPath then path.join(@outDirPath,@url) else null
 			@addUrl @url
-			next()
+			next?()
 		
 		# Chain
 		@
 	
 	# Get Layout
+	# The the layout object that this file references (if any)
 	# next(err,layout)
 	getLayout: (next) ->
 		# Check
-		return next new Error('This document does not have a layout')  unless @layout
+		unless @layout
+			return next?(
+				new Error('This document does not have a layout')
+			)
 
 		# Find parent
 		@layouts.findOne {relativeBase:@layout}, (err,layout) =>
 			# Check
 			if err
-				return next(err)
+				return next?(err)
 			else if not layout
 				err = new Error "Could not find the layout: #{@layout}"
-				return next(err)
+				return next?(err)
 			else
-				return next(null, layout)
+				return next?(null, layout)
 	
 	# Get Eve
+	# Get the most ancestoral layout we have (the very top one)
 	# next(err,layout)
 	getEve: (next) ->
 		if @layout
 			@getLayout (err,layout) ->
-				return next(err)  if err
+				return next?(err)  if err
 				layout.getEve(next)
 		else
-			next(null,@)
+			next?(null,@)
 	
 	# Render
+	# Render this file
 	# next(err,finalExtension)
 	render: (templateData,next) ->
-		# Log
-		@logger.log 'debug', "Rendering the file #{@relativePath}"
-
 		# Prepare
-		@contentRendered = @content
-		@content = @contentSrc
+		docpad = @docpad
+		logger = @logger
+		file = @
 
-		# Async
-		tasks = new util.Group (err) =>
-			return next(err)  if err
+		# Log
+		logger.log 'debug', "Rendering the file #{@relativePath}"
 
-			# Reset content
-			@content = @contentSrc
+		# Prepare reset
+		reset = ->
+			file.rendered = false
+			file.content = file.body
+			file.contentRendered = file.body
+			file.contentRenderedWithoutLayouts = file.body
+			file.contentRenderings = [{
+				content: file.content
+				extension: file.extension
+			}]
+			file.contentRenderingsByLayout = {
+				none: [
+					content: file.content
+					extension: file.extension
+				]
+			}
 
-			# Wrap in layout
-			if @layout
-				@getLayout (err,layout) =>
-					return next(err)  if err
-					templateData.content = @contentRendered
-					layout.render templateData, (err) =>
-						@contentRendered = layout.contentRendered
-						@logger.log 'debug', "Rendering completed for #{@relativePath}"
-						next err
-			else
-				@logger.log 'debug', "Rendering completed for #{@relativePath}"
-				next err
+		# Prepare complete
+		finish = (err) ->
+			# Reset the content to it's original value
+			file.content = file.body
+
+			# Error
+			return next?(err)  if err
+			
+			# Log
+			logger.log 'debug', "Rendering completed for #{file.relativePath}"
+			
+			# Success
+			file.rendered = true
+			return next?()
 		
-		# Check tasks
-		if @extensions.length <= 1
-			# No rendering necessary
-			tasks.total = 1
-			tasks.complete()
-			return
+		# Prepare render layouts
+		# next(err)
+		renderLayouts = (next) ->
+			# Store the content without any layout rendering
+			file.contentRenderedWithoutLayouts = file.content
+
+			# Skip ahead if we don't have a layout
+			return next?()  unless file.layout
+			
+			# Grab the layout
+			file.getLayout (err,layout) ->
+				# Error
+				return next?(err)  if err
+
+				# Assign the rendered file content to the templateData.content
+				templateData.content = file.contentRendered
+
+				# Render the layout with the templateData
+				layout.render templateData, (err) ->
+					# Error
+					return next?(err)  if err
+
+					# Apply the rendering
+					file.contentRendered = layout.contentRendered
+					for own key,value of layout.contentRenderingsByLayout
+						if key is 'none'
+							file.contentRenderingsByLayout[layout.relativeBase] = value
+						else
+							file.contentRenderingsByLayout[key] = value
+
+					# Success
+					return next?()
 		
-		# Clone extensions
-		extensions = []
-		for extension in @extensions
-			extensions.unshift extension
+		# Prepare render extensions
+		# next(err)
+		renderExtensions = (next) =>
+			# If we only have one extension, then skip ahead to rendering layouts
+			return next?()  if file.extensions.length <= 1
 
-		# Cycle through all the extension groups
-		previousExtension = null
-		for extension in extensions
-			# Has a previous extension
-			if previousExtension
-				# Event data
-				eventData = 
-					inExtension: previousExtension
-					outExtension: extension
-					templateData: templateData
-					file: @
-				
-				# Create a task to run
-				tasks.push ((eventData) => =>
-					# Render through plugins
-					@docpad.triggerEvent 'render', eventData, (err) =>
-						# Error?
-						if err
-							@logger.log 'warn', 'Something went wrong while rendering:', @relativePath
-							return tasks.exit(err)
+			# Prepare the tasks
+			tasks = new util.Group next
 
-						# Update rendered content
-						@contentRendered = @content
+			# Clone extensions
+			extensions = []
+			for extension in file.extensions
+				extensions.unshift extension
 
-						# Complete
-						tasks.complete(err)
-				
-				)(eventData)
+			# Cycle through all the extension groups
+			previousExtension = null
+			for extension in extensions
+				# Has a previous extension
+				if previousExtension
+					# Event data
+					eventData = 
+						inExtension: previousExtension
+						outExtension: extension
+						templateData: templateData
+						file: file
+					
+					# Create a task to run
+					tasks.push ((file,eventData) -> ->
+						# Render through plugins
+						docpad.triggerPluginEvent 'render', eventData, (err) ->
+							# Error?
+							if err
+								logger.log 'warn', 'Something went wrong while rendering:', file.relativePath
+								return tasks.exit(err)
 
-			# Cycle
-			previousExtension = extension
-		
-		# Run tasks synchronously
-		tasks.sync()
+							# Update rendered content
+							file.contentRendered = file.content
+							file.contentRenderings.push(
+								content: file.contentRendered
+								extension: eventData.outExtension
+							)
+							file.contentRenderingsByLayout.none.push(
+								content: file.contentRendered
+								extension: eventData.outExtension
+							)
+
+							# Complete
+							return tasks.complete(err)
+					
+					)(file,eventData)
+
+				# Cycle
+				previousExtension = extension
+			
+			# Run tasks synchronously
+			return tasks.sync()
+
+		# Reset everything
+		reset()
+
+		# Render the extensions, then the layouts, then finish
+		renderExtensions (err) ->
+			return finish(err)  if err
+			renderLayouts (err) ->
+				return finish(err)
 
 		# Chain
 		@

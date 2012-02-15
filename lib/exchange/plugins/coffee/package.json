@@ -1,0 +1,68 @@
+{
+	"name": "docpad-coffee",
+	"version": "0.1.0",
+	"description": "Adds support for the various CoffeeScript inspired pre-processors to DocPad. Including CoffeeScript, CoffeeKup and CoffeeCSS, among others.",
+	"homepage": "https://github.com/bevry/docpad",
+	"keywords": [
+		"docpad",
+		"coffee",
+		"coffeescript",
+		"coffeekup",
+		"coffeecss"
+	],
+	"author": {
+		"name": "Benjamin Lupton",
+		"email": "b@lupton.cc",
+		"url": "http://balupton.com"
+	},
+	"maintainers": [
+		{
+			"name": "Benjamin Lupton",
+			"email": "b@lupton.cc",
+			"url": "http://balupton.com"
+		}
+	],
+	"contributors": [
+		{
+			"name": "Benjamin Lupton",
+			"email": "b@lupton.cc",
+			"url": "http://balupton.com"
+		}
+	],
+	"bugs": {
+		"url": "https://github.com/bevry/docpad/issues"
+	},
+	"licenses": [
+		{
+			"type": "MIT",
+			"url": "http://creativecommons.org/licenses/MIT/"
+		}
+	],
+	"repository" : {
+		"type": "git",
+		"url": "http://github.com/bevry/docpad.git"
+	},
+	"dependencies": {
+		"coffee-script": "1.2.x",
+		"coffeekup": "0.3.x",
+		"js2coffee": "0.1.x",
+		"html2coffeekup": "1.4.x"
+	},
+	"engines" : {
+		"node": ">=0.4.0"
+	},
+	"bin": {
+		"docpad": "./bin/docpad"
+	},
+	"directories": {
+		"lib": "."
+	},
+	"main": "./coffee.plugin.coffee",
+	"docpad": {
+		"plugin": {
+			"coffeekup": {
+				"format": false
+			}
+		}
+	}
+}
