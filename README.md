@@ -1,6 +1,4 @@
-# DocPad. Intuitive web development.
-
-<a href="http://flattr.com/thing/344188/balupton-on-Flattr" target="_blank">
+# DocPad. Intuitive web development. <a href="http://flattr.com/thing/344188/balupton-on-Flattr" target="_blank">
 <img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr this project" title="Flattr this project" border="0" /></a>
 
 Initially web development was pretty easy, you just wrote a bunch of files and you got your website. These days, it's a lot more complicated than that. Things like databases, synchronisation, legacy frameworks and languages all slow the entire process down into a painful crawl. _It doesn't have to be like that._
@@ -8,20 +6,20 @@ Initially web development was pretty easy, you just wrote a bunch of files and y
 DocPad takes that good ol' simple approach of writing files and wraps it with the best modern innovations, providing an awesome intuitive, liberating and empowering solution for HTML5 web design & development.
 
 
-## What the features of DocPad?
+## What are the features of DocPad?
 
-- it is language agnostic, allowing you to write your documents in any language you wish, we already support over 10 languages (listed a few sections later)
-- can mix and match renderers, allowing you to combine languages e.g. eco and markdown with `file.html.md.eco`
-- supports static and dynamic documents
+- it's language agnostic, allowing you to write your documents in any language you wish, we already support over 10 languages (listed a few sections later)
+- you can mix and match renderers, allowing you to combine languages e.g. eco and markdown with `file.html.md.eco`
+- you can write both static and dynamic documents
 	- for static documents a static output file will be generated
 	- for dynamic documents they will be re-rendered on each request
-- provides a liquid layout engine allowing you to wrap a document in an infinite amount of layouts
-- provides a in-memory nosql database which you can query inside your documents or inside your app
-- can be used as a module inside a bigger application, allowing you to utilise DocPad's generation abilities but do the heavy lifting in your own application
-- runs great on linux, osx, and windows, as well as node 0.4 and 0.6
-- automatic version checking so you know when it's time to update
-- provides an amazingly easy and simple, but yet powerful plugin infrastructure
-- provides skeletons which can bootstrap your next DocPad project
+- it provides a liquid layout engine allowing you to wrap a document in an infinite amount of layouts
+- it provides an in-memory nosql database which you can query inside your documents or inside your app
+- you can use DocPad as a module inside a bigger application, allowing you to utilise DocPad's generation abilities but do the heavy lifting in your own application
+- it runs great on Linux, OSX, and Windows, as well as Node.js 0.4 and 0.6
+- it provides automatic version checking letting you know when it's time to update
+- you can add new features to DocPad easily and simply with its powerful plugin infrastucture
+- it provides you with skeletons which bootstrap your next project
 
 
 ## When would using DocPad be ideal?
@@ -38,6 +36,36 @@ DocPad takes that good ol' simple approach of writing files and wraps it with th
 - for thick client-side web applications
 	- Combining DocPad's pre-precessor support and static site generation is amazing for developing thick client applications, as you can utilise the latest pre-precessors at any time, allowing you to focus on the problem, instead of how to implement the problem
 
+
+## What languages does it support?
+
+### Markups
+
+- [Markdown](http://daringfireball.net/projects/markdown/basics) to HTML `.html.md|markdown`
+- [Eco](https://github.com/sstephenson/eco) to anything `.anything.eco`
+- [CoffeeKup](http://coffeekup.org/) to anything `.anything.ck|coffeekup|coffee` and HTML to CoffeeKup `.ck|coffeekup|coffee.html`
+- [Jade](http://jade-lang.com/) to anything `.anything.jade` and HTML to Jade `.jade.html`
+- [HAML](http://haml-lang.com/) to anything `.anything.haml`
+- [Ruby](http://www.ruby-lang.org/) to anything `.anything.rb|ruby`
+- [ERuby](http://en.wikipedia.org/wiki/ERuby) to anything `.anything.erb`
+- [PHP](http://php.net/) to anything `.anything.php`
+
+### Styles
+
+- [Stylus](http://learnboost.github.com/stylus/) to CSS `.css.styl|stylus`
+- [LessCSS](http://lesscss.org/) to CSS `.css.less`
+- [SASS](http://sass-lang.com/) to CSS `.css.sass|scss`
+
+### Scripts
+
+- [CoffeeScript](http://coffeescript.org/) to JavaScript `.js.coffee` and JavaScript to CoffeeScript `.coffee.js`
+- [Roy](http://roy.brianmckenna.org/) to JavaScript `.js.roy`
+- [Move](http://movelang.org/) to JavaScript `.js.move`
+
+### Parsers
+
+- [YAML](https://github.com/visionmedia/js-yaml) with `--- yaml` (default)
+- [CoffeeScript](http://jashkenas.github.com/coffee-script/) with `--- coffee`
 
 
 ## How does it work?
@@ -116,39 +144,6 @@ DocPad takes that good ol' simple approach of writing files and wraps it with th
 	- That was possible as that file was a [Markdown](http://daringfireball.net/projects/markdown/basics) file (hence the `.md` extension it had). Markdown is fantastic for working with text based documents, as it really allows you to focus in on your content instead of the syntax for formatting the document!
 
 
-
-## Supports
-
-### Markups
-
-- [Markdown](http://daringfireball.net/projects/markdown/basics) to HTML `.html.md|markdown`
-- [Eco](https://github.com/sstephenson/eco) to anything `.anything.eco`
-- [CoffeeKup](http://coffeekup.org/) to anything `.anything.ck|coffeekup|coffee` and HTML to CoffeeKup `.ck|coffeekup|coffee.html`
-- [Jade](http://jade-lang.com/) to anything `.anything.jade` and HTML to Jade `.jade.html`
-- [HAML](http://haml-lang.com/) to anything `.anything.haml`
-- [Ruby](http://www.ruby-lang.org/) to anything `.anything.rb|ruby`
-- [ERuby](http://en.wikipedia.org/wiki/ERuby) to anything `.anything.erb`
-- [PHP](http://php.net/) to anything `.anything.php`
-
-### Styles
-
-- [Stylus](http://learnboost.github.com/stylus/) to CSS `.css.styl|stylus`
-- [LessCSS](http://lesscss.org/) to CSS `.css.less`
-- [SASS](http://sass-lang.com/) to CSS `.css.sass|scss`
-
-### Scripts
-
-- [CoffeeScript](http://coffeescript.org/) to JavaScript `.js.coffee` and JavaScript to CoffeeScript `.coffee.js`
-- [Roy](http://roy.brianmckenna.org/) to JavaScript `.js.roy`
-- [Move](http://movelang.org/) to JavaScript `.js.move`
-
-### Parsers
-
-- [YAML](https://github.com/visionmedia/js-yaml) with `--- yaml` (default)
-- [CoffeeScript](http://jashkenas.github.com/coffee-script/) with `--- coffee`
-
-
-
 ## About
 
 DocPad is doing great these days. You can check out [a bunch of websites already using it here](https://github.com/bevry/docpad/wiki/Showcase), and [discover the awesomely handsome crew behind the community here](https://github.com/bevry/docpad/wiki/Users). Ocassionally we also hold [events and competitions](https://github.com/bevry/docpad/wiki/Events) where you can learn more about DocPad, hack with others together, and win some cool stuff! Nifty.
@@ -172,8 +167,6 @@ Thanks. DocPad loves you!!!
 1. Install DocPad
 
 		npm install -g docpad
-
-1. _or... [install the cutting edge version](https://github.com/bevry/docpad/wiki/Testing)_
 
 1. If you also want growl notifications (OSX), then install [the growl command line tool here](http://growl.cachefly.net/GrowlNotify-1.3.zip)
 
