@@ -44,9 +44,12 @@
 	"dependencies": {
 		"move": "0.4.x"
 	},
-	"engines" : {
+	"engines": {
 		"node": ">=0.4.0"
 	},
+	"platforms": [
+		"darwin", "linux2", "linux"
+	],
 	"bin": {
 		"docpad": "./bin/docpad"
 	},
