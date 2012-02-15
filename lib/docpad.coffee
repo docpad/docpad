@@ -513,9 +513,9 @@ class DocPad extends EventSystem
 		# Init git pull
 		# Requires internet access
 		initGitPull = (next) ->
-			logger.log 'debug', "Initializing git pulls for the skeleton #{skeletonId}"
 			command = "git pull origin #{skeletonDetails.branch}"
-			balUtil.exec commands, {cwd:skeletonPath}, (err,results) ->
+			logger.log 'debug', "Initializing git pulls for the skeleton #{skeletonId}, with: #{command}"
+			balUtil.exec command, {cwd:skeletonPath}, (err,results) ->
 				# Check
 				if err
 					logger.log 'debug', results
@@ -528,8 +528,8 @@ class DocPad extends EventSystem
 		# Init git repo
 		# Requires internet access
 		initGitRepo = (next) ->
-			logger.log 'debug', "Initializing git repo for the skeleton #{skeletonId}"
 			command = "git clone  --branch #{skeletonDetails.branch}  --recursive  #{skeletonDetails.repo}  #{skeletonPath}"
+			logger.log 'debug', "Initializing git repo for the skeleton #{skeletonId}, with: #{command}"
 			balUtil.exec command, {cwd: @corePath}, (err,results) ->
 				# Check
 				if err
@@ -624,7 +624,7 @@ class DocPad extends EventSystem
 		# Load the skeletons
 		path.exists docpad.skeletonsPath, (exists) ->
 			return tasks.complete()  if exists
-			@installSkeletons tasks.completer()
+			docpad.installSkeletons tasks.completer()
 		
 		# Chain
 		@
