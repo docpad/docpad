@@ -10,12 +10,13 @@ module.exports = (BasePlugin) ->
 
 		# Render some content
 		render: ({inExtension,outExtension,templateData,file}, next) ->
-			try
-				if inExtension is 'haml'
-					haml = require('haml')
-					file.content = haml.render file.content, locals: templateData
-					next()
-				else
-					next()
-			catch err
-				return next(err)
+			# Check our extensions
+			if inExtension is 'haml'
+				# Requires
+				haml = require('haml')
+
+				# Render
+				file.content = haml.render file.content, locals: templateData
+		
+			# Done, return back to DocPad
+			return next()

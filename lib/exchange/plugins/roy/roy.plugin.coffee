@@ -10,15 +10,13 @@ module.exports = (BasePlugin) ->
 
 		# Render some content
 		render: ({inExtension,outExtension,templateData,file}, next) ->
-			try
-				if inExtension in ['roy'] and outExtension is 'js'
-					# Requires
-					roy = require('roy')
+			# Check extensions
+			if inExtension in ['roy'] and outExtension is 'js'
+				# Requires
+				roy = require('roy')
 
-					# Render
-					file.content = roy.compile(file.content.replace(/^\s+/,'')).output
-					next()
-				else
-					next()
-			catch err
-				return next(err)
+				# Render
+				file.content = roy.compile(file.content.replace(/^\s+/,'')).output
+			
+			# Done, return back to DocPad
+			return next()

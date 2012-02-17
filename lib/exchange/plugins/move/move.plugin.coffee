@@ -10,15 +10,13 @@ module.exports = (BasePlugin) ->
 
 		# Render some content
 		render: ({inExtension,outExtension,templateData,file}, next) ->
-			try
-				if inExtension in ['move'] and outExtension is 'js'
-					# Requires
-					move = require('move')
+			# Check our extensions
+			if inExtension in ['move'] and outExtension is 'js'
+				# Requires
+				move = require('move')
 
-					# Render
-					file.content = move.compile(file.content)
-					next()
-				else
-					next()
-			catch err
-				return next(err)
+				# Render
+				file.content = move.compile(file.content)
+		
+			# Done, return back to DocPad
+			return next()

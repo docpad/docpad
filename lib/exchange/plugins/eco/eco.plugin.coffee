@@ -10,12 +10,13 @@ module.exports = (BasePlugin) ->
 
 		# Render some content
 		render: ({inExtension,outExtension,templateData,file}, next) ->
-			try
-				if inExtension is 'eco'
-					eco = require('eco')
-					file.content = eco.render file.content, templateData
-					next()
-				else
-					next()
-			catch err
-				return next(err)
+			# Check extensions
+			if inExtension is 'eco'
+				# Requires
+				eco = require('eco')
+
+				# Render
+				file.content = eco.render file.content, templateData
+		
+			# Done, return back to DocPad
+			return next()

@@ -10,27 +10,32 @@ module.exports = (BasePlugin) ->
 
 		# Render some content
 		render: ({inExtension,outExtension,templateData,file}, next) ->
-			try
-				if inExtension in ['styl','stylus'] and outExtension is 'css'
-					# Load stylus
-					stylus = require('stylus')
-					
-					# Create our style
-					style = stylus(file.content)
-						.set('filename', file.fullPath)
-						.set('compress', @config.compress)
-					
-					# Use nib if we want to
-					if @config.useNib
-						nib = require('nib')
-						style.use(nib())
+			# Check extensions
+			if inExtension in ['styl','stylus'] and outExtension is 'css'
+				# Load stylus
+				stylus = require('stylus')
+				
+				# Create our style
+				style = stylus(file.content)
+					.set('filename', file.fullPath)
+					.set('compress', @config.compress)
+				
+				# Use nib if we want to
+				if @config.useNib
+					nib = require('nib')
+					style.use nib()
 
-					# Render our style
-					style.render (err,output) ->
-						return next err  if err
-						file.content = output
-						next()
-				else
+				# Render our style
+				style.render (err,output) ->
+					# Check for errors, and return to docpad if so
+					return next(err)  if err
+					# Apply
+					file.content = output
+					# Done, return to docpad
 					next()
-			catch err
-				return next err
+		
+			# Some other extension
+			else
+				# Nothing to do, return back to DocPad
+				return next()
+

@@ -837,15 +837,21 @@ class DocPad extends EventSystem
 
 		# Async
 		tasks = new balUtil.Group (err) ->
-			logger.log 'debug', "Plugins finished for #{eventName}"
-			next?(err)
+			if err
+				logger.log 'debug', "A plugin failed for #{eventName}"
+			else
+				logger.log 'debug', "Plugins finished for #{eventName}"
+			return next?(err)
 		tasks.total = @pluginsArray.length
 
 		# Cycle
 		logger.log 'debug', "Plugins started for #{eventName}"
 		for plugin in @pluginsArray
 			if typeof plugin[eventName] is 'function'
-				plugin[eventName](data, tasks.completer())
+				try
+					plugin[eventName](data, tasks.completer())
+				catch err
+					tasks.exit(err)
 			else
 				tasks.complete()
 		

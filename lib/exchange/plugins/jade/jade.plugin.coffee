@@ -10,14 +10,15 @@ module.exports = (BasePlugin) ->
 
 		# Render some content
 		render: ({inExtension,outExtension,templateData,file}, next) ->
-			try
-				if inExtension is 'jade'
-					jade = require('jade')
-					file.content = jade.compile(file.content, {
-						filename: file.fullPath
-					})(templateData)
-					next()
-				else
-					next()
-			catch err
-				return next(err)
+			# Check our extension
+			if inExtension is 'jade'
+				# Requires
+				jade = require('jade')
+
+				# Render
+				file.content = jade.compile(file.content, {
+					filename: file.fullPath
+				})(templateData)
+
+			# Done, return back to DocPad
+			return next()
