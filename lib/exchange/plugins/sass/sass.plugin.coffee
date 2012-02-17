@@ -10,15 +10,13 @@ module.exports = (BasePlugin) ->
 
 		# Render some content
 		render: ({inExtension,outExtension,templateData,file}, next) ->
-			try
-				if inExtension in ['sass','scss'] and outExtension is 'css'
-					# Requires
-					sass = require('sass')
+			# Check extensions
+			if inExtension in ['sass','scss'] and outExtension is 'css'
+				# Requires
+				sass = require('sass')
 
-					# REnder
-					file.content = sass.render file.content, filename: file.fullPath
-					next()
-				else
-					next()
-			catch err
-				return next err
+				# Render
+				file.content = sass.render file.content, filename: file.fullPath
+
+			# Done, return back to DocPad
+			return next()

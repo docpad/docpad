@@ -10,26 +10,27 @@ module.exports = (BasePlugin) ->
 
 		# Render some content
 		render: ({inExtension,outExtension,templateData,file}, next) ->
-			try
-				if inExtension is 'less' and outExtension is 'css'
-					# Requires
-					path = require('path')
-					less = require('less')
+			# Check extensions
+			if inExtension is 'less' and outExtension is 'css'
+				# Requires
+				path = require('path')
+				less = require('less')
 
-					# Prepare
-					srcPath = file.fullPath
-					dirPath = path.dirname(srcPath)
-					options = 
-						paths: [dirPath]
-						optimization: 1
-						compress: true
+				# Prepare
+				srcPath = file.fullPath
+				dirPath = path.dirname(srcPath)
+				options = 
+					paths: [dirPath]
+					optimization: 1
+					compress: true
 
-					# Compile
-					new (less.Parser)(options).parse file.content, (err, tree) ->
-						return next err  if err
-						file.content = tree.toCSS(compress: options.compress)
-						next()
-				else
+				# Compile
+				new (less.Parser)(options).parse file.content, (err, tree) ->
+					return next err  if err
+					file.content = tree.toCSS(compress: options.compress)
 					next()
-			catch err
-				return next err
+			
+			# Some other extension
+			else
+				# Nothing to do, return back to DocPad
+				return next()

@@ -10,20 +10,31 @@ module.exports = (BasePlugin) ->
 
 		# Render some content
 		render: ({inExtension,outExtension,templateData,file}, next) ->
-			try
-				if outExtension is 'jade' and inExtension is 'html'
-					path = require('path')
-					try
-						unless html2jade
-							html2jade = require('html2jade')
-					catch err
-						unless html2jade
-							html2jade = require path.resolve(__dirname, 'node_modules', 'html2jade', 'lib', 'html2jade.coffee')
-					html2jade.convertHtml file.content, {}, (err,result) ->
-						return next(err)  if err
-						file.content = result
-						next()
-				else
-					next()
-			catch err
-				return next(err)
+			
+			# Check our extensions
+			if outExtension is 'jade' and inExtension is 'html'
+
+				# Requires
+				path = require('path')
+				try
+					# Sometimes works
+					html2jade = require('html2jade')
+				catch err
+					# Sometimes this works
+					html2jade = require path.resolve(__dirname, 'node_modules', 'html2jade', 'lib', 'html2jade.coffee')
+				
+				# Render asynchronously
+				html2jade.convertHtml file.content, {}, (err,result) ->
+					# Errord, return it back to DocPad
+					return next(err)  if err
+
+					# Render
+					file.content = result
+					
+					# Done, return back to DocPad
+					return next()
+			
+			# Some other extension
+			else
+				# Nothing to do, return back to DocPad
+				return next()

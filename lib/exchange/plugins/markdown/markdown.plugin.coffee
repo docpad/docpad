@@ -10,15 +10,13 @@ module.exports = (BasePlugin) ->
 
 		# Render some content
 		render: ({inExtension,outExtension,templateData,file}, next) ->
-			try
-				if inExtension in ['md','markdown'] and outExtension is 'html'
-					# Requires
-					markdown = require('github-flavored-markdown')
+			# Check our extensions
+			if inExtension in ['md','markdown'] and outExtension is 'html'
+				# Requires
+				markdown = require('github-flavored-markdown')
 
-					# Render
-					file.content = markdown.parse file.content
-					next()
-				else
-					next()
-			catch err
-				return next(err)
+				# Render
+				file.content = markdown.parse(file.content)
+	
+			# Done, return back to DocPad
+			return next()

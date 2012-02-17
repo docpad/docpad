@@ -10,12 +10,13 @@ module.exports = (BasePlugin) ->
 
 		# Render some content
 		render: ({inExtension,outExtension,templateData,file}, next) ->
-			try
-				if inExtension is 'hogan'
-					hogan = require('hogan.js')
-					file.content = hogan.compile(file.content).render(templateData)
-					next()
-				else
-					next()
-			catch err
-				return next(err)
+			# Check extensions
+			if inExtension is 'hogan'
+				# Requires
+				hogan = require('hogan.js')
+
+				# Render
+				file.content = hogan.compile(file.content).render(templateData)
+			
+			# Done, return back to DocPad
+			return next()
