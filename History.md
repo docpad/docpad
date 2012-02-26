@@ -1,5 +1,15 @@
 ## History
 
+- v3.2.8 February 26, 2012
+	- Stopped `docpad render` from outputting the welcome message
+	- Removed `try..catch`s from plugins, you should do this too
+		- The checking is now higher up in the callstack, which provides better error reporting and capturing
+	- Fixed a problem with the error bubbling that was preventing template errors from being outputted
+	- Fixed the "too many files open" issue thanks to [bal-util](http://github.com/balupton/bal-util.npm)'s `openFile` and `closeFile` utility functions
+
+- v3.2.7 February 15, 2012
+	- Stabilised the v3.2 branch
+
 - v3.2 February 15, 2012
 	- Cleaned architecture
 	- Added unit tests (uses mocha)

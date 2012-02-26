@@ -301,7 +301,8 @@ class DocPad extends EventSystem
 		# Read local configuration
 		path.exists jsonPath, (exists) ->
 			return next?()  if not exists
-			fs.readFile jsonPath, (err,data) ->
+			balUtil.openFile -> fs.readFile jsonPath, (err,data) ->
+				balUtil.closeFile()
 				return next?(err)  if err
 				return next?()  unless data
 				try
@@ -321,17 +322,19 @@ class DocPad extends EventSystem
 		fatal = (err) ->
 			docpad.fatal(err,next)
 		complete = (err) ->
-			docpad.unblock 'generating, watching, serving', ->
-				docpad.finish 'loading', ->
-					next?(err)
+			docpad.unblock 'generating, watching, serving', (lockError) ->
+				return fatal(lockError)  if lockError
+				docpad.finish 'loading', (lockError) ->
+					return fatal(lockError)  if lockError
+					return next?(err)
 	
 		# Block other events
-		docpad.block 'generating, watching, serving', (err) =>
-			return fatal(err)  if err
+		docpad.block 'generating, watching, serving', (lockError) =>
+			return fatal(lockError)  if lockError
 					
 			# Start loading
-			docpad.start 'loading', (err) =>
-				return fatal(err)  if err
+			docpad.start 'loading', (lockError) =>
+				return fatal(lockError)  if lockError
 
 				# Prepare
 				instanceConfig.rootPath or= process.cwd()
@@ -449,8 +452,14 @@ class DocPad extends EventSystem
 				# Check
 				return next(err)  if err
 
+				# Exists
+				exists = false
+				for own skeleton of skeletons
+					exists = true
+					break
+
 				# Return the skeletons to the callback
-				next(null,skeletons)
+				next(null,skeletons,exists)
 		)
 		
 		# Chain
@@ -635,9 +644,10 @@ class DocPad extends EventSystem
 		logger = @logger
 
 		# Load the skeletons
-		path.exists docpad.skeletonsPath, (exists) ->
+		@getSkeletons (err,skeletons,exists) ->
 			return next?()  if exists
 			docpad.installSkeletons next
+			return
 		
 		# Chain
 		@
@@ -814,7 +824,7 @@ class DocPad extends EventSystem
 		templateData = _.extend {}, @templateData, data
 		templateData.document = document
 		document.render templateData, (err) =>
-			@error err  if err
+			@error(err)  if err
 			next?()
 
 
@@ -982,7 +992,6 @@ class DocPad extends EventSystem
 	action: (action,opts={},next) ->
 		# Prepare
 		{opts,next} = @getActionArgs(opts,next)
-		error = @error
 		logger = @logger
 		
 		# Multiple actions?
@@ -1001,43 +1010,43 @@ class DocPad extends EventSystem
 		switch action
 			when 'install', 'update'
 				@installAction opts, (err) =>
-					return error(err)  if err
+					return @error(err)  if err
 					next?()
 
 			when 'skeleton', 'scaffold'
 				@skeletonAction opts, (err) =>
-					return error(err)  if err
+					return @error(err)  if err
 					next?()
 
 			when 'generate'
 				@generateAction opts, (err) =>
-					return error(err)  if err
+					return @error(err)  if err
 					next?()
 
 			when 'render'
 				@renderAction opts, (err) =>
-					return error(err)  if err
+					return @error(err)  if err
 					next?()
 
 			when 'watch'
 				@watchAction opts, (err) =>
-					return error(err)  if err
+					return @error(err)  if err
 					next?()
 
 			when 'server', 'serve'
 				@serverAction opts, (err) =>
-					return error(err)  if err
+					return @error(err)  if err
 					next?()
 
 			else
 				@skeletonAction opts, (err) =>
-					return error(err)  if err
+					return @error(err)  if err
 					@generateAction opts, (err) =>
-						return error(err)  if err
+						return @error(err)  if err
 						@serverAction opts, (err) =>
-							return error(err)  if err
+							return @error(err)  if err
 							@watchAction opts, (err) =>
-								return error(err)  if err
+								return @error(err)  if err
 								next?()
 		
 		# Chain
@@ -1146,7 +1155,7 @@ class DocPad extends EventSystem
 					# After
 					docpad.triggerPluginEvent 'parseAfter', {}, (err) ->
 						logger.log 'debug', 'Parsed files'  unless err
-						next?(err)
+						return next?(err)
 			
 			# Tasks
 			tasks.total = 2
@@ -1168,7 +1177,7 @@ class DocPad extends EventSystem
 						layout.load (err) ->
 							return nextFile(err)  if err
 							layout.store()
-							nextFile err
+							return nextFile()
 					
 				# Dir Action
 				null,
@@ -1176,7 +1185,7 @@ class DocPad extends EventSystem
 				# Next
 				(err) ->
 					logger.log 'warn', 'Failed to parse layouts', err  if err
-					tasks.complete err
+					return tasks.complete(err)
 			)
 
 			# Documents
@@ -1194,7 +1203,7 @@ class DocPad extends EventSystem
 							relativePath: fileRelativePath
 						)
 						document.load (err) ->
-							return nextFile err  if err
+							return nextFile(err)  if err
 
 							# Ignored?
 							if document.ignore or document.ignored or document.skip or document.published is false or document.draft is true
@@ -1205,7 +1214,7 @@ class DocPad extends EventSystem
 							
 							# Store Document
 							document.store()
-							nextFile err
+							return nextFile()
 				
 				# Dir Action
 				null,
@@ -1213,7 +1222,7 @@ class DocPad extends EventSystem
 				# Next
 				(err) ->
 					logger.log 'warn', 'Failed to parse documents', err  if err
-					tasks.complete err
+					return tasks.complete(err)
 			)
 
 		# Chain
@@ -1393,11 +1402,11 @@ class DocPad extends EventSystem
 		fatal = (err) ->
 			docpad.fatal(err,next)
 		complete = (err) ->
-			docpad.unblock 'loading', (err) ->
-				fatal(err)  if err  # continue on
-				docpad.finish 'generating', ->
-					fatal(err)  if err  # continue on
-					next?(err)
+			docpad.unblock 'loading', (lockError) ->
+				return fatal(lockError)  if lockError 
+				docpad.finish 'generating', (lockError) ->
+					return fatal(lockError)  if lockError
+					return next?(err)
 		
 		# Block loading
 		docpad.block 'loading', (err) ->
@@ -1467,24 +1476,22 @@ class DocPad extends EventSystem
 
 		# Exits
 		fatal = (err) ->
-			docpad.fatal(err,next)
+			return docpad.fatal(err,next)
 		complete = (err) ->
-			# Finish
-			docpad.finish 'render', ->
-				fatal(err)  if err  # continue on
-				# Unblock
-				docpad.unblock 'loading, generating', (err) ->
-					fatal(err)  if err  # continue on
-					# Next
-					next?(err)
+			docpad.finish 'render', (lockError) ->
+				return fatal(lockError)  if lockError
+				docpad.unblock 'loading, generating', (lockError) ->
+					return fatal(lockError)  if lockError
+					return next?(err)
 
 		# Block loading
-		docpad.block 'loading, generating', (err) ->
-			return fatal(err)  if err
-			docpad.start 'render', (err) ->
-				return fatal(err)  if err
+		docpad.block 'loading, generating', (lockError) ->
+			return fatal(lockError)  if lockError
+			docpad.start 'render', (lockError) ->
+				return fatal(lockError)  if lockError
 				# Render
 				docpad.render document, data, complete
+				return
 
 		# Chain
 		@
@@ -1513,14 +1520,11 @@ class DocPad extends EventSystem
 		fatal = (err) ->
 			docpad.fatal(err,next)
 		complete = (err) ->
-			# Finish
-			docpad.finish 'watching', ->
-				fatal(err)  if err  # continue on
-				# Unblock
-				docpad.unblock 'loading', (err) ->
-					fatal(err)  if err  # continue on
-					# Next
-					next?(err)
+			docpad.finish 'watching', (lockError) ->
+				return fatal(lockError)  if lockError
+				docpad.unblock 'loading', (lockError) ->
+					return fatal(lockError)  if lockError
+					return next?(err)
 		watch = (next) ->
 			# Block loading
 			docpad.block 'loading', (err) ->
@@ -1592,14 +1596,11 @@ class DocPad extends EventSystem
 		fatal = (err) ->
 			docpad.fatal(err,next)
 		complete = (err) ->
-			# Finish
-			docpad.finish 'skeleton', ->
-				fatal(err)  if err  # continue on
-				# Unblock
-				docpad.unblock 'loading, generating', (err) ->
-					fatal(err)  if err  # continue on
-					# Next
-					next?(err)
+			docpad.finish 'skeleton', (lockError) ->
+				return fatal(lockError)  if lockError
+				docpad.unblock 'loading, generating', (lockError) ->
+					return fatal(lockError)  if lockError
+					return next?(err)
 		useSkeleton = (skeletonId) ->
 			# Copy over the skeleton
 			logger.log 'info', "Copying over the Skeleton"
@@ -1610,10 +1611,10 @@ class DocPad extends EventSystem
 				return complete()
 
 		# Block loading
-		docpad.block 'loading, generating', (err) ->
-			return fatal(err)  if err
-			docpad.start 'skeleton', (err) ->
-				return fatal(err)  if err
+		docpad.block 'loading, generating', (lockError) ->
+			return fatal(lockError)  if lockError
+			docpad.start 'skeleton', (lockError) ->
+				return fatal(lockError)  if lockError
 				# Copy
 				path.exists docpad.config.srcPath, (exists) ->
 					# Check
@@ -1663,22 +1664,21 @@ class DocPad extends EventSystem
 
 		# Exists
 		fatal = (err) ->
-			return docpad.fatal(err,next)
+			docpad.fatal(err,next)
 		complete = (err) ->
 			# Finish
-			docpad.finish 'serving', ->
-				fatal(err)  if err  # continue on
+			docpad.finish 'serving', (lockError) ->
+				return fatal(lockError)  if lockError
 				# Unblock
 				docpad.unblock 'loading', (err) ->
-					fatal(err)  if err  # continue on
-					# Next
-					next?(err)
+					return fatal(lockError)  if lockError
+					return next?(err)
 		
 		# Block loading
-		docpad.block 'loading', (err) ->
-			return fatal(err)  if err
-			docpad.start 'serving', (err) ->
-				return fatal(err)  if err
+		docpad.block 'loading', (lockError) ->
+			return fatal(lockError)  if lockError
+			docpad.start 'serving', (lockError) ->
+				return fatal(lockError)  if lockError
 				# Plugins
 				docpad.triggerPluginEvent 'serverBefore', {}, (err) ->
 					return next?(err)  if err
