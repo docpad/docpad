@@ -1,5 +1,5 @@
 # Requires
-util = require('bal-util')
+balUtil = require('bal-util')
 fs = require('fs')
 path = require('path')
 coffee = null
@@ -242,7 +242,7 @@ class File
 		@logger.log 'debug', "Reading the file #{@relativePath}"
 
 		# Async
-		tasks = new util.Group (err) =>
+		tasks = new balUtil.Group (err) =>
 			if err
 				@logger.log 'err', "Failed to read the file #{@relativePath}"
 				return next?(err)
@@ -257,13 +257,15 @@ class File
 		if @date
 			tasks.complete()
 		else
-			fs.stat @fullPath, (err,fileStat) =>
+			balUtil.openFile => fs.stat @fullPath, (err,fileStat) =>
+				balUtil.closeFile()
 				return next?(err)  if err
 				@date = new Date(fileStat.ctime)  unless @date
 				tasks.complete()
 
 		# Read the file
-		fs.readFile @fullPath, (err,data) =>
+		balUtil.openFile => fs.readFile @fullPath, (err,data) =>
+			balUtil.closeFile()
 			return next?(err)  if err
 			@parse data.toString(), tasks.completer()
 		
@@ -377,7 +379,8 @@ class File
 		@logger.log 'debug', "Writing the rendered file #{filePath}"
 
 		# Write data
-		fs.writeFile filePath, @contentRendered, (err) =>
+		balUtil.openFile => fs.writeFile filePath, @contentRendered, (err) =>
+			balUtil.closeFile()
 			return next?(err)  if err
 			
 			# Log
@@ -412,7 +415,8 @@ class File
 		@data = data
 
 		# Write data
-		fs.writeFile @fullPath, @data, (err) =>
+		balUtil.openFile => fs.writeFile @fullPath, @data, (err) =>
+			balUtil.closeFile()
 			return next?(err)  if err
 			
 			# Log
@@ -464,7 +468,7 @@ class File
 			@extensionRendered = eve.extensionRendered
 			@filenameRendered = "#{@basename}.#{@extensionRendered}"
 			@url or= "/#{@relativeBase}.#{@extensionRendered}"
-			@slug or= util.generateSlugSync @relativeBase
+			@slug or= balUtil.generateSlugSync @relativeBase
 			@title or= @filenameRendered
 			@outPath = if @outDirPath then path.join(@outDirPath,@url) else null
 			@addUrl @url
@@ -589,7 +593,7 @@ class File
 			return next?()  if file.extensions.length <= 1
 
 			# Prepare the tasks
-			tasks = new util.Group next
+			tasks = new balUtil.Group next
 
 			# Clone extensions
 			extensions = []

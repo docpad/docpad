@@ -43,7 +43,7 @@ describe 'core', ->
 			done()
 
 	it 'should run correctly', (done) ->
-		@timeout(10000)
+		@timeout(60000)
 		docpad.action 'run', (err) ->
 			throw err  if err
 			done()
@@ -63,6 +63,7 @@ describe 'core', ->
 									)
 									done()
 				testMarkup(markupName,markupFile)  for own markupName, markupFile of {
+					"coffee-parser": 'coffee-parser.html'
 					coffeekup: 'coffeekup.html'
 					eco: 'eco.html'
 					eruby: 'eruby.html'

@@ -113,19 +113,61 @@ class ConsoleInterface
 			.command('*')
 			.action ->
 				program.emit 'help', []
-		
-		# Log
-		logger.log 'info', "Welcome to DocPad v#{docpad.version}"
-				
+			
 		# Start
 		@program.parse(process.argv)
 
+	# Welcome
+	welcome: ->
+		# Prepare
+		docpad = @docpad
+		logger = @docpad.logger
+
+		# Check
+		return  if @welcomed
+		@welcomed = true
+
+		# Log
+		logger.log 'info', "Welcome to DocPad v#{docpad.version}"
+
+	# Select a skeleton
+	selectSkeletonCallback: (skeletons,next) =>
+		# Prepare
+		program = @program
+		docpad = @docpad
+		ids = []
+
+		# Show
+		console.log cliColor.bold '''
+			You are about to create your new project inside your current directory. Below is a list of skeletons to bootstrap your new project:
+
+			'''
+		for own skeletonId, skeleton of skeletons
+			ids.push(skeletonId)
+			console.log """
+				\t#{cliColor.bold(skeletonId)}
+				\t#{skeleton.description}
+
+				"""
+		
+		# Select
+		console.log cliColor.bold '''
+			Which skeleton will you use?
+			'''
+		program.choose ids, (i) ->
+			skeletonId = ids[i]
+			return next(null,skeletonId)
+		
+		# Chain
+		@
+	
 
 	# =================================
 	# Actions
 
 	cli: (next) ->
 		# Prepare
+		@welcome()
 		program = @program
 
 		# Handle
@@ -144,6 +186,7 @@ class ConsoleInterface
 	
 	generate: (next) ->
 		# Prepare
+		@welcome()
 		docpad = @docpad
 
 		# Handle
@@ -151,6 +194,7 @@ class ConsoleInterface
 
 	help: (next) ->
 		# Prepare
+		@welcome()
 		program = @program
 		
 		# Handle
@@ -159,6 +203,7 @@ class ConsoleInterface
 	
 	info: (next) ->
 		# Prepare
+		@welcome()
 		docpad = @docpad
 
 		# Handle
@@ -167,6 +212,7 @@ class ConsoleInterface
 	
 	install: (next) ->
 		# Prepare
+		@welcome()
 		docpad = @docpad
 
 		# Handle
@@ -230,6 +276,7 @@ class ConsoleInterface
 	
 	run: (next) ->
 		# Prepare
+		@welcome()
 		docpad = @docpad
 		opts =
 			selectSkeletonCallback: @selectSkeletonCallback
@@ -239,43 +286,15 @@ class ConsoleInterface
 
 	server: (next) ->
 		# Prepare
+		@welcome()
 		docpad = @docpad
 
 		# Handle
 		docpad.action('server',next)
 	
-	selectSkeletonCallback: (skeletons,next) =>
-		# Prepare
-		program = @program
-		docpad = @docpad
-		ids = []
-
-		# Show
-		console.log cliColor.bold '''
-			You are about to create your new project inside your current directory. Below is a list of skeletons to bootstrap your new project:
-
-			'''
-		for own skeletonId, skeleton of skeletons
-			ids.push(skeletonId)
-			console.log """
-				\t#{cliColor.bold(skeletonId)}
-				\t#{skeleton.description}
-
-				"""
-		
-		# Select
-		console.log cliColor.bold '''
-			Which skeleton will you use?
-			'''
-		program.choose ids, (i) ->
-			skeletonId = ids[i]
-			return next(null,skeletonId)
-		
-		# Chain
-		@
-	
 	skeleton: (next) ->
 		# Prepare
+		@welcome()
 		program = @program
 		docpad = @docpad
 		opts =
@@ -286,6 +305,7 @@ class ConsoleInterface
 	
 	watch: (next) ->
 		# Prepare
+		@welcome()
 		docpad = @docpad
 
 		# Handle

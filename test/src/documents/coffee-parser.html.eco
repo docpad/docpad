@@ -1,0 +1,21 @@
+--- coffee
+(->
+	capitalize = (str) -> str.toUpperCase()
+
+	meta =
+		title: "Coffee Parser Example"
+	
+	meta.capitalize = capitalize
+	meta.titleCapitalized = capitalize meta.title
+
+	return meta
+)()
+---
+
+This is a Coffee Parser Example.
+
+The title of this page is: <%- @document.title %>
+
+The capitlized title of this page is: <%- @document.capitalize @document.title %>
+
+The capitlized title of this page is: <%- @document.titleCapitalized %>

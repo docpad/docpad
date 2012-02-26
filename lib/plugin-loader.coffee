@@ -1,8 +1,9 @@
 # Requires
-path = require 'path'
-fs = require 'fs'
-_ = require 'underscore'
+path = require('path')
+fs = require('fs')
+_ = require('underscore')
 semver = require('semver')
+balUtil = require('bal-util')
 
 # Define Plugin Loader
 class PluginLoader
@@ -74,7 +75,8 @@ class PluginLoader
 						return next?(null,true)
 			else
 				@packagePath = packagePath
-				fs.readFile packagePath, (err,data) =>
+				balUtil.openFile => fs.readFile packagePath, (err,data) =>
+					balUtil.closeFile()
 					if err
 						return next?(err,false)
 					else
