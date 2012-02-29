@@ -48,6 +48,8 @@ At its core DocPad is a language agnostic document management system. This means
 - it provides automatic version checking letting you know when it's time to update
 - you can add new features to DocPad easily and simply with its powerful plugin infrastucture
 - it provides you with pre-made skeletons which can bootstrap your next project
+- it provides optional server-side syntax highlighting with a [Pygments](http://pygments.org/) plugin
+- it provides automatic clean urls support, and multiple url support out of the box
 
 
 

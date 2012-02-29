@@ -6,4 +6,4 @@ Bleh Blah
 
 <%-@content%>
 
-<script>var attributesWithLayout = <%-JSON.stringify @document.getAttributes()%></script>
+<script>var attributesWithLayout = <%=JSON.stringify @document.getAttributes()%></script>

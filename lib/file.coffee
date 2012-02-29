@@ -544,15 +544,47 @@ class File
 			file.content = file.body
 
 			# Error
-			return next?(err)  if err
+			return next(err)  if err
 			
 			# Log
 			logger.log 'debug', "Rendering completed for #{file.relativePath}"
 			
 			# Success
 			file.rendered = true
-			return next?()
+			return next()
 		
+
+		# Render plugins
+		# next(err)
+		renderPlugins = (file,event,next) ->
+			# Render through plugins
+			docpad.triggerPluginEvent event.name, event, (err) ->
+				# Error?
+				if err
+					logger.log 'warn', 'Something went wrong while rendering:', file.relativePath
+					return next(err)
+
+				# Update rendered content
+				file.contentRendered = file.content
+				file.contentRenderings.push(
+					content: file.contentRendered
+					extension: event.extension or event.outExtension
+				)
+				file.contentRenderingsByLayout.none.push(
+					content: file.contentRendered
+					extension: event.extension or event.outExtension
+				)
+
+				# Complete
+				return next()
+
+
+		# Render plugins proxy
+		# next(err)
+		renderPluginsProxy = (args...) ->
+			-> renderPlugins(args...)
+
+
 		# Prepare render layouts
 		# next(err)
 		renderLayouts = (next) ->
@@ -560,12 +592,12 @@ class File
 			file.contentRenderedWithoutLayouts = file.content
 
 			# Skip ahead if we don't have a layout
-			return next?()  unless file.layout
+			return next()  unless file.layout
 			
 			# Grab the layout
 			file.getLayout (err,layout) ->
 				# Error
-				return next?(err)  if err
+				return next(err)  if err
 
 				# Assign the rendered file content to the templateData.content
 				templateData.content = file.contentRendered
@@ -573,7 +605,7 @@ class File
 				# Render the layout with the templateData
 				layout.render templateData, (err) ->
 					# Error
-					return next?(err)  if err
+					return next(err)  if err
 
 					# Apply the rendering
 					file.contentRendered = layout.contentRendered
@@ -584,13 +616,28 @@ class File
 							file.contentRenderingsByLayout[key] = value
 
 					# Success
-					return next?()
-		
-		# Prepare render extensions
+					return next()
+
+
+		# Render the document
 		# next(err)
-		renderExtensions = (next) =>
+		renderDocument = (next) ->
+			# Prepare event data
+			eventData =
+				name: 'renderDocument'
+				extension: file.extensions[0]
+				templateData: templateData
+				file: file
+
+			# Render via plugins
+			return renderPlugins(file, eventData, next)
+		
+
+		# Render extensions
+		# next(err)
+		renderExtensions = (next) ->
 			# If we only have one extension, then skip ahead to rendering layouts
-			return next?()  if file.extensions.length <= 1
+			return next()  if file.extensions.length <= 1
 
 			# Prepare the tasks
 			tasks = new balUtil.Group next
@@ -607,35 +654,14 @@ class File
 				if previousExtension
 					# Event data
 					eventData = 
+						name: 'render'
 						inExtension: previousExtension
 						outExtension: extension
 						templateData: templateData
 						file: file
 					
-					# Create a task to run
-					tasks.push ((file,eventData) -> ->
-						# Render through plugins
-						docpad.triggerPluginEvent 'render', eventData, (err) ->
-							# Error?
-							if err
-								logger.log 'warn', 'Something went wrong while rendering:', file.relativePath
-								return tasks.exit(err)
-
-							# Update rendered content
-							file.contentRendered = file.content
-							file.contentRenderings.push(
-								content: file.contentRendered
-								extension: eventData.outExtension
-							)
-							file.contentRenderingsByLayout.none.push(
-								content: file.contentRendered
-								extension: eventData.outExtension
-							)
-
-							# Complete
-							return tasks.complete(err)
-					
-					)(file,eventData)
+					# Render through the plugins
+					tasks.push renderPluginsProxy(file,eventData,tasks.completer())
 
 				# Cycle
 				previousExtension = extension
@@ -646,11 +672,15 @@ class File
 		# Reset everything
 		reset()
 
-		# Render the extensions, then the layouts, then finish
+		# Render the extensions
 		renderExtensions (err) ->
 			return finish(err)  if err
-			renderLayouts (err) ->
-				return finish(err)
+			# Then the document
+			renderDocument (err) ->
+				return finish(err)  if err
+				# Then the layouts
+				renderLayouts (err) ->
+					return finish(err)
 
 		# Chain
 		@

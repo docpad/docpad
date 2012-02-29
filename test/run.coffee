@@ -20,6 +20,8 @@ docpadConfig =
 	port: port
 	rootPath: __dirname
 	logLevel: 5
+	enabledPlugins:
+		pygments: true
 
 # Fail on an uncaught error
 process.on 'uncaughtException', (err) ->
@@ -76,6 +78,8 @@ describe 'core', ->
 					markdown: 'markdown.html'
 					move: 'move.js'
 					php: 'php.html'
+					'pygments-html': 'pygments-html.html'
+					'pygments-markdown': 'pygments-markdown.html'
 					'related (1/2)': 'related-1.html'
 					'related (2/2)': 'related-2.html'
 					roy: 'roy.js'
