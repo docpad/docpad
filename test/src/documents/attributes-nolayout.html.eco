@@ -3,4 +3,4 @@ title: 'Attributes No Layout'
 tags: ['attributes','with-layout']
 ---
 
-<script>var attributesWithoutLayout = <%-JSON.stringify @document.getAttributes()%></script>
+<script>var attributesWithoutLayout = <%=JSON.stringify @document.getAttributes()%></script>

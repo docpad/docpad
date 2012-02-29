@@ -22,8 +22,7 @@ module.exports = (BasePlugin) ->
 						#{templateData.content or ''}
 						EOF
 						document = Hash.new()
-						
-            require 'rubygems' unless defined? Gem
+						require 'rubygems' unless defined? Gem
 						require 'json'
 						document = JSON.parse <<-EOF
 						#{data}

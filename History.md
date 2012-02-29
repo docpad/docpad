@@ -1,11 +1,36 @@
 ## History
 
+- v3.3.0 February 29, 2012
+	- Fixed ruby rendering with ruby v1.8
+		- Thanks to [Sorin Ionescu](https://github.com/sorin-ionescu) - [patch here](https://github.com/bevry/docpad/commit/a3f711b1b015b2fa31490bbbaca2cf9c3ead3016)
+	- The `enabledPlugins` config option will now correctly only overwrite the default values if you have set it to be a string
+		- Before it would always incorrectly overwrite the default value if set, which would cause some experimental disabled-by-default plugins to enable
+	- Added a [Pygments](http://pygments.org/) Syntax Highlighting plugin
+		- It is disabled by default as not everyone would want syntax highlighting, to enable it, add the following to your website's `package.json` file:
+			``` javascript
+			"docpad": {
+				"enabledPlugins": {
+					"pygments": true
+				}
+			}
+			```
+		- Thanks to [Doug Neiner](https://github.com/dcneiner) for urging it along
+	- Added a new `renderDocument` plugin event
+		- It is fired after the extensions are rendered, but before the document is rendered inside its layout
+		- Useful for things that modify the rendered result of a document, e.g. syntax highlighting, paging, etc
+	- Closes
+		- [#146](https://github.com/bevry/docpad/pull/146) - Require RubyGems on Ruby 1.8
+		- [#137](https://github.com/bevry/docpad/pull/137) - An error occured: Cannot find module 'uglify-js'
+		- [#34](https://github.com/bevry/docpad/issues/34) - As a User, I want server-side syntax highlighting, as pygments rocks
+
 - v3.2.8 February 26, 2012
 	- Stopped `docpad render` from outputting the welcome message
 	- Removed `try..catch`s from plugins, you should do this too
 		- The checking is now higher up in the callstack, which provides better error reporting and capturing
 	- Fixed a problem with the error bubbling that was preventing template errors from being outputted
 	- Fixed the "too many files open" issue thanks to [bal-util](http://github.com/balupton/bal-util.npm)'s `openFile` and `closeFile` utility functions
+	- Closes
+		- [#143](https://github.com/bevry/docpad/issues/143) - No errors on wrong layout
 
 - v3.2.7 February 15, 2012
 	- Stabilised the v3.2 branch

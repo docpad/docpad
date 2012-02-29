@@ -155,6 +155,7 @@ class DocPad extends EventSystem
 			jade: true
 			less: true
 			markdown: true
+			pygments: false
 			related: true
 			rest: false # not stable
 			roy: true # has sys problem
@@ -349,14 +350,26 @@ class DocPad extends EventSystem
 				tasks = new balUtil.Group (err) =>
 					return fatal(err)  if err
 
-					# Apply Configuration
-					@config = _.extend(
+					# Merge Configuration (not deep!)
+					config = _.extend(
 						{}
 						@config
 						docpadConfig
 						websiteConfig
 						instanceConfig
 					)
+
+					# Merge enabled plugins
+					config.enabledPlugins = _.extend(
+						{}
+						@config.enabledPlugins or {}
+						docpadConfig.enabledPlugins or {}
+						websiteConfig.enabledPlugins or {}
+						instanceConfig.enabledPlugins or {}
+					)
+
+					# Apply merged configuration
+					@config = config
 					
 					# Options
 					@server = @config.server  if @config.server
