@@ -819,9 +819,15 @@ class DocPad extends EventSystem
 		layouts = @layouts = new queryEngine.Collection
 		documents = @documents = new queryEngine.Collection
 		
-		# Extend
+		# Layout Prototype
+		Layout::isLayout = true
+		Layout::isDocument = false
 		Layout::store = ->
 			layouts[@id] = @
+
+		# Document Prototype
+		Document::isLayout = false
+		Document::isDocument = true
 		Document::store = ->
 			documents[@id] = @
 		
