@@ -1,5 +1,10 @@
 ## History
 
+- v3.3.2 March 18, 2012
+	- Fixed missing interpolation on new version notification
+	- Fixed the scandir error with the skeletons path when doing the first run on windows
+	- Updated paths to use `path.join` instead of always using forward slashes
+
 - v3.3.1 March 18, 2012
 	- Fixed Pygments plugin highlighting the code multiple times for documents with layouts
 	- Added `isLayout` and `isDocument` flags to `Document` and `Layout` prototypes

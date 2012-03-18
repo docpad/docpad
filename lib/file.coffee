@@ -398,7 +398,7 @@ class File
 	write: (next) ->
 		# Prepare
 		fullPath = @fullPath
-		js2coffee = require('js2coffee/lib/js2coffee.coffee')  unless js2coffee
+		js2coffee = require(path.join 'js2coffee', 'lib', 'js2coffee.coffee')  unless js2coffee
 		
 		# Log
 		@logger.log 'debug', "Writing the file #{filePath}"
@@ -452,7 +452,11 @@ class File
 		# Paths
 		fullDirPath = path.dirname(@fullPath) or ''
 		relativeDirPath = path.dirname(@relativePath).replace(/^\.$/,'') or ''
-		@relativeBase = (if relativeDirPath.length then relativeDirPath+'/' else '')+@basename
+		@relativeBase =
+			if relativeDirPath.length
+				path.join relativeDirPath, @basename
+			else
+				@basename
 		@id = @relativeBase
 
 		# Next

@@ -12,9 +12,9 @@ balUtil = require('bal-util')
 EventSystem = balUtil.EventSystem
 
 # Local
-PluginLoader = require("#{__dirname}/plugin-loader.coffee")
-BasePlugin = require("#{__dirname}/base-plugin.coffee")
-require("#{__dirname}/prototypes.coffee")
+PluginLoader = require(path.join __dirname, 'plugin-loader.coffee')
+BasePlugin = require(path.join __dirname, 'base-plugin.coffee')
+require(path.join __dirname, 'prototypes.coffee')
 
 
 # =====================================
@@ -79,22 +79,22 @@ class DocPad extends EventSystem
 	# Paths
 
 	# The doocpad directory
-	corePath: "#{__dirname}/.."
+	corePath: path.join __dirname, '..'
 
 	# The docpad library directory
-	libPath: "#{__dirname}"
+	libPath: __dirname
 
 	# The main docpad file
-	mainPath: "#{__dirname}/docpad.coffee"
+	mainPath: path.join __dirname, 'docpad.coffee'
 
 	# The docpad package.json path
-	packagePath: "#{__dirname}/../package.json"
+	packagePath: path.join __dirname, '..', 'package.json'
 
 	# The docpad plugins directory
-	pluginsPath: "#{__dirname}/exchange/plugins"
+	pluginsPath: path.join __dirname, 'exchange', 'plugins'
 
 	# The docpad skeletons directory
-	skeletonsPath: "#{__dirname}/exchange/skeletons"
+	skeletonsPath: path.join __dirname, 'exchange', 'skeletons'
 
 
 	# -----------------------------
@@ -179,13 +179,13 @@ class DocPad extends EventSystem
 		srcPath: 'src'
 
 		# The website's layouts directory
-		layoutsPath: 'src/layouts'
+		layoutsPath: path.join 'src', 'layouts'
 
 		# The website's document's directory
-		documentsPath: 'src/documents'
+		documentsPath: path.join 'src', 'documents'
 
 		# The website's public directory
-		publicPath: 'src/public'
+		publicPath: path.join 'src', 'public'
 
 		# The website's package.json path
 		packagePath: 'package.json'
@@ -435,45 +435,51 @@ class DocPad extends EventSystem
 		docpad = @
 		logger = @logger
 		skeletons = {}
+		exists = false
 
-		# Ask about the skeletons
-		balUtil.scandir(
-			# Path
-			docpad.skeletonsPath
-			# File Action
-			false
-			# Dir Action
-			(fileFullPath,fileRelativePath,complete) ->
-				# Check if package.json exists
-				packagePath = path.join fileFullPath, 'package.json'
-				path.exists packagePath, (exists) ->
-					# Skip if it doesn't exist
-					return complete(null,true)  unless exists
+		# Exists?
+		path.exists docpad.skeletonsPath, (exists) ->
+			# Check
+			unless exists
+				return next(null,skeletons,exists)
 
-					# It does exist, let's get it's information
-					docpad.loadJsonPath packagePath, (err,data) ->
-						return complete(err,true)  if err
-						data or= {}
+			# Ask about the skeletons
+			balUtil.scandir(
+				# Path
+				docpad.skeletonsPath
+				# File Action
+				false
+				# Dir Action
+				(fileFullPath,fileRelativePath,complete) ->
+					# Check if package.json exists
+					packagePath = "#{fileFullPath}/package.json"
+					path.exists packagePath, (exists) ->
+						# Skip if it doesn't exist
+						return complete(null,true)  unless exists
 
-						# Add it to the skeleton listing
-						skeletons[fileRelativePath] = data
+						# It does exist, let's get it's information
+						docpad.loadJsonPath packagePath, (err,data) ->
+							return complete(err,true)  if err
+							data or= {}
 
-						# Complete
-						return complete(null,true)
-			# Next
-			(err) ->
-				# Check
-				return next(err)  if err
+							# Add it to the skeleton listing
+							skeletons[fileRelativePath] = data
 
-				# Exists
-				exists = false
-				for own skeleton of skeletons
-					exists = true
-					break
+							# Complete
+							return complete(null,true)
+				# Next
+				(err) ->
+					# Check
+					return next(err)  if err
 
-				# Return the skeletons to the callback
-				next(null,skeletons,exists)
-		)
+					# Exists
+					for own skeleton of skeletons
+						exists = true
+						break
+
+					# Return the skeletons to the callback
+					return next(null,skeletons,exists)
+			)
 		
 		# Chain
 		@
@@ -659,7 +665,7 @@ class DocPad extends EventSystem
 		# Load the skeletons
 		@getSkeletons (err,skeletons,exists) ->
 			return next?()  if exists
-			docpad.installSkeletons next
+			docpad.installSkeletons(next)
 			return
 		
 		# Chain
@@ -712,10 +718,10 @@ class DocPad extends EventSystem
 
 		# Check
 		balUtil.packageCompare
-			local: "#{docpad.corePath}/package.json"
+			local: path.join docpad.corePath, 'package.json'
 			remote: 'https://raw.github.com/bevry/docpad/master/package.json'
 			newVersionCallback: (details) ->
-				docpad.notify 'There is a new version of #{details.local.name} available'
+				docpad.notify "There is a new version of #{details.local.name} available"
 				docpad.logger.log 'notice', """
 					There is a new version of #{details.local.name} available, you should probably upgrade...
 					current version:  #{details.local.version}
@@ -813,7 +819,7 @@ class DocPad extends EventSystem
 		queryEngine = require('query-engine')
 
 		# Prepare
-		File = @File = require("#{@libPath}/file.coffee")
+		File = @File = require path.join @libPath, 'file.coffee'
 		Layout = @Layout = class extends File
 		Document = @Document = class extends File
 		layouts = @layouts = new queryEngine.Collection
@@ -909,7 +915,7 @@ class DocPad extends EventSystem
 		
 		# Load in the docpad and local plugin directories
 		tasks.push => @loadPluginsIn @pluginsPath, tasks.completer()
-		if @config.rootPath isnt __dirname and path.existsSync "#{@config.rootPath}/plugins"
+		if @config.rootPath isnt __dirname and path.existsSync path.join @config.rootPath, 'plugins'
 			tasks.push => @loadPluginsIn @config.pluginsPath, tasks.completer()
 		
 		# Execute the loading asynchronously
