@@ -52,6 +52,9 @@ module.exports = (BasePlugin) ->
 		else if element.parentNode.tagName in ['pre','code']
 			parentNode = element.parentNode
 
+		# Check if we are already highlighted
+		return next()  if /highlighted/.test(parentNode.className)
+
 		# Grab the source
 		source = childNode.innerHTML
 		language = childNode.getAttribute('lang') or parentNode.getAttribute('lang')
@@ -62,9 +65,11 @@ module.exports = (BasePlugin) ->
 		# Pygmentize
 		pygmentizeSource source, language, (err,result) ->
 			return next(err)  if err
-			resultEl = window.document.createElement('div')
-			resultEl.innerHTML = result
-			element.parentNode.replaceChild(resultEl.childNodes[0],element)
+			resultElWrapper = window.document.createElement('div')
+			resultElWrapper.innerHTML = result
+			resultElInner = resultElWrapper.childNodes[0]
+			resultElInner.className += ' highlighted'
+			element.parentNode.replaceChild(resultElInner,element)
 			return next()
 
 	# Define Plugin
@@ -74,7 +79,7 @@ module.exports = (BasePlugin) ->
 		
 		# Render the document
 		renderDocument: ({file,extension,templateData},next) ->
-			if extension is 'html'
+			if file.isDocument and extension is 'html'
 				# Create DOM from the file content
 				jsdom.env(
 					html: "<html><body>#{file.content}</body></html>"

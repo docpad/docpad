@@ -1,5 +1,9 @@
 ## History
 
+- v3.3.1 March 18, 2012
+	- Fixed Pygments plugin highlighting the code multiple times for documents with layouts
+	- Added `isLayout` and `isDocument` flags to `Document` and `Layout` prototypes
+
 - v3.3.0 February 29, 2012
 	- Fixed ruby rendering with ruby v1.8
 		- Thanks to [Sorin Ionescu](https://github.com/sorin-ionescu) - [patch here](https://github.com/bevry/docpad/commit/a3f711b1b015b2fa31490bbbaca2cf9c3ead3016)

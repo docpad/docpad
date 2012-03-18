@@ -78,6 +78,7 @@ describe 'core', ->
 					markdown: 'markdown.html'
 					move: 'move.js'
 					php: 'php.html'
+					'pygments-html-layout': 'pygments-html-layout.html'
 					'pygments-html': 'pygments-html.html'
 					'pygments-markdown': 'pygments-markdown.html'
 					'related (1/2)': 'related-1.html'
