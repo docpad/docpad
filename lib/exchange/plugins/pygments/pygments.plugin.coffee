@@ -78,11 +78,15 @@ module.exports = (BasePlugin) ->
 		name: 'pygments'
 		
 		# Render the document
-		renderDocument: ({file,extension,templateData},next) ->
-			if file.isDocument and extension is 'html'
+		renderDocument: (opts,next) ->
+			# Prepare
+			{extension,templateData,content,file} = opts
+
+			# Handle
+			if file.type is 'document' and extension is 'html'
 				# Create DOM from the file content
 				jsdom.env(
-					html: "<html><body>#{file.content}</body></html>"
+					html: "<html><body>#{content}</body></html>"
 					features:
 						QuerySelector: true
 					done: (err,window) ->
@@ -101,7 +105,7 @@ module.exports = (BasePlugin) ->
 						tasks = new balUtil.Group (err) ->
 							return next(err)  if err
 							# Apply the content
-							file.content = window.document.body.innerHTML
+							opts.content = window.document.body.innerHTML
 							# Completed
 							return next()
 						tasks.total = elements.length

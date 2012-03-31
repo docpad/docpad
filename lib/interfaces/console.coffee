@@ -2,7 +2,7 @@
 fs = require('fs')
 path = require('path')
 {cliColor} = require('caterpillar')
-DocPad = require("#{__dirname}/docpad.coffee")
+DocPad = require(path.join __dirname, '..', 'docpad.coffee')
 
 # =================================
 # The Console Interface
@@ -99,6 +99,8 @@ class ConsoleInterface
 				'ensure docpad is installed correctly'
 			'cli':
 				'start the interactive cli'
+			'clean':
+				'clean everything (will remove your outdir)'
 			'exit':
 				'exit the cli'
 			'info':
@@ -229,30 +231,25 @@ class ConsoleInterface
 			return docpad.error("You must pass a filename to the render command")
 
 		# File details
-		document = docpad.createDocument()
-		document.filename = program.args[0]
-		document.fullPath = program.args[0]
-		document.data = ''
+		details =
+			filename: program.args[0]
+			content: ''
 
 		# Prepare
 		useStdin = true
 		renderDocument = ->
-			document.load (err) ->
+			docpad.action 'render', details, (err,document) ->
 				throw err  if err
-				document.contextualize (err) ->
-					throw err  if err
-					docpad.action 'render', {document:document}, (err) ->
-						throw err  if err
-						console.log document.contentRendered
-						process.exit(0)
-			
+				console.log document.contentRendered
+				process.exit(0)
+		
 		# Timeout if we don't have stdin
 		timeout = setTimeout(
 			->
 				# Clear timeout
 				timeout = null
 				# Skip if we are using stdin
-				return  if document.data.replace(/\s+/,'')
+				return  if details.content.replace(/\s+/,'')
 				# Close stdin as we are not using it
 				useStdin = false
 				stdin.pause()
@@ -266,7 +263,7 @@ class ConsoleInterface
 		stdin.resume()
 		stdin.setEncoding('utf8')
 		stdin.on 'data', (data) ->
-			document.data += data.toString()
+			details.content += data.toString()
 		process.stdin.on 'end', ->
 			return  unless useStdin
 			if timeout
@@ -291,6 +288,14 @@ class ConsoleInterface
 
 		# Handle
 		docpad.action('server',next)
+	
+	clean: (next) ->
+		# Prepare
+		@welcome()
+		docpad = @docpad
+
+		# Handle
+		docpad.action('clean',next)
 	
 	skeleton: (next) ->
 		# Prepare

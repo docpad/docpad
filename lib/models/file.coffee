@@ -2,33 +2,37 @@
 balUtil = require('bal-util')
 fs = require('fs')
 path = require('path')
+_ = require('underscore')
+EventSystem = balUtil.EventSystem
 coffee = null
 yaml = null
 js2coffee = null
 
-# ---------------------------------
-# DocPad File Class
 
-class File
+# ---------------------------------
+# File Model
+
+class FileModel extends EventSystem
+
 
 	# ---------------------------------
-	# Backreferences to DocPad
-
-	# The DocPad instance
-	docpad: null
+	# Configuration
 
 	# The available layouts in our DocPad instance
-	layouts: []
-
-	# The Caterpillar instance to use
-	logger: null
+	layouts: null
 
 	# The out directory path to put the file
 	outDirPath: null
 
+	# Logger
+	logger: null
+
 
 	# ---------------------------------
 	# Automaticly set variables
+
+	# Model Type
+	type: 'file'
 
 	# The unique document identifier
 	id: null
@@ -98,14 +102,6 @@ class File
 	# The rendered content (before being passed through the layouts)
 	contentRenderedWithoutLayouts: null
 
-	# The stages of the content rendering
-	# [{layout:String,content:String,extension:String}]
-	contentRenderings: []
-
-	# The stages of the content rendering indexed by the layout
-	# layoutName: {[content:String,extension:String]}
-	contentRenderingsByLayout: {}
-
 
 	# ---------------------------------
 	# User set variables
@@ -142,12 +138,10 @@ class File
 	# Functions
 
 	# Constructor
-	constructor: ({@docpad,@layouts,@logger,@outDirPath,meta}) ->
+	constructor: ({@layouts,@logger,@outDirPath,meta}) ->
 		# Delete prototype references
 		@extensions = []
 		@meta = {}
-		@contentRenderings = []
-		@contentRenderingsByLayout = {}
 		@urls = []
 		@tags = []
 		@relatedDocuments = []
@@ -163,8 +157,8 @@ class File
 		attributeNames = '''
 			id basename extension extensions extensionRendered filename filenameRendered fullPath outPath relativePath relativeBase
 			
-			data header parser meta body content rendered contentRendered contentRenderedWithoutLayouts contentRenderings contentRenderingsByLayout
-			
+			data header parser meta body content rendered contentRendered contentRenderedWithoutLayouts
+
 			dynamic title date slug url urls ignore tags
 			'''.split(/\s+/g)
 		
@@ -209,14 +203,15 @@ class File
 	load: (next) ->
 		# Prepare
 		filePath = @relativePath or @fullPath or @filename
+		logger = @logger
 
 		# Log
-		@logger.log 'debug', "Loading the file #{filePath}"
+		logger.log 'debug', "Loading the file #{filePath}"
 		
 		# Handler
-		complete = (err) =>
+		complete = (err) ->
 			return next?(err)  if err
-			@logger.log 'debug', "Loaded the file #{filePath}"
+			logger.log 'debug', "Loaded the file #{filePath}"
 			next?()
 
 		# Exists?
@@ -238,18 +233,21 @@ class File
 	# Reads in the source file and parses it
 	# next(err)
 	read: (next) ->
+		# Prepare
+		logger = @logger
+
 		# Log
-		@logger.log 'debug', "Reading the file #{@relativePath}"
+		logger.log 'debug', "Reading the file #{@relativePath}"
 
 		# Async
 		tasks = new balUtil.Group (err) =>
 			if err
-				@logger.log 'err', "Failed to read the file #{@relativePath}"
+				logger.log 'err', "Failed to read the file #{@relativePath}"
 				return next?(err)
 			else
 				@normalize (err) =>
 					return next?(err)  if err
-					@logger.log 'debug', "Read the file #{@relativePath}"
+					logger.log 'debug', "Read the file #{@relativePath}"
 					next?()
 		tasks.total = 2
 
@@ -289,8 +287,6 @@ class File
 		@rendered = false
 		@contentRendered = null
 		@contentRenderedWithoutLayouts = null
-		@contentRenderings = []
-		@contentRenderingsByLayout = {}
 		@extensionRendered = null
 		@filenameRendered = null
 	
@@ -374,9 +370,10 @@ class File
 	writeRendered: (next) ->
 		# Prepare
 		filePath = @outPath
+		logger = @logger
 		
 		# Log
-		@logger.log 'debug', "Writing the rendered file #{filePath}"
+		logger.log 'debug', "Writing the rendered file #{filePath}"
 
 		# Write data
 		balUtil.openFile => fs.writeFile filePath, @contentRendered, (err) =>
@@ -384,7 +381,7 @@ class File
 			return next?(err)  if err
 			
 			# Log
-			@logger.log 'debug', "Wrote the rendered file #{filePath}"
+			logger.log 'debug', "Wrote the rendered file #{filePath}"
 
 			# Next
 			next?()
@@ -398,10 +395,11 @@ class File
 	write: (next) ->
 		# Prepare
 		fullPath = @fullPath
+		logger = @logger
 		js2coffee = require(path.join 'js2coffee', 'lib', 'js2coffee.coffee')  unless js2coffee
 		
 		# Log
-		@logger.log 'debug', "Writing the file #{filePath}"
+		logger.log 'debug', "Writing the file #{filePath}"
 
 		# Prepare data
 		header = 'var a = '+JSON.stringify(@meta)
@@ -420,7 +418,7 @@ class File
 			return next?(err)  if err
 			
 			# Log
-			@logger.log 'info', "Wrote the file #{fullPath}"
+			logger.log 'info', "Wrote the file #{fullPath}"
 
 			# Next
 			next?()
@@ -485,22 +483,28 @@ class File
 	# The the layout object that this file references (if any)
 	# next(err,layout)
 	getLayout: (next) ->
+		# Prepare
+		layout = @layout
+
 		# Check
-		unless @layout
+		unless layout
 			return next?(
 				new Error('This document does not have a layout')
 			)
 
 		# Find parent
-		@layouts.findOne {relativeBase:@layout}, (err,layout) =>
+		@layouts.findOne {relativeBase:@layout}, (err,layout) ->
 			# Check
 			if err
 				return next?(err)
 			else if not layout
-				err = new Error "Could not find the layout: #{@layout}"
+				err = new Error "Could not find the layout: #{layout}"
 				return next?(err)
 			else
 				return next?(null, layout)
+
+		# Chain
+		@
 	
 	# Get Eve
 	# Get the most ancestoral layout we have (the very top one)
@@ -515,12 +519,11 @@ class File
 	
 	# Render
 	# Render this file
-	# next(err,finalExtension)
+	# next(err,result)
 	render: (templateData,next) ->
 		# Prepare
-		docpad = @docpad
-		logger = @logger
 		file = @
+		logger = @logger
 
 		# Log
 		logger.log 'debug', "Rendering the file #{@relativePath}"
@@ -531,21 +534,19 @@ class File
 			file.content = file.body
 			file.contentRendered = file.body
 			file.contentRenderedWithoutLayouts = file.body
-			file.contentRenderings = [{
-				content: file.content
-				extension: file.extension
-			}]
-			file.contentRenderingsByLayout = {
-				none: [
-					content: file.content
-					extension: file.extension
-				]
-			}
+
+		# Reset everything
+		reset()
+		rendering = file.body
 
 		# Prepare complete
 		finish = (err) ->
-			# Reset the content to it's original value
-			file.content = file.body
+			# Apply rendering if we are a document
+			if file.type in ['document','partial']
+				file.content = file.body
+				file.contentRendered = rendering
+				file.contentRenderedWithoutLayouts = rendering
+				file.rendered = true
 
 			# Error
 			return next(err)  if err
@@ -554,47 +555,24 @@ class File
 			logger.log 'debug', "Rendering completed for #{file.relativePath}"
 			
 			# Success
-			file.rendered = true
-			return next()
+			return next(null,rendering)
 		
 
 		# Render plugins
 		# next(err)
-		renderPlugins = (file,event,next) ->
+		renderPlugins = (file,eventData,next) =>
 			# Render through plugins
-			docpad.triggerPluginEvent event.name, event, (err) ->
+			file.emitSync eventData.name, eventData, (err) ->
 				# Error?
 				if err
 					logger.log 'warn', 'Something went wrong while rendering:', file.relativePath
 					return next(err)
-
-				# Update rendered content
-				file.contentRendered = file.content
-				file.contentRenderings.push(
-					content: file.contentRendered
-					extension: event.extension or event.outExtension
-				)
-				file.contentRenderingsByLayout.none.push(
-					content: file.contentRendered
-					extension: event.extension or event.outExtension
-				)
-
-				# Complete
-				return next()
-
-
-		# Render plugins proxy
-		# next(err)
-		renderPluginsProxy = (args...) ->
-			-> renderPlugins(args...)
-
+				# Forward
+				return next(err)
 
 		# Prepare render layouts
 		# next(err)
 		renderLayouts = (next) ->
-			# Store the content without any layout rendering
-			file.contentRenderedWithoutLayouts = file.content
-
 			# Skip ahead if we don't have a layout
 			return next()  unless file.layout
 			
@@ -603,25 +581,24 @@ class File
 				# Error
 				return next(err)  if err
 
-				# Assign the rendered file content to the templateData.content
-				templateData.content = file.contentRendered
+				# Apply rendering without layouts if we are a document
+				if file.type in ['document','partial']
+					file.contentRenderedWithoutLayouts = rendering
 
-				# Render the layout with the templateData
-				layout.render templateData, (err) ->
-					# Error
-					return next(err)  if err
+				# Check if we have a layout
+				if layout
+					# Assign the current rendering to the templateData.content
+					templateData.content = rendering
 
-					# Apply the rendering
-					file.contentRendered = layout.contentRendered
-					for own key,value of layout.contentRenderingsByLayout
-						if key is 'none'
-							file.contentRenderingsByLayout[layout.relativeBase] = value
-						else
-							file.contentRenderingsByLayout[key] = value
-
-					# Success
+					# Render the layout with the templateData
+					layout.render templateData, (err,result) ->
+						return next(err)  if err
+						rendering = result
+						return next()
+				
+				# We don't have a layout, nothing to do here
+				else
 					return next()
-
 
 		# Render the document
 		# next(err)
@@ -632,10 +609,13 @@ class File
 				extension: file.extensions[0]
 				templateData: templateData
 				file: file
+				content: rendering
 
 			# Render via plugins
-			return renderPlugins(file, eventData, next)
-		
+			renderPlugins file, eventData, (err) ->
+				return next(err)  if err
+				rendering = eventData.content
+				return next()
 
 		# Render extensions
 		# next(err)
@@ -644,7 +624,7 @@ class File
 			return next()  if file.extensions.length <= 1
 
 			# Prepare the tasks
-			tasks = new balUtil.Group next
+			tasks = new balUtil.Group(next)
 
 			# Clone extensions
 			extensions = []
@@ -652,29 +632,26 @@ class File
 				extensions.unshift extension
 
 			# Cycle through all the extension groups
-			previousExtension = null
-			for extension in extensions
-				# Has a previous extension
-				if previousExtension
-					# Event data
+			for extension,index in extensions[1..]
+				# Render through the plugins
+				tasks.push (complete) ->
+					# Prepare
 					eventData = 
 						name: 'render'
-						inExtension: previousExtension
+						inExtension: extensions[index-1]
 						outExtension: extension
 						templateData: templateData
 						file: file
-					
-					# Render through the plugins
-					tasks.push renderPluginsProxy(file,eventData,tasks.completer())
+						content: rendering
 
-				# Cycle
-				previousExtension = extension
-			
+					# Render
+					renderPlugins file, eventData, (err) ->
+						return complete(err)  if err
+						rendering = eventData.content
+						return complete()
+
 			# Run tasks synchronously
 			return tasks.sync()
-
-		# Reset everything
-		reset()
 
 		# Render the extensions
 		renderExtensions (err) ->
@@ -690,4 +667,4 @@ class File
 		@
 
 # Export
-module.exports = File
+module.exports = FileModel

@@ -9,14 +9,17 @@ module.exports = (BasePlugin) ->
 		priority: 750
 
 		# Render some content
-		render: ({inExtension,outExtension,templateData,file}, next) ->
+		render: (opts,next) ->
+			# Prepare
+			{inExtension,outExtension,templateData,content} = opts
+
 			# Check extensions
 			if inExtension is 'eco'
 				# Requires
 				eco = require('eco')
 
 				# Render
-				file.content = eco.render file.content, templateData
-		
+				opts.content = eco.render(content,templateData)
+			
 			# Done, return back to DocPad
 			return next()

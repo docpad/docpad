@@ -9,7 +9,10 @@ module.exports = (BasePlugin) ->
 		priority: 700
 
 		# Render some content
-		render: ({inExtension,outExtension,templateData,file}, next) ->
+		render: (opts,next) ->
+			# Prepare
+			{inExtension,outExtension,templateData,content,file} = opts
+
 			# Check extensions
 			if inExtension in ['php','phtml']
 				# Require
@@ -29,7 +32,7 @@ module.exports = (BasePlugin) ->
 					$document = json_decode($document,true);
 					?>
 
-					#{file.content}
+					#{content}
 					"""
 				result = ''
 				errors = ''
@@ -42,9 +45,9 @@ module.exports = (BasePlugin) ->
 					errors += data.toString()
 				php.on 'exit', ->
 					# Check for errors, and return to docpad if so
-					return next(new Error(errors))  if errors
-					# Apply
-					file.content = result
+					return next(new Error(errors),content)  if errors
+					# Apply result
+					opts.content = result
 					# Done, return to docpad
 					return next()
 				

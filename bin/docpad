@@ -1,9 +1,10 @@
 #!/usr/bin/env coffee
-DocPad = require("#{__dirname}/../lib/docpad.coffee")
-ConsoleInterface = require("#{__dirname}/../lib/consoleinterface.coffee")
+path = require('path')
+DocPad = require(path.join __dirname, '..', 'lib', 'docpad.coffee')
+ConsoleInterface = require(path.join __dirname, '..', 'lib', 'interfaces', 'console.coffee')
 
 # Create Program
-program = require("#{__dirname}/../node_modules/commander/index.js")
+program = require(path.join __dirname, '..', 'node_modules', 'commander', 'index.js')
 
 # Configure Instance
 docpadConfig = {}

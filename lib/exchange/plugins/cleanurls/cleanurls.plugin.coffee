@@ -6,13 +6,15 @@ module.exports = (BasePlugin) ->
 		name: 'cleanUrls'
 
 		# Parsing all files has finished
-		parseAfter: ({docpad,logger},next) ->
+		parseAfter: (opts,next) ->
 			# Requires
 			path = require('path')
 			fs = require('fs')
 			balUtil = require('bal-util')
 
 			# Prepare
+			docpad = @docpad
+			logger = @logger
 			documents = docpad.documents
 			logger.log 'debug', 'Creating clean urls'
 

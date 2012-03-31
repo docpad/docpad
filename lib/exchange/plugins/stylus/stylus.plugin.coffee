@@ -9,14 +9,17 @@ module.exports = (BasePlugin) ->
 		priority: 725
 
 		# Render some content
-		render: ({inExtension,outExtension,templateData,file}, next) ->
+		render: (opts,next) ->
+			# Prepare
+			{inExtension,outExtension,templateData,content,file} = opts
+
 			# Check extensions
 			if inExtension in ['styl','stylus'] and outExtension is 'css'
 				# Load stylus
 				stylus = require('stylus')
 				
 				# Create our style
-				style = stylus(file.content)
+				style = stylus(content)
 					.set('filename', file.fullPath)
 					.set('compress', @config.compress)
 				
@@ -29,10 +32,10 @@ module.exports = (BasePlugin) ->
 				style.render (err,output) ->
 					# Check for errors, and return to docpad if so
 					return next(err)  if err
-					# Apply
-					file.content = output
+					# Apply result
+					opts.content = output
 					# Done, return to docpad
-					next()
+					return next()
 		
 			# Some other extension
 			else

@@ -9,14 +9,17 @@ module.exports = (BasePlugin) ->
 		priority: 725
 
 		# Render some content
-		render: ({inExtension,outExtension,templateData,file}, next) ->
+		render: (opts,next) ->
+			# Prepare
+			{inExtension,outExtension,templateData,content,file} = opts
+
 			# Check our extension
 			if inExtension is 'jade'
 				# Requires
 				jade = require('jade')
 
 				# Render
-				file.content = jade.compile(file.content, {
+				opts.content = jade.compile(content, {
 					filename: file.fullPath
 				})(templateData)
 

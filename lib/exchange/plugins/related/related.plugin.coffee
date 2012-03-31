@@ -6,19 +6,20 @@ module.exports = (BasePlugin) ->
 		name: 'relations'
 
 		# Parsing all files has finished
-		parseAfter: ({logger},next) ->
+		parseAfter: (opts,next) ->
 			# Requires
 			balUtil = require('bal-util')
 
 			# Prepare
 			docpad = @docpad
+			logger = @logger
 			documents = docpad.documents
 			logger.log 'debug', 'Generating relations'
 
 			# Async
 			tasks = new balUtil.Group (err) ->
 				logger.log 'debug', 'Generated relations'
-				next err
+				return next(err)
 
 			# Find documents
 			documents.find {}, (err,docs,length) ->

@@ -9,14 +9,17 @@ module.exports = (BasePlugin) ->
 		priority: 725
 
 		# Render some content
-		render: ({inExtension,outExtension,templateData,file}, next) ->
+		render: (opts,next) ->
+			# Prepare
+			{inExtension,outExtension,templateData,content,file} = opts
+
 			# Check extensions
 			if inExtension in ['sass','scss'] and outExtension is 'css'
 				# Requires
 				sass = require('sass')
 
 				# Render
-				file.content = sass.render file.content, filename: file.fullPath
+				opts.content = sass.render(content, filename:file.fullPath)
 
 			# Done, return back to DocPad
 			return next()

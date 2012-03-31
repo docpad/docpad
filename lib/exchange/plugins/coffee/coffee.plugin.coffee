@@ -9,7 +9,9 @@ module.exports = (BasePlugin) ->
 		priority: 700
 		
 		# Render some content
-		render: ({inExtension,outExtension,templateData,file}, next) ->
+		render: (opts,next) ->
+			# Prepare
+			{inExtension,outExtension,templateData,content} = opts
 			
 			# -------------------------
 			# CoffeeKup to anything
@@ -20,7 +22,11 @@ module.exports = (BasePlugin) ->
 				ck = require('coffeekup')
 				
 				# Render
-				file.content = ck.render file.content, templateData, (@config.coffeekup or {})
+				opts.content = ck.render(
+					content,
+					templateData,
+					(@config.coffeekup or {})
+				)
 				
 				# Done, return back to DocPad
 				return next()
@@ -37,14 +43,14 @@ module.exports = (BasePlugin) ->
 				# Render asynchronously
 				outputStream = {
 					content: ''
-					write: (content) ->
-						@content += content
+					write: (data) ->
+						@content += data
 				}
-				html2ck.convert file.content, outputStream, (err) ->
+				html2ck.convert content, outputStream, (err) ->
 					# Check for error
 					return next(err)  if err
 					# Apply
-					file.content = outputStream.content
+					opts.content = outputStream.content
 					# Done, return back to DocPad
 					return next()
 			
@@ -58,7 +64,7 @@ module.exports = (BasePlugin) ->
 				coffee = require('coffee-script')
 
 				# Render
-				file.content = coffee.compile(file.content)
+				opts.content = coffee.compile(content)
 				
 				# Done, return back to DocPad
 				return next()
@@ -73,7 +79,7 @@ module.exports = (BasePlugin) ->
 				js2coffee = require('js2coffee/lib/js2coffee.coffee')
 
 				# Render
-				file.content = js2coffee.build(file.content)
+				opts.content = js2coffee.build(content)
 		
 				# Done, return back to DocPad
 				return next()
