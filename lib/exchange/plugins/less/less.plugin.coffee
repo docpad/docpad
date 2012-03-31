@@ -9,7 +9,10 @@ module.exports = (BasePlugin) ->
 		priority: 725
 
 		# Render some content
-		render: ({inExtension,outExtension,templateData,file}, next) ->
+		render: (opts,next) ->
+			# Prepare
+			{inExtension,outExtension,templateData,content,file} = opts
+
 			# Check extensions
 			if inExtension is 'less' and outExtension is 'css'
 				# Requires
@@ -25,9 +28,9 @@ module.exports = (BasePlugin) ->
 					compress: true
 
 				# Compile
-				new (less.Parser)(options).parse file.content, (err, tree) ->
+				new (less.Parser)(options).parse content, (err, tree) ->
 					return next err  if err
-					file.content = tree.toCSS(compress: options.compress)
+					opts.content = tree.toCSS(compress: options.compress)
 					next()
 			
 			# Some other extension

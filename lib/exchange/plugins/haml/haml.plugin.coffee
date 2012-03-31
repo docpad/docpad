@@ -9,14 +9,17 @@ module.exports = (BasePlugin) ->
 		priority: 725
 
 		# Render some content
-		render: ({inExtension,outExtension,templateData,file}, next) ->
+		render: (opts,next) ->
+			# Prepare
+			{inExtension,outExtension,templateData,content} = opts
+
 			# Check our extensions
 			if inExtension is 'haml'
 				# Requires
 				haml = require('haml')
 
 				# Render
-				file.content = haml.render file.content, locals: templateData
+				opts.content = haml.render(content, locals:templateData)
 		
 			# Done, return back to DocPad
 			return next()

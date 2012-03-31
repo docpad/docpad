@@ -9,14 +9,17 @@ module.exports = (BasePlugin) ->
 		priority: 750
 
 		# Render some content
-		render: ({inExtension,outExtension,templateData,file}, next) ->
+		render: (opts,next) ->
+			# Prepare
+			{inExtension,outExtension,templateData,content} = opts
+
 			# Check extensions
 			if inExtension is 'hogan'
 				# Requires
 				hogan = require('hogan.js')
 
 				# Render
-				file.content = hogan.compile(file.content).render(templateData)
+				opts.content = hogan.compile(content).render(templateData)
 			
 			# Done, return back to DocPad
 			return next()

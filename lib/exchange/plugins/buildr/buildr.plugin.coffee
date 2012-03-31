@@ -11,8 +11,10 @@ module.exports = (BasePlugin) ->
 		name: 'buildr'
 
 		# Writing all files has finished
-		writeAfter: ({docpad},next) ->
+		writeAfter: (opts,next) ->
 			# Run buildr.coffee on the outpath
+			docpad = @docpad
+			logger = @logger
 			
 			# Fetch the buildrPath
 			buildrPath = path.normalize "#{docpad.config.rootPath}/buildr.coffee"

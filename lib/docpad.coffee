@@ -13,7 +13,7 @@ EventSystem = balUtil.EventSystem
 
 # Local
 PluginLoader = require(path.join __dirname, 'plugin-loader.coffee')
-BasePlugin = require(path.join __dirname, 'base-plugin.coffee')
+BasePlugin = require(path.join __dirname, 'plugin.coffee')
 require(path.join __dirname, 'prototypes.coffee')
 
 
@@ -49,14 +49,21 @@ class DocPad extends EventSystem
 	# ---------------------------------
 	# Models
 
-	# File class
-	File: null
+	# File Model
+	FileModel: require(path.join __dirname, 'models', 'file.coffee')
 
-	# Layout class
-	Layout: null
+	# Document Model
+	DocumentModel: require(path.join __dirname, 'models', 'document.coffee')
 
-	# Document class
-	Document: null
+	# Layout Model
+	LayoutModel: require(path.join __dirname, 'models', 'layout.coffee')
+
+	# Partial Model
+	PartialModel: require(path.join __dirname, 'models', 'partial.coffee')
+
+
+	# ---------------------------------
+	# Collections
 
 	# Layouts collection
 	layouts: null
@@ -225,6 +232,7 @@ class DocPad extends EventSystem
 
 		# -----------------------------
 		# Remote connection variables
+		# Not currently used
 
 		# Our unique and anoynmous user identifer
 		# Used to provide completely anonymous user experience statistics back to the docpad server
@@ -415,7 +423,7 @@ class DocPad extends EventSystem
 					# Compelte the loading
 					tasks.complete()
 				
-				# Load DocPad Configuration
+				# Load Website Configuration
 				@loadJsonPath websitePackagePath, (err,data) ->
 					return tasks.complete(err)  if err
 					data or= {}
@@ -731,13 +739,6 @@ class DocPad extends EventSystem
 		@
 	
 
-	# Create a next wrapper
-	createNextWrapper: (next) ->
-		return (args...) =>
-			@error(args[0])  if args[0]
-			next.apply(next,apply)  if typeof next is 'function'
-	
-	
 	# Handle a fatal error
 	fatal: (err) ->
 		return @  unless err
@@ -787,9 +788,31 @@ class DocPad extends EventSystem
 	# ---------------------------------
 	# Models
 
+	# Instantiate a Partial
+	createPartial: (meta={}) ->
+		# Prepare
+		docpad = @
+		config =
+			docpad: @
+			logger: @logger
+			meta: meta
+		
+		# Create and return
+		partial = new @PartialModel(config)
+		
+		# Bubble
+		partial.on 'render', (args...) ->
+			docpad.emitSync 'render', args...
+		partial.on 'renderDocument', (args...) ->
+			docpad.emitSync 'renderDocument', args...
+
+		# Return
+		return partial
+	
 	# Instantiate a Document
 	createDocument: (meta={}) ->
 		# Prepare
+		docpad = @
 		config =
 			docpad: @
 			layouts: @layouts
@@ -798,11 +821,21 @@ class DocPad extends EventSystem
 			meta: meta
 		
 		# Create and return
-		document = new @Document config
+		document = new @DocumentModel(config)
+		
+		# Bubble
+		document.on 'render', (args...) ->
+			docpad.emitSync 'render', args...
+		document.on 'renderDocument', (args...) ->
+			docpad.emitSync 'renderDocument', args...
+
+		# Return
+		return document
 	
 	# Instantiate a Layout
 	createLayout: (meta={}) ->
 		# Prepare
+		docpad = @
 		config =
 			docpad: @
 			layouts: @layouts
@@ -810,7 +843,17 @@ class DocPad extends EventSystem
 			meta: meta
 
 		# Create and return
-		layout = new @Layout config
+		layout = new @LayoutModel(config)
+		
+		# Bubble
+		layout.on 'render', (args...) ->
+			docpad.emitSync 'render', args...
+		layout.on 'renderDocument', (args...) ->
+			docpad.emitSync 'renderDocument', args...
+
+		# Return
+		return layout
+
 
 
 	# Clean Models
@@ -819,22 +862,15 @@ class DocPad extends EventSystem
 		queryEngine = require('query-engine')
 
 		# Prepare
-		File = @File = require path.join @libPath, 'file.coffee'
-		Layout = @Layout = class extends File
-		Document = @Document = class extends File
 		layouts = @layouts = new queryEngine.Collection
 		documents = @documents = new queryEngine.Collection
 		
 		# Layout Prototype
-		Layout::isLayout = true
-		Layout::isDocument = false
-		Layout::store = ->
+		@LayoutModel::store = ->
 			layouts[@id] = @
 
 		# Document Prototype
-		Document::isLayout = false
-		Document::isDocument = true
-		Document::store = ->
+		@DocumentModel::store = ->
 			documents[@id] = @
 		
 		# Next
@@ -845,12 +881,38 @@ class DocPad extends EventSystem
 	
 
 	# Render a document
+	# next(err,document)
 	render: (document,data,next) ->
 		templateData = _.extend {}, @templateData, data
 		templateData.document = document
 		document.render templateData, (err) =>
 			@error(err)  if err
-			next?()
+			return next?(err,document)
+
+		# Chain
+		@
+	
+	# Render a document
+	# next(err,document)
+	prepareAndRender: (document,data,next) ->
+		# Prepare
+		docpad = @
+
+		# Normalize the document
+		document.normalize (err) ->
+			return next?(err)  if err
+			# Load the document
+			document.load (err) ->
+				return next?(err)  if err
+				# Contextualize the document
+				document.contextualize (err) ->
+					return next?(err) if err
+					# Render the document
+					docpad.render document, data, (err) ->
+						return next?(err,document)
+
+		# Chain
+		@
 
 
 	# ---------------------------------
@@ -859,45 +921,6 @@ class DocPad extends EventSystem
 	# Get a plugin by it's name
 	getPlugin: (pluginName) ->
 		@pluginsObject[pluginName]
-
-
-	# Trigger a plugin event
-	# next?(err)
-	triggerPluginEvent: (eventName,data,next) ->
-		# Prepare
-		logger = @logger
-		data or= data
-		data.logger = @logger
-		data.docpad = @
-
-		# Async
-		tasks = new balUtil.Group (err) ->
-			if err
-				logger.log 'debug', "A plugin failed for #{eventName}"
-			else
-				logger.log 'debug', "Plugins finished for #{eventName}"
-			return next?(err)
-		tasks.total = @pluginsArray.length
-
-		# Cycle
-		logger.log 'debug', "Plugins started for #{eventName}"
-		for plugin in @pluginsArray
-			if typeof plugin[eventName] is 'function'
-				try
-					plugin[eventName](data, tasks.completer())
-				catch err
-					tasks.exit(err)
-			else
-				tasks.complete()
-		
-		###
-		# Trigger
-		@cycle eventName, data, next
-		###
-
-		# Chain
-		@
-
 
 	# Load Plugins
 	loadPlugins: (next) ->
@@ -1035,43 +1058,48 @@ class DocPad extends EventSystem
 		switch action
 			when 'install', 'update'
 				@installAction opts, (err) =>
-					return @error(err)  if err
+					return @fatal(err)  if err
 					next?()
 
 			when 'skeleton', 'scaffold'
 				@skeletonAction opts, (err) =>
-					return @error(err)  if err
+					return @fatal(err)  if err
 					next?()
 
 			when 'generate'
 				@generateAction opts, (err) =>
-					return @error(err)  if err
+					return @fatal(err)  if err
+					next?()
+
+			when 'clean'
+				@cleanAction opts, (err) =>
+					return @fatal(err)  if err
 					next?()
 
 			when 'render'
-				@renderAction opts, (err) =>
-					return @error(err)  if err
-					next?()
+				@renderAction opts, (err,data) =>
+					return @fatal(err)  if err
+					next?(err,data)
 
 			when 'watch'
 				@watchAction opts, (err) =>
-					return @error(err)  if err
+					return @fatal(err)  if err
 					next?()
 
 			when 'server', 'serve'
 				@serverAction opts, (err) =>
-					return @error(err)  if err
+					return @fatal(err)  if err
 					next?()
 
 			else
 				@skeletonAction opts, (err) =>
-					return @error(err)  if err
+					return @fatal(err)  if err
 					@generateAction opts, (err) =>
-						return @error(err)  if err
+						return @fatal(err)  if err
 						@serverAction opts, (err) =>
-							return @error(err)  if err
+							return @fatal(err)  if err
 							@watchAction opts, (err) =>
-								return @error(err)  if err
+								return @fatal(err)  if err
 								next?()
 		
 		# Chain
@@ -1099,6 +1127,20 @@ class DocPad extends EventSystem
 		# Chain
 		@
 
+	# Clean
+	# next(err)
+	cleanAction: (opts,next) ->
+		# Prepare
+		logger = @logger
+
+		# Files
+		balUtil.rmdir @config.outPath, (err,list,tree) ->
+			logger.log 'debug', 'Cleaned files'  unless err
+			return next?()
+
+		# Chain
+		@
+
 
 	# ---------------------------------
 	# Generate
@@ -1106,7 +1148,7 @@ class DocPad extends EventSystem
 	# Clean the database
 	generateClean: (next) ->
 		# Before
-		@triggerPluginEvent 'cleanBefore', {}, (err) =>
+		@emitSync 'cleanBefore', {}, (err) =>
 			return next?(err)  if err
 
 			# Prepare
@@ -1120,15 +1162,10 @@ class DocPad extends EventSystem
 			# Async
 			tasks = new balUtil.Group (err) ->
 				# After
-				docpad.triggerPluginEvent 'cleanAfter', {}, (err) ->
+				docpad.emitSync 'cleanAfter', {}, (err) ->
 					logger.log 'debug', 'Cleaning finished'  unless err
 					next?(err)
-			tasks.total = 6
-
-			# Files
-			balUtil.rmdir @config.outPath, (err,list,tree) ->
-				logger.log 'debug', 'Cleaned files'  unless err
-				tasks.complete err
+			tasks.total = 5
 
 			# Layouts
 			@layouts.remove {}, (err) ->
@@ -1162,7 +1199,7 @@ class DocPad extends EventSystem
 	# Parse the files
 	generateParse: (next) ->
 		# Before
-		@triggerPluginEvent 'parseBefore', {}, (err) =>
+		@emitSync 'parseBefore', {}, (err) =>
 			return next?(err)  if err
 
 			# Requires
@@ -1178,7 +1215,7 @@ class DocPad extends EventSystem
 				docpad.generateParseContextualize (err) ->
 					return next?(err)  if err
 					# After
-					docpad.triggerPluginEvent 'parseAfter', {}, (err) ->
+					docpad.emitSync 'parseAfter', {}, (err) ->
 						logger.log 'debug', 'Parsed files'  unless err
 						return next?(err)
 			
@@ -1291,7 +1328,7 @@ class DocPad extends EventSystem
 		tasks = new balUtil.Group (err) ->
 			return next?(err)  if err
 			# After
-			docpad.triggerPluginEvent 'renderAfter', {}, (err) ->
+			docpad.emitSync 'renderAfter', {}, (err) ->
 				logger.log 'debug', 'Rendered files'  unless err
 				next?(err)
 		
@@ -1314,7 +1351,7 @@ class DocPad extends EventSystem
 				]
 
 		# Before
-		@triggerPluginEvent 'renderBefore', {documents,@templateData}, (err) =>
+		@emitSync 'renderBefore', {documents,@templateData}, (err) =>
 			return next?(err)  if err
 			# Render documents
 			tasks.total += documents.length
@@ -1333,7 +1370,7 @@ class DocPad extends EventSystem
 		logger.log 'debug', 'Writing files'
 
 		# Write
-		balUtil.cpdir(
+		balUtil.rpdir(
 			# Src Path
 			@config.publicPath,
 			# Out Path
@@ -1392,7 +1429,7 @@ class DocPad extends EventSystem
 		logger = @logger
 
 		# Before
-		docpad.triggerPluginEvent 'writeBefore', {}, (err) ->
+		docpad.emitSync 'writeBefore', {}, (err) ->
 			return next?(err)  if err
 			logger.log 'debug', 'Writing everything'
 
@@ -1400,7 +1437,7 @@ class DocPad extends EventSystem
 			tasks = new balUtil.Group (err) ->
 				return next?(err)  if err
 				# After
-				docpad.triggerPluginEvent 'writeAfter', {}, (err) ->
+				docpad.emitSync 'writeAfter', {}, (err) ->
 					logger.log 'debug', 'Wrote everything'  unless err
 					next?(err)
 			tasks.total = 2
@@ -1440,8 +1477,9 @@ class DocPad extends EventSystem
 			docpad.start 'generating', (err) =>
 				return fatal(err)  if err
 				logger.log 'info', 'Generating...'
+				notify (new Date()).toLocaleTimeString(), title: 'Website generating...'
 				# Plugins
-				docpad.triggerPluginEvent 'generateBefore', server: docpad.server, (err) ->
+				docpad.emitSync 'generateBefore', server: docpad.server, (err) ->
 					return complete(err)  if err
 					# Continue
 					path.exists docpad.config.srcPath, (exists) ->
@@ -1467,14 +1505,14 @@ class DocPad extends EventSystem
 											docpad.unblock 'loading', (err) ->
 												return complete(err)  if err	
 												# Plugins
-												docpad.triggerPluginEvent 'generateAfter', server: docpad.server, (err) ->
+												docpad.emitSync 'generateAfter', server: docpad.server, (err) ->
 													return complete(err)  if err
 													# Finished
 													docpad.finished 'generating', (err) ->
 														return complete(err)  if err
 														# Generated
 														logger.log 'info', 'Generated'
-														notify (new Date()).toLocaleTimeString(), title: 'Website Generated'
+														notify (new Date()).toLocaleTimeString(), title: 'Website generated'
 														# Completed
 														complete()
 
@@ -1484,7 +1522,7 @@ class DocPad extends EventSystem
 
 	# ---------------------------------
 	# Render
-	
+
 	# Render Action
 	renderAction: (opts,next) ->
 		# Prepare
@@ -1492,10 +1530,20 @@ class DocPad extends EventSystem
 		docpad = @
 		logger = @logger
 
-		# Config
-		document = opts.document
+		# Extract data
 		data = opts.data or {}
 		
+		# Extract document
+		if opts.filename
+			document = @createDocument()
+			document.filename = opts.filename
+			document.fullPath = opts.filename
+			document.data = opts.content
+			renderFunction = 'prepareAndRender'
+		else if opts.document
+			document = opts.document
+			renderFunction = 'render'
+
 		# Check
 		return next? new Error('You must pass a document to the renderAction')  unless document
 
@@ -1507,7 +1555,7 @@ class DocPad extends EventSystem
 				return fatal(lockError)  if lockError
 				docpad.unblock 'loading, generating', (lockError) ->
 					return fatal(lockError)  if lockError
-					return next?(err)
+					return next?(err,document)
 
 		# Block loading
 		docpad.block 'loading, generating', (lockError) ->
@@ -1515,7 +1563,7 @@ class DocPad extends EventSystem
 			docpad.start 'render', (lockError) ->
 				return fatal(lockError)  if lockError
 				# Render
-				docpad.render document, data, complete
+				docpad[renderFunction](document, data, complete)
 				return
 
 		# Chain
@@ -1705,7 +1753,7 @@ class DocPad extends EventSystem
 			docpad.start 'serving', (lockError) ->
 				return fatal(lockError)  if lockError
 				# Plugins
-				docpad.triggerPluginEvent 'serverBefore', {}, (err) ->
+				docpad.emitSync 'serverBefore', {}, (err) ->
 					return next?(err)  if err
 
 					# Server
@@ -1776,7 +1824,7 @@ class DocPad extends EventSystem
 							logger.log 'err', "Could not start the web server, chances are the desired port #{config.port} is already in use"
 					
 					# Plugins
-					docpad.triggerPluginEvent 'serverAfter', {server}, (err) ->
+					docpad.emitSync 'serverAfter', {server}, (err) ->
 						return complete(err)  if err
 						# Complete
 						logger.log 'debug', 'Server setup'  unless err

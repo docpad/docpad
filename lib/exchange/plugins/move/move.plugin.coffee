@@ -9,14 +9,17 @@ module.exports = (BasePlugin) ->
 		priority: 700
 
 		# Render some content
-		render: ({inExtension,outExtension,templateData,file}, next) ->
+		render: (opts,next) ->
+			# Prepare
+			{inExtension,outExtension,templateData,content} = opts
+
 			# Check our extensions
 			if inExtension in ['move'] and outExtension is 'js'
 				# Requires
 				move = require('move')
 
 				# Render
-				file.content = move.compile(file.content)
+				opts.content = move.compile(content)
 		
 			# Done, return back to DocPad
 			return next()
