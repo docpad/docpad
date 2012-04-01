@@ -632,13 +632,13 @@ class FileModel extends EventSystem
 				extensions.unshift extension
 
 			# Cycle through all the extension groups
-			for extension,index in extensions[1..]
+			_.each extensions[1..], (extension,index) ->
 				# Render through the plugins
 				tasks.push (complete) ->
 					# Prepare
 					eventData = 
 						name: 'render'
-						inExtension: extensions[index-1]
+						inExtension: extensions[index]
 						outExtension: extension
 						templateData: templateData
 						file: file

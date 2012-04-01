@@ -264,6 +264,9 @@ class DocPad extends EventSystem
 		# Prepare
 		docpad = @
 
+		# Allow DocPad to have unlimited event listeners
+		@setMaxListeners(0)
+
 		# Initialize a default logger
 		@logger = new caterpillar.Logger
 			transports:
@@ -1797,7 +1800,10 @@ class DocPad extends EventSystem
 												else
 													res.send(document.contentRendered)
 										else
-											res.send(document.contentRendered)
+											if document.contentRendered
+												res.send(document.contentRendered)
+											else
+												next?()
 									else
 										next?()
 
