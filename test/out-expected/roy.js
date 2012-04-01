@@ -1,3 +1,4 @@
+(function() {
 var gcd = function(a, b) {
     return (function() {
         if(b == 0) {
@@ -6,5 +7,6 @@ var gcd = function(a, b) {
             return gcd(b, (a % b));
         }
     })();
-}
-console.log((gcd(49, 35)))
+};
+console.log((gcd(49, 35)));
+})();

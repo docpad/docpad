@@ -1,0 +1,5 @@
+--reporter spec
+--ui bdd
+--ignore-leaks
+--growl
+--bail
