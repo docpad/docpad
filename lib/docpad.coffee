@@ -148,26 +148,7 @@ class DocPad extends EventSystem
 		enableUnlistedPlugins: true
 
 		# Plugins which should be enabled or not pluginName: pluginEnabled
-		enabledPlugins:
-			# Enable only stable plugins by default
-			admin: false # not stable # not stable
-			authenticate: false # not stable
-			autoupdate: false # not stable
-			buildr: false # not stable
-			cleanurls: true
-			coffee: true
-			eco: true # has sys problem
-			haml: true
-			html2jade: false # not stable
-			jade: true
-			less: true
-			markdown: true
-			pygments: false
-			related: true
-			rest: false # not stable
-			roy: true # has sys problem
-			sass: true
-			stylus: true
+		enabledPlugins: {}
 
 		# Configuration to pass to any plugins pluginName: pluginConfiguration
 		plugins: {}
@@ -398,13 +379,6 @@ class DocPad extends EventSystem
 					@logger = @config.logger  if @config.logger
 					@setLogLevel(@config.logLevel)
 
-					# Prepare enabled plugins
-					if typeof @config.enabledPlugins is 'string'
-						enabledPlugins = {}
-						for enabledPlugin in @config.enabledPlugins.split(/[ ,]+/)
-							enabledPlugins[enabledPlugin] = true
-						@config.enabledPlugins = enabledPlugins
-					
 					# Initialize
 					@loadPlugins complete
 
@@ -936,12 +910,12 @@ class DocPad extends EventSystem
 		tasks = new balUtil.Group (err) ->
 			snore.clear()
 			return next?(err)  if err
-			logger.log 'debug', 'All plugins loaded'
+			logger.log 'info', 'Loaded the following plugins:', _.keys(docpad.pluginsObject).sort().join(', ')
 			next?(err)
 		
 		# Load in the docpad and local plugin directories
 		tasks.push => @loadPluginsIn @pluginsPath, tasks.completer()
-		if @config.rootPath isnt __dirname and path.existsSync path.join @config.rootPath, 'plugins'
+		if @pluginsPath isnt @config.pluginsPath and path.existsSync(@config.pluginsPath)
 			tasks.push => @loadPluginsIn @config.pluginsPath, tasks.completer()
 		
 		# Execute the loading asynchronously
