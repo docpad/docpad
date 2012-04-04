@@ -64,7 +64,9 @@
 	},
 	"devDependencies": {
 		"request": "2.9.x",
-		"mocha": "1.0.x"
+		"mocha": "1.0.x",
+		"chai": "0.5.x",
+		"eyes": "0.1.x"
 	},
 	"engines" : {
 		"node": ">=0.4.0"
