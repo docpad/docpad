@@ -2,7 +2,6 @@
 assert = require('assert')
 fs = require('fs')
 request = require('request')
-util = require('bal-util')
 DocPad = require("#{__dirname}/../lib/docpad.coffee")
 
 
@@ -75,9 +74,6 @@ describe 'core', ->
 					'layout (2/2)': 'layout-double.html'
 					less: 'less.css'
 					markdown: 'markdown.html'
-					'pygments-html-layout': 'pygments-html-layout.html'
-					'pygments-html': 'pygments-html.html'
-					'pygments-markdown': 'pygments-markdown.html'
 					'related (1/2)': 'related-1.html'
 					'related (2/2)': 'related-2.html'
 					sass: 'sass.css'

@@ -75,11 +75,14 @@ class DocPad extends EventSystem
 	# ---------------------------------
 	# Plugins
 
-	# Loaded plugins sorted by priority
-	pluginsArray: []
+	# Plugins that are loading really slow
+	slowPlugins: {}
+
+	# Plugins which docpad have found
+	foundPlugins: {}
 
 	# Loaded plugins indexed by name
-	pluginsObject: {}
+	loadedPlugins: {}
 
 
 	# -----------------------------
@@ -152,6 +155,9 @@ class DocPad extends EventSystem
 
 		# Configuration to pass to any plugins pluginName: pluginConfiguration
 		plugins: {}
+
+		# Plugin directories to load
+		loadPlugins: []
 		
 
 		# -----------------------------
@@ -259,10 +265,11 @@ class DocPad extends EventSystem
 			docpad.error(err)
 		
 		# Destruct prototype references
-		@pluginsArray = []
-		@pluginsObject = {}
+		@slowPlugins = {}
+		@foundPlugins = {}
+		@loadedPlugins = {}
 		@templateData = {}
-
+		
 		# Clean the models
 		@cleanModels()
 
@@ -274,8 +281,11 @@ class DocPad extends EventSystem
 			# Version Check
 			docpad.compareVersion()
 
+			# Log
+			docpad.logger.log 'debug', 'DocPad loaded succesfully'
+
 			# Next
-			next?()
+			return next?()
 	
 	# Set Log Level
 	setLogLevel: (level) ->
@@ -485,17 +495,25 @@ class DocPad extends EventSystem
 
 		# Global NPM on Windows
 		if /^win/.test(process.platform)
-			command = "npm install"
+			command = {
+				command: 'npm'
+				args: ['install']
+			}
 		
 		# Local NPM on everything else
 		else
 			nodePath = if /node$/.test(process.execPath) then process.execPath else 'node'
 			npmPath = path.resolve(docpad.corePath, 'node_modules', 'npm', 'bin', 'npm-cli.js')
-			command = "\"#{nodePath}\" \"#{npmPath}\" install"
+			command = {
+				command: nodePath
+				args: [npmPath, 'install']
+			}
 
 		# Execute npm install inside the pugin directory
 		logger.log 'debug', "Initializing node modules\non:   #{dirPath}\nwith: #{command}"
-		balUtil.exec command, {cwd: dirPath}, next
+		balUtil.spawn command, {cwd: dirPath}, (err) ->
+			logger.log 'debug', "Initialized node modules\non:   #{dirPath}"
+			return next(err)
 
 		# Chain
 		@
@@ -683,7 +701,10 @@ class DocPad extends EventSystem
 				->
 					snore.clear()
 					snore.snoring = true
-					logger.log 'notice', message
+					if _.isFunction(message)
+						message()
+					else
+						logger.log 'notice', message
 				5000
 			)
 			clear: ->
@@ -897,26 +918,38 @@ class DocPad extends EventSystem
 
 	# Get a plugin by it's name
 	getPlugin: (pluginName) ->
-		@pluginsObject[pluginName]
+		@loadedPlugins[pluginName]
 
 	# Load Plugins
 	loadPlugins: (next) ->
 		# Prepare
-		logger = @logger
 		docpad = @
-		snore = @createSnore "We're preparing your plugins, this may take a while the first time. Perhaps grab a snickers?"
+		logger = @logger
+		@slowPlugins = {}
+		snore = @createSnore ->
+			logger.log 'notice', "We're preparing your plugins, this may take a while the first time. Waiting on the plugins: #{_.keys(docpad.slowPlugins).join(', ')}"
 
 		# Async
 		tasks = new balUtil.Group (err) ->
+			docpad.slowPlugins = {}
 			snore.clear()
 			return next?(err)  if err
-			logger.log 'info', 'Loaded the following plugins:', _.keys(docpad.pluginsObject).sort().join(', ')
-			next?(err)
+			logger.log 'info', 'Loaded the following plugins:', _.keys(docpad.loadedPlugins).sort().join(', ')
+			return next?(err)
 		
-		# Load in the docpad and local plugin directories
-		tasks.push => @loadPluginsIn @pluginsPath, tasks.completer()
+		# Load docpad plugins
+		tasks.push (complete) =>
+			@loadPluginsIn(@pluginsPath, complete)
+		
+		# Load website plugins
 		if @pluginsPath isnt @config.pluginsPath and path.existsSync(@config.pluginsPath)
-			tasks.push => @loadPluginsIn @config.pluginsPath, tasks.completer()
+			tasks.push (complete) =>
+				@loadPluginsIn(@config.pluginsPath, complete)
+		
+		# Load custom plugins
+		for pluginPath in @config.loadPlugins or []
+			tasks.push (complete) =>
+				@loadPlugin(pluginPath, complete)
 		
 		# Execute the loading asynchronously
 		tasks.async()
@@ -924,13 +957,81 @@ class DocPad extends EventSystem
 		# Chain
 		@
 
+	# Loaded Plugin
+	# Checks if a plugin was loaded succesfully
+	# next(err,loaded)
+	loadedPlugin: (pluginName,next) ->
+		# Prepare
+		docpad = @
+		# Once loading has finished
+		docpad.onceFinished 'loading', (err) ->
+			return next(err)  if err
+			loaded = docpad.loadedPlugins[pluginName]?
+			return next(null,loaded)
+
+	# Load PLugin
+	# next(err)
+	loadPlugin: (fileFullPath,_next) ->
+		# Prepare
+		docpad = @
+		logger = @logger
+		config = @config
+		next = (err) ->
+			# Remove from slow plugins
+			delete docpad.slowPlugins[pluginName]
+			# Forward
+			return _next(err)
+
+		# Prepare variables
+		loader = new PluginLoader(
+			dirPath: fileFullPath
+			docpad: docpad
+			BasePlugin: BasePlugin
+		)
+		pluginName = loader.pluginName
+		enabled = (
+			(config.enableUnlistedPlugins  and  config.enabledPlugins[pluginName]? is false)  or
+			config.enabledPlugins[pluginName] is true
+		)
+
+		# Check if we already exist
+		if docpad.foundPlugins[pluginName]?
+			return _next()
+
+		# Add to loading stores
+		docpad.slowPlugins[pluginName] = true
+		docpad.foundPlugins[pluginName] = true
+
+		# Check
+		unless enabled
+			# Skip
+			logger.log 'debug', "Skipping plugin #{pluginName}"
+			return next()
+		else
+			# Load
+			logger.log 'debug', "Loading plugin #{pluginName}"
+			loader.exists (err,exists) ->
+				return next(err)  if err or not exists
+				loader.supported (err,supported) ->
+					return next(err)  if err or not supported
+					loader.install (err) ->
+						return next(err)  if err
+						loader.load (err) ->
+							return next(err)  if err
+							loader.create {}, (err,pluginInstance) ->
+								return next(err)  if err
+								# Add to plugin stores
+								docpad.loadedPlugins[loader.pluginName] = pluginInstance
+								# Log completion
+								logger.log 'debug', "Loaded plugin #{pluginName}"
+								# Forward
+								return next()
 
 	# Load Plugins
 	loadPluginsIn: (pluginsPath, next) ->
 		# Prepare
 		docpad = @
 		logger = @logger
-		config = @config
 
 		# Load Plugins
 		logger.log 'debug', "Plugins loading for #{pluginsPath}"
@@ -949,48 +1050,16 @@ class DocPad extends EventSystem
 					if err
 						logger.log 'warn', "Failed to load the plugin #{loader.pluginName} at #{fileFullPath}. The error follows"
 						docpad.error(err, 'warn')
-					_nextFile(null,true)
+					return _nextFile(null,skip)
 
-				# Prepare
-				loader = new PluginLoader(
-					dirPath: fileFullPath
-					docpad: docpad
-					BasePlugin: BasePlugin
-				)
-				pluginName = loader.pluginName
-				enabled = (
-					(config.enableUnlistedPlugins  and  config.enabledPlugins[pluginName]? is false)  or
-					config.enabledPlugins[pluginName] is true
-				)
-
-				# Check
-				unless enabled
-					# Skip
-					logger.log 'debug', "Skipping plugin #{pluginName}"
-					return nextFile(null)
-				else
-					# Load
-					logger.log 'debug', "Loading plugin #{pluginName}"
-					loader.exists (err,exists) ->
-						return nextFile(err)  if err or not exists
-						loader.supported (err,supported) ->
-							return nextFile(err)  if err or not supported
-							loader.install (err) ->
-								return nextFile(err)  if err
-								loader.load (err) ->
-									return nextFile(err)  if err
-									loader.create {}, (err,pluginInstance) ->
-										return nextFile(err)  if err
-										docpad.pluginsObject[loader.pluginName] = pluginInstance
-										docpad.pluginsArray.push pluginInstance
-										logger.log 'debug', "Loaded plugin #{pluginName}"
-										return nextFile(null)
+				# Forward
+				docpad.loadPlugin fileFullPath, (err) ->
+					return nextFile(err,true)
 				
 			# Next
-			(err) =>
-				@pluginsArray.sort (a,b) -> a.priority - b.priority
+			(err) ->
 				logger.log 'debug', "Plugins loaded for #{pluginsPath}"
-				next?(err)
+				return next?(err)
 		)
 	
 		# Chain
