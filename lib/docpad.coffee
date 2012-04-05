@@ -10,6 +10,7 @@ _ = require('underscore')
 caterpillar = require('caterpillar')
 balUtil = require('bal-util')
 EventSystem = balUtil.EventSystem
+airbrake = require('airbrake').createClient('e7374dd1c5a346efe3895b9b0c1c0325')
 
 # Local
 PluginLoader = require(path.join __dirname, 'plugin-loader.coffee')
@@ -406,6 +407,7 @@ class DocPad extends EventSystem
 
 					# Version
 					docpad.version = data.version
+					airbrake.appVersion = docpad.version
 
 					# Compelte the loading
 					tasks.complete()
@@ -740,24 +742,35 @@ class DocPad extends EventSystem
 	# Handle a fatal error
 	fatal: (err) ->
 		return @  unless err
-		@error(err)
-		process.exit(-1)
+		@error err, 'err', ->
+			process.exit(-1)
 	
 
 	# Handle an error
-	error: (err,type='err') ->
+	error: (err,type='err',next) ->
+		# Prepare
+		logger = @logger
+
 		# Check
-		return @  unless err
+		if !err or err.logged
+			next?()
+			return @
 
 		# Log the error only if it hasn't been logged already
-		unless err.logged
-			err.logged = true
-			err = new Error(err)  unless err instanceof Error
-			err.logged = true
-			@logger.log type, 'An error occured:', err.message, err.stack
-			#@emit 'error', err
-			#node's default action is to exit when we hit an error, if there are no listeners
-		
+		err.logged = true
+		err = new Error(err)  unless err instanceof Error
+		err.logged = true
+		logger.log type, 'An error occured:', err.message, err.stack
+
+		# Log to airbrake
+		err.params =
+			docpadVersion: @version
+			docpadConfig: @config
+		airbrake.notify err, (airbrakeErr,airbrakeUrl) ->
+			console.log(airbrakeErr)  if airbrakeErr
+			console.log('Error has been logged to:', airbrakeUrl)
+			next?()
+
 		# Chain
 		@
 

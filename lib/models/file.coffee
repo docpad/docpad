@@ -493,7 +493,7 @@ class FileModel extends EventSystem
 			)
 
 		# Find parent
-		@layouts.findOne {relativeBase:@layout}, (err,layout) ->
+		@layouts.findOne {relativeBase:layout}, (err,layout) ->
 			# Check
 			if err
 				return next?(err)

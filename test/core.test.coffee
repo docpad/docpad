@@ -64,29 +64,18 @@ describe 'core', ->
 									)
 									done()
 				testMarkup(markupName,markupFile)  for own markupName, markupFile of {
+					"html": 'html.html'
 					"coffee-parser": 'coffee-parser.html'
-					coffeekup: 'coffeekup.html'
-					eco: 'eco.html'
-					haml: 'haml.html'
-					hogan: 'hogan.html'
-					jade: 'jade.html'
 					'layout (1/2)': 'layout-single.html'
 					'layout (2/2)': 'layout-double.html'
-					less: 'less.css'
-					markdown: 'markdown.html'
-					'related (1/2)': 'related-1.html'
-					'related (2/2)': 'related-2.html'
-					sass: 'sass.css'
-					stylus: 'stylus.css'
-					'stylus-nib': 'stylus-nib.css'
 				}
 
 			describe 'server', ->
 				
 				it 'should serve generated documents', (done) ->
-					request "#{baseUrl}/markdown.html", (err,response,body) ->
+					request "#{baseUrl}/html.html", (err,response,body) ->
 						throw err  if err
-						fs.readFile "#{outExpectedPath}/markdown.html", (err,actual) ->
+						fs.readFile "#{outExpectedPath}/html.html", (err,actual) ->
 							throw err  if err
 							assert.equal(
 								actual.toString()
@@ -115,9 +104,9 @@ describe 'core', ->
 			describe 'plugins', ->
 				describe 'cleanurls', ->
 					it 'should support urls without an extension', (done) ->
-						request "#{baseUrl}/markdown", (err,response,body) ->
+						request "#{baseUrl}/html", (err,response,body) ->
 							throw err  if err
-							fs.readFile "#{outExpectedPath}/markdown.html", (err,actual) ->
+							fs.readFile "#{outExpectedPath}/html.html", (err,actual) ->
 								throw err  if err
 								assert.equal(
 									actual.toString()
