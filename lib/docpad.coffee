@@ -292,6 +292,7 @@ class DocPad extends EventSystem
 
 			# Log
 			docpad.logger.log 'debug', 'DocPad loaded succesfully'
+			docpad.logger.log 'debug', 'Loaded the following plugins:', _.keys(docpad.loadedPlugins).sort().join(', ')
 
 			# Next
 			return next?()
@@ -521,7 +522,7 @@ class DocPad extends EventSystem
 
 		# Execute npm install inside the pugin directory
 		logger.log 'debug', "Initializing node modules\non:   #{dirPath}\nwith: #{command}"
-		balUtil.spawn command, {cwd: dirPath}, (err) ->
+		balUtil.spawn command, {cwd: dirPath}, (err,results) ->
 			logger.log 'debug', "Initialized node modules\non:   #{dirPath}"
 			return next(err)
 
@@ -757,6 +758,7 @@ class DocPad extends EventSystem
 	# Handle an error
 	error: (err,type='err',next) ->
 		# Prepare
+		docpad = @
 		logger = @logger
 
 		# Check
@@ -957,8 +959,6 @@ class DocPad extends EventSystem
 		tasks = new balUtil.Group (err) ->
 			docpad.slowPlugins = {}
 			snore.clear()
-			return next?(err)  if err
-			logger.log 'info', 'Loaded the following plugins:', _.keys(docpad.loadedPlugins).sort().join(', ')
 			return next?(err)
 		
 		# Load docpad plugins
@@ -1069,10 +1069,11 @@ class DocPad extends EventSystem
 			# Handle directories
 			(fileFullPath,fileRelativePath,_nextFile) ->
 				# Prepare
+				pluginName = path.basename(fileFullPath)
 				return _nextFile(null,false)  if fileFullPath is pluginsPath
 				nextFile = (err,skip) ->
 					if err
-						logger.log 'warn', "Failed to load the plugin #{loader.pluginName} at #{fileFullPath}. The error follows"
+						logger.log 'warn', "Failed to load the plugin #{pluginName} at #{fileFullPath}. The error follows"
 						docpad.error(err, 'warn')
 					return _nextFile(null,skip)
 
