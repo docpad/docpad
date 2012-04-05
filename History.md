@@ -1,10 +1,23 @@
 ## History
 
-- v4.0.0 April 5, 2012
+- v4.0.3 April 6, 2012
 	- Added support for partials, with the new [Partials Plugin](https://github.com/bevry/docpad/tree/master/lib/exchange/plugins/partials)
 	- Added support for caching remote assets, with the new [Cachr Plugin](https://github.com/bevry/docpad/tree/master/lib/exchange/plugins/cachr)
 	- Added support for caching and parsing remote feeds, with the new [Feedr Plugin](https://github.com/bevry/docpad/tree/master/lib/exchange/plugins/feedr)
 	- Added support for independent plugin unit tests
+	- Added support for specifying `templateData` for the docpad configuration
+	- Added three new skeletons
+		- balupton.docpad
+		- deckpad
+		- nodechat.docpad
+	- Skeletons are no longer cached
+		- Caching skeletons was causing far too many problems
+	- Will now always use the local npm installation
+	- Added `gitPath` and `nodePath` to docpad configuration
+	- Split a document's `title` into `title` and `name`
+		- Use `title` for page titles (e.g. `<title>page title</title>`)
+		- Use `name` for navigation listings
+		- This was introduced as sometimes you want a different title for your page title, than for your navigation page names
 	- Cleaned up the plugin event system
 		- Got rid of `triggerPluginEvent` and now we use [balUtil's](https://github.com/balupton/bal-util.npm) [emitSync](https://github.com/balupton/bal-util.npm/blob/master/lib/events.coffee#L257) and [emitAsync](https://github.com/balupton/bal-util.npm/blob/master/lib/events.coffee#L241)
 		- This for the time being, also remove the use of plugin priorities. We suggest keeping your priorities in there, in the case that we re-introduce the functionality in the future.

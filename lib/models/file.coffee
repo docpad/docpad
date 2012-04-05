@@ -159,7 +159,7 @@ class FileModel extends EventSystem
 			
 			data header parser meta body content rendered contentRendered contentRenderedWithoutLayouts
 
-			dynamic title date slug url urls ignore tags
+			dynamic title name date slug url urls ignore tags
 			'''.split(/\s+/g)
 		
 		# Discover
@@ -328,7 +328,7 @@ class FileModel extends EventSystem
 		@body = @body.replace(/^\n+/,'')
 		@meta or= {}
 		@content = @body
-		@title = @title or @basename or @filename
+		@name = @name or @title or @basename
 	
 		# Correct meta data
 		@meta.date = new Date(@meta.date)  if @meta.date? and @meta.date
@@ -471,7 +471,7 @@ class FileModel extends EventSystem
 			@filenameRendered = "#{@basename}.#{@extensionRendered}"
 			@url or= "/#{@relativeBase}.#{@extensionRendered}"
 			@slug or= balUtil.generateSlugSync @relativeBase
-			@title or= @filenameRendered
+			@name or= @filenameRendered
 			@outPath = if @outDirPath then path.join(@outDirPath,@url) else null
 			@addUrl @url
 			next?()
@@ -545,7 +545,6 @@ class FileModel extends EventSystem
 			if file.type in ['document','partial']
 				file.content = file.body
 				file.contentRendered = rendering
-				file.contentRenderedWithoutLayouts = rendering
 				file.rendered = true
 
 			# Error

@@ -43,9 +43,6 @@ class DocPad extends EventSystem
 	# The caterpillar instance bound to docpad
 	logger: null
 
-	# The data which we pass over to your templates
-	templateData: {}
-	
 	
 	# ---------------------------------
 	# Models
@@ -104,9 +101,6 @@ class DocPad extends EventSystem
 	# The docpad plugins directory
 	pluginsPath: path.join __dirname, 'exchange', 'plugins'
 
-	# The docpad skeletons directory
-	skeletonsPath: path.join __dirname, 'exchange', 'skeletons'
-
 
 	# -----------------------------
 	# Exchange
@@ -127,11 +121,28 @@ class DocPad extends EventSystem
 		# Skeletons
 		skeletons:
 			'kitchensink.docpad':
-				'branch': 'docpad-3.x'
-				'repo': 'git://github.com/bevry/kitchensink.docpad.git'
+				branch: 'docpad-3.x'
+				repo: 'git://github.com/bevry/kitchensink.docpad.git'
+				description: 'The entire kitchensink to showcase everything that docpad is capable of.'
 			'canvas.docpad':
-				'branch': 'docpad-3.x'
-				'repo': 'git://github.com/bevry/canvas.docpad.git'
+				branch: 'docpad-3.x'
+				repo: 'git://github.com/bevry/canvas.docpad.git'
+				description: 'The bare minimum to get started, with a few bundled client-side libraries to make it easier.'
+			'balupton.docpad':
+				branch: '2012'
+				repo: 'git://github.com:balupton/balupton.docpad.git'
+				description: 'The personal website/blog of Benjamin Lupton, the creator of DocPad.'
+			'deckpad':
+				branch: 'master'
+				repo: 'git://github.com/calvinmetcalf/deckpad.git'
+				description: 'Build rich HTML5 presentations with DocPad.'
+			'nodechat.docpad':
+				branch: 'master'
+				repo: 'git://github.com/balupton/nodechat.docpad.git'
+				description: '''
+					A local chat application built with DocPad, Socket.io and Backbone.js.
+					NOTE: To run nodechat you must use `coffee server.coffee` instead of `docpad run`
+					'''
 			
 		# Themes
 		themes: {}
@@ -192,15 +203,19 @@ class DocPad extends EventSystem
 		# -----------------------------
 		# Server
 
+		# Server
 		# A express server that we want docpad to use
 		server: null
 
+		# Extend Server
 		# Whether or not we should extend the server with extra middleware and routing
 		extendServer: true
 
+		# Port
 		# The port that the server should use
 		port: 9778
 
+		# Max Age
 		# The caching time limit that is sent to the client
 		maxAge: false
 
@@ -208,43 +223,41 @@ class DocPad extends EventSystem
 		# -----------------------------
 		# Logging
 
+		# Log Level
 		# Which level of logging should we actually output
 		logLevel: (if process.argv.has('-d') then 7 else 6)
 
+		# Logger
 		# A caterpillar instance if we already have one
 		logger: null
 
+		# Growl
 		# Whether or not to send notifications to growl when we have them
 		growl: true
 		
 
 		# -----------------------------
-		# Remote connection variables
-		# Most are not used
+		# Other 
+
+		# Node Path
+		# The location of our node executable
+		nodePath: if /node$/.test(process.execPath) then process.execPath else 'node'
+
+		# Git Path
+		# The location of our git executable
+		gitPath: if /^win/.test(process.platform) then 'git.cmd' else 'git'
+
+		# Template Data
+		# What data would you like to expose to your templates
+		templateData: null
 
 		# Report Errors
 		# Whether or not we should report our errors back to DocPad
 		reportErrors: true
 
-		# Our unique and anoynmous user identifer
-		# Used to provide completely anonymous user experience statistics back to the docpad server
-		anonId: null
-
-		# Our unique and anonymous cryptographic salt
-		# Used to securely and safely anonamize anything that could possibly be personaly identifiable when reporting statistics
-		anonSalt: null
-
-		# Whether or not we should submit user experience statistics back the the docpad server
-		track: true
-
-		# Whether or not to update our exchange data
-		updateExchange: true
-
+		# Check Version
 		# Whether or not to check for newer versions of DocPad
 		checkVersion: true
-
-		# Exchange Database Url
-		exchangeUrl: 'http://bevry.iriscouch.com/docpad-registry/_design/app/_rewrite' # 'http://registry.npmjs.org/'
 
 
 	# =================================
@@ -273,7 +286,6 @@ class DocPad extends EventSystem
 		@slowPlugins = {}
 		@foundPlugins = {}
 		@loadedPlugins = {}
-		@templateData = {}
 		
 		# Clean the models
 		@cleanModels()
@@ -284,7 +296,7 @@ class DocPad extends EventSystem
 			return docpad.error(err)  if err
 
 			# Load Airbrake if we want to reportErrors
-			if docpad.config.reportErrors
+			if docpad.config.reportErrors and /win/.test(process.platform) is false
 				airbrake = require('airbrake').createClient('e7374dd1c5a346efe3895b9b0c1c0325')
 
 			# Version Check
@@ -301,6 +313,14 @@ class DocPad extends EventSystem
 	setLogLevel: (level) ->
 		@logger.setLevel(level)
 		@
+
+	# Are we debugging?
+	getLogLevel: ->
+		return @config.logLevel
+
+	# Are we debugging?
+	getDebugging: ->
+		return @getLogLevel() is 7
 
 	# Load a json path
 	# next(err,parsedData)
@@ -395,6 +415,9 @@ class DocPad extends EventSystem
 					@config.publicPath = path.resolve @config.rootPath, @config.publicPath
 					@config.pluginsPath = path.resolve @config.rootPath, @config.pluginsPath
 
+					# Other
+					@config.templateData or= {}
+
 					# Logger
 					@logger = @config.logger  if @config.logger
 					@setLogLevel(@config.logLevel)
@@ -434,67 +457,6 @@ class DocPad extends EventSystem
 					tasks.complete()
 
 
-	# Get Skeletons
-	# next(err,skeletons)
-	getSkeletons: (next) ->
-		# Prepare
-		docpad = @
-		logger = @logger
-		skeletons = {}
-		exists = false
-
-		# Exists?
-		path.exists docpad.skeletonsPath, (exists) ->
-			# Check
-			unless exists
-				return next(null,skeletons,exists)
-
-			# Ask about the skeletons
-			balUtil.scandir(
-				# Path
-				docpad.skeletonsPath
-				# File Action
-				false
-				# Dir Action
-				(fileFullPath,fileRelativePath,complete) ->
-					# Check if package.json exists
-					packagePath = "#{fileFullPath}/package.json"
-					path.exists packagePath, (exists) ->
-						# Skip if it doesn't exist
-						return complete(null,true)  unless exists
-
-						# It does exist, let's get it's information
-						docpad.loadJsonPath packagePath, (err,data) ->
-							return complete(err,true)  if err
-							data or= {}
-
-							# Add it to the skeleton listing
-							skeletons[fileRelativePath] = data
-
-							# Complete
-							return complete(null,true)
-				# Next
-				(err) ->
-					# Check
-					return next(err)  if err
-
-					# Exists
-					for own skeleton of skeletons
-						exists = true
-						break
-
-					# Return the skeletons to the callback
-					return next(null,skeletons,exists)
-			)
-		
-		# Chain
-		@
-	
-	# Get Skeleton Path
-	getSkeletonPathSync: (skeleton) ->
-		# Return
-		skeletonPath = path.join @skeletonsPath, skeleton
-	
 	# Init Node Modules
 	# with cross platform support
 	# supports linux, heroku, osx, windows
@@ -503,187 +465,90 @@ class DocPad extends EventSystem
 		# Prepare
 		docpad = @
 		logger = @logger
+		packageJsonPath = path.join(dirPath,'package.json')
 
-		# Global NPM on Windows
-		if /^win/.test(process.platform)
-			command = {
-				command: 'npm'
-				args: ['install']
-			}
-		
-		# Local NPM on everything else
-		else
-			nodePath = if /node$/.test(process.execPath) then process.execPath else 'node'
-			npmPath = path.resolve(docpad.corePath, 'node_modules', 'npm', 'bin', 'npm-cli.js')
-			command = {
-				command: nodePath
-				args: [npmPath, 'install']
-			}
+		# Check if the packageJsonPath exists
+		return next()  unless path.existsSync(packageJsonPath)
+
+		# Use the local npm installation
+		npmPath = path.resolve(docpad.corePath, 'node_modules', 'npm', 'bin', 'npm-cli.js')
+		command =
+			command: docpad.config.nodePath
+			args: [npmPath, 'install']
 
 		# Execute npm install inside the pugin directory
-		logger.log 'debug', "Initializing node modules\non:   #{dirPath}\nwith: #{command}"
+		logger.log 'debug', "Initializing node modules\non:   #{dirPath}\nwith:",command
 		balUtil.spawn command, {cwd: dirPath}, (err,results) ->
-			logger.log 'debug', "Initialized node modules\non:   #{dirPath}"
+			logger.log 'debug', "Initialized node modules\non:   #{dirPath}\nwith:",command
 			return next(err)
 
 		# Chain
 		@
 
-	# Install a Skeleton
-	installSkeleton: (skeletonId, next) ->
-		# Prepare
-		docpad = @
-		logger = @logger
-		skeletonDetails = @exchange.skeletons[skeletonId] or {}
-		skeletonPath = @getSkeletonPathSync(skeletonId)
-		packagePath = path.join skeletonPath, 'package.json'
 
-		# Log
-		logger.log 'debug', "Installing the skeleton #{skeletonId}"
-
-		# Async
-		tasks = new balUtil.Group (err) ->
-			# Check
-			return next?(err)  if err
-
-			# Initialized
-			logger.log 'debug', "Installed the skeleton #{skeletonId}"  unless err
-			return next?(err)
-		
-		# Init node modules
-		initNodeModules = (next) ->
-			path.exists packagePath, (exists) ->
-				return next?()  unless exists
-				logger.log 'debug', "Initializing node modules for the skeleton #{skeletonId}"
-				docpad.initNodeModules skeletonPath, (err,results) ->
-					# Check
-					if err
-						logger.log 'debug', results
-						return next?(err)
-					
-					# Complete
-					logger.log 'debug', "Initialized node modules for the skeleton #{skeletonId}"
-					return next?()
-		
-		# Init git submodules
-		initGitSubmodules = (next) ->
-			logger.log 'debug', "Initializing git submodules for the skeleton #{skeletonId}"
-			balUtil.initGitSubmodules skeletonPath, (err,results) ->
-				# Check
-				if err
-					logger.log 'debug', results
-					return next?(err)  
-				
-				# Complete
-				logger.log 'debug', "Initialized git submodules for the skeleton #{skeletonId}"
-				return next?()
-		
-		# Init git pull
-		# Requires internet access
-		initGitPull = (next) ->
-			command = "git pull origin #{skeletonDetails.branch}"
-			logger.log 'debug', "Initializing git pulls for the skeleton #{skeletonId}\nwith: #{command}"
-			balUtil.exec command, {cwd:skeletonPath}, (err,results) ->
-				# Check
-				if err
-					logger.log 'debug', results
-					return next?(err)  
-				
-				# Complete
-				logger.log 'debug', "Initializing git pull for the skeleton #{skeletonId}"
-				return next?()
-		
-		# Init git repo
-		# Requires internet access
-		initGitRepo = (next) ->
-			command = "git clone  --branch #{skeletonDetails.branch}  --recursive  #{skeletonDetails.repo}  #{skeletonPath}"
-			logger.log 'debug', "Initializing git repo for the skeleton #{skeletonId}\nwith: #{command}"
-			balUtil.exec command, {cwd:docpad.corePath}, (err,results) ->
-				# Check
-				if err
-					logger.log 'debug', results
-					return next?(err) 
-				
-				# Complete
-				logger.log 'debug', "Initialized git repo for the skeleton #{skeletonId}"
-				return next?()
-				
-		
-		# Check if the skeleton path already exists
-		path.exists skeletonPath, (exists) ->
-			# It doesn't exist
-			if not exists
-				tasks.total = 1
-				initGitRepo (err) ->
-					return next?(err)  if err
-					initNodeModules tasks.completer()
-			
-			# It does exist
-			else
-				tasks.total = 2
-				initGitPull (err) ->
-					return next?(err)  if err
-					initGitSubmodules tasks.completer()
-					initNodeModules tasks.completer()
-
-		# Chain
-		@
-	
-	# Install the skeletons
-	installSkeletons: (next) ->
-		# Prepare
-		docpad = @
-		logger = @logger
-
-		# Log
-		logger.log 'debug', "Installing skeletons"
-		snore = @createSnore "We're installing your skeletons, this may take a while the first time. Perhaps grab a snickers?"
-		
-		# Tasks
-		tasks = new balUtil.Group (err) ->
-			return next?(err)  if err
-
-			# Initialized Skeletons Successfully
-			snore.clear()
-			logger.log 'debug', "Installed skeletons completed"
-			return next?(err)
-		
-		# Add Init Skeleton
-		addInitSkeleton = (skeletonId) ->
-			tasks.push (complete) ->
-				docpad.installSkeleton skeletonId, complete
-		
-		# Ensure skeletons path exists
-		balUtil.ensurePath docpad.skeletonsPath, (err) ->
-			# Check
-			return next?(err)  if err
-
-			# Cycle through the skeletons
-			for own skeletonId, skeletonDetails of docpad.exchange.skeletons
-				# Initialise the skeleton
-				addInitSkeleton(skeletonId)  
-			
-			# Run them async
-			tasks.async()
-		
-		# Chain
-		@
-	
-	# Ensure Skeletons
+	# Install a Skeleton to a Directory
 	# next(err)
-	ensureSkeletons: (next) ->
+	installSkeleton: (skeletonId,destinationPath,next) ->
 		# Prepare
 		docpad = @
 		logger = @logger
+		debugging = @getDebugging()
+		skeletonDetails = @exchange.skeletons[skeletonId] or {}
+		packagePath = path.join(destinationPath, 'package.json')
 
-		# Load the skeletons
-		@getSkeletons (err,skeletons,exists) ->
-			return next?()  if exists
-			docpad.installSkeletons(next)
-			return
+		# Initialize a Git Repository
+		# Requires internet access
+		# next(err)
+		initGitRepo = (next) ->
+			commands = [
+				command: docpad.config.gitPath
+				args: ['init']
+			,
+				command: docpad.config.gitPath
+				args: ['remote','add','skeleton',skeletonDetails.repo]
+			,
+				command: docpad.config.gitPath
+				args: ['fetch','skeleton']
+			,
+				command: docpad.config.gitPath
+				args: ['pull','skeleton',skeletonDetails.branch]
+			,
+				command:docpad.config.gitPath
+				args: ['submodule','init']
+			,
+				command: docpad.config.gitPath
+				args: ['submodule','update','--recursive']
+			]
+			logger.log 'debug', "Initializing git pull for the skeleton #{skeletonId}"
+			balUtil.spawn commands, {cwd:destinationPath,output:debugging}, (err,results) ->
+				# Check
+				if err
+					logger.log 'debug', results
+					return next(err)  
+				
+				# Complete
+				logger.log 'debug', "Initialized git pull for the skeleton #{skeletonId}"
+				return next()
 		
+		# Log
+		logger.log 'info', "Initializing the skeleton #{skeletonId} to #{destinationPath}"
+
+		# Check if the skeleton path already exists
+		balUtil.ensurePath destinationPath, (err) ->
+			# Check
+			return tasks.exit(err)  if err
+			# Initalize the git repository
+			initGitRepo (err) ->
+				return next(err)  if err
+				# And initialize and node modules we may have
+				docpad.initNodeModules destinationPath, (err) ->
+					return next(err)  if err
+					logger.log 'info', "Initialized the skeleton #{skeletonId} to #{destinationPath}"
+					return next()
+			
 		# Chain
 		@
+	
 	
 
 	# ---------------------------------
@@ -903,11 +768,43 @@ class DocPad extends EventSystem
 		# Chain
 		@
 	
+	# Get Template Data
+	getTemplateData: (userData) ->
+		# Prepare
+		userData or= {}
+
+		# Initial merge
+		templateData = _.extend({
+			require: require
+			docpad: @
+			database: @documents
+			document: null
+			documents: @documents.find({}).sort('date': -1)
+			site: {}
+			blocks: {}
+		}, @config.templateData, userData)
+
+		# Add site data
+		templateData.site.date or= new Date()
+		templateData.site.keywords or= []
+		if _.isString(templateData.site.keywords)
+			templateData.site.keywords = templateData.site.keywords.split(/,\s*/g)
+
+		# Add block data
+		templateData.blocks.scripts or= []
+		templateData.blocks.styles or= []
+		templateData.blocks.meta or= []
+		templateData.blocks.meta.push(
+			'<meta http-equiv="X-Powered-By" content="DocPad"/>'
+		)
+
+		# Return
+		return templateData
 
 	# Render a document
 	# next(err,document)
 	render: (document,data,next) ->
-		templateData = _.extend {}, @templateData, data
+		templateData = @getTemplateData(data)
 		templateData.document = document
 		document.render templateData, (err) =>
 			@error(err)  if err
@@ -1189,11 +1086,9 @@ class DocPad extends EventSystem
 		docpad = @
 		logger = @logger
 
-		# Setup out skeletons
-		@installSkeletons (err) ->
-			return next?(err)  if err
-			logger.log 'info', 'DocPad installation was successfull'
-			return next?()
+		# Nothing to do
+		# as we should have already install everything by now
+		return next?()
 
 		# Chain
 		@
@@ -1392,10 +1287,8 @@ class DocPad extends EventSystem
 	generateRender: (next) ->
 		# Prepare
 		docpad = @
+		documents = @documents
 		logger = @logger
-
-		# Extract Documents
-		documents = @documents.find({}).sort('date': -1)
 
 		# Log
 		logger.log 'debug', "Rendering #{documents.length} files"
@@ -1407,32 +1300,23 @@ class DocPad extends EventSystem
 			docpad.emitSync 'renderAfter', {}, (err) ->
 				logger.log 'debug', 'Rendered files'  unless err
 				next?(err)
-		
-		# Prepare template data
-		return tasks.exit()  unless documents.length
-		@templateData =
-			require: require
-			docpad: @
-			documents: documents
-			database: @documents
-			document: null
-			site:
-				date: new Date()
-			blocks:
-				scripts: []
-				styles: []
-				meta: [
-					'<meta http-equiv="X-Powered-By" content="DocPad"/>'
-				]
 
-		# Before
-		@emitSync 'renderBefore', {documents,@templateData}, (err) =>
-			return next?(err)  if err
-			# Render documents
-			tasks.total += documents.length
-			documents.forEach (document) =>
-				return tasks.complete()  if document.dynamic
-				@render document, {}, tasks.completer()
+		# Get the template data
+		templateData = @getTemplateData()
+		
+		# Push the render tasks
+		documents.forEach (document) ->
+			tasks.push (complete) ->
+				return complete()  if document.dynamic
+				docpad.render(document,templateData,complete)
+
+		# Fire the render tasks
+		if tasks.total
+			@emitSync 'renderBefore', {documents,templateData}, (err) =>
+				return next?(err)  if err
+				tasks.async()
+		else
+			tasks.exit()
 
 		# Chain
 		@
@@ -1736,7 +1620,8 @@ class DocPad extends EventSystem
 		{opts,next} = @getActionArgs(opts,next)
 		docpad = @
 		logger = @logger
-		skeleton = @config.skeleton
+		skeletons = @exchange.skeletons
+		skeletonId = @config.skeleton
 		destinationPath = @config.rootPath
 		selectSkeletonCallback = opts.selectSkeletonCallback or null
 
@@ -1749,48 +1634,36 @@ class DocPad extends EventSystem
 				docpad.unblock 'loading, generating', (lockError) ->
 					return fatal(lockError)  if lockError
 					return next?(err)
-		useSkeleton = (skeletonId) ->
-			# Copy over the skeleton
-			logger.log 'info', "Copying over the Skeleton"
-			skeletonPath = docpad.getSkeletonPathSync(skeletonId)
-			balUtil.cpdir skeletonPath, destinationPath, (err) ->
-				return complete(err)  if err
-				logger.log 'info', "Copied over the Skeleton"
-				return complete()
+		useSkeleton = ->
+			# Install Skeleton
+			docpad.installSkeleton skeletonId, destinationPath, (err) ->
+				# Forawrd
+				return complete(err)
 
 		# Block loading
 		docpad.block 'loading, generating', (lockError) ->
 			return fatal(lockError)  if lockError
+			
+			# Start the skeleton process
 			docpad.start 'skeleton', (lockError) ->
 				return fatal(lockError)  if lockError
-				# Copy
+				
+				# Check if already exists
 				path.exists docpad.config.srcPath, (exists) ->
 					# Check
 					if exists
 						logger.log 'info', "Didn't place the skeleton as the desired structure already exists"
 						return complete()
 					
-					# Ensure Skeletons
-					docpad.ensureSkeletons (err) ->
-						# Check
-						return fatal(err)  if err
-				
-						# Initialize Skeleton
-						if skeleton
-							return useSkeleton(skeleton)
-						else
-							# Get the skeletons
-							docpad.getSkeletons (err,skeletons) ->
-								# Check
-								return fatal(err)  if err
-
-								# Provide selection to the interface
-								selectSkeletonCallback skeletons, (err,skeleton) ->
-									# Check
-									return fatal(err)  if err
-
-									# Use the selected skeleton
-									return useSkeleton(skeleton)
+					# Do we already have a skeletonId selected?
+					if skeletonId
+						useSkeleton()
+					else
+						# Provide selection to the interface
+						selectSkeletonCallback skeletons, (err,_skeletonId) ->
+							return fatal(err)  if err
+							skeletonId = _skeletonId
+							useSkeleton()
 
 		# Chain
 		@
