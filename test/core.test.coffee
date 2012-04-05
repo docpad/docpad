@@ -16,6 +16,7 @@ baseUrl = "http://localhost:#{port}"
 
 # Configure DocPad
 docpadConfig = 
+	growl: false
 	port: port
 	rootPath: __dirname
 	logLevel: 5

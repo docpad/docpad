@@ -1,9 +1,9 @@
 ## History
 
-- v4.0.0 Unreleased
-	- Added support for partials, with the new Partials Plugin
-	- Added support for caching remote assets, with the new Cachr Plugin
-	- Added support for caching and parsing remote feeds, with the new Feedr Plugin
+- v4.0.0 April 5, 2012
+	- Added support for partials, with the new [Partials Plugin](https://github.com/bevry/docpad/tree/master/lib/exchange/plugins/partials)
+	- Added support for caching remote assets, with the new [Cachr Plugin](https://github.com/bevry/docpad/tree/master/lib/exchange/plugins/cachr)
+	- Added support for caching and parsing remote feeds, with the new [Feedr Plugin](https://github.com/bevry/docpad/tree/master/lib/exchange/plugins/feedr)
 	- Added support for independent plugin unit tests
 	- Cleaned up the plugin event system
 		- Got rid of `triggerPluginEvent` and now we use [balUtil's](https://github.com/balupton/bal-util.npm) [emitSync](https://github.com/balupton/bal-util.npm/blob/master/lib/events.coffee#L257) and [emitAsync](https://github.com/balupton/bal-util.npm/blob/master/lib/events.coffee#L241)
