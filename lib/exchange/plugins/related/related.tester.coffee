@@ -1,4 +1,9 @@
 # Export Plugin Tester
 module.exports = (testers) ->
-	# Define My Tester
+	# Define Plugin Tester
 	class MyTester extends testers.RendererTester
+		# Configuration
+		docpadConfig:
+			enabledPlugins:
+				'related': true
+				'eco': true
