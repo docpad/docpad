@@ -182,6 +182,7 @@ _Parsers are used inside the meta data areas of your content_
 1. Install DocPad
 
 		npm install -g docpad
+		[sudo] docpad install
 
 1. If you also want growl notifications (OSX), then install [the growl command line tool here](http://growl.cachefly.net/GrowlNotify-1.3.zip)
 
