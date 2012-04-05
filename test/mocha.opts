@@ -1,4 +1,4 @@
---reporter spec
+--reporter list
 --ui bdd
 --ignore-leaks
 --growl

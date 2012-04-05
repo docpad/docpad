@@ -6,7 +6,11 @@ eyes = require('eyes')
 chai = require('chai')
 expect = chai.expect
 assert = chai.assert
+request = require('request')
 DocPad = require(path.join __dirname, 'docpad.coffee')
+
+# Prepare
+pluginPort = 3183
 
 
 # Tester
@@ -34,6 +38,8 @@ class PluginTester extends Tester
 		pluginPath: null
 		outExpectedPath: null
 	docpadConfig:
+		port: pluginPort++
+		growl: false
 		logLevel: 5
 		rootPath: null
 		loadPlugins: null
@@ -83,6 +89,17 @@ class PluginTester extends Tester
 		# Chain
 		@
 
+	# Perform Server
+	performServer: (next) ->
+		# Prepare
+		docpad = @docpad
+
+		# Handle
+		docpad.action 'server', next
+
+		# Chain
+		@
+
 	# Perform Generation
 	performGeneration: (next) ->
 		# Prepare
@@ -100,7 +117,7 @@ class PluginTester extends Tester
 		tester = @
 
 		# Test
-		describe "#{@config.pluginName}: create", ->
+		describe "create", ->
 			it 'should create a docpad instance successfully', (done) ->
 				@timeout(20*1000)
 				tester.createInstance (err) ->
@@ -117,7 +134,7 @@ class PluginTester extends Tester
 		docpad = @docpad
 
 		# Test
-		describe "#{@config.pluginName}: load", ->
+		describe "#{@config.pluginName} load", ->
 			it 'should load the plugin correctly', (done) ->
 				@timeout(20*1000)
 				docpad.loadedPlugin config.pluginName, (err,loaded) ->
@@ -136,7 +153,7 @@ class PluginTester extends Tester
 		docpad = @docpad
 
 		# Test
-		describe "#{@config.pluginName}: generate", ->
+		describe "#{@config.pluginName} generate", ->
 			it 'should generate successfully', (done) ->
 				@timeout(20*1000)
 				# Test
@@ -158,6 +175,40 @@ class PluginTester extends Tester
 		@
 
 
+# Server Tester
+class ServerTester extends PluginTester
+	# Test everything
+	test: (next) ->
+		# Prepare
+		tester = @
+
+		# Group
+		tasks = new balUtil.Group(next)
+
+		# Create
+		@testCreation ->
+			# Generate
+			tester.performGeneration (err) ->
+				throw err  if err
+				# Serve
+				tester.performServer (err) ->
+					throw err  if err
+					# Create Tests
+					tasks.push (complete) ->
+						tester.testLoaded(complete)
+					tasks.push  (complete) ->
+						tester.testServer(complete)
+					# Run Tests
+					tasks.sync()
+
+		# Chain
+		@
+
+	# Test server
+	testServer: (next) ->
+		next?()
+
+
 # Renderer Tester
 class RendererTester extends PluginTester
 	# Test everything
@@ -168,12 +219,14 @@ class RendererTester extends PluginTester
 		# Group
 		tasks = new balUtil.Group(next)
 
-		# Run tests
-		@testCreation (err) ->
+		# Create
+		@testCreation ->
+			# Create Tests
 			tasks.push (complete) ->
 				tester.testLoaded(complete)
 			tasks.push  (complete) ->
 				tester.testGeneration(complete)
+			# Run Tests
 			tasks.sync()
 
 		# Chain
@@ -185,10 +238,12 @@ module.exports = {
 	Tester,
 	PluginTester,
 	RendererTester,
+	ServerTester,
 	underscore,
 	balUtil,
 	eyes,
 	chai,
 	expect,
-	assert
+	assert,
+	request
 }
