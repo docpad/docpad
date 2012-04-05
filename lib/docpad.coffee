@@ -10,7 +10,7 @@ _ = require('underscore')
 caterpillar = require('caterpillar')
 balUtil = require('bal-util')
 EventSystem = balUtil.EventSystem
-airbrake = require('airbrake').createClient('e7374dd1c5a346efe3895b9b0c1c0325')
+airbrake = null
 
 # Local
 PluginLoader = require(path.join __dirname, 'plugin-loader.coffee')
@@ -220,7 +220,11 @@ class DocPad extends EventSystem
 
 		# -----------------------------
 		# Remote connection variables
-		# Not currently used
+		# Most are not used
+
+		# Report Errors
+		# Whether or not we should report our errors back to DocPad
+		reportErrors: true
 
 		# Our unique and anoynmous user identifer
 		# Used to provide completely anonymous user experience statistics back to the docpad server
@@ -278,6 +282,10 @@ class DocPad extends EventSystem
 		@loadConfiguration config, (err) ->
 			# Error?
 			return docpad.error(err)  if err
+
+			# Load Airbrake if we want to reportErrors
+			if docpad.config.reportErrors
+				airbrake = require('airbrake').createClient('e7374dd1c5a346efe3895b9b0c1c0325')
 
 			# Version Check
 			docpad.compareVersion()
@@ -407,7 +415,7 @@ class DocPad extends EventSystem
 
 					# Version
 					docpad.version = data.version
-					airbrake.appVersion = docpad.version
+					airbrake.appVersion = docpad.version  if airbrake
 
 					# Compelte the loading
 					tasks.complete()
@@ -762,13 +770,16 @@ class DocPad extends EventSystem
 		err.logged = true
 		logger.log type, 'An error occured:', err.message, err.stack
 
-		# Log to airbrake
-		err.params =
-			docpadVersion: @version
-			docpadConfig: @config
-		airbrake.notify err, (airbrakeErr,airbrakeUrl) ->
-			console.log(airbrakeErr)  if airbrakeErr
-			console.log('Error has been logged to:', airbrakeUrl)
+		# Report the error back to DocPad using airbrake
+		if docpad.config.reportErrors and airbrake
+			err.params =
+				docpadVersion: @version
+				docpadConfig: @config
+			airbrake.notify err, (airbrakeErr,airbrakeUrl) ->
+				console.log(airbrakeErr)  if airbrakeErr
+				console.log('Error has been logged to:', airbrakeUrl)
+				next?()
+		else
 			next?()
 
 		# Chain
@@ -1381,7 +1392,12 @@ class DocPad extends EventSystem
 		# Prepare
 		docpad = @
 		logger = @logger
-		logger.log 'debug', 'Rendering files'
+
+		# Extract Documents
+		documents = @documents.find({}).sort('date': -1)
+
+		# Log
+		logger.log 'debug', "Rendering #{documents.length} files"
 
 		# Async
 		tasks = new balUtil.Group (err) ->
@@ -1392,7 +1408,6 @@ class DocPad extends EventSystem
 				next?(err)
 		
 		# Prepare template data
-		documents = @documents.find({}).sort('date': -1)
 		return tasks.exit()  unless documents.length
 		@templateData =
 			require: require

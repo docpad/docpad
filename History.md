@@ -1,5 +1,28 @@
 ## History
 
+- v4.0.0 Unreleased
+	- Added support for partials, with the new Partials Plugin
+	- Added support for caching remote assets, with the new Cachr Plugin
+	- Added support for caching and parsing remote feeds, with the new Feedr Plugin
+	- Added support for independent plugin unit tests
+	- Cleaned up the plugin event system
+		- Got rid of `triggerPluginEvent` and now we use [balUtil's](https://github.com/balupton/bal-util.npm) [emitSync](https://github.com/balupton/bal-util.npm/blob/master/lib/events.coffee#L257) and [emitAsync](https://github.com/balupton/bal-util.npm/blob/master/lib/events.coffee#L241)
+		- This for the time being, also remove the use of plugin priorities. We suggest keeping your priorities in there, in the case that we re-introduce the functionality in the future.
+	- When an error occurs we will send an error report back to DocPad using [AirBrake](http://airbrake.io/)
+		- To turn this off, set `reportErrors` in your docpad configuration to `false`
+	- Files, Documents, Layouts and Partials are now proper "models" and are now found in the `lib/models` directory
+	- Moved out some unstable or not as popular plugins to the [DocPad-Extra](https://github.com/bevry/docpad-extra) repository, plugins moved are:
+		- Admin
+		- Authenticate
+		- AutoUpdate
+		- Buildr
+		- HTML5Jade
+		- Move
+		- PHP
+		- REST
+		- Roy
+		- Ruby
+
 - v3.3.2 March 18, 2012
 	- Fixed missing interpolation on new version notification
 	- Fixed the scandir error with the skeletons path when doing the first run on windows

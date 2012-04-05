@@ -1,0 +1,58 @@
+{
+	"name": "docpad-cachr",
+	"version": "0.1.0",
+	"description": "Caches remote resources locally",
+	"homepage": "https://github.com/bevry/docpad",
+	"keywords": [
+		"docpad",
+		"plugin",
+		"caching",
+		"cache"
+	],
+	"author": {
+		"name": "Benjamin Lupton",
+		"email": "b@lupton.cc",
+		"url": "http://balupton.com"
+	},
+	"maintainers": [
+		{
+			"name": "Benjamin Lupton",
+			"email": "b@lupton.cc",
+			"url": "http://balupton.com"
+		}
+	],
+	"contributors": [
+		{
+			"name": "Benjamin Lupton",
+			"email": "b@lupton.cc",
+			"url": "http://balupton.com"
+		}
+	],
+	"bugs": {
+		"url": "https://github.com/bevry/docpad/issues"
+	},
+	"licenses": [
+		{
+			"type": "MIT",
+			"url": "http://creativecommons.org/licenses/MIT/"
+		}
+	],
+	"repository" : {
+		"type": "git",
+		"url": "http://github.com/bevry/docpad.git"
+	},
+	"dependencies": {
+		"request": "2.9.x",
+		"bal-util": "1.4.x"
+	},
+	"engines" : {
+		"node": ">=0.4.0"
+	},
+	"bin": {
+		"docpad": "./bin/docpad"
+	},
+	"directories": {
+		"lib": "."
+	},
+	"main": "./cachr.plugin.coffee"
+}

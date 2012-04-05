@@ -101,15 +101,3 @@ describe 'core', ->
 						)
 						done()
 			
-			describe 'plugins', ->
-				describe 'cleanurls', ->
-					it 'should support urls without an extension', (done) ->
-						request "#{baseUrl}/html", (err,response,body) ->
-							throw err  if err
-							fs.readFile "#{outExpectedPath}/html.html", (err,actual) ->
-								throw err  if err
-								assert.equal(
-									actual.toString()
-									body
-								)
-								done()
