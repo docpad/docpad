@@ -18,7 +18,8 @@ module.exports = (BasePlugin) ->
 			# Prepare
 			feedr = @
 			feeds = @config.feeds or {}
-			templateData.feeds = {}
+			templateData.feedr =
+				feeds: {}
 
 			# Tasks
 			tasks = new balUtil.Group (err) ->
@@ -29,7 +30,7 @@ module.exports = (BasePlugin) ->
 				tasks.push ->
 					feedr.readFeed feedName, feedData, (err,body) ->
 						return tasks.complete(err)  if err
-						templateData.feeds[feedName] = body
+						templateData.feedr.feeds[feedName] = body
 						return tasks.complete(err)
 
 			# Async

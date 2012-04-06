@@ -82,6 +82,9 @@ class DocPad extends EventSystem
 	# Loaded plugins indexed by name
 	loadedPlugins: {}
 
+	# A listing of all the available extensions for DocPad
+	exchange: {}
+
 
 	# -----------------------------
 	# Paths
@@ -103,51 +106,8 @@ class DocPad extends EventSystem
 
 
 	# -----------------------------
-	# Exchange
+	# Configuration
 
-	###
-	Exchange Configuration
-	Still to be decided how it should function for now.
-	Eventually it will be loaded from:
-		- a remote url upon initialization
-		- then stored in ~/.docpad/exchange.json
-	Used to:
-		- store the information of available extensions for docpad
-	###
-	exchange:
-		# Plugins
-		plugins: {}
-
-		# Skeletons
-		skeletons:
-			'kitchensink.docpad':
-				branch: 'docpad-3.x'
-				repo: 'git://github.com/bevry/kitchensink.docpad.git'
-				description: 'The entire kitchensink to showcase everything that docpad is capable of.'
-			'canvas.docpad':
-				branch: 'docpad-3.x'
-				repo: 'git://github.com/bevry/canvas.docpad.git'
-				description: 'The bare minimum to get started, with a few bundled client-side libraries to make it easier.'
-			'balupton.docpad':
-				branch: '2012'
-				repo: 'git://github.com:balupton/balupton.docpad.git'
-				description: 'The personal website/blog of Benjamin Lupton, the creator of DocPad.'
-			'deckpad':
-				branch: 'master'
-				repo: 'git://github.com/calvinmetcalf/deckpad.git'
-				description: 'Build rich HTML5 presentations with DocPad.'
-			'nodechat.docpad':
-				branch: 'master'
-				repo: 'git://github.com/balupton/nodechat.docpad.git'
-				description: '''
-					A local chat application built with DocPad, Socket.io and Backbone.js.
-					NOTE: To run nodechat you must use `coffee server.coffee` instead of `docpad run`
-					'''
-			
-		# Themes
-		themes: {}
-
-	
 	###
 	Instance Configuration
 	Loaded from:
@@ -171,6 +131,9 @@ class DocPad extends EventSystem
 		# Plugin directories to load
 		loadPlugins: []
 		
+		# Where to fetch the exchange information from
+		exchangeUrl: 'https://raw.github.com/bevry/docpad-extras/master/exchange.json'
+
 
 		# -----------------------------
 		# Website Paths
@@ -286,6 +249,7 @@ class DocPad extends EventSystem
 		@slowPlugins = {}
 		@foundPlugins = {}
 		@loadedPlugins = {}
+		@exchange = {}
 		
 		# Clean the models
 		@cleanModels()
@@ -321,6 +285,55 @@ class DocPad extends EventSystem
 	# Are we debugging?
 	getDebugging: ->
 		return @getLogLevel() is 7
+
+	# Get Exchange
+	# Get the exchange data
+	# Requires internet access
+	# next(err,exchange)
+	getExchange: (next) ->
+		# Check if it is stored locally
+		return next(null,@exchange)  unless _.isEmpty(@exchange)
+
+		# Otherwise fetch it from the exchangeUrl
+		@loadJsonUrl @config.exchangeUrl, (err,parsedData) ->
+			return next(err)  if err
+			@exchange = parsedData
+			return next(null,parsedData)
+
+		# Chain
+		@
+
+	# Get Skeletons
+	# Get all the available skeletons for us and their details
+	# next(err,skeletons)
+	getSkeletons: (next) ->
+		@getExchange (err,exchange) ->
+			return next(err)  if err
+			skeletons = exchange.skeletons
+			return next(null,skeletons)
+		@
+
+	# Get Skeleton
+	# Returns a skeleton's details
+	# next(err,skeletonDetails)
+	getSkeleton: (skeletonId,next) ->
+		@getSkeletons (err,skeletons) ->
+			return next(err)  if err
+			skeletonDetails = skeletons[skeletonId]
+			return next(null,skeletonDetails)
+		@
+
+	# Load a json url
+	# next(err,parsedData)
+	loadJsonUrl: (jsonUrl,next) ->
+		# Read the url using balUtil
+		balUtil.readPath jsonUrl, (err,data) ->
+			return next(err)  if err
+			parsedData = JSON.parse(data.toString())
+			return next(null,parsedData)
+
+		# Chain
+		@
 
 	# Load a json path
 	# next(err,parsedData)
@@ -493,59 +506,63 @@ class DocPad extends EventSystem
 		docpad = @
 		logger = @logger
 		debugging = @getDebugging()
-		skeletonDetails = @exchange.skeletons[skeletonId] or {}
 		packagePath = path.join(destinationPath, 'package.json')
 
-		# Initialize a Git Repository
-		# Requires internet access
-		# next(err)
-		initGitRepo = (next) ->
-			commands = [
-				command: docpad.config.gitPath
-				args: ['init']
-			,
-				command: docpad.config.gitPath
-				args: ['remote','add','skeleton',skeletonDetails.repo]
-			,
-				command: docpad.config.gitPath
-				args: ['fetch','skeleton']
-			,
-				command: docpad.config.gitPath
-				args: ['pull','skeleton',skeletonDetails.branch]
-			,
-				command:docpad.config.gitPath
-				args: ['submodule','init']
-			,
-				command: docpad.config.gitPath
-				args: ['submodule','update','--recursive']
-			]
-			logger.log 'debug', "Initializing git pull for the skeleton #{skeletonId}"
-			balUtil.spawn commands, {cwd:destinationPath,output:debugging}, (err,results) ->
-				# Check
-				if err
-					logger.log 'debug', results
-					return next(err)  
-				
-				# Complete
-				logger.log 'debug', "Initialized git pull for the skeleton #{skeletonId}"
-				return next()
-		
-		# Log
-		logger.log 'info', "Initializing the skeleton #{skeletonId} to #{destinationPath}"
-
-		# Check if the skeleton path already exists
-		balUtil.ensurePath destinationPath, (err) ->
+		# Grab the skeletonDetails
+		@getSkeleton skeletonId, (err,skeletonDetails) ->
 			# Check
-			return tasks.exit(err)  if err
-			# Initalize the git repository
-			initGitRepo (err) ->
-				return next(err)  if err
-				# And initialize and node modules we may have
-				docpad.initNodeModules destinationPath, (err) ->
-					return next(err)  if err
-					logger.log 'info', "Initialized the skeleton #{skeletonId} to #{destinationPath}"
+			return next(err)  if err
+
+			# Initialize a Git Repository
+			# Requires internet access
+			# next(err)
+			initGitRepo = (next) ->
+				commands = [
+					command: docpad.config.gitPath
+					args: ['init']
+				,
+					command: docpad.config.gitPath
+					args: ['remote','add','skeleton',skeletonDetails.repo]
+				,
+					command: docpad.config.gitPath
+					args: ['fetch','skeleton']
+				,
+					command: docpad.config.gitPath
+					args: ['pull','skeleton',skeletonDetails.branch]
+				,
+					command:docpad.config.gitPath
+					args: ['submodule','init']
+				,
+					command: docpad.config.gitPath
+					args: ['submodule','update','--recursive']
+				]
+				logger.log 'debug', "Initializing git pull for the skeleton #{skeletonId}"
+				balUtil.spawn commands, {cwd:destinationPath,output:debugging}, (err,results) ->
+					# Check
+					if err
+						logger.log 'debug', results
+						return next(err)  
+					
+					# Complete
+					logger.log 'debug', "Initialized git pull for the skeleton #{skeletonId}"
 					return next()
 			
+			# Log
+			logger.log 'info', "Initializing the skeleton #{skeletonId} to #{destinationPath}"
+
+			# Check if the skeleton path already exists
+			balUtil.ensurePath destinationPath, (err) ->
+				# Check
+				return tasks.exit(err)  if err
+				# Initalize the git repository
+				initGitRepo (err) ->
+					return next(err)  if err
+					# And initialize and node modules we may have
+					docpad.initNodeModules destinationPath, (err) ->
+						return next(err)  if err
+						logger.log 'info', "Initialized the skeleton #{skeletonId} to #{destinationPath}"
+						return next()
+				
 		# Chain
 		@
 	
@@ -1620,7 +1637,6 @@ class DocPad extends EventSystem
 		{opts,next} = @getActionArgs(opts,next)
 		docpad = @
 		logger = @logger
-		skeletons = @exchange.skeletons
 		skeletonId = @config.skeleton
 		destinationPath = @config.rootPath
 		selectSkeletonCallback = opts.selectSkeletonCallback or null
@@ -1659,11 +1675,15 @@ class DocPad extends EventSystem
 					if skeletonId
 						useSkeleton()
 					else
-						# Provide selection to the interface
-						selectSkeletonCallback skeletons, (err,_skeletonId) ->
-							return fatal(err)  if err
-							skeletonId = _skeletonId
-							useSkeleton()
+						# Get the available skeletons
+						docpad.getSkeletons (err,skeletons) ->
+							# Check
+							return complete(err)  if err
+							# Provide selection to the interface
+							selectSkeletonCallback skeletons, (err,_skeletonId) ->
+								return fatal(err)  if err
+								skeletonId = _skeletonId
+								useSkeleton()
 
 		# Chain
 		@

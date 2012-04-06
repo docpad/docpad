@@ -146,9 +146,10 @@ class ConsoleInterface
 			'''
 		for own skeletonId, skeleton of skeletons
 			ids.push(skeletonId)
+			skeletonDescription = skeleton.description.replace(/\n/g,'\n\t')
 			console.log """
 				\t#{cliColor.bold(skeletonId)}
-				\t#{skeleton.description}
+				\t#{skeletonDescription}
 
 				"""
 		

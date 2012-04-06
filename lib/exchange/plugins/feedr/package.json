@@ -1,6 +1,6 @@
 {
 	"name": "docpad-feedr",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "Adds support for reading feeds to DocPad",
 	"homepage": "https://github.com/bevry/docpad",
 	"keywords": [
@@ -14,9 +14,9 @@
 		"json"
 	],
 	"author": {
-		"name": "Benjamin Lupton",
-		"email": "b@lupton.cc",
-		"url": "http://balupton.com"
+		"name": "Bevry Pty Ltd",
+		"email": "us@bevry.me",
+		"url": "http://bevry.me"
 	},
 	"maintainers": [
 		{
