@@ -1,5 +1,10 @@
 ## History
 
+- v4.1.0 April 6, 2012
+	- [Feedr Plugin](https://github.com/bevry/docpad/tree/master/lib/exchange/plugins/feedr) now exposes `@feedr.feeds` to the `templateData` instead of `@feeds`
+	- Exchange data now moved to the [docpad-extras](https://github.com/bevry/docpad-extras) repository
+	- Fixed broken `balupton.docpad` skeleton repo url
+
 - v4.0.3 April 6, 2012
 	- Added support for partials, with the new [Partials Plugin](https://github.com/bevry/docpad/tree/master/lib/exchange/plugins/partials)
 	- Added support for caching remote assets, with the new [Cachr Plugin](https://github.com/bevry/docpad/tree/master/lib/exchange/plugins/cachr)
@@ -24,7 +29,7 @@
 	- When an error occurs we will send an error report back to DocPad using [AirBrake](http://airbrake.io/)
 		- To turn this off, set `reportErrors` in your docpad configuration to `false`
 	- Files, Documents, Layouts and Partials are now proper "models" and are now found in the `lib/models` directory
-	- Moved out some unstable or not as popular plugins to the [DocPad-Extra](https://github.com/bevry/docpad-extra) repository, plugins moved are:
+	- Moved out some unstable or not as popular plugins to the [docpad-extras](https://github.com/bevry/docpad-extras) repository, plugins moved are:
 		- Admin
 		- Authenticate
 		- AutoUpdate
