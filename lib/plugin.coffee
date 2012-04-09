@@ -11,7 +11,7 @@ class BasePlugin
 	docpad: null
 
 	# Logger Instance
-	docpad: null
+	logger: null
 
 
 	# ---------------------------------
