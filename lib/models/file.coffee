@@ -484,21 +484,21 @@ class FileModel extends EventSystem
 	# next(err,layout)
 	getLayout: (next) ->
 		# Prepare
-		layout = @layout
+		layoutName = @layout
 
 		# Check
-		unless layout
+		unless layoutName
 			return next?(
 				new Error('This document does not have a layout')
 			)
 
 		# Find parent
-		@layouts.findOne {relativeBase:layout}, (err,layout) ->
+		@layouts.findOne {relativeBase:layoutName}, (err,layout) ->
 			# Check
 			if err
 				return next?(err)
 			else if not layout
-				err = new Error "Could not find the layout: #{layout}"
+				err = new Error "Could not find the layout: #{layoutName}"
 				return next?(err)
 			else
 				return next?(null, layout)
