@@ -14,19 +14,19 @@ At its core DocPad is a language agnostic document management system. This means
 ## When would using DocPad be ideal?
 
 - for learning and implementing new languages and web technologies into real-world applications
-	- DocPad's ability to run a potential infinite amount of languages is amazing, and as you are always working with a real website you're never forced to re-implement anything into another system.
+    - DocPad's ability to run a potential infinite amount of languages is amazing, and as you are always working with a real website you're never forced to re-implement anything into another system.
 
 - for rapid prototyping of new interfaces which need to facilate changes quickly
-	- The ability to get up and running as quickly as possible with DocPad really helps here, along with its support for pre-precessors you can quickly move about your codebase and rejig things when things need to change - without having to rewrite any architecture.
+    - The ability to get up and running as quickly as possible with DocPad really helps here, along with its support for pre-precessors you can quickly move about your codebase and rejig things when things need to change - without having to rewrite any architecture.
 
 - for frontend prototypes which will be handed over to the backend developers for implementation
-	- Often to gain layouts, templating, and pre-precessor support we'll have to implement a web framework, a templating engine, and code a custom build script for each of our pre-precessors that we use. This takes a lot of uncessary time, and complicates things during handover to the backend developers who then need to learn the tools that you've used. Using DocPad we abstract all that difficulty and handle it beautifully, allowing you to just focus on the files you want to write, and we'll provide you with the layout engine, templating engine, and pre-precessor support you need. When it comes to handover, the backend developers will have your source files, as well as the compiled files allowing them to use whichever is easiest for them.
+    - Often to gain layouts, templating, and pre-precessor support we'll have to implement a web framework, a templating engine, and code a custom build script for each of our pre-precessors that we use. This takes a lot of uncessary time, and complicates things during handover to the backend developers who then need to learn the tools that you've used. Using DocPad we abstract all that difficulty and handle it beautifully, allowing you to just focus on the files you want to write, and we'll provide you with the layout engine, templating engine, and pre-precessor support you need. When it comes to handover, the backend developers will have your source files, as well as the compiled files allowing them to use whichever is easiest for them.
 
 - for simple websites like blogs, launch pages, etc
-	- DocPad's static site generation abilities are great for this, and with DocPad's built-in support for dynamic documents we can also cater for the odd search page, enquiry form or twitter steam
+    - DocPad's static site generation abilities are great for this, and with DocPad's built-in support for dynamic documents we can also cater for the odd search page, enquiry form or twitter steam
 
 - for thick client-side web applications
-	- Combining DocPad's pre-precessor support and static site generation is amazing for developing thick client applications, as you can utilise the latest pre-precessors at any time, allowing you to focus on the problem, instead of how to implement the problem
+    - Combining DocPad's pre-precessor support and static site generation is amazing for developing thick client applications, as you can utilise the latest pre-precessors at any time, allowing you to focus on the problem, instead of how to implement the problem
 
 
 
@@ -38,8 +38,8 @@ At its core DocPad is a language agnostic document management system. This means
 - you'll get growl notifications every time we regenerate your website
 - you can mix and match renderers, allowing you to combine languages e.g. eco and markdown with `file.html.md.eco`
 - you can write both static and dynamic documents
-	- for static documents a static output file will be generated
-	- for dynamic documents they will be re-rendered on each request
+    - for static documents a static output file will be generated
+    - for dynamic documents they will be re-rendered on each request
 - it provides a liquid layout engine allowing you to wrap a document in an infinite amount of layouts
 - it provides an in-memory nosql database which you can query inside your documents or inside your app
 - you can use DocPad as a module inside a bigger application, allowing you to utilise DocPad's generation abilities but do the heavy lifting in your own application
@@ -96,56 +96,56 @@ _Parsers are used inside the meta data areas of your content_
 
 1. Say you were to create the following website structure:
 
-	> - myWebsite
-		- src
-			- documents
-			- layouts
-			- public
+    > - myWebsite
+        - src
+            - documents
+            - layouts
+            - public
 
 1. And you were to create the following files:
 
-	- A layout at `src/layouts/default.html.eco`, which contains
-		
-		``` html
-		<html>
-			<head><title><%=@document.title%></title></head>
-			<body>
-				<%-@content%>
-			</body>
-		</html>
-		```
+    - A layout at `src/layouts/default.html.eco`, which contains
+        
+        ``` html
+        <html>
+            <head><title><%=@document.title%></title></head>
+            <body>
+                <%-@content%>
+            </body>
+        </html>
+        ```
 
-	- And another layout at `src/layouts/post.html.eco`, which contains:
+    - And another layout at `src/layouts/post.html.eco`, which contains:
 
-		``` html
-		---
-		layout: default
-		---
-		<h1><%=@document.title%></h1>
-		<div><%-@content%></div>
-		```
+        ``` html
+        ---
+        layout: default
+        ---
+        <h1><%=@document.title%></h1>
+        <div><%-@content%></div>
+        ```
 
-	- And a document at `src/documents/posts/hello.html.md`, which contains:
+    - And a document at `src/documents/posts/hello.html.md`, which contains:
 
-		``` html
-		---
-		layout: post
-		title: Hello World!
-		---
-		Hello **World!**
-		```
+        ``` html
+        ---
+        layout: post
+        title: Hello World!
+        ---
+        Hello **World!**
+        ```
 
 1. Then when you generate your website with DocPad you will get a html file at `out/posts/hello.html`, which contains:
 
-	``` html
-	<html>
-		<head><title>Hello World!</title></head>
-		<body>
-			<h1>Hello World!</h1>
-			<div>Hello <strong>World!</strong></div>
-		</body>
-	</html>
-	```
+    ``` html
+    <html>
+        <head><title>Hello World!</title></head>
+        <body>
+            <h1>Hello World!</h1>
+            <div>Hello <strong>World!</strong></div>
+        </body>
+    </html>
+    ```
 
 1. And any files that you have in `src/public` will be copied to the `out` directory. E.g. `src/public/styles/style.css` -> `out/styles/style.css`
 
@@ -153,19 +153,19 @@ _Parsers are used inside the meta data areas of your content_
 
 1. Cool, now what was with the `<%=...%>` and `<%-...%>` parts which were substituted away?
 
-	- This is possible because we parse the documents and layouts through a template rendering engine. The template rendering engine used in this example was [Eco](https://github.com/sstephenson/eco) (hence the `.eco` extensions of the layouts). Templating engines allows you to do some pretty nifty things, in fact we could display all the titles and links of our posts with the following:
-		
-		``` html
-		<% for document in @documents: %>
-			<% if document.url.indexOf('/posts') is 0: %>
-				<a href="<%= document.url %>"><%= document.title %></a><br/>
-			<% end %>
-		<% end %>
-		```
+    - This is possible because we parse the documents and layouts through a template rendering engine. The template rendering engine used in this example was [Eco](https://github.com/sstephenson/eco) (hence the `.eco` extensions of the layouts). Templating engines allows you to do some pretty nifty things, in fact we could display all the titles and links of our posts with the following:
+        
+        ``` html
+        <% for document in @documents: %>
+            <% if document.url.indexOf('/posts') is 0: %>
+                <a href="<%= document.url %>"><%= document.title %></a><br/>
+            <% end %>
+        <% end %>
+        ```
 
 1. Cool that makes sense... now how did `Hello **World!**` in our document get converted into `Hello <strong>World!</strong>`?
 
-	- That was possible as that file was a [Markdown](http://daringfireball.net/projects/markdown/basics) file (hence the `.md` extension it had). Markdown is fantastic for working with text based documents, as it really allows you to focus in on your content instead of the syntax for formatting the document!
+    - That was possible as that file was a [Markdown](http://daringfireball.net/projects/markdown/basics) file (hence the `.md` extension it had). Markdown is fantastic for working with text based documents, as it really allows you to focus in on your content instead of the syntax for formatting the document!
 
 1. Great thanks! I think I will give it a go right now!
 
@@ -176,13 +176,13 @@ _Parsers are used inside the meta data areas of your content_
 1. [Install Node.js](https://github.com/balupton/node/wiki/Installing-Node.js)
 
 1. Install dependencies
-		
-		[sudo] npm install -g coffee-script
+        
+        [sudo] npm install -g coffee-script
 
 1. Install DocPad
 
-		[sudo] npm install -g docpad
-		[sudo] docpad install
+        [sudo] npm install -g docpad
+        [sudo] docpad install
 
 1. If you also want growl notifications (OSX), then install [the growl command line tool here](http://growl.cachefly.net/GrowlNotify-1.3.zip)
 
@@ -195,64 +195,64 @@ _Getting errors? [Try troubleshooting](https://github.com/bevry/docpad/wiki/Trou
 
 - Firstly, make a directory for your new website and cd into it
 
-	``` bash
-	mkdir my-new-website
-	cd my-new-website
-	```
+    ``` bash
+    mkdir my-new-website
+    cd my-new-website
+    ```
 
 - To get started, simply run the following - it will run all the other commands at once
-	
-	``` bash
-	docpad run
-	```
+    
+    ``` bash
+    docpad run
+    ```
 
 - To generate a basic website structure in the current working directory if we don't already have one
 
-	``` bash
-	docpad scaffold
-	```
+    ``` bash
+    docpad scaffold
+    ```
 
 - To regenerate the rendered website
 
-	``` bash
-	docpad generate
-	```
+    ``` bash
+    docpad generate
+    ```
 
 - To regenerate the rendered website automatically whenever we make a change to a file
 
-	``` bash
-	docpad watch
-	```
+    ``` bash
+    docpad watch
+    ```
 
 - To run the DocPad server which allows you to access the generated website in a web browser
 
-	``` bash
-	docpad server
-	```
+    ``` bash
+    docpad server
+    ```
 
 - To render an individual file with DocPad programatically (will output to stdout)
 
-	``` bash
-	docpad render filePath
-	```
+    ``` bash
+    docpad render filePath
+    ```
 
-	E.g. To render a markdown file and save the result to an output file, we would use:
-	
-	``` bash
-	docpad render inputMarkdownFile.html.md > outputMarkdownFile.html
-	```
+    E.g. To render a markdown file and save the result to an output file, we would use:
+    
+    ``` bash
+    docpad render inputMarkdownFile.html.md > outputMarkdownFile.html
+    ```
 
 - To render stdin with DocPad programatically (will output to stdout)
 
-	``` bash
-	echo $content | docpad render sampleFileNameWithExtensions
-	```
+    ``` bash
+    echo $content | docpad render sampleFileNameWithExtensions
+    ```
 
-	E.g. To render passed markdown content and save the result to a file, we would use:
-	
-	``` bash
-	echo "**awesome**" | docpad render input.html.md > output.html
-	```
+    E.g. To render passed markdown content and save the result to a file, we would use:
+    
+    ``` bash
+    echo "**awesome**" | docpad render input.html.md > output.html
+    ```
 
 
 _Getting errors? [Try troubleshooting](https://github.com/bevry/docpad/wiki/Troubleshooting)_
