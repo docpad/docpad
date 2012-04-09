@@ -1,5 +1,9 @@
 ## History
 
+- v4.1.1 April 9, 2012
+	- Fixed DocPad from outputting `undefined` instead the layout's name which it could not find
+		- Thanks to [Changwoo Park](https://github.com/pismute) for the [fix](https://github.com/bevry/docpad/pull/173), and [https://github.com/msutherl](Mogran Sutherland) for the [report](https://github.com/bevry/docpad/issues/172)
+
 - v4.1.0 April 6, 2012
 	- [Feedr Plugin](https://github.com/bevry/docpad/tree/master/lib/exchange/plugins/feedr) now exposes `@feedr.feeds` to the `templateData` instead of `@feeds`
 	- Exchange data now moved to the [docpad-extras](https://github.com/bevry/docpad-extras) repository
@@ -11,10 +15,6 @@
 	- Added support for caching and parsing remote feeds, with the new [Feedr Plugin](https://github.com/bevry/docpad/tree/master/lib/exchange/plugins/feedr)
 	- Added support for independent plugin unit tests
 	- Added support for specifying `templateData` for the docpad configuration
-	- Added three new skeletons
-		- balupton.docpad
-		- deckpad
-		- nodechat.docpad
 	- Skeletons are no longer cached
 		- Caching skeletons was causing far too many problems
 	- Will now always use the local npm installation
