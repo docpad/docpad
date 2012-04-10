@@ -264,13 +264,13 @@ _Getting errors? [Try troubleshooting](https://github.com/bevry/docpad/wiki/Trou
 
 DocPad is doing great these days, thanks to people like you! Here are some quick links to help you get started:
 
-- [The Wiki](https://github.com/bevry/docpad/wiki)
 - [Frequently Asked Questions](https://github.com/bevry/docpad/wiki/FAQ)
 - [Showcase and Examples](https://github.com/bevry/docpad/wiki/Showcase)
 - [Guides and Tutorials](https://github.com/bevry/docpad/wiki/Guides)
 - [Extension Guide](https://github.com/bevry/docpad/wiki/Extending)
 - [Google Group](https://groups.google.com/forum/#!forum/docpad)
 - [IRC](irc://irc.freenode.net/docpad)
+- [Everything else..](https://github.com/bevry/docpad/wiki)
 
 Thanks! DocPad loves you!!!
 
