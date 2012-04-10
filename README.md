@@ -272,8 +272,6 @@ DocPad is doing great these days, thanks to people like you! Here are some quick
 - [IRC](irc://irc.freenode.net/docpad)
 - [Everything else](https://github.com/bevry/docpad/wiki)
 
-Thanks! DocPad loves you!!!
-
 
 ## History
 
@@ -287,3 +285,5 @@ You can discover the history inside the [History.md](https://github.com/bevry/do
 Licensed under the [MIT License](http://creativecommons.org/licenses/MIT/)
 <br/>Copyright &copy; 2012 [Bevry Pty Ltd](http://bevry.me)
 <br/>Copyright &copy; 2011 [Benjamin Lupton](http://balupton.com)
+
+<small>Thanks! DocPad loves you!!!</small>
