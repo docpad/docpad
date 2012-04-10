@@ -241,7 +241,7 @@ class ConsoleInterface
 		renderDocument = ->
 			docpad.action 'render', details, (err,document) ->
 				throw err  if err
-				console.log document.contentRendered
+				console.log document.get('contentRendered')
 				process.exit(0)
 		
 		# Timeout if we don't have stdin

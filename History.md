@@ -1,5 +1,15 @@
 ## History
 
+- v5.0.0 Unreleased
+	- Models are now [Backbone Models](http://documentcloud.github.com/backbone/#Model)
+	- Upgraded [Query-Engine](https://github.com/bevry/query-engine) version from 0.6 to 1.1
+	- DEV:
+		- Now working on programatic renders
+		- Complete test suite now needs to pass
+		- Some plugins will have to be updated
+		- Upgrade guide will need to be written
+		- Documentation about backbone models and query engine needs to be written
+
 - v4.1.1 April 9, 2012
 	- Fixed DocPad from outputting `undefined` instead the layout's name which it could not find
 		- Thanks to [Changwoo Park](https://github.com/pismute) for the [fix](https://github.com/bevry/docpad/pull/173), and [https://github.com/msutherl](Mogran Sutherland) for the [report](https://github.com/bevry/docpad/issues/172)
