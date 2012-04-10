@@ -262,15 +262,20 @@ _Getting errors? [Try troubleshooting](https://github.com/bevry/docpad/wiki/Trou
 
 ## Thanks
 
-DocPad is doing great these days, thanks to people like you! You can check out [a bunch of websites already using it here](https://github.com/bevry/docpad/wiki/Showcase), and [discover the awesomely handsome crew behind the community here](https://github.com/bevry/docpad/wiki/Users). Ocassionally we also hold [events and competitions](https://github.com/bevry/docpad/wiki/Events) where you can learn more about DocPad, hack with others together, and win some cool stuff! Nifty.
+DocPad is doing great these days, thanks to people like you! Here are some quick links to help you get started:
 
-On that note, DocPad is awesomely extensible. You can [download other people's plugins](https://github.com/bevry/docpad/wiki/Extensions) and use them in real quick, or even [write your own in matters of minutes.](https://github.com/bevry/docpad/wiki/Extending)
-
-[Best yet, definitely check out the entire wiki, as this has just been a small taste of it's awesomeness, and there is plenty awesomness left to be discovered.](https://github.com/bevry/docpad/wiki)
+- [The DocPad Wiki](https://github.com/bevry/docpad/wiki)
+- [Frequently Asked Questions](https://github.com/bevry/docpad/wiki/FAQ)
+- [Showcase and Examples](https://github.com/bevry/docpad/wiki/Showcase)
+- [Guides and Tutorials](https://github.com/bevry/docpad/wiki/Guides)
+- [Extension Guide](https://github.com/bevry/docpad/wiki/Extending)
+- [Plugins List](https://github.com/bevry/docpad/wiki/Plugins)
+- [Skeletons List](https://github.com/bevry/docpad/wiki/Skeletons)
+- [Google Group](https://groups.google.com/forum/#!forum/docpad)
+- [IRC](irc://irc.freenode.net/docpad)
+- [Everything else](https://github.com/bevry/docpad/wiki/_pages)
 
 Thanks! DocPad loves you!!!
-
-
 
 
 ## History
