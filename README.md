@@ -270,7 +270,7 @@ DocPad is doing great these days, thanks to people like you! Here are some quick
 - [Extension Guide](https://github.com/bevry/docpad/wiki/Extending)
 - [Google Group](https://groups.google.com/forum/#!forum/docpad)
 - [IRC](irc://irc.freenode.net/docpad)
-- [Everything else..](https://github.com/bevry/docpad/wiki)
+- [Everything else](https://github.com/bevry/docpad/wiki)
 
 Thanks! DocPad loves you!!!
 
