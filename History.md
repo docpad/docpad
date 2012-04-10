@@ -34,7 +34,7 @@
 		- Authenticate
 		- AutoUpdate
 		- Buildr
-		- HTML5Jade
+		- HTML2Jade
 		- Move
 		- PHP
 		- REST
