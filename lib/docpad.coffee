@@ -699,12 +699,12 @@ class DocPad extends EventSystem
 		# Prepare
 		docpad = @
 		config =
-			docpad: @
+			layouts: @layouts
 			logger: @logger
 			meta: meta
 		
 		# Create and return
-		partial = new @PartialModel(config)
+		partial = new @PartialModel({},config)
 		
 		# Bubble
 		partial.on 'render', (args...) ->
@@ -720,14 +720,13 @@ class DocPad extends EventSystem
 		# Prepare
 		docpad = @
 		config =
-			docpad: @
 			layouts: @layouts
 			logger: @logger
 			outDirPath: @config.outPath
 			meta: meta
 		
 		# Create and return
-		document = new @DocumentModel(config)
+		document = new @DocumentModel({},config)
 		
 		# Bubble
 		document.on 'render', (args...) ->
@@ -743,13 +742,12 @@ class DocPad extends EventSystem
 		# Prepare
 		docpad = @
 		config =
-			docpad: @
 			layouts: @layouts
 			logger: @logger
 			meta: meta
 
 		# Create and return
-		layout = new @LayoutModel(config)
+		layout = new @LayoutModel({},config)
 		
 		# Bubble
 		layout.on 'render', (args...) ->
@@ -768,16 +766,8 @@ class DocPad extends EventSystem
 		queryEngine = require('query-engine')
 
 		# Prepare
-		layouts = @layouts = new queryEngine.Collection
-		documents = @documents = new queryEngine.Collection
-		
-		# Layout Prototype
-		@LayoutModel::store = ->
-			layouts[@id] = @
-
-		# Document Prototype
-		@DocumentModel::store = ->
-			documents[@id] = @
+		layouts = @layouts = queryEngine.createCollection()
+		documents = @documents = new queryEngine.createCollection()
 		
 		# Next
 		next?()
@@ -796,7 +786,7 @@ class DocPad extends EventSystem
 			docpad: @
 			database: @documents
 			document: null
-			documents: @documents.find({}).sort('date': -1)
+			documents: @documents.sortArray({'date': -1})
 			site: {}
 			blocks: {}
 		}, @config.templateData, userData)
@@ -820,8 +810,8 @@ class DocPad extends EventSystem
 
 	# Render a document
 	# next(err,document)
-	render: (document,data,next) ->
-		templateData = @getTemplateData(data)
+	render: (document,templateData,next) ->
+		templateData or= {}
 		templateData.document = document
 		document.render templateData, (err) =>
 			@error(err)  if err
@@ -832,7 +822,7 @@ class DocPad extends EventSystem
 	
 	# Render a document
 	# next(err,document)
-	prepareAndRender: (document,data,next) ->
+	prepareAndRender: (document,templateData,next) ->
 		# Prepare
 		docpad = @
 
@@ -846,7 +836,7 @@ class DocPad extends EventSystem
 				document.contextualize (err) ->
 					return next?(err) if err
 					# Render the document
-					docpad.render document, data, (err) ->
+					docpad.render document, templateData, (err) ->
 						return next?(err,document)
 
 		# Chain
@@ -1185,9 +1175,13 @@ class DocPad extends EventSystem
 		@emitSync 'parseBefore', {}, (err) =>
 			return next?(err)  if err
 
-			# Requires
+			# Prepare
 			docpad = @
 			logger = @logger
+			documents = @documents
+			layouts = @layouts
+
+			# Log
 			logger.log 'debug', 'Parsing files'
 
 			# Async
@@ -1216,12 +1210,12 @@ class DocPad extends EventSystem
 					docpad.filePathIgnored fileFullPath, (err,ignore) ->
 						return nextFile(err)  if err or ignore
 						layout = docpad.createLayout(
-								fullPath: fileFullPath
-								relativePath: fileRelativePath
+							fullPath: fileFullPath
+							relativePath: fileRelativePath
 						)
 						layout.load (err) ->
 							return nextFile(err)  if err
-							layout.store()
+							layouts.add(layout)
 							return nextFile()
 					
 				# Dir Action
@@ -1251,14 +1245,14 @@ class DocPad extends EventSystem
 							return nextFile(err)  if err
 
 							# Ignored?
-							if document.ignore or document.ignored or document.skip or document.published is false or document.draft is true
-								logger.log 'info', 'Skipped manually ignored document:', document.relativePath
+							if document.get('ignored')
+								logger.log 'info', 'Skipped manually ignored document:', document.get('relativePath')
 								return nextFile()
 							else
-								logger.log 'debug', 'Loaded in the document:', document.relativePath
+								logger.log 'debug', 'Loaded in the document:', document.get('relativePath')
 							
 							# Store Document
-							document.store()
+							documents.add(document)
 							return nextFile()
 				
 				# Dir Action
@@ -1288,7 +1282,7 @@ class DocPad extends EventSystem
 			next?()
 		
 		# Fetch
-		documents = @documents.find({}).sort({'date':-1})
+		documents = @documents.sortArray({'date':-1})
 		return tasks.exit()  unless documents.length
 		tasks.total += documents.length
 
@@ -1324,7 +1318,7 @@ class DocPad extends EventSystem
 		# Push the render tasks
 		documents.forEach (document) ->
 			tasks.push (complete) ->
-				return complete()  if document.dynamic
+				return complete()  if document.get('dynamic')
 				docpad.render(document,templateData,complete)
 
 		# Fire the render tasks
@@ -1381,16 +1375,22 @@ class DocPad extends EventSystem
 			# Cycle
 			tasks.total += length
 			documents.forEach (document) ->
+				# Fetch
+				dynamic = document.get('dynamic')
+				outPath = document.get('outPath')
+				relativePath = document.get('relativePath')
+				url = document.get('url')
+
 				# Dynamic
-				return tasks.complete()  if document.dynamic
+				return tasks.complete()  if dynamic
 
 				# Ensure path
-				balUtil.ensurePath path.dirname(document.outPath), (err) ->
+				balUtil.ensurePath path.dirname(outPath), (err) ->
 					# Error
 					return tasks.exit err  if err
 
 					# Write document
-					logger.log 'debug', "Writing file #{document.relativePath}, #{document.url}"
+					logger.log 'debug', "Writing file #{relativePath}, #{url}"
 					document.writeRendered (err) ->
 						tasks.complete err
 
@@ -1512,9 +1512,11 @@ class DocPad extends EventSystem
 		# Extract document
 		if opts.filename
 			document = @createDocument()
-			document.filename = opts.filename
-			document.fullPath = opts.filename
-			document.data = opts.content
+			document.set(
+				filename: opts.filename
+				fullPath: opts.filename
+				data: opts.content
+			)
 			renderFunction = 'prepareAndRender'
 		else if opts.document
 			document = opts.document
@@ -1756,17 +1758,24 @@ class DocPad extends EventSystem
 										docpad.error(err)
 										res.send(err.message, 500)
 									else if document
-										res.contentType(document.outPath or document.url)
-										if document.dynamic
+										# Fetch
+										outPath = document.get('outPath')
+										url = document.get('url')
+										contentRendered = document.get('contentRendered')
+										dynamic = document.get('dynamic')
+
+										# Send
+										res.contentType(outPath or url)
+										if dynamic
 											docpad.render document, req: req, (err) =>
 												if err
 													docpad.error(err)
 													res.send(err.message, 500)
 												else
-													res.send(document.contentRendered)
+													res.send(contentRendered)
 										else
-											if document.contentRendered
-												res.send(document.contentRendered)
+											if contentRendered
+												res.send(contentRendered)
 											else
 												next?()
 									else
@@ -1774,9 +1783,9 @@ class DocPad extends EventSystem
 
 							# Static
 							if config.maxAge
-								server.use express.static config.outPath, maxAge: config.maxAge
+								server.use(express.static config.outPath, maxAge: config.maxAge)
 							else
-								server.use express.static config.outPath
+								server.use(express.static config.outPath)
 							
 							# 404 Middleware
 							server.use (req,res,next) ->

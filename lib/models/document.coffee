@@ -3,7 +3,8 @@ path = require('path')
 FileModel = require(path.join __dirname, 'file.coffee')
 
 # Document Model
-class DocumentModel extends FileModel
+DocumentModel = FileModel.extend
+#class DocumentModel extends FileModel
 	
 	# Model Type
 	type: 'document'
