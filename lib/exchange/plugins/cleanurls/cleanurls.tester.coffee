@@ -5,7 +5,7 @@ module.exports = (testers) ->
 		testServer: (next) ->
 			# Requires
 			docpad = @docpad
-			assert = testers.assert
+			expect = testers.expect
 			request = testers.request
 			fs = require('fs')
 
@@ -16,13 +16,10 @@ module.exports = (testers) ->
 			# Test
 			describe 'cleanurls server', ->
 				it 'should support urls without an extension', (done) ->
-					request "#{baseUrl}/welcome", (err,response,body) ->
+					request "#{baseUrl}/welcome.html", (err,response,actual) ->
 						throw err  if err
-						fs.readFile "#{outExpectedPath}/welcome.html", (err,actual) ->
+						fs.readFile "#{outExpectedPath}/welcome.html", (err,expected) ->
 							throw err  if err
-							assert.equal(
-								actual.toString()
-								body
-							)
+							expect(actual.toString()).to.equal(expected.toString())
 							done()
 							next?()

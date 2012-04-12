@@ -1,4 +1,4 @@
---- coffee
+### coffee
 (->
 	capitalize = (str) -> str.toUpperCase()
 
@@ -6,11 +6,11 @@
 		title: "Coffee Parser Example"
 	
 	meta.capitalize = capitalize
-	meta.titleCapitalized = capitalize meta.title
+	meta.titleCapitalized = capitalize(meta.title)
 
 	return meta
 )()
----
+###
 
 This is a Coffee Parser Example.
 

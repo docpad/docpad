@@ -3,6 +3,8 @@ assert = require('assert')
 fs = require('fs')
 request = require('request')
 DocPad = require("#{__dirname}/../lib/docpad.coffee")
+chai = require('chai')
+expect = chai.expect
 
 
 # -------------------------------------
@@ -55,14 +57,11 @@ describe 'core', ->
 					describe markupName, ->
 						it "should generate #{markupName} files", (done) ->
 							@timeout(5000)
-							fs.readFile "#{outExpectedPath}/#{markupFile}", (err,expecting) ->
+							fs.readFile "#{outExpectedPath}/#{markupFile}", (err,expected) ->
 								throw err  if err
 								fs.readFile "#{outPath}/#{markupFile}", (err,actual) ->
 									throw err  if err
-									assert.equal(
-										expecting.toString()
-										actual.toString()
-									)
+									expect(actual.toString()).to.be.equal(expected.toString())
 									done()
 				testMarkup(markupName,markupFile)  for own markupName, markupFile of {
 					"html": 'html.html'
@@ -74,31 +73,24 @@ describe 'core', ->
 			describe 'server', ->
 				
 				it 'should serve generated documents', (done) ->
-					request "#{baseUrl}/html.html", (err,response,body) ->
+					request "#{baseUrl}/html.html", (err,response,actual) ->
 						throw err  if err
-						fs.readFile "#{outExpectedPath}/html.html", (err,actual) ->
+						fs.readFile "#{outExpectedPath}/html.html", (err,expected) ->
 							throw err  if err
-							assert.equal(
-								actual.toString()
-								body
-							)
+							expect(actual.toString()).to.be.equal(expected.toString())
 							done()
 				
 				it 'should serve dynamic documents - part 1/2', (done) ->
-					request "#{baseUrl}/dynamic.html?name=ben", (err,response,body) ->
+					request "#{baseUrl}/dynamic.html?name=ben", (err,response,actual) ->
 						throw err  if err
-						assert.equal(
-							'hi ben'
-							body
-						)
+						expected = 'hi ben'
+						expect(actual.toString()).to.be.equal(expected)
 						done()
 					
 				it 'should serve dynamic documents - part 2/2', (done) ->
-					request "#{baseUrl}/dynamic.html?name=joe", (err,response,body) ->
+					request "#{baseUrl}/dynamic.html?name=joe", (err,response,actual) ->
 						throw err  if err
-						assert.equal(
-							'hi joe'
-							body
-						)
+						expected = 'hi joe'
+						expect(actual.toString()).to.be.equal(expected)
 						done()
 			

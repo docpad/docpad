@@ -18,6 +18,7 @@ module.exports = (BasePlugin) ->
 
 		# URLs to Cache
 		urlsToCache: null  # Object
+		urlsToCacheLength: 0
 
 
 		# -----------------------------
@@ -41,6 +42,7 @@ module.exports = (BasePlugin) ->
 
 			# Store it for saving later
 			@urlsToCache[sourceUrl] = details
+			@urlsToCacheLength++
 
 			# Return the cached url
 			return details.cacheUrl
@@ -107,6 +109,7 @@ module.exports = (BasePlugin) ->
 			# Prepare
 			cachr = @
 			@urlsToCache = {}
+			@urlsToCacheLength = 0
 			
 			# Apply
 			templateData.cachr = (sourceUrl) ->
@@ -127,8 +130,13 @@ module.exports = (BasePlugin) ->
 			docpad = @docpad
 			config = @config
 			urlsToCache = @urlsToCache
+			urlsToCacheLength = @urlsToCacheLength
 			cachrPath = path.resolve(docpad.config.outPath, config.pathPrefix)
 			failures = 0
+
+			# Check
+			unless urlsToCacheLength
+				return next?()
 
 			# Ensure Path
 			balUtil.ensurePath cachrPath, (err) ->

@@ -21,26 +21,31 @@ module.exports = (BasePlugin) ->
 				logger.log 'debug', 'Generated relations'
 				return next(err)
 
+			# Check
+			unless documents.length
+				return tasks.exit()
+
 			# Find documents
-			documents.find {}, (err,docs,length) ->
-				return tasks.exit(err)  if err
-				return tasks.exit()  unless length
-				tasks.total = length
-				docs.forEach (document) ->
-					# Find related documents
-					documents.find {tags:{'$in':document.tags}}, (err,relatedDocuments,relatedDocumentsLength) ->
-						return tasks.exit err  if err
-						return tasks.complete()  unless relatedDocumentsLength
+			tasks.total = documents.length
+			documents.forEach (document) ->
+				# Prepare
+				tags = document.get('tags') or []
 
-						# Fetch
-						relatedDocumentsArray = []
-						relatedDocuments.sort (a,b) ->
-							return a.tags.hasCount(document.tags) < b.tags.hasCount(document.tags)
-						relatedDocuments.forEach (relatedDocument) ->
-							return null  if document.url is relatedDocument.url
-							relatedDocumentsArray.push relatedDocument
+				# Find related documents
+				relatedDocuments = documents.findAll(tags: '$in': tags)
+				
+				# Check
+				unless relatedDocuments.length
+					return tasks.complete()  
 
-						# Save
-						document.relatedDocuments = relatedDocumentsArray
-						document.store()
-						tasks.complete()
+				# Fetch
+				relatedDocumentsCleaned = []
+				relatedDocumentsArray = relatedDocuments.sortArray (a,b) ->
+					return a.tags.hasCount(tags) < b.tags.hasCount(tags)
+				relatedDocumentsArray.forEach (relatedDocument) ->
+					return null  if relatedDocument.url is document.get('url')
+					relatedDocumentsCleaned.push relatedDocument
+
+				# Save
+				document.relatedDocuments = relatedDocumentsCleaned
+				tasks.complete()
