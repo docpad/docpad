@@ -167,7 +167,17 @@ FileModel = BaseModel.extend
 	# Get Attributes
 	getAttributes: ->
 		return @toJSON()
+
+	# Get Meta
+	getMeta: ->
+		return @meta
 	
+	# To JSON
+	toJSON: ->
+		data = Backbone.Model::toJSON.call(@)
+		data.meta = @getMeta().toJSON()
+		return data
+
 	# Load
 	# If the @fullPath exists, load the file
 	# If it doesn't, then parse and normalize the file
@@ -281,29 +291,23 @@ FileModel = BaseModel.extend
 			c = b+3
 
 			# Parts
-			@set(
-				header: data.substring(a,b)
-				body: data.substring(c)
-				parser: match[2] or 'yaml'
-			)
+			fullPath = @get('fullPath')
+			header = data.substring(a,b)
+			body = data.substring(c)
+			parser = match[2] or 'yaml'
 
 			# Language
 			try
-				parser = @get('parser')
 				switch parser
 					when 'coffee', 'cson'
 						coffee = require('coffee-script')  unless coffee
-						@meta.set(
-							coffee.eval(@get('header'), {
-								filename: @get('fullPath')
-							})
-						)
+						meta = coffee.eval(header, {filename:fullPath})
+						@meta.set(meta)
 					
 					when 'yaml'
 						yaml = require('yaml')  unless yaml
-						@meta.set(
-							yaml.eval(@get('header'))
-						)
+						meta = yaml.eval(header)
+						@meta.set(meta)
 					
 					else
 						err = new Error("Unknown meta parser [#{parser}]")
@@ -311,12 +315,14 @@ FileModel = BaseModel.extend
 			catch err
 				return next?(err)
 		else
-			@set({body:data})
+			body = data
 		
 		# Update meta data
-		body = @get('body').replace(/^\n+/,'')
+		body = body.replace(/^\n+/,'')
 		@set(
+			header: header
 			body: body
+			parser: parser
 			content: body
 			name: @get('name') or @get('title') or @get('basename')
 		)
@@ -490,7 +496,7 @@ FileModel = BaseModel.extend
 			slug = @get('slug')
 
 			# Adjust
-			extensionRendered = eve.get('extensionRendered')
+			extensionRendered = eve.get('extensionRendered')  if eve
 			filenameRendered = "#{basename}.#{extensionRendered}"
 			url or= "/#{relativeBase}.#{extensionRendered}"
 			slug or= balUtil.generateSlugSync(relativeBase)
@@ -522,26 +528,27 @@ FileModel = BaseModel.extend
 
 		# No layout id
 		unless layoutId
-			next? new Error('This document does not have a layout')
+			err = new Error('This document does not have a layout')
+			next?(err)
 		
 		# Cached layout
-		else if @layout and layoutId is @layout.get('id')
+		else if @layout and layoutId is @layout.id
 			# Already got it
 			next?(null,@layout)
 		
 		# Uncached layout
 		else
 			# Find parent
-			@layouts.findOne {id:layoutId}, (err,layout) ->
-				# Check
-				if err
-					return next?(err)
-				else unless layout
-					err = new Error "Could not find the layout: #{layoutName}"
-					return next?(err)
-				else
-					file.layout = layout
-					return next?(null,layout)
+			layout = @layouts.findOne {id:layoutId}
+			# Check
+			if err
+				return next?(err)
+			else unless layout
+				err = new Error "Could not find the layout: #{layoutId}"
+				return next?(err)
+			else
+				file.layout = layout
+				return next?(null,layout)
 
 		# Chain
 		@
@@ -552,10 +559,12 @@ FileModel = BaseModel.extend
 	getEve: (next) ->
 		if @hasLayout()
 			@getLayout (err,layout) ->
-				return next?(err)  if err
-				layout.getEve(next)
+				if err
+					return next?(err)
+				else
+					layout.getEve(next)
 		else
-			next?(null,@)
+			next?()
 		@
 	
 	# Render

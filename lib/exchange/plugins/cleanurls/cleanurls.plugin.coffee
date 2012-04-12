@@ -21,25 +21,25 @@ module.exports = (BasePlugin) ->
 			# Async
 			tasks = new balUtil.Group (err) ->
 				logger.log 'debug', 'Created clean urls'
-				next err
+				next?(err)
 
-			# Find documents
-			documents.find {}, (err,docs,length) ->
-				return tasks.exit err  if err
-				return tasks.exit()  unless length
-				tasks.total = length
-				docs.forEach (document) ->
-					# Index URL
-					if /index\.html$/i.test document.url
-						document.addUrl document.url.replace(/index\.html$/i,'')
-					
-					# Extesionless URL
-					if /\.html$/i.test document.url
-						document.addUrl document.url.replace(/\.html$/i,'')
-					
-					# Complete
-					tasks.complete()
+			# Check
+			unless documents.length
+				return tasks.exit()
 			
-			# Continue
-			next()
-			true
+			# Find documents
+			tasks.total = documents.length
+			documents.forEach (document) ->
+				# Prepare
+				documentUrl = document.get('url')
+
+				# Index URL
+				if /index\.html$/i.test(documentUrl)
+					document.addUrl documentUrl.replace(/index\.html$/i,'')
+				
+				# Extesionless URL
+				if /\.html$/i.test(documentUrl)
+					document.addUrl documentUrl.replace(/\.html$/i,'')
+				
+				# Complete
+				tasks.complete()

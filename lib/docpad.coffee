@@ -716,17 +716,16 @@ class DocPad extends EventSystem
 		return partial
 	
 	# Instantiate a Document
-	createDocument: (meta={}) ->
+	createDocument: (data={}) ->
 		# Prepare
 		docpad = @
 		config =
 			layouts: @layouts
 			logger: @logger
 			outDirPath: @config.outPath
-			meta: meta
 		
 		# Create and return
-		document = new @DocumentModel({},config)
+		document = new @DocumentModel(data,config)
 		
 		# Bubble
 		document.on 'render', (args...) ->
@@ -738,16 +737,15 @@ class DocPad extends EventSystem
 		return document
 	
 	# Instantiate a Layout
-	createLayout: (meta={}) ->
+	createLayout: (data={}) ->
 		# Prepare
 		docpad = @
 		config =
 			layouts: @layouts
 			logger: @logger
-			meta: meta
 
 		# Create and return
-		layout = new @LayoutModel({},config)
+		layout = new @LayoutModel(data,config)
 		
 		# Bubble
 		layout.on 'render', (args...) ->
@@ -812,7 +810,8 @@ class DocPad extends EventSystem
 	# next(err,document)
 	render: (document,templateData,next) ->
 		templateData or= {}
-		templateData.document = document
+		templateData.document = document.toJSON()
+		templateData.documentModel = document
 		document.render templateData, (err) =>
 			@error(err)  if err
 			return next?(err,document)
@@ -1138,17 +1137,13 @@ class DocPad extends EventSystem
 				docpad.emitSync 'cleanAfter', {}, (err) ->
 					logger.log 'debug', 'Cleaning finished'  unless err
 					next?(err)
-			tasks.total = 5
+			tasks.total = 3
 
 			# Layouts
-			@layouts.remove {}, (err) ->
-				logger.log 'debug', 'Cleaned layouts'  unless err
-				tasks.complete err
-			
+			@layouts.reset []
+
 			# Documents
-			@documents.remove {}, (err) ->
-				logger.log 'debug', 'Cleaned documents'  unless err
-				tasks.complete err
+			@documents.reset []
 			
 			# Ensure Layouts
 			balUtil.ensurePath @config.layoutsPath, (err) ->
@@ -1273,6 +1268,7 @@ class DocPad extends EventSystem
 		# Prepare
 		docpad = @
 		logger = @logger
+		documents = @documents
 		logger.log 'debug', 'Parsing files: Contextualizing files'
 
 		# Async
@@ -1282,13 +1278,13 @@ class DocPad extends EventSystem
 			next?()
 		
 		# Fetch
-		documents = @documents.sortArray({'date':-1})
-		return tasks.exit()  unless documents.length
-		tasks.total += documents.length
-
-		# Scan all documents
-		documents.forEach (document) ->
-			document.contextualize tasks.completer()
+		debugger
+		unless documents.length
+			tasks.exit()
+		else
+			tasks.total = documents.length
+			documents.forEach (document) ->
+				document.contextualize tasks.completer()
 
 		# Chain
 		@
@@ -1358,6 +1354,7 @@ class DocPad extends EventSystem
 	# Write documents
 	generateWriteDocuments: (next) ->
 		# Prepare
+		documents = @documents
 		logger = @logger
 		logger.log 'debug', 'Writing documents'
 
@@ -1366,33 +1363,31 @@ class DocPad extends EventSystem
 			logger.log 'debug', 'Wrote documents'  unless err
 			next?(err)
 
-		# Find documents
-		@documents.find {}, (err,documents,length) ->
-			# Error
-			return tasks.exit err  if err
-			return tasks.exit()  unless length
+		# Check
+		unless documents.length
+			return tasks.exit()
 
-			# Cycle
-			tasks.total += length
-			documents.forEach (document) ->
-				# Fetch
-				dynamic = document.get('dynamic')
-				outPath = document.get('outPath')
-				relativePath = document.get('relativePath')
-				url = document.get('url')
+		# Cycle
+		tasks.total = documents.length
+		documents.forEach (document) ->
+			# Fetch
+			dynamic = document.get('dynamic')
+			outPath = document.get('outPath')
+			relativePath = document.get('relativePath')
+			url = document.get('url')
 
-				# Dynamic
-				return tasks.complete()  if dynamic
+			# Dynamic
+			return tasks.complete()  if dynamic
 
-				# Ensure path
-				balUtil.ensurePath path.dirname(outPath), (err) ->
-					# Error
-					return tasks.exit err  if err
+			# Ensure path
+			balUtil.ensurePath path.dirname(outPath), (err) ->
+				# Error
+				return tasks.exit(err)  if err
 
-					# Write document
-					logger.log 'debug', "Writing file #{relativePath}, #{url}"
-					document.writeRendered (err) ->
-						tasks.complete err
+				# Write document
+				logger.log 'debug', "Writing file #{relativePath}, #{url}"
+				document.writeRendered (err) ->
+					tasks.complete(err)
 
 		# Chain
 		@
@@ -1751,33 +1746,34 @@ class DocPad extends EventSystem
 
 							# Routing
 							server.use (req,res,next) ->
+								# Check
 								return next?()  unless docpad.documents
-								cleanUrl = req.url.replace(/\?.*/,'')
-								docpad.documents.findOne {urls:{'$in':cleanUrl}}, (err,document) =>
-									if err
-										docpad.error(err)
-										res.send(err.message, 500)
-									else if document
-										# Fetch
-										outPath = document.get('outPath')
-										url = document.get('url')
-										contentRendered = document.get('contentRendered')
-										dynamic = document.get('dynamic')
 
-										# Send
-										res.contentType(outPath or url)
-										if dynamic
-											docpad.render document, req: req, (err) =>
-												if err
-													docpad.error(err)
-													res.send(err.message, 500)
-												else
-													res.send(contentRendered)
+								# Prepare
+								cleanUrl = req.url.replace(/\?.*/,'')
+								document = docpad.documents.findOne(urls: '$in': cleanUrl)
+								return next?()  unless document
+
+								# Fetch
+								outPath = document.get('outPath')
+								url = document.get('url')
+								dynamic = document.get('dynamic')
+								contentRendered = document.get('contentRendered')
+
+								# Send
+								#res.contentType(outPath or url)
+								if dynamic
+									templateData = docpad.getTemplateData(req:req)
+									docpad.render document, templateData, (err) ->
+										contentRendered = document.get('contentRendered')
+										if err
+											docpad.error(err)
+											res.send(err.message, 500)
 										else
-											if contentRendered
-												res.send(contentRendered)
-											else
-												next?()
+											res.send(contentRendered)
+								else
+									if contentRendered
+										res.send(contentRendered)
 									else
 										next?()
 

@@ -99,7 +99,7 @@ module.exports = (BasePlugin) ->
 
 						# Check
 						if elements.length is 0
-							return next() # nothing to do!!!! REMEMBER THIS!!!
+							return next()
 
 						# Tasks
 						tasks = new balUtil.Group (err) ->

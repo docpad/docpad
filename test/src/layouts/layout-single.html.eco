@@ -4,6 +4,6 @@
 	</head>
 	<body>
 		<div id="content"><%-@content%></div>
-		<code id="meta"><%-JSON.stringify @document.meta%></code>
+		<code id="meta"><%-JSON.stringify @document.meta %></code>
 	</body>
 </html>
