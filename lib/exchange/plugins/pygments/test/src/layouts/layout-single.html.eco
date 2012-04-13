@@ -1,8 +1,0 @@
-<html>
-	<head>
-		<title><%=@document.title or 'Untitled'%></title>
-	</head>
-	<body>
-		<div id="content"><%-@content%></div>
-	</body>
-</html>

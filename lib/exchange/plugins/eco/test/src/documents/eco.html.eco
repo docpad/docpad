@@ -1,5 +1,0 @@
----
-title: 'eco'
----
-
-this is <%= @document.title.toUpperCase() %>
