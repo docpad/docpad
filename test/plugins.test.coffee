@@ -43,5 +43,6 @@ describe 'plugins', (done) ->
 
 		# Finish
 		(err) ->
+			# Check
 			throw err  if err
 	)

@@ -82,7 +82,7 @@
 	"scripts": {
 		"test": "node ./node_modules/mocha/bin/mocha"
 	},
-	"main": "./lib/docpad.coffee",
+	"main": "./main.js",
 	"docpad": {
 		"enableUnlistedPlugins": true,
 		"enabledPlugins": {
