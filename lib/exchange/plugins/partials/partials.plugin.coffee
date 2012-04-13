@@ -98,7 +98,7 @@ module.exports = (BasePlugin) ->
 		# Store all our files to be cached
 		renderDocument: (opts,next) ->
 			# Prepare
-			{templateData,content,file} = opts
+			{templateData,file} = opts
 
 			# Prepare
 			me = @
@@ -126,9 +126,8 @@ module.exports = (BasePlugin) ->
 						
 						# Replace container with the rendered content
 						else
-							opts.content = content.replace(partial.container,contentRendered)
-							#console.log opts.content
-
+							opts.content = opts.content.replace(partial.container,contentRendered)
+						
 						# Done
 						return complete()
 			

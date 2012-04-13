@@ -80,7 +80,7 @@ module.exports = (BasePlugin) ->
 		# Render the document
 		renderDocument: (opts,next) ->
 			# Prepare
-			{extension,templateData,content,file} = opts
+			{extension,content,file} = opts
 
 			# Handle
 			if file.type is 'document' and extension is 'html'
@@ -90,7 +90,8 @@ module.exports = (BasePlugin) ->
 					features:
 						QuerySelector: true
 					done: (err,window) ->
-						return next?(err)  if err
+						# Check
+						return next(err)  if err
 
 						# Find highlightable elements
 						elements = window.document.querySelectorAll(
@@ -114,6 +115,9 @@ module.exports = (BasePlugin) ->
 						for value,key in elements
 							element = elements.item(key)
 							pygmentizeElement window, element, tasks.completer()
+
+						# Done
+						true
 				)
 			else
 				return next()
