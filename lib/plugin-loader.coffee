@@ -106,6 +106,12 @@ class PluginLoader
 		# Prepare
 		supported = true
 
+		# Check type
+		if @packageData
+			keywords = @packageData.keywords or []
+			unless 'docpad-plugin' in keywords
+				supported = false
+		
 		# Check platform
 		if @packageData and @packageData.platforms
 			platforms = @packageData.platforms or []

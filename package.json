@@ -65,6 +65,7 @@
 		"airbrake": "0.2.x"
 	},
 	"devDependencies": {
+		"docpad-plugin-eco": "latest",
 		"request": "2.9.x",
 		"mocha": "1.0.x",
 		"chai": "0.5.x",

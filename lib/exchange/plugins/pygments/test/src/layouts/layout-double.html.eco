@@ -1,5 +1,0 @@
----
-layout: 'layout-single'
----
-
-<div id="double"><%-@content%></div>

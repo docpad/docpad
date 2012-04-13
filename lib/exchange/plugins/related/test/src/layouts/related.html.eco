@@ -1,7 +1,0 @@
-<%-@content%>
-
-<h2>Other posts which are related are:</h2>
-
-<% for document in @document.relatedDocuments: %>
-	<a href="<%= document.url %>"><%= document.title %></a><br/>
-<% end %>

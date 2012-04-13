@@ -102,7 +102,7 @@ class DocPad extends EventSystem
 	packagePath: path.join __dirname, '..', 'package.json'
 
 	# The docpad plugins directory
-	pluginsPath: path.join __dirname, 'exchange', 'plugins'
+	pluginsPath: path.join __dirname, '..', 'node_modules'
 
 
 	# -----------------------------
