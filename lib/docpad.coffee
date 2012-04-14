@@ -1777,7 +1777,7 @@ class DocPad extends EventSystem
 								contentRendered = document.get('contentRendered')
 
 								# Send
-								#res.contentType(outPath or url)
+								res.contentType(outPath or url)
 								if dynamic
 									templateData = docpad.getTemplateData(req:req)
 									docpad.render document, templateData, (err) ->

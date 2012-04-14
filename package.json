@@ -15,6 +15,7 @@
 		"website",
 		"blog"
 	],
+    "author": "Bevry Pty Ltd <us@bevry.me> (http://bevry.me)",
     "maintainers": [
         "Benjamin Lupton <b@lupton.cc> (http://balupton.com)"
     ],
