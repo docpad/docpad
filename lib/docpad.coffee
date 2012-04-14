@@ -256,7 +256,7 @@ class DocPad extends EventSystem
 		@cleanModels()
 
 		# Apply configuration
-		@loadConfiguration config, (err) ->
+		@loadConfiguration config, {}, (err) ->
 			# Error?
 			return docpad.error(err)  if err
 
@@ -360,28 +360,35 @@ class DocPad extends EventSystem
 					return next?(null,parsedData)
 	
 	# Load Configuration
-	loadConfiguration: (instanceConfig={},next) ->
+	loadConfiguration: (instanceConfig={},options={},next) ->
 		# Prepare
 		docpad = @
 		logger = @logger
+
+		# Options
+		options.blocking ?= true
 
 		# Exits
 		fatal = (err) ->
 			docpad.fatal(err,next)
 		complete = (err) ->
-			docpad.unblock 'generating, watching, serving', (lockError) ->
-				return fatal(lockError)  if lockError
+			nextStep = ->
 				docpad.finish 'loading', (lockError) ->
 					return fatal(lockError)  if lockError
 					return next?(err)
-	
-		# Block other events
-		docpad.block 'generating, watching, serving', (lockError) =>
-			return fatal(lockError)  if lockError
-					
+			if options.blocking
+				docpad.unblock 'generating, watching, serving', (lockError) ->
+					return fatal(lockError)  if lockError
+					nextStep()
+			else
+				nextStep()
+
+		# Define loading
+		startLoading = =>
 			# Start loading
 			docpad.start 'loading', (lockError) =>
 				return fatal(lockError)  if lockError
+				console.log 'loading'
 
 				# Prepare
 				instanceConfig.rootPath or= process.cwd()
@@ -480,6 +487,18 @@ class DocPad extends EventSystem
 
 					# Compelte the loading
 					tasks.complete()
+	
+		# Block other events
+		if options.blocking
+			docpad.block 'generating, watching, serving', (lockError) =>
+				return fatal(lockError)  if lockError
+				startLoading()
+		else
+			startLoading()
+
+		# Chain
+		@
+			
 
 
 	# Init Node Modules
@@ -574,12 +593,8 @@ class DocPad extends EventSystem
 				return tasks.exit(err)  if err
 				# Initalize the git repository
 				initGitRepo (err) ->
-					return next(err)  if err
-					# And initialize and node modules we may have
-					docpad.initNodeModules destinationPath, (err) ->
-						return next(err)  if err
-						logger.log 'info', "Initialized the skeleton #{skeletonId} to #{destinationPath}"
-						return next()
+					# Forward
+					return next(err)
 				
 		# Chain
 		@
@@ -1662,17 +1677,22 @@ class DocPad extends EventSystem
 		complete = (err) ->
 			docpad.finish 'skeleton', (lockError) ->
 				return fatal(lockError)  if lockError
-				docpad.unblock 'loading, generating', (lockError) ->
+				docpad.unblock 'generating, watching, serving', (lockError) ->
 					return fatal(lockError)  if lockError
 					return next?(err)
 		useSkeleton = ->
 			# Install Skeleton
 			docpad.installSkeleton skeletonId, destinationPath, (err) ->
-				# Forawrd
-				return complete(err)
+				return complete(err)  if err
+				console.log 'installed the skeleton, loading the config'
+				# Re-load configuration
+				docpad.loadConfiguration {}, {blocking:false}, (err) ->
+					console.log 'laoded the config'
+					# Forward
+					return complete(err)
 
 		# Block loading
-		docpad.block 'loading, generating', (lockError) ->
+		docpad.block 'generating, watching, serving', (lockError) ->
 			return fatal(lockError)  if lockError
 			
 			# Start the skeleton process
