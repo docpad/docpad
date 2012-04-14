@@ -15,37 +15,21 @@
 		"website",
 		"blog"
 	],
-	"author": {
-		"name": "Bevry Pty Ltd",
-		"email": "us@bevry.me",
-		"url": "http://bevry.me"
-	},
-	"maintainers": [
-		{
-			"name": "Benjamin Lupton",
-			"email": "b@lupton.cc",
-			"url": "http://balupton.com"
-		}
-	],
-	"contributors": [
-		{
-			"name": "Benjamin Lupton",
-			"email": "b@lupton.cc",
-			"url": "http://balupton.com"
-		}
-	],
-	"bugs": {
-		"url": "https://github.com/bevry/docpad/issues"
-	},
-	"licenses": [
-		{
-			"type": "MIT",
-			"url": "https://github.com/bevry/docpad/blob/master/LICENSE.txt"
-		}
-	],
+    "maintainers": [
+        "Benjamin Lupton <b@lupton.cc> (http://balupton.com)"
+    ],
+    "contributors": [
+        "Benjamin Lupton <b@lupton.cc> (http://balupton.com)"
+    ],
+    "bugs": {
+        "url": "https://github.com/bevry/docpad/issues"
+    },
 	"repository" : {
 		"type": "git",
 		"url": "http://github.com/bevry/docpad.git"
+	},
+	"engines" : {
+		"node": ">=0.4.0"
 	},
 	"dependencies": {
 		"bal-util": "1.4.x",
@@ -69,9 +53,6 @@
 		"mocha": "1.0.x",
 		"chai": "0.5.x",
 		"eyes": "0.1.x"
-	},
-	"engines" : {
-		"node": ">=0.4.0"
 	},
 	"directories": {
 		"lib": "lib"
