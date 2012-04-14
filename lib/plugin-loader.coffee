@@ -138,17 +138,6 @@ class PluginLoader
 		# Chain
 		@
 	
-	# Installed
-	# Has this plugin already been installed?
-	# next(err,installed)
-	installed: (next) ->
-		# Check if it is installed
-		path.exists @nodeModulesPath, (exists) ->
-			next?(null,exists)
-		
-		# Chain
-		@
-	
 	# Install
 	# Installs the plugins node modules
 	# next(err)
