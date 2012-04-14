@@ -1310,7 +1310,6 @@ class DocPad extends EventSystem
 			next?()
 		
 		# Fetch
-		debugger
 		unless documents.length
 			tasks.exit()
 		else
@@ -1331,7 +1330,7 @@ class DocPad extends EventSystem
 
 		# Log
 		logger.log 'debug', "Rendering #{documents.length} files"
-
+		
 		# Async
 		tasks = new balUtil.Group (err) ->
 			return next?(err)  if err
