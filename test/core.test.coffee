@@ -1,5 +1,4 @@
 # Requires
-assert = require('assert')
 fs = require('fs')
 request = require('request')
 DocPad = require("#{__dirname}/../lib/docpad.coffee")

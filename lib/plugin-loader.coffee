@@ -52,7 +52,7 @@ class PluginLoader
 	# Constructor
 	constructor: ({@docpad,@dirPath,@BasePlugin}) ->
 		# Apply
-		@pluginName = path.basename(@dirPath)
+		@pluginName = path.basename(@dirPath).replace(/^docpad-plugin-/,'')
 		@pluginClass = {}
 		@pluginConfig = {}
 		@packageData = {}
