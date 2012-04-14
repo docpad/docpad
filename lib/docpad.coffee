@@ -388,7 +388,6 @@ class DocPad extends EventSystem
 			# Start loading
 			docpad.start 'loading', (lockError) =>
 				return fatal(lockError)  if lockError
-				console.log 'loading'
 
 				# Prepare
 				instanceConfig.rootPath or= process.cwd()
@@ -1684,10 +1683,8 @@ class DocPad extends EventSystem
 			# Install Skeleton
 			docpad.installSkeleton skeletonId, destinationPath, (err) ->
 				return complete(err)  if err
-				console.log 'installed the skeleton, loading the config'
 				# Re-load configuration
 				docpad.loadConfiguration {}, {blocking:false}, (err) ->
-					console.log 'laoded the config'
 					# Forward
 					return complete(err)
 
