@@ -55,41 +55,7 @@ At its core DocPad is a language agnostic document management system. This means
 
 ## What languages does it support?
 
-
-### Markups
-
-- [Markdown](http://daringfireball.net/projects/markdown/basics) to HTML `.html.md|markdown`
-- [Eco](https://github.com/sstephenson/eco) to anything `.anything.eco`
-- [CoffeeKup](http://coffeekup.org/) to anything `.anything.ck|coffeekup|coffee` and HTML to CoffeeKup `.ck|coffeekup|coffee.html`
-- [Jade](http://jade-lang.com/) to anything `.anything.jade` and HTML to Jade `.jade.html`
-- [HAML](http://haml-lang.com/) to anything `.anything.haml`
-- [Hogan/Mustache](http://twitter.github.com/hogan.js/) to anything `.anything.hogan`
-- [Ruby](http://www.ruby-lang.org/) to anything `.anything.rb|ruby`
-- [ERuby](http://en.wikipedia.org/wiki/ERuby) to anything `.anything.erb`
-- [PHP](http://php.net/) to anything `.anything.php`
-
-
-### Styles
-
-- [Stylus](http://learnboost.github.com/stylus/) to CSS `.css.styl|stylus`
-- [LessCSS](http://lesscss.org/) to CSS `.css.less`
-- [SASS](http://sass-lang.com/) to CSS `.css.sass|scss`
-
-
-### Scripts
-
-- [CoffeeScript](http://coffeescript.org/) to JavaScript `.js.coffee` and JavaScript to CoffeeScript `.coffee.js`
-- [Roy](http://roy.brianmckenna.org/) to JavaScript `.js.roy`
-- [Move](http://movelang.org/) to JavaScript `.js.move`
-
-
-### Parsers
-
-- [YAML](https://github.com/visionmedia/js-yaml) with `--- yaml` (default)
-- [CoffeeScript](http://jashkenas.github.com/coffee-script/) with `--- coffee`
-
-_Parsers are used inside the meta data areas of your content_
-
+Markups and extra functionality are supported by plugins, which we already have plenty. [You can find the complete listing of all the available plugins on the Plugins wiki page.](https://github.com/bevry/docpad/wiki/Plugins)
 
 
 ## How does it work?
@@ -102,7 +68,14 @@ _Parsers are used inside the meta data areas of your content_
             - layouts
             - public
 
-1. And you were to create the following files:
+1. Install a few plugins:
+
+    ```
+    cd myWebsite
+    npm install docpad-plugin-eco docpad-plugin-markdown
+    ```
+
+1. Create the following files:
 
     - A layout at `src/layouts/default.html.eco`, which contains
         
@@ -135,7 +108,7 @@ _Parsers are used inside the meta data areas of your content_
         Hello **World!**
         ```
 
-1. Then when you generate your website with DocPad you will get a html file at `out/posts/hello.html`, which contains:
+1. Then when you generate your website with DocPad using `docpad run` you will get a html file at `out/posts/hello.html`, which contains:
 
     ``` html
     <html>
@@ -264,6 +237,7 @@ DocPad is doing great these days, thanks to people like you! Here are some quick
 - [Showcase and Examples](https://github.com/bevry/docpad/wiki/Showcase)
 - [Guides and Tutorials](https://github.com/bevry/docpad/wiki/Guides)
 - [Extension Guide](https://github.com/bevry/docpad/wiki/Extending)
+- [Plugins Listing](https://github.com/bevry/docpad/wiki/Plugins)
 - [Google Group](https://groups.google.com/forum/#!forum/docpad)
 - [IRC](irc://irc.freenode.net/docpad)
 - [Everything else](https://github.com/bevry/docpad/wiki)
