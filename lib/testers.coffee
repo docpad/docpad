@@ -42,7 +42,7 @@ class PluginTester extends Tester
 		growl: false
 		logLevel: 5
 		rootPath: null
-		loadPlugins: null
+		pluginPaths: null
 		enableUnlistedPlugins: false
 		enabledPlugins: null
 
@@ -69,7 +69,7 @@ class PluginTester extends Tester
 		@docpadConfig.rootPath ?= @config.testPath
 		@docpadConfig.outPath ?= path.join(@docpadConfig.rootPath,'out')
 		@docpadConfig.srcPath ?= path.join(@docpadConfig.rootPath,'src')
-		@docpadConfig.loadPlugins ?= [@config.pluginPath]
+		@docpadConfig.pluginPaths ?= [@config.pluginPath]
 		defaultEnabledPlugins = {}
 		defaultEnabledPlugins[@config.pluginName] = true
 		@docpadConfig.enabledPlugins ?= defaultEnabledPlugins

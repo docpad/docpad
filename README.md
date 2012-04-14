@@ -175,10 +175,6 @@ _Parsers are used inside the meta data areas of your content_
 
 1. [Install Node.js](https://github.com/balupton/node/wiki/Installing-Node.js)
 
-1. Install dependencies
-        
-        [sudo] npm install -g coffee-script
-
 1. Install DocPad
 
         [sudo] npm install -g docpad

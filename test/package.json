@@ -1,0 +1,7 @@
+{
+	"name": "docpad-testsite",
+	"version": "0.1.0",
+	"dependencies": {
+		"docpad-plugin-eco": "latest"
+	}
+}

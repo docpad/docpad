@@ -22,8 +22,9 @@ docpadConfig =
 	port: port
 	rootPath: __dirname
 	logLevel: 5
+	enabledUnlistedPlugins: false
 	enabledPlugins:
-		pygments: true
+		eco: true
 
 # Fail on an uncaught error
 process.on 'uncaughtException', (err) ->

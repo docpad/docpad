@@ -101,9 +101,6 @@ class DocPad extends EventSystem
 	# The docpad package.json path
 	packagePath: path.join __dirname, '..', 'package.json'
 
-	# The docpad plugins directory
-	pluginsPath: path.join __dirname, '..', 'node_modules'
-
 
 	# -----------------------------
 	# Configuration
@@ -129,10 +126,13 @@ class DocPad extends EventSystem
 		plugins: {}
 
 		# Plugin directories to load
-		loadPlugins: []
+		pluginPaths: []
 		
+		# The website's plugins directory
+		pluginsPaths: ['node_modules','plugins']
+
 		# Where to fetch the exchange information from
-		exchangeUrl: 'https://raw.github.com/bevry/docpad-extras/master/exchange.json'
+		exchangeUrl: 'https://raw.github.com/bevry/docpad-extras/docpad-5.x/exchange.json'
 
 
 		# -----------------------------
@@ -158,9 +158,6 @@ class DocPad extends EventSystem
 
 		# The website's package.json path
 		packagePath: 'package.json'
-
-		# The website's plugins directory
-		pluginsPath: 'plugins'
 
 		
 		# -----------------------------
@@ -426,7 +423,8 @@ class DocPad extends EventSystem
 					@config.layoutsPath = path.resolve @config.rootPath, @config.layoutsPath
 					@config.documentsPath = path.resolve @config.rootPath, @config.documentsPath
 					@config.publicPath = path.resolve @config.rootPath, @config.publicPath
-					@config.pluginsPath = path.resolve @config.rootPath, @config.pluginsPath
+					for pluginsPath,index in @config.pluginsPaths
+						@config.pluginsPaths[index] = path.resolve(@config.rootPath, pluginsPath)
 
 					# Other
 					@config.templateData or= {}
@@ -864,19 +862,20 @@ class DocPad extends EventSystem
 			snore.clear()
 			return next?(err)
 		
-		# Load docpad plugins
-		tasks.push (complete) =>
-			@loadPluginsIn(@pluginsPath, complete)
-		
 		# Load website plugins
-		if @pluginsPath isnt @config.pluginsPath and path.existsSync(@config.pluginsPath)
-			tasks.push (complete) =>
-				@loadPluginsIn(@config.pluginsPath, complete)
+		_.each @config.pluginsPaths or [], (pluginsPath) =>
+			exists = path.existsSync(pluginsPath)
+			if exists
+				tasks.push (complete) =>
+					@loadPluginsIn(pluginsPath, complete)
 		
-		# Load custom plugins
-		for pluginPath in @config.loadPlugins or []
-			tasks.push (complete) =>
-				@loadPlugin(pluginPath, complete)
+		# Load specific plugins
+		_.each @config.pluginPaths or [], (pluginPath) =>
+			exists = path.existsSync(pluginPath)
+			console.log pluginPath, exists
+			if exists
+				tasks.push (complete) =>
+					@loadPlugin(pluginPath, complete)
 		
 		# Execute the loading asynchronously
 		tasks.async()
@@ -920,6 +919,15 @@ class DocPad extends EventSystem
 			(config.enableUnlistedPlugins  and  config.enabledPlugins[pluginName]? is false)  or
 			config.enabledPlugins[pluginName] is true
 		)
+		install = (next) ->
+			if docpad.config.forceInstall
+				loader.install (err) ->
+					return next(err)
+			else
+				loader.installed (err,installed) ->
+					return next(err)  if err or installed
+					loader.install (err) ->
+						return next(err)
 
 		# Check if we already exist
 		if docpad.foundPlugins[pluginName]?
@@ -941,7 +949,7 @@ class DocPad extends EventSystem
 				return next(err)  if err or not exists
 				loader.supported (err,supported) ->
 					return next(err)  if err or not supported
-					loader.install (err) ->
+					install (err) ->
 						return next(err)  if err
 						loader.load (err) ->
 							return next(err)  if err
