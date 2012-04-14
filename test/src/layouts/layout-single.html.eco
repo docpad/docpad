@@ -1,9 +1,4 @@
-<html>
-	<head>
-		<title><%=@document.title or 'Untitled'%></title>
-	</head>
-	<body>
-		<div id="content"><%-@content%></div>
-		<code id="meta"><%-JSON.stringify @document.meta %></code>
-	</body>
-</html>
+<div class="layout-single">
+	<div class="title"><%=@document.title or 'Untitled'%></div>
+	<div class="content"><%-@content%></div>
+</div>

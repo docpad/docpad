@@ -67,6 +67,10 @@ class ConsoleInterface
 		# Options
 		program
 			.option(
+				'-f, --force'
+				"force a re-install of all plugin dependencies"
+			)
+			.option(
 				'-s, --skeleton <skeleton>'
 				"the skeleton to create your project from, defaults to bootstrap"
 			)

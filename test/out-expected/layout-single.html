@@ -1,9 +1,5 @@
-<html>
-    <head>
-        <title>Layout Single Test</title>
-    </head>
-    <body>
-        <div id="content"><h1>The Layout Single Test</h1></div>
-        <code id="meta">{"layout":"layout-single","title":"Layout Single Test"}</code>
-    </body>
-</html>
+<div class="layout-single">
+    <div class="title">Layout Single Test</div>
+    <div class="content"><div class="title"><%=@document.title or 'Untitled'%></div>
+<div class="content">THE Layout Single Test</div></div>
+</div>

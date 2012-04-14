@@ -116,6 +116,9 @@ class DocPad extends EventSystem
 		# -----------------------------
 		# Plugins
 
+		# Force re-install of all plugin dependencies
+		force: false
+
 		# Whether or not we should enable plugins that have not been listed or not
 		enableUnlistedPlugins: true
 
@@ -239,6 +242,7 @@ class DocPad extends EventSystem
 		@setLogLevel(config.logLevel or @config.logLevel)
 		
 		# Bind the error handler, so we don't crash on errors
+		process.setMaxListeners(0)
 		process.on 'uncaughtException', (err) ->
 			docpad.error(err)
 		
@@ -812,7 +816,7 @@ class DocPad extends EventSystem
 	# Render a document
 	# next(err,document)
 	render: (document,templateData,next) ->
-		templateData or= {}
+		templateData = _.extend({},templateData)
 		templateData.document = document.toJSON()
 		templateData.documentModel = document
 		document.render templateData, (err) =>
@@ -924,7 +928,7 @@ class DocPad extends EventSystem
 			config.enabledPlugins[pluginName] is true
 		)
 		install = (next) ->
-			if docpad.config.forceInstall
+			if docpad.config.force
 				loader.install (err) ->
 					return next(err)
 			else
@@ -1479,25 +1483,25 @@ class DocPad extends EventSystem
 								docpad.generateRender (err) ->
 									return complete(err)  if err
 									# Generate Render (Second Pass)
-									docpad.generateRender (err) ->
+									#docpad.generateRender (err) ->
+									#	return complete(err)  if err
+									# Generate Write
+									docpad.generateWrite (err) ->
 										return complete(err)  if err
-										# Generate Write
-										docpad.generateWrite (err) ->
-											return complete(err)  if err
-											# Unblock
-											docpad.unblock 'loading', (err) ->
-												return complete(err)  if err	
-												# Plugins
-												docpad.emitSync 'generateAfter', server: docpad.server, (err) ->
+										# Unblock
+										docpad.unblock 'loading', (err) ->
+											return complete(err)  if err	
+											# Plugins
+											docpad.emitSync 'generateAfter', server: docpad.server, (err) ->
+												return complete(err)  if err
+												# Finished
+												docpad.finished 'generating', (err) ->
 													return complete(err)  if err
-													# Finished
-													docpad.finished 'generating', (err) ->
-														return complete(err)  if err
-														# Generated
-														logger.log 'info', 'Generated'
-														notify (new Date()).toLocaleTimeString(), title: 'Website generated'
-														# Completed
-														complete()
+													# Generated
+													logger.log 'info', 'Generated'
+													notify (new Date()).toLocaleTimeString(), title: 'Website generated'
+													# Completed
+													complete()
 
 		# Chain
 		@

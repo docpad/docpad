@@ -2,4 +2,7 @@
 layout: 'layout-single'
 ---
 
-<div id="double"><%-@content%></div>
+<div class="layout-double">
+	<div class="title"><%=@document.title or 'Untitled'%></div>
+	<div class="content"><%-@content%></div>
+</div>
