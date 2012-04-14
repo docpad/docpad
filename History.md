@@ -1,14 +1,17 @@
 ## History
 
-- v5.0.0 Unreleased
+- v5.0.0 April 14, 2012
 	- Models are now [Backbone Models](http://documentcloud.github.com/backbone/#Model)
 	- Upgraded [Query-Engine](https://github.com/bevry/query-engine) version from 0.6 to 1.1
-	- DEV:
-		- Now working on programatic renders
-		- Complete test suite now needs to pass
-		- Some plugins will have to be updated
-		- Upgrade guide will need to be written
-		- Documentation about backbone models and query engine needs to be written
+	- Plugins are now managed by npm and are no longer bundled with DocPad
+		- You will need to add them to your website's `package.json` and install them via `npm install docpad-plugin-#{pluginName}`
+		- We now scan the `node_modules` and `plugins` directories of your website for docpad plugins
+			- These paths can be customised via the `pluginsPaths` variable in the docpad configuration
+		- DocPad detects if something is a plugin by checking for the `docpad-plugin` keyword in the `package.json` file, or if the file follows the `#{pluginName}.plugin.coffee` naming convention
+	- CoffeeScript dependency is now bundled inside, instead of being an external dependency
+	- A website's npm dependencies are now installed as part of the initialisation process
+	- This is a big backwards compatibility break, previous skeletons and plugins need to upgraded
+		- Refer to the [Upgrade Guide](https://github.com/bevry/docpad/wiki/Upgrading) for instructions
 
 - v4.1.1 April 9, 2012
 	- Fixed DocPad from outputting `undefined` instead the layout's name which it could not find
