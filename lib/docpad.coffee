@@ -1499,25 +1499,25 @@ class DocPad extends EventSystem
 								docpad.generateRender (err) ->
 									return complete(err)  if err
 									# Generate Render (Second Pass)
-									#docpad.generateRender (err) ->
-									#	return complete(err)  if err
-									# Generate Write
-									docpad.generateWrite (err) ->
+									docpad.generateRender (err) ->
 										return complete(err)  if err
-										# Unblock
-										docpad.unblock 'loading', (err) ->
-											return complete(err)  if err	
-											# Plugins
-											docpad.emitSync 'generateAfter', server: docpad.server, (err) ->
-												return complete(err)  if err
-												# Finished
-												docpad.finished 'generating', (err) ->
+										# Generate Write
+										docpad.generateWrite (err) ->
+											return complete(err)  if err
+											# Unblock
+											docpad.unblock 'loading', (err) ->
+												return complete(err)  if err	
+												# Plugins
+												docpad.emitSync 'generateAfter', server: docpad.server, (err) ->
 													return complete(err)  if err
-													# Generated
-													logger.log 'info', 'Generated'
-													notify (new Date()).toLocaleTimeString(), title: 'Website generated'
-													# Completed
-													complete()
+													# Finished
+													docpad.finished 'generating', (err) ->
+														return complete(err)  if err
+														# Generated
+														logger.log 'info', 'Generated'
+														notify (new Date()).toLocaleTimeString(), title: 'Website generated'
+														# Completed
+														complete()
 
 		# Chain
 		@
