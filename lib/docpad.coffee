@@ -74,16 +74,16 @@ class DocPad extends EventSystem
 	# Plugins
 
 	# Plugins that are loading really slow
-	slowPlugins: {}
+	slowPlugins: null  # {}
 
 	# Plugins which docpad have found
-	foundPlugins: {}
+	foundPlugins: null  # {}
 
 	# Loaded plugins indexed by name
-	loadedPlugins: {}
+	loadedPlugins: null  # {}
 
 	# A listing of all the available extensions for DocPad
-	exchange: {}
+	exchange: null  # {}
 
 
 	# -----------------------------
@@ -120,16 +120,16 @@ class DocPad extends EventSystem
 		enableUnlistedPlugins: true
 
 		# Plugins which should be enabled or not pluginName: pluginEnabled
-		enabledPlugins: {}
+		enabledPlugins: null  # {}
 
 		# Configuration to pass to any plugins pluginName: pluginConfiguration
-		plugins: {}
+		plugins: null  # {}
 
 		# Plugin directories to load
-		pluginPaths: []
+		pluginPaths: null  # []
 		
 		# The website's plugins directory
-		pluginsPaths: ['node_modules','plugins']
+		pluginsPaths: null  # ['node_modules','plugins']
 
 		# Where to fetch the exchange information from
 		exchangeUrl: 'https://raw.github.com/bevry/docpad-extras/docpad-5.x/exchange.json'
@@ -242,7 +242,7 @@ class DocPad extends EventSystem
 		process.on 'uncaughtException', (err) ->
 			docpad.error(err)
 		
-		# Destruct prototype references
+		# Initialize advanced variables
 		@slowPlugins = {}
 		@foundPlugins = {}
 		@loadedPlugins = {}
@@ -410,6 +410,11 @@ class DocPad extends EventSystem
 						instanceConfig.enabledPlugins or {}
 					)
 
+					# Ensure advanced variables
+					config.plugins or= {}
+					config.pluginPaths or= []
+					config.pluginsPaths or= ['node_modules','plugins']
+
 					# Apply merged configuration
 					@config = config
 					
@@ -434,7 +439,7 @@ class DocPad extends EventSystem
 					@setLogLevel(@config.logLevel)
 
 					# Initialize
-					@loadPlugins complete
+					@loadPlugins(complete)
 
 				# Prepare configuration loading
 				tasks.total = 2
@@ -872,7 +877,6 @@ class DocPad extends EventSystem
 		# Load specific plugins
 		_.each @config.pluginPaths or [], (pluginPath) =>
 			exists = path.existsSync(pluginPath)
-			console.log pluginPath, exists
 			if exists
 				tasks.push (complete) =>
 					@loadPlugin(pluginPath, complete)
