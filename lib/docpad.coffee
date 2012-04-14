@@ -273,7 +273,7 @@ class DocPad extends EventSystem
 
 			# Next
 			return next?()
-	
+
 	# Set Log Level
 	setLogLevel: (level) ->
 		@logger.setLevel(level)
@@ -387,7 +387,7 @@ class DocPad extends EventSystem
 				instanceConfig.rootPath or= process.cwd()
 				instanceConfig.packagePath or=  @config.packagePath
 				docpadPackagePath = @packagePath
-				websitePackagePath = path.resolve instanceConfig.rootPath, instanceConfig.packagePath
+				websitePackagePath = path.resolve(instanceConfig.rootPath, instanceConfig.packagePath)
 				docpadConfig = {}
 				docpadConfig = {}
 				websiteConfig = {}
@@ -442,8 +442,13 @@ class DocPad extends EventSystem
 					@logger = @config.logger  if @config.logger
 					@setLogLevel(@config.logLevel)
 
-					# Initialize
-					@loadPlugins(complete)
+					# Initialise the Website's modules
+					@initNodeModules @config.rootPath, (err) =>
+						# Error?
+						return @error(err)  if err
+
+						# Initialize
+						@loadPlugins(complete)
 
 				# Prepare configuration loading
 				tasks.total = 2
@@ -486,9 +491,15 @@ class DocPad extends EventSystem
 		docpad = @
 		logger = @logger
 		packageJsonPath = path.join(dirPath,'package.json')
+		nodeModulesPath = path.join(dirPath,'node_modules')
 
-		# Check if the packageJsonPath exists
-		return next()  unless path.existsSync(packageJsonPath)
+		# Check if node modules already exists
+		if path.existsSync(nodeModulesPath) and docpad.config.force is false
+			return next()
+
+		# If there is no package.json file, then we can't do anything
+		unless path.existsSync(packageJsonPath)
+			return next()
 
 		# Use the local npm installation
 		npmPath = path.resolve(docpad.corePath, 'node_modules', 'npm', 'bin', 'npm-cli.js')
@@ -927,15 +938,6 @@ class DocPad extends EventSystem
 			(config.enableUnlistedPlugins  and  config.enabledPlugins[pluginName]? is false)  or
 			config.enabledPlugins[pluginName] is true
 		)
-		install = (next) ->
-			if docpad.config.force
-				loader.install (err) ->
-					return next(err)
-			else
-				loader.installed (err,installed) ->
-					return next(err)  if err or installed
-					loader.install (err) ->
-						return next(err)
 
 		# Check if we already exist
 		if docpad.foundPlugins[pluginName]?
@@ -957,7 +959,7 @@ class DocPad extends EventSystem
 				return next(err)  if err or not exists
 				loader.supported (err,supported) ->
 					return next(err)  if err or not supported
-					install (err) ->
+					loader.install (err) ->
 						return next(err)  if err
 						loader.load (err) ->
 							return next(err)  if err

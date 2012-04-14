@@ -62,17 +62,17 @@ class PluginTester extends Tester
 		@docpadConfig = _.extend({},PluginTester::docpadConfig,@docpadConfig)
 
 		# Extend Configuration
-		@config.testPath ?= path.join(@config.pluginPath,'test')
-		@config.outExpectedPath ?= path.join(@config.testPath,'out-expected')
+		@config.testPath or= path.join(@config.pluginPath,'test')
+		@config.outExpectedPath or= path.join(@config.testPath,'out-expected')
 
 		# Extend DocPad Configuration
-		@docpadConfig.rootPath ?= @config.testPath
-		@docpadConfig.outPath ?= path.join(@docpadConfig.rootPath,'out')
-		@docpadConfig.srcPath ?= path.join(@docpadConfig.rootPath,'src')
+		@docpadConfig.rootPath or= @config.testPath
+		@docpadConfig.outPath or= path.join(@docpadConfig.rootPath,'out')
+		@docpadConfig.srcPath or= path.join(@docpadConfig.rootPath,'src')
 		@docpadConfig.pluginPaths ?= [@config.pluginPath]
 		defaultEnabledPlugins = {}
 		defaultEnabledPlugins[@config.pluginName] = true
-		@docpadConfig.enabledPlugins ?= defaultEnabledPlugins
+		@docpadConfig.enabledPlugins or= defaultEnabledPlugins
 
 	# Create DocPad Instance
 	createInstance: (next) ->
@@ -119,7 +119,7 @@ class PluginTester extends Tester
 		# Test
 		describe "create", ->
 			it 'should create a docpad instance successfully', (done) ->
-				@timeout(20*1000)
+				@timeout(60*1000)
 				tester.createInstance (err) ->
 					done(err)
 					next()
@@ -136,7 +136,7 @@ class PluginTester extends Tester
 		# Test
 		describe "#{@config.pluginName} load", ->
 			it 'should load the plugin correctly', (done) ->
-				@timeout(20*1000)
+				@timeout(60*1000)
 				docpad.loadedPlugin config.pluginName, (err,loaded) ->
 					return done(err)  if err
 					expect(loaded).to.be.ok
@@ -155,7 +155,7 @@ class PluginTester extends Tester
 		# Test
 		describe "#{@config.pluginName} generate", ->
 			it 'should generate successfully', (done) ->
-				@timeout(20*1000)
+				@timeout(60*1000)
 				# Test
 				tester.performGeneration (err) ->
 					return done(err)  if err
