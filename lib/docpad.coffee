@@ -603,17 +603,6 @@ class DocPad extends EventSystem
 	# ---------------------------------
 	# Utilities
 
-	# Check if the file path is ignored
-	# next?(err,ignore)
-	filePathIgnored: (fileFullPath,next) ->
-		if path.basename(fileFullPath).startsWith('.') or path.basename(fileFullPath).finishesWith('~')
-			next?(null, true)
-		else
-			next?(null, false)
-		
-		# Chain
-		@
-	
 	# Create snore
 	createSnore: (message) ->
 		# Prepare
@@ -881,6 +870,10 @@ class DocPad extends EventSystem
 	getPlugin: (pluginName) ->
 		@loadedPlugins[pluginName]
 
+	# Check if we have any plugins
+	hasPlugins: ->
+		return _.isEmpty(@loadedPlugins) is false
+
 	# Load Plugins
 	loadPlugins: (next) ->
 		# Prepare
@@ -996,13 +989,16 @@ class DocPad extends EventSystem
 		logger.log 'debug', "Plugins loading for #{pluginsPath}"
 		balUtil.scandir(
 			# Path
-			pluginsPath,
+			path: pluginsPath
+
+			# Ignore common patterns
+			ignorePatterns: true
 
 			# Skip files
-			false,
+			fileAction: false
 
 			# Handle directories
-			(fileFullPath,fileRelativePath,_nextFile) ->
+			dirAction: (fileFullPath,fileRelativePath,_nextFile) ->
 				# Prepare
 				pluginName = path.basename(fileFullPath)
 				return _nextFile(null,false)  if fileFullPath is pluginsPath
@@ -1017,7 +1013,7 @@ class DocPad extends EventSystem
 					return nextFile(err,true)
 				
 			# Next
-			(err) ->
+			next: (err) ->
 				logger.log 'debug', "Plugins loaded for #{pluginsPath}"
 				return next?(err)
 		)
@@ -1051,7 +1047,7 @@ class DocPad extends EventSystem
 		# Multiple actions?
 		actions = action.split /[,\s]+/g
 		if actions.length > 1
-			tasks = new balUtil.Group next
+			tasks = new balUtil.Group(next)
 			tasks.total = actions.length
 			for action in actions
 				@action action, tasks.completer()
@@ -1229,27 +1225,24 @@ class DocPad extends EventSystem
 			# Layouts
 			balUtil.scandir(
 				# Path
-				@config.layoutsPath,
+				path: @config.layoutsPath
+
+				# Ignore common patterns
+				ignorePatterns: true
 
 				# File Action
-				(fileFullPath,fileRelativePath,nextFile) ->
-					# Ignore?
-					docpad.filePathIgnored fileFullPath, (err,ignore) ->
-						return nextFile(err)  if err or ignore
-						layout = docpad.createLayout(
-							fullPath: fileFullPath
-							relativePath: fileRelativePath
-						)
-						layout.load (err) ->
-							return nextFile(err)  if err
-							layouts.add(layout)
-							return nextFile()
-					
-				# Dir Action
-				null,
-
+				fileAction: (fileFullPath,fileRelativePath,nextFile) ->
+					layout = docpad.createLayout(
+						fullPath: fileFullPath
+						relativePath: fileRelativePath
+					)
+					layout.load (err) ->
+						return nextFile(err)  if err
+						layouts.add(layout)
+						return nextFile()
+				
 				# Next
-				(err) ->
+				next: (err) ->
 					logger.log 'warn', 'Failed to parse layouts', err  if err
 					return tasks.complete(err)
 			)
@@ -1257,36 +1250,33 @@ class DocPad extends EventSystem
 			# Documents
 			balUtil.scandir(
 				# Path
-				@config.documentsPath,
+				path: @config.documentsPath
+
+				# Ignore common patterns
+				ignorePatterns: true
 
 				# File Action
-				(fileFullPath,fileRelativePath,nextFile) ->
-					# Ignore?
-					docpad.filePathIgnored fileFullPath, (err,ignore) ->
-						return nextFile(err)  if err or ignore
-						document = docpad.createDocument(
-							fullPath: fileFullPath
-							relativePath: fileRelativePath
-						)
-						document.load (err) ->
-							return nextFile(err)  if err
+				fileAction: (fileFullPath,fileRelativePath,nextFile) ->
+					document = docpad.createDocument(
+						fullPath: fileFullPath
+						relativePath: fileRelativePath
+					)
+					document.load (err) ->
+						return nextFile(err)  if err
 
-							# Ignored?
-							if document.get('ignored')
-								logger.log 'info', 'Skipped manually ignored document:', document.get('relativePath')
-								return nextFile()
-							else
-								logger.log 'debug', 'Loaded in the document:', document.get('relativePath')
-							
-							# Store Document
-							documents.add(document)
+						# Ignored?
+						if document.get('ignored')
+							logger.log 'info', 'Skipped manually ignored document:', document.get('relativePath')
 							return nextFile()
+						else
+							logger.log 'debug', 'Loaded in the document:', document.get('relativePath')
+						
+						# Store Document
+						documents.add(document)
+						return nextFile()
 				
-				# Dir Action
-				null,
-
 				# Next
-				(err) ->
+				next: (err) ->
 					logger.log 'warn', 'Failed to parse documents', err  if err
 					return tasks.complete(err)
 			)
@@ -1369,13 +1359,18 @@ class DocPad extends EventSystem
 		# Write
 		balUtil.rpdir(
 			# Src Path
-			@config.publicPath,
+			srcPath: @config.publicPath
+
 			# Out Path
-			@config.outPath
+			outPath: @config.outPath
+
 			# Next
-			(err) ->
+			next: (err) ->
 				logger.log 'debug', 'Wrote files'  unless err
 				next?(err)
+
+			# Ignore common patterns
+			ignorePatterns: true
 		)
 
 		# Chain
@@ -1472,6 +1467,12 @@ class DocPad extends EventSystem
 					return fatal(lockError)  if lockError
 					return next?(err)
 		
+		# Check plugin count
+		unless docpad.hasPlugins()
+			logger.log 'warn', """
+				DocPad is currently running without any plugins installed. You probably want to install some: https://github.com/bevry/docpad/wiki/Plugins
+				"""
+
 		# Block loading
 		docpad.block 'loading', (err) ->
 			return fatal(err)  if err
@@ -1619,7 +1620,12 @@ class DocPad extends EventSystem
 
 					# Watch the source directory
 					close()
-					watchrInstance = watchr.watch docpad.config.srcPath, changeHappened, next
+					watchrInstance = watchr.watch(
+						path: docpad.config.srcPath
+						listener: changeHappened
+						next: next
+						ignorePatterns: true
+					)
 		
 		# Unwatch if loading started
 		docpad.when 'loading:started', (err) ->
@@ -1789,13 +1795,13 @@ class DocPad extends EventSystem
 								return next?()  unless document
 
 								# Fetch
-								outPath = document.get('outPath')
+								contentTypeRendered = document.get('contentTypeRendered')
 								url = document.get('url')
 								dynamic = document.get('dynamic')
 								contentRendered = document.get('contentRendered')
 
 								# Send
-								res.contentType(outPath or url)
+								res.contentType(contentTypeRendered)
 								if dynamic
 									templateData = docpad.getTemplateData(req:req)
 									docpad.render document, templateData, (err) ->
@@ -1829,7 +1835,7 @@ class DocPad extends EventSystem
 							serverPort = address.port
 							serverLocation = "http://#{serverHostname}:#{serverPort}/"
 							serverDir = config.outPath
-							logger.log 'info', "DocPad listening to #{serverLocation} with directory #{serverDir}"
+							logger.log 'info', "DocPad listening to #{serverLocation} on directory #{serverDir}"
 						catch err
 							logger.log 'err', "Could not start the web server, chances are the desired port #{config.port} is already in use"
 					
