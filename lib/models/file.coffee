@@ -4,6 +4,7 @@ balUtil = require('bal-util')
 fs = require('fs')
 _ = require('underscore')
 Backbone = require('backbone')
+mime = require('mime')
 
 # Optionals
 coffee = null
@@ -88,6 +89,12 @@ FileModel = BaseModel.extend
 		# The relative base of our source file (no extension)
 		relativeBase: null
 
+		# The MIME content-type for the source document
+		contentType: null
+
+		# The MIME content-type for the out document
+		contentTypeRendered: null
+
 
 		# ---------------------------------
 		# Content variables
@@ -139,7 +146,7 @@ FileModel = BaseModel.extend
 		urls: null  # Array
 
 		# Whether or not we ignore this document (do not render it)
-		ignore: false
+		ignored: false
 
 		# The tags for this document
 		tags: null  # Array
@@ -334,8 +341,8 @@ FileModel = BaseModel.extend
 			@meta.set({date:metaDate})
 
 		# Correct ignore
-		ignore = @meta.get('ignore') or @meta.get('ignored') or @meta.get('skip') or @meta.get('published') is false or @meta.get('draft') is true
-		@meta.set({ignore})  if ignore
+		ignored = @meta.get('ignored') or @meta.get('ignore') or @meta.get('skip') or @meta.get('draft') or (@meta.get('published') is false)
+		@meta.set({ignored:true})  if ignored
 
 		# Handle urls
 		metaUrls = @meta.get('urls')
@@ -437,7 +444,7 @@ FileModel = BaseModel.extend
 		@
 	
 	# Normalize data
-	# Normalize any parsing we ahve done, for if a value updates it may have consequences on another value. This will ensure everything is okay.
+	# Normalize any parsing we have done, as if a value has updates it may have consequences on another value. This will ensure everything is okay.
 	# next(err)
 	normalize: (next) ->
 		# Prepare
@@ -451,7 +458,7 @@ FileModel = BaseModel.extend
 		fullPath or= filename
 		relativePath or= fullPath
 
-		# Names
+		# Paths
 		basename = path.basename(fullPath)
 		filename = basename
 		basename = filename.replace(/\..*/, '')
@@ -487,6 +494,7 @@ FileModel = BaseModel.extend
 			return next?(err)  if err
 			
 			# Fetch
+			fullPath = @get('fullPath')
 			basename = @get('basename')
 			relativeBase = @get('relativeBase')
 			extensionRendered = @get('extensionRendered')
@@ -504,8 +512,14 @@ FileModel = BaseModel.extend
 			outPath = if @outDirPath then path.join(@outDirPath,url) else null
 			@addUrl(url)
 
+			# Content Types
+			contentType = mime.lookup(fullPath)
+			contentTypeRendered = mime.lookup(outPath or fullPath)
+			if contentType is 'application/octet-stream'
+				contentType = contentTypeRendered
+
 			# Apply
-			@set({extensionRendered,filenameRendered,url,slug,name,outPath})
+			@set({extensionRendered,filenameRendered,url,slug,name,outPath,contentTypeRendered})
 
 			# Forward
 			next?()

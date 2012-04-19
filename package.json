@@ -15,16 +15,16 @@
 		"website",
 		"blog"
 	],
-    "author": "Bevry Pty Ltd <us@bevry.me> (http://bevry.me)",
-    "maintainers": [
-        "Benjamin Lupton <b@lupton.cc> (http://balupton.com)"
-    ],
-    "contributors": [
-        "Benjamin Lupton <b@lupton.cc> (http://balupton.com)"
-    ],
-    "bugs": {
-        "url": "https://github.com/bevry/docpad/issues"
-    },
+	"author": "Bevry Pty Ltd <us@bevry.me> (http://bevry.me)",
+	"maintainers": [
+		"Benjamin Lupton <b@lupton.cc> (http://balupton.com)"
+	],
+	"contributors": [
+		"Benjamin Lupton <b@lupton.cc> (http://balupton.com)"
+	],
+	"bugs": {
+		"url": "https://github.com/bevry/docpad/issues"
+	},
 	"repository" : {
 		"type": "git",
 		"url": "http://github.com/bevry/docpad.git"
@@ -33,10 +33,11 @@
 		"node": ">=0.4.0"
 	},
 	"dependencies": {
-		"bal-util": "1.4.x",
+		"bal-util": "1.5.x",
 		"express": "2.5.x",
+		"mime": "1.2.x",
 		"query-engine": "1.1.x",
-		"watchr": "1.0.x",
+		"watchr": "2.0.x",
 		"caterpillar": "1.0.x",
 		"commander": "0.5.x",
 		"growl": "1.4.x",
