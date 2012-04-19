@@ -1,4 +1,4 @@
 #!/usr/bin/env node
-require('coffee-script')
-path = require('path')
-require(path.join(__dirname,'docpad.coffee'))
+require('coffee-script');
+path = require('path');
+require(path.join(__dirname,'docpad.coffee'));
