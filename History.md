@@ -1,5 +1,13 @@
 ## History
 
+- v5.0.4 April 14, 2012
+	- Updated balUtil from 1.4 to 1.5
+		- Fixes some scandir bugs
+	- Updated watchr from 1.0 to 2.0
+		- This should make watching re-generation a lot faster
+	- Added a warning if you have no plugins loaded and are trying to do a generate
+	- Fixed ignored check on documents
+
 - v5.0.0 April 14, 2012
 	- Models are now [Backbone Models](http://documentcloud.github.com/backbone/#Model)
 	- Upgraded [Query-Engine](https://github.com/bevry/query-engine) version from 0.6 to 1.1
