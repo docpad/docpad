@@ -70,7 +70,7 @@ docpad run
 
 This will create your website, watch for changes, and launch the DocPad server. It will ask you if you would like to base your website from an [already existing one](https://github.com/bevry/docpad/wiki/Skeletons "DocPad allows people to share their existing websites as skeletons, to help bootstrap your next website. You can discover a listing of them here.") to started even quicker.
 
-Once it's done, simply go to [http://localhost:9778/](http://localhost:9778/) to view your new website :) or when your website uses a different port, go to the url that `docpad run` mentions
+Once done, simply go to [http://localhost:9778/](http://localhost:9778/) to view your new website :) or when your website uses a different port, go to the url that `docpad run` mentions
 
 
 
