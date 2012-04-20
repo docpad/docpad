@@ -101,7 +101,7 @@ Here are some quick links to help you get started:
 
 ## History
 
-You can discover the history inside the [History.md](https://github.com/bevry/docpad/blob/master/History.md#files) file
+You can discover the version history inside the [History.md](https://github.com/bevry/docpad/blob/master/History.md#files) file
 
 
 
