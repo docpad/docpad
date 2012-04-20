@@ -108,4 +108,4 @@ Licensed under the _[incredibly permissive](http://en.wikipedia.org/wiki/Permiss
 
 ## Thanks
 
-<small>DocPad Loves You!</small>
+<small>DocPad love you!</small>
