@@ -77,8 +77,6 @@ This will create your website, watch for changes, and launch the DocPad server. 
 
 Once done, simply go to [http://localhost:9778/](http://localhost:9778/) to view your new website :) or when your website uses a different port, go to the url that `docpad run` mentions
 
-_Getting errors? [Try troubleshooting](https://github.com/bevry/docpad/wiki/Troubleshooting)_
-
 
 
 ## What next?
@@ -95,6 +93,7 @@ Here are some quick links to help you get started:
 - [Google Group](https://groups.google.com/forum/#!forum/docpad)
 - [IRC](irc://irc.freenode.net/docpad)
 - [Roadmap](https://github.com/bevry/docpad/wiki/Roadmap)
+- [Troubleshooting](https://github.com/bevry/docpad/wiki/Troubleshooting)
 - [Everything else](https://github.com/bevry/docpad/wiki)
 
 
