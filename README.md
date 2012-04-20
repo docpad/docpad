@@ -90,11 +90,11 @@ Here are some quick links to help you get started:
 - [Hosting Guide](https://github.com/bevry/docpad/wiki/Hosting)
 - [Extension Guide](https://github.com/bevry/docpad/wiki/Extending)
 - [Plugins Listing](https://github.com/bevry/docpad/wiki/Plugins)
+- [Troubleshooting](https://github.com/bevry/docpad/wiki/Troubleshooting)
 - [Support Forum](https://groups.google.com/forum/#!forum/docpad)
 - [Bug Tracker](https://github.com/bevry/docpad/issues)
 - [IRC Chat Room](irc://irc.freenode.net/docpad)
 - [Roadmap](https://github.com/bevry/docpad/wiki/Roadmap)
-- [Troubleshooting](https://github.com/bevry/docpad/wiki/Troubleshooting)
 - [Everything else](https://github.com/bevry/docpad/wiki)
 
 
