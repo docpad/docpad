@@ -76,7 +76,7 @@ Once done, simply go to [http://localhost:9778/](http://localhost:9778/) to view
 
 Here are some quick links to help you get started:
 
-- [How it Works](https://github.com/bevry/docpad/wiki/How-it-Works)
+- [How DocPad Works](https://github.com/bevry/docpad/wiki/How-it-Works)
 - [Frequently Asked Questions](https://github.com/bevry/docpad/wiki/FAQ)
 - [Showcase and Examples](https://github.com/bevry/docpad/wiki/Showcase)
 - [Guides and Tutorials](https://github.com/bevry/docpad/wiki/Guides)
