@@ -106,4 +106,6 @@ Licensed under the _[incredibly permissive](http://en.wikipedia.org/wiki/Permiss
 
 ## Thanks
 
-<small>DocPad love you!</small> [![Flattr this project](http://api.flattr.com/button/flattr-badge-large.png)](http://flattr.com/thing/344188/balupton-on-Flattr) 
+<small>Sincerely, thank you. Love from the DocPad Team.</small>
+
+[![Flattr this project](http://api.flattr.com/button/flattr-badge-large.png)](http://flattr.com/thing/344188/balupton-on-Flattr) 
