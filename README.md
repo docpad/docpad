@@ -74,9 +74,9 @@ Once it's done, simply go to [http://localhost:9778/](http://localhost:9778/) to
 
 
 
-## Thanks & Links
+## What next?
 
-DocPad is doing great these days, thanks to people like you! Here are some quick links to help you get started:
+Here are some quick links to help you get started:
 
 - [How it Works](https://github.com/bevry/docpad/wiki/How-it-Works)
 - [Frequently Asked Questions](https://github.com/bevry/docpad/wiki/FAQ)
@@ -101,8 +101,11 @@ You can discover the history inside the [History.md](https://github.com/bevry/do
 
 ## License
 
-Licensed under the [MIT License](http://creativecommons.org/licenses/MIT/)
+Licensed under the _[incredibly permissive](http://en.wikipedia.org/wiki/Permissive_free_software_licence)_ [MIT License](http://creativecommons.org/licenses/MIT/)
 <br/>Copyright &copy; 2012 [Bevry Pty Ltd](http://bevry.me)
 <br/>Copyright &copy; 2011 [Benjamin Lupton](http://balupton.com)
 
-<small>Thanks! DocPad loves you!!!</small>
+
+## Thanks
+
+<small>DocPad Loves You!</small>
