@@ -1,4 +1,4 @@
-# DocPad. Intuitive web development.
+# DocPad. Intuitive web development. [![Build Status](https://secure.travis-ci.org/LuaDist/libexpat.png?branch=master)](http://travis-ci.org/LuaDist/libexpat)
 
 Initially web development was pretty easy, you just wrote a bunch of files and you got your website. These days, it's a lot more complicated than that. Things like databases, synchronisation, legacy frameworks and languages all slow the entire process down into a painful crawl. _It doesn't have to be like that._
 
