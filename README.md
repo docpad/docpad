@@ -29,7 +29,7 @@ At its core DocPad is a language agnostic document management system. This means
 
 ## Benefits over other Static Site Generators
 
-- Language agnostic, able to code your documents in any markup or pre-precessor that you like
+- Truly language agnostic, able to code your documents in any markup or pre-precessor that you like, you can even mix and match them!
     - _[see what markups are already supported](https://github.com/bevry/docpad/wiki/Plugins)_
 - Great for any type of website, not just for blogging
     - _[discover existing websites already built with DocPad](https://github.com/bevry/docpad/wiki/Showcase)_
