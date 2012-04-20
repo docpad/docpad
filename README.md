@@ -8,25 +8,6 @@ At its core DocPad is a language agnostic document management system. This means
 
 
 
-## When would using DocPad be ideal?
-
-- for learning and implementing new languages and web technologies into real-world applications
-	- DocPad's ability to run a potential infinite amount of languages is amazing, and as you are always working with a real website you're never forced to re-implement anything into another system.
-
-- for rapid prototyping of new interfaces which need to facilate changes quickly
-	- The ability to get up and running as quickly as possible with DocPad really helps here, along with its support for pre-precessors you can quickly move about your codebase and rejig things when things need to change - without having to rewrite any architecture.
-
-- for frontend prototypes which will be handed over to the backend developers for implementation
-	- Often to gain layouts, templating, and pre-precessor support we'll have to implement a web framework, a templating engine, and code a custom build script for each of our pre-precessors that we use. This takes a lot of uncessary time, and complicates things during handover to the backend developers who then need to learn the tools that you've used. Using DocPad we abstract all that difficulty and handle it beautifully, allowing you to just focus on the files you want to write, and we'll provide you with the layout engine, templating engine, and pre-precessor support you need. When it comes to handover, the backend developers will have your source files, as well as the compiled files allowing them to use whichever is easiest for them.
-
-- for simple websites like blogs, launch pages, etc
-	- DocPad's static site generation abilities are great for this, and with DocPad's built-in support for dynamic documents we can also cater for the odd search page, enquiry form or twitter steam
-
-- for thick client-side web applications
-	- Combining DocPad's pre-precessor support and static site generation is amazing for developing thick client applications, as you can utilise the latest pre-precessors at any time, allowing you to focus on the problem, instead of how to implement the problem
-
-
-
 ## Benefits over other Static Site Generators
 
 - Language agnostic, able to code your documents in any markup or pre-precessor that you like
@@ -43,6 +24,25 @@ At its core DocPad is a language agnostic document management system. This means
     - _[view our hosting guide](https://github.com/bevry/docpad/wiki/Hosting)_
 - Built in support for dynamic documents (e.g. search pages, signup forms, etc.), so you can code pages that change on each request
     - _documentation coming soon_
+
+
+
+## When would using DocPad be ideal?
+
+- for learning and implementing new languages and web technologies into real-world applications
+	- DocPad's ability to run a potential infinite amount of languages is amazing, and as you are always working with a real website you're never forced to re-implement anything into another system.
+
+- for rapid prototyping of new interfaces which need to facilate changes quickly
+	- The ability to get up and running as quickly as possible with DocPad really helps here, along with its support for pre-precessors you can quickly move about your codebase and rejig things when things need to change - without having to rewrite any architecture.
+
+- for frontend prototypes which will be handed over to the backend developers for implementation
+	- Often to gain layouts, templating, and pre-precessor support we'll have to implement a web framework, a templating engine, and code a custom build script for each of our pre-precessors that we use. This takes a lot of uncessary time, and complicates things during handover to the backend developers who then need to learn the tools that you've used. Using DocPad we abstract all that difficulty and handle it beautifully, allowing you to just focus on the files you want to write, and we'll provide you with the layout engine, templating engine, and pre-precessor support you need. When it comes to handover, the backend developers will have your source files, as well as the compiled files allowing them to use whichever is easiest for them.
+
+- for simple websites like blogs, launch pages, etc
+	- DocPad's static site generation abilities are great for this, and with DocPad's built-in support for dynamic documents we can also cater for the odd search page, enquiry form or twitter steam
+
+- for thick client-side web applications
+	- Combining DocPad's pre-precessor support and static site generation is amazing for developing thick client applications, as you can utilise the latest pre-precessors at any time, allowing you to focus on the problem, instead of how to implement the problem
 
 
 
