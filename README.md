@@ -60,13 +60,17 @@ _Getting errors? [Try troubleshooting](https://github.com/bevry/docpad/wiki/Trou
 
 ## Quick Start
 
+Once you've installed, you can get started with a brand new spunky functional website in a matter of minutes, by just running:
+
 ``` bash
 mkdir my-new-website
 cd my-new-website
 docpad run
 ```
 
-This will create your website, watch for changes, and launch the DocPad server. It will also ask you if you would like to base your website on an [already existing one](https://github.com/bevry/docpad/wiki/Skeletons "DocPad allows people to share their existing websites as skeletons, to help bootstrap your next website. You can discover a listing of them here.") to help you get started even quicker.
+This will create your website, watch for changes, and launch the DocPad server. It will ask you if you would like to base your website from an [already existing one](https://github.com/bevry/docpad/wiki/Skeletons "DocPad allows people to share their existing websites as skeletons, to help bootstrap your next website. You can discover a listing of them here.") to started even quicker.
+
+Once it's done, simply go to [http://localhost:9778/](http://localhost:9778/) to view your new website :) or when your website uses a different port, go to the url that `docpad run` mentions
 
 
 
@@ -83,6 +87,7 @@ DocPad is doing great these days, thanks to people like you! Here are some quick
 - [Plugins Listing](https://github.com/bevry/docpad/wiki/Plugins)
 - [Google Group](https://groups.google.com/forum/#!forum/docpad)
 - [IRC](irc://irc.freenode.net/docpad)
+- [Roadmap](https://github.com/bevry/docpad/wiki/Roadmap)
 - [Everything else](https://github.com/bevry/docpad/wiki)
 
 
