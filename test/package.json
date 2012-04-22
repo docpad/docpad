@@ -2,6 +2,7 @@
 	"name": "docpad-testsite",
 	"version": "0.1.0",
 	"dependencies": {
+		"docpad-plugin-coffee": "latest",
 		"docpad-plugin-eco": "latest"
 	}
 }
