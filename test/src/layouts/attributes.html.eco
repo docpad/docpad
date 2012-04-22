@@ -1,9 +1,0 @@
----
-tags: ['attr']
----
-
-<article>
-	<%-@content%>
-</article>
-
-<%-@require('util').inspect @documentModel.getAttributes()%>

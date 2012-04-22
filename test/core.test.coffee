@@ -11,6 +11,7 @@ expect = chai.expect
 
 # Vars
 port = 9779
+srcPath = "#{__dirname}/src"
 outPath = "#{__dirname}/out"
 outExpectedPath = "#{__dirname}/out-expected"
 baseUrl = "http://localhost:#{port}"
@@ -63,6 +64,7 @@ describe 'core', ->
 									throw err  if err
 									expect(actual.toString()).to.be.equal(expected.toString())
 									done()
+
 				testMarkup(markupFile)  for markupFile in [
 					'.htaccess'
 					'attributes-nolayout.txt'

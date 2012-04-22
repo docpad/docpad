@@ -1,7 +1,0 @@
----
-title: 'Attributes With Layout'
-layout: 'attributes'
-tags: ['attributes','with-layout']
----
-
-<%-@require('util').inspect @documentModel.getAttributes()%>
