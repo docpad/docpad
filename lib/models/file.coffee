@@ -19,7 +19,6 @@ BaseModel = require(path.join __dirname, 'base.coffee')
 # File Model
 
 FileModel = BaseModel.extend
-#class FileModel extends BaseModel
 
 	# ---------------------------------
 	# Properties
@@ -479,8 +478,11 @@ FileModel = BaseModel.extend
 				basename
 		id or= relativeBase
 
+		# Mime type
+		contentType = mime.lookup(fullPath)
+
 		# Apply
-		@set({basename,filename,fullPath,relativePath,id,relativeBase,extensions,extension,extensionRendered})
+		@set({basename,filename,fullPath,relativePath,id,relativeBase,extensions,extension,extensionRendered,contentType})
 
 		# Next
 		next?()
@@ -513,10 +515,10 @@ FileModel = BaseModel.extend
 			@addUrl(url)
 
 			# Content Types
-			contentType = mime.lookup(fullPath)
 			contentTypeRendered = mime.lookup(outPath or fullPath)
 			if contentType is 'application/octet-stream'
 				contentType = contentTypeRendered
+				@set({contentType})
 
 			# Apply
 			@set({extensionRendered,filenameRendered,url,slug,name,outPath,contentTypeRendered})
@@ -540,10 +542,9 @@ FileModel = BaseModel.extend
 		file = @
 		layoutId = @get('layout')
 
-		# No layout id
+		# No layout
 		unless layoutId
-			err = new Error('This document does not have a layout')
-			next?(err)
+			next?(null,null)
 		
 		# Cached layout
 		else if @layout and layoutId is @layout.id
@@ -558,7 +559,7 @@ FileModel = BaseModel.extend
 			if err
 				return next?(err)
 			else unless layout
-				err = new Error "Could not find the layout: #{layoutId}"
+				err = new Error "Could not find the specified layout: #{layoutId}"
 				return next?(err)
 			else
 				file.layout = layout
@@ -652,19 +653,16 @@ FileModel = BaseModel.extend
 		# Prepare render layouts
 		# next(err)
 		renderLayouts = (next) ->
-			# Skip ahead if we don't have a layout
-			return next()  unless file.hasLayout()
+			# Apply rendering without layouts if we are a document
+			if file.type in ['document','partial']
+				file.set(
+					contentRenderedWithoutLayouts: rendering
+				)
 			
 			# Grab the layout
 			file.getLayout (err,layout) ->
-				# Error
+				# Check
 				return next(err)  if err
-
-				# Apply rendering without layouts if we are a document
-				if file.type in ['document','partial']
-					file.set(
-						contentRenderedWithoutLayouts: rendering
-					)
 
 				# Check if we have a layout
 				if layout

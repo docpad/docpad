@@ -1,5 +1,14 @@
 ## History
 
+- v5.0.5 April 14, 2012
+	- Added `.npmignore` file
+	- Added `document.contentType` and `document.contentTypeRendered`
+	- Fixed `document.contentRendered` on files that do not have layouts
+	- Added tests for:
+		- Checking that `ignored: true` documents are properly ignored
+		- That ignored common pattern files/dirs are properly ignored
+		- That attributes are being applied properly
+
 - v5.0.4 April 14, 2012
 	- Updated balUtil from 1.4 to 1.5
 		- Fixes some scandir bugs

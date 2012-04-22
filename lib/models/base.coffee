@@ -8,7 +8,6 @@ EventSystem = balUtil.EventSystem
 
 # Create our BaseModel extended from our Backbone.Model
 BaseModel = Backbone.Model.extend
-#class BaseModel extends Backbone.Model
 
 	# When on is called, add the event with Backbone events if we have a context
 	# if not, add the event with the Node events
