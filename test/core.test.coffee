@@ -53,9 +53,9 @@ describe 'core', ->
 			done()
 
 			describe 'generate', ->
-				testMarkup = (markupName,markupFile) ->
-					describe markupName, ->
-						it "should generate #{markupName} files", (done) ->
+				testMarkup = (markupFile) ->
+					describe markupFile, ->
+						it "should generate #{markupFile} files", (done) ->
 							@timeout(5000)
 							fs.readFile "#{outExpectedPath}/#{markupFile}", (err,expected) ->
 								throw err  if err
@@ -63,15 +63,29 @@ describe 'core', ->
 									throw err  if err
 									expect(actual.toString()).to.be.equal(expected.toString())
 									done()
-				testMarkup(markupName,markupFile)  for own markupName, markupFile of {
-					"html": 'html.html'
-					"coffee-parser": 'coffee-parser.html'
-					'layout (1/2)': 'layout-single.html'
-					'layout (2/2)': 'layout-double.html'
-				}
+				testMarkup(markupFile)  for markupFile in [
+					'.htaccess'
+					'attributes-nolayout.txt'
+					'attributes-withlayout.txt'
+					'.htaccess'
+					'html.html'
+					'coffee-parser.html'
+					'layout-single.html'
+					'layout-double.html'
+				]
 
 			describe 'server', ->
+
+				it 'should ignore "ignored" documents"', (done) ->
+					path.exists "#{outPath}/ignored.html", (exists) ->
+						expect(exists).to.be.false
+						done()
 				
+				it 'should ignore common patterns documents"', (done) ->
+					path.exists "#{outPath}/.svn", (exists) ->
+						expect(exists).to.be.false
+						done()
+
 				it 'should serve generated documents', (done) ->
 					request "#{baseUrl}/html.html", (err,response,actual) ->
 						throw err  if err
