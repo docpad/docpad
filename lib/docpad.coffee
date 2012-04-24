@@ -716,7 +716,7 @@ class DocPad extends EventSystem
 	# Models
 
 	# Instantiate a Partial
-	createPartial: (meta={}) ->
+	createPartial: (meta={},options={}) ->
 		# Prepare
 		docpad = @
 		config =
@@ -737,16 +737,17 @@ class DocPad extends EventSystem
 		return partial
 	
 	# Instantiate a Document
-	createDocument: (data={}) ->
+	createDocument: (data={},options={}) ->
 		# Prepare
 		docpad = @
-		config =
+		options = _.extend(
 			layouts: @layouts
 			logger: @logger
 			outDirPath: @config.outPath
+		,options)
 		
 		# Create and return
-		document = new @DocumentModel(data,config)
+		document = new @DocumentModel(data,options)
 		
 		# Bubble
 		document.on 'render', (args...) ->
@@ -758,15 +759,16 @@ class DocPad extends EventSystem
 		return document
 	
 	# Instantiate a Layout
-	createLayout: (data={}) ->
+	createLayout: (data={},options={}) ->
 		# Prepare
 		docpad = @
-		config =
+		options = _.extend(
 			layouts: @layouts
 			logger: @logger
+		,options)
 
 		# Create and return
-		layout = new @LayoutModel(data,config)
+		layout = new @LayoutModel(data,options)
 		
 		# Bubble
 		layout.on 'render', (args...) ->
@@ -1231,11 +1233,13 @@ class DocPad extends EventSystem
 				ignorePatterns: true
 
 				# File Action
-				fileAction: (fileFullPath,fileRelativePath,nextFile) ->
-					layout = docpad.createLayout(
+				fileAction: (fileFullPath,fileRelativePath,nextFile,fileStat) ->
+					data = 
 						fullPath: fileFullPath
 						relativePath: fileRelativePath
-					)
+					options =
+						stat: fileStat
+					layout = docpad.createLayout(data,options)
 					layout.load (err) ->
 						return nextFile(err)  if err
 						layouts.add(layout)
@@ -1256,11 +1260,13 @@ class DocPad extends EventSystem
 				ignorePatterns: true
 
 				# File Action
-				fileAction: (fileFullPath,fileRelativePath,nextFile) ->
-					document = docpad.createDocument(
+				fileAction: (fileFullPath,fileRelativePath,nextFile,fileStat) ->
+					data = 
 						fullPath: fileFullPath
 						relativePath: fileRelativePath
-					)
+					options =
+						stat: fileStat
+					document = docpad.createDocument(data,options)
 					document.load (err) ->
 						return nextFile(err)  if err
 

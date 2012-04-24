@@ -119,7 +119,7 @@ class FileModel extends Model
 	# Initialize
 	initialize: (data,options) ->
 		# Prepare
-		{@logger,@outDirPath} = options
+		{@logger,@outDirPath,@stat} = options
 
 		# Advanced attributes
 		@set(
@@ -302,6 +302,7 @@ class FileModel extends Model
 		fullPath = @get('fullPath')
 		relativePath = @get('relativePath')
 		id = @get('id')
+		date = @get('date')
 
 		# Adjust
 		fullPath or= filename
@@ -327,11 +328,14 @@ class FileModel extends Model
 				basename
 		id or= relativeBase
 
+		# Date
+		date or= new Date(@stat.mtime)  if @stat
+
 		# Mime type
 		contentType = mime.lookup(fullPath)
 
 		# Apply
-		@set({basename,filename,fullPath,relativePath,id,relativeBase,extensions,extension,contentType})
+		@set({basename,filename,fullPath,relativePath,id,relativeBase,extensions,extension,contentType,date})
 
 		# Next
 		next?()
