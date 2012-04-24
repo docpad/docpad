@@ -161,7 +161,7 @@ class FileModel extends Model
 		path.exists fullPath, (exists) =>
 			# Read the file
 			if exists
-				@readFile(complete)
+				@readFile(fullPath, complete)
 			else
 				@parseData data, (err) =>
 					return next?(err)  if err
@@ -175,25 +175,24 @@ class FileModel extends Model
 	# Read File
 	# Reads in the source file and parses it
 	# next(err)
-	readFile: (next) ->
+	readFile: (fullPath,next) ->
 		# Prepare
 		logger = @logger
 		file = @
 		fullPath = @get('fullPath')
-		relativePath = @get('relativePath')
 
 		# Log
-		logger.log('debug', "Reading the file #{relativePath}")
+		logger.log('debug', "Reading the file #{fullPath}")
 
 		# Async
 		tasks = new balUtil.Group (err) =>
 			if err
-				logger.log('err', "Failed to read the file #{relativePath}")
+				logger.log('err', "Failed to read the file #{fullPath}")
 				return next?(err)
 			else
 				@normalize (err) =>
 					return next?(err)  if err
-					logger.log('debug', "Read the file #{relativePath}")
+					logger.log('debug', "Read the file #{fullPath}")
 					next?()
 		tasks.total = 2
 
@@ -363,6 +362,41 @@ class FileModel extends Model
 
 		# Forward
 		next?()
+		@
+
+	# Write Data
+	writeFile: (fullPath,data,next) ->
+		# Write data
+		balUtil.openFile -> fs.writeFile fullPath, data, (err) ->
+			balUtil.closeFile()
+			return next?(err)
+
+		# Chain
+		@
+
+	# Write the rendered file
+	# next(err)
+	write: (next) ->
+		# Prepare
+		logger = @logger
+		fileOutPath = @get('outPath')
+		content = @get('content') or @get('data')
+		
+		# Log
+		logger.log 'debug', "Writing the file #{fileOutPath}"
+
+		# Write data
+		@writeFile fileOutPath, content, (err) ->
+			# Check
+			return next?(err)  if err
+			
+			# Log
+			logger.log 'debug', "Wrote the file #{fileOutPath}"
+
+			# Next
+			next?()
+		
+		# Chain
 		@
 
 # Export
