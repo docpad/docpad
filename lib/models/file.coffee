@@ -1,7 +1,7 @@
 # Requires
 path = require('path')
-balUtil = require('bal-util')
 fs = require('fs')
+balUtil = require('bal-util')
 _ = require('underscore')
 Backbone = require('backbone')
 mime = require('mime')
@@ -12,13 +12,13 @@ yaml = null
 js2coffee = null
 
 # Base Model
-BaseModel = require(path.join __dirname, 'base.coffee')
+{Model} = require(path.join __dirname, 'base.coffee')
 
 
 # ---------------------------------
 # File Model
 
-FileModel = BaseModel.extend
+class FileModel extends Model
 
 	# ---------------------------------
 	# Properties
@@ -26,21 +26,14 @@ FileModel = BaseModel.extend
 	# The out directory path to put the file
 	outDirPath: null
 
-	# The available layouts in our DocPad instance
-	layouts: null
-
 	# Model Type
 	type: 'file'
 
 	# Logger
 	logger: null
 
-	# Layout
-	layout: null
-
-	# The parsed file meta data (header)
-	# Is a Backbone.Model instance
-	meta: null
+	# Stat Object
+	stat: null
 
 
 	# ---------------------------------
@@ -65,16 +58,8 @@ FileModel = BaseModel.extend
 		# "hello.md.eco" -> ["md","eco"]
 		extensions: null  # Array
 
-		# The final extension used for our rendered file
-		# Takes into accounts layouts
-		# "layout.html", "post.md.eco" -> "html"
-		extensionRendered: null
-
 		# The file's name with the extension
 		filename: null
-
-		# The file's name with the rendered extension
-		filenameRendered: null
 
 		# The full path of our file, only necessary if called by @load
 		fullPath: null
@@ -91,43 +76,22 @@ FileModel = BaseModel.extend
 		# The MIME content-type for the source document
 		contentType: null
 
-		# The MIME content-type for the out document
-		contentTypeRendered: null
-
 
 		# ---------------------------------
 		# Content variables
 
-		# The contents of the file, includes the the meta data (header) and the content (body)
+		# The contents of the file, stored as a Buffer
 		data: null
 
-		# The file meta data (header) in string format before it has been parsed
-		header: null
+		# The encoding of the file
+		encoding: null
 
-		# The parser to use for the file's meta data (header)
-		parser: null
-
-		# The file content (body) before rendering, excludes the meta data (header)
-		body: null
-
-		# The file content (body) during rendering, represents the current state of the content
+		# The contents of the file, stored as a String
 		content: null
-
-		# Have we been rendered yet?
-		rendered: false
-
-		# The rendered content (after it has been wrapped in the layouts)
-		contentRendered: false
-
-		# The rendered content (before being passed through the layouts)
-		contentRenderedWithoutLayouts: null
 
 
 		# ---------------------------------
 		# User set variables
-
-		# Whether or not this file should be re-rendered on each request
-		dynamic: false
 
 		# The title for this document
 		title: null
@@ -147,8 +111,6 @@ FileModel = BaseModel.extend
 		# Whether or not we ignore this document (do not render it)
 		ignored: false
 
-		# The tags for this document
-		tags: null  # Array
 
 
 	# ---------------------------------
@@ -157,18 +119,16 @@ FileModel = BaseModel.extend
 	# Initialize
 	initialize: (data,options) ->
 		# Prepare
-		{@layouts,@logger,@outDirPath,meta} = options
-
-		# Apply meta
-		@meta = new Backbone.Model()
-		@meta.set(meta)  if meta
+		{@logger,@outDirPath} = options
 
 		# Advanced attributes
 		@set(
 			extensions: []
 			urls: []
-			tags: []
 		)
+
+		# Super
+		super
 
 	# Get Attributes
 	getAttributes: ->
@@ -178,14 +138,8 @@ FileModel = BaseModel.extend
 	getMeta: ->
 		return @meta
 	
-	# To JSON
-	toJSON: ->
-		data = Backbone.Model::toJSON.call(@)
-		data.meta = @getMeta().toJSON()
-		return data
-
 	# Load
-	# If the @fullPath exists, load the file
+	# If the fullPath exists, load the file
 	# If it doesn't, then parse and normalize the file
 	load: (next) ->
 		# Prepare
@@ -207,9 +161,9 @@ FileModel = BaseModel.extend
 		path.exists fullPath, (exists) =>
 			# Read the file
 			if exists
-				@read(complete)
+				@readFile(complete)
 			else
-				@parse data, (err) =>
+				@parseData data, (err) =>
 					return next?(err)  if err
 					@normalize (err) =>
 						return next?(err)  if err
@@ -218,48 +172,46 @@ FileModel = BaseModel.extend
 		# Chain
 		@
 
-	# Read
+	# Read File
 	# Reads in the source file and parses it
 	# next(err)
-	read: (next) ->
+	readFile: (next) ->
 		# Prepare
 		logger = @logger
 		file = @
-		date = @get('date')
 		fullPath = @get('fullPath')
+		relativePath = @get('relativePath')
 
 		# Log
-		logger.log('debug', "Reading the file #{@relativePath}")
+		logger.log('debug', "Reading the file #{relativePath}")
 
 		# Async
 		tasks = new balUtil.Group (err) =>
 			if err
-				logger.log('err', "Failed to read the file #{@relativePath}")
+				logger.log('err', "Failed to read the file #{relativePath}")
 				return next?(err)
 			else
 				@normalize (err) =>
 					return next?(err)  if err
-					logger.log('debug', "Read the file #{@relativePath}")
+					logger.log('debug', "Read the file #{relativePath}")
 					next?()
 		tasks.total = 2
 
 		# Stat the file
-		if date
+		if file.stat
 			tasks.complete()
 		else
 			balUtil.openFile -> fs.stat fullPath, (err,fileStat) ->
 				balUtil.closeFile()
 				return next?(err)  if err
-				unless date
-					date = new Date(fileStat.ctime)
-					file.set({date})
+				file.stat = fileStat
 				tasks.complete()
 
 		# Read the file
 		balUtil.openFile -> fs.readFile fullPath, (err,data) ->
 			balUtil.closeFile()
 			return next?(err)  if err
-			file.parse(data.toString(), tasks.completer())
+			file.parseData(data, tasks.completer())
 		
 		# Chain
 		@
@@ -267,91 +219,54 @@ FileModel = BaseModel.extend
 	# Parse data
 	# Parses some data, and loads the meta data and content from it
 	# next(err)
-	parse: (fileData,next) ->
-		# Prepare
-		data = (fileData or '').replace(/\r\n?/gm,'\n').replace(/\t/g,'    ')
+	parseData: (data,next) ->
+		# Wipe everything
+		backup = @toJSON()
+		@meta.clear()
+		@clear()
+		encoding = 'utf8'
 
-		# Reset
-		@meta = new Backbone.Model()
-		@layout = null
+		# Reset the file properties back to their originals
 		@set(
-			data: fileData
-			header: null
-			parser: null
-			body: null
-			content: null
-			rendered: false
-			contentRendered: null
-			contentRenderedWithoutLayouts: null
-			extensionRendered: null
-			filenameRendered: null
+			data: data
+			basename: backup.basename
+			extension: backup.extension
+			extensions: backup.extensions
+			filename: backup.filename
+			fullPath: backup.fullPath
+			outPath: backup.outPath
+			relativePath: backup.relativePath
+			relativeBase: backup.relativeBase
+			contentType: backup.contentType
+			urls: []
 		)
-	
-		# Meta Data
-		match = /^\s*([\-\#][\-\#][\-\#]+) ?(\w*)\s*/.exec(data)
-		if match
-			# Positions
-			seperator = match[1]
-			a = match[0].length
-			b = data.indexOf("\n#{seperator}",a)+1
-			c = b+3
 
-			# Parts
-			fullPath = @get('fullPath')
-			header = data.substring(a,b)
-			body = data.substring(c)
-			parser = match[2] or 'yaml'
-
-			# Language
-			try
-				switch parser
-					when 'coffee', 'cson'
-						coffee = require('coffee-script')  unless coffee
-						meta = coffee.eval(header, {filename:fullPath})
-						@meta.set(meta)
-					
-					when 'yaml'
-						yaml = require('yaml')  unless yaml
-						meta = yaml.eval(header)
-						@meta.set(meta)
-					
-					else
-						err = new Error("Unknown meta parser [#{parser}]")
-						return next?(err)
-			catch err
-				return next?(err)
+		# Extract content from data
+		if data instanceof Buffer
+			contentStartBinary = data.toString('binary',0,8)
+			contentStartUTF8 = data.toString('utf8',0,8)
+			contentStartASCII = data.toString('ascii',0,8)
+			if contentStartBinary isnt contentStartUTF8
+				encoding = 'binary'
+				content = ''
+			else if contentStartUTF8 isnt contentStartASCII
+				encoding = 'utf8'
+				content = data.toString('utf8')
+			else
+				encoding = 'ascii'
+				content = data.toString('ascii')
+			
+		else if typeof data is 'string'
+			content = data
 		else
-			body = data
-		
-		# Update meta data
-		body = body.replace(/^\n+/,'')
-		@set(
-			header: header
-			body: body
-			parser: parser
-			content: body
-			name: @get('name') or @get('title') or @get('basename')
-		)
-	
-		# Correct data format
-		metaDate = @meta.get('date')
-		if metaDate
-			metaDate = new Date(metaDate)
-			@meta.set({date:metaDate})
+			content = ''
 
-		# Correct ignore
-		ignored = @meta.get('ignored') or @meta.get('ignore') or @meta.get('skip') or @meta.get('draft') or (@meta.get('published') is false)
-		@meta.set({ignored:true})  if ignored
+		# Trim the content
+		content = content.replace(/\r\n?/gm,'\n').replace(/\t/g,'    ')
 
-		# Handle urls
-		metaUrls = @meta.get('urls')
-		metaUrl = @meta.get('url')
-		@addUrl(metaUrls)  if metaUrls
-		@addUrl(metaUrl)   if metaUrl
+		# Apply
+		@set({content,encoding})
 
-		# Apply meta to us
-		@set(@meta.toJSON())
-		
 		# Next
 		next?()
 		@
@@ -377,70 +292,6 @@ FileModel = BaseModel.extend
 		# Chain
 		@
 
-	# Write the rendered file
-	# next(err)
-	writeRendered: (next) ->
-		# Prepare
-		fileOutPath = @get('outPath')
-		contentRendered = @get('contentRendered')
-		logger = @logger
-		
-		# Log
-		logger.log 'debug', "Writing the rendered file #{fileOutPath}"
-
-		# Write data
-		balUtil.openFile -> fs.writeFile fileOutPath, contentRendered, (err) ->
-			balUtil.closeFile()
-			return next?(err)  if err
-			
-			# Log
-			logger.log 'debug', "Wrote the rendered file #{fileOutPath}"
-
-			# Next
-			next?()
-		
-		# Chain
-		@
-
-	
-	# Write the file
-	# next(err)
-	write: (next) ->
-		# Prepare
-		logger = @logger
-		js2coffee = require(path.join 'js2coffee', 'lib', 'js2coffee.coffee')  unless js2coffee
-		
-		# Fetch
-		fullPath = @get('fullPath')
-		data = @get('data')
-		body = @get('body')
-		parser = @get('parser')
-
-		# Log
-		logger.log 'debug', "Writing the file #{filePath}"
-
-		# Adjust
-		header = 'var a = '+JSON.stringify(@meta.toJSON())
-		header = js2coffee.build(header).replace(/a =\s+|^  /mg,'')
-		body = body.replace(/^\s+/,'')
-		data = "### #{parser}\n#{header}\n###\n\n#{body}"
-
-		# Apply
-		@set({header,body,data})
-
-		# Write data
-		balUtil.openFile -> fs.writeFile fullPath, data, (err) ->
-			balUtil.closeFile()
-			return next?(err)  if err
-			
-			# Log
-			logger.log 'info', "Wrote the file #{fullPath}"
-
-			# Next
-			next?()
-		
-		# Chain
-		@
 	
 	# Normalize data
 	# Normalize any parsing we have done, as if a value has updates it may have consequences on another value. This will ensure everything is okay.
@@ -466,7 +317,6 @@ FileModel = BaseModel.extend
 		extensions = filename.split(/\./g)
 		extensions.shift()
 		extension = extensions[extensions.length-1]
-		extensionRendered = extensions[0]
 
 		# Paths
 		fullDirPath = path.dirname(fullPath) or ''
@@ -482,7 +332,7 @@ FileModel = BaseModel.extend
 		contentType = mime.lookup(fullPath)
 
 		# Apply
-		@set({basename,filename,fullPath,relativePath,id,relativeBase,extensions,extension,extensionRendered,contentType})
+		@set({basename,filename,fullPath,relativePath,id,relativeBase,extensions,extension,contentType})
 
 		# Next
 		next?()
@@ -492,252 +342,27 @@ FileModel = BaseModel.extend
 	# Put our data into perspective of the bigger picture. For instance, generate the url for it's rendered equivalant.
 	# next(err)
 	contextualize: (next) ->
-		@getEve (err,eve) =>
-			return next?(err)  if err
-			
-			# Fetch
-			fullPath = @get('fullPath')
-			basename = @get('basename')
-			relativeBase = @get('relativeBase')
-			extensionRendered = @get('extensionRendered')
-			filenameRendered = @get('filenameRendered')
-			url = @get('url')
-			name = @get('name')
-			slug = @get('slug')
-
-			# Adjust
-			extensionRendered = eve.get('extensionRendered')  if eve
-			filenameRendered = "#{basename}.#{extensionRendered}"
-			url or= "/#{relativeBase}.#{extensionRendered}"
-			slug or= balUtil.generateSlugSync(relativeBase)
-			name or= filenameRendered
-			outPath = if @outDirPath then path.join(@outDirPath,url) else null
-			@addUrl(url)
-
-			# Content Types
-			contentTypeRendered = mime.lookup(outPath or fullPath)
-			if contentType is 'application/octet-stream'
-				contentType = contentTypeRendered
-				@set({contentType})
-
-			# Apply
-			@set({extensionRendered,filenameRendered,url,slug,name,outPath,contentTypeRendered})
-
-			# Forward
-			next?()
-		
-		# Chain
-		@
-
-	# Has Layout
-	# Checks if the file has a layout
-	hasLayout: ->
-		return @get('layout')?
-	
-	# Get Layout
-	# The the layout object that this file references (if any)
-	# next(err,layout)
-	getLayout: (next) ->
-		# Prepare
-		file = @
-		layoutId = @get('layout')
-
-		# No layout
-		unless layoutId
-			next?(null,null)
-		
-		# Cached layout
-		else if @layout and layoutId is @layout.id
-			# Already got it
-			next?(null,@layout)
-		
-		# Uncached layout
-		else
-			# Find parent
-			layout = @layouts.findOne {id:layoutId}
-			# Check
-			if err
-				return next?(err)
-			else unless layout
-				err = new Error "Could not find the specified layout: #{layoutId}"
-				return next?(err)
-			else
-				file.layout = layout
-				return next?(null,layout)
-
-		# Chain
-		@
-	
-	# Get Eve
-	# Get the most ancestoral layout we have (the very top one)
-	# next(err,layout)
-	getEve: (next) ->
-		if @hasLayout()
-			@getLayout (err,layout) ->
-				if err
-					return next?(err)
-				else
-					layout.getEve(next)
-		else
-			next?()
-		@
-	
-	# Render
-	# Render this file
-	# next(err,result)
-	render: (templateData,next) ->
-		# Prepare
-		file = @
-		logger = @logger
-		rendering = null
-
 		# Fetch
-		relativePath = @get('relativePath')
-		body = @get('body')
-		extensions = @get('extensions')
-		extensionsReversed = []
-		
-		# Reverse extensions
-		for extension in extensions
-			extensionsReversed.unshift(extension)
+		relativeBase = @get('relativeBase')
+		extension = @get('extension')
+		filename = @get('filename')
+		url = @meta.get('url') or null
+		slug = @meta.get('slug') or null
+		name = @meta.get('name') or null
+		outPath = @meta.get('outPath') or null
 
+		# Adjust
+		url or= "/#{relativeBase}.#{extension}"
+		slug or= balUtil.generateSlugSync(relativeBase)
+		name or= filename
+		outPath = if @outDirPath then path.join(@outDirPath,url) else null
+		@addUrl(url)
 
-		# Log
-		logger.log 'debug', "Rendering the file #{relativePath}"
+		# Apply
+		@set({url,slug,name,outPath})
 
-		# Prepare reset
-		reset = ->
-			file.set(
-				rendered: false
-				content: body
-				contentRendered: body
-				contentRenderedWithoutLayouts: body
-			)
-			rendering = body
-
-		# Reset everything
-		reset()
-
-		# Prepare complete
-		finish = (err) ->
-			# Apply rendering if we are a document
-			if file.type in ['document','partial']
-				file.set(
-					content: body
-					contentRendered: rendering
-					rendered: true
-				)
-
-			# Error
-			return next(err)  if err
-			
-			# Log
-			logger.log 'debug', 'Rendering completed for', file.get('relativePath')
-			
-			# Success
-			return next(null,rendering)
-		
-
-		# Render plugins
-		# next(err)
-		renderPlugins = (eventData,next) =>
-			# Render through plugins
-			file.emitSync eventData.name, eventData, (err) ->
-				# Error?
-				if err
-					logger.log 'warn', 'Something went wrong while rendering:', file.get('relativePath')
-					return next(err)
-				# Forward
-				return next(err)
-
-		# Prepare render layouts
-		# next(err)
-		renderLayouts = (next) ->
-			# Apply rendering without layouts if we are a document
-			if file.type in ['document','partial']
-				file.set(
-					contentRenderedWithoutLayouts: rendering
-				)
-			
-			# Grab the layout
-			file.getLayout (err,layout) ->
-				# Check
-				return next(err)  if err
-
-				# Check if we have a layout
-				if layout
-					# Assign the current rendering to the templateData.content
-					templateData.content = rendering
-
-					# Render the layout with the templateData
-					layout.render templateData, (err,result) ->
-						return next(err)  if err
-						rendering = result
-						return next()
-				
-				# We don't have a layout, nothing to do here
-				else
-					return next()
-
-		# Render the document
-		# next(err)
-		renderDocument = (next) ->
-			# Prepare event data
-			eventData =
-				name: 'renderDocument'
-				extension: extensions[0]
-				templateData: templateData
-				file: file
-				content: rendering
-
-			# Render via plugins
-			renderPlugins eventData, (err) ->
-				return next(err)  if err
-				rendering = eventData.content
-				return next()
-
-		# Render extensions
-		# next(err)
-		renderExtensions = (next) ->
-			# If we only have one extension, then skip ahead to rendering layouts
-			return next()  if extensions.length <= 1
-
-			# Prepare the tasks
-			tasks = new balUtil.Group(next)
-
-			# Cycle through all the extension groups
-			_.each extensionsReversed[1..], (extension,index) ->
-				# Render through the plugins
-				tasks.push (complete) ->
-					# Prepare
-					eventData = 
-						name: 'render'
-						inExtension: extensionsReversed[index]
-						outExtension: extension
-						templateData: templateData
-						file: file
-						content: rendering
-
-					# Render
-					renderPlugins eventData, (err) ->
-						return complete(err)  if err
-						rendering = eventData.content
-						return complete()
-
-			# Run tasks synchronously
-			return tasks.sync()
-
-		# Render the extensions
-		renderExtensions (err) ->
-			return finish(err)  if err
-			# Then the document
-			renderDocument (err) ->
-				return finish(err)  if err
-				# Then the layouts
-				renderLayouts (err) ->
-					return finish(err)
-
-		# Chain
+		# Forward
+		next?()
 		@
 
 # Export

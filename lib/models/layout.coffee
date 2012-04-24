@@ -1,9 +1,9 @@
 # Requires
 path = require('path')
-FileModel = require(path.join __dirname, 'file.coffee')
+DocumentModel = require(path.join __dirname, 'document.coffee')
 
 # Layout Model
-LayoutModel = FileModel.extend
+LayoutModel = class extends DocumentModel
 	
 	# Model Type
 	type: 'layout'

@@ -1,9 +1,9 @@
 # Requires
 path = require('path')
-FileModel = require(path.join __dirname, 'file.coffee')
+DocumentModel = require(path.join __dirname, 'document.coffee')
 
 # Partial Model
-PartialModel = FileModel.extend
+PartialModel = class extends DocumentModel
 	
 	# Model Type
 	type: 'partial'
