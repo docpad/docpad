@@ -194,8 +194,8 @@ class DocumentModel extends FileModel
 		logger.log 'debug', "Writing the rendered file #{fileOutPath}"
 
 		# Write data
-		balUtil.openFile -> fs.writeFile fileOutPath, contentRendered, (err) ->
-			balUtil.closeFile()
+		@writeFile fileOutPath, contentRendered, (err) ->
+			# Check
 			return next?(err)  if err
 			
 			# Log
@@ -209,36 +209,36 @@ class DocumentModel extends FileModel
 
 	# Write the file
 	# next(err)
-	write: (next) ->
+	writeSource: (next) ->
 		# Prepare
 		logger = @logger
 		js2coffee = require(path.join 'js2coffee', 'lib', 'js2coffee.coffee')  unless js2coffee
 		
 		# Fetch
 		fullPath = @get('fullPath')
-		data = @get('data')
+		content = @get('content')
 		body = @get('body')
 		parser = @get('parser')
 
 		# Log
-		logger.log 'debug', "Writing the file #{filePath}"
+		logger.log 'debug', "Writing the source file #{fullPath}"
 
 		# Adjust
 		header = 'var a = '+JSON.stringify(@meta.toJSON())
 		header = js2coffee.build(header).replace(/a =\s+|^  /mg,'')
 		body = body.replace(/^\s+/,'')
-		data = "### #{parser}\n#{header}\n###\n\n#{body}"
+		content = "### #{parser}\n#{header}\n###\n\n#{body}"
 
 		# Apply
-		@set({header,body,data})
+		@set({header,body,content})
 
-		# Write data
-		balUtil.openFile -> fs.writeFile fullPath, data, (err) ->
-			balUtil.closeFile()
+		# Write content
+		@writeFile fileOutPath, content, (err) ->
+			# Check
 			return next?(err)  if err
 			
 			# Log
-			logger.log 'info', "Wrote the file #{fullPath}"
+			logger.log 'info', "Wrote the source file #{fullPath}"
 
 			# Next
 			next?()

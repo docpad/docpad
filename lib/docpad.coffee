@@ -1412,8 +1412,12 @@ class DocPad extends EventSystem
 
 				# Write document
 				logger.log 'debug', "Writing file #{relativePath}, #{url}"
-				document.writeRendered (err) ->
-					tasks.complete(err)
+				if document.get('encoding') is 'binary'
+					document.write (err) ->
+						tasks.complete(err)
+				else
+					document.writeRendered (err) ->
+						tasks.complete(err)
 
 		# Chain
 		@
