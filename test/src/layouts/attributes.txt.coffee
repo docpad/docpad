@@ -8,12 +8,13 @@ article =>
 
 aside =>
 	# Fetch data
-	data = @documentModel.getAttributes()
+	attrs = @documentModel.getAttributes()
 
 	# Delete environment specific variables
-	delete data.date
-	delete data.fullPath
-	delete data.outPath
+	delete attrs.date
+	delete attrs.fullPath
+	delete attrs.outPath
+	delete attrs.data
 
 	# Output data
-	text @require('util').inspect(data)
+	text @require('util').inspect(attrs)
