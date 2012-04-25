@@ -46,7 +46,7 @@ class FileModel extends Model
 
 		# The unique document identifier
 		id: null
-		
+
 		# The file's name without the extension
 		basename: null
 
@@ -137,7 +137,7 @@ class FileModel extends Model
 	# Get Meta
 	getMeta: ->
 		return @meta
-	
+
 	# Load
 	# If the fullPath exists, load the file
 	# If it doesn't, then parse and normalize the file
@@ -150,7 +150,7 @@ class FileModel extends Model
 
 		# Log
 		logger.log('debug', "Loading the file #{filePath}")
-		
+
 		# Handler
 		complete = (err) ->
 			return next?(err)  if err
@@ -168,7 +168,7 @@ class FileModel extends Model
 					@normalize (err) =>
 						return next?(err)  if err
 						complete()
-		
+
 		# Chain
 		@
 
@@ -211,10 +211,10 @@ class FileModel extends Model
 			balUtil.closeFile()
 			return next?(err)  if err
 			file.parseData(data, tasks.completer())
-		
+
 		# Chain
 		@
-	
+
 	# Parse data
 	# Parses some data, and loads the meta data and content from it
 	# next(err)
@@ -242,9 +242,9 @@ class FileModel extends Model
 
 		# Extract content from data
 		if data instanceof Buffer
-			contentStartBinary = data.toString('binary',0,8)
-			contentStartUTF8 = data.toString('utf8',0,8)
-			contentStartASCII = data.toString('ascii',0,8)
+			contentStartBinary = data.toString('binary',0,32)
+			contentStartUTF8 = data.toString('utf8',0,32)
+			contentStartASCII = data.toString('ascii',0,32)
 			if contentStartBinary isnt contentStartUTF8
 				encoding = 'binary'
 				content = ''
@@ -254,7 +254,7 @@ class FileModel extends Model
 			else
 				encoding = 'ascii'
 				content = data.toString('ascii')
-			
+
 		else if typeof data is 'string'
 			content = data
 		else
@@ -269,7 +269,7 @@ class FileModel extends Model
 		# Next
 		next?()
 		@
-	
+
 	# Add a url
 	# Allows our file to support multiple urls
 	addUrl: (url) ->
@@ -277,7 +277,7 @@ class FileModel extends Model
 		if url instanceof Array
 			for newUrl in url
 				@addUrl(newUrl)
-		
+
 		# Single Url
 		else if url
 			found = false
@@ -287,11 +287,11 @@ class FileModel extends Model
 					found = true
 					break
 			urls.push(url)  if not found
-		
+
 		# Chain
 		@
 
-	
+
 	# Normalize data
 	# Normalize any parsing we have done, as if a value has updates it may have consequences on another value. This will ensure everything is okay.
 	# next(err)
@@ -340,7 +340,7 @@ class FileModel extends Model
 		# Next
 		next?()
 		@
-	
+
 	# Contextualize data
 	# Put our data into perspective of the bigger picture. For instance, generate the url for it's rendered equivalant.
 	# next(err)
@@ -370,6 +370,9 @@ class FileModel extends Model
 
 	# Write Data
 	writeFile: (fullPath,data,next) ->
+		# Prepare
+		file = @
+
 		# Write data
 		balUtil.openFile -> fs.writeFile fullPath, data, (err) ->
 			balUtil.closeFile()
@@ -385,7 +388,7 @@ class FileModel extends Model
 		logger = @logger
 		fileOutPath = @get('outPath')
 		content = @get('content') or @get('data')
-		
+
 		# Log
 		logger.log 'debug', "Writing the file #{fileOutPath}"
 
@@ -393,13 +396,13 @@ class FileModel extends Model
 		@writeFile fileOutPath, content, (err) ->
 			# Check
 			return next?(err)  if err
-			
+
 			# Log
 			logger.log 'debug', "Wrote the file #{fileOutPath}"
 
 			# Next
 			next?()
-		
+
 		# Chain
 		@
 

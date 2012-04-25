@@ -1,5 +1,11 @@
 ## History
 
+- v5.1.1 April 25, 2012
+	- Fixed EventEmitter warning
+	- Binary files can now be placed within the `src/documents` directory
+	- Removed eyes devDependency
+	- Models now use CoffeeScript's class extend, instead of Backbone's extend
+
 - v5.0.5 April 14, 2012
 	- Added `.npmignore` file
 	- Added `document.contentType` and `document.contentTypeRendered`
@@ -145,20 +151,20 @@
 		- #97 - Watching is unusable when combined with hidden files from IDEs and SVN
 		- #57 - Offline Setup: Skeletons needs to be cached for future offline installs
 		- #55 - As a User, I want support for Moustache, so that I can use my preferred markup
-		
+
 
 - v3.1 Unreleased
 	- Added an interactive cli
 	- Closes
 		- #125 - As a User, I want an Interactive CLI, so that I can do more with DocPad's CLI
 
-		
+
 
 - v3.0 Unreleased
 	- Added a new event system
 	- Closes
 		- #60 - DocPad needs a better event system
-		
+
 
 - v2.6 January 2, 2012
 	- Transferred DocPad's ownership from [Benjamin Lupton](http://balupton.com) to [Bevry](http://bevry.me) (Benjamin's company)
@@ -358,7 +364,7 @@
 
 - v0.7 May 20, 2011
 	- Now supports multiple docpad instances
-	
+
 - v0.6 May 12, 2011
 	- Moved to CoffeeScript
 	- Removed highlight.js (should be a plugin or client-side feature)
