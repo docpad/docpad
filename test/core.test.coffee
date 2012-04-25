@@ -62,7 +62,11 @@ describe 'core', ->
 								throw err  if err
 								fs.readFile "#{outPath}/#{markupFile}", (err,actual) ->
 									throw err  if err
-									expect(actual.toString()).to.be.equal(expected.toString())
+									# trim whitespace, to avoid util conflicts between node versions and other oddities
+									actualString = actual.toString().replace(/\s+/mg,'')
+									expectedString = expected.toString().replace(/\s+/mg,'')
+									# check equality
+									expect(actualString).to.be.equal(expectedString)
 									done()
 
 				testMarkup(markupFile)  for markupFile in [
