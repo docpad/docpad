@@ -2,7 +2,6 @@
 path = require('path')
 _ = underscore = require('underscore')
 balUtil = require('bal-util')
-eyes = require('eyes')
 chai = require('chai')
 expect = chai.expect
 assert = chai.assert
@@ -16,7 +15,6 @@ pluginPort = 3183
 # Tester
 class Tester
 	# Requires
-	eyes: eyes
 	chai: chai
 	expect: expect
 	assert: assert
@@ -241,7 +239,6 @@ module.exports = {
 	ServerTester,
 	underscore,
 	balUtil,
-	eyes,
 	chai,
 	expect,
 	assert,
