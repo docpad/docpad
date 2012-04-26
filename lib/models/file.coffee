@@ -215,6 +215,25 @@ class FileModel extends Model
 		# Chain
 		@
 
+	# Get the encoding of a buffer
+	getEncoding: (buffer) ->
+		# Prepare
+		contentStartBinary = buffer.toString('binary',0,24)
+		contentStartUTF8 = buffer.toString('utf8',0,24)
+		encoding = 'utf8'
+
+		# Detect encoding
+		for i in [0...contentStartUTF8.length]
+			charCode = contentStartUTF8.charCodeAt(i)
+			if charCode is 65533 or charCode <= 8
+				# 8 and below are control characters (e.g. backspace, null, eof, etc.)
+				# 65533 is the unknown character
+				encoding = 'binary'
+				break
+
+		# Return encoding
+		return encoding
+
 	# Parse data
 	# Parses some data, and loads the meta data and content from it
 	# next(err)
@@ -242,19 +261,11 @@ class FileModel extends Model
 
 		# Extract content from data
 		if data instanceof Buffer
-			contentStartBinary = data.toString('binary',0,32)
-			contentStartUTF8 = data.toString('utf8',0,32)
-			contentStartASCII = data.toString('ascii',0,32)
-			if contentStartBinary isnt contentStartUTF8
-				encoding = 'binary'
+			encoding = @getEncoding(data)
+			if encoding is 'binary'
 				content = ''
-			else if contentStartUTF8 isnt contentStartASCII
-				encoding = 'utf8'
-				content = data.toString('utf8')
 			else
-				encoding = 'ascii'
-				content = data.toString('ascii')
-
+				content = data.toString(encoding)
 		else if typeof data is 'string'
 			content = data
 		else
@@ -316,7 +327,7 @@ class FileModel extends Model
 		# Extension
 		extensions = filename.split(/\./g)
 		extensions.shift()
-		extension = extensions[extensions.length-1]
+		extension = if extensions.length then extensions[extensions.length-1] else null
 
 		# Paths
 		fullDirPath = path.dirname(fullPath) or ''
@@ -355,7 +366,7 @@ class FileModel extends Model
 		outPath = @meta.get('outPath') or null
 
 		# Adjust
-		url or= "/#{relativeBase}.#{extension}"
+		url or= if extension then "/#{relativeBase}.#{extension}" else "/#{relativeBase}"
 		slug or= balUtil.generateSlugSync(relativeBase)
 		name or= filename
 		outPath = if @outDirPath then path.join(@outDirPath,url) else null

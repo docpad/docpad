@@ -1,5 +1,9 @@
 ## History
 
+- v5.1.2 April 26, 2012
+	- Fixed some UTF8 encoded files from being detected as binary
+	- Fixed documents with no extension being outputted with an undefined extension
+
 - v5.1.1 April 25, 2012
 	- Fixed EventEmitter warning
 	- Binary files can now be placed within the `src/documents` directory
