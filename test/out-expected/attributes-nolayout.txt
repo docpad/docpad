@@ -7,7 +7,7 @@
   contentType: 'text/plain',
   urls: [ '/attributes-nolayout.coffee', '/attributes-nolayout.txt' ],
   content: '# Fetch data\nattrs = @documentModel.getAttributes()\n\n# Delete environment specific variables\ndelete attrs.date\ndelete attrs.fullPath\ndelete attrs.outPath\ndelete attrs.data\n\n# Output data\ntext @require(\'util\').inspect(attrs)',
-  encoding: 'ascii',
+  encoding: 'utf8',
   header: 'title: \'Attributes No Layout\'\ntags: [\'attributes\',\'with-layout\']\n',
   body: '# Fetch data\nattrs = @documentModel.getAttributes()\n\n# Delete environment specific variables\ndelete attrs.date\ndelete attrs.fullPath\ndelete attrs.outPath\ndelete attrs.data\n\n# Output data\ntext @require(\'util\').inspect(attrs)',
   parser: 'yaml',
@@ -23,6 +23,6 @@
   rendered: false,
   contentRendered: '# Fetch data\nattrs = @documentModel.getAttributes()\n\n# Delete environment specific variables\ndelete attrs.date\ndelete attrs.fullPath\ndelete attrs.outPath\ndelete attrs.data\n\n# Output data\ntext @require(\'util\').inspect(attrs)',
   contentRenderedWithoutLayouts: '# Fetch data\nattrs = @documentModel.getAttributes()\n\n# Delete environment specific variables\ndelete attrs.date\ndelete attrs.fullPath\ndelete attrs.outPath\ndelete attrs.data\n\n# Output data\ntext @require(\'util\').inspect(attrs)',
-  meta: 
+  meta:
    { title: 'Attributes No Layout',
      tags: [ 'attributes', 'with-layout' ] } }

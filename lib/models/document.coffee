@@ -9,7 +9,7 @@ FileModel = require(path.join __dirname, 'file.coffee')
 
 # Document Model
 class DocumentModel extends FileModel
-	
+
 	# Model Type
 	type: 'document'
 
@@ -94,7 +94,7 @@ class DocumentModel extends FileModel
 	# Get Meta
 	getMeta: ->
 		return @meta
-	
+
 	# To JSON
 	toJSON: ->
 		data = super
@@ -135,12 +135,12 @@ class DocumentModel extends FileModel
 							coffee = require('coffee-script')  unless coffee
 							meta = coffee.eval(header, {filename:fullPath})
 							@meta.set(meta)
-						
+
 						when 'yaml'
 							yaml = require('yaml')  unless yaml
 							meta = yaml.eval(header)
 							@meta.set(meta)
-						
+
 						else
 							err = new Error("Unknown meta parser [#{parser}]")
 							return next?(err)
@@ -148,7 +148,7 @@ class DocumentModel extends FileModel
 					return next?(err)
 			else
 				body = content
-			
+
 			# Update meta data
 			body = body.replace(/^\n+/,'')
 			@set(
@@ -158,7 +158,7 @@ class DocumentModel extends FileModel
 				content: body
 				name: @get('name') or @get('title') or @get('basename')
 			)
-		
+
 			# Correct data format
 			metaDate = @meta.get('date')
 			if metaDate
@@ -177,7 +177,7 @@ class DocumentModel extends FileModel
 
 			# Apply meta to us
 			@set(@meta.toJSON())
-			
+
 			# Next
 			next?()
 		@
@@ -189,7 +189,7 @@ class DocumentModel extends FileModel
 		fileOutPath = @get('outPath')
 		contentRendered = @get('contentRendered')
 		logger = @logger
-		
+
 		# Log
 		logger.log 'debug', "Writing the rendered file #{fileOutPath}"
 
@@ -197,13 +197,13 @@ class DocumentModel extends FileModel
 		@writeFile fileOutPath, contentRendered, (err) ->
 			# Check
 			return next?(err)  if err
-			
+
 			# Log
 			logger.log 'debug', "Wrote the rendered file #{fileOutPath}"
 
 			# Next
 			next?()
-		
+
 		# Chain
 		@
 
@@ -213,7 +213,7 @@ class DocumentModel extends FileModel
 		# Prepare
 		logger = @logger
 		js2coffee = require(path.join 'js2coffee', 'lib', 'js2coffee.coffee')  unless js2coffee
-		
+
 		# Fetch
 		fullPath = @get('fullPath')
 		content = @get('content')
@@ -236,13 +236,13 @@ class DocumentModel extends FileModel
 		@writeFile fileOutPath, content, (err) ->
 			# Check
 			return next?(err)  if err
-			
+
 			# Log
 			logger.log 'info', "Wrote the source file #{fullPath}"
 
 			# Next
 			next?()
-		
+
 		# Chain
 		@
 
@@ -256,7 +256,7 @@ class DocumentModel extends FileModel
 			extensions = @get('extensions')
 
 			# Rendered
-			extensionRendered = extensions[0]
+			extensionRendered = if extensions.length then extensions[0] else null
 
 			# Apply
 			@set({extensionRendered})
@@ -277,7 +277,7 @@ class DocumentModel extends FileModel
 			@getEve (err,eve) =>
 				# Check
 				return next?(err)  if err
-				
+
 				# Fetch
 				fullPath = @get('fullPath')
 				basename = @get('basename')
@@ -289,8 +289,8 @@ class DocumentModel extends FileModel
 
 				# Adjust
 				extensionRendered = eve.get('extensionRendered')  if eve
-				filenameRendered = "#{basename}.#{extensionRendered}"
-				url or= "/#{relativeBase}.#{extensionRendered}"
+				filenameRendered = if extensionRendered then "#{basename}.#{extensionRendered}" else "#{basename}"
+				url or= if extensionRendered then "/#{relativeBase}.#{extensionRendered}" else "/#{relativeBase}"
 				name or= filenameRendered
 				outPath or= if @outDirPath then path.join(@outDirPath,url) else null
 				@addUrl(url)
@@ -307,7 +307,7 @@ class DocumentModel extends FileModel
 
 				# Forward
 				next?()
-			
+
 		# Chain
 		@
 
@@ -315,7 +315,7 @@ class DocumentModel extends FileModel
 	# Checks if the file has a layout
 	hasLayout: ->
 		return @get('layout')?
-	
+
 	# Get Layout
 	# The the layout object that this file references (if any)
 	# next(err,layout)
@@ -327,12 +327,12 @@ class DocumentModel extends FileModel
 		# No layout
 		unless layoutId
 			next?(null,null)
-		
+
 		# Cached layout
 		else if @layout and layoutId is @layout.id
 			# Already got it
 			next?(null,@layout)
-		
+
 		# Uncached layout
 		else
 			# Find parent
@@ -349,7 +349,7 @@ class DocumentModel extends FileModel
 
 		# Chain
 		@
-	
+
 	# Get Eve
 	# Get the most ancestoral layout we have (the very top one)
 	# next(err,layout)
@@ -363,7 +363,7 @@ class DocumentModel extends FileModel
 		else
 			next?()
 		@
-	
+
 	# Render
 	# Render this file
 	# next(err,result)
@@ -378,7 +378,7 @@ class DocumentModel extends FileModel
 		body = @get('body')
 		extensions = @get('extensions')
 		extensionsReversed = []
-		
+
 		# Reverse extensions
 		for extension in extensions
 			extensionsReversed.unshift(extension)
@@ -410,13 +410,13 @@ class DocumentModel extends FileModel
 
 			# Error
 			return next(err)  if err
-			
+
 			# Log
 			logger.log 'debug', 'Rendering completed for', file.get('relativePath')
-			
+
 			# Success
 			return next(null,rendering)
-		
+
 
 		# Render plugins
 		# next(err)
@@ -438,7 +438,7 @@ class DocumentModel extends FileModel
 				file.set(
 					contentRenderedWithoutLayouts: rendering
 				)
-			
+
 			# Grab the layout
 			file.getLayout (err,layout) ->
 				# Check
@@ -454,7 +454,7 @@ class DocumentModel extends FileModel
 						return next(err)  if err
 						rendering = result
 						return next()
-				
+
 				# We don't have a layout, nothing to do here
 				else
 					return next()
@@ -490,7 +490,7 @@ class DocumentModel extends FileModel
 				# Render through the plugins
 				tasks.push (complete) ->
 					# Prepare
-					eventData = 
+					eventData =
 						name: 'render'
 						inExtension: extensionsReversed[index]
 						outExtension: extension
