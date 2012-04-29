@@ -6,18 +6,14 @@ _ = require('underscore')
 Backbone = require('backbone')
 mime = require('mime')
 FileModel = require(path.join __dirname, 'file.coffee')
+CSON = null
+yaml = null
 
 # Document Model
 class DocumentModel extends FileModel
 
 	# Model Type
 	type: 'document'
-
-	# The available layouts in our DocPad instance
-	layouts: null
-
-	# Layout
-	layout: null
 
 	# The parsed file meta data (header)
 	# Is a Backbone.Model instance
@@ -68,6 +64,10 @@ class DocumentModel extends FileModel
 
 		# ---------------------------------
 		# User set variables
+
+		# The types of file this is
+		# E.g. file, document, layout, partial, post
+		type: null  # Array, ['file']
 
 		# Whether or not this file should be re-rendered on each request
 		dynamic: false
@@ -132,8 +132,8 @@ class DocumentModel extends FileModel
 				try
 					switch parser
 						when 'coffee', 'cson'
-							coffee = require('coffee-script')  unless coffee
-							meta = coffee.eval(header, {filename:fullPath})
+							CSON = require('cson')  unless CSON
+							meta = CSON.parseSync(header)
 							@meta.set(meta)
 
 						when 'yaml'
@@ -142,7 +142,7 @@ class DocumentModel extends FileModel
 							@meta.set(meta)
 
 						else
-							err = new Error("Unknown meta parser [#{parser}]")
+							err = new Error("Unknown meta parser: #{parser}")
 							return next?(err)
 				catch err
 					return next?(err)
@@ -191,7 +191,7 @@ class DocumentModel extends FileModel
 		logger = @logger
 
 		# Log
-		logger.log 'debug', "Writing the rendered file #{fileOutPath}"
+		logger.log 'debug', "Writing the rendered file: #{fileOutPath}"
 
 		# Write data
 		@writeFile fileOutPath, contentRendered, (err) ->
@@ -199,7 +199,7 @@ class DocumentModel extends FileModel
 			return next?(err)  if err
 
 			# Log
-			logger.log 'debug', "Wrote the rendered file #{fileOutPath}"
+			logger.log 'debug', "Wrote the rendered file: #{fileOutPath}"
 
 			# Next
 			next?()
@@ -212,20 +212,20 @@ class DocumentModel extends FileModel
 	writeSource: (next) ->
 		# Prepare
 		logger = @logger
-		js2coffee = require(path.join 'js2coffee', 'lib', 'js2coffee.coffee')  unless js2coffee
+		CSON = require('cson')  unless CSON
 
 		# Fetch
 		fullPath = @get('fullPath')
+		relativePath = @get('relativePath')
 		content = @get('content')
 		body = @get('body')
 		parser = @get('parser')
 
 		# Log
-		logger.log 'debug', "Writing the source file #{fullPath}"
+		logger.log 'debug', "Writing the source file: #{relativePath}"
 
 		# Adjust
-		header = 'var a = '+JSON.stringify(@meta.toJSON())
-		header = js2coffee.build(header).replace(/a =\s+|^  /mg,'')
+		header = CSON.stringifySync(@meta.toJSON())
 		body = body.replace(/^\s+/,'')
 		content = "### #{parser}\n#{header}\n###\n\n#{body}"
 
@@ -238,7 +238,7 @@ class DocumentModel extends FileModel
 			return next?(err)  if err
 
 			# Log
-			logger.log 'info', "Wrote the source file #{fullPath}"
+			logger.log 'info', "Wrote the source file: #{relativePath}"
 
 			# Next
 			next?()
@@ -296,11 +296,7 @@ class DocumentModel extends FileModel
 				@addUrl(url)
 
 				# Content Types
-				contentType = @get('contentType')
 				contentTypeRendered = mime.lookup(outPath or fullPath)
-				if contentType is 'application/octet-stream'
-					contentType = contentTypeRendered
-					@set({contentType})
 
 				# Apply
 				@set({extensionRendered,filenameRendered,url,name,outPath,contentTypeRendered})
@@ -341,6 +337,7 @@ class DocumentModel extends FileModel
 			if err
 				return next?(err)
 			else unless layout
+				console.log @layouts.toJSON()
 				err = new Error "Could not find the specified layout: #{layoutId}"
 				return next?(err)
 			else

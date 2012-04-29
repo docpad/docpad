@@ -1,5 +1,8 @@
 # If you change something here, be sure to change it in package.json's scripts as well
 
+dev:
+	coffee -w src  -o lib
+
 test:
 	make clean
 	node ./node_modules/mocha/bin/mocha
@@ -15,4 +18,4 @@ publish:
 	make clean
 	npm publish
 
-.PHONY: test install clean publish
+.PHONY: dev test install clean publish
