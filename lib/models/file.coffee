@@ -149,12 +149,12 @@ class FileModel extends Model
 		logger = @logger
 
 		# Log
-		logger.log('debug', "Loading the file #{filePath}")
+		logger.log('debug', "Loading the file: #{filePath}")
 
 		# Handler
 		complete = (err) ->
 			return next?(err)  if err
-			logger.log('debug', "Loaded the file #{filePath}")
+			logger.log('debug', "Loaded the file: #{filePath}")
 			next?()
 
 		# Exists?
@@ -180,19 +180,20 @@ class FileModel extends Model
 		logger = @logger
 		file = @
 		fullPath = @get('fullPath')
+		relativePath = @get('relativePath')
 
 		# Log
-		logger.log('debug', "Reading the file #{fullPath}")
+		logger.log('debug', "Reading the file: #{relativePath}")
 
 		# Async
 		tasks = new balUtil.Group (err) =>
 			if err
-				logger.log('err', "Failed to read the file #{fullPath}")
+				logger.log('err', "Failed to read the file: #{relativePath}")
 				return next?(err)
 			else
 				@normalize (err) =>
 					return next?(err)  if err
-					logger.log('debug', "Read the file #{fullPath}")
+					logger.log('debug', "Read the file: #{relativePath}")
 					next?()
 		tasks.total = 2
 
