@@ -6,13 +6,8 @@ _ = require('underscore')
 Backbone = require('backbone')
 mime = require('mime')
 
-# Optionals
-coffee = null
-yaml = null
-js2coffee = null
-
 # Base Model
-{Model} = require(path.join __dirname, 'base.coffee')
+{Model} = require(path.join __dirname, '..', 'base.coffee')
 
 
 # ---------------------------------
@@ -402,7 +397,7 @@ class FileModel extends Model
 		content = @get('content') or @get('data')
 
 		# Log
-		logger.log 'debug', "Writing the file #{fileOutPath}"
+		logger.log 'debug', "Writing the file: #{fileOutPath}"
 
 		# Write data
 		@writeFile fileOutPath, content, (err) ->
@@ -410,7 +405,7 @@ class FileModel extends Model
 			return next?(err)  if err
 
 			# Log
-			logger.log 'debug', "Wrote the file #{fileOutPath}"
+			logger.log 'debug', "Wrote the file: #{fileOutPath}"
 
 			# Next
 			next?()

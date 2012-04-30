@@ -59,11 +59,20 @@ class DocPad extends EventSystem
 	# ---------------------------------
 	# Collections
 
-	# Layouts collection
-	layouts: null
+	# Collections
+	collections: null ### {
+		# Documents collection
+		documents: null  # QueryEngine Collection
 
-	# Documents collection
-	documents: null
+		# Files collection
+		files: null  # QueryEngine Collection
+
+		# Layouts collection
+		layouts: null  # QueryEngine Collection
+	} ###
+
+	# Database collection
+	database: null  # QueryEngine Collection
 
 
 	# ---------------------------------
@@ -141,20 +150,26 @@ class DocPad extends EventSystem
 		# The website directory
 		rootPath: '.'
 
+		# The website's package.json path
+		packagePath: 'package.json'
+
+		# The website's docpad.cson path
+		configPath: 'docpad.cson'
+
 		# The website's out directory
 		outPath: 'out'
 
 		# The website's src directory
 		srcPath: 'src'
 
+		# The website's documents directory
+		documentsPath: path.join('src', 'documents')
+
+		# The website's files directory
+		filesPath: path.join('src', 'files')
+
 		# The website's layouts directory
-		layoutsPath: path.join('src', '_layouts')
-
-		# The website's package.json path
-		packagePath: 'package.json'
-
-		# The website's docpad.cson path
-		configPath: 'docpad.cson'
+		layoutsPath: path.join('src', 'layouts')
 
 
 		# -----------------------------
@@ -245,10 +260,13 @@ class DocPad extends EventSystem
 		@foundPlugins = {}
 		@loadedPlugins = {}
 		@exchange = {}
+		@collections = {}
 
 		# Initialize the collections
-		@documents = queryEngine.createCollection()
-		@layouts = queryEngine.createCollection()
+		@database = queryEngine.createCollection()
+		@collections.documents = @database.createLiveChildCollection().setQuery(type: 'document').sortBy(date:-1)
+		@collections.files = @database.createLiveChildCollection().setQuery(type: 'file')
+		@collections.layouts = @database.createLiveChildCollection().setQuery(type: 'layout')
 
 		# Apply configuration
 		@loadConfiguration config, {}, (err) ->
@@ -699,6 +717,22 @@ class DocPad extends EventSystem
 	# ---------------------------------
 	# Models
 
+	# Instantiate a File
+	createFile: (data={},options={}) ->
+		# Prepare
+		docpad = @
+		options = _.extend(
+			layouts: @layouts
+			logger: @logger
+			outDirPath: @config.outPath
+		,options)
+
+		# Create and return
+		file = new @FileModel(data,options)
+
+		# Return
+		return file
+
 	# Instantiate a Document
 	createDocument: (data={},options={}) ->
 		# Prepare
@@ -731,9 +765,9 @@ class DocPad extends EventSystem
 		templateData = _.extend({
 			require: require
 			docpad: @
-			database: @documents
+			database: @database
+			collections: @collections
 			document: null
-			documents: @documents.sortArray({'date': -1})
 			site: {}
 			blocks: {}
 		}, @config.templateData, userData)
@@ -1076,98 +1110,91 @@ class DocPad extends EventSystem
 	# ---------------------------------
 	# Generate
 
-	# Parse the files
-	generateParse: (next) ->
-		# Before
-		@emitSync 'parseBefore', {}, (err) =>
-			return next?(err)  if err
+	# Parse a directory
+	# next(err)
+	parseDirectory: (opts={}) ->
+		# Prepare
+		docpad = @
+		logger = @logger
+		database = @database
 
-			# Prepare
-			docpad = @
-			logger = @logger
-			documents = @documents
+		# Extract
+		{path,createFunction,resultCollection,next} = opts
 
-			# Log
-			logger.log 'debug', 'Parsing files'
+		# Log
+		logger.log 'debug', 'Parsing #{documents.length} files'
 
-			# Documents
-			balUtil.scandir(
-				# Path
-				path: @config.srcPath
+		# Files
+		balUtil.scandir(
+			# Path
+			path: path
 
-				# Ignore common patterns
-				ignorePatterns: true
+			# Ignore common patterns
+			ignorePatterns: true
 
-				# File Action
-				fileAction: (fileFullPath,fileRelativePath,nextFile,fileStat) ->
-					# Skip special directories
-					if /^_/.test(fileRelativePath)
+			# File Action
+			fileAction: (fileFullPath,fileRelativePath,nextFile,fileStat) ->
+				# Prepare
+				data =
+					fullPath: fileFullPath
+					relativePath: fileRelativePath
+				options =
+					stat: fileStat
+
+				# Create file
+				file = createFunction(data,options)
+				file.load (err) ->
+					# Check
+					if err
+						docpad.warn("Failed to load the file: #{fileRelativePath}. The error follows:", err)
 						return nextFile()
 
 					# Prepare
-					data =
-						fullPath: fileFullPath
-						relativePath: fileRelativePath
-					options =
-						stat: fileStat
-					document = docpad.createDocument(data,options)
-					document.load (err) ->
-						# Check
-						if err
-							docpad.warn("Failed to load the file: #{fileRelativePath}. The error follows:", err)
-							return nextFile()
+					fileIgnored = file.get('ignored')
+					fileParse = file.get('parse')
 
-						# Prepare
-						documentIgnored = document.get('ignored')
-						documentParse = document.get('parse')
-
-						# Ignored?
-						if documentIgnored or (documentParse? and !documentParse)
-							logger.log 'info', 'Skipped manually ignored document:', document.get('relativePath')
-							return nextFile()
-						else
-							logger.log 'debug', 'Loaded the document:', document.get('relativePath'), document.get('id')
-
-						# Store Document
-						documents.add(document)
+					# Ignored?
+					if fileIgnored or (fileParse? and !fileParse)
+						logger.log 'info', 'Skipped manually ignored file:', file.get('relativePath')
 						return nextFile()
+					else
+						logger.log 'debug', 'Loaded the file:', file.get('relativePath')
 
-				# Next
-				next: (err) ->
-					# Check
-					if err
-						docpad.warn("Failed to parse documents. The error follows:",err)
-						return next?(err)
+					# Store Document
+					resultCollection.add(file)  if resultCollection?
 
-					# Contextualize
-					docpad.generateParseContextualize (err) ->
-						return next?(err)  if err
+					# Forward
+					return nextFile()
 
-						# After
-						docpad.emitSync 'parseAfter', {}, (err) ->
-							if err
-								docpad.warn("Failed to parse documents. The error follows:",err)
-							else
-								logger.log('debug', 'Parsed files')
-							return next?(err)
-			)
+			# Next
+			next: (err) ->
+				# Log
+				logger.log 'debug', 'Parsed #{documents.length} files'
+
+				# Forward
+				return next?(err)
+		)
 
 		# Chain
 		@
 
-
-	# Generate Parse: Contextualize
-	generateParseContextualize: (next) ->
+	# Contextualize Files
+	# next(err)
+	contextualizeFiles: (opts={}) ->
 		# Prepare
 		docpad = @
 		logger = @logger
-		documents = @documents
-		logger.log 'debug', 'Parsing files: Contextualizing files'
+
+		# Extract
+		{documents,next} = opts
+
+		# Log
+		logger.log 'debug', 'Contextualizing #{documents.length} files'
 
 		# Async
 		tasks = new balUtil.Group (err) ->
 			return next?(err)  if err
-			logger.log 'debug', 'Parsing files: Contextualized files'
+			logger.log 'debug', 'Contextualized #{documents.length} files'
 			next?()
 
 		# Fetch
@@ -1181,13 +1208,15 @@ class DocPad extends EventSystem
 		# Chain
 		@
 
-
-	# Generate render
-	generateRender: (next) ->
+	# Render documents
+	# next(err)
+	renderDocuments: (opts={}) ->
 		# Prepare
 		docpad = @
-		documents = @documents
 		logger = @logger
+
+		# Extract
+		{documents,next} = opts
 
 		# Log
 		logger.log 'debug', "Rendering #{documents.length} files"
@@ -1197,7 +1226,7 @@ class DocPad extends EventSystem
 			return next?(err)  if err
 			# After
 			docpad.emitSync 'renderAfter', {}, (err) ->
-				logger.log 'debug', 'Rendered files'  unless err
+				logger.log 'debug', 'Rendered #{documents.length} files'  unless err
 				next?(err)
 
 		# Get the template data
@@ -1223,6 +1252,143 @@ class DocPad extends EventSystem
 		# Chain
 		@
 
+	# Write documents
+	# next(err)
+	writeFiles: (err) ->
+		# Prepare
+		docpad = @
+		logger = @logger
+
+		# Extract
+		{documents,next} = opts
+
+		# Log
+		logger.log 'debug', "Writing #{documents.length} files"
+
+		# Async
+		tasks = new balUtil.Group (err) ->
+			# After
+			docpad.emitSync 'writeAfter', {}, (err) ->
+				logger.log 'debug', 'Wrote #{documents.length} files'  unless err
+				next?(err)
+
+		# Check
+		unless documents.length
+			return tasks.exit()
+
+		# Cycle
+		tasks.total = documents.length
+		documents.forEach (document) ->
+			# Fetch
+			outPath = document.get('outPath')
+			relativePath = document.get('relativePath')
+
+			# Skip
+			documentDynamic = document.get('dynamic')
+			documentRender = document.get('render')
+			documentWrite = document.get('write')
+			if documentDynamic or (documentRender? and !documentRender) or (documentWrite? and !documentWrite)
+				return tasks.complete()
+
+			# Ensure path
+			balUtil.ensurePath path.dirname(outPath), (err) ->
+				# Error
+				return tasks.exit(err)  if err
+
+				# Write document
+				logger.log 'debug', "Writing file: #{relativePath}"
+				if document.get('encoding') is 'binary'
+					document.write (err) ->
+						tasks.complete(err)
+				else
+					document.writeRendered (err) ->
+						tasks.complete(err)
+
+
+	# Parse the files
+	generateParse: (next) ->
+		# Before
+		@emitSync 'parseBefore', {}, (err) =>
+			return next?(err)  if err
+
+			# Prepare
+			docpad = @
+			logger = @logger
+
+			# Log
+			logger.log 'debug', 'Parsing everything'
+
+			# Tasks
+			tasks = new balUtil.Group (err) ->
+				# Check
+				if err
+					docpad.warn("Failed to parse everything. The error follows:",err)
+					return next?(err)
+
+				# Contextualize
+				docpad.generateParseContextualize (err) ->
+					return next?(err)  if err
+
+					# After
+					docpad.emitSync 'parseAfter', {}, (err) ->
+						if err
+							docpad.warn("Failed to parse everything. The error follows:",err)
+						else
+							logger.log('debug', 'Parsed everything')
+						return next?(err)
+			tasks.total = 3
+
+			# Documents
+			@parseDirectory(
+				path: @config.documentsPath
+				createFunction: @createDocument
+				resultCollection: @database
+				next: tasks.completer()
+			)
+
+			# Files
+			@parseDirectory(
+				path: @config.filesPath
+				createFunction: @createFile
+				resultCollection: @database
+				next: tasks.completer()
+			)
+
+			# Layouts
+			@parseDirectory(
+				path: @config.layoutsPath
+				createFunction: @createDocument
+				resultCollection: @database
+				next: tasks.completer()
+			)
+
+		# Chain
+		@
+
+
+	# Generate Parse: Contextualize
+	generateParseContextualize: (next) ->
+		# Contextualize everything in the database
+		@contextualizeDocuments(
+			documents: @database
+			next: next
+		)
+
+		# Chain
+		@
+
+
+	# Generate render
+	generateRender: (next) ->
+		# Render all the documents
+		@renderDocuments(
+			documents: @collections.documents
+			next: next
+		)
+
+		# Chain
+		@
+
 
 	# Write
 	generateWrite: (next) ->
@@ -1232,52 +1398,25 @@ class DocPad extends EventSystem
 
 		# Before
 		docpad.emitSync 'writeBefore', {}, (err) ->
-			# Check
-			return next?(err)  if err
-
-			# Prepare
-			documents = @documents
-			logger = @logger
-			logger.log 'debug', 'Writing documents'
-
 			# Async
 			tasks = new balUtil.Group (err) ->
 				# After
 				docpad.emitSync 'writeAfter', {}, (err) ->
-					logger.log 'debug', 'Wrote documents'  unless err
+					logger.log 'debug', 'Wrote everything'  unless err
 					next?(err)
+			tasks.total = 2
 
-			# Check
-			unless documents.length
-				return tasks.exit()
+			# Write all the documents
+			@renderDocuments(
+				documents: @collections.documents
+				next: tasks.completer()
+			)
 
-			# Cycle
-			tasks.total = documents.length
-			documents.forEach (document) ->
-				# Fetch
-				outPath = document.get('outPath')
-				relativePath = document.get('relativePath')
-
-				# Skip
-				documentDynamic = document.get('dynamic')
-				documentRender = document.get('render')
-				documentWrite = document.get('write')
-				if documentDynamic or (documentRender? and !documentRender) or (documentWrite? and !documentWrite)
-					return tasks.complete()
-
-				# Ensure path
-				balUtil.ensurePath path.dirname(outPath), (err) ->
-					# Error
-					return tasks.exit(err)  if err
-
-					# Write document
-					logger.log 'debug', "Writing file: #{relativePath}"
-					if document.get('encoding') is 'binary'
-						document.write (err) ->
-							tasks.complete(err)
-					else
-						document.writeRendered (err) ->
-							tasks.complete(err)
+			# Write all the files
+			@renderDocuments(
+				documents: @collections.files
+				next: tasks.completer()
+			)
 
 		# Chain
 		@
@@ -1418,6 +1557,7 @@ class DocPad extends EventSystem
 		# Prepare
 		{opts,next} = @getActionArgs(opts,next)
 		docpad = @
+		database = @database
 		logger = @logger
 		watchrInstance = null
 
@@ -1443,11 +1583,31 @@ class DocPad extends EventSystem
 					logger.log 'Watching setup starting...'
 
 					# Prepare change handler
-					changeHappened = ->
-						# What to do when a file has changed
-						docpad.action 'generate', (err) ->
-							docpad.error(err)  if err
-							logger.log 'Regenerated due to file watch at '+(new Date()).toLocaleString()
+					changeHappened = (eventName,filePath,fileCurrentStat,filePreviousStat) ->
+						# Differential Rendering?
+						if config.differentialRendering
+
+							# Handle the action
+							if eventName is 'unlink'
+								changedFile.destroy()
+							else if eventName is 'change'
+								# Re-render just this file
+								changedFile = database.findOne(fullPath: filePath)
+								docpad.prepareAndRender changedFile, docpad.getTemplateData(), ->
+									# Re-Render anything that references the changes
+									pendingFiles = database.findAll(references: $has: changedFile).render()
+									docpad.prepareAndRender pend
+
+							else if eventName is 'new'
+
+							# Re-Render anything that should always re-render
+							database.findAll(referencesOthers: true).render()
+						
+						# Re-Render everything
+						else
+							docpad.action 'generate', (err) ->
+								docpad.error(err)  if err
+								logger.log 'Regenerated due to file watch at '+(new Date()).toLocaleString()
 
 					# Watch the source directory
 					close()

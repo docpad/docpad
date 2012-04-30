@@ -6,6 +6,8 @@ _ = require('underscore')
 Backbone = require('backbone')
 mime = require('mime')
 FileModel = require(path.join __dirname, 'file.coffee')
+
+# Optionals
 CSON = null
 yaml = null
 
@@ -382,7 +384,7 @@ class DocumentModel extends FileModel
 
 
 		# Log
-		logger.log 'debug', "Rendering the file #{relativePath}"
+		logger.log 'debug', "Rendering the file: #{relativePath}"
 
 		# Prepare reset
 		reset = ->
@@ -409,7 +411,7 @@ class DocumentModel extends FileModel
 			return next(err)  if err
 
 			# Log
-			logger.log 'debug', 'Rendering completed for', file.get('relativePath')
+			logger.log 'debug', 'Rendering completed for:', file.get('relativePath')
 
 			# Success
 			return next(null,rendering)
