@@ -670,8 +670,12 @@ class DocPad extends EventSystem
 			return @
 
 		# Log the error only if it hasn't been logged already
-		err.logged = true
-		err = new Error(err)  unless err instanceof Error
+		if err not instanceof Error
+			if err.message
+				err = new Error(err.message)
+			else 
+				err = new Error(err)
+		
 		err.logged = true
 		logger.log type, 'An error occured:', err.message, err.stack
 
