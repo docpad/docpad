@@ -17,14 +17,11 @@ outExpectedPath = "#{__dirname}/out-expected"
 baseUrl = "http://localhost:#{port}"
 
 # Configure DocPad
-docpadConfig = 
+docpadConfig =
 	growl: false
 	port: port
 	rootPath: __dirname
-	logLevel: 5
-	enabledUnlistedPlugins: false
-	enabledPlugins:
-		eco: true
+	logLevel: 7
 
 # Fail on an uncaught error
 process.on 'uncaughtException', (err) ->
@@ -86,7 +83,7 @@ describe 'core', ->
 					path.exists "#{outPath}/ignored.html", (exists) ->
 						expect(exists).to.be.false
 						done()
-				
+
 				it 'should ignore common patterns documents"', (done) ->
 					path.exists "#{outPath}/.svn", (exists) ->
 						expect(exists).to.be.false
@@ -99,18 +96,17 @@ describe 'core', ->
 							throw err  if err
 							expect(actual.toString()).to.be.equal(expected.toString())
 							done()
-				
+
 				it 'should serve dynamic documents - part 1/2', (done) ->
 					request "#{baseUrl}/dynamic.html?name=ben", (err,response,actual) ->
 						throw err  if err
 						expected = 'hi ben'
 						expect(actual.toString()).to.be.equal(expected)
 						done()
-					
+
 				it 'should serve dynamic documents - part 2/2', (done) ->
 					request "#{baseUrl}/dynamic.html?name=joe", (err,response,actual) ->
 						throw err  if err
 						expected = 'hi joe'
 						expect(actual.toString()).to.be.equal(expected)
 						done()
-			

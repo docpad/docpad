@@ -1,13 +1,13 @@
 # Requires
-path = require('path')
-fs = require('fs')
+pathUtil = require('path')
+fsUtil = require('fs')
 balUtil = require('bal-util')
 _ = require('underscore')
 Backbone = require('backbone')
 mime = require('mime')
 
 # Base Model
-{Model} = require(path.join __dirname, '..', 'base.coffee')
+{Model} = require(pathUtil.join __dirname, '..', 'base')
 
 
 # ---------------------------------
@@ -153,7 +153,7 @@ class FileModel extends Model
 			next?()
 
 		# Exists?
-		path.exists fullPath, (exists) =>
+		pathUtil.exists fullPath, (exists) =>
 			# Read the file
 			if exists
 				@readFile(fullPath, complete)
@@ -196,14 +196,14 @@ class FileModel extends Model
 		if file.stat
 			tasks.complete()
 		else
-			balUtil.openFile -> fs.stat fullPath, (err,fileStat) ->
+			balUtil.openFile -> fsUtil.stat fullPath, (err,fileStat) ->
 				balUtil.closeFile()
 				return next?(err)  if err
 				file.stat = fileStat
 				tasks.complete()
 
 		# Read the file
-		balUtil.openFile -> fs.readFile fullPath, (err,data) ->
+		balUtil.openFile -> fsUtil.readFile fullPath, (err,data) ->
 			balUtil.closeFile()
 			return next?(err)  if err
 			file.parseData(data, tasks.completer())
@@ -316,7 +316,7 @@ class FileModel extends Model
 		relativePath or= fullPath
 
 		# Paths
-		basename = path.basename(fullPath)
+		basename = pathUtil.basename(fullPath)
 		filename = basename
 		basename = filename.replace(/\..*/, '')
 
@@ -326,14 +326,15 @@ class FileModel extends Model
 		extension = if extensions.length then extensions[extensions.length-1] else null
 
 		# Paths
-		fullDirPath = path.dirname(fullPath) or ''
-		relativeDirPath = path.dirname(relativePath).replace(/^\.$/,'') or ''
+		fullDirPath = pathUtil.dirname(fullPath) or ''
+		relativeDirPath = pathUtil.dirname(relativePath).replace(/^\.$/,'') or ''
 		relativeBase =
 			if relativeDirPath.length
-				path.join(relativeDirPath, basename)
+				pathUtil.join(relativeDirPath, basename)
 			else
 				basename
 		id or= relativeBase
+		console.log(fullPath,id)
 
 		# Date
 		date or= new Date(@stat.mtime)  if @stat
@@ -365,7 +366,7 @@ class FileModel extends Model
 		url or= if extension then "/#{relativeBase}.#{extension}" else "/#{relativeBase}"
 		slug or= balUtil.generateSlugSync(relativeBase)
 		name or= filename
-		outPath = if @outDirPath then path.join(@outDirPath,url) else null
+		outPath = if @outDirPath then pathUtil.join(@outDirPath,url) else null
 		@addUrl(url)
 
 		# Apply
@@ -373,19 +374,6 @@ class FileModel extends Model
 
 		# Forward
 		next?()
-		@
-
-	# Write Data
-	writeFile: (fullPath,data,next) ->
-		# Prepare
-		file = @
-
-		# Write data
-		balUtil.openFile -> fs.writeFile fullPath, data, (err) ->
-			balUtil.closeFile()
-			return next?(err)
-
-		# Chain
 		@
 
 	# Write the rendered file
