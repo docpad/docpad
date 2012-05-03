@@ -6,7 +6,7 @@ chai = require('chai')
 expect = chai.expect
 assert = chai.assert
 request = require('request')
-DocPad = require(path.join __dirname, 'docpad.coffee')
+DocPad = require(path.join __dirname, 'docpad')
 
 # Prepare
 pluginPort = 3183
@@ -46,7 +46,7 @@ class PluginTester extends Tester
 
 	# DocPad Instance
 	docpad: null
-	
+
 	# Logger Instance
 	logger: null
 
@@ -121,7 +121,7 @@ class PluginTester extends Tester
 				tester.createInstance (err) ->
 					done(err)
 					next()
-	
+
 		# Chain
 		@
 

@@ -1,11 +1,8 @@
 # =====================================
 # Requires
 
-# System
-fs = require('fs')
-path = require('path')
-
 # Necessary
+pathUtil = require('path')
 _ = require('underscore')
 caterpillar = require('caterpillar')
 queryEngine = require('query-engine')
@@ -15,9 +12,9 @@ EventSystem = balUtil.EventSystem
 airbrake = null
 
 # Local
-PluginLoader = require(path.join __dirname, 'plugin-loader.coffee')
-BasePlugin = require(path.join __dirname, 'plugin.coffee')
-require(path.join __dirname, 'prototypes.coffee')
+PluginLoader = require(pathUtil.join __dirname, 'plugin-loader')
+BasePlugin = require(pathUtil.join __dirname, 'plugin')
+require(pathUtil.join __dirname, 'prototypes')
 
 
 # =====================================
@@ -50,17 +47,18 @@ class DocPad extends EventSystem
 	# Models
 
 	# File Model
-	FileModel: require(path.join __dirname, 'models', 'file.coffee')
+	FileModel: require(pathUtil.join __dirname, 'models', 'file.coffee')
 
 	# Document Model
-	DocumentModel: require(path.join __dirname, 'models', 'document.coffee')
+	DocumentModel: require(pathUtil.join __dirname, 'models', 'document.coffee')
 
 
 	# ---------------------------------
 	# Collections
 
 	# Collections
-	collections: null ### {
+	collections: null
+	### {
 		# Documents collection
 		documents: null  # QueryEngine Collection
 
@@ -95,16 +93,19 @@ class DocPad extends EventSystem
 	# Paths
 
 	# The DocPad directory
-	corePath: path.join(__dirname, '..')
+	corePath: pathUtil.join(__dirname, '..')
 
 	# The DocPad library directory
 	libPath: __dirname
 
 	# The main DocPad file
-	mainPath: path.join(__dirname, 'docpad.coffee')
+	mainPath: pathUtil.join(__dirname, 'docpad.coffee')
 
 	# The DocPad package.json path
-	packagePath: path.join(__dirname, '..', 'package.json')
+	packagePath: pathUtil.join(__dirname, '..', 'package.json')
+
+	# The DocPad local NPM path
+	npmPath: pathUtil.join(__dirname, '..', 'node_modules', 'npm', 'bin', 'npm-cli.js')
 
 
 	# -----------------------------
@@ -163,13 +164,13 @@ class DocPad extends EventSystem
 		srcPath: 'src'
 
 		# The website's documents directory
-		documentsPath: path.join('src', 'documents')
+		documentsPath: pathUtil.join('src', 'documents')
 
 		# The website's files directory
-		filesPath: path.join('src', 'files')
+		filesPath: pathUtil.join('src', 'files')
 
 		# The website's layouts directory
-		layoutsPath: path.join('src', 'layouts')
+		layoutsPath: pathUtil.join('src', 'layouts')
 
 
 		# -----------------------------
@@ -241,6 +242,9 @@ class DocPad extends EventSystem
 		# Prepare
 		docpad = @
 
+		# Ensure certain functions always have the scope of this instance
+		_.bindAll(@, 'createDocument', 'createFile')
+
 		# Allow DocPad to have unlimited event listeners
 		@setMaxListeners(0)
 
@@ -264,14 +268,19 @@ class DocPad extends EventSystem
 
 		# Initialize the collections
 		@database = queryEngine.createCollection()
-		@collections.documents = @database.createLiveChildCollection().setQuery(type: 'document').sortBy(date:-1)
-		@collections.files = @database.createLiveChildCollection().setQuery(type: 'file')
-		@collections.layouts = @database.createLiveChildCollection().setQuery(type: 'layout')
 
 		# Apply configuration
 		@loadConfiguration config, {}, (err) ->
 			# Error?
 			return docpad.error(err)  if err
+
+			# Collections
+			collections = docpad.collections
+			database = docpad.database
+			config = docpad.config
+			collections.documents = database.createLiveChildCollection().setQuery('isDocument', fullPath: $beginsWith: config.documentsPath).sortBy(date:-1)
+			collections.files = database.createLiveChildCollection().setQuery('isFile', fullPath: $beginsWith: config.filesPath)
+			collections.layouts = database.createLiveChildCollection().setQuery('isLayout', fullPath: $beginsWith: config.layoutsPath)
 
 			# Load Airbrake if we want to reportErrors
 			if docpad.config.reportErrors and /win/.test(process.platform) is false
@@ -287,55 +296,9 @@ class DocPad extends EventSystem
 			# Next
 			return next?()
 
-	# Set Log Level
-	setLogLevel: (level) ->
-		@logger.setLevel(level)
-		@
+	# =================================
+	# Configuration
 
-	# Are we debugging?
-	getLogLevel: ->
-		return @config.logLevel
-
-	# Are we debugging?
-	getDebugging: ->
-		return @getLogLevel() is 7
-
-	# Get Exchange
-	# Get the exchange data
-	# Requires internet access
-	# next(err,exchange)
-	getExchange: (next) ->
-		# Check if it is stored locally
-		return next(null,@exchange)  unless _.isEmpty(@exchange)
-
-		# Otherwise fetch it from the exchangeUrl
-		@loadConfigUrl @config.exchangeUrl, (err,parsedData) ->
-			return next(err)  if err
-			@exchange = parsedData
-			return next(null,parsedData)
-
-		# Chain
-		@
-
-	# Get Skeletons
-	# Get all the available skeletons for us and their details
-	# next(err,skeletons)
-	getSkeletons: (next) ->
-		@getExchange (err,exchange) ->
-			return next(err)  if err
-			skeletons = exchange.skeletons
-			return next(null,skeletons)
-		@
-
-	# Get Skeleton
-	# Returns a skeleton's details
-	# next(err,skeletonDetails)
-	getSkeleton: (skeletonId,next) ->
-		@getSkeletons (err,skeletons) ->
-			return next(err)  if err
-			skeletonDetails = skeletons[skeletonId]
-			return next(null,skeletonDetails)
-		@
 
 	# Load a configuration url
 	# next(err,parsedData)
@@ -354,7 +317,7 @@ class DocPad extends EventSystem
 	# next(err,parsedData)
 	loadConfigPath: (configPath,next) ->
 		# Check that it exists
-		path.exists configPath, (exists) ->
+		pathUtil.exists configPath, (exists) ->
 			return next?(null,null)  unless exists
 			# Read the path using CSON
 			CSON.parseFile(configPath, next)
@@ -397,7 +360,7 @@ class DocPad extends EventSystem
 				instanceConfig.packagePath or= @config.packagePath
 				instanceConfig.configPath or= @config.configPath
 				docpadPackagePath = @packagePath
-				websiteConfigPath = path.resolve(instanceConfig.rootPath, instanceConfig.configPath)
+				websiteConfigPath = pathUtil.resolve(instanceConfig.rootPath, instanceConfig.configPath)
 				websiteConfig = {}
 
 				# Async
@@ -432,13 +395,14 @@ class DocPad extends EventSystem
 					@server = @config.server  if @config.server
 
 					# Noramlize and resolve the configuration paths
-					@config.rootPath = path.normalize(@config.rootPath or process.cwd())
-					@config.outPath = path.resolve @config.rootPath, @config.outPath
-					@config.srcPath = path.resolve @config.rootPath, @config.srcPath
-					@config.layoutsPath = path.resolve @config.rootPath, @config.layoutsPath
-					@config.publicPath = path.resolve @config.rootPath, @config.publicPath
+					@config.rootPath = pathUtil.normalize(@config.rootPath or process.cwd())
+					@config.outPath = pathUtil.resolve @config.rootPath, @config.outPath
+					@config.srcPath = pathUtil.resolve @config.rootPath, @config.srcPath
+					@config.documentsPath = pathUtil.resolve @config.rootPath, @config.documentsPath
+					@config.filesPath = pathUtil.resolve @config.rootPath, @config.filesPath
+					@config.layoutsPath = pathUtil.resolve @config.rootPath, @config.layoutsPath
 					for pluginsPath,index in @config.pluginsPaths
-						@config.pluginsPaths[index] = path.resolve(@config.rootPath, pluginsPath)
+						@config.pluginsPaths[index] = pathUtil.resolve(@config.rootPath, pluginsPath)
 
 					# Other
 					@config.templateData or= {}
@@ -489,157 +453,30 @@ class DocPad extends EventSystem
 		@
 
 
-
 	# Init Node Modules
-	# with cross platform support
-	# supports linux, heroku, osx, windows
 	# next(err,results)
-	initNodeModules: (dirPath,next) ->
-		# Prepare
-		docpad = @
-		logger = @logger
-		packageJsonPath = path.join(dirPath,'package.json')
-		nodeModulesPath = path.join(dirPath,'node_modules')
+	initNodeModules: (opts={}) ->
+		opts.npmPath = docpad.npmPath
+		opts.nodePath = docpad.config.nodePath
+		opts.force = docpad.config.force
 
-		# Check if node modules already exists
-		if path.existsSync(nodeModulesPath) and docpad.config.force is false
-			return next()
 
-		# If there is no package.json file, then we can't do anything
-		unless path.existsSync(packageJsonPath)
-			return next()
 
-		# Use the local npm installation
-		npmPath = path.resolve(docpad.corePath, 'node_modules', 'npm', 'bin', 'npm-cli.js')
-		command =
-			command: docpad.config.nodePath
-			args: [npmPath, 'install']
+	# =================================
+	# Logging
 
-		# Execute npm install inside the pugin directory
-		logger.log 'debug', "Initializing node modules\non:   #{dirPath}\nwith:",command
-		balUtil.spawn command, {cwd: dirPath}, (err,results) ->
-			logger.log 'debug', "Initialized node modules\non:   #{dirPath}\nwith:",command
-			return next(err)
-
-		# Chain
+	# Set Log Level
+	setLogLevel: (level) ->
+		@logger.setLevel(level)
 		@
 
+	# Are we debugging?
+	getLogLevel: ->
+		return @config.logLevel
 
-	# Install a Skeleton to a Directory
-	# next(err)
-	installSkeleton: (skeletonId,destinationPath,next) ->
-		# Prepare
-		docpad = @
-		logger = @logger
-		debugging = @getDebugging()
-		packagePath = path.join(destinationPath, 'package.json')
-
-		# Grab the skeletonDetails
-		@getSkeleton skeletonId, (err,skeletonDetails) ->
-			# Check
-			return next(err)  if err
-
-			# Initialize a Git Repository
-			# Requires internet access
-			# next(err)
-			initGitRepo = (next) ->
-				commands = [
-					command: docpad.config.gitPath
-					args: ['init']
-				,
-					command: docpad.config.gitPath
-					args: ['remote','add','skeleton',skeletonDetails.repo]
-				,
-					command: docpad.config.gitPath
-					args: ['fetch','skeleton']
-				,
-					command: docpad.config.gitPath
-					args: ['pull','skeleton',skeletonDetails.branch]
-				,
-					command:docpad.config.gitPath
-					args: ['submodule','init']
-				,
-					command: docpad.config.gitPath
-					args: ['submodule','update','--recursive']
-				]
-				logger.log 'debug', "Initializing git pull for the skeleton #{skeletonId}"
-				balUtil.spawn commands, {cwd:destinationPath,output:debugging}, (err,results) ->
-					# Check
-					if err
-						logger.log 'debug', results
-						return next(err)
-
-					# Complete
-					logger.log 'debug', "Initialized git pull for the skeleton #{skeletonId}"
-					return next()
-
-			# Log
-			logger.log 'info', "Initializing the skeleton #{skeletonId} to #{destinationPath}"
-
-			# Check if the skeleton path already exists
-			balUtil.ensurePath destinationPath, (err) ->
-				# Check
-				return tasks.exit(err)  if err
-				# Initalize the git repository
-				initGitRepo (err) ->
-					# Forward
-					return next(err)
-
-		# Chain
-		@
-
-
-
-	# ---------------------------------
-	# Utilities
-
-	# Create snore
-	createSnore: (message) ->
-		# Prepare
-		logger = @logger
-
-		# Create snore object
-		snore =
-			snoring: false
-			timer: setTimeout(
-				->
-					snore.clear()
-					snore.snoring = true
-					if _.isFunction(message)
-						message()
-					else
-						logger.log 'notice', message
-				5000
-			)
-			clear: ->
-				if snore.timer
-					clearTimeout(snore.timer)
-					snore.timer = false
-
-
-	# Compare current DocPad version to the latest
-	compareVersion: ->
-		return @  unless @config.checkVersion
-
-		# Prepare
-		docpad = @
-		notify = @notify
-		logger = @logger
-
-		# Check
-		balUtil.packageCompare
-			local: path.join(docpad.corePath, 'package.json')
-			remote: 'https://raw.github.com/bevry/docpad/master/package.json'
-			newVersionCallback: (details) ->
-				docpad.notify "There is a new version of #{details.local.name} available"
-				docpad.logger.log 'notice', """
-					There is a new version of #{details.local.name} available, you should probably upgrade...
-					current version:  #{details.local.version}
-					new version:      #{details.remote.version}
-					grab it here:     #{details.remote.homepage}
-					"""
-		@
-
+	# Are we debugging?
+	getDebugging: ->
+		return @getLogLevel() is 7
 
 	# Handle a fatal error
 	fatal: (err) ->
@@ -714,15 +551,13 @@ class DocPad extends EventSystem
 		@
 
 
-	# ---------------------------------
+	# =================================
 	# Models
 
 	# Instantiate a File
 	createFile: (data={},options={}) ->
 		# Prepare
-		docpad = @
 		options = _.extend(
-			layouts: @layouts
 			logger: @logger
 			outDirPath: @config.outPath
 		,options)
@@ -736,11 +571,10 @@ class DocPad extends EventSystem
 	# Instantiate a Document
 	createDocument: (data={},options={}) ->
 		# Prepare
-		docpad = @
 		options = _.extend(
-			layouts: @layouts
 			logger: @logger
 			outDirPath: @config.outPath
+			layouts: @collections.layouts
 		,options)
 
 		# Create and return
@@ -756,76 +590,7 @@ class DocPad extends EventSystem
 		return document
 
 
-	# Get Template Data
-	getTemplateData: (userData) ->
-		# Prepare
-		userData or= {}
-
-		# Initial merge
-		templateData = _.extend({
-			require: require
-			docpad: @
-			database: @database
-			collections: @collections
-			document: null
-			site: {}
-			blocks: {}
-		}, @config.templateData, userData)
-
-		# Add site data
-		templateData.site.date or= new Date()
-		templateData.site.keywords or= []
-		if _.isString(templateData.site.keywords)
-			templateData.site.keywords = templateData.site.keywords.split(/,\s*/g)
-
-		# Add block data
-		templateData.blocks.scripts or= []
-		templateData.blocks.styles or= []
-		templateData.blocks.meta or= []
-		templateData.blocks.meta.push(
-			'<meta http-equiv="X-Powered-By" content="DocPad"/>'
-		)
-
-		# Return
-		return templateData
-
-	# Render a document
-	# next(err,document)
-	render: (document,templateData,next) ->
-		templateData = _.extend({},templateData)
-		templateData.document = document.toJSON()
-		templateData.documentModel = document
-		document.render templateData, (err) =>
-			@error(err)  if err
-			return next?(err,document)
-
-		# Chain
-		@
-
-	# Render a document
-	# next(err,document)
-	prepareAndRender: (document,templateData,next) ->
-		# Prepare
-		docpad = @
-
-		# Normalize the document
-		document.normalize (err) ->
-			return next?(err)  if err
-			# Load the document
-			document.load (err) ->
-				return next?(err)  if err
-				# Contextualize the document
-				document.contextualize (err) ->
-					return next?(err) if err
-					# Render the document
-					docpad.render document, templateData, (err) ->
-						return next?(err,document)
-
-		# Chain
-		@
-
-
-	# ---------------------------------
+	# =================================
 	# Plugins
 
 	# Get a plugin by it's name
@@ -853,14 +618,14 @@ class DocPad extends EventSystem
 
 		# Load website plugins
 		_.each @config.pluginsPaths or [], (pluginsPath) =>
-			exists = path.existsSync(pluginsPath)
+			exists = pathUtil.existsSync(pluginsPath)
 			if exists
 				tasks.push (complete) =>
 					@loadPluginsIn(pluginsPath, complete)
 
 		# Load specific plugins
 		_.each @config.pluginPaths or [], (pluginPath) =>
-			exists = path.existsSync(pluginPath)
+			exists = pathUtil.existsSync(pluginPath)
 			if exists
 				tasks.push (complete) =>
 					@loadPlugin(pluginPath, complete)
@@ -962,7 +727,7 @@ class DocPad extends EventSystem
 			# Handle directories
 			dirAction: (fileFullPath,fileRelativePath,_nextFile) ->
 				# Prepare
-				pluginName = path.basename(fileFullPath)
+				pluginName = pathUtil.basename(fileFullPath)
 				return _nextFile(null,false)  if fileFullPath is pluginsPath
 				nextFile = (err,skip) ->
 					if err
@@ -981,6 +746,420 @@ class DocPad extends EventSystem
 
 		# Chain
 		@
+
+
+	# =================================
+	# Utilities
+
+	# ---------------------------------
+	# Utilities: Misc
+
+	# Create snore
+	createSnore: (message) ->
+		# Prepare
+		logger = @logger
+
+		# Create snore object
+		snore =
+			snoring: false
+			timer: setTimeout(
+				->
+					snore.clear()
+					snore.snoring = true
+					if _.isFunction(message)
+						message()
+					else
+						logger.log 'notice', message
+				5000
+			)
+			clear: ->
+				if snore.timer
+					clearTimeout(snore.timer)
+					snore.timer = false
+
+
+	# Compare current DocPad version to the latest
+	compareVersion: ->
+		return @  unless @config.checkVersion
+
+		# Prepare
+		docpad = @
+		notify = @notify
+		logger = @logger
+
+		# Check
+		balUtil.packageCompare
+			local: pathUtil.join(docpad.corePath, 'package.json')
+			remote: 'https://raw.github.com/bevry/docpad/master/package.json'
+			newVersionCallback: (details) ->
+				docpad.notify "There is a new version of #{details.local.name} available"
+				docpad.logger.log 'notice', """
+					There is a new version of #{details.local.name} available, you should probably upgrade...
+					current version:  #{details.local.version}
+					new version:      #{details.remote.version}
+					grab it here:     #{details.remote.homepage}
+					"""
+		@
+
+
+	# ---------------------------------
+	# Utilities: Rendering
+
+	# Get Template Data
+	getTemplateData: (userData) ->
+		# Prepare
+		userData or= {}
+
+		# Initial merge
+		templateData = _.extend({
+			require: require
+			docpad: @
+			database: @database
+			collections: @collections
+			document: null
+			site: {}
+			blocks: {}
+		}, @config.templateData, userData)
+
+		# Add site data
+		templateData.site.date or= new Date()
+		templateData.site.keywords or= []
+		if _.isString(templateData.site.keywords)
+			templateData.site.keywords = templateData.site.keywords.split(/,\s*/g)
+
+		# Add block data
+		templateData.blocks.scripts or= []
+		templateData.blocks.styles or= []
+		templateData.blocks.meta or= []
+		templateData.blocks.meta.push(
+			'<meta http-equiv="X-Powered-By" content="DocPad"/>'
+		)
+
+		# Return
+		return templateData
+
+	# Render a document
+	# next(err,document)
+	render: (document,templateData,next) ->
+		templateData = _.extend({},templateData)
+		templateData.document = document.toJSON()
+		templateData.documentModel = document
+		document.render templateData, (err) =>
+			@error(err)  if err
+			return next?(err,document)
+
+		# Chain
+		@
+
+	# Render a document
+	# next(err,document)
+	prepareAndRender: (document,templateData,next) ->
+		# Prepare
+		docpad = @
+
+		# Normalize the document
+		document.normalize (err) ->
+			return next?(err)  if err
+			# Load the document
+			document.load (err) ->
+				return next?(err)  if err
+				# Contextualize the document
+				document.contextualize (err) ->
+					return next?(err) if err
+					# Render the document
+					docpad.render document, templateData, (err) ->
+						return next?(err,document)
+
+		# Chain
+		@
+
+
+	# ---------------------------------
+	# Utilities: Files
+
+	# Parse a directory
+	# next(err)
+	parseDirectory: (opts={}) ->
+		# Prepare
+		docpad = @
+		logger = @logger
+
+		# Extract
+		{path,createFunction,resultCollection,next} = opts
+
+		# Check if the directory exists
+		unless pathUtil.existsSync(path)
+			# Log
+			logger.log 'debug', "Skipped directory: #{path} (it does not exist)"
+
+			# Forward
+			return next?()
+
+		# Log
+		logger.log 'debug', "Parsing directory: #{path}"
+
+		# Files
+		balUtil.scandir(
+			# Path
+			path: path
+
+			# Ignore common patterns
+			ignorePatterns: true
+
+			# File Action
+			fileAction: (fileFullPath,fileRelativePath,nextFile,fileStat) ->
+				# Prepare
+				data =
+					fullPath: fileFullPath
+					relativePath: fileRelativePath
+				options =
+					stat: fileStat
+
+				# Create file
+				file = createFunction(data,options)
+				file.load (err) ->
+					# Log
+					logger.log 'debug', "Loading file: #{fileRelativePath}"
+
+					# Check
+					if err
+						docpad.warn("Failed to load the file: #{fileRelativePath}. The error follows:", err)
+						return nextFile()
+
+					# Prepare
+					fileIgnored = file.get('ignored')
+					fileParse = file.get('parse')
+
+					# Ignored?
+					if fileIgnored or (fileParse? and !fileParse)
+						logger.log 'info', 'Skipped manually ignored file:', file.get('relativePath')
+						return nextFile()
+					else
+						logger.log 'debug', 'Loaded file:', file.get('relativePath')
+
+					# Store Document
+					resultCollection.add(file)  if resultCollection?
+
+					# Forward
+					return nextFile()
+
+			# Next
+			next: (err) ->
+				# Log
+				logger.log 'debug', "Parsed directory: #{path}"
+
+				# Forward
+				return next?(err)
+		)
+
+		# Chain
+		@
+
+	# Contextualize Files
+	# next(err)
+	contextualizeFiles: (opts={}) ->
+		# Prepare
+		docpad = @
+		logger = @logger
+
+		# Extract
+		{collection,next} = opts
+
+		# Log
+		logger.log 'debug', "Contextualizing #{collection.length} files"
+
+		# Async
+		tasks = new balUtil.Group (err) ->
+			return next?(err)  if err
+			logger.log 'debug', "Contextualized #{collection.length} files"
+			next?()
+
+		# Fetch
+		unless collection.length
+			tasks.exit()
+		else
+			tasks.total = collection.length
+			collection.forEach (file) ->
+				console.log(tasks.total, tasks.completed)
+				file.contextualize tasks.completer()
+
+		# Chain
+		@
+
+	# Render documents
+	# next(err)
+	renderDocuments: (opts={}) ->
+		# Prepare
+		docpad = @
+		logger = @logger
+
+		# Extract
+		{collection,next} = opts
+
+		# Log
+		logger.log 'debug', "Rendering #{collection.length} files"
+
+		# Async
+		tasks = new balUtil.Group (err) ->
+			return next?(err)  if err
+			# After
+			docpad.emitSync 'renderAfter', {}, (err) ->
+				logger.log 'debug', "Rendered #{collection.length} files"  unless err
+				next?(err)
+
+		# Get the template data
+		templateData = @getTemplateData()
+
+		# Push the render tasks
+		collection.forEach (file) ->
+			tasks.push (complete) ->
+				dynamic = file.get('dynamic')
+				render = file.get('render')
+				if dynamic or (render? and !render)
+					return complete()
+				docpad.render(file,templateData,complete)
+
+		# Fire the render tasks
+		if tasks.total
+			@emitSync 'renderBefore', {collection,templateData}, (err) =>
+				return next?(err)  if err
+				tasks.async()
+		else
+			tasks.exit()
+
+		# Chain
+		@
+
+	# Write documents
+	# next(err)
+	writeFiles: (err) ->
+		# Prepare
+		docpad = @
+		logger = @logger
+
+		# Extract
+		{collection,next} = opts
+
+		# Log
+		logger.log 'debug', "Writing #{collection.length} files"
+
+		# Async
+		tasks = new balUtil.Group (err) ->
+			# After
+			docpad.emitSync 'writeAfter', {}, (err) ->
+				logger.log 'debug', 'Wrote #{collection.length} files'  unless err
+				next?(err)
+
+		# Check
+		unless collection.length
+			return tasks.exit()
+
+		# Cycle
+		tasks.total = collection.length
+		documents.forEach (document) ->
+			# Fetch
+			outPath = document.get('outPath')
+			relativePath = document.get('relativePath')
+
+			# Skip
+			dynamic = document.get('dynamic')
+			render = document.get('render')
+			write = document.get('write')
+			if dynamic or (render? and !render) or (write? and !write)
+				return tasks.complete()
+
+			# Ensure path
+			balUtil.ensurePath pathUtil.dirname(outPath), (err) ->
+				# Error
+				return tasks.exit(err)  if err
+
+				# Write document
+				logger.log 'debug', "Writing file: #{relativePath}"
+				if file.get('encoding') is 'binary'
+					file.write (err) ->
+						tasks.complete(err)
+				else
+					file.writeRendered (err) ->
+						tasks.complete(err)
+
+
+	# ---------------------------------
+	# Utilities: Exchange
+
+	# Get Exchange
+	# Get the exchange data
+	# Requires internet access
+	# next(err,exchange)
+	getExchange: (next) ->
+		# Check if it is stored locally
+		return next(null,@exchange)  unless _.isEmpty(@exchange)
+
+		# Otherwise fetch it from the exchangeUrl
+		@loadConfigUrl @config.exchangeUrl, (err,parsedData) ->
+			return next(err)  if err
+			@exchange = parsedData
+			return next(null,parsedData)
+
+		# Chain
+		@
+
+
+	# ---------------------------------
+	# Utilities: Skeletons
+
+	# Get Skeletons
+	# Get all the available skeletons for us and their details
+	# next(err,skeletons)
+	getSkeletons: (next) ->
+		@getExchange (err,exchange) ->
+			return next(err)  if err
+			skeletons = exchange.skeletons
+			return next(null,skeletons)
+		@
+
+	# Get Skeleton
+	# Returns a skeleton's details
+	# next(err,skeletonDetails)
+	getSkeleton: (skeletonId,next) ->
+		@getSkeletons (err,skeletons) ->
+			return next(err)  if err
+			skeletonDetails = skeletons[skeletonId]
+			return next(null,skeletonDetails)
+		@
+
+	# Install a Skeleton to a Directory
+	# next(err)
+	installSkeleton: (skeletonId,destinationPath,next) ->
+		# Prepare
+		docpad = @
+		logger = @logger
+		packagePath = pathUtil.join(destinationPath, 'package.json')
+
+		# Grab the skeletonDetails
+		@getSkeleton skeletonId, (err,skeletonDetails) ->
+			# Check
+			return next(err)  if err
+
+			# Configure
+			repoConfig =
+				gitPath: docpad.config.gitPath
+				path: destinationPath
+				url: skeletonDetails.repo
+				branch: 'skeleton'
+				output: @getDebugging()
+
+			# Check if the skeleton path already exists
+			balUtil.ensurePath destinationPath, (err) ->
+				# Check
+				return tasks.exit(err)  if err
+				# Initalize the git repository
+				balUtil.initGitRepo repoConfig, (err) ->
+					# Forward
+					return next(err)
+
+		# Chain
+		@
+
 
 
 
@@ -1082,7 +1261,7 @@ class DocPad extends EventSystem
 		logger = @logger
 
 		# Initialise the Website's modules
-		@initNodeModules @config.rootPath, (err) =>
+		@initNodeModules path: @config.rootPath, next: (err) =>
 			# Error?
 			return @error(err)  if err
 
@@ -1099,7 +1278,7 @@ class DocPad extends EventSystem
 		logger = @logger
 
 		# Files
-		balUtil.rmdir @config.outPath, (err,list,tree) ->
+		balUtil.rmdirDeep @config.outPath, (err,list,tree) ->
 			logger.log 'debug', 'Cleaned files'  unless err
 			return next?()
 
@@ -1109,201 +1288,6 @@ class DocPad extends EventSystem
 
 	# ---------------------------------
 	# Generate
-
-	# Parse a directory
-	# next(err)
-	parseDirectory: (opts={}) ->
-		# Prepare
-		docpad = @
-		logger = @logger
-		database = @database
-
-		# Extract
-		{path,createFunction,resultCollection,next} = opts
-
-		# Log
-		logger.log 'debug', 'Parsing #{documents.length} files'
-
-		# Files
-		balUtil.scandir(
-			# Path
-			path: path
-
-			# Ignore common patterns
-			ignorePatterns: true
-
-			# File Action
-			fileAction: (fileFullPath,fileRelativePath,nextFile,fileStat) ->
-				# Prepare
-				data =
-					fullPath: fileFullPath
-					relativePath: fileRelativePath
-				options =
-					stat: fileStat
-
-				# Create file
-				file = createFunction(data,options)
-				file.load (err) ->
-					# Check
-					if err
-						docpad.warn("Failed to load the file: #{fileRelativePath}. The error follows:", err)
-						return nextFile()
-
-					# Prepare
-					fileIgnored = file.get('ignored')
-					fileParse = file.get('parse')
-
-					# Ignored?
-					if fileIgnored or (fileParse? and !fileParse)
-						logger.log 'info', 'Skipped manually ignored file:', file.get('relativePath')
-						return nextFile()
-					else
-						logger.log 'debug', 'Loaded the file:', file.get('relativePath')
-
-					# Store Document
-					resultCollection.add(file)  if resultCollection?
-
-					# Forward
-					return nextFile()
-
-			# Next
-			next: (err) ->
-				# Log
-				logger.log 'debug', 'Parsed #{documents.length} files'
-
-				# Forward
-				return next?(err)
-		)
-
-		# Chain
-		@
-
-	# Contextualize Files
-	# next(err)
-	contextualizeFiles: (opts={}) ->
-		# Prepare
-		docpad = @
-		logger = @logger
-
-		# Extract
-		{documents,next} = opts
-
-		# Log
-		logger.log 'debug', 'Contextualizing #{documents.length} files'
-
-		# Async
-		tasks = new balUtil.Group (err) ->
-			return next?(err)  if err
-			logger.log 'debug', 'Contextualized #{documents.length} files'
-			next?()
-
-		# Fetch
-		unless documents.length
-			tasks.exit()
-		else
-			tasks.total = documents.length
-			documents.forEach (document) ->
-				document.contextualize tasks.completer()
-
-		# Chain
-		@
-
-	# Render documents
-	# next(err)
-	renderDocuments: (opts={}) ->
-		# Prepare
-		docpad = @
-		logger = @logger
-
-		# Extract
-		{documents,next} = opts
-
-		# Log
-		logger.log 'debug', "Rendering #{documents.length} files"
-
-		# Async
-		tasks = new balUtil.Group (err) ->
-			return next?(err)  if err
-			# After
-			docpad.emitSync 'renderAfter', {}, (err) ->
-				logger.log 'debug', 'Rendered #{documents.length} files'  unless err
-				next?(err)
-
-		# Get the template data
-		templateData = @getTemplateData()
-
-		# Push the render tasks
-		documents.forEach (document) ->
-			tasks.push (complete) ->
-				documentDynamic = document.get('dynamic')
-				documentRender = document.get('render')
-				if documentDynamic or (documentRender? and !documentRender)
-					return complete()
-				docpad.render(document,templateData,complete)
-
-		# Fire the render tasks
-		if tasks.total
-			@emitSync 'renderBefore', {documents,templateData}, (err) =>
-				return next?(err)  if err
-				tasks.async()
-		else
-			tasks.exit()
-
-		# Chain
-		@
-
-	# Write documents
-	# next(err)
-	writeFiles: (err) ->
-		# Prepare
-		docpad = @
-		logger = @logger
-
-		# Extract
-		{documents,next} = opts
-
-		# Log
-		logger.log 'debug', "Writing #{documents.length} files"
-
-		# Async
-		tasks = new balUtil.Group (err) ->
-			# After
-			docpad.emitSync 'writeAfter', {}, (err) ->
-				logger.log 'debug', 'Wrote #{documents.length} files'  unless err
-				next?(err)
-
-		# Check
-		unless documents.length
-			return tasks.exit()
-
-		# Cycle
-		tasks.total = documents.length
-		documents.forEach (document) ->
-			# Fetch
-			outPath = document.get('outPath')
-			relativePath = document.get('relativePath')
-
-			# Skip
-			documentDynamic = document.get('dynamic')
-			documentRender = document.get('render')
-			documentWrite = document.get('write')
-			if documentDynamic or (documentRender? and !documentRender) or (documentWrite? and !documentWrite)
-				return tasks.complete()
-
-			# Ensure path
-			balUtil.ensurePath path.dirname(outPath), (err) ->
-				# Error
-				return tasks.exit(err)  if err
-
-				# Write document
-				logger.log 'debug', "Writing file: #{relativePath}"
-				if document.get('encoding') is 'binary'
-					document.write (err) ->
-						tasks.complete(err)
-				else
-					document.writeRendered (err) ->
-						tasks.complete(err)
-
 
 	# Parse the files
 	generateParse: (next) ->
@@ -1320,6 +1304,10 @@ class DocPad extends EventSystem
 
 			# Tasks
 			tasks = new balUtil.Group (err) ->
+				# Log
+				logger.log 'debug', 'Parsed everything'
+				logger.log 'debug', 'Contextualizing everything'
+
 				# Check
 				if err
 					docpad.warn("Failed to parse everything. The error follows:",err)
@@ -1332,9 +1320,9 @@ class DocPad extends EventSystem
 					# After
 					docpad.emitSync 'parseAfter', {}, (err) ->
 						if err
-							docpad.warn("Failed to parse everything. The error follows:",err)
+							docpad.warn("Failed to contextualize everything. The error follows:",err)
 						else
-							logger.log('debug', 'Parsed everything')
+							logger.log('debug', 'Contextualized everything')
 						return next?(err)
 			tasks.total = 3
 
@@ -1369,8 +1357,8 @@ class DocPad extends EventSystem
 	# Generate Parse: Contextualize
 	generateParseContextualize: (next) ->
 		# Contextualize everything in the database
-		@contextualizeDocuments(
-			documents: @database
+		@contextualizeFiles(
+			collection: @database
 			next: next
 		)
 
@@ -1382,7 +1370,7 @@ class DocPad extends EventSystem
 	generateRender: (next) ->
 		# Render all the documents
 		@renderDocuments(
-			documents: @collections.documents
+			collection: @collections.documents
 			next: next
 		)
 
@@ -1408,13 +1396,13 @@ class DocPad extends EventSystem
 
 			# Write all the documents
 			@renderDocuments(
-				documents: @collections.documents
+				collection: @collections.documents
 				next: tasks.completer()
 			)
 
 			# Write all the files
 			@renderDocuments(
-				documents: @collections.files
+				collection: @collections.files
 				next: tasks.completer()
 			)
 
@@ -1458,10 +1446,12 @@ class DocPad extends EventSystem
 				docpad.emitSync 'generateBefore', server: docpad.server, (err) ->
 					return complete(err)  if err
 					# Continue
-					path.exists docpad.config.srcPath, (exists) ->
+					pathUtil.exists docpad.config.srcPath, (exists) ->
 						# Check
 						if exists is false
 							return complete new Error 'Cannot generate website as the src dir was not found'
+						# Wipe the models as we do not yet support differential rendering
+						docpad.database.reset([])
 						# Generate Parse
 						docpad.generateParse (err) ->
 							return complete(err)  if err
@@ -1584,6 +1574,7 @@ class DocPad extends EventSystem
 
 					# Prepare change handler
 					changeHappened = (eventName,filePath,fileCurrentStat,filePreviousStat) ->
+						###
 						# Differential Rendering?
 						if config.differentialRendering
 
@@ -1602,12 +1593,13 @@ class DocPad extends EventSystem
 
 							# Re-Render anything that should always re-render
 							database.findAll(referencesOthers: true).render()
-						
+
 						# Re-Render everything
 						else
-							docpad.action 'generate', (err) ->
-								docpad.error(err)  if err
-								logger.log 'Regenerated due to file watch at '+(new Date()).toLocaleString()
+						###
+						docpad.action 'generate', (err) ->
+							docpad.error(err)  if err
+							logger.log 'Regenerated due to file watch at '+(new Date()).toLocaleString()
 
 					# Watch the source directory
 					close()
@@ -1693,7 +1685,7 @@ class DocPad extends EventSystem
 				return fatal(lockError)  if lockError
 
 				# Check if already exists
-				path.exists docpad.config.srcPath, (exists) ->
+				pathUtil.exists docpad.config.srcPath, (exists) ->
 					# Check
 					if exists
 						logger.log 'info', "Didn't place the skeleton as the desired structure already exists"
@@ -1778,11 +1770,11 @@ class DocPad extends EventSystem
 							# Routing
 							server.use (req,res,next) ->
 								# Check
-								return next?()  unless docpad.documents
+								return next?()  unless docpad.database
 
 								# Prepare
 								cleanUrl = req.url.replace(/\?.*/,'')
-								document = docpad.documents.findOne(urls: '$in': cleanUrl)
+								document = docpad.database.findOne(urls: '$in': cleanUrl)
 								return next?()  unless document
 
 								# Fetch
