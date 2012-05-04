@@ -1316,23 +1316,17 @@ class DocPad extends EventSystem
 		docpad = @
 		logger = @logger
 
-		###
-		TODO:
-		we currently have already initialised plugins by this point
-		which we do not want as we may be re-install them
-		we should initialise plugins after the initNodeModules has completed
-		###
-
 		# Re-Initialise the Website's modules
 		@initNodeModules(
 			path: @config.rootPath
-			force: true
-			next: (err) =>
+			next: (err) ->
 				# Error?
-				return @error(err)  if err
+				return docpad.error(err)  if err
 
-				# Done
-				return next?()
+				# Re-load configuration
+				docpad.loadConfiguration {}, {blocking:false}, (err) ->
+					# Forward
+					return next?(err)
 		)
 
 		# Chain
