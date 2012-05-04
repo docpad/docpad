@@ -2,7 +2,7 @@
 fs = require('fs')
 path = require('path')
 {cliColor} = require('caterpillar')
-DocPad = require(path.join __dirname, '..', 'docpad')
+DocPad = require(__dirname+'/../docpad')
 
 # =================================
 # The Console Interface
@@ -68,7 +68,7 @@ class ConsoleInterface
 		program
 			.option(
 				'-f, --force'
-				"force a re-install of all plugin dependencies"
+				"force a re-install of all modules"
 			)
 			.option(
 				'-s, --skeleton <skeleton>'

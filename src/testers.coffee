@@ -6,7 +6,7 @@ chai = require('chai')
 expect = chai.expect
 assert = chai.assert
 request = require('request')
-DocPad = require(path.join __dirname, 'docpad')
+DocPad = require(__dirname+'/docpad')
 
 # Prepare
 pluginPort = 3183

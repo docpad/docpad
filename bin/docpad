@@ -1,3 +1,2 @@
 #!/usr/bin/env node
-path = require('path');
-require(path.join(__dirname,'..','lib','bin','docpad'));
+require(__dirname+'/../lib/bin/docpad');

@@ -1,7 +1,7 @@
 # If you change something here, be sure to change it in package.json's scripts as well
 
 dev:
-	coffee -w -o lib/ -c src/
+	./node_modules/.bin/coffee -w -o lib/ -c src/
 
 test:
 	make clean
