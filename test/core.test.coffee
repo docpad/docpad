@@ -43,7 +43,12 @@ describe 'core', ->
 		@timeout(testWait)
 		docpad = DocPad.createInstance docpadConfig, (err) ->
 			throw err  if err
-			logger = docpad.logger
+			done()
+
+	it 'should install correctly', (done) ->
+		@timeout(testWait)
+		docpad.action 'install', (err) ->
+			throw err  if err
 			done()
 
 	it 'should run correctly', (done) ->
