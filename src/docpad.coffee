@@ -1320,8 +1320,8 @@ class DocPad extends EventSystem
 		@initNodeModules(
 			path: @config.rootPath
 			next: (err) ->
-				# Error?
-				return docpad.error(err)  if err
+				# Forward on error?
+				return next?(err)  if err
 
 				# Re-load configuration
 				docpad.loadConfiguration {}, {blocking:false}, (err) ->
