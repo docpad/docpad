@@ -1,5 +1,8 @@
 ## History
 
+- v5.2.0 May 4, 2012
+	- To be done...
+
 - v5.1.2 April 26, 2012
 	- Fixed some UTF8 encoded files from being detected as binary
 	- Fixed documents with no extension being outputted with an undefined extension

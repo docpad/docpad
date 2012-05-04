@@ -859,7 +859,6 @@ class DocPad extends EventSystem
 			require: require
 			docpad: @
 			database: @database
-			documents: @documents.sortArray(date:-1)  # only here for b/c
 			collections: @collections
 			document: null
 			site: {}
@@ -1052,7 +1051,10 @@ class DocPad extends EventSystem
 				return next?(err)
 
 		# Get the template data
-		templateData = @getTemplateData()
+		templateData = @getTemplateData(
+			# only here for b/c
+			documents: @documents.sortArray(date:-1)
+		)
 
 		# Push the render tasks
 		collection.forEach (file) ->
@@ -1090,9 +1092,8 @@ class DocPad extends EventSystem
 		# Async
 		tasks = new balUtil.Group (err) ->
 			# After
-			docpad.emitSync 'writeAfter', {}, (err) ->
-				logger.log 'debug', "Wrote #{collection.length} files"  unless err
-				next?(err)
+			logger.log 'debug', "Wrote #{collection.length} files"  unless err
+			return next?(err)
 
 		# Check
 		unless collection.length
