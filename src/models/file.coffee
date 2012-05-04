@@ -334,7 +334,6 @@ class FileModel extends Model
 			else
 				basename
 		id or= relativeBase
-		console.log(fullPath,id)
 
 		# Date
 		date or= new Date(@stat.mtime)  if @stat
@@ -388,7 +387,7 @@ class FileModel extends Model
 		logger.log 'debug', "Writing the file: #{fileOutPath}"
 
 		# Write data
-		@writeFile fileOutPath, content, (err) ->
+		balUtil.writeFile fileOutPath, content, (err) ->
 			# Check
 			return next?(err)  if err
 

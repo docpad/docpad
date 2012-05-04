@@ -195,7 +195,7 @@ class DocumentModel extends FileModel
 		logger.log 'debug', "Writing the rendered file: #{fileOutPath}"
 
 		# Write data
-		@writeFile fileOutPath, contentRendered, (err) ->
+		balUtil.writeFile fileOutPath, contentRendered, (err) ->
 			# Check
 			return next?(err)  if err
 
@@ -234,7 +234,7 @@ class DocumentModel extends FileModel
 		@set({header,body,content})
 
 		# Write content
-		@writeFile fileOutPath, content, (err) ->
+		balUtil.writeFile fileOutPath, content, (err) ->
 			# Check
 			return next?(err)  if err
 
@@ -274,14 +274,11 @@ class DocumentModel extends FileModel
 	contextualize: (next) ->
 		# Super
 		super =>
-			console.log('a')
 			# Get our highest ancestor
 			@getEve (err,eve) =>
-				console.log('b')
 				# Check
 				return next?(err)  if err
 
-				console.log('c')
 				# Fetch
 				fullPath = @get('fullPath')
 				basename = @get('basename')
@@ -291,7 +288,6 @@ class DocumentModel extends FileModel
 				name = @meta.get('name') or null
 				outPath = @meta.get('outPath') or null
 
-				console.log('d')
 				# Adjust
 				extensionRendered = eve.get('extensionRendered')  if eve
 				filenameRendered = if extensionRendered then "#{basename}.#{extensionRendered}" else "#{basename}"
@@ -300,7 +296,6 @@ class DocumentModel extends FileModel
 				outPath or= if @outDirPath then pathUtil.join(@outDirPath,url) else null
 				@addUrl(url)
 
-				console.log('e')
 				# Content Types
 				contentTypeRendered = mime.lookup(outPath or fullPath)
 
@@ -326,35 +321,28 @@ class DocumentModel extends FileModel
 		file = @
 		layoutId = @get('layout')
 
-		console.log 'getLayout a', @get('id'), @get('fullPath'), layoutId
 		# No layout
 		unless layoutId
-			console.log 'getLayout b'
 			return next?(null,null)
 
 		# Cached layout
 		else if @layout and layoutId is @layout.id
-			console.log 'getLayout c', @layout.id
 			return next?(null,@layout)
 
 		# Uncached layout
 		else
-			console.log 'getLayout d'
 			# Find parent
 			layout = @layouts.findOne {id: layoutId}
 			# Error
 			if err
-				console.log 'getLayout e'
 				return next?(err)
 			# Not Found
 			else unless layout
-				console.log 'getLayout f'
-				console.log @layouts.toJSON()
+				debugger
 				err = new Error "Could not find the specified layout: #{layoutId}"
 				return next?(err)
 			# Found
 			else
-				console.log 'getLayout g', layout.get('fullPath')
 				#file.layout = layout
 				return next?(null,layout)
 
@@ -366,17 +354,12 @@ class DocumentModel extends FileModel
 	# next(err,layout)
 	getEve: (next) ->
 		if @hasLayout()
-			console.log('getEve a')
 			@getLayout (err,layout) ->
-				console.log('getEve b')
 				if err
-					console.log('getEve c')
 					return next?(err,null)
 				else
-					console.log('getEve d')
 					layout.getEve(next)
 		else
-			console.log('getEve e')
 			next?(null,@)
 		@
 

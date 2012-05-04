@@ -1,7 +1,7 @@
 # Requires
 fs = require('fs')
 request = require('request')
-DocPad = require("#{__dirname}/../lib/docpad.coffee")
+DocPad = require("#{__dirname}/../lib/docpad")
 chai = require('chai')
 expect = chai.expect
 
@@ -15,13 +15,15 @@ srcPath = "#{__dirname}/src"
 outPath = "#{__dirname}/out"
 outExpectedPath = "#{__dirname}/out-expected"
 baseUrl = "http://localhost:#{port}"
+testWait = 1000*60*5  # five minutes
 
 # Configure DocPad
 docpadConfig =
 	growl: false
 	port: port
 	rootPath: __dirname
-	logLevel: 7
+	logLevel: 5
+	skipUnsupportedPlugins: false
 
 # Fail on an uncaught error
 process.on 'uncaughtException', (err) ->
@@ -38,14 +40,14 @@ logger = null
 describe 'core', ->
 
 	it 'should instantiate correctly', (done) ->
-		@timeout(60000)
+		@timeout(testWait)
 		docpad = DocPad.createInstance docpadConfig, (err) ->
 			throw err  if err
 			logger = docpad.logger
 			done()
 
 	it 'should run correctly', (done) ->
-		@timeout(60000)
+		@timeout(testWait)
 		docpad.action 'run', (err) ->
 			throw err  if err
 			done()
@@ -54,7 +56,7 @@ describe 'core', ->
 				testMarkup = (markupFile) ->
 					describe markupFile, ->
 						it "should generate #{markupFile} files", (done) ->
-							@timeout(5000)
+							@timeout(testWait)
 							fs.readFile "#{outExpectedPath}/#{markupFile}", (err,expected) ->
 								throw err  if err
 								fs.readFile "#{outPath}/#{markupFile}", (err,actual) ->
@@ -73,8 +75,8 @@ describe 'core', ->
 					'.htaccess'
 					'html.html'
 					'coffee-parser.html'
-					'layout-single.html'
-					'layout-double.html'
+					'test-layout-single.html'
+					'test-layout-double.html'
 				]
 
 			describe 'server', ->

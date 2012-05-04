@@ -47,10 +47,10 @@ class DocPad extends EventSystem
 	# Models
 
 	# File Model
-	FileModel: require(pathUtil.join __dirname, 'models', 'file.coffee')
+	FileModel: require(pathUtil.join __dirname, 'models', 'file')
 
 	# Document Model
-	DocumentModel: require(pathUtil.join __dirname, 'models', 'document.coffee')
+	DocumentModel: require(pathUtil.join __dirname, 'models', 'document')
 
 
 	# ---------------------------------
@@ -99,7 +99,7 @@ class DocPad extends EventSystem
 	libPath: __dirname
 
 	# The main DocPad file
-	mainPath: pathUtil.join(__dirname, 'docpad.coffee')
+	mainPath: pathUtil.join(__dirname, 'docpad')
 
 	# The DocPad package.json path
 	packagePath: pathUtil.join(__dirname, '..', 'package.json')
@@ -131,6 +131,9 @@ class DocPad extends EventSystem
 
 		# Plugins which should be enabled or not pluginName: pluginEnabled
 		enabledPlugins: null  # {}
+
+		# Whether or not we should skip unsupported plugins
+		skipUnsupportedPlugins: true
 
 		# Configuration to pass to any plugins pluginName: pluginConfiguration
 		plugins: null  # {}
@@ -278,7 +281,7 @@ class DocPad extends EventSystem
 			collections = docpad.collections
 			database = docpad.database
 			config = docpad.config
-			collections.documents = database.createLiveChildCollection().setQuery('isDocument', fullPath: $beginsWith: config.documentsPath).sortBy(date:-1)
+			collections.documents = database.createLiveChildCollection().setQuery('isDocument', fullPath: $beginsWith: config.documentsPath)
 			collections.files = database.createLiveChildCollection().setQuery('isFile', fullPath: $beginsWith: config.filesPath)
 			collections.layouts = database.createLiveChildCollection().setQuery('isLayout', fullPath: $beginsWith: config.layoutsPath)
 
@@ -433,7 +436,6 @@ class DocPad extends EventSystem
 				@loadConfigPath websiteConfigPath, (err,data) ->
 					return tasks.complete(err)  if err
 					data or= {}
-					console.log(websiteConfigPath,data)
 
 					# Apply data to parent scope
 					websiteConfig = data
@@ -456,10 +458,16 @@ class DocPad extends EventSystem
 	# Init Node Modules
 	# next(err,results)
 	initNodeModules: (opts={}) ->
-		opts.npmPath = docpad.npmPath
-		opts.nodePath = docpad.config.nodePath
-		opts.force = docpad.config.force
+		# Prepare
+		opts.npmPath = @npmPath
+		opts.nodePath = @config.nodePath
+		opts.force = @config.force
 
+		# Forward
+		balUtil.initNodeModules(opts)
+
+		# Chain
+		@
 
 
 	# =================================
@@ -571,6 +579,7 @@ class DocPad extends EventSystem
 	# Instantiate a Document
 	createDocument: (data={},options={}) ->
 		# Prepare
+		docpad = @
 		options = _.extend(
 			logger: @logger
 			outDirPath: @config.outPath
@@ -684,7 +693,7 @@ class DocPad extends EventSystem
 		# Check
 		unless enabled
 			# Skip
-			logger.log 'debug', "Skipping plugin: #{pluginName}"
+			logger.log 'debug', "Skipped plugin: #{pluginName}"
 			return next()
 		else
 			# Load
@@ -692,7 +701,13 @@ class DocPad extends EventSystem
 			loader.exists (err,exists) ->
 				return next(err)  if err or not exists
 				loader.supported (err,supported) ->
-					return next(err)  if err or not supported
+					return next(err)  if err
+					unless supported
+						if docpad.config.skipUnsupportedPlugins
+							logger.log 'warn', "Skipped the unsupported plugin: #{pluginName}"
+							return next()
+						else
+							logger.log 'warn', "Continuing with the unsupported plugin: #{pluginName}"
 					loader.install (err) ->
 						return next(err)  if err
 						loader.load (err) ->
@@ -980,7 +995,6 @@ class DocPad extends EventSystem
 		else
 			tasks.total = collection.length
 			collection.forEach (file) ->
-				console.log(tasks.total, tasks.completed)
 				file.contextualize tasks.completer()
 
 		# Chain
@@ -1005,7 +1019,7 @@ class DocPad extends EventSystem
 			# After
 			docpad.emitSync 'renderAfter', {}, (err) ->
 				logger.log 'debug', "Rendered #{collection.length} files"  unless err
-				next?(err)
+				return next?(err)
 
 		# Get the template data
 		templateData = @getTemplateData()
@@ -1032,7 +1046,7 @@ class DocPad extends EventSystem
 
 	# Write documents
 	# next(err)
-	writeFiles: (err) ->
+	writeFiles: (opts={}) ->
 		# Prepare
 		docpad = @
 		logger = @logger
@@ -1056,15 +1070,15 @@ class DocPad extends EventSystem
 
 		# Cycle
 		tasks.total = collection.length
-		documents.forEach (document) ->
+		collection.forEach (file) ->
 			# Fetch
-			outPath = document.get('outPath')
-			relativePath = document.get('relativePath')
+			outPath = file.get('outPath')
+			relativePath = file.get('relativePath')
 
 			# Skip
-			dynamic = document.get('dynamic')
-			render = document.get('render')
-			write = document.get('write')
+			dynamic = file.get('dynamic')
+			render = file.get('render')
+			write = file.get('write')
 			if dynamic or (render? and !render) or (write? and !write)
 				return tasks.complete()
 
@@ -1073,14 +1087,12 @@ class DocPad extends EventSystem
 				# Error
 				return tasks.exit(err)  if err
 
-				# Write document
+				# Write file
 				logger.log 'debug', "Writing file: #{relativePath}"
 				if file.get('encoding') is 'binary'
-					file.write (err) ->
-						tasks.complete(err)
+					file.write tasks.completer()
 				else
-					file.writeRendered (err) ->
-						tasks.complete(err)
+					file.writeRendered tasks.completer()
 
 
 	# ---------------------------------
@@ -1261,12 +1273,16 @@ class DocPad extends EventSystem
 		logger = @logger
 
 		# Initialise the Website's modules
-		@initNodeModules path: @config.rootPath, next: (err) =>
-			# Error?
-			return @error(err)  if err
+		@initNodeModules(
+			path: @config.rootPath
+			force: @config.force
+			next: (err) =>
+				# Error?
+				return @error(err)  if err
 
-			# Done
-			return next?()
+				# Done
+				return next?()
+		)
 
 		# Chain
 		@
@@ -1384,6 +1400,9 @@ class DocPad extends EventSystem
 		docpad = @
 		logger = @logger
 
+		# Log
+		logger.log 'debug', 'Writing everything'
+
 		# Before
 		docpad.emitSync 'writeBefore', {}, (err) ->
 			# Async
@@ -1391,18 +1410,18 @@ class DocPad extends EventSystem
 				# After
 				docpad.emitSync 'writeAfter', {}, (err) ->
 					logger.log 'debug', 'Wrote everything'  unless err
-					next?(err)
+					return next?(err)
 			tasks.total = 2
 
 			# Write all the documents
-			@renderDocuments(
-				collection: @collections.documents
+			docpad.writeFiles(
+				collection: docpad.collections.documents
 				next: tasks.completer()
 			)
 
 			# Write all the files
-			@renderDocuments(
-				collection: @collections.files
+			docpad.writeFiles(
+				collection: docpad.collections.files
 				next: tasks.completer()
 			)
 

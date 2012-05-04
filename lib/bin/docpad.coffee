@@ -1,7 +1,7 @@
-#!/usr/bin/env coffee
+# Necessary
 path = require('path')
-DocPad = require(path.join __dirname, '..', 'lib', 'docpad.coffee')
-ConsoleInterface = require(path.join __dirname, '..', 'lib', 'interfaces', 'console.coffee')
+DocPad = require(path.join __dirname, '..', 'docpad')
+ConsoleInterface = require(path.join __dirname, '..', 'interfaces', 'console')
 
 # Create Program
 program = require(path.join __dirname, '..', 'node_modules', 'commander', 'index.js')
