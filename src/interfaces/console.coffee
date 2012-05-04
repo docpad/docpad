@@ -1,6 +1,4 @@
 # Requires
-fs = require('fs')
-path = require('path')
 {cliColor} = require('caterpillar')
 DocPad = require(__dirname+'/../docpad')
 

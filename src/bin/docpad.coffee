@@ -1,5 +1,4 @@
 # Necessary
-path = require('path')
 DocPad = require(__dirname+'/../docpad')
 ConsoleInterface = require(__dirname+'/../interfaces/console')
 
