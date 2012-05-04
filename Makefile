@@ -1,7 +1,7 @@
 # If you change something here, be sure to change it in package.json's scripts as well
 
 dev:
-	coffee -w src  -o lib
+	coffee -w -o lib/ -c src/
 
 test:
 	make clean

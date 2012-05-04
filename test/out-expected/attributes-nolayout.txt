@@ -4,7 +4,7 @@
   filename: 'attributes-nolayout.txt.coffee',
   relativePath: 'attributes-nolayout.txt.coffee',
   relativeBase: 'attributes-nolayout',
-  contentType: 'text/plain',
+  contentType: 'application/octet-stream',
   urls: [ '/attributes-nolayout.coffee', '/attributes-nolayout.txt' ],
   content: '# Fetch data\nattrs = @documentModel.getAttributes()\n\n# Delete environment specific variables\ndelete attrs.date\ndelete attrs.fullPath\ndelete attrs.outPath\ndelete attrs.data\n\n# Output data\ntext @require(\'util\').inspect(attrs)',
   encoding: 'utf8',
