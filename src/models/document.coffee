@@ -4,7 +4,7 @@ balUtil = require('bal-util')
 _ = require('underscore')
 Backbone = require('backbone')
 mime = require('mime')
-FileModel = require(pathUtil.join __dirname, 'file')
+FileModel = require(__dirname+'/file')
 
 # Optional
 CSON = null
@@ -65,10 +65,6 @@ class DocumentModel extends FileModel
 
 		# ---------------------------------
 		# User set variables
-
-		# The types of file this is
-		# E.g. file, document, layout, partial, post
-		type: null  # Array, ['file']
 
 		# Whether or not this file should be re-rendered on each request
 		dynamic: false
@@ -401,11 +397,10 @@ class DocumentModel extends FileModel
 		# Prepare complete
 		finish = (err) ->
 			# Apply rendering if we are a document
-			if file.type in ['document','partial']
-				file.set(
-					contentRendered: rendering
-					rendered: true
-				)
+			file.set(
+				contentRendered: rendering
+				rendered: true
+			)
 
 			# Error
 			return next(err)  if err
@@ -433,10 +428,9 @@ class DocumentModel extends FileModel
 		# next(err)
 		renderLayouts = (next) ->
 			# Apply rendering without layouts if we are a document
-			if file.type in ['document','partial']
-				file.set(
-					contentRenderedWithoutLayouts: rendering
-				)
+			file.set(
+				contentRenderedWithoutLayouts: rendering
+			)
 
 			# Grab the layout
 			file.getLayout (err,layout) ->

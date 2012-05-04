@@ -7,7 +7,7 @@ Backbone = require('backbone')
 mime = require('mime')
 
 # Base Model
-{Model} = require(pathUtil.join __dirname, '..', 'base')
+{Model} = require(__dirname+'/../base')
 
 
 # ---------------------------------
@@ -196,15 +196,13 @@ class FileModel extends Model
 		if file.stat
 			tasks.complete()
 		else
-			balUtil.openFile -> fsUtil.stat fullPath, (err,fileStat) ->
-				balUtil.closeFile()
+			balUtil.stat fullPath, (err,fileStat) ->
 				return next?(err)  if err
 				file.stat = fileStat
 				tasks.complete()
 
 		# Read the file
-		balUtil.openFile -> fsUtil.readFile fullPath, (err,data) ->
-			balUtil.closeFile()
+		balUtil.readFile fullPath, (err,data) ->
 			return next?(err)  if err
 			file.parseData(data, tasks.completer())
 

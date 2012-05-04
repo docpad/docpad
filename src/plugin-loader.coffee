@@ -4,6 +4,7 @@ fs = require('fs')
 _ = require('underscore')
 semver = require('semver')
 balUtil = require('bal-util')
+coffee = require('coffee-script')
 
 # Define Plugin Loader
 class PluginLoader
@@ -75,8 +76,7 @@ class PluginLoader
 						return next?(null,true)
 			else
 				@packagePath = packagePath
-				balUtil.openFile => fs.readFile packagePath, (err,data) =>
-					balUtil.closeFile()
+				balUtil.readFile packagePath, (err,data) =>
 					if err
 						return next?(err,false)
 					else
@@ -99,24 +99,24 @@ class PluginLoader
 		# Chain
 		@
 
-	# Supported
-	# Check if this plugin is supported on our platform
+	# Unsupported
+	# Check if this plugin is unsupported
 	# next(err,supported)
-	supported: (next) ->
+	unsupported: (next) ->
 		# Prepare
-		supported = true
+		unsupported = false
 
 		# Check type
 		if @packageData
 			keywords = @packageData.keywords or []
 			unless 'docpad-plugin' in keywords
-				supported = false
+				unsupported = 'type'
 
 		# Check platform
 		if @packageData and @packageData.platforms
 			platforms = @packageData.platforms or []
 			unless process.platform in platforms
-				supported = false
+				unsupported = 'platform'
 
 		# Check engines
 		if @packageData and @packageData.engines
@@ -125,15 +125,15 @@ class PluginLoader
 			# Node engine
 			if engines.node?
 				unless semver.satisfies(process.version, engines.node)
-					supported = false
+					unsupported = 'engine'
 
 			# DocPad engine
 			if engines.docpad?
 				unless semver.satisfies(@docpad.version, engines.docpad)
-					supported = false
+					unsupported = 'version'
 
 		# Supported
-		next?(null,supported)
+		next?(null,unsupported)
 
 		# Chain
 		@
