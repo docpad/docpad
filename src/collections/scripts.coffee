@@ -18,7 +18,7 @@ class ScriptsCollection extends ElementsCollection
 			if _.isString(value) and /^\</.test(value) is false
 				# convert url to script tag
 				values[key] = """
-					<script defer="defer" srcdefer="defer"="#{value}" />
+					<script defer="defer" src="#{value}"></script>
 					"""
 
 		# Call the super with our values

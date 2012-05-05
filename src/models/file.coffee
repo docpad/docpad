@@ -59,7 +59,7 @@ class FileModel extends Model
 		fullPath: null
 
 		# The full directory path of our source file
-		relativeDirPath: null
+		fullDirPath: null
 
 		# The final rendered path of our file
 		outPath: null
@@ -137,6 +137,14 @@ class FileModel extends Model
 	# Get Meta
 	getMeta: ->
 		return @meta
+
+	# Is Text?
+	isText: ->
+		return @get('encoding') isnt 'binary'
+
+	# Is Binary?
+	isBinary: ->
+		return @get('encoding') is 'binary'
 
 	# Load
 	# If the fullPath exists, load the file
