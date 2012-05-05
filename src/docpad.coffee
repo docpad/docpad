@@ -47,14 +47,39 @@ class DocPad extends EventSystem
 	# Models
 
 	# File Model
-	FileModel: require(pathUtil.join __dirname, 'models', 'file')
+	FileModel: require(__dirname+'/models/file')
 
 	# Document Model
-	DocumentModel: require(pathUtil.join __dirname, 'models', 'document')
+	DocumentModel: require(__dirname+'/models/document')
 
 
 	# ---------------------------------
 	# Collections
+
+	# Query Collection
+	QueryCollection: require(__dirname+'/base').QueryCollection
+
+	# Elements Collection
+	ElementsCollection: require(__dirname+'/collections/elements')
+
+	# Scripts Collection
+	ScriptsCollection: require(__dirname+'/collections/scripts')
+
+	# Styles Collection
+	StylesCollection: require(__dirname+'/collections/styles')
+
+	# Blocks
+	blocks: null
+	### {
+		# A collection of meta elements
+		meta: null  # Elements Collection
+
+		# A collection of script elements
+		scripts: null  # Scripts Collection
+
+		# Collection of style elements
+		styles: null  # Styles Collection
+	} ###
 
 	# Collections
 	collections: null
@@ -239,6 +264,10 @@ class DocPad extends EventSystem
 		# Whether or not to check for newer versions of DocPad
 		checkVersion: true
 
+		# Collections
+		# A hash of functions that create collections
+		collections: null
+
 
 	# =================================
 	# Initialization Functions
@@ -260,6 +289,7 @@ class DocPad extends EventSystem
 			transports:
 				formatter: module: module
 		@setLogLevel(6)
+		logger = @logger
 
 		# Bind the error handler, so we don't crash on errors
 		process.setMaxListeners(0)
@@ -272,41 +302,58 @@ class DocPad extends EventSystem
 		@loadedPlugins = {}
 		@exchange = {}
 		@collections = {}
+		@blocks = {}
 
 		# Initialize the collections
-		@database = queryEngine.createCollection()
+		@database = new @QueryCollection()
 
 		# Apply configuration
-		@loadConfiguration config, {}, (err) ->
+		@loadConfiguration config, {}, (err) =>
 			# Error?
-			return docpad.error(err)  if err
+			return @error(err)  if err
 
 			# Collections
-			collections = docpad.collections
-			database = docpad.database
-			config = docpad.config
-			collections.documents = database.createLiveChildCollection().setQuery('isDocument', fullPath: $beginsWith: config.documentsPath)
-			collections.files = database.createLiveChildCollection().setQuery('isFile', fullPath: $beginsWith: config.filesPath)
-			collections.layouts = database.createLiveChildCollection().setQuery('isLayout', fullPath: $beginsWith: config.layoutsPath)
-			docpad.documents = collections.documents  # only here for b/c
+			@collections.documents = @database.createLiveChildCollection().setQuery('isDocument', fullPath: $beginsWith: @config.documentsPath)
+			@collections.files = @database.createLiveChildCollection().setQuery('isFile', fullPath: $beginsWith: @config.filesPath)
+			@collections.layouts = @database.createLiveChildCollection().setQuery('isLayout', fullPath: $beginsWith: @config.layoutsPath)
+			@documents = @collections.documents  # only here for b/c
+
+			# Blocks
+			@blocks.meta = new @ElementsCollection()
+			@blocks.scripts = new @ScriptsCollection()
+			@blocks.styles = new @StylesCollection()
+			@blocks.meta.add([
+				'<meta http-equiv="X-Powered-By" content="DocPad"/>'
+			])
 
 			# Load Airbrake if we want to reportErrors
-			if docpad.config.reportErrors and /win/.test(process.platform) is false
+			if @config.reportErrors and /win/.test(process.platform) is false
 				airbrake = require('airbrake').createClient('e7374dd1c5a346efe3895b9b0c1c0325')
 
 			# Version Check
-			docpad.compareVersion()
+			@compareVersion()
 
 			# Log
-			docpad.logger.log 'debug', 'DocPad loaded succesfully'
-			docpad.logger.log 'debug', 'Loaded the following plugins:', _.keys(docpad.loadedPlugins).sort().join(', ')
+			logger.log 'debug', 'DocPad loaded succesfully'
+			logger.log 'debug', 'Loaded the following plugins:', _.keys(@loadedPlugins).sort().join(', ')
 
 			# Next
 			return next?()
 
+
 	# =================================
 	# Configuration
 
+	# Clean
+	clean: ->
+		# Perform a complete clean of our collections
+		@database.reset([])
+		@blocks.meta.reset([])
+		@blocks.scripts.reset([])
+		@blocks.styles.reset([])
+
+		# Chain
+		@
 
 	# Load a configuration url
 	# next(err,parsedData)
@@ -335,6 +382,42 @@ class DocPad extends EventSystem
 			return next?(null,null)  unless exists
 			# Read the path using CSON
 			CSON.parseFile(configPath, next)
+
+		# Chain
+		@
+
+	# Load collections
+	loadCollections: (next) ->
+		# Prepare
+		docpad = @
+		database = @database
+		collections = @collections
+		@config.collections or= {}
+
+		# Group
+		tasks = new balUtil.Group (err) =>
+			docpad.error(err)  if err
+			return next?()
+
+		# Cycle
+		_.each @config.collections, (fn,name) ->
+			tasks.push (complete) ->
+				if fn.length is 2 # callback
+					fn database, (err,collection) ->
+						docpad.error(err)  if err
+						if collection
+							collection.live(true)  # make it a live collection
+							collections[name] = collection  # apply the collection
+						complete()
+				else
+					collection = fn(database)
+					if collection
+						collection.live(true)  # make it a live collection
+						collections[name] = collection  # apply the collection
+					complete()
+
+		# Run
+		tasks.async()
 
 		# Chain
 		@
@@ -428,8 +511,18 @@ class DocPad extends EventSystem
 					@logger = @config.logger  if @config.logger
 					@setLogLevel(@config.logLevel)
 
+					# Async
+					postTasks = new balUtil.Group (err) =>
+						return fatal(err)  if err
+						return complete()
+					postTasks.total = 2
+
+					# Load collections
+					@loadCollections(postTasks.completer())
+
 					# Initialize
-					@loadPlugins(complete)
+					@loadPlugins(postTasks.completer())
+
 
 				# Prepare configuration loading
 				tasks.total = 3
@@ -853,16 +946,26 @@ class DocPad extends EventSystem
 	getTemplateData: (userData) ->
 		# Prepare
 		userData or= {}
+		docpad = @
 
 		# Initial merge
 		templateData = _.extend({
 			require: require
+			include: (subRelativePath) ->
+				fullRelativePath = @document.relativeDirPath+'/'+subRelativePath
+				result = docpad.database.findOne(relativePath: fullRelativePath)
+				if result
+					return result.get('contentRendered') or result.get('content')
+				else
+					warn = "The file #{relativeBase} was not found..."
+					docpad.warn(warn)
+					return warn
 			docpad: @
 			database: @database
 			collections: @collections
 			document: null
 			site: {}
-			blocks: {}
+			blocks: @blocks
 		}, @config.templateData, userData)
 
 		# Add site data
@@ -870,14 +973,6 @@ class DocPad extends EventSystem
 		templateData.site.keywords or= []
 		if _.isString(templateData.site.keywords)
 			templateData.site.keywords = templateData.site.keywords.split(/,\s*/g)
-
-		# Add block data
-		templateData.blocks.scripts or= []
-		templateData.blocks.styles or= []
-		templateData.blocks.meta or= []
-		templateData.blocks.meta.push(
-			'<meta http-equiv="X-Powered-By" content="DocPad"/>'
-		)
 
 		# Return
 		return templateData
@@ -1120,10 +1215,10 @@ class DocPad extends EventSystem
 
 				# Write file
 				logger.log 'debug', "Writing file: #{relativePath}"
-				if file.get('encoding') is 'binary'
-					file.write tasks.completer()
-				else
+				if file.writeRendered?
 					file.writeRendered tasks.completer()
+				else
+					file.write tasks.completer()
 
 
 	# ---------------------------------
@@ -1515,8 +1610,8 @@ class DocPad extends EventSystem
 						# Check
 						if exists is false
 							return complete new Error 'Cannot generate website as the src dir was not found'
-						# Wipe the models as we do not yet support differential rendering
-						docpad.database.reset([])
+						# Perform a complete clean of our collections
+						docpad.clean()
 						# Generate Parse
 						docpad.generateParse (err) ->
 							return complete(err)  if err
@@ -1604,7 +1699,6 @@ class DocPad extends EventSystem
 	# Watch
 
 	# Watch
-	# NOTE: Watching a directory and all it's contents (including subdirs and their contents) appears to be quite expiremental in node.js - if you know of a watching library that is quite stable, then please let me know - b@lupton.cc
 	watchAction: (opts,next) ->
 		# Require
 		watchr = require('watchr')
@@ -1614,97 +1708,115 @@ class DocPad extends EventSystem
 		docpad = @
 		database = @database
 		logger = @logger
-		watchrInstance = null
+		srcWatcher = null
+		configWatcher = null
 
-		# Exits
+		# Close our watchers
 		close = ->
-			if watchrInstance
-				watchrInstance.close()
-				watchrInstance = null
+			if srcWatcher
+				srcWatcher.close()
+				srcWatcher = null
+			if configWatcher
+				configWatcher.close()
+				configWatcher = null
+
+		# Restart our watchers
+		restart = (next) ->
+			# Close our watchers
+			close()
+
+			# Start a group
+			tasks = new balUtil.Group(next)
+			tasks.total = 2
+
+			# Watch the source
+			srcWatcher = watchr.watch(
+				path: docpad.config.srcPath
+				listener: changeHandler
+				next: tasks.completer()
+				ignorePatterns: true
+			)
+
+			# Watch the config
+			configWatcher = watchr.watch(
+				path: docpad.config.configPath
+				listener: ->
+					docpad.loadConfiguration {}, {blocking:false}, ->
+						changeHandler('config')
+				next: tasks.completer()
+			)
+
+		# Change event handler
+		changeHandler = (eventName,filePath,fileCurrentStat,filePreviousStat) ->
+			###
+			# Differential Rendering?
+			if config.differentialRendering
+
+				# Handle the action
+				if eventName is 'unlink'
+					changedFile.destroy()
+				else if eventName is 'change'
+					# Re-render just this file
+					changedFile = database.findOne(fullPath: filePath)
+					docpad.prepareAndRender changedFile, docpad.getTemplateData(), ->
+						# Re-Render anything that references the changes
+						pendingFiles = database.findAll(references: $has: changedFile).render()
+						docpad.prepareAndRender pend
+
+				else if eventName is 'new'
+
+				# Re-Render anything that should always re-render
+				database.findAll(referencesOthers: true).render()
+
+			# Re-Render everything
+			else
+			###
+			docpad.action 'generate', (err) ->
+				docpad.error(err)  if err
+				logger.log 'Regenerated due to file watch at '+(new Date()).toLocaleString()
+
+		# A fatal error occured
 		fatal = (err) ->
 			docpad.fatal(err,next)
-		complete = (err) ->
-			docpad.finish 'watching', (lockError) ->
-				return fatal(lockError)  if lockError
-				docpad.unblock 'loading', (lockError) ->
-					return fatal(lockError)  if lockError
-					return next?(err)
-		watch = (next) ->
+
+		# Start watching
+		watch = ->
 			# Block loading
-			docpad.block 'loading', (err) ->
-				return next?(err)  if err
-				docpad.start 'watching', (err) ->
-					# Prepare
+			docpad.block 'loading', (lockError) ->
+				return fatal(lockError)  if lockError
+				docpad.start 'watching', (lockError) ->
+					return fatal(lockError)  if lockError
 					logger.log 'Watching setup starting...'
+					restart (err) ->
+						docpad.finish 'watching', (lockError) ->
+							return fatal(lockError)  if lockError
+							docpad.unblock 'loading', (lockError) ->
+								return fatal(lockError)  if lockError
+								logger.log 'Watching setup'
+								return next?(err)
 
-					# Prepare change handler
-					changeHappened = (eventName,filePath,fileCurrentStat,filePreviousStat) ->
-						###
-						# Differential Rendering?
-						if config.differentialRendering
-
-							# Handle the action
-							if eventName is 'unlink'
-								changedFile.destroy()
-							else if eventName is 'change'
-								# Re-render just this file
-								changedFile = database.findOne(fullPath: filePath)
-								docpad.prepareAndRender changedFile, docpad.getTemplateData(), ->
-									# Re-Render anything that references the changes
-									pendingFiles = database.findAll(references: $has: changedFile).render()
-									docpad.prepareAndRender pend
-
-							else if eventName is 'new'
-
-							# Re-Render anything that should always re-render
-							database.findAll(referencesOthers: true).render()
-
-						# Re-Render everything
-						else
-						###
-						docpad.action 'generate', (err) ->
-							docpad.error(err)  if err
-							logger.log 'Regenerated due to file watch at '+(new Date()).toLocaleString()
-
-					# Watch the source directory
-					close()
-					watchrInstance = watchr.watch(
-						path: docpad.config.srcPath
-						listener: changeHappened
-						next: next
-						ignorePatterns: true
-					)
-
-		# Unwatch if loading started
+		# Stop watching if loading starts
 		docpad.when 'loading:started', (err) ->
 			return fatal(err)  if err
-			# Unwatch the source directory
 			close()
 
-			# Watch when loading finished
+			# Start watching once loading has finished
 			docpad.onceFinished 'loading', (err) ->
 				return fatal(err)  if err
-				# Watch the source directory
 				return watch()
 
-		# Unwatch if generating started
+		# Stop watching if generating starts
 		docpad.whenFinished 'generating:started', (err) ->
 			return fatal(err)  if err
-			# Unwatch the source directory
 			close()
 
-			# Watch when generating finished
+			# Start watching once generating has finished
 			docpad.onceFinished 'generating', (err) ->
 				return fatal(err)  if err
-				# Watch the source directory
 				return watch()
 
 		# Watch
-		watch ->
-			# Completed
-			logger.log 'Watching setup'
-			return complete()
-
+		watch()
 
 		# Chain
 		@

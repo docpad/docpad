@@ -2,15 +2,20 @@
 pathUtil = require('path')
 balUtil = require('bal-util')
 _ = require('underscore')
-Backbone = require('backbone')
 mime = require('mime')
-FileModel = require(__dirname+'/file')
 
 # Optional
 CSON = null
 yaml = null
 
+# Local
+{Model} = require(__dirname+'/../base')
+FileModel = require(__dirname+'/file')
+
+
+# ---------------------------------
 # Document Model
+
 class DocumentModel extends FileModel
 
 	# Model Type
@@ -82,7 +87,7 @@ class DocumentModel extends FileModel
 		{@layouts,meta} = options
 
 		# Apply meta
-		@meta = new Backbone.Model()
+		@meta = new Model()
 		@meta.set(meta)  if meta
 
 		# Forward
@@ -104,6 +109,7 @@ class DocumentModel extends FileModel
 	parseData: (data,next) ->
 		# Reset
 		@layout = null
+		@getMeta().clear()
 
 		# Super
 		super data, =>
@@ -276,18 +282,21 @@ class DocumentModel extends FileModel
 				return next?(err)  if err
 
 				# Fetch
+				meta = @getMeta()
 				fullPath = @get('fullPath')
 				basename = @get('basename')
 				relativeBase = @get('relativeBase')
 				extensionRendered = @get('extensionRendered')
-				url = @meta.get('url') or null
-				name = @meta.get('name') or null
-				outPath = @meta.get('outPath') or null
+				url = meta.get('url') or null
+				slug = meta.get('slug') or null
+				name = meta.get('name') or null
+				outPath = meta.get('outPath') or null
 
 				# Adjust
 				extensionRendered = eve.get('extensionRendered')  if eve
 				filenameRendered = if extensionRendered then "#{basename}.#{extensionRendered}" else "#{basename}"
 				url or= if extensionRendered then "/#{relativeBase}.#{extensionRendered}" else "/#{relativeBase}"
+				slug or= @get('slug')
 				name or= filenameRendered
 				outPath or= if @outDirPath then pathUtil.join(@outDirPath,url) else null
 				@addUrl(url)
@@ -296,7 +305,7 @@ class DocumentModel extends FileModel
 				contentTypeRendered = mime.lookup(outPath or fullPath)
 
 				# Apply
-				@set({extensionRendered,filenameRendered,url,name,outPath,contentTypeRendered})
+				@set({extensionRendered,filenameRendered,url,slug,name,outPath,contentTypeRendered})
 
 				# Forward
 				next?()

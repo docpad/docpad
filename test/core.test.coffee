@@ -53,7 +53,7 @@ describe 'core', ->
 
 	it 'should run correctly', (done) ->
 		@timeout(testWait)
-		docpad.action 'run', (err) ->
+		docpad.action 'generate server', (err) ->
 			throw err  if err
 			done()
 
