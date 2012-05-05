@@ -1,7 +1,28 @@
 ## History
 
 - v5.2.0 May 4, 2012
-	- To be done...
+	- We now pre-compile our CoffeeScript
+	- Added the ability to specify a `docpad.cson` configuration file inside your website
+		- This file will also be watched for changes, and if a change is made, we'll reload it and regenerate :)
+	- Database/Collections have been cleaned up
+		- files, layouts and documents are all added to the database
+		- documents and layouts are represented by the `Document` model which extends the `File` model
+		- files are represented by the `File` model
+		- documents are accessible via the `collections.documents` which is a live child collection of database
+		- files are accessible via the `collections.files` which is a live child collection of database
+		- layouts are accessible via the `collections.layouts` which is a live child collection of database
+	- You can create your own live child collections by specifying them in your configuration file, e.g. add this to your `docpad.cson` file:
+		``` coffee
+		# Collections
+		collections:
+			pages: (database) ->
+				database.findAll(pageOrder: $exists: true)
+			posts: (database) ->
+				database.findAll(tags: $has: 'post')
+		```
+	- Templates now have access to a new function called `include`. It will include the renderedContent (or if unavilable to content) of the file. In eco, you would use it like this: `<%- @include('filename.ext1.ext2.ext3') %>`
+	- Blocks are now Collections too! You can call `.add` on them, and use `.toHTML()` to grab them as HTML (`.join` will do the same thing for b/c)
+	- This should be a completely backwards compatible release, let us know if you any issues on the
 
 - v5.1.2 April 26, 2012
 	- Fixed some UTF8 encoded files from being detected as binary
