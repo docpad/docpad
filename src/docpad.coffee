@@ -1738,13 +1738,16 @@ class DocPad extends EventSystem
 			)
 
 			# Watch the config
-			configWatcher = watchr.watch(
-				path: docpad.config.configPath
-				listener: ->
-					docpad.loadConfiguration {}, {blocking:false}, ->
-						changeHandler('config')
-				next: tasks.completer()
-			)
+			if pathUtil.existsSync(docpad.config.configPath)
+				configWatcher = watchr.watch(
+					path: docpad.config.configPath
+					listener: ->
+						docpad.loadConfiguration {}, {blocking:false}, ->
+							changeHandler('config')
+					next: tasks.completer()
+				)
+			else
+				tasks.complete()
 
 		# Change event handler
 		changeHandler = (eventName,filePath,fileCurrentStat,filePreviousStat) ->
