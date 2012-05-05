@@ -4,3 +4,4 @@
 *.md
 Makefile
 test/
+src/

@@ -51,9 +51,9 @@ At its core DocPad is a language agnostic document management system. This means
 1. [Install Node.js](https://github.com/balupton/node/wiki/Installing-Node.js)
 
 1. Install DocPad
-	
+
 	``` bash
-	[sudo] npm install -g docpad
+	[sudo] npm install -g docpad@5.2
 	[sudo] docpad install
 	```
 
@@ -118,4 +118,4 @@ Licensed under the incredibly [permissive](http://en.wikipedia.org/wiki/Permissi
 
 <small>Sincerely, thank you. Lots of love from the DocPad Team</small>
 
-[![Flattr this project](http://api.flattr.com/button/flattr-badge-large.png)](http://flattr.com/thing/344188/balupton-on-Flattr) 
+[![Flattr this project](http://api.flattr.com/button/flattr-badge-large.png)](http://flattr.com/thing/344188/balupton-on-Flattr)

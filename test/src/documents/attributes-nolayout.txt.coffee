@@ -9,6 +9,7 @@ attrs = @documentModel.getAttributes()
 # Delete environment specific variables
 delete attrs.date
 delete attrs.fullPath
+delete attrs.fullDirPath
 delete attrs.outPath
 delete attrs.data
 

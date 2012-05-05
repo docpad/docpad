@@ -4,6 +4,7 @@ fs = require('fs')
 _ = require('underscore')
 semver = require('semver')
 balUtil = require('bal-util')
+coffee = require('coffee-script')
 
 # Define Plugin Loader
 class PluginLoader
@@ -57,7 +58,7 @@ class PluginLoader
 		@pluginConfig = {}
 		@packageData = {}
 		@nodeModulesPath = path.resolve @dirPath, 'node_modules'
-	
+
 	# Exists
 	# Loads in the plugin either via a package.json file, or a guessing based on the name
 	# next(err,exists)
@@ -69,14 +70,13 @@ class PluginLoader
 			unless exists
 				path.exists pluginPath, (exists) =>
 					unless exists
-						return next?(null,false)  
+						return next?(null,false)
 					else
 						@pluginPath = pluginPath
 						return next?(null,true)
 			else
 				@packagePath = packagePath
-				balUtil.openFile => fs.readFile packagePath, (err,data) =>
-					balUtil.closeFile()
+				balUtil.readFile packagePath, (err,data) =>
 					if err
 						return next?(err,false)
 					else
@@ -87,57 +87,57 @@ class PluginLoader
 						return next?(null,false)  unless @packageData
 
 						@pluginConfig = @packageData.docpad and @packageData.docpad.plugin or {}
-						
+
 						pluginPath =  @packageData.main? and path.join(@dirPath, @pluginPath) or pluginPath
 						path.exists pluginPath, (exists) =>
 							unless exists
-								return next?(null,false)  
+								return next?(null,false)
 							else
 								@pluginPath = pluginPath
 								return next?(null,true)
-		
+
 		# Chain
 		@
-	
-	# Supported
-	# Check if this plugin is supported on our platform
+
+	# Unsupported
+	# Check if this plugin is unsupported
 	# next(err,supported)
-	supported: (next) ->
+	unsupported: (next) ->
 		# Prepare
-		supported = true
+		unsupported = false
 
 		# Check type
 		if @packageData
 			keywords = @packageData.keywords or []
 			unless 'docpad-plugin' in keywords
-				supported = false
-		
+				unsupported = 'type'
+
 		# Check platform
 		if @packageData and @packageData.platforms
 			platforms = @packageData.platforms or []
 			unless process.platform in platforms
-				supported = false
-		
+				unsupported = 'platform'
+
 		# Check engines
 		if @packageData and @packageData.engines
 			engines = @packageData.engines or {}
-			
+
 			# Node engine
 			if engines.node?
 				unless semver.satisfies(process.version, engines.node)
-					supported = false
-			
+					unsupported = 'engine'
+
 			# DocPad engine
 			if engines.docpad?
 				unless semver.satisfies(@docpad.version, engines.docpad)
-					supported = false
-		
+					unsupported = 'version'
+
 		# Supported
-		next?(null,supported)
+		next?(null,unsupported)
 
 		# Chain
 		@
-	
+
 	# Install
 	# Installs the plugins node modules
 	# next(err)
@@ -148,13 +148,16 @@ class PluginLoader
 		# Only install if we have a package path
 		if @packagePath
 			# Install npm modules
-			docpad.initNodeModules @dirPath, (err,results) ->
-				# Forward
-				return next?(err)
+			docpad.initNodeModules(
+				path: @dirPath
+				next: (err,results) ->
+					# Forward
+					return next?(err)
+			)
 		else
 			# Continue
 			next?()
-			
+
 		# Chain
 		@
 
@@ -168,10 +171,10 @@ class PluginLoader
 			next?(null,@pluginClass)
 		catch err
 			next?(err,null)
-		
+
 		# Chain
 		@
-	
+
 	# Create Instance
 	# next(err,pluginInstance)
 	create: (userConfiguration={},next) ->
@@ -184,7 +187,7 @@ class PluginLoader
 			next?(null,pluginInstance)
 		catch err
 			next?(err,null)
-		
+
 		# Chain
 		@
 
