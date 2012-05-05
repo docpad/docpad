@@ -3,10 +3,9 @@ pathUtil = require('path')
 fsUtil = require('fs')
 balUtil = require('bal-util')
 _ = require('underscore')
-Backbone = require('backbone')
 mime = require('mime')
 
-# Base Model
+# Local
 {Model} = require(__dirname+'/../base')
 
 
@@ -56,14 +55,20 @@ class FileModel extends Model
 		# The file's name with the extension
 		filename: null
 
-		# The full path of our file, only necessary if called by @load
+		# The full path of our source file, only necessary if called by @load
 		fullPath: null
+
+		# The full directory path of our source file
+		relativeDirPath: null
 
 		# The final rendered path of our file
 		outPath: null
 
 		# The relative path of our source file (with extensions)
 		relativePath: null
+
+		# The relative directory path of our source file
+		relativeDirPath: null
 
 		# The relative base of our source file (no extension)
 		relativeBase: null
@@ -234,7 +239,6 @@ class FileModel extends Model
 	parseData: (data,next) ->
 		# Wipe everything
 		backup = @toJSON()
-		@meta.clear()
 		@clear()
 		encoding = 'utf8'
 
@@ -340,7 +344,7 @@ class FileModel extends Model
 		contentType = mime.lookup(fullPath)
 
 		# Apply
-		@set({basename,filename,fullPath,relativePath,id,relativeBase,extensions,extension,contentType,date})
+		@set({basename,filename,fullPath,relativePath,fullDirPath,relativeDirPath,id,relativeBase,extensions,extension,contentType,date})
 
 		# Next
 		next?()
@@ -354,10 +358,10 @@ class FileModel extends Model
 		relativeBase = @get('relativeBase')
 		extension = @get('extension')
 		filename = @get('filename')
-		url = @meta.get('url') or null
-		slug = @meta.get('slug') or null
-		name = @meta.get('name') or null
-		outPath = @meta.get('outPath') or null
+		url = null
+		slug = null
+		name = null
+		outPath = null
 
 		# Adjust
 		url or= if extension then "/#{relativeBase}.#{extension}" else "/#{relativeBase}"

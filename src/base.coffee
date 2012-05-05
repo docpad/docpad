@@ -1,12 +1,11 @@
 # Requires
 _ = require('underscore')
 Backbone = require('backbone')
-
+QueryEngine = require('query-engine')
 
 # BalUtil's Event System (extends Node's Event Emitter)
 balUtil = require('bal-util')
 EventSystem = balUtil.EventSystem
-
 
 # Inject
 # Injects a CoffeeScript class with other Classes
@@ -23,6 +22,7 @@ class Events
 	# When on is called, add the event with Backbone events if we have a context
 	# if not, add the event with the Node events
 	on: (event,callback,context) ->
+		@setMaxListeners(0)
 		if context?
 			@bind(event,callback,context)  # backbone
 		else
@@ -70,6 +70,13 @@ inject(Collection,Events)
 class View extends Backbone.View
 inject(View,Events)
 
+# QueryCollection
+class QueryCollection extends QueryEngine.QueryCollection
+	# Create Child Collection
+	createChildCollection: ->
+		collection = new QueryCollection().setParentCollection(@)
+		return collection
+inject(QueryCollection,Events)
 
 # Export our BaseModel Class
-module.exports = {Events,Model,Collection,View}
+module.exports = {Events,Model,Collection,View,QueryCollection}
