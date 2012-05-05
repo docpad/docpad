@@ -1,23 +1,25 @@
-# Requires
-path = require('path')
-fs = require('fs')
+# Necessary
+pathUtil = require('path')
 balUtil = require('bal-util')
 _ = require('underscore')
-Backbone = require('backbone')
 mime = require('mime')
-FileModel = require(path.join __dirname, 'file.coffee')
 
+# Optional
+CSON = null
+yaml = null
+
+# Local
+{Model} = require(__dirname+'/../base')
+FileModel = require(__dirname+'/file')
+
+
+# ---------------------------------
 # Document Model
+
 class DocumentModel extends FileModel
 
 	# Model Type
 	type: 'document'
-
-	# The available layouts in our DocPad instance
-	layouts: null
-
-	# Layout
-	layout: null
 
 	# The parsed file meta data (header)
 	# Is a Backbone.Model instance
@@ -85,7 +87,7 @@ class DocumentModel extends FileModel
 		{@layouts,meta} = options
 
 		# Apply meta
-		@meta = new Backbone.Model()
+		@meta = new Model()
 		@meta.set(meta)  if meta
 
 		# Forward
@@ -107,6 +109,7 @@ class DocumentModel extends FileModel
 	parseData: (data,next) ->
 		# Reset
 		@layout = null
+		@getMeta().clear()
 
 		# Super
 		super data, =>
@@ -132,8 +135,8 @@ class DocumentModel extends FileModel
 				try
 					switch parser
 						when 'coffee', 'cson'
-							coffee = require('coffee-script')  unless coffee
-							meta = coffee.eval(header, {filename:fullPath})
+							CSON = require('cson')  unless CSON
+							meta = CSON.parseSync(header)
 							@meta.set(meta)
 
 						when 'yaml'
@@ -142,7 +145,7 @@ class DocumentModel extends FileModel
 							@meta.set(meta)
 
 						else
-							err = new Error("Unknown meta parser [#{parser}]")
+							err = new Error("Unknown meta parser: #{parser}")
 							return next?(err)
 				catch err
 					return next?(err)
@@ -191,15 +194,15 @@ class DocumentModel extends FileModel
 		logger = @logger
 
 		# Log
-		logger.log 'debug', "Writing the rendered file #{fileOutPath}"
+		logger.log 'debug', "Writing the rendered file: #{fileOutPath}"
 
 		# Write data
-		@writeFile fileOutPath, contentRendered, (err) ->
+		balUtil.writeFile fileOutPath, contentRendered, (err) ->
 			# Check
 			return next?(err)  if err
 
 			# Log
-			logger.log 'debug', "Wrote the rendered file #{fileOutPath}"
+			logger.log 'debug', "Wrote the rendered file: #{fileOutPath}"
 
 			# Next
 			next?()
@@ -212,20 +215,20 @@ class DocumentModel extends FileModel
 	writeSource: (next) ->
 		# Prepare
 		logger = @logger
-		js2coffee = require(path.join 'js2coffee', 'lib', 'js2coffee.coffee')  unless js2coffee
+		CSON = require('cson')  unless CSON
 
 		# Fetch
 		fullPath = @get('fullPath')
+		relativePath = @get('relativePath')
 		content = @get('content')
 		body = @get('body')
 		parser = @get('parser')
 
 		# Log
-		logger.log 'debug', "Writing the source file #{fullPath}"
+		logger.log 'debug', "Writing the source file: #{relativePath}"
 
 		# Adjust
-		header = 'var a = '+JSON.stringify(@meta.toJSON())
-		header = js2coffee.build(header).replace(/a =\s+|^  /mg,'')
+		header = CSON.stringifySync(@meta.toJSON())
 		body = body.replace(/^\s+/,'')
 		content = "### #{parser}\n#{header}\n###\n\n#{body}"
 
@@ -233,12 +236,12 @@ class DocumentModel extends FileModel
 		@set({header,body,content})
 
 		# Write content
-		@writeFile fileOutPath, content, (err) ->
+		balUtil.writeFile fileOutPath, content, (err) ->
 			# Check
 			return next?(err)  if err
 
 			# Log
-			logger.log 'info', "Wrote the source file #{fullPath}"
+			logger.log 'info', "Wrote the source file: #{relativePath}"
 
 			# Next
 			next?()
@@ -279,31 +282,30 @@ class DocumentModel extends FileModel
 				return next?(err)  if err
 
 				# Fetch
+				meta = @getMeta()
 				fullPath = @get('fullPath')
 				basename = @get('basename')
 				relativeBase = @get('relativeBase')
 				extensionRendered = @get('extensionRendered')
-				url = @meta.get('url') or null
-				name = @meta.get('name') or null
-				outPath = @meta.get('outPath') or null
+				url = meta.get('url') or null
+				slug = meta.get('slug') or null
+				name = meta.get('name') or null
+				outPath = meta.get('outPath') or null
 
 				# Adjust
 				extensionRendered = eve.get('extensionRendered')  if eve
 				filenameRendered = if extensionRendered then "#{basename}.#{extensionRendered}" else "#{basename}"
 				url or= if extensionRendered then "/#{relativeBase}.#{extensionRendered}" else "/#{relativeBase}"
+				slug or= @get('slug')
 				name or= filenameRendered
-				outPath or= if @outDirPath then path.join(@outDirPath,url) else null
+				outPath or= if @outDirPath then pathUtil.join(@outDirPath,url) else null
 				@addUrl(url)
 
 				# Content Types
-				contentType = @get('contentType')
 				contentTypeRendered = mime.lookup(outPath or fullPath)
-				if contentType is 'application/octet-stream'
-					contentType = contentTypeRendered
-					@set({contentType})
 
 				# Apply
-				@set({extensionRendered,filenameRendered,url,name,outPath,contentTypeRendered})
+				@set({extensionRendered,filenameRendered,url,slug,name,outPath,contentTypeRendered})
 
 				# Forward
 				next?()
@@ -326,25 +328,27 @@ class DocumentModel extends FileModel
 
 		# No layout
 		unless layoutId
-			next?(null,null)
+			return next?(null,null)
 
 		# Cached layout
 		else if @layout and layoutId is @layout.id
-			# Already got it
-			next?(null,@layout)
+			return next?(null,@layout)
 
 		# Uncached layout
 		else
 			# Find parent
-			layout = @layouts.findOne {id:layoutId}
-			# Check
+			layout = @layouts.findOne {id: layoutId}
+			# Error
 			if err
 				return next?(err)
+			# Not Found
 			else unless layout
+				debugger
 				err = new Error "Could not find the specified layout: #{layoutId}"
 				return next?(err)
+			# Found
 			else
-				file.layout = layout
+				#file.layout = layout
 				return next?(null,layout)
 
 		# Chain
@@ -357,11 +361,11 @@ class DocumentModel extends FileModel
 		if @hasLayout()
 			@getLayout (err,layout) ->
 				if err
-					return next?(err)
+					return next?(err,null)
 				else
 					layout.getEve(next)
 		else
-			next?()
+			next?(null,@)
 		@
 
 	# Render
@@ -385,7 +389,7 @@ class DocumentModel extends FileModel
 
 
 		# Log
-		logger.log 'debug', "Rendering the file #{relativePath}"
+		logger.log 'debug', "Rendering the file: #{relativePath}"
 
 		# Prepare reset
 		reset = ->
@@ -402,17 +406,16 @@ class DocumentModel extends FileModel
 		# Prepare complete
 		finish = (err) ->
 			# Apply rendering if we are a document
-			if file.type in ['document','partial']
-				file.set(
-					contentRendered: rendering
-					rendered: true
-				)
+			file.set(
+				contentRendered: rendering
+				rendered: true
+			)
 
 			# Error
 			return next(err)  if err
 
 			# Log
-			logger.log 'debug', 'Rendering completed for', file.get('relativePath')
+			logger.log 'debug', 'Rendering completed for:', file.get('relativePath')
 
 			# Success
 			return next(null,rendering)
@@ -434,10 +437,9 @@ class DocumentModel extends FileModel
 		# next(err)
 		renderLayouts = (next) ->
 			# Apply rendering without layouts if we are a document
-			if file.type in ['document','partial']
-				file.set(
-					contentRenderedWithoutLayouts: rendering
-				)
+			file.set(
+				contentRenderedWithoutLayouts: rendering
+			)
 
 			# Grab the layout
 			file.getLayout (err,layout) ->

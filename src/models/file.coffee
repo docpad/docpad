@@ -1,18 +1,12 @@
 # Requires
-path = require('path')
-fs = require('fs')
+pathUtil = require('path')
+fsUtil = require('fs')
 balUtil = require('bal-util')
 _ = require('underscore')
-Backbone = require('backbone')
 mime = require('mime')
 
-# Optionals
-coffee = null
-yaml = null
-js2coffee = null
-
-# Base Model
-{Model} = require(path.join __dirname, 'base.coffee')
+# Local
+{Model} = require(__dirname+'/../base')
 
 
 # ---------------------------------
@@ -61,14 +55,20 @@ class FileModel extends Model
 		# The file's name with the extension
 		filename: null
 
-		# The full path of our file, only necessary if called by @load
+		# The full path of our source file, only necessary if called by @load
 		fullPath: null
+
+		# The full directory path of our source file
+		fullDirPath: null
 
 		# The final rendered path of our file
 		outPath: null
 
 		# The relative path of our source file (with extensions)
 		relativePath: null
+
+		# The relative directory path of our source file
+		relativeDirPath: null
 
 		# The relative base of our source file (no extension)
 		relativeBase: null
@@ -138,6 +138,14 @@ class FileModel extends Model
 	getMeta: ->
 		return @meta
 
+	# Is Text?
+	isText: ->
+		return @get('encoding') isnt 'binary'
+
+	# Is Binary?
+	isBinary: ->
+		return @get('encoding') is 'binary'
+
 	# Load
 	# If the fullPath exists, load the file
 	# If it doesn't, then parse and normalize the file
@@ -149,16 +157,16 @@ class FileModel extends Model
 		logger = @logger
 
 		# Log
-		logger.log('debug', "Loading the file #{filePath}")
+		logger.log('debug', "Loading the file: #{filePath}")
 
 		# Handler
 		complete = (err) ->
 			return next?(err)  if err
-			logger.log('debug', "Loaded the file #{filePath}")
+			logger.log('debug', "Loaded the file: #{filePath}")
 			next?()
 
 		# Exists?
-		path.exists fullPath, (exists) =>
+		pathUtil.exists fullPath, (exists) =>
 			# Read the file
 			if exists
 				@readFile(fullPath, complete)
@@ -180,19 +188,20 @@ class FileModel extends Model
 		logger = @logger
 		file = @
 		fullPath = @get('fullPath')
+		relativePath = @get('relativePath')
 
 		# Log
-		logger.log('debug', "Reading the file #{fullPath}")
+		logger.log('debug', "Reading the file: #{relativePath}")
 
 		# Async
 		tasks = new balUtil.Group (err) =>
 			if err
-				logger.log('err', "Failed to read the file #{fullPath}")
+				logger.log('err', "Failed to read the file: #{relativePath}")
 				return next?(err)
 			else
 				@normalize (err) =>
 					return next?(err)  if err
-					logger.log('debug', "Read the file #{fullPath}")
+					logger.log('debug', "Read the file: #{relativePath}")
 					next?()
 		tasks.total = 2
 
@@ -200,15 +209,13 @@ class FileModel extends Model
 		if file.stat
 			tasks.complete()
 		else
-			balUtil.openFile -> fs.stat fullPath, (err,fileStat) ->
-				balUtil.closeFile()
+			balUtil.stat fullPath, (err,fileStat) ->
 				return next?(err)  if err
 				file.stat = fileStat
 				tasks.complete()
 
 		# Read the file
-		balUtil.openFile -> fs.readFile fullPath, (err,data) ->
-			balUtil.closeFile()
+		balUtil.readFile fullPath, (err,data) ->
 			return next?(err)  if err
 			file.parseData(data, tasks.completer())
 
@@ -240,7 +247,6 @@ class FileModel extends Model
 	parseData: (data,next) ->
 		# Wipe everything
 		backup = @toJSON()
-		@meta.clear()
 		@clear()
 		encoding = 'utf8'
 
@@ -320,7 +326,7 @@ class FileModel extends Model
 		relativePath or= fullPath
 
 		# Paths
-		basename = path.basename(fullPath)
+		basename = pathUtil.basename(fullPath)
 		filename = basename
 		basename = filename.replace(/\..*/, '')
 
@@ -330,11 +336,11 @@ class FileModel extends Model
 		extension = if extensions.length then extensions[extensions.length-1] else null
 
 		# Paths
-		fullDirPath = path.dirname(fullPath) or ''
-		relativeDirPath = path.dirname(relativePath).replace(/^\.$/,'') or ''
+		fullDirPath = pathUtil.dirname(fullPath) or ''
+		relativeDirPath = pathUtil.dirname(relativePath).replace(/^\.$/,'') or ''
 		relativeBase =
 			if relativeDirPath.length
-				path.join(relativeDirPath, basename)
+				pathUtil.join(relativeDirPath, basename)
 			else
 				basename
 		id or= relativeBase
@@ -346,7 +352,7 @@ class FileModel extends Model
 		contentType = mime.lookup(fullPath)
 
 		# Apply
-		@set({basename,filename,fullPath,relativePath,id,relativeBase,extensions,extension,contentType,date})
+		@set({basename,filename,fullPath,relativePath,fullDirPath,relativeDirPath,id,relativeBase,extensions,extension,contentType,date})
 
 		# Next
 		next?()
@@ -360,16 +366,16 @@ class FileModel extends Model
 		relativeBase = @get('relativeBase')
 		extension = @get('extension')
 		filename = @get('filename')
-		url = @meta.get('url') or null
-		slug = @meta.get('slug') or null
-		name = @meta.get('name') or null
-		outPath = @meta.get('outPath') or null
+		url = null
+		slug = null
+		name = null
+		outPath = null
 
 		# Adjust
 		url or= if extension then "/#{relativeBase}.#{extension}" else "/#{relativeBase}"
 		slug or= balUtil.generateSlugSync(relativeBase)
 		name or= filename
-		outPath = if @outDirPath then path.join(@outDirPath,url) else null
+		outPath = if @outDirPath then pathUtil.join(@outDirPath,url) else null
 		@addUrl(url)
 
 		# Apply
@@ -377,19 +383,6 @@ class FileModel extends Model
 
 		# Forward
 		next?()
-		@
-
-	# Write Data
-	writeFile: (fullPath,data,next) ->
-		# Prepare
-		file = @
-
-		# Write data
-		balUtil.openFile -> fs.writeFile fullPath, data, (err) ->
-			balUtil.closeFile()
-			return next?(err)
-
-		# Chain
 		@
 
 	# Write the rendered file
@@ -401,15 +394,15 @@ class FileModel extends Model
 		content = @get('content') or @get('data')
 
 		# Log
-		logger.log 'debug', "Writing the file #{fileOutPath}"
+		logger.log 'debug', "Writing the file: #{fileOutPath}"
 
 		# Write data
-		@writeFile fileOutPath, content, (err) ->
+		balUtil.writeFile fileOutPath, content, (err) ->
 			# Check
 			return next?(err)  if err
 
 			# Log
-			logger.log 'debug', "Wrote the file #{fileOutPath}"
+			logger.log 'debug', "Wrote the file: #{fileOutPath}"
 
 			# Next
 			next?()

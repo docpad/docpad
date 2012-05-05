@@ -1,7 +1,7 @@
 # Requires
 fs = require('fs')
 request = require('request')
-DocPad = require("#{__dirname}/../lib/docpad.coffee")
+DocPad = require("#{__dirname}/../lib/docpad")
 chai = require('chai')
 expect = chai.expect
 
@@ -15,16 +15,15 @@ srcPath = "#{__dirname}/src"
 outPath = "#{__dirname}/out"
 outExpectedPath = "#{__dirname}/out-expected"
 baseUrl = "http://localhost:#{port}"
+testWait = 1000*60*5  # five minutes
 
 # Configure DocPad
-docpadConfig = 
+docpadConfig =
 	growl: false
 	port: port
 	rootPath: __dirname
 	logLevel: 5
-	enabledUnlistedPlugins: false
-	enabledPlugins:
-		eco: true
+	skipUnsupportedPlugins: false
 
 # Fail on an uncaught error
 process.on 'uncaughtException', (err) ->
@@ -41,15 +40,20 @@ logger = null
 describe 'core', ->
 
 	it 'should instantiate correctly', (done) ->
-		@timeout(60000)
+		@timeout(testWait)
 		docpad = DocPad.createInstance docpadConfig, (err) ->
 			throw err  if err
-			logger = docpad.logger
+			done()
+
+	it 'should install correctly', (done) ->
+		@timeout(testWait)
+		docpad.action 'install', (err) ->
+			throw err  if err
 			done()
 
 	it 'should run correctly', (done) ->
-		@timeout(60000)
-		docpad.action 'run', (err) ->
+		@timeout(testWait)
+		docpad.action 'generate server', (err) ->
 			throw err  if err
 			done()
 
@@ -57,7 +61,7 @@ describe 'core', ->
 				testMarkup = (markupFile) ->
 					describe markupFile, ->
 						it "should generate #{markupFile} files", (done) ->
-							@timeout(5000)
+							@timeout(testWait)
 							fs.readFile "#{outExpectedPath}/#{markupFile}", (err,expected) ->
 								throw err  if err
 								fs.readFile "#{outPath}/#{markupFile}", (err,actual) ->
@@ -76,8 +80,8 @@ describe 'core', ->
 					'.htaccess'
 					'html.html'
 					'coffee-parser.html'
-					'layout-single.html'
-					'layout-double.html'
+					'test-layout-single.html'
+					'test-layout-double.html'
 				]
 
 			describe 'server', ->
@@ -86,7 +90,7 @@ describe 'core', ->
 					path.exists "#{outPath}/ignored.html", (exists) ->
 						expect(exists).to.be.false
 						done()
-				
+
 				it 'should ignore common patterns documents"', (done) ->
 					path.exists "#{outPath}/.svn", (exists) ->
 						expect(exists).to.be.false
@@ -99,18 +103,17 @@ describe 'core', ->
 							throw err  if err
 							expect(actual.toString()).to.be.equal(expected.toString())
 							done()
-				
+
 				it 'should serve dynamic documents - part 1/2', (done) ->
 					request "#{baseUrl}/dynamic.html?name=ben", (err,response,actual) ->
 						throw err  if err
 						expected = 'hi ben'
 						expect(actual.toString()).to.be.equal(expected)
 						done()
-					
+
 				it 'should serve dynamic documents - part 2/2', (done) ->
 					request "#{baseUrl}/dynamic.html?name=joe", (err,response,actual) ->
 						throw err  if err
 						expected = 'hi joe'
 						expect(actual.toString()).to.be.equal(expected)
 						done()
-			

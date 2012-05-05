@@ -1,8 +1,6 @@
 # Requires
-fs = require('fs')
-path = require('path')
 {cliColor} = require('caterpillar')
-DocPad = require(path.join __dirname, '..', 'docpad.coffee')
+DocPad = require(__dirname+'/../docpad')
 
 # =================================
 # The Console Interface
@@ -35,7 +33,7 @@ class ConsoleInterface
 					docpad.config[key] = value
 			# Return updated config object
 			docpad.config
-		
+
 		# Fire when an action has completed
 		actionCompleted = (err) ->
 			# Handle the error
@@ -45,12 +43,12 @@ class ConsoleInterface
 				process.exit(1)
 			else
 				logger.log 'info', "The action completed successfully"
-			
+
 			# Exit or return to cli
 			if program.mode is 'cli'
 				console.log ''
 				program.emit 'cli', []
-		
+
 		# Add the Action
 		addAction = (actionName,actionDescription) ->
 			program
@@ -68,7 +66,7 @@ class ConsoleInterface
 		program
 			.option(
 				'-f, --force'
-				"force a re-install of all plugin dependencies"
+				"force a re-install of all modules"
 			)
 			.option(
 				'-s, --skeleton <skeleton>'
@@ -78,13 +76,13 @@ class ConsoleInterface
 				'-p, --port <port>'
 				"the port to use for the docpad server <port>, defaults to 9788"
 				parseInt
-			) 
+			)
 			.option(
 				'-d, --debug [level]'
 				"the level of debug messages you would like to display, if specified defaults to 7, otherwise 6"
 				parseInt
 			)
-		
+
 		# Actions
 		actions =
 			'run':
@@ -113,13 +111,13 @@ class ConsoleInterface
 				'display the cli help'
 		for own actionName, actionDescription of actions
 			addAction(actionName,actionDescription)
-		
+
 		# Unknown
 		program
 			.command('*')
 			.action ->
 				program.emit 'help', []
-			
+
 		# Start
 		@program.parse(process.argv)
 
@@ -156,7 +154,7 @@ class ConsoleInterface
 				\t#{skeletonDescription}
 
 				"""
-		
+
 		# Select
 		console.log cliColor.bold '''
 			Which skeleton will you use?
@@ -164,10 +162,10 @@ class ConsoleInterface
 		program.choose ids, (i) ->
 			skeletonId = ids[i]
 			return next(null,skeletonId)
-		
+
 		# Chain
 		@
-	
+
 
 	# =================================
 	# Actions
@@ -187,10 +185,10 @@ class ConsoleInterface
 			args.unshift process.argv[0]
 			args.unshift process.argv[1]
 			program.parse args
-	
+
 	exit: ->
 		process.exit(0)
-	
+
 	generate: (next) ->
 		# Prepare
 		@welcome()
@@ -203,11 +201,11 @@ class ConsoleInterface
 		# Prepare
 		@welcome()
 		program = @program
-		
+
 		# Handle
 		console.log program.helpInformation()
 		next()
-	
+
 	info: (next) ->
 		# Prepare
 		@welcome()
@@ -216,7 +214,7 @@ class ConsoleInterface
 		# Handle
 		console.log require('util').inspect docpad.config
 		next()
-	
+
 	install: (next) ->
 		# Prepare
 		@welcome()
@@ -224,7 +222,7 @@ class ConsoleInterface
 
 		# Handle
 		docpad.action('install',next)
-	
+
 	render: ->
 		# Prepare
 		docpad = @docpad
@@ -247,7 +245,7 @@ class ConsoleInterface
 				throw err  if err
 				console.log document.get('contentRendered')
 				process.exit(0)
-		
+
 		# Timeout if we don't have stdin
 		timeout = setTimeout(
 			->
@@ -275,7 +273,7 @@ class ConsoleInterface
 				clearTimeout(timeout)
 				timeout = null
 			renderDocument()
-	
+
 	run: (next) ->
 		# Prepare
 		@welcome()
@@ -293,7 +291,7 @@ class ConsoleInterface
 
 		# Handle
 		docpad.action('server',next)
-	
+
 	clean: (next) ->
 		# Prepare
 		@welcome()
@@ -301,7 +299,7 @@ class ConsoleInterface
 
 		# Handle
 		docpad.action('clean',next)
-	
+
 	skeleton: (next) ->
 		# Prepare
 		@welcome()
@@ -309,10 +307,10 @@ class ConsoleInterface
 		docpad = @docpad
 		opts =
 			selectSkeletonCallback: @selectSkeletonCallback
-		
+
 		# Handle
 		docpad.action('skeleton', opts, next)
-	
+
 	watch: (next) ->
 		# Prepare
 		@welcome()
@@ -320,7 +318,7 @@ class ConsoleInterface
 
 		# Handle
 		docpad.action('watch',next)
-	
+
 
 # =================================
 # Export
