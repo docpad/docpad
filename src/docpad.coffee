@@ -14,6 +14,13 @@ airbrake = null
 # Local
 PluginLoader = require(__dirname+'/plugin-loader')
 BasePlugin = require(__dirname+'/plugin')
+Base = require(__dirname+'/base')
+FileModel = require(__dirname+'/models/file')
+DocumentModel = require(__dirname+'/models/document')
+QueryCollection = require(__dirname+'/base').QueryCollection
+ElementsCollection = require(__dirname+'/collections/elements')
+ScriptsCollection = require(__dirname+'/collections/scripts')
+StylesCollection = require(__dirname+'/collections/styles')
 require(__dirname+'/prototypes')
 
 
@@ -47,26 +54,26 @@ class DocPad extends EventSystem
 	# Models
 
 	# File Model
-	FileModel: require(__dirname+'/models/file')
+	FileModel: FileModel
 
 	# Document Model
-	DocumentModel: require(__dirname+'/models/document')
+	DocumentModel: DocumentModel
 
 
 	# ---------------------------------
 	# Collections
 
 	# Query Collection
-	QueryCollection: require(__dirname+'/base').QueryCollection
+	QueryCollection: QueryCollection
 
 	# Elements Collection
-	ElementsCollection: require(__dirname+'/collections/elements')
+	ElementsCollection: ElementsCollection
 
 	# Scripts Collection
-	ScriptsCollection: require(__dirname+'/collections/scripts')
+	ScriptsCollection: ScriptsCollection
 
 	# Styles Collection
-	StylesCollection: require(__dirname+'/collections/styles')
+	StylesCollection: StylesCollection
 
 	# Blocks
 	blocks: null
@@ -167,12 +174,6 @@ class DocPad extends EventSystem
 		# Configuration to pass to any plugins pluginName: pluginConfiguration
 		plugins: null  # {}
 
-		# Plugin directories to load
-		pluginPaths: null  # []
-
-		# The website's plugins directory
-		pluginsPaths: null  # ['node_modules','plugins']
-
 		# Where to fetch the exchange information from
 		exchangeUrl: 'https://raw.github.com/bevry/docpad-extras/docpad-5.x/exchange.json'
 
@@ -195,14 +196,30 @@ class DocPad extends EventSystem
 		# The website's src directory
 		srcPath: 'src'
 
-		# The website's documents directory
-		documentsPath: pathUtil.join('src', 'documents')
+		# The website's documents directories
+		documentsPath: null
+		documentsPaths: [
+			pathUtil.join('src', 'documents')
+		]
 
-		# The website's files directory
-		filesPath: pathUtil.join('src', 'files')
+		# The website's files directories
+		filesPath: null
+		filesPaths: [
+			pathUtil.join('src', 'files')
+			pathUtil.join('src', 'public')
+		]
 
 		# The website's layouts directory
-		layoutsPath: pathUtil.join('src', 'layouts')
+		layoutsPath: null
+		layoutsPaths: [
+			pathUtil.join('src', 'layouts')
+		]
+
+		# Plugin directories to load
+		pluginPaths: []
+
+		# The website's plugins directory
+		pluginsPaths: ['node_modules','plugins']
 
 
 		# -----------------------------
@@ -254,7 +271,7 @@ class DocPad extends EventSystem
 
 		# Template Data
 		# What data would you like to expose to your templates
-		templateData: null
+		templateData: null  # {}
 
 		# Report Errors
 		# Whether or not we should report our errors back to DocPad
@@ -266,7 +283,7 @@ class DocPad extends EventSystem
 
 		# Collections
 		# A hash of functions that create collections
-		collections: null
+		collections: null  # {}
 
 
 	# =================================
@@ -296,13 +313,22 @@ class DocPad extends EventSystem
 		process.on 'uncaughtException', (err) ->
 			docpad.error(err)
 
-		# Initialize advanced variables
+		# Dereference and initialise advanced variables
 		@slowPlugins = {}
 		@foundPlugins = {}
 		@loadedPlugins = {}
 		@exchange = {}
 		@collections = {}
 		@blocks = {}
+		@config.enabledPlugins = {}
+		@config.plugins = {}
+		@config.templateData = {}
+		@config.collections = {}
+		@config.documentsPaths = @config.documentsPaths.slice(0)
+		@config.filesPaths = @config.filesPaths.slice(0)
+		@config.layoutsPaths = @config.layoutsPaths.slice(0)
+		@config.pluginPaths = @config.pluginPaths.slice(0)
+		@config.pluginsPaths = @config.pluginsPaths.slice(0)
 
 		# Initialize the collections
 		@database = new @QueryCollection()
@@ -313,9 +339,9 @@ class DocPad extends EventSystem
 			return @error(err)  if err
 
 			# Collections
-			@collections.documents = @database.createLiveChildCollection().setQuery('isDocument', fullPath: $beginsWith: @config.documentsPath)
-			@collections.files = @database.createLiveChildCollection().setQuery('isFile', fullPath: $beginsWith: @config.filesPath)
-			@collections.layouts = @database.createLiveChildCollection().setQuery('isLayout', fullPath: $beginsWith: @config.layoutsPath)
+			@collections.documents = @database.createLiveChildCollection().setQuery('isDocument', fullPath: $beginsWith: @config.documentsPaths)
+			@collections.files = @database.createLiveChildCollection().setQuery('isFile', fullPath: $beginsWith: @config.filesPaths)
+			@collections.layouts = @database.createLiveChildCollection().setQuery('isLayout', fullPath: $beginsWith: @config.layoutsPaths)
 			@documents = @collections.documents  # only here for b/c
 
 			# Blocks
@@ -483,10 +509,13 @@ class DocPad extends EventSystem
 						instanceConfig.enabledPlugins or {}
 					)
 
-					# Ensure advanced variables
-					config.plugins or= {}
-					config.pluginPaths or= []
-					config.pluginsPaths or= ['node_modules','plugins']
+					# Merge template data
+					config.templateData = _.extend(
+						{}
+						@config.templateData or {}
+						websiteConfig.templateData or {}
+						instanceConfig.templateData or {}
+					)
 
 					# Apply merged configuration
 					@config = config
@@ -496,16 +525,16 @@ class DocPad extends EventSystem
 
 					# Noramlize and resolve the configuration paths
 					@config.rootPath = pathUtil.normalize(@config.rootPath or process.cwd())
-					@config.outPath = pathUtil.resolve @config.rootPath, @config.outPath
-					@config.srcPath = pathUtil.resolve @config.rootPath, @config.srcPath
-					@config.documentsPath = pathUtil.resolve @config.rootPath, @config.documentsPath
-					@config.filesPath = pathUtil.resolve @config.rootPath, @config.filesPath
-					@config.layoutsPath = pathUtil.resolve @config.rootPath, @config.layoutsPath
-					for pluginsPath,index in @config.pluginsPaths
-						@config.pluginsPaths[index] = pathUtil.resolve(@config.rootPath, pluginsPath)
+					@config.outPath = pathUtil.resolve(@config.rootPath, @config.outPath)
+					@config.srcPath = pathUtil.resolve(@config.rootPath, @config.srcPath)
 
-					# Other
-					@config.templateData or= {}
+					# Documents, Files, Layouts, Plugins paths
+					for type in ['documents','files','layouts','plugins']
+						typePath = @config[type+'Path']
+						typePaths = @config[type+'Paths']
+						typePaths.push(typePath)  if typePath
+						for typePath,key in typePaths
+							typePaths[key] = pathUtil.resolve(@config.rootPath,typePath)
 
 					# Logger
 					@logger = @config.logger  if @config.logger
@@ -1114,12 +1143,11 @@ class DocPad extends EventSystem
 			next?()
 
 		# Fetch
-		unless collection.length
-			tasks.exit()
-		else
-			tasks.total = collection.length
-			collection.forEach (file) ->
-				file.contextualize tasks.completer()
+		collection.forEach (file) ->  tasks.push (complete) ->
+			file.contextualize(complete)
+
+		# Async
+		tasks.async()
 
 		# Chain
 		@
@@ -1152,13 +1180,12 @@ class DocPad extends EventSystem
 		)
 
 		# Push the render tasks
-		collection.forEach (file) ->
-			tasks.push (complete) ->
-				dynamic = file.get('dynamic')
-				render = file.get('render')
-				if dynamic or (render? and !render)
-					return complete()
-				docpad.render(file,templateData,complete)
+		collection.forEach (file) ->  tasks.push (complete) ->
+			dynamic = file.get('dynamic')
+			render = file.get('render')
+			if dynamic or (render? and !render)
+				return complete()
+			docpad.render(file,templateData,complete)
 
 		# Fire the render tasks
 		if tasks.total
@@ -1190,13 +1217,8 @@ class DocPad extends EventSystem
 			logger.log 'debug', "Wrote #{collection.length} files"  unless err
 			return next?(err)
 
-		# Check
-		unless collection.length
-			return tasks.exit()
-
 		# Cycle
-		tasks.total = collection.length
-		collection.forEach (file) ->
+		collection.forEach (file) ->  tasks.push (complete) ->
 			# Fetch
 			outPath = file.get('outPath')
 			relativePath = file.get('relativePath')
@@ -1206,19 +1228,25 @@ class DocPad extends EventSystem
 			render = file.get('render')
 			write = file.get('write')
 			if dynamic or (render? and !render) or (write? and !write)
-				return tasks.complete()
+				return complete()
 
 			# Ensure path
 			balUtil.ensurePath pathUtil.dirname(outPath), (err) ->
 				# Error
-				return tasks.exit(err)  if err
+				return complete(err)  if err
 
 				# Write file
 				logger.log 'debug', "Writing file: #{relativePath}"
 				if file.writeRendered?
-					file.writeRendered tasks.completer()
+					file.writeRendered(complete)
 				else
-					file.write tasks.completer()
+					file.write(complete)
+
+		# Async
+		tasks.async()
+
+		# Chain
+		@
 
 
 	# ---------------------------------
@@ -1448,13 +1476,14 @@ class DocPad extends EventSystem
 
 	# Parse the files
 	generateParse: (next) ->
-		# Before
-		@emitSync 'parseBefore', {}, (err) =>
-			return next?(err)  if err
+		# Prepare
+		docpad = @
+		logger = @logger
+		config = docpad.config
 
-			# Prepare
-			docpad = @
-			logger = @logger
+		# Before
+		@emitSync 'parseBefore', {}, (err) ->
+			return next?(err)  if err
 
 			# Log
 			logger.log 'debug', 'Parsing everything'
@@ -1481,31 +1510,36 @@ class DocPad extends EventSystem
 						else
 							logger.log('debug', 'Contextualized everything')
 						return next?(err)
-			tasks.total = 3
 
 			# Documents
-			@parseDirectory(
-				path: @config.documentsPath
-				createFunction: @createDocument
-				resultCollection: @database
-				next: tasks.completer()
-			)
+			_.each config.documentsPaths, (documentsPath) ->  tasks.push (complete) ->
+				docpad.parseDirectory(
+					path: documentsPath
+					createFunction: docpad.createDocument
+					resultCollection: docpad.database
+					next: complete
+				)
 
 			# Files
-			@parseDirectory(
-				path: @config.filesPath
-				createFunction: @createFile
-				resultCollection: @database
-				next: tasks.completer()
-			)
+			_.each config.filesPaths, (filesPath) ->  tasks.push (complete) ->
+				docpad.parseDirectory(
+					path: filesPath
+					createFunction: docpad.createFile
+					resultCollection: docpad.database
+					next: complete
+				)
 
 			# Layouts
-			@parseDirectory(
-				path: @config.layoutsPath
-				createFunction: @createDocument
-				resultCollection: @database
-				next: tasks.completer()
-			)
+			_.each config.layoutsPaths, (layoutsPath) ->  tasks.push (complete) ->
+				docpad.parseDirectory(
+					path: layoutsPath
+					createFunction: docpad.createDocument
+					resultCollection: docpad.database
+					next: complete
+				)
+
+			# Async
+			tasks.async()
 
 		# Chain
 		@

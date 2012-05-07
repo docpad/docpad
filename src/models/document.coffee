@@ -425,7 +425,7 @@ class DocumentModel extends FileModel
 		# next(err)
 		renderPlugins = (eventData,next) =>
 			# Render through plugins
-			file.emitSync eventData.name, eventData, (err) ->
+			file.trigger eventData.name, eventData, (err) ->
 				# Error?
 				if err
 					logger.log 'warn', 'Something went wrong while rendering:', file.get('relativePath')
