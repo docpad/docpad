@@ -47,7 +47,7 @@ describe 'core', ->
 
 	it 'should install correctly', (done) ->
 		@timeout(testWait)
-		docpad.action 'install', (err) ->
+		docpad.action 'clean install', (err) ->
 			throw err  if err
 			done()
 
@@ -77,9 +77,10 @@ describe 'core', ->
 					'.htaccess'
 					'attributes-nolayout.txt'
 					'attributes-withlayout.txt'
-					'.htaccess'
-					'html.html'
 					'coffee-parser.html'
+					'file-dir-test.txt'
+					'html.html'
+					'public-dir-test.txt'
 					'test-layout-single.html'
 					'test-layout-double.html'
 				]

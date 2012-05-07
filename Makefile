@@ -3,6 +3,9 @@
 dev:
 	./node_modules/.bin/coffee -w -o lib/ -c src/
 
+debug:
+	cd test; node --debug-brk ../bin/docpad run
+
 test:
 	make clean
 	node ./node_modules/mocha/bin/mocha

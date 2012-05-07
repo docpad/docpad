@@ -1,5 +1,12 @@
 ## History
 
+- v5.2.1 May 8, 2012
+	- Fixed a complication that prevents `src/public` from being written to `out`
+		- Added automated regression tests to ensure this will never happen again
+	- Added `documentsPaths`, `filesPaths`, and `layoutsPaths` configuration variables
+	- Simplified model code
+	- Cleaned up some async code
+
 - v5.2.0 May 4, 2012
 	- We now pre-compile our CoffeeScript
 	- Added the ability to specify a `docpad.cson` configuration file inside your website
