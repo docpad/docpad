@@ -9,20 +9,13 @@ queryEngine = require('query-engine')
 CSON = require('cson')
 balUtil = require('bal-util')
 EventSystem = balUtil.EventSystem
+
+# Optionals
 airbrake = null
 
-# Local
-PluginLoader = require(__dirname+'/plugin-loader')
-BasePlugin = require(__dirname+'/plugin')
+# Locals
 Base = require(__dirname+'/base')
-FileModel = require(__dirname+'/models/file')
-DocumentModel = require(__dirname+'/models/document')
-QueryCollection = require(__dirname+'/base').QueryCollection
-ElementsCollection = require(__dirname+'/collections/elements')
-ScriptsCollection = require(__dirname+'/collections/scripts')
-StylesCollection = require(__dirname+'/collections/styles')
 require(__dirname+'/prototypes')
-
 
 # =====================================
 # DocPad
@@ -38,6 +31,26 @@ class DocPad extends EventSystem
 	# Variables
 
 	# ---------------------------------
+	# Modules
+
+	# Bases
+	PluginLoader: require(__dirname+'/plugin-loader')
+	BasePlugin: require(__dirname+'/plugin')
+	Base: Base
+
+	# Models
+	FileModel: require(__dirname+'/models/file')
+	DocumentModel: require(__dirname+'/models/document')
+
+	# Collections
+	QueryCollection: Base.QueryCollection
+	ElementsCollection: require(__dirname+'/collections/elements')
+	MetaCollection: require(__dirname+'/collections/meta')
+	ScriptsCollection: require(__dirname+'/collections/scripts')
+	StylesCollection: require(__dirname+'/collections/styles')
+
+
+	# ---------------------------------
 	# DocPad
 
 	# DocPad's version number
@@ -51,29 +64,7 @@ class DocPad extends EventSystem
 
 
 	# ---------------------------------
-	# Models
-
-	# File Model
-	FileModel: FileModel
-
-	# Document Model
-	DocumentModel: DocumentModel
-
-
-	# ---------------------------------
 	# Collections
-
-	# Query Collection
-	QueryCollection: QueryCollection
-
-	# Elements Collection
-	ElementsCollection: ElementsCollection
-
-	# Scripts Collection
-	ScriptsCollection: ScriptsCollection
-
-	# Styles Collection
-	StylesCollection: StylesCollection
 
 	# Blocks
 	blocks: null
@@ -197,20 +188,17 @@ class DocPad extends EventSystem
 		srcPath: 'src'
 
 		# The website's documents directories
-		documentsPath: null
 		documentsPaths: [
 			pathUtil.join('src', 'documents')
 		]
 
 		# The website's files directories
-		filesPath: null
 		filesPaths: [
 			pathUtil.join('src', 'files')
 			pathUtil.join('src', 'public')
 		]
 
 		# The website's layouts directory
-		layoutsPath: null
 		layoutsPaths: [
 			pathUtil.join('src', 'layouts')
 		]
@@ -247,7 +235,7 @@ class DocPad extends EventSystem
 
 		# Log Level
 		# Which level of logging should we actually output
-		logLevel: (if process.argv.has('-d') then 7 else 6)
+		logLevel: (if ('-d' in process.argv) then 7 else 6)
 
 		# Logger
 		# A caterpillar instance if we already have one
@@ -345,7 +333,7 @@ class DocPad extends EventSystem
 			@documents = @collections.documents  # only here for b/c
 
 			# Blocks
-			@blocks.meta = new @ElementsCollection()
+			@blocks.meta = new @MetaCollection()
 			@blocks.scripts = new @ScriptsCollection()
 			@blocks.styles = new @StylesCollection()
 			@blocks.meta.add([
@@ -819,10 +807,10 @@ class DocPad extends EventSystem
 			return _next(err)
 
 		# Prepare variables
-		loader = new PluginLoader(
+		loader = new @PluginLoader(
 			dirPath: fileFullPath
-			docpad: docpad
-			BasePlugin: BasePlugin
+			docpad: @
+			BasePlugin: @BasePlugin
 		)
 		pluginName = loader.pluginName
 		enabled = (
@@ -979,8 +967,14 @@ class DocPad extends EventSystem
 
 		# Initial merge
 		templateData = _.extend({
-			require: require
+
+			# Site Properties
+			site: {}
+
+			# Include another file taking in a relative path
+			# Will return the contentRendered otherwise content
 			include: (subRelativePath) ->
+				@documentModel.set({referencesOthers:true})
 				fullRelativePath = @document.relativeDirPath+'/'+subRelativePath
 				result = docpad.database.findOne(relativePath: fullRelativePath)
 				if result
@@ -989,12 +983,23 @@ class DocPad extends EventSystem
 					warn = "The file #{relativeBase} was not found..."
 					docpad.warn(warn)
 					return warn
-			docpad: @
-			database: @database
-			collections: @collections
-			document: null
-			site: {}
-			blocks: @blocks
+
+			# Get the database
+			getDatabase: ->
+				@documentModel.set({referencesOthers:true})
+				docpad.database
+
+			# Get a pre-defined collection
+			getCollection: (name) ->
+				@documentModel.set({referencesOthers:true})
+				docpad.collections[name]
+
+			# Get a block
+			getBlock: (name) ->
+				block = docpad.blocks[name]
+				classname = name[0].toUpperCase()+name[1..]+'Collection'
+				clone = new docpad[classname](block.models)
+
 		}, @config.templateData, userData)
 
 		# Add site data
