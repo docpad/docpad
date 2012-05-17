@@ -351,7 +351,7 @@ class FileModel extends Model
 				pathUtil.join(relativeDirPath, basename)
 			else
 				basename
-		id or= relativeBase
+		id or= relativePath
 
 		# Date
 		date or= new Date(@stat.mtime)  if @stat

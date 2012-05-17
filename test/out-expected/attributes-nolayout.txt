@@ -15,7 +15,7 @@
   title: 'Attributes No Layout',
   tags: [ 'attributes', 'with-layout' ],
   relativeDirPath: '',
-  id: 'attributes-nolayout',
+  id: 'attributes-nolayout.txt.coffee',
   extensionRendered: 'txt',
   url: '/attributes-nolayout.txt',
   slug: 'attributes-nolayout',

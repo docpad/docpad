@@ -78,6 +78,8 @@ describe 'core', ->
 					'attributes-nolayout.txt'
 					'attributes-withlayout.txt'
 					'coffee-parser.html'
+					'file-different-extensions.ext1'
+					'file-different-extensions.ext2'
 					'file-dir-test.txt'
 					'file.with.many.extensions'
 					'html.html'
