@@ -9,6 +9,11 @@ String::explode or= ->
 String::startsWith or= (prefix) ->
 	@.substring(0,prefix.length) is prefix
 
+Array::remove or= (from, to) ->
+	rest = @slice((to or from) + 1 or @length)
+	@length = (if from < 0 then @length + from else from)
+	@push.apply this, rest
+
 Array::hasCount or= (arr) ->
 	count = 0
 	for a in this

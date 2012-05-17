@@ -308,6 +308,15 @@ class FileModel extends Model
 		# Chain
 		@
 
+	# Remove a url
+	# Removes a url from our file
+	removeUrl: (userUrl) ->
+		urls = @get('urls')
+		for url,index in urls
+			if url is userUrl
+				urls.remove(index)
+				break
+		@
 
 	# Normalize data
 	# Normalize any parsing we have done, as if a value has updates it may have consequences on another value. This will ensure everything is okay.
@@ -326,8 +335,7 @@ class FileModel extends Model
 		relativePath or= fullPath
 
 		# Paths
-		basename = pathUtil.basename(fullPath)
-		filename = basename
+		filename = pathUtil.basename(fullPath)
 		basename = filename.replace(/\..*/, '')
 
 		# Extension
@@ -364,7 +372,7 @@ class FileModel extends Model
 	contextualize: (next) ->
 		# Fetch
 		relativeBase = @get('relativeBase')
-		extension = @get('extension')
+		extensions = @get('extensions')
 		filename = @get('filename')
 		url = null
 		slug = null
@@ -372,7 +380,7 @@ class FileModel extends Model
 		outPath = null
 
 		# Adjust
-		url or= if extension then "/#{relativeBase}.#{extension}" else "/#{relativeBase}"
+		url or= if extensions.length then "/#{relativeBase}.#{extensions.join('.')}" else "/#{relativeBase}"
 		slug or= balUtil.generateSlugSync(relativeBase)
 		name or= filename
 		outPath = if @outDirPath then pathUtil.join(@outDirPath,url) else null
