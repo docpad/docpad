@@ -1,4 +1,5 @@
 language: node_js
+before_script: "make compile"
 node_js:
   - 0.4
   - 0.6
