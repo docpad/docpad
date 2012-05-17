@@ -1,5 +1,11 @@
 ## History
 
+- v5.2.2 May 17, 2012
+	- Fixed [#208](https://github.com/bevry/docpad/issues/208) - Multiple file extensions being trimmed
+	- Fixed [#205](https://github.com/bevry/docpad/issues/205) - Name collisions are causing not all files to be copied
+	- Changed file `id` to default to the `relativePath` instead of the `relativeBase`
+	- Finding layouts now uses `id: $startsWith: layoutId` instead of `id: layoutId`
+
 - v5.2.1 May 8, 2012
 	- Fixed a complication that prevents `src/public` from being written to `out`
 		- Added automated regression tests to ensure this will never happen again
