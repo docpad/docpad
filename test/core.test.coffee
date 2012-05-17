@@ -79,6 +79,7 @@ describe 'core', ->
 					'attributes-withlayout.txt'
 					'coffee-parser.html'
 					'file-dir-test.txt'
+					'file.with.many.extensions'
 					'html.html'
 					'public-dir-test.txt'
 					'test-layout-single.html'
