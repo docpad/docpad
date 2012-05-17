@@ -339,7 +339,7 @@ class DocumentModel extends FileModel
 		# Uncached layout
 		else
 			# Find parent
-			layout = @layouts.findOne {id: layoutId}
+			layout = @layouts.findOne(id: $startsWith: layoutId)
 			# Error
 			if err
 				return next?(err)
