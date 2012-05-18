@@ -1,5 +1,9 @@
 ## History
 
+- v5.2.3 May 18, 2012
+	- DocPad will no longer try and use a skeleton inside a non-empty directory
+	- DocPad will now only include the CoffeeScript runtime if needed (for loading CoffeeScript plugins)
+
 - v5.2.2 May 17, 2012
 	- Fixed [#208](https://github.com/bevry/docpad/issues/208) - Multiple file extensions being trimmed
 	- Fixed [#205](https://github.com/bevry/docpad/issues/205) - Name collisions are causing not all files to be copied
