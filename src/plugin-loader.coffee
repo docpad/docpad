@@ -4,7 +4,7 @@ fs = require('fs')
 _ = require('underscore')
 semver = require('semver')
 balUtil = require('bal-util')
-coffee = require('coffee-script')
+coffee = null
 
 # Define Plugin Loader
 class PluginLoader
@@ -167,9 +167,14 @@ class PluginLoader
 	load: (next) ->
 		# Load
 		try
+			# Ensure we have coffee-script loaded if we are including a coffee-script file
+			coffee = require('coffee-script')  if !coffee and /\.coffee$/.test(@pluginPath)
+			# Load in our plugin
 			@pluginClass = require(@pluginPath)(@BasePlugin)
+			# Return our plugin
 			next?(null,@pluginClass)
 		catch err
+			# An error occured, return it
 			next?(err,null)
 
 		# Chain
