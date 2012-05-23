@@ -52,11 +52,8 @@ class PluginTester extends Tester
 
 	# Constructor
 	constructor: (config) ->
-		# Prepare
-		config or= {}
-
 		# Apply Configuration
-		@config = _.extend({},PluginTester::config,@config,config)
+		@config = _.extend({},PluginTester::config,@config,config or {})
 		@docpadConfig = _.extend({},PluginTester::docpadConfig,@docpadConfig)
 
 		# Extend Configuration
@@ -82,7 +79,10 @@ class PluginTester extends Tester
 		@docpad = DocPad.createInstance docpadConfig, (err) ->
 			return next(err)  if err
 			tester.logger = tester.docpad.logger
-			docpad.action 'clean', next
+			tester.docpad.action 'clean', (err) ->
+				return next(err)  if err
+				tester.docpad.action 'install', (err) ->
+					return next(err)
 
 		# Chain
 		@
@@ -93,7 +93,7 @@ class PluginTester extends Tester
 		docpad = @docpad
 
 		# Handle
-		docpad.action 'server', next
+		docpad.action('server',next)
 
 		# Chain
 		@
@@ -104,7 +104,7 @@ class PluginTester extends Tester
 		docpad = @docpad
 
 		# Handle
-		docpad.action 'generate', next
+		docpad.action('generate',next)
 
 		# Chain
 		@

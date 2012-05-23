@@ -1,5 +1,10 @@
 ## History
 
+- v5.2.4 May 18, 2012
+	- Upgraded chai dev dependency from 0.5.x to 1.0.x
+	- Fixed a dereferencing issue
+	- Plugin testers will now run the `install` and `clean` actions when creating the DocPad instance
+
 - v5.2.3 May 18, 2012
 	- DocPad will no longer try and use a skeleton inside a non-empty directory
 	- DocPad will now only include the CoffeeScript runtime if needed (for loading CoffeeScript plugins)
