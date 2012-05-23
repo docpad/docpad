@@ -321,15 +321,16 @@ class DocPad extends EventSystem
 		@exchange = {}
 		@collections = {}
 		@blocks = {}
+		@config = _.clone(@config)
 		@config.enabledPlugins = {}
 		@config.plugins = {}
 		@config.templateData = {}
 		@config.collections = {}
-		@config.documentsPaths = @config.documentsPaths.slice(0)
-		@config.filesPaths = @config.filesPaths.slice(0)
-		@config.layoutsPaths = @config.layoutsPaths.slice(0)
-		@config.pluginPaths = @config.pluginPaths.slice(0)
-		@config.pluginsPaths = @config.pluginsPaths.slice(0)
+		@config.documentsPaths = @config.documentsPaths.slice()
+		@config.filesPaths = @config.filesPaths.slice()
+		@config.layoutsPaths = @config.layoutsPaths.slice()
+		@config.pluginPaths = @config.pluginPaths.slice()
+		@config.pluginsPaths = @config.pluginsPaths.slice()
 
 		# Initialize the collections
 		@database = new @QueryCollection()
@@ -1456,6 +1457,9 @@ class DocPad extends EventSystem
 	cleanAction: (opts,next) ->
 		# Prepare
 		logger = @logger
+
+		# Log
+		logger.log 'debug', 'Cleaning files'
 
 		# Files
 		balUtil.rmdirDeep @config.outPath, (err,list,tree) ->
