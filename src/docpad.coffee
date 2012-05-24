@@ -3,6 +3,7 @@
 
 # Necessary
 pathUtil = require('path')
+fsUtil = require('fs')
 _ = require('underscore')
 caterpillar = require('caterpillar')
 queryEngine = require('query-engine')
@@ -308,15 +309,16 @@ class DocPad extends EventSystem
 		@exchange = {}
 		@collections = {}
 		@blocks = {}
+		@config = _.clone(@config)
 		@config.enabledPlugins = {}
 		@config.plugins = {}
 		@config.templateData = {}
 		@config.collections = {}
-		@config.documentsPaths = @config.documentsPaths.slice(0)
-		@config.filesPaths = @config.filesPaths.slice(0)
-		@config.layoutsPaths = @config.layoutsPaths.slice(0)
-		@config.pluginPaths = @config.pluginPaths.slice(0)
-		@config.pluginsPaths = @config.pluginsPaths.slice(0)
+		@config.documentsPaths = @config.documentsPaths.slice()
+		@config.filesPaths = @config.filesPaths.slice()
+		@config.layoutsPaths = @config.layoutsPaths.slice()
+		@config.pluginPaths = @config.pluginPaths.slice()
+		@config.pluginsPaths = @config.pluginsPaths.slice()
 
 		# Initialize the collections
 		@database = new @QueryCollection()
@@ -1419,15 +1421,9 @@ class DocPad extends EventSystem
 					return next?()
 
 			else
-				@skeletonAction opts, (err) =>
+				@runAction opts, (err) =>
 					return @fatal(err)  if err
-					@generateAction opts, (err) =>
-						return @fatal(err)  if err
-						@serverAction opts, (err) =>
-							return @fatal(err)  if err
-							@watchAction opts, (err) =>
-								return @fatal(err)  if err
-								return next?()
+					return next?()
 
 		# Chain
 		@
@@ -1466,6 +1462,9 @@ class DocPad extends EventSystem
 	cleanAction: (opts,next) ->
 		# Prepare
 		logger = @logger
+
+		# Log
+		logger.log 'debug', 'Cleaning files'
 
 		# Files
 		balUtil.rmdirDeep @config.outPath, (err,list,tree) ->
@@ -1865,6 +1864,59 @@ class DocPad extends EventSystem
 
 
 	# ---------------------------------
+	# Run Action
+
+	runAction: (opts,next) ->
+		# Prepare
+		{opts,next} = @getActionArgs(opts,next)
+		docpad = @
+		logger = @logger
+		srcPath = @config.srcPath
+		destinationPath = @config.rootPath
+
+		# Run docpad
+		runDocpad = =>
+			@generateAction opts, (err) =>
+				return @fatal(err)  if err
+				@serverAction opts, (err) =>
+					return @fatal(err)  if err
+					@watchAction opts, (err) =>
+						return @fatal(err)  if err
+						return next?()
+
+		# Check if we have the docpad structure
+		if pathUtil.existsSync(srcPath)
+			# We have the correct structure, so let's proceed with DocPad
+			runDocpad()
+		else
+			# We don't have the correct structure
+			# Check if we are running on an empty directory
+			fsUtil.readdir destinationPath, (err,files) =>
+				return fatal(err)  if err
+
+				# Check if our directory is empty
+				if files.length
+					# It isn't empty, display a warning
+					logger.log 'warn', """
+
+						We couldn't find an existing DocPad project inside your current directory.
+						If you're wanting to use a pre-made skeleton for the basis of your new project, then run DocPad again inside an empty directory.
+						If you're wanting to start your new project from scratch, then refer to the Getting Started guide here:
+							https://github.com/bevry/docpad/wiki/Getting-Started
+						For more information on what this means, visit:
+							https://github.com/bevry/docpad/wiki/Troubleshooting
+						"""
+					return next?()
+				else
+					@skeletonAction opts, (err) =>
+						return @fatal(err)  if err
+						runDocpad()
+
+		# Chain
+		@
+
+
+	# ---------------------------------
 	# Skeleton
 
 	# Skeleton
@@ -1874,6 +1926,7 @@ class DocPad extends EventSystem
 		docpad = @
 		logger = @logger
 		skeletonId = @config.skeleton
+		srcPath = @config.srcPath
 		destinationPath = @config.rootPath
 		selectSkeletonCallback = opts.selectSkeletonCallback or null
 
@@ -1904,10 +1957,10 @@ class DocPad extends EventSystem
 				return fatal(lockError)  if lockError
 
 				# Check if already exists
-				pathUtil.exists docpad.config.srcPath, (exists) ->
+				pathUtil.exists srcPath, (exists) ->
 					# Check
 					if exists
-						logger.log 'info', "Didn't place the skeleton as the desired structure already exists"
+						logger.log 'warn', "Didn't place the skeleton as the desired structure already exists"
 						return complete()
 
 					# Do we already have a skeletonId selected?

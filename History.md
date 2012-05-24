@@ -1,5 +1,23 @@
 ## History
 
+- v5.2.5 May 18, 2012
+	- Fixed layout selection when two layout's share similar names - Closes [#227](https://github.com/bevry/docpad/issues/227)
+
+- v5.2.4 May 18, 2012
+	- Upgraded chai dev dependency from 0.5.x to 1.0.x
+	- Fixed a dereferencing issue
+	- Plugin testers will now run the `install` and `clean` actions when creating the DocPad instance
+
+- v5.2.3 May 18, 2012
+	- DocPad will no longer try and use a skeleton inside a non-empty directory
+	- DocPad will now only include the CoffeeScript runtime if needed (for loading CoffeeScript plugins)
+
+- v5.2.2 May 17, 2012
+	- Fixed [#208](https://github.com/bevry/docpad/issues/208) - Multiple file extensions being trimmed
+	- Fixed [#205](https://github.com/bevry/docpad/issues/205) - Name collisions are causing not all files to be copied
+	- Changed file `id` to default to the `relativePath` instead of the `relativeBase`
+	- Finding layouts now uses `id: $startsWith: layoutId` instead of `id: layoutId`
+
 - v5.2.1 May 8, 2012
 	- Fixed a complication that prevents `src/public` from being written to `out`
 		- Added automated regression tests to ensure this will never happen again

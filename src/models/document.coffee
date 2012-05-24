@@ -286,6 +286,7 @@ class DocumentModel extends FileModel
 				fullPath = @get('fullPath')
 				basename = @get('basename')
 				relativeBase = @get('relativeBase')
+				extensions = @get('extensions')
 				extensionRendered = @get('extensionRendered')
 				url = meta.get('url') or null
 				slug = meta.get('slug') or null
@@ -300,6 +301,7 @@ class DocumentModel extends FileModel
 				name or= filenameRendered
 				outPath or= if @outDirPath then pathUtil.join(@outDirPath,url) else null
 				@addUrl(url)
+				@removeUrl(if extensions.length then "/#{relativeBase}.#{extensions.join('.')}" else "/#{relativeBase}")
 
 				# Content Types
 				contentTypeRendered = mime.lookup(outPath or fullPath)
@@ -337,7 +339,10 @@ class DocumentModel extends FileModel
 		# Uncached layout
 		else
 			# Find parent
-			layout = @layouts.findOne {id: layoutId}
+			layout = @layouts.findOne(id: layoutId)
+			layout = @layouts.findOne(relativeBase: layoutId)  unless layout
+			@set('layout':layout.id)
+
 			# Error
 			if err
 				return next?(err)

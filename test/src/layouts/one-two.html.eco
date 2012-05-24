@@ -1,0 +1,2 @@
+Wrapped in layout one-two:
+<%-@content%>
