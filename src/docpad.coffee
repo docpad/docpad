@@ -56,16 +56,32 @@ class DocPad extends EventSystem
 
 	# DocPad's version number
 	version: null
+	getVersion: ->
+		@version
 
 	# The express server instance bound to docpad
 	server: null
+	getServer: ->
+		@server
+	setServer: (value) ->
+		@server = value
+		@
 
 	# The caterpillar instance bound to docpad
 	logger: null
+	getLogger: ->
+		@logger
+	setLogger: (value) ->
+		@logger = value
+		@
 
 
 	# ---------------------------------
 	# Collections
+
+	# Database collection
+	database: null  # QueryEngine Collection
+	getDatabase: -> @database
 
 	# Blocks
 	blocks: null
@@ -80,6 +96,19 @@ class DocPad extends EventSystem
 		styles: null  # Styles Collection
 	} ###
 
+	# Get a block
+	getBlock: (name,clone) ->
+		block = @blocks[name]
+		if clone
+			classname = name[0].toUpperCase()+name[1..]+'Collection'
+			block = new @[classname](block.models)
+		return block
+
+	#  Set a block
+	setBlock: (name,value) ->
+		@blocks[name] = value
+		@
+
 	# Collections
 	collections: null
 	### {
@@ -93,13 +122,14 @@ class DocPad extends EventSystem
 		layouts: null  # QueryEngine Collection
 	} ###
 
-	# Database collection
-	database: null  # QueryEngine Collection
+	# Get a collection
+	getCollection: (name) ->
+		@collections[name]
 
-	# Documents collection
-	# only here for b/c
-	documents: null  # QueryEngine Collection
-
+	# Set a collection
+	setCollection: (name,value) ->
+		@collections[name] = value
+		@
 
 	# ---------------------------------
 	# Plugins
@@ -329,16 +359,15 @@ class DocPad extends EventSystem
 			return @error(err)  if err
 
 			# Collections
-			@collections.documents = @database.createLiveChildCollection().setQuery('isDocument', fullPath: $beginsWith: @config.documentsPaths)
-			@collections.files = @database.createLiveChildCollection().setQuery('isFile', fullPath: $beginsWith: @config.filesPaths)
-			@collections.layouts = @database.createLiveChildCollection().setQuery('isLayout', fullPath: $beginsWith: @config.layoutsPaths)
-			@documents = @collections.documents  # only here for b/c
+			@setCollection 'documents', @database.createLiveChildCollection().setQuery('isDocument', fullPath: $beginsWith: @config.documentsPaths)
+			@setCollection 'files',     @database.createLiveChildCollection().setQuery('isFile', fullPath: $beginsWith: @config.filesPaths)
+			@setCollection 'layouts',   @database.createLiveChildCollection().setQuery('isLayout', fullPath: $beginsWith: @config.layoutsPaths)
 
 			# Blocks
-			@blocks.meta = new @MetaCollection()
-			@blocks.scripts = new @ScriptsCollection()
-			@blocks.styles = new @StylesCollection()
-			@blocks.meta.add([
+			@setBlock 'meta',     new @MetaCollection()
+			@setBlock 'scripts',  new @ScriptsCollection()
+			@setBlock 'styles',   new @StylesCollection()
+			@getBlock('meta').add([
 				'<meta http-equiv="X-Powered-By" content="DocPad"/>'
 			])
 
@@ -363,10 +392,10 @@ class DocPad extends EventSystem
 	# Clean
 	clean: ->
 		# Perform a complete clean of our collections
-		@database.reset([])
-		@blocks.meta.reset([])
-		@blocks.scripts.reset([])
-		@blocks.styles.reset([])
+		@getDatabase().reset([])
+		@getBlock('meta').reset([])
+		@getBlock('scripts').reset([])
+		@getBlock('styles').reset([])
 
 		# Chain
 		@
@@ -406,8 +435,7 @@ class DocPad extends EventSystem
 	loadCollections: (next) ->
 		# Prepare
 		docpad = @
-		database = @database
-		collections = @collections
+		database = @getDatabase()
 		@config.collections or= {}
 
 		# Group
@@ -423,13 +451,13 @@ class DocPad extends EventSystem
 						docpad.error(err)  if err
 						if collection
 							collection.live(true)  # make it a live collection
-							collections[name] = collection  # apply the collection
+							docpad.setCollection(name,collection)  # apply the collection
 						complete()
 				else
 					collection = fn(database)
 					if collection
 						collection.live(true)  # make it a live collection
-						collections[name] = collection  # apply the collection
+						docpad.setCollection(name,collection)  # apply the collection
 					complete()
 
 		# Run
@@ -520,9 +548,7 @@ class DocPad extends EventSystem
 
 					# Documents, Files, Layouts, Plugins paths
 					for type in ['documents','files','layouts','plugins']
-						typePath = @config[type+'Path']
 						typePaths = @config[type+'Paths']
-						typePaths.push(typePath)  if typePath
 						for typePath,key in typePaths
 							typePaths[key] = pathUtil.resolve(@config.rootPath,typePath)
 
@@ -698,7 +724,8 @@ class DocPad extends EventSystem
 
 
 	# =================================
-	# Models
+	# Models and Collections
+
 
 	# Instantiate a File
 	createFile: (data={},options={}) ->
@@ -721,7 +748,7 @@ class DocPad extends EventSystem
 		options = _.extend(
 			logger: @logger
 			outDirPath: @config.outPath
-			layouts: @collections.layouts
+			layouts: @getCollection('layouts')
 		,options)
 
 		# Create and return
@@ -978,7 +1005,7 @@ class DocPad extends EventSystem
 			include: (subRelativePath) ->
 				@documentModel.set({referencesOthers:true})
 				fullRelativePath = @document.relativeDirPath+'/'+subRelativePath
-				result = docpad.database.findOne(relativePath: fullRelativePath)
+				result = docpad.getDatabase().findOne(relativePath: fullRelativePath)
 				if result
 					return result.get('contentRendered') or result.get('content')
 				else
@@ -989,18 +1016,16 @@ class DocPad extends EventSystem
 			# Get the database
 			getDatabase: ->
 				@documentModel.set({referencesOthers:true})
-				docpad.database
+				docpad.getDatabase()
 
 			# Get a pre-defined collection
 			getCollection: (name) ->
 				@documentModel.set({referencesOthers:true})
-				docpad.collections[name]
+				docpad.getCollection(name)
 
 			# Get a block
 			getBlock: (name) ->
-				block = docpad.blocks[name]
-				classname = name[0].toUpperCase()+name[1..]+'Collection'
-				clone = new docpad[classname](block.models)
+				docpad.getBlock(name,true)
 
 		}, @config.templateData, userData)
 
@@ -1181,10 +1206,7 @@ class DocPad extends EventSystem
 				return next?(err)
 
 		# Get the template data
-		templateData = @getTemplateData(
-			# only here for b/c
-			documents: @documents.sortArray(date:-1)
-		)
+		templateData = @getTemplateData()
 
 		# Push the render tasks
 		collection.forEach (file) ->  tasks.push (complete) ->
@@ -1482,6 +1504,7 @@ class DocPad extends EventSystem
 	generateParse: (next) ->
 		# Prepare
 		docpad = @
+		database = @getDatabase()
 		logger = @logger
 		config = docpad.config
 
@@ -1520,7 +1543,7 @@ class DocPad extends EventSystem
 				docpad.parseDirectory(
 					path: documentsPath
 					createFunction: docpad.createDocument
-					resultCollection: docpad.database
+					resultCollection: database
 					next: complete
 				)
 
@@ -1529,7 +1552,7 @@ class DocPad extends EventSystem
 				docpad.parseDirectory(
 					path: filesPath
 					createFunction: docpad.createFile
-					resultCollection: docpad.database
+					resultCollection: database
 					next: complete
 				)
 
@@ -1538,7 +1561,7 @@ class DocPad extends EventSystem
 				docpad.parseDirectory(
 					path: layoutsPath
 					createFunction: docpad.createDocument
-					resultCollection: docpad.database
+					resultCollection: database
 					next: complete
 				)
 
@@ -1553,7 +1576,7 @@ class DocPad extends EventSystem
 	generateParseContextualize: (next) ->
 		# Contextualize everything in the database
 		@contextualizeFiles(
-			collection: @database
+			collection: @getDatabase()
 			next: next
 		)
 
@@ -1565,7 +1588,7 @@ class DocPad extends EventSystem
 	generateRender: (next) ->
 		# Render all the documents
 		@renderDocuments(
-			collection: @collections.documents
+			collection: @getCollection('documents')
 			next: next
 		)
 
@@ -1594,13 +1617,13 @@ class DocPad extends EventSystem
 
 			# Write all the documents
 			docpad.writeFiles(
-				collection: docpad.collections.documents
+				collection: docpad.getCollection('documents')
 				next: tasks.completer()
 			)
 
 			# Write all the files
 			docpad.writeFiles(
-				collection: docpad.collections.files
+				collection: docpad.getCollection('files')
 				next: tasks.completer()
 			)
 
@@ -1641,7 +1664,7 @@ class DocPad extends EventSystem
 				logger.log 'info', 'Generating...'
 				notify (new Date()).toLocaleTimeString(), title: 'Website generating...'
 				# Plugins
-				docpad.emitSync 'generateBefore', server: docpad.server, (err) ->
+				docpad.emitSync 'generateBefore', server: docpad.getServer(), (err) ->
 					return complete(err)  if err
 					# Continue
 					pathUtil.exists docpad.config.srcPath, (exists) ->
@@ -1666,7 +1689,7 @@ class DocPad extends EventSystem
 										docpad.unblock 'loading', (err) ->
 											return complete(err)  if err
 											# Plugins
-											docpad.emitSync 'generateAfter', server: docpad.server, (err) ->
+											docpad.emitSync 'generateAfter', server: docpad.getServer(), (err) ->
 												return complete(err)  if err
 												# Finished
 												docpad.finished 'generating', (err) ->
@@ -1744,7 +1767,7 @@ class DocPad extends EventSystem
 		# Prepare
 		{opts,next} = @getActionArgs(opts,next)
 		docpad = @
-		database = @database
+		database = @getDatabase()
 		logger = @logger
 		srcWatcher = null
 		configWatcher = null
@@ -2017,8 +2040,10 @@ class DocPad extends EventSystem
 					return next?(err)  if err
 
 					# Server
-					docpad.server = express.createServer()  unless docpad.server
-					server = docpad.server
+					server = docpad.getServer()
+					unless server
+						server = express.createServer()
+						docpad.setServer(server)
 
 					# Extend the server
 					if config.extendServer
@@ -2042,11 +2067,12 @@ class DocPad extends EventSystem
 							# Routing
 							server.use (req,res,next) ->
 								# Check
-								return next?()  unless docpad.database
+								database = docpad.getDatabase()
+								return next?()  unless database
 
 								# Prepare
 								cleanUrl = req.url.replace(/\?.*/,'')
-								document = docpad.database.findOne(urls: '$in': cleanUrl)
+								document = database.findOne(urls: '$in': cleanUrl)
 								return next?()  unless document
 
 								# Fetch

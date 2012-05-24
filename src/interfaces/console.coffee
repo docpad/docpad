@@ -60,7 +60,7 @@ class ConsoleInterface
 
 
 		# Version
-		program.version(docpad.version or 'unknown')
+		program.version(docpad.getVersion() or 'unknown')
 
 		# Options
 		program
@@ -125,14 +125,15 @@ class ConsoleInterface
 	welcome: ->
 		# Prepare
 		docpad = @docpad
-		logger = @docpad.logger
+		logger = docpad.getLogger()
+		version = docpad.getVersion()
 
 		# Check
 		return  if @welcomed
 		@welcomed = true
 
 		# Log
-		logger.log 'info', "Welcome to DocPad v#{docpad.version}"
+		logger.log 'info', "Welcome to DocPad v#{version}"
 
 	# Select a skeleton
 	selectSkeletonCallback: (skeletons,next) =>

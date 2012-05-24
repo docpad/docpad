@@ -24,4 +24,4 @@ class QueryCollection extends QueryEngine.QueryCollection
 		return collection
 
 # Export our BaseModel Class
-module.exports = {Events,Model,Collection,View,QueryCollection}
+module.exports = {Backbone,Events,Model,Collection,View,QueryCollection}
