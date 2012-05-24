@@ -52,11 +52,8 @@ class PluginTester extends Tester
 
 	# Constructor
 	constructor: (config) ->
-		# Prepare
-		config or= {}
-
 		# Apply Configuration
-		@config = _.extend({},PluginTester::config,@config,config)
+		@config = _.extend({},PluginTester::config,@config,config or {})
 		@docpadConfig = _.extend({},PluginTester::docpadConfig,@docpadConfig)
 
 		# Extend Configuration
@@ -82,7 +79,10 @@ class PluginTester extends Tester
 		@docpad = DocPad.createInstance docpadConfig, (err) ->
 			return next(err)  if err
 			tester.logger = tester.docpad.logger
-			return next(err)
+			tester.docpad.action 'clean', (err) ->
+				return next(err)  if err
+				tester.docpad.action 'install', (err) ->
+					return next(err)
 
 		# Chain
 		@
@@ -93,7 +93,7 @@ class PluginTester extends Tester
 		docpad = @docpad
 
 		# Handle
-		docpad.action 'server', next
+		docpad.action('server',next)
 
 		# Chain
 		@
@@ -104,7 +104,7 @@ class PluginTester extends Tester
 		docpad = @docpad
 
 		# Handle
-		docpad.action 'generate', next
+		docpad.action('generate',next)
 
 		# Chain
 		@
@@ -117,7 +117,7 @@ class PluginTester extends Tester
 		# Test
 		describe "create", ->
 			it 'should create a docpad instance successfully', (done) ->
-				@timeout(60*1000)
+				@timeout(60*5000)
 				tester.createInstance (err) ->
 					done(err)
 					next()
@@ -134,7 +134,7 @@ class PluginTester extends Tester
 		# Test
 		describe "#{@config.pluginName} load", ->
 			it 'should load the plugin correctly', (done) ->
-				@timeout(60*1000)
+				@timeout(60*5000)
 				docpad.loadedPlugin config.pluginName, (err,loaded) ->
 					return done(err)  if err
 					expect(loaded).to.be.ok
@@ -153,7 +153,7 @@ class PluginTester extends Tester
 		# Test
 		describe "#{@config.pluginName} generate", ->
 			it 'should generate successfully', (done) ->
-				@timeout(60*1000)
+				@timeout(60*5000)
 				# Test
 				tester.performGeneration (err) ->
 					return done(err)  if err
