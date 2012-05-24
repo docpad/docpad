@@ -1,5 +1,8 @@
 ## History
 
+- v5.2.5 May 18, 2012
+	- Fixed layout selection when two layout's share similar names - Closes [#227](https://github.com/bevry/docpad/issues/227)
+
 - v5.2.4 May 18, 2012
 	- Upgraded chai dev dependency from 0.5.x to 1.0.x
 	- Fixed a dereferencing issue
