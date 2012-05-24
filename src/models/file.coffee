@@ -6,7 +6,7 @@ _ = require('underscore')
 mime = require('mime')
 
 # Local
-{Model} = require(__dirname+'/../base')
+{Backbone,Model} = require(__dirname+'/../base')
 
 
 # ---------------------------------

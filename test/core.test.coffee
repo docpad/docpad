@@ -24,6 +24,8 @@ docpadConfig =
 	rootPath: __dirname
 	logLevel: 5
 	skipUnsupportedPlugins: false
+	templateData:
+		require: require
 
 # Fail on an uncaught error
 process.on 'uncaughtException', (err) ->

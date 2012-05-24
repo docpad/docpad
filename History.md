@@ -1,5 +1,13 @@
 ## History
 
+- v5.3.0 Unreleased
+	- Breaking changes that may affect you
+		- Removed `documentsPath`, `filesPath`, `layoutsPath` configuration options for their array based alternatives `documentsPaths`, `filesPaths`, `layoutsPaths`
+		- Removed `require` from `templateData` as it needs to be specified in your project otherwise it has the wrong paths
+		- Removed `database`, `collections`, `blocks` from `templateData` for their helper based alternatives `getDatabase()`, `getCollection('collectionName')`, `getBlock('blockName')`
+		- Removed `String::startsWith`, `String::finsihesWith`, `Array::hasCount`, `Array::has` as we never used them
+		- Removed `DocPad::documents` and `templateData.documents`, now use `getCollection('documents')`
+
 - v5.2.5 May 18, 2012
 	- Fixed layout selection when two layout's share similar names - Closes [#227](https://github.com/bevry/docpad/issues/227)
 
