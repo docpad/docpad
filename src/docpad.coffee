@@ -1009,7 +1009,7 @@ class DocPad extends EventSystem
 				if result
 					return result.get('contentRendered') or result.get('content')
 				else
-					warn = "The file #{relativeBase} was not found..."
+					warn = "The file #{subRelativePath} was not found..."
 					docpad.warn(warn)
 					return warn
 
@@ -1719,8 +1719,7 @@ class DocPad extends EventSystem
 
 		# Extract document
 		if opts.filename
-			document = @createDocument()
-			document.set(
+			document = @createDocument(
 				filename: opts.filename
 				fullPath: opts.filename
 				data: opts.content
@@ -1812,32 +1811,38 @@ class DocPad extends EventSystem
 
 		# Change event handler
 		changeHandler = (eventName,filePath,fileCurrentStat,filePreviousStat) ->
-			###
-			# Differential Rendering?
-			if config.differentialRendering
-
-				# Handle the action
-				if eventName is 'unlink'
-					changedFile.destroy()
-				else if eventName is 'change'
-					# Re-render just this file
-					changedFile = database.findOne(fullPath: filePath)
-					docpad.prepareAndRender changedFile, docpad.getTemplateData(), ->
-						# Re-Render anything that references the changes
-						pendingFiles = database.findAll(references: $has: changedFile).render()
-						docpad.prepareAndRender pend
-
-				else if eventName is 'new'
-
-				# Re-Render anything that should always re-render
-				database.findAll(referencesOthers: true).render()
-
-			# Re-Render everything
-			else
-			###
-			docpad.action 'generate', (err) ->
+			# Handle
+			tasks = new balUtil.Group (err) ->
 				docpad.error(err)  if err
 				logger.log 'Regenerated due to file watch at '+(new Date()).toLocaleString()
+
+			# Handle the action
+			if eventName is 'new'
+				# Create a file for it
+				# todo, need to check if it is dir, or whether a file or document
+				changedFile = docpad.createDocument(fullPath: filePath)
+				# Load and render this file
+				tasks.push (complete) ->
+					changedFile.action('load contextualize render write', complete)
+			else
+				# Fetch
+				changedFile = database.findOne(fullPath: filePath)
+				if eventName is 'unlink'
+					# Destroy this file
+					changedFile.destroy()
+				else if eventName is 'change'
+					# Re load and render this file
+					tasks.push (complete) ->
+						changedFile.action('load contextualize render write', complete)
+
+			# Afterwards, re-render anything that should always re-render
+			database.findAll(referencesOthers:true).each (document) -> tasks.push (complete) ->
+				document.action('render write',complete)
+			# todo, do a second pass here, first pass should just be renders, second pass should be writes, second pass can be async
+
+			# Execute the tasks synchronously
+			tasks.sync()
+
 
 		# A fatal error occured
 		fatal = (err) ->
