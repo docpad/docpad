@@ -189,12 +189,12 @@ class DocumentModel extends FileModel
 	# next(err)
 	writeRendered: (next) ->
 		# Prepare
+		file = @
 		fileOutPath = @get('outPath')
 		contentRendered = @get('contentRendered')
-		logger = @logger
 
 		# Log
-		logger.log 'debug', "Writing the rendered file: #{fileOutPath}"
+		file.log 'debug', "Writing the rendered file: #{fileOutPath}"
 
 		# Write data
 		balUtil.writeFile fileOutPath, contentRendered, (err) ->
@@ -202,7 +202,7 @@ class DocumentModel extends FileModel
 			return next?(err)  if err
 
 			# Log
-			logger.log 'debug', "Wrote the rendered file: #{fileOutPath}"
+			file.log 'debug', "Wrote the rendered file: #{fileOutPath}"
 
 			# Next
 			next?()
@@ -214,7 +214,7 @@ class DocumentModel extends FileModel
 	# next(err)
 	writeSource: (next) ->
 		# Prepare
-		logger = @logger
+		file = @
 		CSON = require('cson')  unless CSON
 
 		# Fetch
@@ -225,7 +225,7 @@ class DocumentModel extends FileModel
 		parser = @get('parser')
 
 		# Log
-		logger.log 'debug', "Writing the source file: #{relativePath}"
+		file.log 'debug', "Writing the source file: #{relativePath}"
 
 		# Adjust
 		header = CSON.stringifySync(@meta.toJSON())
@@ -241,7 +241,7 @@ class DocumentModel extends FileModel
 			return next?(err)  if err
 
 			# Log
-			logger.log 'info', "Wrote the source file: #{relativePath}"
+			file.log 'info', "Wrote the source file: #{relativePath}"
 
 			# Next
 			next?()
@@ -334,27 +334,34 @@ class DocumentModel extends FileModel
 
 		# Cached layout
 		else if @layout and layoutId is @layout.id
+			# Forward
 			return next?(null,@layout)
 
 		# Uncached layout
 		else
 			# Find parent
-			layout = @layouts.findOne(id: layoutId)
-			layout = @layouts.findOne(relativeBase: layoutId)  unless layout
-			@set('layout':layout.id)
+			@emit 'getLayout', {layoutId}, (err,opts) ->
+				# Prepare
+				{layout} = opts
 
-			# Error
-			if err
-				return next?(err)
-			# Not Found
-			else unless layout
-				debugger
-				err = new Error "Could not find the specified layout: #{layoutId}"
-				return next?(err)
-			# Found
-			else
-				#file.layout = layout
-				return next?(null,layout)
+				# Error
+				if err
+					return next?(err)
+				# Not Found
+				else unless layout
+					debugger
+					err = new Error "Could not find the specified layout: #{layoutId}"
+					return next?(err)
+				# Found
+				else
+					# Update our layout id with the definitive correct one
+					file.set('layout': layout.id)
+
+					# Cache our layout
+					file.layout = layout
+
+					# Forward
+					return next?(null,layout)
 
 		# Chain
 		@
@@ -376,11 +383,16 @@ class DocumentModel extends FileModel
 	# Render
 	# Render this file
 	# next(err,result)
-	render: (templateData,next) ->
+	render: (opts={},next) ->
 		# Prepare
 		file = @
-		logger = @logger
 		rendering = null
+		{templateData} = opts
+
+		# Prepare templateData
+		templateData = _.extend({},templateData)
+		templateData.document or= file.toJSON()
+		templateData.documentModel or= file
 
 		# Fetch
 		relativePath = @get('relativePath')
@@ -394,7 +406,7 @@ class DocumentModel extends FileModel
 
 
 		# Log
-		logger.log 'debug', "Rendering the file: #{relativePath}"
+		file.log 'debug', "Rendering the file: #{relativePath}"
 
 		# Prepare reset
 		reset = ->
@@ -420,7 +432,7 @@ class DocumentModel extends FileModel
 			return next(err)  if err
 
 			# Log
-			logger.log 'debug', 'Rendering completed for:', file.get('relativePath')
+			file.log 'debug', 'Rendering completed for:', file.get('relativePath')
 
 			# Success
 			return next(null,rendering)
@@ -433,7 +445,7 @@ class DocumentModel extends FileModel
 			file.trigger eventData.name, eventData, (err) ->
 				# Error?
 				if err
-					logger.log 'warn', 'Something went wrong while rendering:', file.get('relativePath')
+					file.log 'warn', 'Something went wrong while rendering:', file.get('relativePath')
 					return next(err)
 				# Forward
 				return next(err)

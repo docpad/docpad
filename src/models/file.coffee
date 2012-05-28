@@ -23,9 +23,6 @@ class FileModel extends Model
 	# Model Type
 	type: 'file'
 
-	# Logger
-	logger: null
-
 	# Stat Object
 	stat: null
 
@@ -63,6 +60,9 @@ class FileModel extends Model
 
 		# The final rendered path of our file
 		outPath: null
+
+		# The final rendered path of our file's directory
+		outDirPath: null
 
 		# The relative path of our source file (with extensions)
 		relativePath: null
@@ -119,9 +119,11 @@ class FileModel extends Model
 	# Initialize
 	initialize: (data,options) ->
 		# Prepare
-		{@logger,@outDirPath,@stat} = options
+		{outDirPath,stat} = options
 
-		# Advanced attributes
+		# Apply
+		@outDirPath = outDirPath  if outDirPath
+		@setStat(stat)  if stat
 		@set(
 			extensions: []
 			urls: []
@@ -129,6 +131,15 @@ class FileModel extends Model
 
 		# Super
 		super
+
+	# Set Stat
+	setStat: (stat) ->
+		@stat = stat
+		@set(
+			ctime: new Date(stat.ctime)
+			mtime: new Date(stat.mtime)
+		)
+		@
 
 	# Get Attributes
 	getAttributes: ->
@@ -151,18 +162,18 @@ class FileModel extends Model
 	# If it doesn't, then parse and normalize the file
 	load: (next) ->
 		# Prepare
+		file = @
 		filePath = @get('relativePath') or @get('fullPath') or @get('filename')
 		fullPath = @get('fullPath')
 		data = @get('data')
-		logger = @logger
 
 		# Log
-		logger.log('debug', "Loading the file: #{filePath}")
+		file.log('debug', "Loading the file: #{filePath}")
 
 		# Handler
 		complete = (err) ->
 			return next?(err)  if err
-			logger.log('debug', "Loaded the file: #{filePath}")
+			file.log('debug', "Loaded the file: #{filePath}")
 			next?()
 
 		# Exists?
@@ -185,23 +196,22 @@ class FileModel extends Model
 	# next(err)
 	readFile: (fullPath,next) ->
 		# Prepare
-		logger = @logger
 		file = @
 		fullPath = @get('fullPath')
 		relativePath = @get('relativePath')
 
 		# Log
-		logger.log('debug', "Reading the file: #{relativePath}")
+		file.log('debug', "Reading the file: #{relativePath}")
 
 		# Async
 		tasks = new balUtil.Group (err) =>
 			if err
-				logger.log('err', "Failed to read the file: #{relativePath}")
+				file.log('err', "Failed to read the file: #{relativePath}")
 				return next?(err)
 			else
 				@normalize (err) =>
 					return next?(err)  if err
-					logger.log('debug', "Read the file: #{relativePath}")
+					file.log('debug', "Read the file: #{relativePath}")
 					next?()
 		tasks.total = 2
 
@@ -259,6 +269,7 @@ class FileModel extends Model
 			filename: backup.filename
 			fullPath: backup.fullPath
 			outPath: backup.outPath
+			outDirPath: backup.outDirPath
 			relativePath: backup.relativePath
 			relativeBase: backup.relativeBase
 			contentType: backup.contentType
@@ -384,10 +395,11 @@ class FileModel extends Model
 		slug or= balUtil.generateSlugSync(relativeBase)
 		name or= filename
 		outPath = if @outDirPath then pathUtil.join(@outDirPath,url) else null
+		outDirPath = pathUtil.dirname(outPath)
 		@addUrl(url)
 
 		# Apply
-		@set({url,slug,name,outPath})
+		@set({url,slug,name,outPath,outDirPath})
 
 		# Forward
 		next?()
@@ -397,23 +409,29 @@ class FileModel extends Model
 	# next(err)
 	write: (next) ->
 		# Prepare
-		logger = @logger
+		file = @
 		fileOutPath = @get('outPath')
-		content = @get('content') or @get('data')
+		fileOutDirPath = @get('outDirPath')
+		contentOrData = @get('content') or @get('data')
 
 		# Log
-		logger.log 'debug', "Writing the file: #{fileOutPath}"
+		file.log 'debug', "Writing the file: #{fileOutPath}"
 
-		# Write data
-		balUtil.writeFile fileOutPath, content, (err) ->
-			# Check
+		# Ensure path
+		balUtil.ensurePath fileOutDirPath, (err) ->
+			# Error
 			return next?(err)  if err
 
-			# Log
-			logger.log 'debug', "Wrote the file: #{fileOutPath}"
+			# Write data
+			balUtil.writeFile fileOutPath, contentOrData, (err) ->
+				# Check
+				return next?(err)  if err
 
-			# Next
-			next?()
+				# Log
+				file.log 'debug', "Wrote the file: #{fileOutPath}"
+
+				# Next
+				next?()
 
 		# Chain
 		@
