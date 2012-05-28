@@ -8,33 +8,35 @@ log = (args...) ->
 	args.unshift('log')
 	@emit.apply(@,args)
 	@
+emit = (args...) ->
+	@trigger.apply(@,args)
 
 # Events
 class Events
-	emit: (args...) ->
-		@trigger.apply(@,args)
+	log: log
+	emit: emit
 
 _.extend(Events::, Backbone.Events)
 
 # Model
 class Model extends Backbone.Model
-	# Log a message
 	log: log
+	emit: emit
 
 # Collection
 class Collection extends Backbone.Collection
-	# Log a message
 	log: log
+	emit: emit
 
 # View
 class View extends Backbone.View
-	# Log a message
 	log: log
+	emit: emit
 
 # QueryCollection
 class QueryCollection extends QueryEngine.QueryCollection
-	# Log a message
 	log: log
+	emit: emit
 
 	# Create Child Collection
 	createChildCollection: ->

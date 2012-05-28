@@ -38,7 +38,7 @@ class PluginTester extends Tester
 	docpadConfig:
 		port: pluginPort++
 		growl: false
-		logLevel: 5
+		logLevel: (if ('-d' in process.argv) then 7 else 5)
 		rootPath: null
 		pluginPaths: null
 		enableUnlistedPlugins: false
