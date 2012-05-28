@@ -199,13 +199,13 @@ class DocumentModel extends FileModel
 		# Write data
 		balUtil.writeFile fileOutPath, contentRendered, (err) ->
 			# Check
-			return next?(err)  if err
+			return next(err)  if err
 
 			# Log
 			file.log 'debug', "Wrote the rendered file: #{fileOutPath}"
 
 			# Next
-			next?()
+			return next()
 
 		# Chain
 		@
@@ -390,7 +390,7 @@ class DocumentModel extends FileModel
 		{templateData} = opts
 
 		# Prepare templateData
-		templateData = _.extend({},templateData)
+		templateData = _.clone(templateData)
 		templateData.document or= file.toJSON()
 		templateData.documentModel or= file
 
@@ -469,7 +469,7 @@ class DocumentModel extends FileModel
 					templateData.content = rendering
 
 					# Render the layout with the templateData
-					layout.render templateData, (err,result) ->
+					layout.render {templateData}, (err,result) ->
 						return next(err)  if err
 						rendering = result
 						return next()

@@ -411,27 +411,21 @@ class FileModel extends Model
 		# Prepare
 		file = @
 		fileOutPath = @get('outPath')
-		fileOutDirPath = @get('outDirPath')
 		contentOrData = @get('content') or @get('data')
 
 		# Log
 		file.log 'debug', "Writing the file: #{fileOutPath}"
 
-		# Ensure path
-		balUtil.ensurePath fileOutDirPath, (err) ->
-			# Error
+		# Write data
+		balUtil.writeFile fileOutPath, contentOrData, (err) ->
+			# Check
 			return next?(err)  if err
 
-			# Write data
-			balUtil.writeFile fileOutPath, contentOrData, (err) ->
-				# Check
-				return next?(err)  if err
+			# Log
+			file.log 'debug', "Wrote the file: #{fileOutPath}"
 
-				# Log
-				file.log 'debug', "Wrote the file: #{fileOutPath}"
-
-				# Next
-				next?()
+			# Next
+			next?()
 
 		# Chain
 		@

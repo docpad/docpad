@@ -327,11 +327,16 @@ class DocPad extends EventSystem
 		)
 		@setLogger(logger)
 		@setLogLevel(6)
+		debugger
 
 		# Bind the error handler, so we don't crash on errors
 		process.setMaxListeners(0)
 		process.on 'uncaughtException', (err) ->
 			docpad.error(err)
+
+		# Log to bubbled events
+		@on 'log', (args...) ->
+			@log.apply(@,args)
 
 		# Dereference and initialise advanced variables
 		@slowPlugins = {}
@@ -368,7 +373,7 @@ class DocPad extends EventSystem
 						fullPath: $startsWith: @config.documentsPaths
 				})
 				.on('add', (model) ->
-					_.defauts(model.attributes,{
+					_.defaults(model.attributes,{
 						isDocument: true
 						dynamic: false
 						render: true
@@ -382,7 +387,7 @@ class DocPad extends EventSystem
 						fullPath: $startsWith: @config.filesPaths
 				})
 				.on('add', (model) ->
-					_.defauts(model.attributes,{
+					_.defaults(model.attributes,{
 						isFile: true
 						dynamic: false
 						render: false
@@ -396,7 +401,7 @@ class DocPad extends EventSystem
 						fullPath: $startsWith: @config.layoutsPaths
 				})
 				.on('add', (model) ->
-					_.defauts(model.attributes,{
+					_.defaults(model.attributes,{
 						isLayout: true
 						dynamic: false
 						render: false
@@ -441,8 +446,8 @@ class DocPad extends EventSystem
 	# =================================
 	# Configuration
 
-	# Clean
-	clean: ->
+	# Clean Resources
+	cleanResources: ->
 		# Perform a complete clean of our collections
 		@getDatabase().reset([])
 		@getBlock('meta').reset([])
@@ -706,7 +711,13 @@ class DocPad extends EventSystem
 		return @  unless err
 		@error err, 'err', ->
 			process.exit(-1)
+		@
 
+	# Log
+	log: (args...) ->
+		logger = @getLogger()
+		logger.log.apply(logger,args)
+		@
 
 	# Handle an error
 	error: (err,type='err',next) ->
@@ -787,11 +798,11 @@ class DocPad extends EventSystem
 		file = new @FileModel(data,options)
 
 		# Log
-		document.on 'log', (args...) ->
+		file.on 'log', (args...) ->
 			docpad.log(args...)
 
 		# Render
-		document.on 'render', (args...) ->
+		file.on 'render', (args...) ->
 			docpad.emitSync('render', args...)
 
 		# Return
@@ -806,7 +817,7 @@ class DocPad extends EventSystem
 		,options)
 
 		# Create and return
-		file = new @DocumentModel(data,options)
+		document = new @DocumentModel(data,options)
 
 		# Log
 		document.on 'log', (args...) ->
@@ -815,9 +826,10 @@ class DocPad extends EventSystem
 		# Fetch a layout
 		document.on 'getLayout', (opts,next) ->
 			{layoutId} = opts
+			layouts = docpad.getCollection('layouts')
 			layout = layouts.findOne(id: layoutId)
 			layout = layouts.findOne(relativeBase: layoutId)  unless layout
-			next(null,layout)
+			next(null,{layout})
 
 		# Render
 		document.on 'render', (args...) ->
@@ -918,7 +930,7 @@ class DocPad extends EventSystem
 
 					# Check
 					if err
-						docpad.warn("Failed to load the file: #{fileRelativePath}. The error follows:", err)
+						me.warn("Failed to load the file: #{fileRelativePath}. The error follows:", err)
 						return nextFile()
 
 					# Prepare
@@ -1128,6 +1140,9 @@ class DocPad extends EventSystem
 
 	# Create snore
 	createSnore: (message) ->
+		# Prepare
+		docpad = @
+
 		# Create snore object
 		snore =
 			snoring: false
@@ -1344,6 +1359,131 @@ class DocPad extends EventSystem
 
 
 
+	# ---------------------------------
+	# Utilities: Files
+
+
+	# Contextualize files
+	# next(err)
+	contextualizeFiles: (opts={},next) ->
+		# Prepare
+		docpad = @
+		{collection,templateData} = opts
+
+		# Log
+		docpad.log 'debug', "Contextualizing #{collection.length} files"
+
+		# Async
+		tasks = new balUtil.Group (err) ->
+			return next(err)  if err
+			# After
+			docpad.emitSync 'contextualizeAfter', {collection}, (err) ->
+				docpad.log 'debug', "Contextualized #{collection.length} files"
+				next()
+
+		# Fetch
+		collection.forEach (file) -> tasks.push (complete) ->
+			file.contextualize(complete)
+
+		# Start contextualizing
+		if tasks.total
+			docpad.emitSync 'contextualizeBefore', {collection,templateData}, (err) ->
+				return next(err)  if err
+				tasks.async()
+		else
+			tasks.exit()
+
+		# Chain
+		@
+
+	# Render files
+	# next(err)
+	renderFiles: (opts={},next) ->
+		# Prepare
+		docpad = @
+		{collection,templateData} = opts
+
+		# Log
+		docpad.log 'debug', "Rendering #{collection.length} files"
+
+		# Async
+		tasks = new balUtil.Group (err) ->
+			return next(err)  if err
+			# After
+			docpad.emitSync 'renderAfter', {collection}, (err) ->
+				docpad.log 'debug', "Rendered #{collection.length} files"  unless err
+				return next(err)
+
+		# Push the render tasks
+		collection.forEach (file) -> tasks.push (complete) ->
+			# Skip?
+			dynamic = file.get('dynamic')
+			render = file.get('render')
+
+			# Render
+			if dynamic or (render? and !render)
+				complete()
+			else if file.render?
+				file.render({templateData},complete)
+			else
+				complete()
+
+		# Start rendering
+		if tasks.total
+			docpad.emitSync 'renderBefore', {collection,templateData}, (err) =>
+				return next(err)  if err
+				tasks.async()
+		else
+			tasks.exit()
+
+		# Chain
+		@
+
+	# Write files
+	# next(err)
+	writeFiles: (opts={},next) ->
+		# Prepare
+		docpad = @
+		{collection,templateData} = opts
+
+		# Log
+		docpad.log 'debug', "Writing #{collection.length} files"
+
+		# Async
+		tasks = new balUtil.Group (err) ->
+			return next(err)  if err
+			# After
+			docpad.emitSync 'writeAfter', {collection}, (err) ->
+				docpad.log 'debug', "Wrote #{collection.length} files"  unless err
+				return next(err)
+
+		# Cycle
+		collection.forEach (file) -> tasks.push (complete) ->
+			# Skip
+			dynamic = file.get('dynamic')
+			write = file.get('write')
+
+			# Write
+			if dynamic or (write? and !write)
+				complete()
+			else if file.writeRendered?
+				file.writeRendered(complete)
+			else if file.write?
+				file.write(complete)
+			else
+				complete(new Error('Unknown model in the collection'))
+
+		#  Start writing
+		if tasks.total
+			docpad.emitSync 'writeBefore', {collection,templateData}, (err) =>
+				return next(err)  if err
+				tasks.async()
+		else
+			tasks.exit()
+
+		# Chain
+		@
+
 
 	# =================================
 	# Actions
@@ -1375,7 +1515,7 @@ class DocPad extends EventSystem
 			return @
 
 		# Log
-		docpad.log 'debug', "Performing the action #{action}"
+		@log 'debug', "Performing the action #{action}"
 
 		# Handle
 		switch action
@@ -1461,7 +1601,7 @@ class DocPad extends EventSystem
 		docpad.log 'debug', 'Cleaning files'
 
 		# Perform a complete clean of our collections
-		docpad.clean()
+		docpad.cleanResources()
 
 		# Files
 		balUtil.rmdirDeep @config.outPath, (err,list,tree) ->
@@ -1532,7 +1672,7 @@ class DocPad extends EventSystem
 		docpad = @
 
 		# Perform a complete clean of our collections
-		docpad.clean()
+		docpad.cleanResources()
 
 		# Forward
 		next()
@@ -1550,14 +1690,16 @@ class DocPad extends EventSystem
 
 		# Before
 		@emitSync 'parseBefore', {}, (err) ->
-			return next?(err)  if err
+			return next(err)  if err
 
 			# Log
 			docpad.log 'debug', 'Parsing everything'
 
 			# Async
 			tasks = new balUtil.Group (err) ->
-				return next?(err)  if err
+				return next(err)  if err
+				docpad.log 'debug', 'Parsed everything'
+				return next(err)
 
 			# Documents
 			_.each config.documentsPaths, (documentsPath) -> tasks.push (complete) ->
@@ -1594,14 +1736,17 @@ class DocPad extends EventSystem
 		# Prepare
 		{opts,next} = @getActionArgs(opts,next)
 		docpad = @
+		templateData = opts.templateData or @getTemplateData()
+		collection = opts.collection or @getDatabase()
 
 		# Contextualize the datbaase, perform two render passes, and perform a write
-		balUtil.flow
-			object: opts.collection or docpad.getDatabase()
-			action: 'contextualize render render write'
-			args: [{}]
+		balUtil.flow(
+			object: docpad
+			action: 'contextualizeFiles renderFiles renderFiles writeFiles'
+			args: [{collection,templateData}]
 			next: (err) ->
 				return next(err)
+		)
 
 		# Chain
 		@
@@ -1689,13 +1834,14 @@ class DocPad extends EventSystem
 		# Re-load and re-render everything
 		else
 			docpad.lastGenerate = new Date()
-			balUtil.flow
+			balUtil.flow(
 				object: docpad
 				action: 'generatePrepare generateCheck generateClean generateParse generateRender generatePostpare'
 				args: [opts]
 				next: (err) ->
 					return docpad.generateError(err,next)  if err
 					return next?()
+			)
 
 		# Chain
 		@
@@ -1887,13 +2033,14 @@ class DocPad extends EventSystem
 
 		# Run docpad
 		runDocpad = =>
-			balUtil.flow
+			balUtil.flow(
 				object: docpad
 				action: 'generate server watch'
 				args: [opts]
 				next: (err) ->
 					return docpad.fatal(err)  if err
 					return next?()
+			)
 
 		# Check if we have the docpad structure
 		if pathUtil.existsSync(srcPath)
@@ -2074,7 +2221,7 @@ class DocPad extends EventSystem
 								# Send
 								if dynamic
 									templateData = docpad.getTemplateData(req:req)
-									docpad.render document, templateData, (err) ->
+									document.render {templateData}, (err) ->
 										contentRendered = document.get('contentRendered')
 										if err
 											docpad.error(err)

@@ -15,6 +15,7 @@ aside =>
 	delete attrs.fullPath
 	delete attrs.fullDirPath
 	delete attrs.outPath
+	delete attrs.outDirPath
 	delete attrs.data
 
 	# Output data
