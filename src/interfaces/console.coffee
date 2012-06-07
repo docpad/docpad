@@ -1,131 +1,239 @@
 # Requires
-{cliColor} = require('caterpillar')
-DocPad = require(__dirname+'/../docpad')
+_ = require('underscore')
 
-# =================================
-# The Console Interface
-
+# Console Interface
 class ConsoleInterface
 
-	# =================================
-	# Initialize
-
-	constructor: ({@docpad,@program}) ->
-
-	start: ->
+	# Setup the CLI
+	constructor: ({@docpad,@program},next) ->
 		# Prepare
 		me = @
 		program = @program
 		docpad = @docpad
-		logger = @docpad.logger
 
-		# Parse the Configuration
-		applyConfiguration = (customConfig={}) ->
-			# Prepare
-			programConfig = program
-			# Apply program configuration
-			for own key, value of programConfig
-				if docpad.config[key]?
-					docpad.config[key] = value
-			# Apply custom configuration
-			for own key, value of customConfig
-				if docpad.config[key]?
-					docpad.config[key] = value
-			# Return updated config object
-			docpad.config
+		# Ensure our actions always have the scope of this instance
+		_.bindAll(@, 'run', 'server', 'skeleton', 'render', 'generate', 'watch', 'install', 'clean', 'info', 'cli', 'exit', 'help')
 
-		# Fire when an action has completed
-		actionCompleted = (err) ->
-			# Handle the error
-			if err
-				logger.log 'error', "Something went wrong with the action"
-				logger.log err
-				process.exit(1)
-			else
-				logger.log 'info', "The action completed successfully"
+		# -----------------------------
+		# Global config
 
-			# Exit or return to cli
-			if program.mode is 'cli'
-				console.log ''
-				program.emit 'cli', []
-
-		# Add the Action
-		addAction = (actionName,actionDescription) ->
-			program
-				.command(actionName)
-				.description(actionDescription)
-				.action ->
-					applyConfiguration()
-					me[actionName](actionCompleted)
-
-
-		# Version
-		program.version(docpad.getVersion() or 'unknown')
-
-		# Options
 		program
+			.version(docpad.getVersion() or 'unknown')
+			.option(
+				'-d, --debug [logLevel]'
+				"the level of debug messages you would like to display, if specified defaults to 7, otherwise 6"
+				parseInt
+			)
 			.option(
 				'-f, --force'
 				"force a re-install of all modules"
 			)
+
+		# -----------------------------
+		# Commands
+
+		# run
+		program
+			.command('run')
+			.description('does everyting: skeleton, generate, watch, server')
 			.option(
 				'-s, --skeleton <skeleton>'
-				"the skeleton to create your project from, defaults to bootstrap"
+				"for new projects, instead of being asked for the skeleton, you can specify it here"
 			)
 			.option(
 				'-p, --port <port>'
-				"the port to use for the docpad server <port>, defaults to 9788"
+				"a custom port to use for the server <port>"
 				parseInt
 			)
+			.action (command) ->
+				me.applyConfiguration(command)
+				me.run(me.actionCompleted)
+
+		# server
+		program
+			.command('server')
+			.description('creates a server for your generated project')
 			.option(
-				'-d, --debug [level]'
-				"the level of debug messages you would like to display, if specified defaults to 7, otherwise 6"
+				'-p, --port <port>'
+				"a custom port to use for the server <port>"
 				parseInt
 			)
+			.action (command) ->
+				me.applyConfiguration(command)
+				me.server(me.actionCompleted)
 
-		# Actions
-		actions =
-			'run':
-				'does everyting: scaffold, generate, watch, server'
-			'skeleton':
-				'fills the current working directory with the optional --skeleton'
-			'render':
-				'render a given file path, if stdin is provided use that in combination'
-			'generate':
-				'(re)generates the output'
-			'watch':
-				'(re)generates the output whenever a change is made'
-			'server':
-				'creates a docpad server instance with the optional --port'
-			'install':
-				'ensure docpad is installed correctly'
-			'cli':
-				'start the interactive cli'
-			'clean':
-				'clean everything (will remove your outdir)'
-			'exit':
-				'exit the cli'
-			'info':
-				'display information about our docpad instance'
-			'help':
-				'display the cli help'
-		for own actionName, actionDescription of actions
-			addAction(actionName,actionDescription)
+		# skeleton
+		program
+			.command('skeleton')
+			.description('will create a new project in your cwd based off an existing skeleton')
+			.option(
+				'-s, --skeleton <skeleton>'
+				"instead of being asked for the skeleton, you can specify it here"
+			)
+			.action (command) ->
+				me.applyConfiguration(command)
+				me.skeleton(me.actionCompleted)
 
-		# Unknown
+		# render
+		program
+			.command('render <path>')
+			.description("render the file at <path> and output its results to stdout")
+			.action (command) ->
+				me.applyConfiguration(command)
+				me.render(me.actionCompleted)
+
+		# generate
+		program
+			.command('generate')
+			.description("(re)generates your project")
+			.action (command) ->
+				me.applyConfiguration(command)
+				me.generate(me.actionCompleted)
+
+		# watch
+		program
+			.command('watch')
+			.description("watches your project for changes, and (re)generates whenever a change is made")
+			.action (command) ->
+				me.applyConfiguration(command)
+				me.watch(me.actionCompleted)
+
+		# install
+		program
+			.command('install')
+			.description("ensure everything is installed correctly")
+			.action (command) ->
+				me.applyConfiguration(command)
+				me.install(me.actionCompleted)
+
+		# clean
+		program
+			.command('clean')
+			.description("ensure everything is cleaned correctly (will remove your out directory)")
+			.action (command) ->
+				me.applyConfiguration(command)
+				me.clean(me.actionCompleted)
+
+		# info
+		program
+			.command('info')
+			.description("display the information about your docpad instance")
+			.action (command) ->
+				me.applyConfiguration(command)
+				me.info(me.actionCompleted)
+
+		# cli
+		program
+			.command('cli')
+			.description("start the interactive cli")
+			.action (command) ->
+				me.applyConfiguration(command)
+				me.cli(me.actionCompleted)
+
+		# exit
+		program
+			.command('exit')
+			.description("exit the interactive cli")
+			.action (command) ->
+				me.applyConfiguration(command)
+				me.exit(me.actionCompleted)
+
+		# help
+		program
+			.command('help')
+			.description("output the help")
+			.action (command) ->
+				me.applyConfiguration(command)
+				me.help(me.actionCompleted)
+
+		# unknown
 		program
 			.command('*')
+			.description("anything else ouputs the help")
 			.action ->
 				program.emit 'help', []
 
-		# Start
-		@program.parse(process.argv)
+		# -----------------------------
+		# Finish Up
+
+		# Plugins
+		docpad.emitSync 'consoleSetup', {interface:@,program}, (err) ->
+			return handleError(err)  if err
+			next?(null,me)
+
+
+	# =================================
+	# Helpers
+
+	# Start the CLI
+	start: (argv) ->
+		@program.parse(argv or process.argv)
+		@
+
+	# Get the program
+	getProgram: ->
+		@program
+
+	# Handle Error
+	handleError: (err) ->
+		# Prepare
+		docpad = @docpad
+
+		# Handle
+		docpad.log('error', "Something went wrong with the action")
+		docpad.error(err)
+		process.exit(1)
+
+	# Action Completed
+	# What to do once an action completes
+	# Necessary, as we may want to exist
+	# Or we may want to continue with the CLI
+	actionCompleted: (err) ->
+		# Prepare
+		docpad = @docpad
+		program = @program
+
+		# Handle the error
+		if err
+			@handleError(err)
+		else
+			docpad.log('info', "The action completed successfully")
+
+		# Exit or return to cli
+		if program.mode is 'cli'
+			console.log('')
+			program.emit('cli', [])
+
+		# Chain
+		@
+
+	# Parse the Configuration
+	applyConfiguration: (customConfig={}) ->
+		# Prepare
+		docpad = @docpad
+		program = @program
+		programConfig = program
+
+		# Apply program configuration
+		if programConfig.debug
+			docpad.setLogLevel(programConfig.debug)
+			delete programConfig.debug
+		for own key, value of programConfig
+			if docpad.config[key]?
+				docpad.config[key] = value
+
+		# Apply custom configuration
+		for own key, value of customConfig
+			if docpad.config[key]?
+				docpad.config[key] = value
+
+		# Return updated config object
+		docpad.config
 
 	# Welcome
 	welcome: ->
 		# Prepare
 		docpad = @docpad
-		logger = docpad.getLogger()
 		version = docpad.getVersion()
 
 		# Check
@@ -133,7 +241,10 @@ class ConsoleInterface
 		@welcomed = true
 
 		# Log
-		logger.log 'info', "Welcome to DocPad v#{version}"
+		docpad.log 'info', "Welcome to DocPad v#{version}"
+
+		# Chain
+		@
 
 	# Select a skeleton
 	selectSkeletonCallback: (skeletons,next) =>
@@ -193,38 +304,34 @@ class ConsoleInterface
 	generate: (next) ->
 		# Prepare
 		@welcome()
-		docpad = @docpad
 
 		# Handle
-		docpad.action('generate',next)
+		@docpad.action('generate',next)
 
 	help: (next) ->
 		# Prepare
 		@welcome()
-		program = @program
 
 		# Handle
-		console.log program.helpInformation()
-		next()
+		console.log @program.helpInformation()
+		next?()
 
 	info: (next) ->
 		# Prepare
 		@welcome()
-		docpad = @docpad
 
 		# Handle
-		console.log require('util').inspect docpad.config
-		next()
+		console.log require('util').inspect @docpad.config
+		next?()
 
 	install: (next) ->
 		# Prepare
 		@welcome()
-		docpad = @docpad
 
 		# Handle
-		docpad.action('install',next)
+		@docpad.action('install',next)
 
-	render: ->
+	render: (next) ->
 		# Prepare
 		docpad = @docpad
 		docpad.setLogLevel(5)
@@ -245,7 +352,7 @@ class ConsoleInterface
 			docpad.action 'render', details, (err,document) ->
 				throw err  if err
 				console.log document.get('contentRendered')
-				process.exit(0)
+				next?()
 
 		# Timeout if we don't have stdin
 		timeout = setTimeout(
@@ -278,47 +385,45 @@ class ConsoleInterface
 	run: (next) ->
 		# Prepare
 		@welcome()
-		docpad = @docpad
-		opts =
-			selectSkeletonCallback: @selectSkeletonCallback
 
 		# Handle
-		docpad.action('all',opts,next)
+		@docpad.action(
+			'all'
+			{selectSkeletonCallback: @selectSkeletonCallback}
+			next
+		)
 
 	server: (next) ->
 		# Prepare
 		@welcome()
-		docpad = @docpad
 
 		# Handle
-		docpad.action('server',next)
+		@docpad.action('server',next)
 
 	clean: (next) ->
 		# Prepare
 		@welcome()
-		docpad = @docpad
 
 		# Handle
-		docpad.action('clean',next)
+		@docpad.action('clean',next)
 
 	skeleton: (next) ->
 		# Prepare
 		@welcome()
-		program = @program
-		docpad = @docpad
-		opts =
-			selectSkeletonCallback: @selectSkeletonCallback
 
 		# Handle
-		docpad.action('skeleton', opts, next)
+		@docpad.action(
+			'skeleton'
+			{selectSkeletonCallback: @selectSkeletonCallback}
+			next
+		)
 
 	watch: (next) ->
 		# Prepare
 		@welcome()
-		docpad = @docpad
 
 		# Handle
-		docpad.action('watch',next)
+		@docpad.action('watch',next)
 
 
 # =================================

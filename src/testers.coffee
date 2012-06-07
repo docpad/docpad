@@ -1,18 +1,29 @@
 # Requires
-path = require('path')
+pathUtil = require('path')
 _ = underscore = require('underscore')
 balUtil = require('bal-util')
 chai = require('chai')
 expect = chai.expect
 assert = chai.assert
 request = require('request')
+CSON = require('cson')
 DocPad = require(__dirname+'/docpad')
 
 # Prepare
 pluginPort = 3183
-
+testers = {
+	underscore,
+	balUtil,
+	chai,
+	expect,
+	assert,
+	request,
+	CSON,
+	DocPad
+}
 
 # Tester
+testers.Tester =
 class Tester
 	# Requires
 	chai: chai
@@ -29,6 +40,7 @@ class Tester
 
 
 # Plugin Tester
+testers.PluginTester =
 class PluginTester extends Tester
 	# Configuration
 	config:
@@ -57,13 +69,13 @@ class PluginTester extends Tester
 		@docpadConfig = _.extend({},PluginTester::docpadConfig,@docpadConfig)
 
 		# Extend Configuration
-		@config.testPath or= path.join(@config.pluginPath,'test')
-		@config.outExpectedPath or= path.join(@config.testPath,'out-expected')
+		@config.testPath or= pathUtil.join(@config.pluginPath,'test')
+		@config.outExpectedPath or= pathUtil.join(@config.testPath,'out-expected')
 
 		# Extend DocPad Configuration
 		@docpadConfig.rootPath or= @config.testPath
-		@docpadConfig.outPath or= path.join(@docpadConfig.rootPath,'out')
-		@docpadConfig.srcPath or= path.join(@docpadConfig.rootPath,'src')
+		@docpadConfig.outPath or= pathUtil.join(@docpadConfig.rootPath,'out')
+		@docpadConfig.srcPath or= pathUtil.join(@docpadConfig.rootPath,'src')
 		@docpadConfig.pluginPaths ?= [@config.pluginPath]
 		defaultEnabledPlugins = {}
 		defaultEnabledPlugins[@config.pluginName] = true
@@ -93,7 +105,8 @@ class PluginTester extends Tester
 		docpad = @docpad
 
 		# Handle
-		docpad.action('server',next)
+		docpad.action 'server', (err) ->
+			next(err)
 
 		# Chain
 		@
@@ -104,7 +117,8 @@ class PluginTester extends Tester
 		docpad = @docpad
 
 		# Handle
-		docpad.action('generate',next)
+		docpad.action 'generate', (err) ->
+			next(err)
 
 		# Chain
 		@
@@ -174,6 +188,7 @@ class PluginTester extends Tester
 
 
 # Server Tester
+testers.ServerTester =
 class ServerTester extends PluginTester
 	# Test everything
 	test: (next) ->
@@ -184,7 +199,7 @@ class ServerTester extends PluginTester
 		tasks = new balUtil.Group(next)
 
 		# Create
-		@testCreation ->
+		tester.testCreation ->
 			# Generate
 			tester.performGeneration (err) ->
 				throw err  if err
@@ -208,6 +223,7 @@ class ServerTester extends PluginTester
 
 
 # Renderer Tester
+testers.RendererTester =
 class RendererTester extends PluginTester
 	# Test everything
 	test: (next) ->
@@ -218,7 +234,7 @@ class RendererTester extends PluginTester
 		tasks = new balUtil.Group(next)
 
 		# Create
-		@testCreation ->
+		tester.testCreation ->
 			# Create Tests
 			tasks.push (complete) ->
 				tester.testLoaded(complete)
@@ -231,16 +247,27 @@ class RendererTester extends PluginTester
 		@
 
 
+# Test a plugin
+# test({pluginPath: String})
+testers.test =
+test = (pluginDetails) ->
+	# Configure
+	pluginDetails.pluginPath = pathUtil.resolve(pluginDetails.pluginPath)
+	pluginDetails.pluginName ?= pathUtil.basename(pluginDetails.pluginPath)
+	pluginDetails.testerPath ?= pathUtil.join('out', "#{pluginDetails.pluginName}.tester.js")
+	pluginDetails.testerPath = pathUtil.resolve(pluginDetails.pluginPath, pluginDetails.testerPath)
+
+	# Test the plugin's tester
+	describe pluginDetails.pluginName, ->
+		testerClass = require(pluginDetails.testerPath)(testers)
+		testerInstance = new testerClass(
+			pluginName: pluginDetails.pluginName
+			pluginPath: pluginDetails.pluginPath
+		)
+		testerInstance.test ->
+
+	# Chain
+	@
+
 # Export Testers
-module.exports = {
-	Tester,
-	PluginTester,
-	RendererTester,
-	ServerTester,
-	underscore,
-	balUtil,
-	chai,
-	expect,
-	assert,
-	request
-}
+module.exports = testers

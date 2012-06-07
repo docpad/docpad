@@ -28,6 +28,7 @@ class BasePlugin
 
 	# Event Listing
 	events: [
+		'consoleSetup'
 		'generateBefore',
 		'generateAfter',
 		'cleanBefore',
