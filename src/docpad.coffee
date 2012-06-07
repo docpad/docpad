@@ -373,9 +373,9 @@ class DocPad extends EventSystem
 						fullPath: $startsWith: @config.documentsPaths
 				})
 				.on('add', (model) ->
+					docpad.log('debug', "Adding document: #{model.attributes.fullPath}")
 					_.defaults(model.attributes,{
 						isDocument: true
-						dynamic: false
 						render: true
 						write: true
 					})
@@ -387,9 +387,9 @@ class DocPad extends EventSystem
 						fullPath: $startsWith: @config.filesPaths
 				})
 				.on('add', (model) ->
+					docpad.log('debug', "Adding file: #{model.attributes.fullPath}")
 					_.defaults(model.attributes,{
 						isFile: true
-						dynamic: false
 						render: false
 						write: true
 					})
@@ -401,9 +401,9 @@ class DocPad extends EventSystem
 						fullPath: $startsWith: @config.layoutsPaths
 				})
 				.on('add', (model) ->
+					docpad.log('debug', "Adding layout: #{model.attributes.fullPath}")
 					_.defaults(model.attributes,{
 						isLayout: true
-						dynamic: false
 						render: false
 						write: false
 					})
@@ -843,39 +843,49 @@ class DocPad extends EventSystem
 		document
 
 	# Ensure File
-	ensureFile: (fileFullPath) ->
+	ensureFile: (data={},options={}) ->
 		database = @getDatabase()
-		result = database.findOne(fullPath: fileFullPath)
+		result = database.findOne(fullPath: data.fullPath)
 		unless result
-			result = @createFile({fullPath: fileFullPath})
+			result = @createFile(data,options)
 			database.add(result)
 		result
 
 	# Ensure Document
-	ensureDocument: (fileFullPath) ->
+	ensureDocument: (data={},options={}) ->
 		database = @getDatabase()
-		result = database.findOne(fullPath: fileFullPath)
+		result = database.findOne(fullPath: data.fullPath)
 		unless result
-			result = @createDocument({fullPath: fileFullPath})
+			result = @createDocument(data,options)
 			database.add(result)
 		result
 
 	# Ensure File or Document
-	ensureFileOrDocument: (fileFullPath) ->
+	ensureFileOrDocument: (data={},options={}) ->
 		docpad = @
 		database = @getDatabase()
-		result = database.findOne(fullPath: fileFullPath)
+		result = database.findOne(fullPath: data.fullPath)
 
 		# Create result
 		unless result
 			# Check if we have a document or layout
-			for documentPath in docpad.config.documentsPaths.concat(docpad.config.layoutsPaths)
-				if fileFullPath.indexOf(documentPath) is 0
-					result = @createDocument({fullPath: fileFullPath})
+			for dirPath in docpad.config.documentsPaths.concat(docpad.config.layoutsPaths)
+				if fileFullPath.indexOf(dirPath) is 0
+					data.relativePath or= fileFullPath.replace(dirPath,'').replace(/^[\/\\]/,'')
+					result = @createDocument(data,options)
 					break
 
 			# Check if we have a file
-			result = @createFile({fullPath: fileFullPath})  unless result
+			unless result
+				for dirPath in docpad.config.filePaths
+					if fileFullPath.indexOf(dirPath) is 0
+						data.relativePath or= fileFullPath.replace(dirPath,'').replace(/^[\/\\]/,'')
+						result = @createFile(data,options)
+						break
+
+			# Otherwise, create a file anyway
+			unless result
+				result = @createFile(data,options)
 
 			# Add result to database
 			database.add(result)
@@ -1250,18 +1260,14 @@ class DocPad extends EventSystem
 		# Prepare
 		docpad = @
 
-		# Normalize the document
-		document.normalize (err) ->
-			return next?(err)  if err
-			# Load the document
-			document.load (err) ->
-				return next?(err)  if err
-				# Contextualize the document
-				document.contextualize (err) ->
-					return next?(err) if err
-					# Render the document
-					docpad.render document, templateData, (err) ->
-						return next?(err,document)
+		# Contextualize the datbaase, perform two render passes, and perform a write
+		balUtil.flow(
+			object: document
+			action: 'normalize load contextualize render'
+			args: [{templateData}]
+			next: (err) ->
+				return next(err)
+		)
 
 		# Chain
 		@
@@ -1419,9 +1425,10 @@ class DocPad extends EventSystem
 			# Skip?
 			dynamic = file.get('dynamic')
 			render = file.get('render')
+			relativePath = file.get('relativePath')
 
 			# Render
-			if dynamic or (render? and !render)
+			if dynamic or (render? and !render) or !relativePath
 				complete()
 			else if file.render?
 				file.render({templateData},complete)
@@ -1462,9 +1469,10 @@ class DocPad extends EventSystem
 			# Skip
 			dynamic = file.get('dynamic')
 			write = file.get('write')
+			relativePath = file.get('relativePath')
 
 			# Write
-			if dynamic or (write? and !write)
+			if dynamic or (write? and !write) or !relativePath
 				complete()
 			else if file.writeRendered?
 				file.writeRendered(complete)
@@ -1698,8 +1706,11 @@ class DocPad extends EventSystem
 			# Async
 			tasks = new balUtil.Group (err) ->
 				return next(err)  if err
-				docpad.log 'debug', 'Parsed everything'
-				return next(err)
+				# After
+				docpad.emitSync 'parseAfter', {}, (err) ->
+					return next(err)  if err
+					docpad.log 'debug', 'Parsed everything'
+					return next(err)
 
 			# Documents
 			_.each config.documentsPaths, (documentsPath) -> tasks.push (complete) ->
@@ -1953,7 +1964,7 @@ class DocPad extends EventSystem
 		# Change event handler
 		changeHandler = (eventName,filePath,fileCurrentStat,filePreviousStat) ->
 			# Fetch the file
-			file = docpad.ensureFileOrDocument(filePath)
+			file = docpad.ensureFileOrDocument({fullPath:filePath})
 
 			# Prepare generate everything else
 			performGenerate = (opts={}) ->

@@ -146,9 +146,9 @@ class DocumentModel extends FileModel
 
 						else
 							err = new Error("Unknown meta parser: #{parser}")
-							return next?(err)
+							return next(err)
 				catch err
-					return next?(err)
+					return next(err)
 			else
 				body = content
 
@@ -182,7 +182,7 @@ class DocumentModel extends FileModel
 			@set(@meta.toJSON())
 
 			# Next
-			next?()
+			next()
 		@
 
 	# Write the rendered file
@@ -219,13 +219,12 @@ class DocumentModel extends FileModel
 
 		# Fetch
 		fullPath = @get('fullPath')
-		relativePath = @get('relativePath')
 		content = @get('content')
 		body = @get('body')
 		parser = @get('parser')
 
 		# Log
-		file.log 'debug', "Writing the source file: #{relativePath}"
+		file.log 'debug', "Writing the source file: #{fullPath}"
 
 		# Adjust
 		header = CSON.stringifySync(@meta.toJSON())
@@ -238,13 +237,13 @@ class DocumentModel extends FileModel
 		# Write content
 		balUtil.writeFile fileOutPath, content, (err) ->
 			# Check
-			return next?(err)  if err
+			return next(err)  if err
 
 			# Log
-			file.log 'info', "Wrote the source file: #{relativePath}"
+			file.log 'info', "Wrote the source file: #{fullPath}"
 
 			# Next
-			next?()
+			next()
 
 		# Chain
 		@
@@ -252,7 +251,10 @@ class DocumentModel extends FileModel
 	# Normalize data
 	# Normalize any parsing we have done, as if a value has updates it may have consequences on another value. This will ensure everything is okay.
 	# next(err)
-	normalize: (next) ->
+	normalize: (opts={},next) ->
+		# Prepare
+		{opts,next} = @getActionArgs(opts,next)
+
 		# Super
 		super =>
 			# Extract
@@ -265,7 +267,7 @@ class DocumentModel extends FileModel
 			@set({extensionRendered})
 
 			# Next
-			next?()
+			next()
 
 		# Chain
 		@
@@ -273,13 +275,16 @@ class DocumentModel extends FileModel
 	# Contextualize data
 	# Put our data into perspective of the bigger picture. For instance, generate the url for it's rendered equivalant.
 	# next(err)
-	contextualize: (next) ->
+	contextualize: (opts={},next) ->
+		# Prepare
+		{opts,next} = @getActionArgs(opts,next)
+
 		# Super
 		super =>
 			# Get our highest ancestor
 			@getEve (err,eve) =>
 				# Check
-				return next?(err)  if err
+				return next(err)  if err
 
 				# Fetch
 				meta = @getMeta()
@@ -310,7 +315,7 @@ class DocumentModel extends FileModel
 				@set({extensionRendered,filenameRendered,url,slug,name,outPath,contentTypeRendered})
 
 				# Forward
-				next?()
+				next()
 
 		# Chain
 		@
@@ -330,12 +335,12 @@ class DocumentModel extends FileModel
 
 		# No layout
 		unless layoutId
-			return next?(null,null)
+			return next(null,null)
 
 		# Cached layout
 		else if @layout and layoutId is @layout.id
 			# Forward
-			return next?(null,@layout)
+			return next(null,@layout)
 
 		# Uncached layout
 		else
@@ -346,12 +351,12 @@ class DocumentModel extends FileModel
 
 				# Error
 				if err
-					return next?(err)
+					return next(err)
 				# Not Found
 				else unless layout
 					debugger
 					err = new Error "Could not find the specified layout: #{layoutId}"
-					return next?(err)
+					return next(err)
 				# Found
 				else
 					# Update our layout id with the definitive correct one
@@ -361,7 +366,7 @@ class DocumentModel extends FileModel
 					file.layout = layout
 
 					# Forward
-					return next?(null,layout)
+					return next(null,layout)
 
 		# Chain
 		@
@@ -373,11 +378,11 @@ class DocumentModel extends FileModel
 		if @hasLayout()
 			@getLayout (err,layout) ->
 				if err
-					return next?(err,null)
+					return next(err,null)
 				else
 					layout.getEve(next)
 		else
-			next?(null,@)
+			next(null,@)
 		@
 
 	# Render
@@ -385,17 +390,18 @@ class DocumentModel extends FileModel
 	# next(err,result)
 	render: (opts={},next) ->
 		# Prepare
+		{opts,next} = @getActionArgs(opts,next)
 		file = @
 		rendering = null
 		{templateData} = opts
 
 		# Prepare templateData
-		templateData = _.clone(templateData)
+		templateData = _.clone(templateData or {})
 		templateData.document or= file.toJSON()
 		templateData.documentModel or= file
 
 		# Fetch
-		relativePath = @get('relativePath')
+		fullPath = @get('fullPath')
 		body = @get('body')
 		extensions = @get('extensions')
 		extensionsReversed = []
@@ -406,7 +412,7 @@ class DocumentModel extends FileModel
 
 
 		# Log
-		file.log 'debug', "Rendering the file: #{relativePath}"
+		file.log 'debug', "Rendering the file: #{fullPath}"
 
 		# Prepare reset
 		reset = ->
@@ -432,7 +438,7 @@ class DocumentModel extends FileModel
 			return next(err)  if err
 
 			# Log
-			file.log 'debug', 'Rendering completed for:', file.get('relativePath')
+			file.log 'debug', "Rendering completed for: #{fullPath}"
 
 			# Success
 			return next(null,rendering)
@@ -445,7 +451,7 @@ class DocumentModel extends FileModel
 			file.trigger eventData.name, eventData, (err) ->
 				# Error?
 				if err
-					file.log 'warn', 'Something went wrong while rendering:', file.get('relativePath')
+					file.log 'warn', "Something went wrong while rendering: #{fullPath}"
 					return next(err)
 				# Forward
 				return next(err)

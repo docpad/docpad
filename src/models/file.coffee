@@ -132,6 +132,17 @@ class FileModel extends Model
 		# Super
 		super
 
+	# Get the arguments for the action
+	# Using this contains the transparency with using opts, and not using opts
+	getActionArgs: (opts,next) ->
+		if typeof opts is 'function' and next? is false
+			next = opts
+			opts = {}
+		else
+			opts or= {}
+		next or= opts.next or null
+		return {next,opts}
+
 	# Set Stat
 	setStat: (stat) ->
 		@stat = stat
@@ -160,8 +171,9 @@ class FileModel extends Model
 	# Load
 	# If the fullPath exists, load the file
 	# If it doesn't, then parse and normalize the file
-	load: (next) ->
+	load: (opts={},next) ->
 		# Prepare
+		{opts,next} = @getActionArgs(opts,next)
 		file = @
 		filePath = @get('relativePath') or @get('fullPath') or @get('filename')
 		fullPath = @get('fullPath')
@@ -172,9 +184,9 @@ class FileModel extends Model
 
 		# Handler
 		complete = (err) ->
-			return next?(err)  if err
+			return next(err)  if err
 			file.log('debug', "Loaded the file: #{filePath}")
-			next?()
+			next()
 
 		# Exists?
 		pathUtil.exists fullPath, (exists) =>
@@ -183,9 +195,9 @@ class FileModel extends Model
 				@readFile(fullPath, complete)
 			else
 				@parseData data, (err) =>
-					return next?(err)  if err
+					return next(err)  if err
 					@normalize (err) =>
-						return next?(err)  if err
+						return next(err)  if err
 						complete()
 
 		# Chain
@@ -198,21 +210,20 @@ class FileModel extends Model
 		# Prepare
 		file = @
 		fullPath = @get('fullPath')
-		relativePath = @get('relativePath')
 
 		# Log
-		file.log('debug', "Reading the file: #{relativePath}")
+		file.log('debug', "Reading the file: #{fullPath}")
 
 		# Async
 		tasks = new balUtil.Group (err) =>
 			if err
-				file.log('err', "Failed to read the file: #{relativePath}")
-				return next?(err)
+				file.log('err', "Failed to read the file: #{fullPath}")
+				return next(err)
 			else
 				@normalize (err) =>
-					return next?(err)  if err
-					file.log('debug', "Read the file: #{relativePath}")
-					next?()
+					return next(err)  if err
+					file.log('debug', "Read the file: #{fullPath}")
+					next()
 		tasks.total = 2
 
 		# Stat the file
@@ -220,13 +231,13 @@ class FileModel extends Model
 			tasks.complete()
 		else
 			balUtil.stat fullPath, (err,fileStat) ->
-				return next?(err)  if err
+				return next(err)  if err
 				file.stat = fileStat
 				tasks.complete()
 
 		# Read the file
 		balUtil.readFile fullPath, (err,data) ->
-			return next?(err)  if err
+			return next(err)  if err
 			file.parseData(data, tasks.completer())
 
 		# Chain
@@ -295,7 +306,7 @@ class FileModel extends Model
 		@set({content,encoding})
 
 		# Next
-		next?()
+		next()
 		@
 
 	# Add a url
@@ -332,8 +343,9 @@ class FileModel extends Model
 	# Normalize data
 	# Normalize any parsing we have done, as if a value has updates it may have consequences on another value. This will ensure everything is okay.
 	# next(err)
-	normalize: (next) ->
+	normalize: (opts={},next) ->
 		# Prepare
+		{opts,next} = @getActionArgs(opts,next)
 		basename = @get('basename')
 		filename = @get('filename')
 		fullPath = @get('fullPath')
@@ -343,7 +355,7 @@ class FileModel extends Model
 
 		# Adjust
 		fullPath or= filename
-		relativePath or= fullPath
+		relativePath or= null
 
 		# Paths
 		filename = pathUtil.basename(fullPath)
@@ -362,7 +374,7 @@ class FileModel extends Model
 				pathUtil.join(relativeDirPath, basename)
 			else
 				basename
-		id or= relativePath
+		id or= relativePath or fullPath
 
 		# Date
 		date or= new Date(@stat.mtime)  if @stat
@@ -374,14 +386,15 @@ class FileModel extends Model
 		@set({basename,filename,fullPath,relativePath,fullDirPath,relativeDirPath,id,relativeBase,extensions,extension,contentType,date})
 
 		# Next
-		next?()
+		next()
 		@
 
 	# Contextualize data
 	# Put our data into perspective of the bigger picture. For instance, generate the url for it's rendered equivalant.
 	# next(err)
-	contextualize: (next) ->
+	contextualize: (opts={},next) ->
 		# Fetch
+		{opts,next} = @getActionArgs(opts,next)
 		relativeBase = @get('relativeBase')
 		extensions = @get('extensions')
 		filename = @get('filename')
@@ -402,7 +415,7 @@ class FileModel extends Model
 		@set({url,slug,name,outPath,outDirPath})
 
 		# Forward
-		next?()
+		next()
 		@
 
 	# Write the rendered file
@@ -419,13 +432,13 @@ class FileModel extends Model
 		# Write data
 		balUtil.writeFile fileOutPath, contentOrData, (err) ->
 			# Check
-			return next?(err)  if err
+			return next(err)  if err
 
 			# Log
 			file.log 'debug', "Wrote the file: #{fileOutPath}"
 
 			# Next
-			next?()
+			next()
 
 		# Chain
 		@
