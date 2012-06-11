@@ -1,6 +1,5 @@
 # Requires
 pathUtil = require('path')
-fsUtil = require('fs')
 balUtil = require('bal-util')
 _ = require('underscore')
 mime = require('mime')
@@ -189,7 +188,7 @@ class FileModel extends Model
 			next()
 
 		# Exists?
-		pathUtil.exists fullPath, (exists) =>
+		balUtil.exists fullPath, (exists) =>
 			# Read the file
 			if exists
 				@readFile(fullPath, complete)

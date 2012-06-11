@@ -474,6 +474,10 @@ class DocumentModel extends FileModel
 					# Assign the current rendering to the templateData.content
 					templateData.content = rendering
 
+					# Merge in the layout meta data into the document JSON
+					# and make the result available via documentMerged
+					# templateData.document.metaMerged = _.extend({}, layout.getMeta().toJSON(), file.getMeta().toJSON())
+
 					# Render the layout with the templateData
 					layout.render {templateData}, (err,result) ->
 						return next(err)  if err
