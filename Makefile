@@ -1,10 +1,10 @@
 # If you change something here, be sure to change it in package.json's scripts as well
 
 dev:
-	./node_modules/.bin/coffee -w -o lib/ -c src/
+	./node_modules/.bin/coffee -w -o out/ -c src/
 
 compile:
-	./node_modules/.bin/coffee -o lib/ -c src/
+	./node_modules/.bin/coffee -o out/ -c src/
 
 debug:
 	cd test; node --debug-brk ../bin/docpad run
@@ -12,10 +12,10 @@ debug:
 test:
 	make clean
 	make compile
-	node ./node_modules/mocha/bin/mocha
+	npm test
 
 install:
-	coffee ./bin/docpad install
+	node ./bin/docpad install
 
 clean:
 	rm -Rf lib node_modules/ npm-debug.log

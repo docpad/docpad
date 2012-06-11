@@ -1,4 +1,5 @@
 ---
+mergedLayoutTest: true
 tags: ['attr']
 ---
 

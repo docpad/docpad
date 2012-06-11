@@ -12,7 +12,7 @@ class ConsoleInterface
 		docpad = @docpad
 
 		# Ensure our actions always have the scope of this instance
-		_.bindAll(@, 'run', 'server', 'skeleton', 'render', 'generate', 'watch', 'install', 'clean', 'info', 'cli', 'exit', 'help')
+		_.bindAll(@, 'run', 'server', 'skeleton', 'render', 'generate', 'watch', 'install', 'clean', 'info', 'cli', 'exit', 'help', 'actionCompleted', 'handleError')
 
 		# -----------------------------
 		# Global config
@@ -212,10 +212,11 @@ class ConsoleInterface
 		# Prepare
 		docpad = @docpad
 		program = @program
-		programConfig = program
+		programConfig = @program
 
 		# Apply program configuration
 		if programConfig.debug
+			programConfig.debug = 7  if programConfig.debug is true
 			docpad.setLogLevel(programConfig.debug)
 			delete programConfig.debug
 		for own key, value of programConfig

@@ -1,2 +1,2 @@
 #!/usr/bin/env node
-require(__dirname+'/../lib/bin/docpad');
+require(__dirname+'/../out/bin/docpad');

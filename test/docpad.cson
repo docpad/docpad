@@ -1,0 +1,4 @@
+{
+	templateData:
+		require: require
+}

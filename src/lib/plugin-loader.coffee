@@ -57,15 +57,15 @@ class PluginLoader
 		@pluginClass = {}
 		@pluginConfig = {}
 		@packageData = {}
-		@nodeModulesPath = path.resolve @dirPath, 'node_modules'
+		@nodeModulesPath = path.resolve(@dirPath, 'node_modules')
 
 	# Exists
 	# Loads in the plugin either via a package.json file, or a guessing based on the name
 	# next(err,exists)
 	exists: (next) ->
 		# Package.json
-		packagePath = path.resolve @dirPath, "package.json"
-		pluginPath = path.resolve @dirPath, "#{@pluginName}.plugin.coffee"
+		packagePath = path.resolve(@dirPath, "package.json")
+		pluginPath = path.resolve(@dirPath, "#{@pluginName}.plugin.coffee")
 		path.exists packagePath, (exists) =>
 			unless exists
 				path.exists pluginPath, (exists) =>
