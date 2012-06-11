@@ -197,7 +197,7 @@ class DocPad extends EventSystem
 		plugins: null  # {}
 
 		# Where to fetch the exchange information from
-		exchangeUrl: 'https://raw.github.com/bevry/docpad-extras/docpad-5.x/exchange.json'
+		exchangeUrl: 'https://raw.github.com/bevry/docpad-extras/docpad-6.x/exchange.json'
 
 
 		# -----------------------------
