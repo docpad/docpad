@@ -1,5 +1,8 @@
 ## History
 
+- v6.0.1 June 11, 2012
+	- Fixed plugin generation tests
+
 - v6.0.0 June 11, 2012
 	- Breaking changes that may affect you
 		- Removed `documentsPath`, `filesPath`, `layoutsPath` configuration options for their array based alternatives `documentsPaths`, `filesPaths`, `layoutsPaths`

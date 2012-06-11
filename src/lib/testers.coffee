@@ -182,7 +182,7 @@ class RendererTester extends PluginTester
 				tester.docpad.action 'generate', (err) ->
 					return done(err)
 
-			suite 'results', (done) ->
+			test 'results', (done) ->
 				# Get actual results
 				balUtil.scantree tester.docpadConfig.outPath, (err,outResults) ->
 					return done(err)  if err
