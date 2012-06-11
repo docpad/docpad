@@ -1,5 +1,8 @@
 ## History
 
+- v6.0.2 June 11, 2012
+	- Now fetches the DocPad v6 exchange file
+
 - v6.0.1 June 11, 2012
 	- Fixed plugin generation tests
 
