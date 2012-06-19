@@ -1,5 +1,12 @@
 ## History
 
+- v6.0.6 June 19, 2012
+	- Greatly simplified the event architecture
+		- We now inherit from the simpler `balUtil.EventEmitterEnhanced` instead of `balUtil.EventSystem`, and have moved queue code into `balUtil.Group` as `docpadInstance.getRunner()`
+		- Actions when called directly do not queue, they only queue when called through `docpadInstance.action`
+	- `docpadinstance.loadConfiguration` is now an action called `load`
+	- Fixed the run action not completing due to a missing callback
+
 - v6.0.5 June 19, 2012
 	- Updated QueryEngine from version 1.1 to 1.2
 	- Fixed watch error when deleting files, or changing a directory
