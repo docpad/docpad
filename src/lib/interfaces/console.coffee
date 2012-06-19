@@ -1,5 +1,7 @@
 # Requires
 _ = require('underscore')
+caterpillar = require('caterpillar')
+{cliColor} = caterpillar
 
 # Console Interface
 class ConsoleInterface

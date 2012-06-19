@@ -1,5 +1,8 @@
 ## History
 
+- v6.0.4 June 19, 2012
+	- Fixed skeleton action
+
 - v6.0.3 June 19, 2012
 	- Fixed `server` action when used in combination with a custom server
 

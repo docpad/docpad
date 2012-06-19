@@ -2121,7 +2121,7 @@ class DocPad extends EventSystem
 						"""
 					return next()
 				else
-					@skeletonAction opts, (err) =>
+					@skeleton opts, (err) =>
 						return next(err)  if err
 						runDocpad()
 
