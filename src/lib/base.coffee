@@ -37,11 +37,7 @@ class View extends Backbone.View
 class QueryCollection extends QueryEngine.QueryCollection
 	log: log
 	emit: emit
-
-	# Create Child Collection
-	createChildCollection: ->
-		collection = new QueryCollection().setParentCollection(@)
-		return collection
+	Collection: QueryCollection
 
 # Export our BaseModel Class
 module.exports = {Backbone,Events,Model,Collection,View,QueryCollection}

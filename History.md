@@ -1,5 +1,9 @@
 ## History
 
+- v6.0.5 June 19, 2012
+	- Updated QueryEngine from version 1.1 to 1.2
+	- Fixed watch error when deleting files, or changing a directory
+
 - v6.0.4 June 19, 2012
 	- Fixed skeleton action
 

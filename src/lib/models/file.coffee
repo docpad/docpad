@@ -442,5 +442,29 @@ class FileModel extends Model
 		# Chain
 		@
 
+	# Delete the file
+	# next(err)
+	delete: (next) ->
+		# Prepare
+		file = @
+		fileOutPath = @get('outPath')
+
+		# Log
+		file.log 'debug', "Delete the file: #{fileOutPath}"
+
+		# Write data
+		balUtil.unlink fileOutPath, (err) ->
+			# Check
+			return next(err)  if err
+
+			# Log
+			file.log 'debug', "Deleted the file: #{fileOutPath}"
+
+			# Next
+			next()
+
+		# Chain
+		@
+
 # Export
 module.exports = FileModel
