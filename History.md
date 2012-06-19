@@ -1,5 +1,8 @@
 ## History
 
+- v6.0.3 June 19, 2012
+	- Fixed `server` action when used in combination with a custom server
+
 - v6.0.2 June 11, 2012
 	- Now fetches the DocPad v6 exchange file
 
