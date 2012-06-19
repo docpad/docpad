@@ -1867,6 +1867,7 @@ class DocPad extends EventSystem
 		# Prepare
 		{opts,next} = @getActionArgs(opts,next)
 		docpad = @
+		docpad.lastGenerate ?= new Date('1970')
 
 		# Re-load and re-render only what is necessary
 		if opts.reset? and opts.reset is false
@@ -1876,13 +1877,14 @@ class DocPad extends EventSystem
 
 				# Reload changed files
 				database = docpad.getDatabase()
-				filesToReload = database.findAll(mtime: $gte: docpad.lastGenerate)
+				filesToReload = opts.filesToReload or new docpad.FilesCollection()
+				filesToReload.add(database.findAll(mtime: $gte: docpad.lastGenerate).models)
 				docpad.lastGenerate = new Date()
 				docpad.loadFiles {collection:filesToReload}, (err) ->
 					return docpad.generateError(err,next)  if err
 
 					# Re-render necessary files
-					filesToRender = new docpad.FilesCollection()
+					filesToRender = opts.filesToRender or new docpad.FilesCollection()
 					filesToRender.add(database.findAll(referencesOthers: true).models)
 					filesToRender.add(filesToReload.models)
 					docpad.generateRender {collection:filesToRender}, (err) ->
@@ -2013,26 +2015,43 @@ class DocPad extends EventSystem
 		# Change event handler
 		changeHandler = (eventName,filePath,fileCurrentStat,filePreviousStat) ->
 			# Fetch the file
+			docpad.log 'debug', "Change detected at #{new Date().toLocaleTimeString()}", eventName, filePath
+
+			# Check if we are a file we don't care about
+			if ( balUtil.commonIgnorePatterns.test(pathUtil.basename(filePath)) )
+				docpad.log 'debug', "Ignored change at #{new Date().toLocaleTimeString()}", filePath
+				return
+
+			# Don't care if we are a directory
+			if (fileCurrentStat or filePreviousStat).isDirectory()
+				docpad.log 'debug', "Directory change at #{new Date().toLocaleTimeString()}", filePath
+				return
+
+			# Create the file object
 			file = docpad.ensureFileOrDocument({fullPath:filePath})
 
 			# Prepare generate everything else
 			performGenerate = (opts={}) ->
 				# Do not reset when we do this generate
 				opts.reset = false
+				# Log
+				docpad.log "Regenerating at #{new Date().toLocaleTimeString()}"
 				# Afterwards, re-render anything that should always re-render
 				docpad.generate opts, (err) ->
 					docpad.error(err)  if err
 					docpad.log "Regenerated at #{new Date().toLocaleTimeString()}"
 
-			# File was deleted, destroy it
+			# File was deleted, delete the rendered file, and remove it from the database
 			if eventName is 'unlink'
-				file.destroy()
-				performGenerate()
+				database.remove(file)
+				file.delete (err) ->
+					return docpad.error(err)  if err
+					performGenerate()
 
 			# File is new or was changed, update it's mtime by setting the stat
 			else if eventName in ['new','change']
 				file.setStat(fileCurrentStat)
-				performGenerate()
+				performGenerate({filesToReload:new docpad.FilesCollection([file])})
 
 		# Start watching
 		watch = ->
