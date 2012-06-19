@@ -598,7 +598,7 @@ class DocPad extends EventSystem
 					@config = config
 
 					# Options
-					@server = @config.server  if @config.server
+					@setServer(@config.server)  if @config.server
 
 					# Noramlize and resolve the configuration paths
 					@config.rootPath = pathUtil.normalize(@config.rootPath or process.cwd())
