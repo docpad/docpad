@@ -1811,7 +1811,10 @@ class DocPad extends EventEmitterEnhanced
 			return next(err)  if err
 
 			# Log generated
-			docpad.log 'info', 'Generated'
+			if opts.count?
+				docpad.log 'info', "Generated #{opts.count} files"
+			else
+				docpad.log 'info', "Generated all files"
 			docpad.notify (new Date()).toLocaleTimeString(), title: 'Website generated'
 
 			# Completed
@@ -1835,24 +1838,37 @@ class DocPad extends EventEmitterEnhanced
 			# Prepare
 			docpad.generatePrepare (err) ->
 				return next(err)  if err
-
-				# Reload changed files
 				database = docpad.getDatabase()
+
+				# Create a colelction for the files to reload
 				filesToReload = opts.filesToReload or new docpad.FilesCollection()
+				# Add anything which was modified since our last generate
 				filesToReload.add(database.findAll(mtime: $gte: docpad.lastGenerate).models)
+
+				# Update our generate time
 				docpad.lastGenerate = new Date()
+
+				# Perform the reload of the selected files
 				docpad.loadFiles {collection:filesToReload}, (err) ->
 					return next(err)  if err
 
-					# Re-render necessary files
+					# Create a collection for the files to render
 					filesToRender = opts.filesToRender or new docpad.FilesCollection()
+					# For anything that gets added, if it is a layout, then add that layouts children too
+					filesToRender.on 'add', (fileToRender) ->
+						if fileToRender.get('isLayout')
+							filesToRender.add(database.findAll(layout: fileToRender.id).models)
+					# Add anything that references other documents (e.g. partials, listing, etc)
 					filesToRender.add(database.findAll(referencesOthers: true).models)
+					# Add anything that was re-loaded
 					filesToRender.add(filesToReload.models)
+
+					# Perform the re-render of the selected files
 					docpad.generateRender {collection:filesToRender}, (err) ->
 						return next(err)  if err
 
 						# Finish up
-						docpad.generatePostpare {}, (err) ->
+						docpad.generatePostpare {count:filesToRender.length}, (err) ->
 							return next(err)
 
 		# Re-load and re-render everything

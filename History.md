@@ -1,5 +1,8 @@
 ## History
 
+- v6.0.7 June 20, 2012
+	- When watching files, and you modify a layout, docpad will now re-render anything using that layout - closes #242
+
 - v6.0.6 June 19, 2012
 	- Greatly simplified the event architecture
 		- We now inherit from the simpler `balUtil.EventEmitterEnhanced` instead of `balUtil.EventSystem`, and have moved queue code into `balUtil.Group` as `docpadInstance.getRunner()`

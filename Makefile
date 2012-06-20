@@ -18,7 +18,7 @@ install:
 	node ./bin/docpad install
 
 clean:
-	rm -Rf lib node_modules/ npm-debug.log
+	rm -Rf lib node_modules/ npm-debug.log test/node_modules test/out
 	npm install
 
 publish:
