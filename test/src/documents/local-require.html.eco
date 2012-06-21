@@ -1,1 +1,1 @@
-<span><%= @require('moment')('2011-10-31').format() %></span>
+<span><%= @require('moment')('2011-10-31').format('YYYY-MM-DD') %></span>
