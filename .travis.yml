@@ -1,5 +1,5 @@
 language: node_js
-before_script: "make compile"
+before_script: "make test-prepare"
 node_js:
   - 0.4
   - 0.6
