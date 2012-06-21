@@ -12,7 +12,7 @@ class BasePlugin
 	docpad: null
 
 	# Logger Instance
-	logger: null
+	logger: null  # deprecated, use @docpad.getLogger() instead
 
 
 	# ---------------------------------
@@ -27,26 +27,6 @@ class BasePlugin
 	# Plugin priority
 	priority: 500
 
-	# Event Listing
-	events: [
-		'docpadReady'
-		'consoleSetup'
-		'generateBefore'
-		'generateAfter'
-		'cleanBefore'
-		'cleanAfter'
-		'parseBefore'
-		'parseAfter'
-		'renderBefore'
-		'render'
-		'renderDocument'
-		'renderAfter'
-		'writeBefore'
-		'writeAfter'
-		'serverBefore'
-		'serverAfter'
-	]
-
 	# Constructor
 	constructor: (config={}) ->
 		# Prepare
@@ -54,13 +34,13 @@ class BasePlugin
 		@events = _.extend([],@events)
 		@config = _.extend({},@config,config)
 		@docpad = @config.docpad
-		@logger = @docpad.logger
+		@logger = @docpad.logger  # deprecated
 		@name or= @config.name  if @config.name
 		if !@name
 			throw new Error 'Plugin must have a name'
 
 		# Bind events
-		_.each @events, (eventName) ->
+		_.each @docpad.getEvents(), (eventName) ->
 			if typeof me[eventName] is 'function'
 				# Fetch the event handler
 				eventHandler = me[eventName]

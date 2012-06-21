@@ -80,6 +80,27 @@ class DocPad extends EventEmitterEnhanced
 	getRunner: ->
 		@runnerInstance
 
+	# Event Listing
+	events: [
+		'docpadReady'
+		'consoleSetup'
+		'generateBefore'
+		'generateAfter'
+		'cleanBefore'
+		'cleanAfter'
+		'parseBefore'
+		'parseAfter'
+		'renderBefore'
+		'render'
+		'renderDocument'
+		'renderAfter'
+		'writeBefore'
+		'writeAfter'
+		'serverBefore'
+		'serverAfter'
+	]
+	getEvents: ->
+		@events
 
 	# ---------------------------------
 	# Collections
@@ -173,6 +194,10 @@ class DocPad extends EventEmitterEnhanced
 
 	# -----------------------------
 	# Configuration
+
+	# Get the Configuration
+	getConfig: ->
+		@config
 
 	# Initial Configuration
 	initConfig: null
@@ -332,8 +357,9 @@ class DocPad extends EventEmitterEnhanced
 
 	# Construct DocPad
 	# next(err)
-	constructor: (config={},next) ->
+	constructor: (opts,next) ->
 		# Prepare
+		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
 
 		# Ensure certain functions always have the scope of this instance
@@ -341,6 +367,20 @@ class DocPad extends EventEmitterEnhanced
 
 		# Allow DocPad to have unlimited event listeners
 		@setMaxListeners(0)
+
+		# Setup configuration event wrappers
+		_.each @getEvents(), (eventName) ->
+			# Bind to the event
+			docpad.on eventName, (opts,next) ->
+				eventHandler = docpad.getConfig().events[eventName]
+				# Fire the config event handler for this event, if it exists
+				if typeof eventHandler is 'function'
+					args = [opts,next]
+					context = {docpad}
+					balUtil.fireWithOptionalCallback(eventHandler,args,context)
+				# It doesn't exist, so lets continue
+				else
+					next()
 
 		# Create our runner
 		@runnerInstance = new balUtil.Group 'sync', (err) ->
@@ -382,10 +422,10 @@ class DocPad extends EventEmitterEnhanced
 		@database = new @FilesCollection()
 
 		# Apply and load configuration
-		@initConfig = config or {}
+		@initConfig = opts or {}
 		@action 'load', (err) =>
 			# Error?
-			return @error(err)  if err
+			return @fatal(err)  if err
 
 			# Bind the error handler, so we don't crash on errors
 			if @config.catchExceptions
@@ -467,19 +507,18 @@ class DocPad extends EventEmitterEnhanced
 			@compareVersion()
 
 
-			# Subscribe to configuration events
-			for own eventName, eventHandler of @config.events
-				@on(eventName, eventHandler)
-
-
 			# Log
 			@log 'debug', 'DocPad loaded succesfully'
 			@log 'debug', 'Loaded the following plugins:', _.keys(@loadedPlugins).sort().join(', ')
 
 
 			# Ready
-			@emitSync 'docpadReady', {docpad:@}, ->
-				return next?()
+			@emitSync 'docpadReady', {docpad:@}, (err) ->
+				# Error?
+				return @error(err)  if err
+
+				# All done, forward our DocPad instance onto our creator
+				return next?(null,docpad)
 
 
 	# =================================
@@ -1466,86 +1505,77 @@ class DocPad extends EventEmitterEnhanced
 	# =================================
 	# Actions
 
-	# Get the arguments for the action
-	# Using this contains the transparency with using opts, and not using opts
-	getActionArgs: (opts,next) ->
-		if typeof opts is 'function' and next? is false
-			next = opts
-			opts = {}
-		else
-			opts or= {}
-		next or= opts.next or null
-		return {next,opts}
-
 	# Perform an action
 	# next(err)
-	action: (action,opts={},next) ->
+	action: (action,opts,next) ->
 		# Prepare
-		{opts,next} = @getActionArgs(opts,next)
+		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		docpad = @
 		runner = @getRunner()
 
 		# Multiple actions?
 		actions = action.split /[,\s]+/g
 		if actions.length > 1
-			tasks = new balUtil.Group(next)
-			tasks.total = actions.length
-			for action in actions
-				@action action, tasks.completer()
-			return @
+			tasks = new balUtil.Group (err) ->
+				return next(err)
+			_.each actions, (action) -> tasks.push (complete) ->
+				docpad.action(action,opts,complete)
+			tasks.sync()
+			return docpad
 
 		# Log
 		@log 'debug', "Performing the action #{action}"
 
 		# Next
-		next ?= (err) =>
-			@fatal(err)  if err
+		next ?= (err) ->
+			docpad.fatal(err)  if err
 
 		# Wrap
-		runner.pushAndRun (complete) =>
+		runner.pushAndRun (complete) ->
 			# Handle
 			switch action
 				when 'install', 'update'
-					@install opts, (err) ->
+					docpad.install opts, (err) ->
 						next(err)
 						complete()
 
 				when 'skeleton', 'scaffold'
-					@skeleton opts, (err) ->
+					docpad.skeleton opts, (err) ->
 						next(err)
 						complete()
 
 				when 'load'
-					@load opts, (err) ->
+					docpad.load opts, (err) ->
 						next(err)
 						complete()
 
 				when 'generate'
-					@generate opts, (err) ->
+					docpad.generate opts, (err) ->
 						next(err)
 						complete()
 
 				when 'clean'
-					@clean opts, (err) ->
+					docpad.clean opts, (err) ->
 						next(err)
 						complete()
 
 				when 'render'
-					@render opts, (err,data) ->
+					docpad.render opts, (err,data) ->
 						next(err)
 						complete()
 
 				when 'watch'
-					@watch opts, (err) ->
+					docpad.watch opts, (err) ->
 						next(err)
 						complete()
 
 				when 'server'
-					@server opts, (err) ->
+					docpad.server opts, (err) ->
 						next(err)
 						complete()
 
 				else
-					@run opts, (err) ->
+					docpad.run opts, (err) ->
 						next(err)
 						complete()
 
@@ -1560,7 +1590,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err)
 	load: (opts,next) ->
 		# Prepare
-		{opts,next} = @getActionArgs(opts,next)
+		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
 
 		# Prepare
@@ -1685,7 +1715,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err)
 	install: (opts,next) ->
 		# Prepare
-		{opts,next} = @getActionArgs(opts,next)
+		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
 
 		# Re-Initialise the Website's modules
@@ -1708,7 +1738,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err)
 	clean: (opts,next) ->
 		# Prepare
-		{opts,next} = @getActionArgs(opts,next)
+		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
 
 		# Log
@@ -1732,7 +1762,7 @@ class DocPad extends EventEmitterEnhanced
 	# Generate Prepare
 	generatePrepare: (opts,next) ->
 		# Prepare
-		{opts,next} = @getActionArgs(opts,next)
+		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
 
 		# Log generating
@@ -1750,7 +1780,7 @@ class DocPad extends EventEmitterEnhanced
 	# Generate Check
 	generateCheck: (opts,next) ->
 		# Prepare
-		{opts,next} = @getActionArgs(opts,next)
+		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
 
 		# Check plugin count
@@ -1774,7 +1804,7 @@ class DocPad extends EventEmitterEnhanced
 	# Generate Clean
 	generateClean: (opts,next) ->
 		# Prepare
-		{opts,next} = @getActionArgs(opts,next)
+		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
 
 		# Perform a complete clean of our collections
@@ -1789,7 +1819,7 @@ class DocPad extends EventEmitterEnhanced
 	# Parse the files
 	generateParse: (opts,next) ->
 		# Prepare
-		{opts,next} = @getActionArgs(opts,next)
+		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
 		database = @getDatabase()
 		config = docpad.config
@@ -1843,7 +1873,7 @@ class DocPad extends EventEmitterEnhanced
 	# Generate Render
 	generateRender: (opts,next) ->
 		# Prepare
-		{opts,next} = @getActionArgs(opts,next)
+		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
 		templateData = opts.templateData or @getTemplateData()
 		collection = opts.collection or @getDatabase()
@@ -1863,7 +1893,7 @@ class DocPad extends EventEmitterEnhanced
 	# Generate Postpare
 	generatePostpare: (opts,next) ->
 		# Prepare
-		{opts,next} = @getActionArgs(opts,next)
+		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
 
 		# Fire plugins
@@ -1889,7 +1919,7 @@ class DocPad extends EventEmitterEnhanced
 	# Generate
 	generate: (opts,next) ->
 		# Prepare
-		{opts,next} = @getActionArgs(opts,next)
+		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
 		docpad.lastGenerate ?= new Date('1970')
 
@@ -1952,7 +1982,7 @@ class DocPad extends EventEmitterEnhanced
 	# Render Action
 	render: (opts,next) ->
 		# Prepare
-		{opts,next} = @getActionArgs(opts,next)
+		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
 
 		# Extract data
@@ -1989,20 +2019,17 @@ class DocPad extends EventEmitterEnhanced
 		watchr = require('watchr')
 
 		# Prepare
-		{opts,next} = @getActionArgs(opts,next)
+		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
 		database = @getDatabase()
-		srcWatcher = null
-		configWatcher = null
+		watchrs = []
 
 		# Close our watchers
 		closeWatchers = ->
-			if srcWatcher
-				srcWatcher.close()
-				srcWatcher = null
-			if configWatcher
-				configWatcher.close()
-				configWatcher = null
+			for watchr in watchrs
+				watchr.close()
+				watchr = null
+			watchrs = []
 
 		# Restart our watchers
 		resetWatchers = (next) ->
@@ -2013,25 +2040,24 @@ class DocPad extends EventEmitterEnhanced
 			tasks = new balUtil.Group(next)
 			tasks.total = 2
 
+			# Watch the config
+			watchrs = watchr.watch(
+				paths: docpad.config.configPaths
+				listener: ->
+					docpad.log 'info', "Configuration change detected at #{new Date().toLocaleTimeString()}"
+					docpad.action 'load', (err) ->
+						return docpad.fatal(err)  if err
+						performGenerate(reset:true)
+				next: tasks.completer()
+			)
+
 			# Watch the source
-			srcWatcher = watchr.watch(
+			watchrs.push watchr.watch(
 				path: docpad.config.srcPath
 				listener: changeHandler
 				next: tasks.completer()
 				ignorePatterns: true
 			)
-
-			# Watch the config
-			if balUtil.existsSync(docpad.config.configPath)
-				configWatcher = watchr.watch(
-					path: docpad.config.configPath
-					listener: ->
-						docpad.load ->
-							changeHandler('config')
-					next: tasks.completer()
-				)
-			else
-				tasks.complete()
 
 		# Timer
 		regenerateTimer = null
@@ -2043,11 +2069,11 @@ class DocPad extends EventEmitterEnhanced
 				regenerateTimer = null
 			# Regenerat after a while
 			regenerateTimer = setTimeout(performGenerate, regenerateDelay)
-		performGenerate = ->
+		performGenerate = (opts) ->
 			# Prepare
-			opts = {}
+			opts or= {}
 			# Do not reset when we do this generate
-			opts.reset = false
+			opts.reset ?= false
 			# Log
 			docpad.log "Regenerating at #{new Date().toLocaleTimeString()}"
 			# Afterwards, re-render anything that should always re-render
@@ -2100,7 +2126,7 @@ class DocPad extends EventEmitterEnhanced
 
 	run: (opts,next) ->
 		# Prepare
-		{opts,next} = @getActionArgs(opts,next)
+		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
 		srcPath = @config.srcPath
 		destinationPath = @config.rootPath
@@ -2153,7 +2179,7 @@ class DocPad extends EventEmitterEnhanced
 	# Skeleton
 	skeleton: (opts,next) ->
 		# Prepare
-		{opts,next} = @getActionArgs(opts,next)
+		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
 		skeletonId = @config.skeleton
 		srcPath = @config.srcPath
@@ -2204,12 +2230,12 @@ class DocPad extends EventEmitterEnhanced
 		express = require('express')
 
 		# Prepare
-		{opts,next} = @getActionArgs(opts,next)
+		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
 		config = @config
 		server = null
 
-		# Exists
+		# Handlers
 		complete = (err) ->
 			return next(err)  if err
 			# Plugins
@@ -2218,6 +2244,21 @@ class DocPad extends EventEmitterEnhanced
 				# Complete
 				docpad.log 'debug', 'Server setup'
 				return next()
+		startServer = ->
+			# Start the server
+			try
+				server.listen(config.port)
+				address = server.address()
+				unless address?
+					throw new Error("Could not start the web server, chances are the desired port #{config.port} is already in use")
+				serverHostname = if address.address is '0.0.0.0' then 'localhost' else address.address
+				serverPort = address.port
+				serverLocation = "http://#{serverHostname}:#{serverPort}/"
+				serverDir = config.outPath
+				docpad.log 'info', "DocPad listening to #{serverLocation} on directory #{serverDir}"
+				complete()
+			catch err
+				complete(err)
 
 		# Plugins
 		docpad.emitSync 'serverBefore', {}, (err) ->
@@ -2231,7 +2272,8 @@ class DocPad extends EventEmitterEnhanced
 
 			# Extend the server
 			unless config.extendServer
-				complete()
+				# Start the Server
+				startServer()
 			else
 				# Configure the server
 				server.configure ->
@@ -2247,75 +2289,68 @@ class DocPad extends EventEmitterEnhanced
 						res.header('X-Powered-By',tools)
 						next()
 
-					# Router Middleware
-					server.use server.router
+					# Emit the serverExtend event
+					# So plugins can define their routes earlier than the DocPad routes
+					docpad.emitSync 'serverExtend', {server}, (err) ->
+						return next(err)  if err
 
-					# Routing
-					server.use (req,res,next) ->
-						# Check
-						database = docpad.getDatabase()
-						return next()  unless database
+						# Router Middleware
+						server.use server.router
 
-						# Prepare
-						pageUrl = req.url.replace(/\?.*/,'')
-						document = database.findOne(urls: '$in': pageUrl)
-						return next()  unless document
+						# Routing
+						server.use (req,res,next) ->
+							# Check
+							database = docpad.getDatabase()
+							return next()  unless database
 
-						# Check if we are the desired url
-						# if we aren't do a permanent redirect
-						url = document.get('url')
-						if url isnt pageUrl
-							return res.redirect(url,301)
+							# Prepare
+							pageUrl = req.url.replace(/\?.*/,'')
+							document = database.findOne(urls: '$in': pageUrl)
+							return next()  unless document
 
-						# Fetch
-						contentTypeRendered = document.get('contentTypeRendered')
-						dynamic = document.get('dynamic')
-						contentRendered = document.get('contentRendered')
+							# Check if we are the desired url
+							# if we aren't do a permanent redirect
+							url = document.get('url')
+							if url isnt pageUrl
+								return res.redirect(url,301)
 
-						# Content Type
-						if contentTypeRendered
-							res.contentType(contentTypeRendered)
+							# Fetch
+							contentTypeRendered = document.get('contentTypeRendered')
+							dynamic = document.get('dynamic')
+							contentRendered = document.get('contentRendered')
 
-						# Send
-						if dynamic
-							templateData = docpad.getTemplateData(req:req)
-							document.render {templateData}, (err) ->
-								contentRendered = document.get('contentRendered')
-								if err
-									docpad.error(err)
-									return res.send(err.message, 500)
-								else
-									return res.send(contentRendered)
-						else
-							if contentRendered
-								return res.send(contentRendered)
+							# Content Type
+							if contentTypeRendered
+								res.contentType(contentTypeRendered)
+
+							# Send
+							if dynamic
+								templateData = docpad.getTemplateData(req:req)
+								document.render {templateData}, (err) ->
+									contentRendered = document.get('contentRendered')
+									if err
+										docpad.error(err)
+										return res.send(err.message, 500)
+									else
+										return res.send(contentRendered)
 							else
-								return next()
+								if contentRendered
+									return res.send(contentRendered)
+								else
+									return next()
 
-					# Static
-					if config.maxAge
-						server.use(express.static config.outPath, maxAge: config.maxAge)
-					else
-						server.use(express.static config.outPath)
+						# Static
+						if config.maxAge
+							server.use(express.static config.outPath, maxAge: config.maxAge)
+						else
+							server.use(express.static config.outPath)
 
-					# 404 Middleware
-					server.use (req,res,next) ->
-						return res.send(404)
+						# 404 Middleware
+						server.use (req,res,next) ->
+							return res.send(404)
 
-				# Start the server
-				try
-					server.listen(config.port)
-					address = server.address()
-					unless address?
-						throw new Error("Could not start the web server, chances are the desired port #{config.port} is already in use")
-					serverHostname = if address.address is '0.0.0.0' then 'localhost' else address.address
-					serverPort = address.port
-					serverLocation = "http://#{serverHostname}:#{serverPort}/"
-					serverDir = config.outPath
-					docpad.log 'info', "DocPad listening to #{serverLocation} on directory #{serverDir}"
-					complete()
-				catch err
-					complete(err)
+				# Start the Server
+				startServer()
 
 
 		# Chain
@@ -2330,5 +2365,5 @@ module.exports =
 	DocPad: DocPad
 	require: (path) ->
 		require(__dirname+'/'+path)
-	createInstance: (config,next) ->
-		return new DocPad(config,next)
+	createInstance: (args...) ->
+		return new DocPad(args...)

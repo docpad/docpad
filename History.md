@@ -1,5 +1,8 @@
 ## History
 
+- v6.0.9 June 21, 2012
+	- Cleaning with minor improvements and bugfixes
+
 - v6.0.8 June 21, 2012
 	- Configuration changes
 		- DocPad now checks the following paths for a configuration file `docpad.js`, `docpad.coffee`, `docpad.json`, `docpad.cson`, and will go with whichever one it finds first
