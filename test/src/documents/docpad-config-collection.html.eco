@@ -1,0 +1,6 @@
+---
+title: 'DocPad Config Collection Document'
+tag: ['docpad-config-collection']
+---
+
+<span><%- JSON.stringify @getCollection('docpadConfigCollection').pluck('title') %></span>

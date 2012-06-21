@@ -3,6 +3,7 @@
 	"private": true,
 	"version": "0.1.0",
 	"dependencies": {
+		"moment": "1.6.x",
 		"docpad-plugin-coffee": "latest",
 		"docpad-plugin-eco": "latest"
 	}
