@@ -9,8 +9,11 @@ compile:
 debug:
 	cd test; node --debug-brk ../bin/docpad run
 
+test-clean:
+	rm -Rf test/node_modules test/out
+
 test-prepare:
-	make clean
+	make test-clean
 	make compile
 
 test:
@@ -21,11 +24,12 @@ install:
 	node ./bin/docpad install
 
 clean:
-	rm -Rf lib node_modules/ npm-debug.log test/node_modules test/out
+	rm -Rf lib node_modules/ npm-debug.log
+	make test-clean
 	npm install
 
 publish:
 	make clean
 	npm publish
 
-.PHONY: dev compile test-prepare test install clean publish
+.PHONY: dev compile test-clean test-prepare test install clean publish
