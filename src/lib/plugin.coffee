@@ -59,7 +59,7 @@ class BasePlugin
 			throw new Error 'Plugin must have a name'
 
 		# Bind events
-		_.each @events, (eventName) ->
+		for eventName in @events
 			if typeof me[eventName] is 'function'
 				# Ensure the event handle always runs on the local scope
 				_.bindAll(me, eventName)

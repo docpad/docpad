@@ -23,7 +23,7 @@ docpadConfig =
 	growl: false
 	port: port
 	rootPath: rootPath
-	logLevel: 5
+	logLevel: 7
 	skipUnsupportedPlugins: false
 	catchExceptions: false
 
