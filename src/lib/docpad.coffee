@@ -600,6 +600,7 @@ class DocPad extends EventEmitterEnhanced
 		opts.npmPath = @npmPath
 		opts.nodePath = @config.nodePath
 		opts.force = @config.force
+		opts.output = @getDebugging()
 
 		# Forward
 		balUtil.initNodeModules(opts)
