@@ -26,8 +26,6 @@ docpadConfig =
 	logLevel: 5
 	skipUnsupportedPlugins: false
 	catchExceptions: false
-	templateData:
-		require: require
 
 # Fail on an uncaught error
 process.on 'uncaughtException', (err) ->
@@ -80,11 +78,14 @@ joe.suite 'docpad-core', (suite,test) ->
 				'attributes-withlayout.txt'
 				'coffee-parser.html'
 				'correct-layout.html'
+				'docpad-config-collection.html'
+				'docpad-config-events.html'
 				'file-different-extensions.ext1'
 				'file-different-extensions.ext2'
 				'file-dir-test.txt'
 				'file.with.many.extensions'
 				'html.html'
+				'local-require.html'
 				'public-dir-test.txt'
 				'test-layout-single.html'
 				'test-layout-double.html'

@@ -174,6 +174,9 @@ class DocPad extends EventEmitterEnhanced
 	# -----------------------------
 	# Configuration
 
+	# Initial Configuration
+	initConfig: null
+
 	###
 	Instance Configuration
 	Loaded from:
@@ -214,8 +217,16 @@ class DocPad extends EventEmitterEnhanced
 		# The website's package.json path
 		packagePath: 'package.json'
 
-		# The website's docpad.cson path
-		configPath: 'docpad.cson'
+		# The website's configuration paths
+		# Reads only the first one that exists
+		# If you want to read multiple configuration paths, then point it to a coffee|js file that requires
+		# the other paths you want and exports the merged config
+		configPaths: [
+			'docpad.js'
+			'docpad.coffee'
+			'docpad.json'
+			'docpad.cson'
+		]
 
 		# The website's out directory
 		outPath: 'out'
@@ -312,6 +323,9 @@ class DocPad extends EventEmitterEnhanced
 		# A hash of functions that create collections
 		collections: null  # {}
 
+		# Events
+		# A hash of event handlers
+		events: null  # {}
 
 	# =================================
 	# Initialization Functions
@@ -367,8 +381,9 @@ class DocPad extends EventEmitterEnhanced
 		# Initialize the collections
 		@database = new @FilesCollection()
 
-		# Apply configuration
-		@action 'load', config, (err) =>
+		# Apply and load configuration
+		@initConfig = config or {}
+		@action 'load', (err) =>
 			# Error?
 			return @error(err)  if err
 
@@ -451,12 +466,20 @@ class DocPad extends EventEmitterEnhanced
 			# Version Check
 			@compareVersion()
 
+
+			# Subscribe to configuration events
+			for own eventName, eventHandler of @config.events
+				@on(eventName, eventHandler)
+
+
 			# Log
 			@log 'debug', 'DocPad loaded succesfully'
 			@log 'debug', 'Loaded the following plugins:', _.keys(@loadedPlugins).sort().join(', ')
 
-			# Next
-			return next?()
+
+			# Ready
+			@emitSync 'docpadReady', {docpad:@}, ->
+				return next?()
 
 
 	# =================================
@@ -489,7 +512,6 @@ class DocPad extends EventEmitterEnhanced
 		@
 
 	# Load a configuration file
-	# CSON supports CSON and JSON
 	# next(err,parsedData)
 	loadConfigPath: (configPath,next) ->
 		# Log
@@ -504,6 +526,38 @@ class DocPad extends EventEmitterEnhanced
 		# Chain
 		@
 
+	# Load a series of configuration paths
+	# next(err,parsedData)
+	loadConfigPaths: (configPaths,next) ->
+		# Prepare
+		docpad = @
+		result = {}
+
+		# Ensure array
+		configPaths = [configPaths]  unless _.isArray(configPaths)
+
+		# Group
+		tasks = new balUtil.Group (err) ->
+			return next(err,result)
+
+		# Read our files
+		# On the first file that returns a result, exit
+		_.each configPaths, (configPath) ->
+			tasks.push (complete) ->
+				docpad.loadConfigPath configPath, (err,config) ->
+					return complete(err)  if err
+					if config
+						result = config
+						tasks.exit()
+					else
+						complete()
+
+		# Run them synchronously
+		tasks.sync()
+
+		# Chain
+		@
+
 	# Load collections
 	loadCollections: (next) ->
 		# Prepare
@@ -512,7 +566,7 @@ class DocPad extends EventEmitterEnhanced
 		@config.collections or= {}
 
 		# Group
-		tasks = new balUtil.Group (err) =>
+		tasks = new balUtil.Group (err) ->
 			docpad.error(err)  if err
 			return next()
 
@@ -876,11 +930,11 @@ class DocPad extends EventEmitterEnhanced
 	loadedPlugin: (pluginName,next) ->
 		# Prepare
 		docpad = @
-		# Once loading has finished
-		docpad.onceFinished 'loading', (err) ->
-			return next(err)  if err
-			loaded = docpad.loadedPlugins[pluginName]?
-			return next(null,loaded)
+
+		# Check
+		loaded = docpad.loadedPlugins[pluginName]?
+		next(null,loaded)
+
 		# Chain
 		@
 
@@ -1509,13 +1563,8 @@ class DocPad extends EventEmitterEnhanced
 		docpad = @
 
 		# Prepare
-		instanceConfig = opts
-		instanceConfig.rootPath or= process.cwd()
-		instanceConfig.packagePath or= @config.packagePath
-		instanceConfig.configPath or= @config.configPath
-		docpadPackagePath = @packagePath
-		websitePackagePath = pathUtil.resolve(instanceConfig.rootPath, instanceConfig.packagePath)  # only here for b/c
-		websiteConfigPath = pathUtil.resolve(instanceConfig.rootPath, instanceConfig.configPath)
+		@config.rootPath = pathUtil.normalize(@config.rootPath or process.cwd())
+		instanceConfig = _.extend({},@initConfig,opts)
 		websitePackageConfig = {}
 		websiteConfig = {}
 
@@ -1527,7 +1576,7 @@ class DocPad extends EventEmitterEnhanced
 			config = _.extend(
 				{}
 				@config
-				websitePackageConfig  # only here for b/c
+				websitePackageConfig
 				websiteConfig
 				instanceConfig
 			)
@@ -1536,6 +1585,7 @@ class DocPad extends EventEmitterEnhanced
 			config.enabledPlugins = _.extend(
 				{}
 				@config.enabledPlugins or {}
+				websitePackageConfig.enabledPlugins or {}
 				websiteConfig.enabledPlugins or {}
 				instanceConfig.enabledPlugins or {}
 			)
@@ -1544,6 +1594,7 @@ class DocPad extends EventEmitterEnhanced
 			config.templateData = _.extend(
 				{}
 				@config.templateData or {}
+				websitePackageConfig.templateData or {}
 				websiteConfig.templateData or {}
 				instanceConfig.templateData or {}
 			)
@@ -1580,43 +1631,51 @@ class DocPad extends EventEmitterEnhanced
 			# Initialize
 			@loadPlugins(postTasks.completer())
 
-		# Prepare configuration loading
-		tasks.total = 3
-
 		# Load DocPad Configuration
-		@loadConfigPath docpadPackagePath, (err,data) ->
-			return tasks.complete(err)  if err
-			data or= {}
+		tasks.push (complete) =>
+			@loadConfigPath @packagePath, (err,data) ->
+				return complete(err)  if err
+				data or= {}
 
-			# Version
-			docpad.version = data.version
-			airbrake.appVersion = docpad.version  if airbrake
+				# Version
+				docpad.version = data.version
+				airbrake.appVersion = docpad.version  if airbrake
 
-			# Compelte the loading
-			tasks.complete()
+				# Compelte the loading
+				complete()
 
 		# Load Website Package Configuration
-		# only here for b/c
-		@loadConfigPath websitePackagePath, (err,data) ->
-			return tasks.complete(err)  if err
-			data or= {}
+		tasks.push (complete) =>
+			rootPath = instanceConfig.rootPath or @config.rootPath
+			websitePackagePath = pathUtil.resolve(rootPath, instanceConfig.packagePath or @config.packagePath)
+			@loadConfigPath websitePackagePath, (err,data) ->
+				return complete(err)  if err
+				data or= {}
 
-			# Apply data to parent scope
-			websitePackageConfig = data.docpad or {}
+				# Apply data to parent scope
+				websitePackageConfig = data.docpad or {}
 
-			# Compelte the loading
-			tasks.complete()
+				# Compelte the loading
+				complete()
 
 		# Load Website Configuration
-		@loadConfigPath websiteConfigPath, (err,data) ->
-			return tasks.complete(err)  if err
-			data or= {}
+		tasks.push (complete) =>
+			rootPath = instanceConfig.rootPath or websitePackageConfig.rootPath or @config.rootPath
+			configPaths = instanceConfig.configPaths or websitePackageConfig.configPaths or @config.configPaths
+			for configPath, index in configPaths
+				configPaths[index] = pathUtil.resolve(rootPath, configPath)
+			@loadConfigPaths configPaths, (err,data) ->
+				return complete(err)  if err
+				data or= {}
 
-			# Apply data to parent scope
-			websiteConfig = data
+				# Apply data to parent scope
+				websiteConfig = data
 
-			# Compelte the loading
-			tasks.complete()
+				# Compelte the loading
+				complete()
+
+		# Run the load tasks synchronously
+		tasks.sync()
 
 		# Chain
 		@
@@ -2197,13 +2256,18 @@ class DocPad extends EventEmitterEnhanced
 						return next()  unless database
 
 						# Prepare
-						cleanUrl = req.url.replace(/\?.*/,'')
-						document = database.findOne(urls: '$in': cleanUrl)
+						pageUrl = req.url.replace(/\?.*/,'')
+						document = database.findOne(urls: '$in': pageUrl)
 						return next()  unless document
+
+						# Check if we are the desired url
+						# if we aren't do a permanent redirect
+						url = document.get('url')
+						if url isnt pageUrl
+							return res.redirect(url,301)
 
 						# Fetch
 						contentTypeRendered = document.get('contentTypeRendered')
-						url = document.get('url')
 						dynamic = document.get('dynamic')
 						contentRendered = document.get('contentRendered')
 

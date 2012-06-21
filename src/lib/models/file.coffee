@@ -308,6 +308,12 @@ class FileModel extends Model
 		next()
 		@
 
+	# Set the url for the file
+	setUrl: (url) ->
+		@addUrl(url)
+		@set(url: url)
+		@
+
 	# Add a url
 	# Allows our file to support multiple urls
 	addUrl: (url) ->

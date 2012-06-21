@@ -1,5 +1,22 @@
 ## History
 
+- v6.0.8 June 21, 2012
+	- Configuration changes
+		- DocPad now checks the following paths for a configuration file `docpad.js`, `docpad.coffee`, `docpad.json`, `docpad.cson`, and will go with whichever one it finds first
+			- If you use `coffee` or `js` extensions, remember to prefix your file with `module.exports =`
+		- Fixed instance configuration not always coming first
+		- Removed `configPath` configuration option. Use the array based `configPaths` instead.
+		- `rootPath` and `configPaths` will now be properly respected if specified in your `package.json` file under the `docpad` property
+		- Configuration files can now bind event handlers using the `events` hash
+	- Event changes
+		- Completion callbacks are now optional for event listeners, if omitted event listener will be treated as synchronous
+		- Added new `docpadReady` event that fires once docpad has finished initializing and loading its configuration, will provide the opts `{docpad}` where `docpad` is the docpad instance
+	- Server changes
+		- If a document has multiple urls, and it is accessed on the non primary url, we will 301 (permanent) redirect to the primary url
+	- Dependency updates
+		- [CSON](https://github.com/bevry/cson) from v1.0 to v1.1
+		- [bal-util](https://github.com/balupton/bal-util) from v1.8 to v1.9
+
 - v6.0.7 June 20, 2012
 	- When watching files, and you modify a layout, docpad will now re-render anything using that layout - closes #242
 

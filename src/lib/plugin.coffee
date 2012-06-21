@@ -28,20 +28,21 @@ class BasePlugin
 
 	# Event Listing
 	events: [
+		'docpadReady'
 		'consoleSetup'
-		'generateBefore',
-		'generateAfter',
-		'cleanBefore',
-		'cleanAfter',
-		'parseBefore',
-		'parseAfter',
-		'renderBefore',
-		'render',
-		'renderDocument',
-		'renderAfter',
-		'writeBefore',
-		'writeAfter',
-		'serverBefore',
+		'generateBefore'
+		'generateAfter'
+		'cleanBefore'
+		'cleanAfter'
+		'parseBefore'
+		'parseAfter'
+		'renderBefore'
+		'render'
+		'renderDocument'
+		'renderAfter'
+		'writeBefore'
+		'writeAfter'
+		'serverBefore'
 		'serverAfter'
 	]
 
@@ -60,9 +61,10 @@ class BasePlugin
 		# Bind events
 		_.each @events, (eventName) ->
 			if typeof me[eventName] is 'function'
-				me.docpad.on eventName, (args...) ->
-					me[eventName](args...)
-
+				# Ensure the event handle always runs on the local scope
+				_.bindAll(me, eventName)
+				# Bind hte event handler to the event
+				me.docpad.on(eventName, me[eventName])
 
 # Export Plugin
 module.exports = BasePlugin
