@@ -1,5 +1,3 @@
-docpad = null
-
 module.exports = {
 	templateData:
 		require: require
@@ -9,9 +7,6 @@ module.exports = {
 			database.findAllLive({tag: $has: 'docpad-config-collection'})
 
 	events:
-		docpadReady: (opts) ->
-			docpad = opts.docpad
-
 		renderDocument: (opts) ->
 			src = "testing the docpad configuration renderDocument event"
 			out = src.toUpperCase()
