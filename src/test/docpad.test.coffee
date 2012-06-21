@@ -23,7 +23,7 @@ docpadConfig =
 	growl: false
 	port: port
 	rootPath: rootPath
-	logLevel: 7
+	logLevel: if process.env.TRAVIS_NODE_VERSION? then 7 else 5
 	skipUnsupportedPlugins: false
 	catchExceptions: false
 

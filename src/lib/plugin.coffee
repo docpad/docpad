@@ -1,5 +1,6 @@
 # Requires
 _ = require('underscore')
+balUtil = require('bal-util')
 
 # Define Plugin
 class BasePlugin
@@ -59,12 +60,14 @@ class BasePlugin
 			throw new Error 'Plugin must have a name'
 
 		# Bind events
-		for eventName in @events
+		_.each @events, (eventName) ->
 			if typeof me[eventName] is 'function'
-				# Ensure the event handle always runs on the local scope
-				_.bindAll(me, eventName)
-				# Bind hte event handler to the event
-				me.docpad.on(eventName, me[eventName])
+				# Fetch the event handler
+				eventHandler = me[eventName]
+				# Wrap the event handler, and bind it to docpad
+				me.docpad.on eventName, (opts,next) ->
+					# Fire the function, treating the callback as optional
+					balUtil.fireWithOptionalCallback(eventHandler, [opts,next], me)
 
 # Export Plugin
 module.exports = BasePlugin
