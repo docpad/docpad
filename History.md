@@ -1,5 +1,8 @@
 ## History
 
+- v6.0.10 June 22, 2012
+	- Fixed CLI on certain setups
+
 - v6.0.9 June 22, 2012
 	- Many minor fixes and improvements
 	- Available DocPad events are now exposed through `docpadInstance.getEvents()`
