@@ -1,7 +1,18 @@
 ## History
 
-- v6.0.9 June 21, 2012
-	- Cleaning with minor improvements and bugfixes
+- v6.0.9 June 22, 2012
+	- Many minor fixes and improvements
+	- Available DocPad events are now exposed through `docpadInstance.getEvents()`
+	- DocPad configuration is now exposed through `docpadInstance.getConfig()`
+	- Removed `DocPad::getActionArgs` in favor of `balUtil.extractOptsAndCallback`
+	- Configuration events now have a context that persists and do not pile up if configuration is reloaded
+	- DocPad constructor now returns `err` and `docpadInstance` to the completion callback if it exists
+	- Fixed a problem with grouped actions not completing under some circumstances
+	- Will now watch configuration files for changes, if a change is detected, regenerate everything
+	- Cleaned up the server action a bit
+	- Added a new `serverExtend` event so listeners can now extend the server before the docpad routes are applied
+	- Dependency updates
+		- [Watchr](https://github.com/bevry/watchr) from v2.0 to v2.1
 
 - v6.0.8 June 21, 2012
 	- Configuration changes
