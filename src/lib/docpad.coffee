@@ -81,6 +81,7 @@ class DocPad extends EventEmitterEnhanced
 		@runnerInstance
 
 	# Event Listing
+	# Whenever a event is created, it must be applied here to be available to plugins and configuration files
 	events: [
 		'docpadReady'
 		'consoleSetup'
@@ -97,6 +98,7 @@ class DocPad extends EventEmitterEnhanced
 		'writeBefore'
 		'writeAfter'
 		'serverBefore'
+		'serverExtend'
 		'serverAfter'
 	]
 	getEvents: ->
@@ -369,6 +371,7 @@ class DocPad extends EventEmitterEnhanced
 		@setMaxListeners(0)
 
 		# Setup configuration event wrappers
+		configEventContext = {docpad}  # here to allow the config event context to persist between event calls
 		_.each @getEvents(), (eventName) ->
 			# Bind to the event
 			docpad.on eventName, (opts,next) ->
@@ -376,8 +379,7 @@ class DocPad extends EventEmitterEnhanced
 				# Fire the config event handler for this event, if it exists
 				if typeof eventHandler is 'function'
 					args = [opts,next]
-					context = {docpad}
-					balUtil.fireWithOptionalCallback(eventHandler,args,context)
+					balUtil.fireWithOptionalCallback(eventHandler,args,configEventContext)
 				# It doesn't exist, so lets continue
 				else
 					next()

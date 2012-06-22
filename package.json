@@ -39,7 +39,7 @@
 		"express": "2.5.x",
 		"mime": "1.2.x",
 		"query-engine": "1.2.x",
-		"watchr": "2.0.x",
+		"watchr": "2.1.x",
 		"caterpillar": "1.1.x",
 		"commander": "0.6.x",
 		"yaml": "0.2.1",
