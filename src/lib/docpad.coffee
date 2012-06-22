@@ -375,7 +375,7 @@ class DocPad extends EventEmitterEnhanced
 		_.each @getEvents(), (eventName) ->
 			# Bind to the event
 			docpad.on eventName, (opts,next) ->
-				eventHandler = docpad.getConfig().events[eventName]
+				eventHandler = docpad.getConfig().events?[eventName]
 				# Fire the config event handler for this event, if it exists
 				if typeof eventHandler is 'function'
 					args = [opts,next]
@@ -515,9 +515,9 @@ class DocPad extends EventEmitterEnhanced
 
 
 			# Ready
-			@emitSync 'docpadReady', {docpad:@}, (err) ->
+			@emitSync 'docpadReady', {docpad}, (err) ->
 				# Error?
-				return @error(err)  if err
+				return docpad.error(err)  if err
 
 				# All done, forward our DocPad instance onto our creator
 				return next?(null,docpad)
