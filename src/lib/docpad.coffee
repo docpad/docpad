@@ -159,6 +159,37 @@ class DocPad extends EventEmitterEnhanced
 		@collections[name] = value
 		@
 
+
+	# ---------------------------------
+	# Skeletons
+
+	# Skeletons Collection
+	skeletonsCollection: null
+
+	# Get Skeletons
+	# Get all the available skeletons for us and their details
+	# next(err,skeletonsCollection)
+	getSkeletons: (next) ->
+		# Prepare
+		docpad = @
+		{Collection,Model} = @Base
+
+		# Check if we have cached locally
+		if @skeletonsCollection?
+			return next(null,@skeletonsCollection)
+
+		# Fetch the skeletons from the exchange
+		@skeletonsCollection = new Collection()
+		@getExchange (err,exchange) ->
+			return next(err)  if err
+			for own skeletonKey,skeleton of exchange.skeletons
+				skeleton.id ?= skeletonKey
+				skeleton.name ?= skeletonKey
+				docpad.skeletonsCollection.add(new Model(skeleton))
+			return next(null,docpad.skeletonsCollection)
+		@
+
+
 	# ---------------------------------
 	# Plugins
 
@@ -638,10 +669,10 @@ class DocPad extends EventEmitterEnhanced
 	# next(err,results)
 	initNodeModules: (opts={}) ->
 		# Prepare
-		opts.npmPath = @npmPath
-		opts.nodePath = @config.nodePath
-		opts.force = @config.force
-		opts.output = @getDebugging()
+		opts.npmPath ?= @npmPath
+		opts.nodePath ?= @config.nodePath
+		opts.force ?= @config.force
+		opts.output ?= @getDebugging()
 
 		# Forward
 		balUtil.initNodeModules(opts)
@@ -1245,68 +1276,44 @@ class DocPad extends EventEmitterEnhanced
 	# ---------------------------------
 	# Utilities: Skeletons
 
-	# Get Skeletons
-	# Get all the available skeletons for us and their details
-	# next(err,skeletons)
-	getSkeletons: (next) ->
-		@getExchange (err,exchange) ->
-			return next(err)  if err
-			skeletons = exchange.skeletons
-			return next(null,skeletons)
-		@
-
-	# Get Skeleton
-	# Returns a skeleton's details
-	# next(err,skeletonDetails)
-	getSkeleton: (skeletonId,next) ->
-		@getSkeletons (err,skeletons) ->
-			return next(err)  if err
-			skeletonDetails = skeletons[skeletonId]
-			return next(null,skeletonDetails)
-		@
-
 	# Install a Skeleton to a Directory
 	# next(err)
-	installSkeleton: (skeletonId,destinationPath,next) ->
+	installSkeleton: (skeletonModel,destinationPath,next) ->
 		# Prepare
 		docpad = @
 		packagePath = pathUtil.join(destinationPath, 'package.json')
 
-		# Grab the skeletonDetails
-		@getSkeleton skeletonId, (err,skeletonDetails) ->
-			# Error?
-			return docpad.error(err)  if err
-
-			# Configure
-			repoConfig =
-				gitPath: docpad.config.gitPath
-				path: destinationPath
-				url: skeletonDetails.repo
-				branch: skeletonDetails.branch
-				remote: 'skeleton'
-				output: docpad.getDebugging()
-				next: (err) ->
-					# Error?
-					return docpad.error(err)  if err
-
-					# Initialise the Website's modules for the first time
-					docpad.initNodeModules(
-						path: destinationPath
-						next: (err) =>
-							# Error?
-							return docpad.error(err)  if err
-
-							# Done
-							return next()
-					)
-
-			# Check if the skeleton path already exists
-			balUtil.ensurePath destinationPath, (err) ->
+		# Configure
+		repoConfig =
+			gitPath: docpad.config.gitPath
+			path: destinationPath
+			url: skeletonModel.get('repo')
+			branch: skeletonModel.get('branch')
+			remote: 'skeleton'
+			output: true
+			next: (err) ->
 				# Error?
 				return docpad.error(err)  if err
 
-				# Initalize the git repository
-				balUtil.initGitRepo(repoConfig)
+				# Initialise the Website's modules for the first time
+				docpad.initNodeModules(
+					path: destinationPath
+					output: true
+					next: (err) ->
+						# Error?
+						return docpad.error(err)  if err
+
+						# Done
+						return next()
+				)
+
+		# Check if the skeleton path already exists
+		balUtil.ensurePath destinationPath, (err) ->
+			# Error?
+			return docpad.error(err)  if err
+
+			# Initalize the git repository
+			balUtil.initGitRepo(repoConfig)
 
 		# Chain
 		@
@@ -1596,7 +1603,7 @@ class DocPad extends EventEmitterEnhanced
 		docpad = @
 
 		# Prepare
-		@config.rootPath = pathUtil.normalize(@config.rootPath or process.cwd())
+		@config.rootPath = pathUtil.resolve(@config.rootPath or process.cwd())
 		instanceConfig = _.extend({},@initConfig,opts)
 		websitePackageConfig = {}
 		websiteConfig = {}
@@ -1723,6 +1730,7 @@ class DocPad extends EventEmitterEnhanced
 		# Re-Initialise the Website's modules
 		@initNodeModules(
 			path: @config.rootPath
+			output: true
 			next: (err) ->
 				# Forward on error?
 				return next(err)  if err
@@ -2189,12 +2197,23 @@ class DocPad extends EventEmitterEnhanced
 		selectSkeletonCallback = opts.selectSkeletonCallback or null
 
 		# Exits
-		useSkeleton = ->
+		useSkeleton = (skeletonModel) ->
+			# Log
+			docpad.log 'info', "Installing the #{skeletonModel.get('name')} skeleton into #{destinationPath}"
+
 			# Install Skeleton
-			docpad.installSkeleton skeletonId, destinationPath, (err) ->
+			docpad.installSkeleton skeletonModel, destinationPath, (err) ->
+				# Error?
 				return next(err)  if err
+
 				# Re-load configuration
 				docpad.load (err) ->
+					# Error?
+					return next(err)  if err
+
+					# Log
+					docpad.log 'info', "Installed the skeleton succesfully"
+
 					# Forward
 					return next(err)
 
@@ -2210,14 +2229,13 @@ class DocPad extends EventEmitterEnhanced
 				useSkeleton()
 			else
 				# Get the available skeletons
-				docpad.getSkeletons (err,skeletons) ->
+				docpad.getSkeletons (err,skeletonsCollection) ->
 					# Check
 					return next(err)  if err
 					# Provide selection to the interface
-					selectSkeletonCallback skeletons, (err,_skeletonId) ->
+					selectSkeletonCallback skeletonsCollection, (err,skeletonModel) ->
 						return next(err)  if err
-						skeletonId = _skeletonId
-						useSkeleton()
+						useSkeleton(skeletonModel)
 
 		# Chain
 		@

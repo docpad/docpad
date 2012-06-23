@@ -1,5 +1,10 @@
 ## History
 
+- v6.0.11 June 24, 2012
+	- We now output that we are actually installing the skeleton, rather than just doing nothing
+	- We now also always output the skeleton clone and instlalation progress to the user
+	- Skeletons are now a backbone collection
+
 - v6.0.10 June 22, 2012
 	- Fixed CLI on certain setups
 
