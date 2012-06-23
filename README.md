@@ -48,7 +48,7 @@ At its core DocPad is a language agnostic document management system. This means
 
 ## Installing
 
-1. [Install Node.js](https://github.com/balupton/node/wiki/Installing-Node.js)
+1. [Install Node.js](https://github.com/bevry/community/wiki/Installing-Node)
 
 1. Install DocPad
 
