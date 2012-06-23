@@ -250,22 +250,23 @@ class ConsoleInterface
 		@
 
 	# Select a skeleton
-	selectSkeletonCallback: (skeletons,next) =>
+	selectSkeletonCallback: (skeletonsCollection,next) =>
 		# Prepare
 		program = @program
 		docpad = @docpad
-		ids = []
+		skeletonNames = []
 
 		# Show
 		console.log cliColor.bold '''
 			You are about to create your new project inside your current directory. Below is a list of skeletons to bootstrap your new project:
 
 			'''
-		for own skeletonId, skeleton of skeletons
-			ids.push(skeletonId)
-			skeletonDescription = skeleton.description.replace(/\n/g,'\n\t')
+		skeletonsCollection.forEach (skeletonModel) ->
+			skeletonName = skeletonModel.get('name')
+			skeletonDescription = skeletonModel.get('description').replace(/\n/g,'\n\t')
+			skeletonNames.push(skeletonName)
 			console.log """
-				\t#{cliColor.bold(skeletonId)}
+				\t#{cliColor.bold(skeletonName)}
 				\t#{skeletonDescription}
 
 				"""
@@ -274,9 +275,8 @@ class ConsoleInterface
 		console.log cliColor.bold '''
 			Which skeleton will you use?
 			'''
-		program.choose ids, (i) ->
-			skeletonId = ids[i]
-			return next(null,skeletonId)
+		program.choose skeletonNames, (i) ->
+			return next(null, skeletonsCollection.at(i))
 
 		# Chain
 		@
