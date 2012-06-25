@@ -359,11 +359,11 @@ class DocPad extends EventEmitterEnhanced
 
 		# Node Path
 		# The location of our node executable
-		nodePath: if /node$/.test(process.execPath) then process.execPath else 'node'
+		nodePath: null
 
 		# Git Path
 		# The location of our git executable
-		gitPath: if /^win/.test(process.platform) then 'git.cmd' else 'git'
+		gitPath: null
 
 		# Template Data
 		# What data would you like to expose to your templates
@@ -384,6 +384,7 @@ class DocPad extends EventEmitterEnhanced
 		# Events
 		# A hash of event handlers
 		events: null  # {}
+
 
 	# =================================
 	# Initialization Functions
@@ -661,6 +662,18 @@ class DocPad extends EventEmitterEnhanced
 
 		# Run
 		tasks.async()
+
+		# Chain
+		@
+
+	# Init Git Repo
+	# next(err,results)
+	initGitRepo: (opts) ->
+		# Prepare
+		opts.gitPath ?= @config.gitPath
+
+		# Forward
+		balUtil.initGitRepo(opts)
 
 		# Chain
 		@
@@ -1285,7 +1298,6 @@ class DocPad extends EventEmitterEnhanced
 
 		# Configure
 		repoConfig =
-			gitPath: docpad.config.gitPath
 			path: destinationPath
 			url: skeletonModel.get('repo')
 			branch: skeletonModel.get('branch')
@@ -1313,7 +1325,7 @@ class DocPad extends EventEmitterEnhanced
 			return docpad.error(err)  if err
 
 			# Initalize the git repository
-			balUtil.initGitRepo(repoConfig)
+			docpad.initGitRepo(repoConfig)
 
 		# Chain
 		@
@@ -1609,7 +1621,7 @@ class DocPad extends EventEmitterEnhanced
 		websiteConfig = {}
 
 		# Async
-		tasks = new balUtil.Group (err) =>
+		preTasks = new balUtil.Group (err) =>
 			return next(err)  if err
 
 			# Merge Configuration (not deep!)
@@ -1663,16 +1675,20 @@ class DocPad extends EventEmitterEnhanced
 			# Async
 			postTasks = new balUtil.Group (err) =>
 				return next(err)
-			postTasks.total = 2
 
 			# Load collections
-			@loadCollections(postTasks.completer())
+			postTasks.push (complete) ->
+				docpad.loadCollections(complete)
 
 			# Initialize
-			@loadPlugins(postTasks.completer())
+			postTasks.push (complete) ->
+				docpad.loadPlugins(complete)
+
+			# Fire post tasks
+			postTasks.async()
 
 		# Load DocPad Configuration
-		tasks.push (complete) =>
+		preTasks.push (complete) =>
 			@loadConfigPath @packagePath, (err,data) ->
 				return complete(err)  if err
 				data or= {}
@@ -1685,7 +1701,7 @@ class DocPad extends EventEmitterEnhanced
 				complete()
 
 		# Load Website Package Configuration
-		tasks.push (complete) =>
+		preTasks.push (complete) =>
 			rootPath = instanceConfig.rootPath or @config.rootPath
 			websitePackagePath = pathUtil.resolve(rootPath, instanceConfig.packagePath or @config.packagePath)
 			@loadConfigPath websitePackagePath, (err,data) ->
@@ -1699,7 +1715,7 @@ class DocPad extends EventEmitterEnhanced
 				complete()
 
 		# Load Website Configuration
-		tasks.push (complete) =>
+		preTasks.push (complete) =>
 			rootPath = instanceConfig.rootPath or websitePackageConfig.rootPath or @config.rootPath
 			configPaths = instanceConfig.configPaths or websitePackageConfig.configPaths or @config.configPaths
 			for configPath, index in configPaths
@@ -1714,8 +1730,24 @@ class DocPad extends EventEmitterEnhanced
 				# Compelte the loading
 				complete()
 
+		# Get the git path
+		unless @config.gitPath?
+			preTasks.push (complete) ->
+				balUtil.getGitPath (err,gitPath) ->
+					return docpad.error(err)  if err
+					docpad.config.gitPath = gitPath
+					complete()
+
+		# Get the node path
+		unless @config.nodePath?
+			preTasks.push (complete) ->
+				balUtil.getNodePath (err,nodePath) ->
+					return docpad.error(err)  if err
+					docpad.config.nodePath = nodePath
+					complete()
+
 		# Run the load tasks synchronously
-		tasks.sync()
+		preTasks.sync()
 
 		# Chain
 		@
