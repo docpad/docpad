@@ -1207,32 +1207,53 @@ class DocPad extends EventEmitterEnhanced
 			# Site Properties
 			site: {}
 
-			# Include another file taking in a relative path
-			# Will return the contentRendered otherwise content
-			include: (subRelativePath) ->
+			# Get another file's model based on a relative path
+			getFileModel: (subRelativePath) ->
 				@documentModel.set({referencesOthers:true})
-				fullRelativePath = @document.relativeDirPath+'/'+subRelativePath
-				result = docpad.getDatabase().findOne(relativePath: fullRelativePath)
+				if /^\./.test(subRelativePath)
+					fullRelativePath = @document.relativeDirPath+'/'+subRelativePath
+				else
+					fullRelativePath = subRelativePath
+				result =  docpad.getDatabase().findOne(relativePath: fullRelativePath)
 				if result
-					return result.get('contentRendered') or result.get('content')
+					return result
 				else
 					warn = "The file #{subRelativePath} was not found..."
 					docpad.warn(warn)
-					return warn
+					return null
+
+			# Include another file taking in a relative path
+			# Will return the contentRendered otherwise content
+			include: (subRelativePath) ->
+				result = @getFileModel(subRelativePath)
+				return result.get('contentRendered') or result.get('content')  if result
+				return null
+
+			# Get another file's URL based on a relative path
+			getFileUrl: (subRelativePath) ->
+				result = @getFileModel(subRelativePath)
+				return result.get('url')  if result
+				return null
+
+			# Get another file's object based on a relative path
+			getFile: (subRelativePath) ->
+				result = @getFileModel(subRelativePath)
+				return result.toJSON()  if result
+				return null
 
 			# Get the database
 			getDatabase: ->
 				@documentModel.set({referencesOthers:true})
-				docpad.getDatabase()
+				return docpad.getDatabase()
 
 			# Get a pre-defined collection
 			getCollection: (name) ->
 				@documentModel.set({referencesOthers:true})
-				docpad.getCollection(name)
+				return docpad.getCollection(name)
 
 			# Get a block
 			getBlock: (name) ->
-				docpad.getBlock(name,true)
+				return docpad.getBlock(name,true)
 
 		}, @config.templateData, userData)
 

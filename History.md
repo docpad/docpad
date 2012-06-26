@@ -1,5 +1,8 @@
 ## History
 
+- v6.0.13 June 27, 2012
+	- Added `getFileModel`, `getFileUrl`, `getFile` template helpers
+
 - v6.0.12 June 26, 2012
 	- More robust node and git path handling
 	- Dependency updates
