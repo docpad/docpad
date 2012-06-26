@@ -1,5 +1,10 @@
 ## History
 
+- v6.0.12 June 26, 2012
+	- More robust node and git path handling
+	- Dependency updates
+		- [bal-util](https://github.com/balupton/bal-util) from v1.9 to v1.10
+
 - v6.0.11 June 24, 2012
 	- We now output that we are actually installing the skeleton, rather than just doing nothing
 	- We now also always output the skeleton clone and instlalation progress to the user

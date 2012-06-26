@@ -3,7 +3,7 @@ before_script: "make test-prepare"
 node_js:
   - 0.4
   - 0.6
-  - 0.7
+  - 0.8
 notifications:
   irc:
     - "irc.freenode.org#bevry"
