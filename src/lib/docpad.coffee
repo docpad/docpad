@@ -293,19 +293,22 @@ class DocPad extends EventEmitterEnhanced
 		srcPath: 'src'
 
 		# The website's documents directories
+		# relative to the srcPath
 		documentsPaths: [
-			pathUtil.join('src', 'documents')
+			'documents'
 		]
 
 		# The website's files directories
+		# relative to the srcPath
 		filesPaths: [
-			pathUtil.join('src', 'files')
-			pathUtil.join('src', 'public')
+			'files'
+			'public'
 		]
 
 		# The website's layouts directory
+		# relative to the srcPath
 		layoutsPaths: [
-			pathUtil.join('src', 'layouts')
+			'layouts'
 		]
 
 		# Plugin directories to load
@@ -1683,8 +1686,14 @@ class DocPad extends EventEmitterEnhanced
 			@config.outPath = pathUtil.resolve(@config.rootPath, @config.outPath)
 			@config.srcPath = pathUtil.resolve(@config.rootPath, @config.srcPath)
 
-			# Documents, Files, Layouts, Plugins paths
-			for type in ['documents','files','layouts','plugins']
+			# Documents, Files, Layouts paths
+			for type in ['documents','files','layouts']
+				typePaths = @config[type+'Paths']
+				for typePath,key in typePaths
+					typePaths[key] = pathUtil.resolve(@config.srcPath,typePath)
+
+			# Plugins paths
+			for type in ['plugins']
 				typePaths = @config[type+'Paths']
 				for typePath,key in typePaths
 					typePaths[key] = pathUtil.resolve(@config.rootPath,typePath)

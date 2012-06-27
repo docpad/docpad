@@ -1,5 +1,9 @@
 ## History
 
+- v6.0.14 June 27, 2012
+	- Configuration variables `documentPaths`, `filesPaths`, and `layoutsPaths` are now relative to the `srcPath` instead of the `rootPath`
+		- `pluginsPaths` is still relative to the `rootPath`
+
 - v6.0.13 June 27, 2012
 	- Added `getFileModel`, `getFileUrl`, `getFile` template helpers
 
