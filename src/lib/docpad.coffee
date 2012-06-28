@@ -329,6 +329,10 @@ class DocPad extends EventEmitterEnhanced
 		# Whether or not we should extend the server with extra middleware and routing
 		extendServer: true
 
+		# Enable Custom Error Pages
+		# A flag to provide an entry to handle custom error pages
+		customErrors: false
+
 		# Port
 		# The port that the server should use
 		port: 9778
@@ -2412,7 +2416,7 @@ class DocPad extends EventEmitterEnhanced
 									contentRendered = document.get('contentRendered')
 									if err
 										docpad.error(err)
-										return res.send(err.message, 500)
+										return next(err)
 									else
 										return res.send(contentRendered)
 							else
@@ -2429,6 +2433,8 @@ class DocPad extends EventEmitterEnhanced
 
 						# 404 Middleware
 						server.use (req,res,next) ->
+							if config.customErrors
+								return next()
 							return res.send(404)
 
 				# Start the Server
