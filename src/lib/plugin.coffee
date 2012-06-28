@@ -11,9 +11,6 @@ class BasePlugin
 	# DocPad Instance
 	docpad: null
 
-	# Logger Instance
-	logger: null  # deprecated, use @docpad.getLogger() instead
-
 
 	# ---------------------------------
 	# Variables
@@ -34,7 +31,6 @@ class BasePlugin
 		@events = _.extend([],@events)
 		@config = _.extend({},@config,config)
 		@docpad = @config.docpad
-		@logger = @docpad.logger  # deprecated
 		@name or= @config.name  if @config.name
 		if !@name
 			throw new Error 'Plugin must have a name'
