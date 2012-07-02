@@ -3,6 +3,7 @@
 
 # Necessary
 pathUtil = require('path')
+fsUtil = require('fs')
 _ = require('underscore')
 caterpillar = require('caterpillar')
 CSON = require('cson')
@@ -103,6 +104,32 @@ class DocPad extends EventEmitterEnhanced
 	]
 	getEvents: ->
 		@events
+
+	errors:
+		'400': 'Bad Request'
+		'401': 'Unauthorized'
+		'402': 'Payment Required'
+		'403': 'Forbidden'
+		'404': 'Not Found'
+		'405': 'Method Not Allowed'
+		'406': 'Not Acceptable'
+		'407': 'Proxy Authentication Required'
+		'408': 'Request Timeout'
+		'409': 'Conflict'
+		'410': 'Gone'
+		'411': 'Length Required'
+		'412': 'Precondition Failed'
+		'413': 'Request Entity Too Large'
+		'414': 'Request-URI Too Long'
+		'415': 'Unsupported Media Type'
+		'416': 'Requested Range Not Satisfiable'
+		'417': 'Expectation Failed'
+		'500': 'Internal Server Error'
+		'501': 'Not Implemented'
+		'502': 'Bad Gateway'
+		'503': 'Service Unavailable'
+		'504': 'Gateway Timeout'
+		'505': 'HTTP Version Not Supported'
 
 	# ---------------------------------
 	# Collections
@@ -328,10 +355,6 @@ class DocPad extends EventEmitterEnhanced
 		# Extend Server
 		# Whether or not we should extend the server with extra middleware and routing
 		extendServer: true
-
-		# Enable Custom Error Pages
-		# A flag to provide an entry to handle custom error pages
-		customErrors: false
 
 		# Port
 		# The port that the server should use
@@ -2321,6 +2344,32 @@ class DocPad extends EventEmitterEnhanced
 		config = @config
 		server = null
 
+		# Error Handling Stuff
+		errorFiles = {}
+		# read the out directory for available files
+		fileList = fsUtil.readdirSync(config.outPath)
+
+		for file in fileList
+			if file.match /^[0-9x]{3}\.html/
+				code = file.match /^([0-9x]{3})\.html/
+				errorFiles[code[1]] = pathUtil.join(config.outPath, file)
+
+		# Find the closest matching error page
+		findClosest = (code) ->
+			code = code.toString()
+			match = null
+			count = 2
+
+			while match == null
+				if errorFiles.hasOwnProperty(code)
+					match = code
+				else
+					code = code.substr(0, count)
+					while code.length < 3
+						code += 'x'
+					count -= 1
+			return match
+
 		# Handlers
 		complete = (err) ->
 			return next(err)  if err
@@ -2432,10 +2481,27 @@ class DocPad extends EventEmitterEnhanced
 							server.use(express.static config.outPath)
 
 						# 404 Middleware
-						server.use (req,res,next) ->
-							if config.customErrors
-								return next()
-							return res.send(404)
+						server.use (req, res, next) ->
+							notFound = 404
+							code = findClosest(notFound)
+							if errorFiles.hasOwnProperty(code) && pathUtil.existsSync errorFiles[code]
+								data = fsUtil.readFileSync(errorFiles[code], 'utf8')
+							else
+								data = notFound + ' ' + errorCodes[notFound]
+
+							return res.send(data, notFound)
+
+						# 500 Middleware
+						server.use (err, req, res, next) ->
+							# Assume 500 for now
+							serverError = 500
+							code = findClosest(serverError)
+							if errorFiles.hasOwnProperty(code) && pathUtil.existsSync errorFiles[code]
+								data = fsUtil.readFileSync(errorFiles[code], 'utf8')
+							else
+								data = serverError + ' ' + errorCodes[serverError]
+
+							return res.send(datam serverError)
 
 				# Start the Server
 				startServer()
