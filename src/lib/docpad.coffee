@@ -356,6 +356,10 @@ class DocPad extends EventEmitterEnhanced
 		# Whether or not we should extend the server with extra middleware and routing
 		extendServer: true
 
+		# Enable Custom Error Pages
+		# A flag to provide an entry to handle custom error pages
+		useCustomErrors: false
+
 		# Port
 		# The port that the server should use
 		port: 9778
@@ -2483,25 +2487,31 @@ class DocPad extends EventEmitterEnhanced
 						# 404 Middleware
 						server.use (req, res, next) ->
 							notFound = 404
-							code = findClosest(notFound)
-							if errorFiles.hasOwnProperty(code) && pathUtil.existsSync errorFiles[code]
-								data = fsUtil.readFileSync(errorFiles[code], 'utf8')
-							else
-								data = notFound + ' ' + errorCodes[notFound]
+							if config.useCustomErrors
+								code = findClosest(notFound)
+								if errorFiles.hasOwnProperty(code) && pathUtil.existsSync errorFiles[code]
+									data = fsUtil.readFileSync(errorFiles[code], 'utf8')
+								else
+									data = notFound + ' ' + errorCodes[notFound]
 
-							return res.send(data, notFound)
+								return res.send(data, notFound)
+							else
+								return res.send(notFound)
 
 						# 500 Middleware
 						server.use (err, req, res, next) ->
 							# Assume 500 for now
 							serverError = 500
-							code = findClosest(serverError)
-							if errorFiles.hasOwnProperty(code) && pathUtil.existsSync errorFiles[code]
-								data = fsUtil.readFileSync(errorFiles[code], 'utf8')
-							else
-								data = serverError + ' ' + errorCodes[serverError]
+							if config.useCustomErrors
+								code = findClosest(serverError)
+								if errorFiles.hasOwnProperty(code) && pathUtil.existsSync errorFiles[code]
+									data = fsUtil.readFileSync(errorFiles[code], 'utf8')
+								else
+									data = serverError + ' ' + errorCodes[serverError]
 
-							return res.send(datam serverError)
+								return res.send(data, serverError)
+							else
+								res.send(serverError)
 
 				# Start the Server
 				startServer()
