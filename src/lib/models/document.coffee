@@ -45,6 +45,9 @@ class DocumentModel extends FileModel
 		# The MIME content-type for the out document
 		contentTypeRendered: null
 
+		# Whether or not we reference other doucments
+		referencesOthers: false
+
 
 		# ---------------------------------
 		# Content variables
@@ -102,6 +105,12 @@ class DocumentModel extends FileModel
 		data = super
 		data.meta = @getMeta().toJSON()
 		return data
+
+	# References Others
+	referencesOthers: (flag) ->
+		flag ?= true
+		@set({referencesOthers:flag})
+		@
 
 	# Parse data
 	# Parses some data, and loads the meta data and content from it
@@ -261,7 +270,8 @@ class DocumentModel extends FileModel
 			extensions = @get('extensions')
 
 			# Rendered
-			extensionRendered = if extensions.length then extensions[0] else null
+			if extensions and extensions.length
+				extensionRendered = extensions[0]
 
 			# Apply
 			@set({extensionRendered})
@@ -288,31 +298,38 @@ class DocumentModel extends FileModel
 
 				# Fetch
 				meta = @getMeta()
-				fullPath = @get('fullPath')
-				basename = @get('basename')
-				relativeBase = @get('relativeBase')
+				fullPath = @get('fullPath') or null
+				basename = @get('basename') or null
+				relativeBase = @get('relativeBase') or null
 				extensions = @get('extensions')
-				extensionRendered = @get('extensionRendered')
+				extensionRendered = @get('extensionRendered') or null
 				url = meta.get('url') or null
-				slug = meta.get('slug') or null
 				name = meta.get('name') or null
 				outPath = meta.get('outPath') or null
+				contentTypeRendered = null
+				filenameRendered = null
 
 				# Adjust
-				extensionRendered = eve.get('extensionRendered')  if eve
-				filenameRendered = if extensionRendered then "#{basename}.#{extensionRendered}" else "#{basename}"
-				url or= if extensionRendered then "/#{relativeBase}.#{extensionRendered}" else "/#{relativeBase}"
-				slug or= @get('slug')
-				name or= filenameRendered
+				if eve
+					extensionRendered = eve.get('extensionRendered')
+				if basename
+					filenameRendered = if extensionRendered then "#{basename}.#{extensionRendered}" else "#{basename}"
+				if relativeBase
+					url or= if extensionRendered then "/#{relativeBase}.#{extensionRendered}" else "/#{relativeBase}"
+				if filenameRendered
+					name or= filenameRendered
 				outPath or= if @outDirPath then pathUtil.join(@outDirPath,url) else null
-				@addUrl(url)
-				@removeUrl(if extensions.length then "/#{relativeBase}.#{extensions.join('.')}" else "/#{relativeBase}")
+				if url
+					@addUrl(url)
+				if relativeBase
+					@removeUrl(if extensions.length then "/#{relativeBase}.#{extensions.join('.')}" else "/#{relativeBase}")
 
 				# Content Types
-				contentTypeRendered = mime.lookup(outPath or fullPath)
+				if outPath or fullPath
+					contentTypeRendered = mime.lookup(outPath or fullPath)
 
 				# Apply
-				@set({extensionRendered,filenameRendered,url,slug,name,outPath,contentTypeRendered})
+				@set({extensionRendered,filenameRendered,url,name,outPath,contentTypeRendered})
 
 				# Forward
 				next()
@@ -385,166 +402,207 @@ class DocumentModel extends FileModel
 			next(null,@)
 		@
 
-	# Render
-	# Render this file
+
+	# Render extensions
 	# next(err,result)
-	render: (opts={},next) ->
+	renderExtensions: (opts,next) ->
 		# Prepare
-		{opts,next} = @getActionArgs(opts,next)
 		file = @
-		rendering = null
-		{templateData} = opts
-
-		# Prepare templateData
-		templateData = _.clone(templateData or {})
-		templateData.document or= file.toJSON()
-		templateData.documentModel or= file
-
-		# Fetch
-		fullPath = @get('fullPath')
-		body = @get('body')
 		extensions = @get('extensions')
-		extensionsReversed = []
+		filename = @get('filename')
+		{content,templateData,renderSingleExtensions} = opts
+		content ?= @get('body')
+		templateData ?= {}
+		renderSingleExtensions ?= false
 
-		# Reverse extensions
+		# Prepare result
+		result = content
+
+		# Prepare extensions
+		extensionsReversed = []
+		if extensions.length is 0 and filename
+			extensionsReversed.push(filename)
 		for extension in extensions
 			extensionsReversed.unshift(extension)
 
+		# If we want to allow rendering of single extensions, then add null to the extension list
+		extensionsReversed.push(null)  if extensionsReversed.length is 1 and opts.renderSingleExtensions
+
+		# If we only have one extension, then skip ahead to rendering layouts
+		return next(null,result)  if extensionsReversed.length <= 1
+
+		# Prepare the tasks
+		tasks = new balUtil.Group (err) ->
+			# Forward with result
+			return next(err,result)
+
+		# Cycle through all the extension groups and render them
+		for extension,index in extensionsReversed[1..]
+			# Push the task
+			context =
+				inExtension: extensionsReversed[index]
+				outExtension: extension
+			tasks.push context, (complete) ->
+				# Prepare
+				eventData =
+					inExtension: @inExtension
+					outExtension: @outExtension
+					templateData: templateData
+					file: file
+					content: result
+
+				# Render
+				file.trigger 'render', eventData, (err) ->
+					return complete(err)  if err
+					result = eventData.content
+					return complete()
+
+		# Run tasks synchronously
+		tasks.sync()
+
+		# Chain
+		@
+
+
+	# Render Document
+	# next(err,result)
+	renderDocument: (opts,next) ->
+		# Prepare
+		file = @
+		extension = @get('extensions')[0]
+		{opts,next} = @getActionArgs(opts,next)
+		{content,templateData} = opts
+		content ?= @get('body')
+		templateData ?= {}
+
+		# Prepare event data
+		eventData = {extension,templateData,file,content}
+
+		# Render via plugins
+		file.trigger 'renderDocument', eventData, (err) ->
+			# Forward
+			return next(err,eventData.content)
+
+		# Chain
+		@
+
+
+	# Render Layouts
+	# next(err,result)
+	renderLayouts: (opts,next) ->
+		# Prepare
+		file = @
+		{opts,next} = @getActionArgs(opts,next)
+		{content,templateData} = opts
+		content ?= @get('body')
+		templateData ?= {}
+
+		# Grab the layout
+		file.getLayout (err,layout) ->
+			# Check
+			return next(err,content)  if err
+
+			# Check if we have a layout
+			if layout
+				# Assign the current rendering to the templateData.content
+				templateData.content = content
+
+				# Merge in the layout meta data into the document JSON
+				# and make the result available via documentMerged
+				# templateData.document.metaMerged = _.extend({}, layout.getMeta().toJSON(), file.getMeta().toJSON())
+
+				# Render the layout with the templateData
+				layout.render {templateData}, (err,result) ->
+					return next(err,result)
+
+			# We don't have a layout, nothing to do here
+			else
+				return next(null,content)
+
+
+	# Render
+	# Render this file
+	# next(err,result,document)
+	render: (opts={},next) ->
+		# Prepare
+		file = @
+		contentRenderedWithoutLayouts = null
+		fullPath = @get('fullPath')
+
+		# Prepare options
+		{opts,next} = @getActionArgs(opts,next)
+		opts = _.clone(opts or {})
+		opts.actions ?= ['renderExtensions','renderDocument','renderLayouts']
+
+		# Prepare content
+		opts.content ?= @get('body')
+
+		# Prepare templateData
+		opts.templateData = _.clone(opts.templateData or {})
+		opts.templateData.document ?= file.toJSON()
+		opts.templateData.documentModel ?= file
+
+		# Prepare result
+		# file.set({contentRendered:null, contentRenderedWithoutLayouts:null, rendered:false})
 
 		# Log
 		file.log 'debug', "Rendering the file: #{fullPath}"
 
-		# Prepare reset
-		reset = ->
-			file.set(
-				rendered: false
-				contentRendered: body
-				contentRenderedWithoutLayouts: body
-			)
-			rendering = body
+		# Prepare the tasks
+		tasks = new balUtil.Group (err) ->
+			# Error?
+			if err
+				file.log 'warn', "Something went wrong while rendering: #{fullPath}"
+				return next(err, opts.content, file)
 
-		# Reset everything
-		reset()
-
-		# Prepare complete
-		finish = (err) ->
-			# Apply rendering if we are a document
-			file.set(
-				contentRendered: rendering
-				rendered: true
-			)
-
-			# Error
-			return next(err)  if err
+			# Apply
+			contentRendered = opts.content
+			contentRenderedWithoutLayouts ?= contentRendered
+			rendered = true
+			file.set({contentRendered, contentRenderedWithoutLayouts, rendered})
 
 			# Log
 			file.log 'debug', "Rendering completed for: #{fullPath}"
 
 			# Success
-			return next(null,rendering)
+			return next(null, opts.content, file)
 
+		# Render Extensions Task
+		if 'renderExtensions' in opts.actions
+			tasks.push (complete) ->
+				file.renderExtensions opts, (err,result) ->
+					# Check
+					return complete(err)  if err
+					# Apply the result
+					opts.content = result
+					# Done
+					return complete()
 
-		# Render plugins
-		# next(err)
-		renderPlugins = (eventData,next) =>
-			# Render through plugins
-			file.trigger eventData.name, eventData, (err) ->
-				# Error?
-				if err
-					file.log 'warn', "Something went wrong while rendering: #{fullPath}"
-					return next(err)
-				# Forward
-				return next(err)
+		# Render Document Task
+		if 'renderDocument' in opts.actions
+			tasks.push (complete) ->
+				file.renderDocument opts, (err,result) ->
+					# Check
+					return complete(err)  if err
+					# Apply the result
+					opts.content = result
+					contentRenderedWithoutLayouts = result
+					# Done
+					return complete()
 
-		# Prepare render layouts
-		# next(err)
-		renderLayouts = (next) ->
-			# Apply rendering without layouts if we are a document
-			file.set(
-				contentRenderedWithoutLayouts: rendering
-			)
+		# Render Layouts Task
+		if 'renderLayouts' in opts.actions
+			tasks.push (complete) ->
+				file.renderLayouts opts, (err,result) ->
+					# Check
+					return complete(err)  if err
+					# Apply the result
+					opts.content = result
+					# Done
+					return complete()
 
-			# Grab the layout
-			file.getLayout (err,layout) ->
-				# Check
-				return next(err)  if err
-
-				# Check if we have a layout
-				if layout
-					# Assign the current rendering to the templateData.content
-					templateData.content = rendering
-
-					# Merge in the layout meta data into the document JSON
-					# and make the result available via documentMerged
-					# templateData.document.metaMerged = _.extend({}, layout.getMeta().toJSON(), file.getMeta().toJSON())
-
-					# Render the layout with the templateData
-					layout.render {templateData}, (err,result) ->
-						return next(err)  if err
-						rendering = result
-						return next()
-
-				# We don't have a layout, nothing to do here
-				else
-					return next()
-
-		# Render the document
-		# next(err)
-		renderDocument = (next) ->
-			# Prepare event data
-			eventData =
-				name: 'renderDocument'
-				extension: extensions[0]
-				templateData: templateData
-				file: file
-				content: rendering
-
-			# Render via plugins
-			renderPlugins eventData, (err) ->
-				return next(err)  if err
-				rendering = eventData.content
-				return next()
-
-		# Render extensions
-		# next(err)
-		renderExtensions = (next) ->
-			# If we only have one extension, then skip ahead to rendering layouts
-			return next()  if extensions.length <= 1
-
-			# Prepare the tasks
-			tasks = new balUtil.Group(next)
-
-			# Cycle through all the extension groups
-			_.each extensionsReversed[1..], (extension,index) ->
-				# Render through the plugins
-				tasks.push (complete) ->
-					# Prepare
-					eventData =
-						name: 'render'
-						inExtension: extensionsReversed[index]
-						outExtension: extension
-						templateData: templateData
-						file: file
-						content: rendering
-
-					# Render
-					renderPlugins eventData, (err) ->
-						return complete(err)  if err
-						rendering = eventData.content
-						return complete()
-
-			# Run tasks synchronously
-			return tasks.sync()
-
-		# Render the extensions
-		renderExtensions (err) ->
-			return finish(err)  if err
-			# Then the document
-			renderDocument (err) ->
-				return finish(err)  if err
-				# Then the layouts
-				renderLayouts (err) ->
-					return finish(err)
+		# Fire the tasks
+		tasks.sync()
 
 		# Chain
 		@

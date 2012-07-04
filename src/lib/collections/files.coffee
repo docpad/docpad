@@ -15,6 +15,9 @@ class FilesCollection extends QueryCollection
 	# Base Collection for all child collections
 	collection: FilesCollection
 
+	# Comparator
+	comparator: [name: 1, date: -1]
+
 
 # Export
 module.exports = FilesCollection

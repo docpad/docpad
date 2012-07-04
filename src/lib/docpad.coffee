@@ -14,7 +14,7 @@ airbrake = null
 growl = null
 
 # Locals
-Base = require(__dirname+'/base')
+{queryEngine,Backbone,Events,Model,Collection,View,QueryCollection} = require(__dirname+'/base')
 require(__dirname+'/prototypes')
 
 # =====================================
@@ -33,22 +33,34 @@ class DocPad extends EventEmitterEnhanced
 	# ---------------------------------
 	# Modules
 
-	# Bases
-	PluginLoader: require(__dirname+'/plugin-loader')
-	BasePlugin: require(__dirname+'/plugin')
-	Base: Base
+	# Utilities
+	underscore: _
+	balUtil: balUtil
+	queryEngine: queryEngine
+	Backbone: Backbone
+
+	# Base
+	Events
+	Model
+	Collection
+	View
+	QueryCollection
 
 	# Models
 	FileModel: require(__dirname+'/models/file')
 	DocumentModel: require(__dirname+'/models/document')
 
 	# Collections
-	QueryCollection: Base.QueryCollection
+	QueryCollection: QueryCollection
 	FilesCollection: require(__dirname+'/collections/files')
 	ElementsCollection: require(__dirname+'/collections/elements')
 	MetaCollection: require(__dirname+'/collections/meta')
 	ScriptsCollection: require(__dirname+'/collections/scripts')
 	StylesCollection: require(__dirname+'/collections/styles')
+
+	# Plugins
+	PluginLoader: require(__dirname+'/plugin-loader')
+	BasePlugin: require(__dirname+'/plugin')
 
 
 	# ---------------------------------
@@ -161,6 +173,36 @@ class DocPad extends EventEmitterEnhanced
 
 
 	# ---------------------------------
+	# Collection Helpers
+
+	# Get Files (will use live collections)
+	getFiles: (query,sorting,paging) ->
+		key = JSON.stringify({query,sorting,paging})
+		result = @getCollection(key)
+		unless result
+			result = @getDatabase().findAllLive(query,sorting,paging)
+			@setCollection(key, result)
+		return result
+
+	# Get another file's model based on a relative path
+	getFile: (query) ->
+		result = @getDatabase().findOne(query,sorting,paging)
+		return result
+
+	# Get Files At Path
+	getFilesAtPath: (path,sorting,paging) ->
+		query = $or: [{relativePath: $startsWith: path}, {fullPath: $startsWith: path}]
+		result = @getFiles(query,sorting,paging)
+		return result
+
+	# Get another file's model based on a relative path
+	getFileAtPath: (path,sorting,paging) ->
+		query = $or: [{relativePath: path}, {fullPath: path}]
+		result = @getDatabase().findOne(query,sorting,paging)
+		return result
+
+
+	# ---------------------------------
 	# Skeletons
 
 	# Skeletons Collection
@@ -172,7 +214,6 @@ class DocPad extends EventEmitterEnhanced
 	getSkeletons: (next) ->
 		# Prepare
 		docpad = @
-		{Collection,Model} = @Base
 
 		# Check if we have cached locally
 		if @skeletonsCollection?
@@ -180,12 +221,25 @@ class DocPad extends EventEmitterEnhanced
 
 		# Fetch the skeletons from the exchange
 		@skeletonsCollection = new Collection()
+		@skeletonsCollection.comparator = queryEngine.generateComparator(position:1, name:1)
 		@getExchange (err,exchange) ->
 			return next(err)  if err
+			# Add options
+			index = 0
 			for own skeletonKey,skeleton of exchange.skeletons
 				skeleton.id ?= skeletonKey
 				skeleton.name ?= skeletonKey
+				skeleton.position ?= index
 				docpad.skeletonsCollection.add(new Model(skeleton))
+				++index
+			# Add No Skeleton Option
+			docpad.skeletonsCollection.add(new Model(
+				id: 'none'
+				name: 'No Skeleton'
+				description: 'Prefer to start from scratch? You can get started without any skeleton if you wish'
+				position: Infinity
+			))
+			# Return Collection
 			return next(null,docpad.skeletonsCollection)
 		@
 
@@ -204,6 +258,106 @@ class DocPad extends EventEmitterEnhanced
 
 	# A listing of all the available extensions for DocPad
 	exchange: null  # {}
+
+
+	# -----------------------------
+	# Template Data
+
+	# DocPad's Template Data
+	templateData: null  # {}
+
+	# Plugin's Extended Template Data
+	pluginsTemplateData: null  # {}
+
+	# Get Complete Template Data
+	getTemplateData: (userTemplateData) ->
+		# Prepare
+		userTemplateData or= {}
+		docpad = @
+
+		# Set the initial docpad template data
+		@templateData ?=
+			# Site Properties
+			site: {}
+
+			# Set that we reference other files
+			referencesOthers: (flag) ->
+				document = @getDocument()
+				document.referencesOthers()
+				return null
+
+			# Get the Document
+			getDocument: ->
+				return @documentModel
+
+			# Get a Path in respect to the current document
+			getPath: (path,parentPath) ->
+				document = @getDocument()
+				path = document.getPath(path,parentPath)
+				return path
+
+			# Get Files At Path
+			getFilesAtPath: (path,sorting,paging) ->
+				@referencesOthers()
+				path = @getPath(path)
+				result = docpad.getFilesAtPath(path,sorting,paging)
+				return result
+
+			# Get Files
+			getFiles: (query,sorting,paging) ->
+				@referencesOthers()
+				result = docpad.getFiles(query,sorting,paging)
+				return result
+
+			# Get another file's model based on a relative path
+			getFileAtPath: (relativePath) ->
+				@referencesOthers()
+				path = @getPath(relativePath)
+				result = docpad.getFileAtPath(path)
+				return result
+
+			# Get another file's URL based on a relative path
+			getFile: (query,sorting,paging) ->
+				@referencesOthers()
+				result = docpad.getFile(query,sorting,paging)
+				return result
+
+			# Get the entire database
+			getDatabase: ->
+				@referencesOthers()
+				return docpad.getDatabase()
+
+			# Get a pre-defined collection
+			getCollection: (name) ->
+				@referencesOthers()
+				return docpad.getCollection(name)
+
+			# Get a block
+			getBlock: (name) ->
+				return docpad.getBlock(name,true)
+
+			# Include another file taking in a relative path
+			# Will return the contentRendered otherwise content
+			include: (subRelativePath) ->
+				result = @getFileAtPath(subRelativePath)
+				if result
+					return result.get('contentRendered') or result.get('content')
+				else
+					err = new Error("Could not include the file at path [#{subRelativePath}] as we could not find it")
+					throw err
+
+		# Fetch our result template data
+		templateData = _.extend({}, @templateData, @pluginsTemplateData, @config.templateData, userTemplateData)
+
+		# Add site data
+		templateData.site.date or= new Date()
+		templateData.site.keywords or= []
+		if _.isString(templateData.site.keywords)
+			templateData.site.keywords = templateData.site.keywords.split(/,\s*/g)
+
+		# Return
+		templateData
+
 
 
 	# -----------------------------
@@ -368,6 +522,10 @@ class DocPad extends EventEmitterEnhanced
 		# The location of our git executable
 		gitPath: null
 
+		# Safe Mode
+		# If enabled, we will try our best to sandbox our template rendering so that they cannot modify things outside of them
+		safeMode: false
+
 		# Template Data
 		# What data would you like to expose to your templates
 		templateData: null  # {}
@@ -444,6 +602,7 @@ class DocPad extends EventEmitterEnhanced
 		@exchange = {}
 		@collections = {}
 		@blocks = {}
+		@pluginsTemplateData = {}
 		@config = _.clone(@config)
 		@config.enabledPlugins = {}
 		@config.plugins = {}
@@ -1196,100 +1355,6 @@ class DocPad extends EventEmitterEnhanced
 
 
 	# ---------------------------------
-	# Utilities: Rendering
-
-	# Get Template Data
-	getTemplateData: (userData) ->
-		# Prepare
-		userData or= {}
-		docpad = @
-
-		# Initial merge
-		templateData = _.extend({
-
-			# Site Properties
-			site: {}
-
-			# Get another file's model based on a relative path
-			getFileModel: (subRelativePath) ->
-				@documentModel.set({referencesOthers:true})
-				if /^\./.test(subRelativePath)
-					fullRelativePath = @document.relativeDirPath+'/'+subRelativePath
-				else
-					fullRelativePath = subRelativePath
-				result =  docpad.getDatabase().findOne(relativePath: fullRelativePath)
-				if result
-					return result
-				else
-					warn = "The file #{subRelativePath} was not found..."
-					docpad.warn(warn)
-					return null
-
-			# Include another file taking in a relative path
-			# Will return the contentRendered otherwise content
-			include: (subRelativePath) ->
-				result = @getFileModel(subRelativePath)
-				return result.get('contentRendered') or result.get('content')  if result
-				return null
-
-			# Get another file's URL based on a relative path
-			getFileUrl: (subRelativePath) ->
-				result = @getFileModel(subRelativePath)
-				return result.get('url')  if result
-				return null
-
-			# Get another file's object based on a relative path
-			getFile: (subRelativePath) ->
-				result = @getFileModel(subRelativePath)
-				return result.toJSON()  if result
-				return null
-
-			# Get the database
-			getDatabase: ->
-				@documentModel.set({referencesOthers:true})
-				return docpad.getDatabase()
-
-			# Get a pre-defined collection
-			getCollection: (name) ->
-				@documentModel.set({referencesOthers:true})
-				return docpad.getCollection(name)
-
-			# Get a block
-			getBlock: (name) ->
-				return docpad.getBlock(name,true)
-
-		}, @config.templateData, userData)
-
-		# Add site data
-		templateData.site.date or= new Date()
-		templateData.site.keywords or= []
-		if _.isString(templateData.site.keywords)
-			templateData.site.keywords = templateData.site.keywords.split(/,\s*/g)
-
-		# Return
-		templateData
-
-
-	# Render a document
-	# next(err,document)
-	prepareAndRender: (document,templateData,next) ->
-		# Prepare
-		docpad = @
-
-		# Contextualize the datbaase, perform two render passes, and perform a write
-		balUtil.flow(
-			object: document
-			action: 'normalize load contextualize render'
-			args: [{templateData}]
-			next: (err) ->
-				return next(err)
-		)
-
-		# Chain
-		@
-
-
-	# ---------------------------------
 	# Utilities: Exchange
 
 	# Get Exchange
@@ -1551,7 +1616,7 @@ class DocPad extends EventEmitterEnhanced
 	# Actions
 
 	# Perform an action
-	# next(err)
+	# next(err,...), ... = any special arguments from the action
 	action: (action,opts,next) ->
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
@@ -1580,48 +1645,48 @@ class DocPad extends EventEmitterEnhanced
 			# Handle
 			switch action
 				when 'install', 'update'
-					docpad.install opts, (err) ->
-						next(err)
+					docpad.install opts, (args...) ->
+						next(args...)
 						complete()
 
 				when 'skeleton', 'scaffold'
-					docpad.skeleton opts, (err) ->
-						next(err)
+					docpad.skeleton opts, (args...) ->
+						next(args...)
 						complete()
 
 				when 'load'
-					docpad.load opts, (err) ->
-						next(err)
+					docpad.load opts, (args...) ->
+						next(args...)
 						complete()
 
 				when 'generate'
-					docpad.generate opts, (err) ->
-						next(err)
+					docpad.generate opts, (args...) ->
+						next(args...)
 						complete()
 
 				when 'clean'
-					docpad.clean opts, (err) ->
-						next(err)
+					docpad.clean opts, (args...) ->
+						next(args...)
 						complete()
 
 				when 'render'
-					docpad.render opts, (err,data) ->
-						next(err)
+					docpad.render opts, (args...) ->
+						next(args...)
 						complete()
 
 				when 'watch'
-					docpad.watch opts, (err) ->
-						next(err)
+					docpad.watch opts, (args...) ->
+						next(args...)
 						complete()
 
 				when 'server'
-					docpad.server opts, (err) ->
-						next(err)
+					docpad.server opts, (args...) ->
+						next(args...)
 						complete()
 
 				else
-					docpad.run opts, (err) ->
-						next(err)
+					docpad.run opts, (args...) ->
+						next(args...)
 						complete()
 
 		# Chain
@@ -1713,6 +1778,12 @@ class DocPad extends EventEmitterEnhanced
 			# Initialize
 			postTasks.push (complete) ->
 				docpad.loadPlugins(complete)
+
+			# Fetch plugins templateData
+			postTasks.push (complete) ->
+				docpad.emitSync 'extendTemplateData', {templateData:docpad.pluginsTemplateData,extend:balUtil.extend}, (err) ->
+					# Forward
+					return complete(err)
 
 			# Fire post tasks
 			postTasks.async()
@@ -2051,32 +2122,85 @@ class DocPad extends EventEmitterEnhanced
 	# ---------------------------------
 	# Render
 
+	# Load and Render a Document
+	# next(err,document)
+	loadAndRenderDocument: (document,opts,next) ->
+		balUtil.flow(
+			object: document
+			action: 'load contextualize render'
+			args: [opts]
+			next: (err) ->
+				result = document.get('contentRendered')
+				return next(err,result,document)
+		)
+		@
+
+	# Render Document
+	# next(err,result)
+	renderDocument: (document,opts,next) ->
+		document.render(opts,next)
+		@
+
+	# Render Path
+	# next(err,result)
+	renderPath: (path,opts,next) ->
+		document = @ensureDocument(
+			fullPath: path
+		)
+		@loadAndRenderDocument(document,opts,next)
+		@
+
+	# Render Data
+	# next(err,result)
+	renderData: (content,opts,next) ->
+		document = @createDocument(
+			filename: opts.filename
+			data: content
+		)
+		@loadAndRenderDocument(document,opts,next)
+		@
+
+	# Render Text
+	# next(err,result)
+	renderText: (text,opts,next) ->
+		document = @createDocument(
+			filename: opts.filename
+			data: text
+			body: text
+			content: text
+		)
+		opts.actions ?= ['renderExtensions','renderDocument']
+		balUtil.flow(
+			object: document
+			action: 'normalize contextualize render'
+			args: [opts]
+			next: (err) ->
+				result = document.get('contentRendered')
+				return next(err,result,document)
+		)
+		@
+
 	# Render Action
+	# next(err,document,result)
 	render: (opts,next) ->
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
-		docpad = @
-
-		# Extract data
-		data = opts.data or {}
 
 		# Extract document
-		if opts.filename
-			document = @createDocument(
-				filename: opts.filename
-				fullPath: opts.filename
-				data: opts.content
-			)
-			renderFunction = 'prepareAndRender'
-		else if opts.document
-			document = opts.document
-			renderFunction = 'render'
-
-		# Check
-		return next? new Error('You must pass a document to the renderAction')  unless document
-
-		# Render
-		docpad[renderFunction](document, data, next)
+		if opts.document
+			@renderDocument(opts.document, opts, next)
+		else if opts.data
+			@renderData(opts.data, opts, next)
+		else if opts.text
+			@renderText(opts.text, opts, next)
+		else
+			path = opts.path or opts.fullPath or opts.filename or null
+			if path
+				@renderPath(path, opts, next)
+			else
+				# Check
+				err = new Error('Invalid options passed to the render action')
+				return next(err)
 
 		# Chain
 		@
@@ -2258,7 +2382,7 @@ class DocPad extends EventEmitterEnhanced
 		destinationPath = @config.rootPath
 		selectSkeletonCallback = opts.selectSkeletonCallback or null
 
-		# Exits
+		# Use a Skeleton
 		useSkeleton = (skeletonModel) ->
 			# Log
 			docpad.log 'info', "Installing the #{skeletonModel.get('name')} skeleton into #{destinationPath}"
@@ -2279,6 +2403,26 @@ class DocPad extends EventEmitterEnhanced
 					# Forward
 					return next(err)
 
+		# Use No Skeleton
+		useNoSkeleton = ->
+			# Create the paths
+			balUtil.ensurePath srcPath, (err) ->
+				# Error?
+				return next(err)  if err
+
+				# Group
+				tasks = new balUtil.Group(next)
+				tasks.total = 3
+
+				# Create
+				balUtil.ensurePath(docpad.config.documentsPaths[0], tasks.completer())
+
+				# Create
+				balUtil.ensurePath(docpad.config.layoutsPaths[0], tasks.completer())
+
+				# Create
+				balUtil.ensurePath(docpad.config.filesPaths[0], tasks.completer())
+
 		# Check if already exists
 		balUtil.exists srcPath, (exists) ->
 			# Check
@@ -2297,7 +2441,10 @@ class DocPad extends EventEmitterEnhanced
 					# Provide selection to the interface
 					selectSkeletonCallback skeletonsCollection, (err,skeletonModel) ->
 						return next(err)  if err
-						useSkeleton(skeletonModel)
+						if skeletonModel? is false or skeletonModel.id is 'none'
+							useNoSkeleton()
+						else
+							useSkeleton(skeletonModel)
 
 		# Chain
 		@

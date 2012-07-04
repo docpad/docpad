@@ -123,10 +123,7 @@ class FileModel extends Model
 		# Apply
 		@outDirPath = outDirPath  if outDirPath
 		@setStat(stat)  if stat
-		@set(
-			extensions: []
-			urls: []
-		)
+		@set({extensions:[], urls:[]},{silent:true})
 
 		# Super
 		super
@@ -175,8 +172,10 @@ class FileModel extends Model
 		{opts,next} = @getActionArgs(opts,next)
 		file = @
 		filePath = @get('relativePath') or @get('fullPath') or @get('filename')
-		fullPath = @get('fullPath')
+		fullPath = @get('fullPath') or filePath or null
 		data = @get('data')
+
+		# Apply
 
 		# Log
 		file.log('debug', "Loading the file: #{filePath}")
@@ -186,18 +185,26 @@ class FileModel extends Model
 			return next(err)  if err
 			file.log('debug', "Loaded the file: #{filePath}")
 			next()
-
-		# Exists?
-		balUtil.exists fullPath, (exists) =>
-			# Read the file
-			if exists
-				@readFile(fullPath, complete)
-			else
-				@parseData data, (err) =>
+		handlePath = ->
+			file.set({fullPath},{silent:true})
+			file.readFile(fullPath, complete)
+		handleData = ->
+			file.set({fullPath:null},{silent:true})
+			file.parseData data, (err) =>
 					return next(err)  if err
-					@normalize (err) =>
+					file.normalize (err) =>
 						return next(err)  if err
 						complete()
+		# Exists?
+		if fullPath
+			balUtil.exists fullPath, (exists) ->
+				# Read the file
+				if exists
+					handlePath()
+				else
+					handleData()
+		else
+			handleData()
 
 		# Chain
 		@
@@ -345,47 +352,70 @@ class FileModel extends Model
 				break
 		@
 
+	# Get a Path
+	# If the path starts with `.` then we get the path in relation to the document that is calling it
+	# Otherwise we just return it as normal
+	getPath: (relativePath, parentPath) ->
+		if /^\./.test(relativePath)
+			relativeDirPath = @get('relativeDirPath')
+			path = pathUtil.join(relativeDirPath, relativePath)
+		else
+			if parentPath
+				path = pathUtil.join(parentPath, relativePath)
+			else
+				path = relativePath
+		return path
+
 	# Normalize data
 	# Normalize any parsing we have done, as if a value has updates it may have consequences on another value. This will ensure everything is okay.
 	# next(err)
 	normalize: (opts={},next) ->
 		# Prepare
 		{opts,next} = @getActionArgs(opts,next)
-		basename = @get('basename')
-		filename = @get('filename')
-		fullPath = @get('fullPath')
-		relativePath = @get('relativePath')
-		id = @get('id')
-		date = @get('date')
+		basename = @get('basename') or null
+		filename = @get('filename') or null
+		fullPath = @get('fullPath') or null
+		relativePath = @get('relativePath') or null
+		id = @get('id') or null
+		date = @get('date') or null
+		fullDirPath = @get('fullDirPath') or null
+		relativeDirPath = @get('relativeDirPath') or null
+		relativeBase = @get('relativeBase') or null
+		extension = @get('extension') or null
+		extensions = @get('extensions') or null
+		contentType = @get('contentType') or null
 
-		# Adjust
-		fullPath or= filename
-		relativePath or= null
-
-		# Paths
-		filename = pathUtil.basename(fullPath)
-		basename = filename.replace(/\..*/, '')
-
-		# Extension
-		extensions = filename.split(/\./g)
-		extensions.shift()
-		extension = if extensions.length then extensions[extensions.length-1] else null
 
 		# Paths
-		fullDirPath = pathUtil.dirname(fullPath) or ''
-		relativeDirPath = pathUtil.dirname(relativePath).replace(/^\.$/,'') or ''
-		relativeBase =
-			if relativeDirPath.length
-				pathUtil.join(relativeDirPath, basename)
-			else
-				basename
-		id or= relativePath or fullPath
+		if filename
+			if fullPath
+				filename = pathUtil.basename(fullPath)
+			basename = filename.replace(/\..*/, '')
+
+			# Extension
+			extensions = filename.split(/\./g)
+			extensions.shift()
+			extension = if extensions.length then extensions[extensions.length-1] else null
+
+		# Paths
+		if fullPath
+			fullDirPath = pathUtil.dirname(fullPath) or ''
+			contentType = mime.lookup(fullPath)
+
+		if relativePath
+			relativeDirPath = pathUtil.dirname(relativePath).replace(/^\.$/,'') or ''
+			relativeBase =
+				if relativeDirPath.length
+					pathUtil.join(relativeDirPath, basename)
+				else
+					basename
+
+		# ID
+		id or= relativePath or fullPath or @cid
 
 		# Date
-		date or= new Date(@stat.mtime)  if @stat
-
-		# Mime type
-		contentType = mime.lookup(fullPath)
+		if @stat
+			date or= new Date(@stat.mtime)
 
 		# Apply
 		@set({basename,filename,fullPath,relativePath,fullDirPath,relativeDirPath,id,relativeBase,extensions,extension,contentType,date})
@@ -400,21 +430,26 @@ class FileModel extends Model
 	contextualize: (opts={},next) ->
 		# Fetch
 		{opts,next} = @getActionArgs(opts,next)
-		relativeBase = @get('relativeBase')
-		extensions = @get('extensions')
-		filename = @get('filename')
-		url = null
-		slug = null
-		name = null
-		outPath = null
+		relativeBase = @get('relativeBase') or null
+		extensions = @get('extensions') or null
+		filename = @get('filename') or null
+		url = @get('url') or null
+		slug = @get('slug') or null
+		name = @get('name') or null
+		outPath = @get('outPath') or null
+		outDirPath = @get('outDirPath') or null
 
 		# Adjust
-		url or= if extensions.length then "/#{relativeBase}.#{extensions.join('.')}" else "/#{relativeBase}"
-		slug or= balUtil.generateSlugSync(relativeBase)
-		name or= filename
-		outPath = if @outDirPath then pathUtil.join(@outDirPath,url) else null
-		outDirPath = pathUtil.dirname(outPath)
-		@addUrl(url)
+		if relativeBase
+			url or= if extensions.length then "/#{relativeBase}.#{extensions.join('.')}" else "/#{relativeBase}"
+			slug or= balUtil.generateSlugSync(relativeBase)
+		if filename
+			name or= filename
+		if @outDirPath
+			outPath = pathUtil.join(@outDirPath,url)
+			outDirPath = pathUtil.dirname(outPath)  if outPath
+		if url
+			@addUrl(url)
 
 		# Apply
 		@set({url,slug,name,outPath,outDirPath})

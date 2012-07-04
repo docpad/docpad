@@ -78,7 +78,7 @@ class ConsoleInterface
 
 		# render
 		program
-			.command('render <path>')
+			.command('render [path]')
 			.description("render the file at <path> and output its results to stdout")
 			.action (command) ->
 				me.applyConfiguration(command)
@@ -299,7 +299,7 @@ class ConsoleInterface
 					args.shift()
 			args.unshift process.argv[0]
 			args.unshift process.argv[1]
-			program.parse args
+			program.parse(args)
 
 	exit: ->
 		process.exit(0)
@@ -317,7 +317,7 @@ class ConsoleInterface
 
 		# Handle
 		console.log @program.helpInformation()
-		next?()
+		next()
 
 	info: (next) ->
 		# Prepare
@@ -325,7 +325,7 @@ class ConsoleInterface
 
 		# Handle
 		console.log require('util').inspect @docpad.config
-		next?()
+		next()
 
 	install: (next) ->
 		# Prepare
@@ -337,25 +337,26 @@ class ConsoleInterface
 	render: (next) ->
 		# Prepare
 		docpad = @docpad
-		docpad.setLogLevel(5)
+		docpad.setLogLevel(5)  unless docpad.getLogLevel() is 7
 		program = @program
+		opts = {}
 
-		# Check
-		if program.args.length is 1
-			return docpad.error("You must pass a filename to the render command")
+		# Prepare filename
+		filename = program.args[0] or null
+		if !filename or filename.split('.').length <= 2 # [name,ext,ext] = 3 parts
+			opts.renderSingleExtensions = true
+		opts.filename = filename
 
-		# File details
-		details =
-			filename: program.args[0]
-			content: ''
+		# Prepare text
+		opts.data = ''
 
-		# Prepare
+		# Render
 		useStdin = true
 		renderDocument = ->
-			docpad.action 'render', details, (err,document) ->
-				throw err  if err
-				console.log document.get('contentRendered')
-				next?()
+			docpad.action 'render', opts, (err,result) ->
+				return docpad.fatal(err)  if err
+				process.stdout.write(result+'\n')
+				next()
 
 		# Timeout if we don't have stdin
 		timeout = setTimeout(
@@ -363,7 +364,7 @@ class ConsoleInterface
 				# Clear timeout
 				timeout = null
 				# Skip if we are using stdin
-				return  if details.content.replace(/\s+/,'')
+				return  if opts.data.replace(/\s+/,'')
 				# Close stdin as we are not using it
 				useStdin = false
 				stdin.pause()
@@ -377,7 +378,7 @@ class ConsoleInterface
 		stdin.resume()
 		stdin.setEncoding('utf8')
 		stdin.on 'data', (data) ->
-			details.content += data.toString()
+			opts.data += data.toString()
 		process.stdin.on 'end', ->
 			return  unless useStdin
 			if timeout
