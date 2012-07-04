@@ -270,7 +270,7 @@ class DocumentModel extends FileModel
 			extensions = @get('extensions')
 
 			# Rendered
-			if extensions and extensions.length
+			if extensions? and extensions.length
 				extensionRendered = extensions[0]
 
 			# Apply
@@ -301,6 +301,7 @@ class DocumentModel extends FileModel
 				fullPath = @get('fullPath') or null
 				basename = @get('basename') or null
 				relativeBase = @get('relativeBase') or null
+				relativeDirPath = @get('relativeDirPath') ? null
 				extensions = @get('extensions')
 				extensionRendered = @get('extensionRendered') or null
 				url = meta.get('url') or null
@@ -310,19 +311,25 @@ class DocumentModel extends FileModel
 				filenameRendered = null
 
 				# Adjust
-				if eve
+				if eve?
 					extensionRendered = eve.get('extensionRendered')
-				if basename
-					filenameRendered = if extensionRendered then "#{basename}.#{extensionRendered}" else "#{basename}"
-				if relativeBase
-					url or= if extensionRendered then "/#{relativeBase}.#{extensionRendered}" else "/#{relativeBase}"
-				if filenameRendered
+				if basename? and extensionRendered?
+					if basename[0] is '.' and extensionRendered is extensions[0]
+						filenameRendered = basename
+					else
+						filenameRendered = "#{basename}.#{extensionRendered}"
+				if relativeDirPath? and filenameRendered?
+					if relativeDirPath
+						url = "/#{relativeDirPath}/#{filenameRendered}"
+					else
+						url = "/#{filenameRendered}"
+				if filenameRendered?
 					name or= filenameRendered
-				outPath or= if @outDirPath then pathUtil.join(@outDirPath,url) else null
-				if url
-					@addUrl(url)
-				if relativeBase
-					@removeUrl(if extensions.length then "/#{relativeBase}.#{extensions.join('.')}" else "/#{relativeBase}")
+				if @outDirPath?
+					outPath = pathUtil.join(@outDirPath,url)
+				if url?
+					@removeUrl(@get('url'))
+					@setUrl(url)
 
 				# Content Types
 				if outPath or fullPath
