@@ -94,13 +94,12 @@ class DocPad extends EventEmitterEnhanced
 
 	# Event Listing
 	# Whenever a event is created, it must be applied here to be available to plugins and configuration files
+	# https://github.com/bevry/docpad/wiki/Events
 	events: [
 		'docpadReady'
 		'consoleSetup'
 		'generateBefore'
 		'generateAfter'
-		'cleanBefore'
-		'cleanAfter'
 		'parseBefore'
 		'parseAfter'
 		'renderBefore'
