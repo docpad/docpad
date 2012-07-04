@@ -155,13 +155,11 @@ class PluginTester
 		@testCustom?()
 
 		# Finish
-		@test 'everything ran', (done) ->
-			done()
-			tester.exit()
-			if tester.config.autoExit
-				joe.exit()
-
-
+		if tester.config.autoExit
+			@test 'finish up', (done) ->
+				done()
+				tester.exit()
+				process.exit()
 
 # Server Tester
 testers.ServerTester =

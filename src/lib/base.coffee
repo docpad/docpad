@@ -1,7 +1,7 @@
 # Requires
 _ = require('underscore')
-QueryEngine = require('query-engine')
-Backbone = QueryEngine.Backbone
+queryEngine = require('query-engine')
+Backbone = queryEngine.Backbone
 
 # Log a message
 log = (args...) ->
@@ -34,10 +34,10 @@ class View extends Backbone.View
 	emit: emit
 
 # QueryCollection
-class QueryCollection extends QueryEngine.QueryCollection
+class QueryCollection extends queryEngine.QueryCollection
 	log: log
 	emit: emit
 	Collection: QueryCollection
 
-# Export our BaseModel Class
-module.exports = {Backbone,Events,Model,Collection,View,QueryCollection}
+# Export our base models
+module.exports = {queryEngine,Backbone,Events,Model,Collection,View,QueryCollection}
