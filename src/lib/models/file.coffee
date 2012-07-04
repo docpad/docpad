@@ -379,42 +379,50 @@ class FileModel extends Model
 		id = @get('id') or null
 		date = @get('date') or null
 		fullDirPath = @get('fullDirPath') or null
-		relativeDirPath = @get('relativeDirPath') or null
+		relativeDirPath = @get('relativeDirPath') ? ''
 		relativeBase = @get('relativeBase') or null
 		extension = @get('extension') or null
 		extensions = @get('extensions') or null
 		contentType = @get('contentType') or null
 
 
-		# Paths
-		if filename
-			if fullPath
-				filename = pathUtil.basename(fullPath)
-			basename = filename.replace(/\..*/, '')
+		# Filename
+		if fullPath?
+			filename = pathUtil.basename(fullPath)
+		if filename?
+			if filename[0] is '.'
+				basename = filename.replace(/^(\.[^\.]+)\..*$/, '$1')
+			else
+				basename = filename.replace(/\..*$/, '')
 
 			# Extension
 			extensions = filename.split(/\./g)
+
+			# ignore the first result, as that is our filename
 			extensions.shift()
-			extension = if extensions.length then extensions[extensions.length-1] else null
+
+			# determine the single extension that determine this file
+			if extensions.length
+				extension = extensions[extensions.length-1]
+			else
+				extension = null
 
 		# Paths
-		if fullPath
+		if fullPath?
 			fullDirPath = pathUtil.dirname(fullPath) or ''
 			contentType = mime.lookup(fullPath)
-
-		if relativePath
+		if relativePath?
 			relativeDirPath = pathUtil.dirname(relativePath).replace(/^\.$/,'') or ''
 			relativeBase =
-				if relativeDirPath.length
+				if relativeDirPath
 					pathUtil.join(relativeDirPath, basename)
 				else
 					basename
-
 		# ID
 		id or= relativePath or fullPath or @cid
 
 		# Date
-		if @stat
+		if @stat?
 			date or= new Date(@stat.mtime)
 
 		# Apply
@@ -440,15 +448,20 @@ class FileModel extends Model
 		outDirPath = @get('outDirPath') or null
 
 		# Adjust
-		if relativeBase
-			url or= if extensions.length then "/#{relativeBase}.#{extensions.join('.')}" else "/#{relativeBase}"
+		if relativeBase?
+			if extensions? and extensions.length and filename?
+				if filename[0] is '.'
+					extensions = extensions.slice(1)
+				url = "/#{relativeBase}.#{extensions.join('.')}"
+			else
+				url = "/#{relativeBase}"
 			slug or= balUtil.generateSlugSync(relativeBase)
-		if filename
+		if filename?
 			name or= filename
-		if @outDirPath
+		if @outDirPath?
 			outPath = pathUtil.join(@outDirPath,url)
 			outDirPath = pathUtil.dirname(outPath)  if outPath
-		if url
+		if url?
 			@addUrl(url)
 
 		# Apply
