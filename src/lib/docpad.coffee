@@ -152,7 +152,7 @@ class DocPad extends EventEmitterEnhanced
 		block = @blocks[name]
 		if clone
 			classname = name[0].toUpperCase()+name[1..]+'Collection'
-			block = new global[classname](block.models)
+			block = new @[classname](block.models)
 		return block
 
 	#  Set a block
