@@ -1,5 +1,10 @@
 ## History
 
+- v6.1.1 July 8, 2012
+	- Added `html` collection
+	- Dependency updates
+		- [chai](http://chaijs.com/) from v1.0 to v1.1
+
 - v6.1.0 July 8, 2012
 	- End user changes
 		- Added suport for using no skeleton on empty directory
