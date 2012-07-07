@@ -569,7 +569,7 @@ class DocPad extends EventEmitterEnhanced
 			docpad.on eventName, (opts,next) ->
 				eventHandler = docpad.getConfig().events?[eventName]
 				# Fire the config event handler for this event, if it exists
-				if typeof eventHandler is 'function'
+				if balUtil.isFunction(eventHandler)
 					args = [opts,next]
 					balUtil.fireWithOptionalCallback(eventHandler,args,configEventContext)
 				# It doesn't exist, so lets continue
