@@ -1,5 +1,8 @@
 ## History
 
+- v6.1.2 July 8, 2012
+	- Fixed `DocPad::getBlock`
+
 - v6.1.1 July 8, 2012
 	- Added `html` collection
 	- Dependency updates
