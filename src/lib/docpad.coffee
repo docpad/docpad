@@ -641,8 +641,8 @@ class DocPad extends EventEmitterEnhanced
 				process.on 'uncaughtException', (err) ->
 					docpad.error(err)
 
-			# Collections
-			documents = @database.createLiveChildCollection()
+			# Standard Collections
+			documentsCollection = @database.createLiveChildCollection()
 				.setQuery('isDocument', {
 					$or:
 						isDocument: true
@@ -656,7 +656,7 @@ class DocPad extends EventEmitterEnhanced
 						write: true
 					})
 				)
-			files = @database.createLiveChildCollection()
+			filesCollection = @database.createLiveChildCollection()
 				.setQuery('isFile', {
 					$or:
 						isFile: true
@@ -670,7 +670,7 @@ class DocPad extends EventEmitterEnhanced
 						write: true
 					})
 				)
-			layouts = @database.createLiveChildCollection()
+			layoutsCollection = @database.createLiveChildCollection()
 				.setQuery('isLayout', {
 					$or:
 						isLayout: true
@@ -685,23 +685,36 @@ class DocPad extends EventEmitterEnhanced
 					})
 				)
 
+			# Special Collections
+			htmlCollection = @database.createLiveChildCollection()
+				.setQuery('isHTML', {
+					$or:
+						isDocument: true
+						isFile: true
+					outPath: $endsWith: '.html'
+				})
+				.on('add', (model) ->
+					docpad.log('debug', "Adding html file: #{model.attributes.fullPath}")
+				)
+
 			# Apply collections
-			@setCollection('documents',documents)
-			@setCollection('files',files)
-			@setCollection('layouts',layouts)
+			@setCollection('documents',documentsCollection)
+			@setCollection('files',filesCollection)
+			@setCollection('layouts',layoutsCollection)
+			@setCollection('html',htmlCollection)
 
 
 			# Blocks
-			meta = new MetaCollection().add([
+			metaBlock = new MetaCollection().add([
 				'<meta http-equiv="X-Powered-By" content="DocPad"/>'
 			])
-			scripts = new MetaCollection()
-			styles = new MetaCollection()
+			scriptsBlock = new MetaCollection()
+			stylesBlock = new MetaCollection()
 
 			# Apply Blocks
-			@setBlock('meta',meta)
-			@setBlock('scripts',scripts)
-			@setBlock('styles',styles)
+			@setBlock('meta',metaBlock)
+			@setBlock('scripts',scriptsBlock)
+			@setBlock('styles',stylesBlock)
 
 
 			# Load Airbrake if we want to reportErrors
