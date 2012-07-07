@@ -1,5 +1,51 @@
 ## History
 
+- v6.1.0 July 8, 2012
+	- End user changes
+		- Added suport for using no skeleton on empty directory
+		- Action completion callback will now correctly return all arugments instead of just the error argument
+		- Filename argument on command line is now optional, if specified it now supports single extension values, e.g. `markdown` instead of `file.html.md`
+		- When using CoffeeScript intead of YAML for meta data headers, the CoffeeScript will now be sandboxed
+			- If you are wanting to get stuff outside the sandbox write a `docpad.coffee` configuration file
+	- Document and File model changes
+		- Now work fine without any path specified
+		- `render` split into `renderExtensions`, `renderDocument` and `renderLayout`
+		- `renderExtensions` now supports the option `renderSingleExtensions` when specified, will prepend the extension `null`, allowing supported plugins to render single extensions
+		- `render` now supports the option `actions` which is an array of actions to perform
+		- we now do not clear the `contentRendered`, `contentRenderedWithoutLayouts`, and `rendered` properties between render passes
+	- DocPad prototype changes
+		- New Events
+			- `extendTemplateData`, opts: `templateData`, `extend(objs...)`
+		- Attached Classes
+			- `Base`, `Model`, `Collection`, `View`, `QueryCollection`
+			- `FileModel`, `DocumentModel`
+			- `FilesCollection`, `ElementsCollection`, `MetaCollection`, `ScriptsCollection`, `StylesCollection`
+			- `PluginLoader`, `BasePlugin`
+		- New Collection Helpers
+			- `getFiles(query,storting,paging)`
+			- `getFile(query,sorting,paging)`
+			- `getFilesAtPath(path,sorting,paging)`
+			- `getFileAtPath(path,sorting,paging)`
+		- New Render Helpers
+			- `loadAndRenderDocument(document,opts,next)`
+			- `renderDocument(document,opts,next)`
+			- `renderPath(path,opts,next)`
+			- `renderData(data,opts,next)`
+			- `renderText(text,opts,next)`
+		- New Template Data Helpers
+			- `referencesOthers(flag)`
+			- `getDocument()`
+			- `getPath(path,parentPath)`
+			- `getFiles(query,sorting,paging)`
+			- `getFile(query,sorting,paging)`
+			- `getFilesAtPath(path,sorting,paging)`
+			- `getFileAtPath(path,sorting,paging)`
+	- Added the following to the export
+		- `Backbone`, `queryEngine`
+	- Dependency updates
+		- [bal-util](https://github.com/balupton/bal-util) from v1.10 to v1.12
+		- [cson](https://github.com/bevry/cson) from v1.1 to v1.2
+
 - v6.0.14 June 27, 2012
 	- Configuration variables `documentPaths`, `filesPaths`, and `layoutsPaths` are now relative to the `srcPath` instead of the `rootPath`
 		- `pluginsPaths` is still relative to the `rootPath`
@@ -32,7 +78,7 @@
 	- Cleaned up the server action a bit
 	- Added a new `serverExtend` event so listeners can now extend the server before the docpad routes are applied
 	- Dependency updates
-		- [Watchr](https://github.com/bevry/watchr) from v2.0 to v2.1
+		- [watchr](https://github.com/bevry/watchr) from v2.0 to v2.1
 
 - v6.0.8 June 21, 2012
 	- Configuration changes
@@ -48,8 +94,8 @@
 	- Server changes
 		- If a document has multiple urls, and it is accessed on the non primary url, we will 301 (permanent) redirect to the primary url
 	- Dependency updates
-		- [CSON](https://github.com/bevry/cson) from v1.0 to v1.1
 		- [bal-util](https://github.com/balupton/bal-util) from v1.8 to v1.9
+		- [cson](https://github.com/bevry/cson) from v1.0 to v1.1
 
 - v6.0.7 June 20, 2012
 	- When watching files, and you modify a layout, docpad will now re-render anything using that layout - closes #242

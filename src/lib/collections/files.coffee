@@ -16,7 +16,7 @@ class FilesCollection extends QueryCollection
 	collection: FilesCollection
 
 	# Comparator
-	comparator: [name: 1, date: -1]
+	comparator: [date:-1, name:1]
 
 
 # Export
