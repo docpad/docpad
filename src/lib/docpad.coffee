@@ -13,9 +13,27 @@ balUtil = require('bal-util')
 airbrake = null
 growl = null
 
-# Locals
+# Base
 {queryEngine,Backbone,Events,Model,Collection,View,QueryCollection} = require(__dirname+'/base')
+
+# Models
+FileModel = require(__dirname+'/models/file')
+DocumentModel = require(__dirname+'/models/document')
+
+# Collections
+FilesCollection = require(__dirname+'/collections/files')
+ElementsCollection = require(__dirname+'/collections/elements')
+MetaCollection = require(__dirname+'/collections/meta')
+ScriptsCollection = require(__dirname+'/collections/scripts')
+StylesCollection = require(__dirname+'/collections/styles')
+
+# Plugins
+PluginLoader = require(__dirname+'/plugin-loader')
+BasePlugin = require(__dirname+'/plugin')
+
+# Prototypes
 require(__dirname+'/prototypes')
+
 
 # =====================================
 # DocPad
@@ -33,34 +51,27 @@ class DocPad extends EventEmitterEnhanced
 	# ---------------------------------
 	# Modules
 
-	# Utilities
-	underscore: _
-	balUtil: balUtil
-	queryEngine: queryEngine
-	Backbone: Backbone
-
 	# Base
-	Events
-	Model
-	Collection
-	View
-	QueryCollection
+	Events: Events
+	Model: Model
+	Collection: Collection
+	View: View
+	QueryCollection: QueryCollection
 
 	# Models
-	FileModel: require(__dirname+'/models/file')
-	DocumentModel: require(__dirname+'/models/document')
+	FileModel: FileModel
+	DocumentModel: DocumentModel
 
 	# Collections
-	QueryCollection: QueryCollection
-	FilesCollection: require(__dirname+'/collections/files')
-	ElementsCollection: require(__dirname+'/collections/elements')
-	MetaCollection: require(__dirname+'/collections/meta')
-	ScriptsCollection: require(__dirname+'/collections/scripts')
-	StylesCollection: require(__dirname+'/collections/styles')
+	FilesCollection: FilesCollection
+	ElementsCollection: ElementsCollection
+	MetaCollection: MetaCollection
+	ScriptsCollection: ScriptsCollection
+	StylesCollection: StylesCollection
 
 	# Plugins
-	PluginLoader: require(__dirname+'/plugin-loader')
-	BasePlugin: require(__dirname+'/plugin')
+	PluginLoader: PluginLoader
+	BasePlugin: BasePlugin
 
 
 	# ---------------------------------
@@ -97,6 +108,7 @@ class DocPad extends EventEmitterEnhanced
 	# https://github.com/bevry/docpad/wiki/Events
 	events: [
 		'docpadReady'
+		'extendTemplateData'
 		'consoleSetup'
 		'generateBefore'
 		'generateAfter'
@@ -140,7 +152,7 @@ class DocPad extends EventEmitterEnhanced
 		block = @blocks[name]
 		if clone
 			classname = name[0].toUpperCase()+name[1..]+'Collection'
-			block = new @[classname](block.models)
+			block = new global[classname](block.models)
 		return block
 
 	#  Set a block
@@ -184,7 +196,7 @@ class DocPad extends EventEmitterEnhanced
 		return result
 
 	# Get another file's model based on a relative path
-	getFile: (query) ->
+	getFile: (query,sorting,paging) ->
 		result = @getDatabase().findOne(query,sorting,paging)
 		return result
 
@@ -295,6 +307,18 @@ class DocPad extends EventEmitterEnhanced
 				path = document.getPath(path,parentPath)
 				return path
 
+			# Get Files
+			getFiles: (query,sorting,paging) ->
+				@referencesOthers()
+				result = docpad.getFiles(query,sorting,paging)
+				return result
+
+			# Get another file's URL based on a relative path
+			getFile: (query,sorting,paging) ->
+				@referencesOthers()
+				result = docpad.getFile(query,sorting,paging)
+				return result
+
 			# Get Files At Path
 			getFilesAtPath: (path,sorting,paging) ->
 				@referencesOthers()
@@ -302,23 +326,11 @@ class DocPad extends EventEmitterEnhanced
 				result = docpad.getFilesAtPath(path,sorting,paging)
 				return result
 
-			# Get Files
-			getFiles: (query,sorting,paging) ->
-				@referencesOthers()
-				result = docpad.getFiles(query,sorting,paging)
-				return result
-
 			# Get another file's model based on a relative path
 			getFileAtPath: (relativePath) ->
 				@referencesOthers()
 				path = @getPath(relativePath)
 				result = docpad.getFileAtPath(path)
-				return result
-
-			# Get another file's URL based on a relative path
-			getFile: (query,sorting,paging) ->
-				@referencesOthers()
-				result = docpad.getFile(query,sorting,paging)
 				return result
 
 			# Get the entire database
@@ -523,6 +535,7 @@ class DocPad extends EventEmitterEnhanced
 
 		# Safe Mode
 		# If enabled, we will try our best to sandbox our template rendering so that they cannot modify things outside of them
+		# Not yet implemented
 		safeMode: false
 
 		# Template Data
@@ -614,7 +627,7 @@ class DocPad extends EventEmitterEnhanced
 		@config.pluginsPaths = @config.pluginsPaths.slice()
 
 		# Initialize the collections
-		@database = new @FilesCollection()
+		@database = new FilesCollection()
 
 		# Apply and load configuration
 		@initConfig = opts or {}
@@ -679,11 +692,11 @@ class DocPad extends EventEmitterEnhanced
 
 
 			# Blocks
-			meta = new @MetaCollection().add([
+			meta = new MetaCollection().add([
 				'<meta http-equiv="X-Powered-By" content="DocPad"/>'
 			])
-			scripts = new @MetaCollection()
-			styles = new @MetaCollection()
+			scripts = new MetaCollection()
+			styles = new MetaCollection()
 
 			# Apply Blocks
 			@setBlock('meta',meta)
@@ -964,7 +977,7 @@ class DocPad extends EventEmitterEnhanced
 		,options)
 
 		# Create and return
-		file = new @FileModel(data,options)
+		file = new FileModel(data,options)
 
 		# Log
 		file.on 'log', (args...) ->
@@ -986,7 +999,7 @@ class DocPad extends EventEmitterEnhanced
 		,options)
 
 		# Create and return
-		document = new @DocumentModel(data,options)
+		document = new DocumentModel(data,options)
 
 		# Log
 		document.on 'log', (args...) ->
@@ -1071,7 +1084,7 @@ class DocPad extends EventEmitterEnhanced
 
 		# Extract
 		{path,createFunction} = opts
-		filesToLoad = new @FilesCollection()
+		filesToLoad = new FilesCollection()
 
 		# Check if the directory exists
 		unless balUtil.existsSync(path)
@@ -1198,10 +1211,10 @@ class DocPad extends EventEmitterEnhanced
 			return _next(err)
 
 		# Prepare variables
-		loader = new @PluginLoader(
+		loader = new PluginLoader(
 			dirPath: fileFullPath
 			docpad: @
-			BasePlugin: @BasePlugin
+			BasePlugin: BasePlugin
 		)
 		pluginName = loader.pluginName
 		enabled = (
@@ -2073,7 +2086,7 @@ class DocPad extends EventEmitterEnhanced
 				database = docpad.getDatabase()
 
 				# Create a colelction for the files to reload
-				filesToReload = opts.filesToReload or new docpad.FilesCollection()
+				filesToReload = opts.filesToReload or new FilesCollection()
 				# Add anything which was modified since our last generate
 				filesToReload.add(database.findAll(mtime: $gte: docpad.lastGenerate).models)
 
@@ -2085,7 +2098,7 @@ class DocPad extends EventEmitterEnhanced
 					return next(err)  if err
 
 					# Create a collection for the files to render
-					filesToRender = opts.filesToRender or new docpad.FilesCollection()
+					filesToRender = opts.filesToRender or new FilesCollection()
 					# For anything that gets added, if it is a layout, then add that layouts children too
 					filesToRender.on 'add', (fileToRender) ->
 						if fileToRender.get('isLayout')
@@ -2590,6 +2603,8 @@ class DocPad extends EventEmitterEnhanced
 
 # Export API
 module.exports =
+	queryEngine: queryEngine
+	Backbone: Backbone
 	DocPad: DocPad
 	require: (path) ->
 		require(__dirname+'/'+path)
