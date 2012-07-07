@@ -143,7 +143,7 @@ class DocumentModel extends FileModel
 				# Language
 				try
 					switch parser
-						when 'coffee', 'cson'
+						when 'coffee', 'cson', 'coffeescript', 'coffee-script'
 							CSON = require('cson')  unless CSON
 							meta = CSON.parseSync(header)
 							@meta.set(meta)

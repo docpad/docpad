@@ -131,7 +131,7 @@ class FileModel extends Model
 	# Get the arguments for the action
 	# Using this contains the transparency with using opts, and not using opts
 	getActionArgs: (opts,next) ->
-		if typeof opts is 'function' and next? is false
+		if balUtil.isFunction(opts) and next? is false
 			next = opts
 			opts = {}
 		else
@@ -300,7 +300,7 @@ class FileModel extends Model
 				content = ''
 			else
 				content = data.toString(encoding)
-		else if typeof data is 'string'
+		else if balUtil.isString(data)
 			content = data
 		else
 			content = ''

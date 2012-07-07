@@ -37,7 +37,7 @@ class BasePlugin
 
 		# Bind events
 		_.each @docpad.getEvents(), (eventName) ->
-			if typeof me[eventName] is 'function'
+			if balUtil.isFunction(me[eventName])
 				# Fetch the event handler
 				eventHandler = me[eventName]
 				# Wrap the event handler, and bind it to docpad
