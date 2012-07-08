@@ -53,7 +53,7 @@ At its core DocPad is a language agnostic document management system. This means
 1. Install DocPad
 
 	``` bash
-	[sudo] npm install -g docpad@6.0
+	[sudo] npm install -g -f docpad@6.1
 	[sudo] docpad install
 	```
 
