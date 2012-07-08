@@ -38,7 +38,7 @@ At its core DocPad is a language agnostic document management system. This means
 - Highly extensible and easy to use plugin system
     - _[pretty much if DocPad doesn't already do something, it's trivial to get a plugin to do it](https://github.com/bevry/docpad/wiki/Extending)_
 - Easy to extend the server with custom routes, or use DocPad as module in an even bigger system
-    - _documentation coming soon_
+    - _[find out how here](https://github.com/bevry/docpad/wiki/API)_
 - Deploy easily to plenty of free Node.js hosting providers, or even just deploy it to plenty of free static file servers like GitHub Pages and more
     - _[view our hosting guide](https://github.com/bevry/docpad/wiki/Hosting)_
 - Built in support for dynamic documents (e.g. search pages, signup forms, etc.), so you can code pages that change on each request
@@ -94,8 +94,7 @@ Here are some quick links to help you get started:
 - [Troubleshooting](https://github.com/bevry/docpad/wiki/Troubleshooting)
 - [Support Forum](https://groups.google.com/forum/#!forum/docpad)
 - [Bug Tracker](https://github.com/bevry/docpad/issues)
-- [IRC Chat Room](irc://irc.freenode.net/docpad)
-- [Roadmap](https://github.com/bevry/docpad/wiki/Roadmap)
+- IRC Chat Room: `#docpad` on freenode
 - [Everything else](https://github.com/bevry/docpad/wiki)
 
 
