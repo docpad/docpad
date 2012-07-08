@@ -1,5 +1,8 @@
 ## History
 
+- v6.1.3 July 8, 2012
+	- Fixed `extendTemplateData` event firing before our plugins have finished loading
+
 - v6.1.2 July 8, 2012
 	- Fixed `DocPad::getBlock`
 

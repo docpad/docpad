@@ -1811,7 +1811,7 @@ class DocPad extends EventEmitterEnhanced
 					return complete(err)
 
 			# Fire post tasks
-			postTasks.async()
+			postTasks.sync()
 
 		# Load DocPad Configuration
 		preTasks.push (complete) =>
