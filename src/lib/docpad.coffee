@@ -2348,32 +2348,6 @@ class DocPad extends EventEmitterEnhanced
 		config = @config
 		server = null
 
-		# Error Handling Stuff
-		errorFiles = {}
-		# read the out directory for available files
-		fileList = fsUtil.readdirSync(config.outPath)
-
-		for file in fileList
-			if file.match /^[0-9x]{3}\.html/
-				code = file.match /^([0-9x]{3})\.html/
-				errorFiles[code[1]] = pathUtil.join(config.outPath, file)
-
-		# Find the closest matching error page
-		findClosest = (code) ->
-			code = code.toString()
-			match = null
-			count = 2
-
-			while match == null
-				if errorFiles.hasOwnProperty(code)
-					match = code
-				else
-					code = code.substr(0, count)
-					while code.length < 3
-						code += 'x'
-					count -= 1
-			return match
-
 		# Handlers
 		complete = (err) ->
 			return next(err)  if err
@@ -2486,11 +2460,13 @@ class DocPad extends EventEmitterEnhanced
 
 						# 404 Middleware
 						server.use (req, res, next) ->
+							database = docpad.getDatabase()
+							return next() unless database
 							notFound = 404
 							if config.useCustomErrors
-								code = findClosest(notFound)
-								if errorFiles.hasOwnProperty(code) && pathUtil.existsSync errorFiles[code]
-									data = fsUtil.readFileSync(errorFiles[code], 'utf8')
+								file = database.findOne(relativePath: '404.html')
+								if file
+									data = file.get('contentRendered') or document.get('content')
 								else
 									data = notFound + ' ' + errorCodes[notFound]
 
@@ -2500,12 +2476,13 @@ class DocPad extends EventEmitterEnhanced
 
 						# 500 Middleware
 						server.use (err, req, res, next) ->
-							# Assume 500 for now
+							database = docpad.getDatabase()
+							return next() unless database
 							serverError = 500
 							if config.useCustomErrors
-								code = findClosest(serverError)
-								if errorFiles.hasOwnProperty(code) && pathUtil.existsSync errorFiles[code]
-									data = fsUtil.readFileSync(errorFiles[code], 'utf8')
+								file = database.findOne(relativePath: '404.html')
+								if file
+									data = file.get('contentRendered') or document.get('content')
 								else
 									data = serverError + ' ' + errorCodes[serverError]
 
