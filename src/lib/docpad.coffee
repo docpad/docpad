@@ -109,6 +109,7 @@ class DocPad extends EventEmitterEnhanced
 	events: [
 		'docpadReady'
 		'extendTemplateData'
+		'extendCollections'
 		'consoleSetup'
 		'generateBefore'
 		'generateAfter'
@@ -496,11 +497,12 @@ class DocPad extends EventEmitterEnhanced
 
 		# Port
 		# The port that the server should use
-		port: 9778
+		port: process.env.PORT ? 9778
 
 		# Max Age
 		# The caching time limit that is sent to the client
-		maxAge: false
+		# Defaults to false if not on production, otherwise one day
+		maxAge: null
 
 
 		# -----------------------------
@@ -525,6 +527,10 @@ class DocPad extends EventEmitterEnhanced
 		# -----------------------------
 		# Other
 
+		# Environment
+		# Whether or not we are in production or development
+		env: process.env.NODE_ENV or 'development'
+
 		# Node Path
 		# The location of our node executable
 		nodePath: null
@@ -548,7 +554,8 @@ class DocPad extends EventEmitterEnhanced
 
 		# Check Version
 		# Whether or not to check for newer versions of DocPad
-		checkVersion: true
+		# Defaults to true if not on production, otherwise false
+		checkVersion: null
 
 		# Collections
 		# A hash of functions that create collections
@@ -557,6 +564,12 @@ class DocPad extends EventEmitterEnhanced
 		# Events
 		# A hash of event handlers
 		events: null  # {}
+
+
+	# Get Environment
+	# Shortcut for getting the configured/determined environment
+	getEnvironment: ->
+		return @config.env
 
 
 	# =================================
@@ -635,6 +648,12 @@ class DocPad extends EventEmitterEnhanced
 			# Error?
 			return @fatal(err)  if err
 
+
+			# Environment specific configuration
+			@config.checkVersion ?= if @config.env is 'production' then true else false
+			@config.maxAge ?= if @config.env is 'production' then 86400000 else false
+
+
 			# Bind the error handler, so we don't crash on errors
 			if @config.catchExceptions
 				process.setMaxListeners(0)
@@ -708,8 +727,8 @@ class DocPad extends EventEmitterEnhanced
 			metaBlock = new MetaCollection().add([
 				'<meta http-equiv="X-Powered-By" content="DocPad"/>'
 			])
-			scriptsBlock = new MetaCollection()
-			stylesBlock = new MetaCollection()
+			scriptsBlock = new ScriptsCollection()
+			stylesBlock = new StylesCollection()
 
 			# Apply Blocks
 			@setBlock('meta',metaBlock)
@@ -723,6 +742,7 @@ class DocPad extends EventEmitterEnhanced
 					airbrake = require('airbrake').createClient('e7374dd1c5a346efe3895b9b0c1c0325')
 				catch err
 					airbrake = false
+
 
 			# Version Check
 			@compareVersion()
@@ -746,12 +766,16 @@ class DocPad extends EventEmitterEnhanced
 	# Configuration
 
 	# Clean Resources
-	cleanResources: ->
+	# next(err)
+	cleanResources: (next) ->
 		# Perform a complete clean of our collections
 		@getDatabase().reset([])
 		@getBlock('meta').reset([])
 		@getBlock('scripts').reset([])
 		@getBlock('styles').reset([])
+
+		# Perform any plugin extensions to what we just cleaned
+		@emitSync('extendCollections',{},next)
 
 		# Chain
 		@
@@ -1528,8 +1552,9 @@ class DocPad extends EventEmitterEnhanced
 			return next(err)  if err
 			# After
 			docpad.emitSync 'contextualizeAfter', {collection}, (err) ->
+				return next(err)  if err
 				docpad.log 'debug', "Contextualized #{collection.length} files"
-				next()
+				return next()
 
 		# Fetch
 		collection.forEach (file) -> tasks.push (complete) ->
@@ -1561,8 +1586,9 @@ class DocPad extends EventEmitterEnhanced
 			return next(err)  if err
 			# After
 			docpad.emitSync 'renderAfter', {collection}, (err) ->
-				docpad.log 'debug', "Rendered #{collection.length} files"  unless err
-				return next(err)
+				return next(err)  if err
+				docpad.log 'debug', "Rendered #{collection.length} files"
+				return next()
 
 		# Push the render tasks
 		collection.forEach (file) -> tasks.push (complete) ->
@@ -1605,8 +1631,9 @@ class DocPad extends EventEmitterEnhanced
 			return next(err)  if err
 			# After
 			docpad.emitSync 'writeAfter', {collection}, (err) ->
-				docpad.log 'debug', "Wrote #{collection.length} files"  unless err
-				return next(err)
+				return next(err)  if err
+				docpad.log 'debug', "Wrote #{collection.length} files"
+				return next()
 
 		# Cycle
 		collection.forEach (file) -> tasks.push (complete) ->
@@ -1908,17 +1935,26 @@ class DocPad extends EventEmitterEnhanced
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
+		{rootPath,outPath} = @config
 
 		# Log
 		docpad.log 'debug', 'Cleaning files'
 
-		# Perform a complete clean of our collections
-		docpad.cleanResources()
+		# Clean collections
+		docpad.cleanResources (err) ->
+			# Check
+			return next(err)  if err
 
-		# Files
-		balUtil.rmdirDeep @config.outPath, (err,list,tree) ->
-			docpad.log 'debug', 'Cleaned files'  unless err
-			return next()
+			# Clean files
+			# but only if our outPath is not a parent of our rootPath
+			if rootPath.indexOf(outPath) is -1
+				# our outPath is higher than our root path, so do not remove files
+				return next()
+			else
+				# our outPath is not related or lower than our root path, so do remove it
+				balUtil.rmdirDeep @config.outPath, (err,list,tree) ->
+					docpad.log 'debug', 'Cleaned files'  unless err
+					return next()
 
 		# Chain
 		@
@@ -1928,6 +1964,7 @@ class DocPad extends EventEmitterEnhanced
 	# Generate
 
 	# Generate Prepare
+	# next(err)
 	generatePrepare: (opts,next) ->
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
@@ -1946,6 +1983,7 @@ class DocPad extends EventEmitterEnhanced
 		@
 
 	# Generate Check
+	# next(err)
 	generateCheck: (opts,next) ->
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
@@ -1970,21 +2008,20 @@ class DocPad extends EventEmitterEnhanced
 		@
 
 	# Generate Clean
+	# next(err)
 	generateClean: (opts,next) ->
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
 
 		# Perform a complete clean of our collections
-		docpad.cleanResources()
-
-		# Forward
-		next()
+		docpad.cleanResources(next)
 
 		# Chain
 		@
 
 	# Parse the files
+	# next(err)
 	generateParse: (opts,next) ->
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
@@ -2039,6 +2076,7 @@ class DocPad extends EventEmitterEnhanced
 		@
 
 	# Generate Render
+	# next(err)
 	generateRender: (opts,next) ->
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
@@ -2059,6 +2097,7 @@ class DocPad extends EventEmitterEnhanced
 		@
 
 	# Generate Postpare
+	# next(err)
 	generatePostpare: (opts,next) ->
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
@@ -2085,6 +2124,7 @@ class DocPad extends EventEmitterEnhanced
 	lastGenerate: null
 
 	# Generate
+	# next(err)
 	generate: (opts,next) ->
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
@@ -2614,12 +2654,15 @@ class DocPad extends EventEmitterEnhanced
 # =====================================
 # Export
 
-# Export API
+# Export
 module.exports =
+	# Modules
+	DocPad: DocPad
 	queryEngine: queryEngine
 	Backbone: Backbone
-	DocPad: DocPad
-	require: (path) ->
-		require(__dirname+'/'+path)
+
+	# Create Instance
+	# Wrapper for creating a DocPad instance
+	# good for future compatibility in case the API changes
 	createInstance: (args...) ->
 		return new DocPad(args...)

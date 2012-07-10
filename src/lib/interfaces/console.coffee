@@ -7,11 +7,11 @@ caterpillar = require('caterpillar')
 class ConsoleInterface
 
 	# Setup the CLI
-	constructor: ({@docpad,@program},next) ->
+	constructor: ({@docpad,@commander},next) ->
 		# Prepare
-		me = @
-		program = @program
+		me = consoleInterface = @
 		docpad = @docpad
+		commander = @commander
 
 		# Ensure our actions always have the scope of this instance
 		_.bindAll(@, 'run', 'server', 'skeleton', 'render', 'generate', 'watch', 'install', 'clean', 'info', 'cli', 'exit', 'help', 'actionCompleted', 'handleError')
@@ -19,7 +19,7 @@ class ConsoleInterface
 		# -----------------------------
 		# Global config
 
-		program
+		commander
 			.version(docpad.getVersion() or 'unknown')
 			.option(
 				'-d, --debug [logLevel]'
@@ -35,7 +35,7 @@ class ConsoleInterface
 		# Commands
 
 		# run
-		program
+		commander
 			.command('run')
 			.description('does everyting: skeleton, generate, watch, server')
 			.option(
@@ -52,7 +52,7 @@ class ConsoleInterface
 				me.run(me.actionCompleted)
 
 		# server
-		program
+		commander
 			.command('server')
 			.description('creates a server for your generated project')
 			.option(
@@ -65,7 +65,7 @@ class ConsoleInterface
 				me.server(me.actionCompleted)
 
 		# skeleton
-		program
+		commander
 			.command('skeleton')
 			.description('will create a new project in your cwd based off an existing skeleton')
 			.option(
@@ -77,7 +77,7 @@ class ConsoleInterface
 				me.skeleton(me.actionCompleted)
 
 		# render
-		program
+		commander
 			.command('render [path]')
 			.description("render the file at <path> and output its results to stdout")
 			.action (command) ->
@@ -85,7 +85,7 @@ class ConsoleInterface
 				me.render(me.actionCompleted)
 
 		# generate
-		program
+		commander
 			.command('generate')
 			.description("(re)generates your project")
 			.action (command) ->
@@ -93,7 +93,7 @@ class ConsoleInterface
 				me.generate(me.actionCompleted)
 
 		# watch
-		program
+		commander
 			.command('watch')
 			.description("watches your project for changes, and (re)generates whenever a change is made")
 			.action (command) ->
@@ -101,7 +101,7 @@ class ConsoleInterface
 				me.watch(me.actionCompleted)
 
 		# install
-		program
+		commander
 			.command('install')
 			.description("ensure everything is installed correctly")
 			.action (command) ->
@@ -109,7 +109,7 @@ class ConsoleInterface
 				me.install(me.actionCompleted)
 
 		# clean
-		program
+		commander
 			.command('clean')
 			.description("ensure everything is cleaned correctly (will remove your out directory)")
 			.action (command) ->
@@ -117,7 +117,7 @@ class ConsoleInterface
 				me.clean(me.actionCompleted)
 
 		# info
-		program
+		commander
 			.command('info')
 			.description("display the information about your docpad instance")
 			.action (command) ->
@@ -125,7 +125,7 @@ class ConsoleInterface
 				me.info(me.actionCompleted)
 
 		# cli
-		program
+		commander
 			.command('cli')
 			.description("start the interactive cli")
 			.action (command) ->
@@ -133,7 +133,7 @@ class ConsoleInterface
 				me.cli(me.actionCompleted)
 
 		# exit
-		program
+		commander
 			.command('exit')
 			.description("exit the interactive cli")
 			.action (command) ->
@@ -141,7 +141,7 @@ class ConsoleInterface
 				me.exit(me.actionCompleted)
 
 		# help
-		program
+		commander
 			.command('help')
 			.description("output the help")
 			.action (command) ->
@@ -149,17 +149,17 @@ class ConsoleInterface
 				me.help(me.actionCompleted)
 
 		# unknown
-		program
+		commander
 			.command('*')
 			.description("anything else ouputs the help")
 			.action ->
-				program.emit 'help', []
+				commander.emit 'help', []
 
 		# -----------------------------
 		# Finish Up
 
 		# Plugins
-		docpad.emitSync 'consoleSetup', {interface:@,program}, (err) ->
+		docpad.emitSync 'consoleSetup', {consoleInterface,commander}, (err) ->
 			return handleError(err)  if err
 			next?(null,me)
 
@@ -169,12 +169,12 @@ class ConsoleInterface
 
 	# Start the CLI
 	start: (argv) ->
-		@program.parse(argv or process.argv)
+		@commander.parse(argv or process.argv)
 		@
 
-	# Get the program
-	getProgram: ->
-		@program
+	# Get the commander
+	getcommander: ->
+		@commander
 
 	# Handle Error
 	handleError: (err) ->
@@ -193,7 +193,7 @@ class ConsoleInterface
 	actionCompleted: (err) ->
 		# Prepare
 		docpad = @docpad
-		program = @program
+		commander = @commander
 
 		# Handle the error
 		if err
@@ -202,9 +202,9 @@ class ConsoleInterface
 			docpad.log('info', "The action completed successfully")
 
 		# Exit or return to cli
-		if program.mode is 'cli'
+		if commander.mode is 'cli'
 			console.log('')
-			program.emit('cli', [])
+			commander.emit('cli', [])
 
 		# Chain
 		@
@@ -213,15 +213,15 @@ class ConsoleInterface
 	applyConfiguration: (customConfig={}) ->
 		# Prepare
 		docpad = @docpad
-		program = @program
-		programConfig = @program
+		commander = @commander
+		commanderConfig = @commander
 
-		# Apply program configuration
-		if programConfig.debug
-			programConfig.debug = 7  if programConfig.debug is true
-			docpad.setLogLevel(programConfig.debug)
-			delete programConfig.debug
-		for own key, value of programConfig
+		# Apply commander configuration
+		if commanderConfig.debug
+			commanderConfig.debug = 7  if commanderConfig.debug is true
+			docpad.setLogLevel(commanderConfig.debug)
+			delete commanderConfig.debug
+		for own key, value of commanderConfig
 			if docpad.config[key]?
 				docpad.config[key] = value
 
@@ -252,7 +252,7 @@ class ConsoleInterface
 	# Select a skeleton
 	selectSkeletonCallback: (skeletonsCollection,next) =>
 		# Prepare
-		program = @program
+		commander = @commander
 		docpad = @docpad
 		skeletonNames = []
 
@@ -275,7 +275,7 @@ class ConsoleInterface
 		console.log cliColor.bold '''
 			Which skeleton will you use?
 			'''
-		program.choose skeletonNames, (i) ->
+		commander.choose skeletonNames, (i) ->
 			return next(null, skeletonsCollection.at(i))
 
 		# Chain
@@ -288,18 +288,18 @@ class ConsoleInterface
 	cli: (next) ->
 		# Prepare
 		@welcome()
-		program = @program
+		commander = @commander
 
 		# Handle
-		program.mode = 'cli'
-		program.promptSingleLine 'What would you like to do now?\n> ',  (input) ->
+		commander.mode = 'cli'
+		commander.promptSingleLine 'What would you like to do now?\n> ',  (input) ->
 			args = input.split /\s+/g
 			if args.length
 				if args[0] is 'docpad'
 					args.shift()
 			args.unshift process.argv[0]
 			args.unshift process.argv[1]
-			program.parse(args)
+			commander.parse(args)
 
 	exit: ->
 		process.exit(0)
@@ -316,7 +316,7 @@ class ConsoleInterface
 		@welcome()
 
 		# Handle
-		console.log @program.helpInformation()
+		console.log @commander.helpInformation()
 		next()
 
 	info: (next) ->
@@ -338,11 +338,11 @@ class ConsoleInterface
 		# Prepare
 		docpad = @docpad
 		docpad.setLogLevel(5)  unless docpad.getLogLevel() is 7
-		program = @program
+		commander = @commander
 		opts = {}
 
 		# Prepare filename
-		filename = program.args[0] or null
+		filename = commander.args[0] or null
 		if !filename or filename.split('.').length <= 2 # [name,ext,ext] = 3 parts
 			opts.renderSingleExtensions = true
 		opts.filename = filename

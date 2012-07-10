@@ -1,5 +1,10 @@
 ## History
 
+- v6.2.0 July 10, 2012
+	- Dropped node v0.4 support, min required version is now v0.6
+	- Made npm dependency optional
+	- Added
+
 - v6.1.3 July 8, 2012
 	- Fixed `extendTemplateData` event firing before our plugins have finished loading
 
