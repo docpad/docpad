@@ -1,6 +1,6 @@
 {
 	"name": "docpad",
-	"version": "6.1.3",
+	"version": "6.2.0",
 	"description": "DocPad is a language agnostic document management system. This means you write your website as documents, in whatever language you wish, and DocPad will handle the compiling, templates and layouts for you. For static documents it will generate static files, for dynamic documents it'll re-render them on each request. You can utilise DocPad by itself, or use it as a module your own custom system. It's pretty cool, and well worth checking out. We love it.",
 	"homepage": "https://github.com/bevry/docpad",
 	"keywords": [
@@ -32,7 +32,8 @@
 		"url": "http://github.com/bevry/docpad.git"
 	},
 	"engines" : {
-		"node": ">=0.4.0"
+		"node": ">=0.6.0",
+		"npm": ">=1.1.0"
 	},
 	"dependencies": {
 		"bal-util": "1.12.x",
@@ -46,12 +47,13 @@
 		"coffee-script": "1.3.x",
 		"cson": "1.2.x",
 		"underscore": "1.3.x",
-		"npm": ">=1.0.x",
 		"semver": "1.0.x",
+		"npm": ">=1.1.0",
 		"growl": "1.4.x",
 		"airbrake": "0.2.x"
 	},
 	"optionalDependencies": {
+		"npm": ">=1.1.0",
 		"growl": "1.4.x",
 		"airbrake": "0.2.x"
 	},
@@ -69,5 +71,5 @@
 	"scripts": {
 		"test": "node ./out/test/docpad.test.js"
 	},
-	"main": "./out/lib/docpad.js"
+	"main": "./out/main.js"
 }

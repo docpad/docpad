@@ -1,19 +1,19 @@
-# Necessary
+# Require
 DocPad = require(__dirname+'/../lib/docpad')
 ConsoleInterface = require(__dirname+'/../lib/interfaces/console')
 
-# Create Program
-program = require('commander')
+# Create Commander Instance
+commander = require('commander')
 
-# Create Instance
-docpad = DocPad.createInstance {}, (err) ->
+# Create DocPad Instance
+DocPad.createInstance (err,docpad) ->
 	# Check
-	throw err  if err
+	return console.log(err.stack)  if err
 
 	# Create Console Interface
-	new ConsoleInterface {docpad,program}, (err,consoleInterface) ->
+	new ConsoleInterface {docpad,commander}, (err,consoleInterface) ->
 		# Check
-		throw err  if err
+		return console.log(err.stack)  if err
 
 		# Start
 		consoleInterface.start()
