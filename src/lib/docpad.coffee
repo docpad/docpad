@@ -501,8 +501,7 @@ class DocPad extends EventEmitterEnhanced
 
 		# Max Age
 		# The caching time limit that is sent to the client
-		# Defaults to false if not on production, otherwise one day
-		maxAge: null
+		maxAge: false
 
 
 		# -----------------------------
@@ -527,10 +526,6 @@ class DocPad extends EventEmitterEnhanced
 		# -----------------------------
 		# Other
 
-		# Environment
-		# Whether or not we are in production or development
-		env: process.env.NODE_ENV or 'development'
-
 		# Node Path
 		# The location of our node executable
 		nodePath: null
@@ -554,8 +549,7 @@ class DocPad extends EventEmitterEnhanced
 
 		# Check Version
 		# Whether or not to check for newer versions of DocPad
-		# Defaults to true if not on production, otherwise false
-		checkVersion: null
+		checkVersion: true
 
 		# Collections
 		# A hash of functions that create collections
@@ -564,6 +558,21 @@ class DocPad extends EventEmitterEnhanced
 		# Events
 		# A hash of event handlers
 		events: null  # {}
+
+
+		# -----------------------------
+		# Environment Configuration
+
+		# Environment
+		# Whether or not we are in production or development
+		env: process.env.NODE_ENV or 'development'
+
+		# Environments
+		# Environment specific configuration to over-ride the global configuration
+		environments:
+			production:
+				checkVersion: false
+				maxAge: 86400000
 
 
 	# Get Environment
