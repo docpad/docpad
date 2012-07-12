@@ -173,7 +173,7 @@ class ConsoleInterface
 		@
 
 	# Get the commander
-	getcommander: ->
+	getCommander: ->
 		@commander
 
 	# Handle Error

@@ -1,4 +1,14 @@
 module.exports = {
+	environments:
+		development:
+			a: 'websiteConfig'
+			b: 'websiteConfig'
+			c: 'websiteConfig'
+			templateData:
+				a: 'websiteConfig'
+				b: 'websiteConfig'
+				c: 'websiteConfig'
+
 	templateData:
 		require: require
 
