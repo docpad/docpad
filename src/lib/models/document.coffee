@@ -378,7 +378,6 @@ class DocumentModel extends FileModel
 					return next(err)
 				# Not Found
 				else unless layout
-					debugger
 					err = new Error "Could not find the specified layout: #{layoutId}"
 					return next(err)
 				# Found
