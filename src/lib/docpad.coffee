@@ -394,9 +394,22 @@ class DocPad extends EventEmitterEnhanced
 	# -----------------------------
 	# Configuration
 
-	# Get the Configuration
-	getConfig: ->
-		@config
+	# Get Environment
+	# Shortcut for getting the configured/determined environment
+	getEnvironment: ->
+		return @config.env
+
+	# Get the environment configuration
+	getEnvironmentConfig: (env) ->
+		env ?= @getEnvironment()
+		config = @config.environments[env] or {}
+		return config
+
+	# Get the Configuration merged with the Environment Configuration
+	getConfig: (env) ->
+		environmentConfig = @getEnvironmentConfig(env)
+		config = balUtil.extend({},@config,environmentConfig)
+		return config
 
 	# Initial Configuration
 	initConfig: null
@@ -575,12 +588,6 @@ class DocPad extends EventEmitterEnhanced
 				maxAge: 86400000
 
 
-	# Get Environment
-	# Shortcut for getting the configured/determined environment
-	getEnvironment: ->
-		return @config.env
-
-
 	# =================================
 	# Initialization Functions
 
@@ -656,11 +663,6 @@ class DocPad extends EventEmitterEnhanced
 		@action 'load', (err) =>
 			# Error?
 			return @fatal(err)  if err
-
-
-			# Environment specific configuration
-			@config.checkVersion ?= if @config.env is 'production' then true else false
-			@config.maxAge ?= if @config.env is 'production' then 86400000 else false
 
 
 			# Bind the error handler, so we don't crash on errors
