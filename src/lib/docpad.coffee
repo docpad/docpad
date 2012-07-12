@@ -610,7 +610,6 @@ class DocPad extends EventEmitterEnhanced
 			@config.env = @instanceConfig.env or @websiteConfig.env or @websitePackageConfig.env or @initialConfig.env
 
 			# Merge configuration
-			debugger
 			balUtil.deepExtendPlainObjects(
 				@config
 				@initialConfig
@@ -2605,7 +2604,6 @@ class DocPad extends EventEmitterEnhanced
 							# Prepare
 							pageUrl = req.url.replace(/\?.*/,'')
 							document = database.findOne(urls: $has: pageUrl)
-							console.log('\n\n=========================================\n', pageUrl, document.id, document.get('urls'))
 							return next()  unless document
 
 							# Check if we are the desired url
