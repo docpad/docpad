@@ -36,7 +36,7 @@
 		"npm": ">=1.1.0"
 	},
 	"dependencies": {
-		"bal-util": ">=1.12.3 <1.13",
+		"bal-util": ">=1.12.4 <1.13",
 		"express": "2.5.x",
 		"mime": "1.2.x",
 		"query-engine": "1.2.x",
@@ -64,7 +64,8 @@
 		"lib": "./out/lib"
 	},
 	"bin": {
-		"docpad": "./bin/docpad"
+		"docpad": "./bin/docpad",
+		"docpad-server": "./bin/docpad-server"
 	},
 	"scripts": {
 		"test": "node ./out/test/docpad.test.js"

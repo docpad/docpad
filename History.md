@@ -1,9 +1,21 @@
 ## History
 
 - v6.2.0 July 10, 2012
-	- Dropped node v0.4 support, min required version is now v0.6
-	- Made npm dependency optional
-	- Added
+	- Dropped node v0.4 support
+		- Minimum required version is now 0.6
+	- Dropped `npm` dependency
+	- Configuration merging now deep extends plain javascript objects
+	- Added environment specific configuration support
+		- By default we use `process.env.NODE_ENV` for the environment, falling back to `development`
+		- Specify your environment specific configuration in `environments[env]`
+		- By default, our production environment sets `maxAge` to one day, and `checkVersion` to false
+		- Use `getEnvironment` to get the current environment
+	- Added new `extendCollections` event
+	- Added check during clean action to ensure we don't remove outPath if it is higher than our rootPath
+	- Added `docpad-server` binary to shortcut heroku deployment
+	- Scripts collection now supports adding plaintext javascript
+	- `consoleSetup` options are now `consoleInterface` and `commander` instead of `interface` and `program`
+	- DocPad's main file is now `out/main.coffee` and the exported `require` is now limited to files in the `out` directory (not higher)
 
 - v6.1.3 July 8, 2012
 	- Fixed `extendTemplateData` event firing before our plugins have finished loading

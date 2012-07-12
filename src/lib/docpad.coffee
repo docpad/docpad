@@ -606,34 +606,21 @@ class DocPad extends EventEmitterEnhanced
 		preTasks = new balUtil.Group (err) =>
 			return next(err)  if err
 
-			# Merge Configuration (not deep!)
-			balUtil.extend(
+			# Get environment
+			@config.env = @instanceConfig.env or @websiteConfig.env or @websitePackageConfig.env or @initialConfig.env
+
+			# Merge configuration
+			debugger
+			balUtil.deepExtendPlainObjects(
 				@config
 				@initialConfig
+				@initialConfig.environments?[@config.env] or {}
 				@websitePackageConfig
+				@websitePackageConfig.environments?[@config.env] or {}
 				@websiteConfig
+				@websiteConfig.environments?[@config.env] or {}
 				@instanceConfig
-			)
-
-			# Merge in the environment configuration
-			balUtil.extend(@config,@config.environments[@config.env] or {})
-
-			# Merge enabled plugins
-			@config.enabledPlugins = balUtil.extend(
-				{}
-				@initialConfig.enabledPlugins or {}
-				@websitePackageConfig.enabledPlugins or {}
-				@websiteConfig.enabledPlugins or {}
-				@instanceConfig.enabledPlugins or {}
-			)
-
-			# Merge template data
-			@config.templateData = balUtil.extend(
-				{}
-				@initialConfig.templateData or {}
-				@websitePackageConfig.templateData or {}
-				@websiteConfig.templateData or {}
-				@instanceConfig.templateData or {}
+				@instanceConfig.environments?[@config.env] or {}
 			)
 
 			# Extract and apply the server
@@ -2617,7 +2604,8 @@ class DocPad extends EventEmitterEnhanced
 
 							# Prepare
 							pageUrl = req.url.replace(/\?.*/,'')
-							document = database.findOne(urls: '$in': pageUrl)
+							document = database.findOne(urls: $has: pageUrl)
+							console.log('\n\n=========================================\n', pageUrl, document.id, document.get('urls'))
 							return next()  unless document
 
 							# Check if we are the desired url

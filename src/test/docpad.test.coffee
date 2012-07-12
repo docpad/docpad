@@ -26,6 +26,13 @@ docpadConfig =
 	logLevel: if process.env.TRAVIS_NODE_VERSION? then 7 else 5
 	skipUnsupportedPlugins: false
 	catchExceptions: false
+	environments:
+		development:
+			a: 'instanceConfig'
+			b: 'instanceConfig'
+			templateData:
+				a: 'instanceConfig'
+				b: 'instanceConfig'
 
 # Fail on an uncaught error
 process.on 'uncaughtException', (err) ->
@@ -44,6 +51,19 @@ joe.suite 'docpad-core', (suite,test) ->
 	test 'create', (done) ->
 		docpad = DocPad.createInstance docpadConfig, (err) ->
 			done(err)
+
+	test 'config', (done) ->
+		expected = {a:'instanceConfig',b:'instanceConfig',c:'websiteConfig'}
+
+		config = docpad.getConfig()
+		{a,b,c} = config
+		expect({a,b,c}).to.deep.equal(expected)
+
+		templateData = docpad.getTemplateData()
+		{a,b,c} = templateData
+		expect({a,b,c}).to.deep.equal(expected)
+
+		done()
 
 	test 'clean', (done) ->
 		docpad.action 'clean', (err) ->
