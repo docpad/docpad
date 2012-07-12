@@ -273,10 +273,26 @@ class DocPad extends EventEmitterEnhanced
 
 
 	# -----------------------------
+	# Paths
+
+	# The DocPad directory
+	corePath: pathUtil.join(__dirname, '..', '..')
+
+	# The DocPad library directory
+	libPath: __dirname
+
+	# The main DocPad file
+	mainPath: pathUtil.join(__dirname, 'docpad')
+
+	# The DocPad package.json path
+	packagePath: pathUtil.join(__dirname, '..', '..', 'package.json')
+
+
+	# -----------------------------
 	# Template Data
 
 	# DocPad's Template Data
-	templateData: null  # {}
+	initialTemplateData: null  # {}
 
 	# Plugin's Extended Template Data
 	pluginsTemplateData: null  # {}
@@ -288,7 +304,7 @@ class DocPad extends EventEmitterEnhanced
 		docpad = @
 
 		# Set the initial docpad template data
-		@templateData ?=
+		@initialTemplateData ?=
 			# Site Properties
 			site: {}
 
@@ -359,7 +375,7 @@ class DocPad extends EventEmitterEnhanced
 					throw err
 
 		# Fetch our result template data
-		templateData = _.extend({}, @templateData, @pluginsTemplateData, @config.templateData, userTemplateData)
+		templateData = balUtil.extend({}, @initialTemplateData, @pluginsTemplateData, @config.templateData, userTemplateData)
 
 		# Add site data
 		templateData.site.date or= new Date()
@@ -371,57 +387,29 @@ class DocPad extends EventEmitterEnhanced
 		templateData
 
 
-
-	# -----------------------------
-	# Paths
-
-	# The DocPad directory
-	corePath: pathUtil.join(__dirname, '..', '..')
-
-	# The DocPad library directory
-	libPath: __dirname
-
-	# The main DocPad file
-	mainPath: pathUtil.join(__dirname, 'docpad')
-
-	# The DocPad package.json path
-	packagePath: pathUtil.join(__dirname, '..', '..', 'package.json')
-
-	# The DocPad local NPM path
-	npmPath: pathUtil.join(__dirname, '..', '..', 'node_modules', 'npm', 'bin', 'npm-cli.js')
-
-
 	# -----------------------------
 	# Configuration
 
-	# Get Environment
-	# Shortcut for getting the configured/determined environment
-	getEnvironment: ->
-		return @config.env
+	# Merged Configuration
+	# Merged in the order of:
+	# - initialConfig
+	# - websitePackageConfig
+	# - websiteConfig
+	# - instanceConfig
+	# - environmentConfig
+	config: null  # {}
 
-	# Get the environment configuration
-	getEnvironmentConfig: (env) ->
-		env ?= @getEnvironment()
-		config = @config.environments[env] or {}
-		return config
+	# Instance Configuration
+	instanceConfig: null  # {}
 
-	# Get the Configuration merged with the Environment Configuration
-	getConfig: (env) ->
-		environmentConfig = @getEnvironmentConfig(env)
-		config = balUtil.extend({},@config,environmentConfig)
-		return config
+	# Website Configuration
+	websiteConfig: null  # {}
+
+	# Website Package Configuration
+	websitePackageConfig: null  # {}
 
 	# Initial Configuration
-	initConfig: null
-
-	###
-	Instance Configuration
-	Loaded from:
-		- the passed instanceConfiguration when creating a new DocPad instance
-		- the detected websiteConfiguration inside ./docpad.cson>docpad
-		- the following configuration
-	###
-	config:
+	initialConfig:
 
 		# -----------------------------
 		# Plugins
@@ -433,13 +421,13 @@ class DocPad extends EventEmitterEnhanced
 		enableUnlistedPlugins: true
 
 		# Plugins which should be enabled or not pluginName: pluginEnabled
-		enabledPlugins: null  # {}
+		enabledPlugins: {}
 
 		# Whether or not we should skip unsupported plugins
 		skipUnsupportedPlugins: true
 
 		# Configuration to pass to any plugins pluginName: pluginConfiguration
-		plugins: null  # {}
+		plugins: {}
 
 		# Where to fetch the exchange information from
 		exchangeUrl: 'https://raw.github.com/bevry/docpad-extras/docpad-6.x/exchange.json'
@@ -449,7 +437,7 @@ class DocPad extends EventEmitterEnhanced
 		# Website Paths
 
 		# The website directory
-		rootPath: '.'
+		rootPath: process.cwd()
 
 		# The website's package.json path
 		packagePath: 'package.json'
@@ -539,6 +527,10 @@ class DocPad extends EventEmitterEnhanced
 		# -----------------------------
 		# Other
 
+		# NPM Path
+		# The location of our npm executable
+		npmPath: null
+
 		# Node Path
 		# The location of our node executable
 		nodePath: null
@@ -554,7 +546,7 @@ class DocPad extends EventEmitterEnhanced
 
 		# Template Data
 		# What data would you like to expose to your templates
-		templateData: null  # {}
+		templateData: {}
 
 		# Report Errors
 		# Whether or not we should report our errors back to DocPad
@@ -566,11 +558,11 @@ class DocPad extends EventEmitterEnhanced
 
 		# Collections
 		# A hash of functions that create collections
-		collections: null  # {}
+		collections: {}
 
 		# Events
 		# A hash of event handlers
-		events: null  # {}
+		events: {}
 
 
 		# -----------------------------
@@ -587,15 +579,183 @@ class DocPad extends EventEmitterEnhanced
 				checkVersion: false
 				maxAge: 86400000
 
+	# Get Environment
+	getEnvironment: ->
+		return @config.env
+
+	# Get the Configuration
+	getConfig: ->
+		return @config
+
+	# Resolve the Configuration
+	# next(err,config)
+	resolveConfig: (instanceConfig,next) ->
+		# Prepare
+		docpad = @
+		instanceConfig or= {}
+
+		# Reset configurations
+		@websitePackageConfig = {}
+		@websiteConfig = {}
+		@config = {}
+
+		# Merge in the instance configurations
+		balUtil.extend(@instanceConfig,instanceConfig)
+
+		# Prepare the Load Tasks
+		preTasks = new balUtil.Group (err) =>
+			return next(err)  if err
+
+			# Merge Configuration (not deep!)
+			balUtil.extend(
+				@config
+				@initialConfig
+				@websitePackageConfig
+				@websiteConfig
+				@instanceConfig
+			)
+
+			# Merge in the environment configuration
+			balUtil.extend(@config,@config.environments[@config.env] or {})
+
+			# Merge enabled plugins
+			@config.enabledPlugins = balUtil.extend(
+				{}
+				@initialConfig.enabledPlugins or {}
+				@websitePackageConfig.enabledPlugins or {}
+				@websiteConfig.enabledPlugins or {}
+				@instanceConfig.enabledPlugins or {}
+			)
+
+			# Merge template data
+			@config.templateData = balUtil.extend(
+				{}
+				@initialConfig.templateData or {}
+				@websitePackageConfig.templateData or {}
+				@websiteConfig.templateData or {}
+				@instanceConfig.templateData or {}
+			)
+
+			# Extract and apply the server
+			@setServer(@config.server)  if @config.server
+
+			# Extract and apply the logger
+			@setLogger(@config.logger)  if @config.logger
+			@setLogLevel(@config.logLevel)
+
+			# Resolve any paths
+			@config.rootPath = pathUtil.resolve(@config.rootPath)
+			@config.outPath = pathUtil.resolve(@config.rootPath, @config.outPath)
+			@config.srcPath = pathUtil.resolve(@config.rootPath, @config.srcPath)
+
+			# Resolve Documents, Files, Layouts paths
+			for type in ['documents','files','layouts']
+				typePaths = @config[type+'Paths']
+				for typePath,key in typePaths
+					typePaths[key] = pathUtil.resolve(@config.srcPath,typePath)
+
+			# Resolve Plugins paths
+			for type in ['plugins']
+				typePaths = @config[type+'Paths']
+				for typePath,key in typePaths
+					typePaths[key] = pathUtil.resolve(@config.rootPath,typePath)
+
+			# Prepare the Post Tasks
+			postTasks = new balUtil.Group (err) =>
+				return next(err,@config)
+
+			# Get the git path
+			unless @config.gitPath?
+				postTasks.push (complete) =>
+					balUtil.getGitPath (err,gitPath) =>
+						return docpad.error(err)  if err
+						@config.gitPath = gitPath
+						complete()
+
+			# Get the node path
+			unless @config.nodePath?
+				postTasks.push (complete) =>
+					balUtil.getNodePath (err,nodePath) =>
+						return docpad.error(err)  if err
+						@config.nodePath = nodePath
+						complete()
+
+			# Load collections
+			postTasks.push (complete) ->
+				docpad.loadCollections(complete)
+
+			# Initialize
+			postTasks.push (complete) ->
+				docpad.loadPlugins(complete)
+
+			# Fetch plugins templateData
+			postTasks.push (complete) ->
+				docpad.emitSync 'extendTemplateData', {templateData:docpad.pluginsTemplateData,extend:balUtil.extend}, (err) ->
+					# Forward
+					return complete(err)
+
+			# Fire post tasks
+			postTasks.sync()
+
+		# Load DocPad's Package Configuration
+		preTasks.push (complete) =>
+			@loadConfigPath @packagePath, (err,data) =>
+				return complete(err)  if err
+				data or= {}
+
+				# Version
+				@version = data.version
+				airbrake.appVersion = data.version  if airbrake
+
+				# Done loading
+				complete()
+
+		# Load Website's Package Configuration
+		preTasks.push (complete) =>
+			rootPath = pathUtil.resolve(@instanceConfig.rootPath or @initialConfig.rootPath)
+			websitePackagePath = pathUtil.resolve(rootPath, @instanceConfig.packagePath or @initialConfig.packagePath)
+			@loadConfigPath websitePackagePath, (err,data) =>
+				return complete(err)  if err
+				data or= {}
+				data.docpad or= {}
+
+				# Apply loaded data
+				balUtil.extend(@websitePackageConfig, data.docpad)
+
+				# Done loading
+				complete()
+
+		# Load Website's Configuration
+		preTasks.push (complete) =>
+			rootPath = pathUtil.resolve(@instanceConfig.rootPath or @websitePackageConfig.rootPath or @initialConfig.rootPath)
+			configPaths = @instanceConfig.configPaths or @websitePackageConfig.configPaths or @initialConfig.configPaths
+			for configPath, index in configPaths
+				configPaths[index] = pathUtil.resolve(rootPath, configPath)
+			@loadConfigPaths configPaths, (err,data) =>
+				return complete(err)  if err
+				data or= {}
+
+				# Apply loaded data
+				balUtil.extend(@websiteConfig, data)
+
+				# Done loading
+				complete()
+
+		# Run the load tasks synchronously
+		preTasks.sync()
+
+		# Chain
+		@
+
 
 	# =================================
 	# Initialization Functions
 
 	# Construct DocPad
 	# next(err)
-	constructor: (opts,next) ->
+	constructor: (instanceConfig,next) ->
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[instanceConfig,next] = balUtil.extractOptsAndCallback(instanceConfig,next)
 		docpad = @
 
 		# Ensure certain functions always have the scope of this instance
@@ -637,6 +797,7 @@ class DocPad extends EventEmitterEnhanced
 			docpad.log.apply(@,args)
 
 		# Dereference and initialise advanced variables
+		# we deliberately ommit initialTemplateData here, as it is setup in getTemplateData
 		@slowPlugins = {}
 		@foundPlugins = {}
 		@loadedPlugins = {}
@@ -644,29 +805,19 @@ class DocPad extends EventEmitterEnhanced
 		@collections = {}
 		@blocks = {}
 		@pluginsTemplateData = {}
-		@config = _.clone(@config)
-		@config.enabledPlugins = {}
-		@config.plugins = {}
-		@config.templateData = {}
-		@config.collections = {}
-		@config.documentsPaths = @config.documentsPaths.slice()
-		@config.filesPaths = @config.filesPaths.slice()
-		@config.layoutsPaths = @config.layoutsPaths.slice()
-		@config.pluginPaths = @config.pluginPaths.slice()
-		@config.pluginsPaths = @config.pluginsPaths.slice()
+		@instanceConfig = {}
+		@initialConfig = balUtil.dereference(@initialConfig)
 
 		# Initialize the collections
 		@database = new FilesCollection()
 
 		# Apply and load configuration
-		@initConfig = opts or {}
-		@action 'load', (err) =>
+		@action 'load', instanceConfig, (err,config) =>
 			# Error?
 			return @fatal(err)  if err
 
-
 			# Bind the error handler, so we don't crash on errors
-			if @config.catchExceptions
+			if config.catchExceptions
 				process.setMaxListeners(0)
 				process.on 'uncaughtException', (err) ->
 					docpad.error(err)
@@ -676,7 +827,7 @@ class DocPad extends EventEmitterEnhanced
 				.setQuery('isDocument', {
 					$or:
 						isDocument: true
-						fullPath: $startsWith: @config.documentsPaths
+						fullPath: $startsWith: config.documentsPaths
 				})
 				.on('add', (model) ->
 					docpad.log('debug', "Adding document: #{model.attributes.fullPath}")
@@ -690,7 +841,7 @@ class DocPad extends EventEmitterEnhanced
 				.setQuery('isFile', {
 					$or:
 						isFile: true
-						fullPath: $startsWith: @config.filesPaths
+						fullPath: $startsWith: config.filesPaths
 				})
 				.on('add', (model) ->
 					docpad.log('debug', "Adding file: #{model.attributes.fullPath}")
@@ -704,7 +855,7 @@ class DocPad extends EventEmitterEnhanced
 				.setQuery('isLayout', {
 					$or:
 						isLayout: true
-						fullPath: $startsWith: @config.layoutsPaths
+						fullPath: $startsWith: config.layoutsPaths
 				})
 				.on('add', (model) ->
 					docpad.log('debug', "Adding layout: #{model.attributes.fullPath}")
@@ -748,7 +899,7 @@ class DocPad extends EventEmitterEnhanced
 
 
 			# Load Airbrake if we want to reportErrors
-			if @config.reportErrors and /win/.test(process.platform) is false
+			if config.reportErrors and /win/.test(process.platform) is false
 				try
 					airbrake = require('airbrake').createClient('e7374dd1c5a346efe3895b9b0c1c0325')
 				catch err
@@ -904,7 +1055,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err,results)
 	initNodeModules: (opts={}) ->
 		# Prepare
-		opts.npmPath ?= @npmPath
+		opts.npmPath ?= @config.npmPath
 		opts.nodePath ?= @config.nodePath
 		opts.force ?= @config.force
 		opts.output ?= @getDebugging()
@@ -1020,7 +1171,7 @@ class DocPad extends EventEmitterEnhanced
 	createFile: (data={},options={}) ->
 		# Prepare
 		docpad = @
-		options = _.extend(
+		options = balUtil.extend(
 			outDirPath: @config.outPath
 		,options)
 
@@ -1042,7 +1193,7 @@ class DocPad extends EventEmitterEnhanced
 	createDocument: (data={},options={}) ->
 		# Prepare
 		docpad = @
-		options = _.extend(
+		options = balUtil.extend(
 			outDirPath: @config.outPath
 		,options)
 
@@ -1760,158 +1911,14 @@ class DocPad extends EventEmitterEnhanced
 	# Setup and Loading
 
 	# Load Configuration
-	# next(err)
+	# next(err,config)
 	load: (opts,next) ->
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
 
-		# Prepare
-		@config.rootPath = pathUtil.resolve(@config.rootPath or process.cwd())
-		instanceConfig = _.extend({},@initConfig,opts)
-		websitePackageConfig = {}
-		websiteConfig = {}
-
-		# Async
-		preTasks = new balUtil.Group (err) =>
-			return next(err)  if err
-
-			# Merge Configuration (not deep!)
-			config = _.extend(
-				{}
-				@config
-				websitePackageConfig
-				websiteConfig
-				instanceConfig
-			)
-
-			# Merge enabled plugins
-			config.enabledPlugins = _.extend(
-				{}
-				@config.enabledPlugins or {}
-				websitePackageConfig.enabledPlugins or {}
-				websiteConfig.enabledPlugins or {}
-				instanceConfig.enabledPlugins or {}
-			)
-
-			# Merge template data
-			config.templateData = _.extend(
-				{}
-				@config.templateData or {}
-				websitePackageConfig.templateData or {}
-				websiteConfig.templateData or {}
-				instanceConfig.templateData or {}
-			)
-
-			# Apply merged configuration
-			@config = config
-
-			# Options
-			@setServer(@config.server)  if @config.server
-
-			# Noramlize and resolve the configuration paths
-			@config.rootPath = pathUtil.normalize(@config.rootPath or process.cwd())
-			@config.outPath = pathUtil.resolve(@config.rootPath, @config.outPath)
-			@config.srcPath = pathUtil.resolve(@config.rootPath, @config.srcPath)
-
-			# Documents, Files, Layouts paths
-			for type in ['documents','files','layouts']
-				typePaths = @config[type+'Paths']
-				for typePath,key in typePaths
-					typePaths[key] = pathUtil.resolve(@config.srcPath,typePath)
-
-			# Plugins paths
-			for type in ['plugins']
-				typePaths = @config[type+'Paths']
-				for typePath,key in typePaths
-					typePaths[key] = pathUtil.resolve(@config.rootPath,typePath)
-
-			# Logger
-			@setLogger(@config.logger)  if @config.logger
-			@setLogLevel(@config.logLevel)
-
-			# Async
-			postTasks = new balUtil.Group (err) =>
-				return next(err)
-
-			# Load collections
-			postTasks.push (complete) ->
-				docpad.loadCollections(complete)
-
-			# Initialize
-			postTasks.push (complete) ->
-				docpad.loadPlugins(complete)
-
-			# Fetch plugins templateData
-			postTasks.push (complete) ->
-				docpad.emitSync 'extendTemplateData', {templateData:docpad.pluginsTemplateData,extend:balUtil.extend}, (err) ->
-					# Forward
-					return complete(err)
-
-			# Fire post tasks
-			postTasks.sync()
-
-		# Load DocPad Configuration
-		preTasks.push (complete) =>
-			@loadConfigPath @packagePath, (err,data) ->
-				return complete(err)  if err
-				data or= {}
-
-				# Version
-				docpad.version = data.version
-				airbrake.appVersion = docpad.version  if airbrake
-
-				# Compelte the loading
-				complete()
-
-		# Load Website Package Configuration
-		preTasks.push (complete) =>
-			rootPath = instanceConfig.rootPath or @config.rootPath
-			websitePackagePath = pathUtil.resolve(rootPath, instanceConfig.packagePath or @config.packagePath)
-			@loadConfigPath websitePackagePath, (err,data) ->
-				return complete(err)  if err
-				data or= {}
-
-				# Apply data to parent scope
-				websitePackageConfig = data.docpad or {}
-
-				# Compelte the loading
-				complete()
-
-		# Load Website Configuration
-		preTasks.push (complete) =>
-			rootPath = instanceConfig.rootPath or websitePackageConfig.rootPath or @config.rootPath
-			configPaths = instanceConfig.configPaths or websitePackageConfig.configPaths or @config.configPaths
-			for configPath, index in configPaths
-				configPaths[index] = pathUtil.resolve(rootPath, configPath)
-			@loadConfigPaths configPaths, (err,data) ->
-				return complete(err)  if err
-				data or= {}
-
-				# Apply data to parent scope
-				websiteConfig = data
-
-				# Compelte the loading
-				complete()
-
-		# Get the git path
-		unless @config.gitPath?
-			preTasks.push (complete) ->
-				balUtil.getGitPath (err,gitPath) ->
-					return docpad.error(err)  if err
-					docpad.config.gitPath = gitPath
-					complete()
-
-		# Get the node path
-		unless @config.nodePath?
-			preTasks.push (complete) ->
-				balUtil.getNodePath (err,nodePath) ->
-					return docpad.error(err)  if err
-					docpad.config.nodePath = nodePath
-					complete()
-
-		# Run the load tasks synchronously
-		preTasks.sync()
+		# Resolve the configuration
+		@resolveConfig(opts,next)
 
 		# Chain
 		@
