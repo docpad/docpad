@@ -53,11 +53,11 @@ At its core DocPad is a language agnostic document management system. This means
 1. Install DocPad
 
 	``` bash
-	[sudo] npm install -g -f docpad@6.1
+	[sudo] npm install -g -f docpad@6.2
 	[sudo] docpad install
 	```
 
-1. If you also want growl notifications (OSX), then install [the growl command line tool here](http://growl.cachefly.net/GrowlNotify-1.3.zip)
+1. If you also want growl notifications (OSX), then download and install the `GrowlNotify` tool from the [Growl Download Page](http://growl.info/downloads)
 
 _Getting errors? [Try troubleshooting](https://github.com/bevry/docpad/wiki/Troubleshooting)_
 
