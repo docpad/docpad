@@ -570,6 +570,7 @@ class DocPad extends EventEmitterEnhanced
 
 		# Environment
 		# Whether or not we are in production or development
+		# Separate environments using a comma or a space
 		env: process.env.NODE_ENV or 'development'
 
 		# Environments
@@ -579,9 +580,14 @@ class DocPad extends EventEmitterEnhanced
 				checkVersion: false
 				maxAge: 86400000
 
+
 	# Get Environment
 	getEnvironment: ->
 		return @config.env
+
+	# Get Environments
+	getEnvironments: (env) ->
+		return (env ? @getEnvironment()).split(/[, ]+/)
 
 	# Get the Configuration
 	getConfig: ->
@@ -606,21 +612,19 @@ class DocPad extends EventEmitterEnhanced
 		preTasks = new balUtil.Group (err) =>
 			return next(err)  if err
 
-			# Get environment
+			# Get environments
 			@config.env = @instanceConfig.env or @websiteConfig.env or @websitePackageConfig.env or @initialConfig.env
+			envs = @getEnvironments(@config.env)
 
-			# Merge configuration
-			balUtil.deepExtendPlainObjects(
-				@config
-				@initialConfig
-				@initialConfig.environments?[@config.env] or {}
-				@websitePackageConfig
-				@websitePackageConfig.environments?[@config.env] or {}
-				@websiteConfig
-				@websiteConfig.environments?[@config.env] or {}
-				@instanceConfig
-				@instanceConfig.environments?[@config.env] or {}
-			)
+			# Merge configurations
+			configPackages = [@initialConfig, @websitePackageConfig, @websiteConfig, @instanceConfig]
+			configsToMerge = [@config]
+			for configPackage in configPackages
+				configsToMerge.push(configPackage)
+				for env in envs
+					envConfig = configPackage.environments?[@config.env]
+					configsToMerge.push(envConfig)  if envConfig
+			balUtil.deepExtendPlainObjects(configsToMerge...)
 
 			# Extract and apply the server
 			@setServer(@config.server)  if @config.server
@@ -872,16 +876,14 @@ class DocPad extends EventEmitterEnhanced
 
 
 			# Blocks
-			metaBlock = new MetaCollection().add([
-				'<meta http-equiv="X-Powered-By" content="DocPad"/>'
-			])
+			metaBlock = new MetaCollection()
 			scriptsBlock = new ScriptsCollection()
 			stylesBlock = new StylesCollection()
 
 			# Apply Blocks
-			@setBlock('meta',metaBlock)
-			@setBlock('scripts',scriptsBlock)
-			@setBlock('styles',stylesBlock)
+			@setBlock('meta', metaBlock)
+			@setBlock('scripts', scriptsBlock)
+			@setBlock('styles', stylesBlock)
 
 
 			# Load Airbrake if we want to reportErrors
@@ -897,7 +899,7 @@ class DocPad extends EventEmitterEnhanced
 
 
 			# Log
-			@log 'debug', 'DocPad loaded succesfully'
+			@log 'debug', 'DocPad loaded succesfully, using environment: #{@getEnvironment()}'
 			@log 'debug', 'Loaded the following plugins:', _.keys(@loadedPlugins).sort().join(', ')
 
 
@@ -918,7 +920,9 @@ class DocPad extends EventEmitterEnhanced
 	cleanResources: (next) ->
 		# Perform a complete clean of our collections
 		@getDatabase().reset([])
-		@getBlock('meta').reset([])
+		@getBlock('meta').reset([]).add([
+			'<meta http-equiv="X-Powered-By" content="DocPad"/>'
+		])
 		@getBlock('scripts').reset([])
 		@getBlock('styles').reset([])
 

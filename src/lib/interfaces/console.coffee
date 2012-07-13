@@ -22,6 +22,10 @@ class ConsoleInterface
 		commander
 			.version(docpad.getVersion() or 'unknown')
 			.option(
+				'-e, --env <environment>'
+				"the environment name to use for this instance, multiple names can be separated with a comma"
+			)
+			.option(
 				'-d, --debug [logLevel]'
 				"the level of debug messages you would like to display, if specified defaults to 7, otherwise 6"
 				parseInt
@@ -235,16 +239,18 @@ class ConsoleInterface
 
 	# Welcome
 	welcome: ->
-		# Prepare
-		docpad = @docpad
-		version = docpad.getVersion()
-
 		# Check
 		return  if @welcomed
 		@welcomed = true
 
+		# Prepare
+		docpad = @docpad
+		version = docpad.getVersion()
+		env = docpad.getEnvironments()
+
 		# Log
 		docpad.log 'info', "Welcome to DocPad v#{version}"
+		docpad.log 'info', "Environment: #{env}"
 
 		# Chain
 		@
