@@ -1,25 +1,24 @@
 # Requires
-_ = require('underscore')
-caterpillar = require('caterpillar')
-{cliColor} = caterpillar
+DocPad = require(__dirname+'/../docpad')
+{cliColor} = require('caterpillar')
 
 # Console Interface
 class ConsoleInterface
 
 	# Setup the CLI
-	constructor: ({@docpad,@commander},next) ->
+	constructor: (opts,next) ->
 		# Prepare
 		me = consoleInterface = @
-		commander = @commander
+		@commander = commander = require('commander')
 
-		# Ensure our actions always have the scope of this instance
-		_.bindAll(@, 'run', 'server', 'skeleton', 'render', 'generate', 'watch', 'install', 'clean', 'info', 'cli', 'exit', 'help', 'actionCompleted', 'handleError')
+		# Version information
+		version = require(__dirname+'/../../../package.json').version
 
 		# -----------------------------
 		# Global config
 
 		commander
-			.version(docpad.getVersion() or 'unknown')
+			.version(version)
 			.option(
 				'-e, --env <environment>'
 				"the environment name to use for this instance, multiple names can be separated with a comma"
@@ -50,9 +49,7 @@ class ConsoleInterface
 				"a custom port to use for the server <port>"
 				parseInt
 			)
-			.action (command) ->
-				me.applyConfiguration(command)
-				me.run(me.actionCompleted)
+			.action(me.wrapAction(me.run))
 
 		# server
 		commander
@@ -63,9 +60,7 @@ class ConsoleInterface
 				"a custom port to use for the server <port>"
 				parseInt
 			)
-			.action (command) ->
-				me.applyConfiguration(command)
-				me.server(me.actionCompleted)
+			.action(me.wrapAction(me.server))
 
 		# skeleton
 		commander
@@ -75,81 +70,49 @@ class ConsoleInterface
 				'-s, --skeleton <skeleton>'
 				"instead of being asked for the skeleton, you can specify it here"
 			)
-			.action (command) ->
-				me.applyConfiguration(command)
-				me.skeleton(me.actionCompleted)
+			.action(me.wrapAction(me.skeleton))
 
 		# render
 		commander
 			.command('render [path]')
 			.description("render the file at <path> and output its results to stdout")
-			.action (command) ->
-				me.applyConfiguration(command)
-				me.render(me.actionCompleted)
+			.action(me.wrapAction(me.render))
 
 		# generate
 		commander
 			.command('generate')
 			.description("(re)generates your project")
-			.action (command) ->
-				me.applyConfiguration(command)
-				me.generate(me.actionCompleted)
+			.action(me.wrapAction(me.generate))
 
 		# watch
 		commander
 			.command('watch')
 			.description("watches your project for changes, and (re)generates whenever a change is made")
-			.action (command) ->
-				me.applyConfiguration(command)
-				me.watch(me.actionCompleted)
+			.action(me.wrapAction(me.watch))
 
 		# install
 		commander
 			.command('install')
 			.description("ensure everything is installed correctly")
-			.action (command) ->
-				me.applyConfiguration(command)
-				me.install(me.actionCompleted)
+			.action(me.wrapAction(me.install))
 
 		# clean
 		commander
 			.command('clean')
 			.description("ensure everything is cleaned correctly (will remove your out directory)")
-			.action (command) ->
-				me.applyConfiguration(command)
-				me.clean(me.actionCompleted)
+			.action(me.wrapAction(me.clean))
 
 		# info
 		commander
 			.command('info')
 			.description("display the information about your docpad instance")
-			.action (command) ->
-				me.applyConfiguration(command)
-				me.info(me.actionCompleted)
-
-		# cli
-		commander
-			.command('cli')
-			.description("start the interactive cli")
-			.action (command) ->
-				me.applyConfiguration(command)
-				me.cli(me.actionCompleted)
-
-		# exit
-		commander
-			.command('exit')
-			.description("exit the interactive cli")
-			.action (command) ->
-				me.applyConfiguration(command)
-				me.exit(me.actionCompleted)
+			.action(me.wrapAction(me.info))
 
 		# help
 		commander
 			.command('help')
 			.description("output the help")
-			.action (command) ->
-				me.applyConfiguration(command)
-				me.help(me.actionCompleted)
+			.action(me.wrapAction(me.help))
 
 		# unknown
 		commander
@@ -172,16 +135,16 @@ class ConsoleInterface
 	# Helpers
 
 	# Start the CLI
-	start: (argv) ->
+	start: (argv) =>
 		@commander.parse(argv or process.argv)
 		@
 
 	# Get the commander
-	getCommander: ->
+	getCommander: =>
 		@commander
 
 	# Handle Error
-	handleError: (err) ->
+	handleError: (err) =>
 		# Prepare
 		docpad = @docpad
 
@@ -190,39 +153,39 @@ class ConsoleInterface
 		docpad.error(err)
 		process.exit(1)
 
+		# Chain
+		@
 
-	# Action Completed
-	# What to do once an action completes
-	# Necessary, as we may want to exist
-	# Or we may want to continue with the CLI
-	actionCompleted: (err) ->
-		# Prepare
-		docpad = @docpad
-		commander = @commander
+	# Wrap Action
+	wrapAction: (action) =>
+		me = @
+		return (command) -> me.performAction(command,action)
 
-		# Handle the error
-		if err
-			@handleError(err)
-		else
-			docpad.log('info', "The action completed successfully")
-
-		# Exit or return to cli
-		if commander.mode is 'cli'
-			console.log('')
-			commander.emit('cli', [])
+	# Perform Action
+	performAction: (command,action) =>
+		# Create
+		@docpad = new DocPad @extractConfig(command), (err) =>
+			return @completeAction(err)  if err
+			action(@completeAction)
 
 		# Chain
 		@
 
-	# Create DocPad Instance
-	createDocPadInstance: (userConfig={}) ->
-		balUtil.deepExtendPlainObjects(userConfig)
+	# Complete an anction
+	completeAction: (err) =>
+		# Handle the error
+		if err
+			@handleError(err)
+		else
+			@docpad.log('info', "The action completed successfully")
+
+		# Chain
+		@
 
 	# Extract Configuration
-	extractConfig: (customConfig={}) ->
+	extractConfig: (customConfig={}) =>
 		# Prepare
 		config = {}
-		commander = @commander
 		commanderConfig = @commander
 
 		# Rename special configuration
@@ -242,7 +205,6 @@ class ConsoleInterface
 
 		# Return config object
 		config
-
 
 	# Select a skeleton
 	selectSkeletonCallback: (skeletonsCollection,next) =>
@@ -280,39 +242,27 @@ class ConsoleInterface
 	# =================================
 	# Actions
 
-	cli: (next) ->
-		# Prepare
-		commander = @commander
-
-		# Handle
-		commander.mode = 'cli'
-		commander.promptSingleLine 'What would you like to do now?\n> ',  (input) ->
-			args = input.split /\s+/g
-			if args.length
-				if args[0] is 'docpad'
-					args.shift()
-			args.unshift process.argv[0]
-			args.unshift process.argv[1]
-			commander.parse(args)
-
-	exit: ->
-		process.exit(0)
-
-	generate: (next) ->
+	generate: (next) =>
 		@docpad.action('generate',next)
+		@
 
-	help: (next) ->
-		console.log @commander.helpInformation()
+	help: (next) =>
+		help = @commander.helpInformation()
+		console.log(help)
 		next()
+		@
 
-	info: (next) ->
-		console.log require('util').inspect(@docpad.config)
+	info: (next) =>
+		info = require('util').inspect(@docpad.config)
+		console.log(info)
 		next()
+		@
 
 	install: (next) ->
 		@docpad.action('install',next)
+		@
 
-	render: (next) ->
+	render: (next) =>
 		# Prepare
 		docpad = @docpad
 		docpad.setLogLevel(5)  unless docpad.getLogLevel() is 7
@@ -364,28 +314,35 @@ class ConsoleInterface
 				timeout = null
 			renderDocument()
 
-	run: (next) ->
+		@
+
+	run: (next) =>
 		@docpad.action(
 			'all'
 			{selectSkeletonCallback: @selectSkeletonCallback}
 			next
 		)
+		@
 
-	server: (next) ->
+	server: (next) =>
 		@docpad.action('server',next)
+		@
 
-	clean: (next) ->
+	clean: (next) =>
 		@docpad.action('clean',next)
+		@
 
-	skeleton: (next) ->
+	skeleton: (next) =>
 		@docpad.action(
 			'skeleton'
 			{selectSkeletonCallback: @selectSkeletonCallback}
 			next
 		)
+		@
 
-	watch: (next) ->
+	watch: (next) =>
 		@docpad.action('watch',next)
+		@
 
 
 # =================================

@@ -1434,17 +1434,17 @@ class DocPad extends EventEmitterEnhanced
 		else
 			# Load
 			docpad.log 'debug', "Loading plugin: #{pluginName}"
-			
+
 			# Check if it exists
 			loader.exists (err,exists) ->
 				# Error or doesn't exist?
 				return next(err)  if err or not exists
-				
+
 				# Check if it is supported
 				loader.unsupported (err,unsupported) ->
 					# Error?
 					return next(err)  if err
-					
+
 					# Unsupported?
 					if unsupported
 						# Version?
@@ -1454,36 +1454,36 @@ class DocPad extends EventEmitterEnhanced
 							# Type?
 							if unsupported is 'type'
 								docpad.log 'debug', "Skipped the unsupported plugin: #{pluginName} due to #{unsupported}"
-							
+
 							# Something else?
 							else
 								docpad.log 'warn', "Skipped the unsupported plugin: #{pluginName} due to #{unsupported}"
 							return next()
-					
+
 					# It is supported, install its deps
 					loader.install (err) ->
 						return next(err)  if err
-						
+
 						# It is now installed, load it
 						loader.load (err) ->
 							return next(err)  if err
-							
+
 							# It is loaded, create it
 							loader.create {}, (err,pluginInstance) ->
 								return next(err)  if err
-								
+
 								# Enabled?
 								if pluginInstance.isEnabled() is false
 									docpad.log 'info', "Skipped the disabled plugin: #{pluginName}"
 									return next()
-								
+
 								# Add to plugin stores
 								console.log(loader.pluginName,pluginInstance.config,docpad.getEnvironments())
 								docpad.loadedPlugins[loader.pluginName] = pluginInstance
-								
+
 								# Log completion
 								docpad.log 'debug', "Loaded plugin: #{pluginName}"
-								
+
 								# Forward
 								return next()
 
