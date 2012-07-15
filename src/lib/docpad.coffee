@@ -523,13 +523,16 @@ class DocPad extends EventEmitterEnhanced
 		# Catch uncaught exceptions
 		catchExceptions: true
 
+		# Report Errors
+		# Whether or not we should report our errors back to DocPad
+		reportErrors: true
+
+		# Airbrake Toekn
+		airbrakeToken: 'e7374dd1c5a346efe3895b9b0c1c0325'
+
 
 		# -----------------------------
 		# Other
-
-		# Welcome
-		# Whether or not to display the welcome message
-		welcome: true
 
 		# NPM Path
 		# The location of our npm executable
@@ -551,10 +554,6 @@ class DocPad extends EventEmitterEnhanced
 		# Template Data
 		# What data would you like to expose to your templates
 		templateData: {}
-
-		# Report Errors
-		# Whether or not we should report our errors back to DocPad
-		reportErrors: true
 
 		# Check Version
 		# Whether or not to check for newer versions of DocPad
@@ -587,7 +586,7 @@ class DocPad extends EventEmitterEnhanced
 
 	# Get Environment
 	getEnvironment: ->
-		return @config.env
+		return @getConfig().env
 
 	# Get Environments
 	getEnvironments: ->
@@ -595,12 +594,115 @@ class DocPad extends EventEmitterEnhanced
 
 	# Get the Configuration
 	getConfig: ->
-		return @config
+		return @config or {}
 
-	# Resolve the Configuration
-	# next(err,config)
-	resolveConfig: (instanceConfig,next) ->
+
+	# =================================
+	# Initialization Functions
+
+	# Construct DocPad
+	# next(err)
+	constructor: (instanceConfig,next) ->
 		# Prepare
+		[instanceConfig,next] = balUtil.extractOptsAndCallback(instanceConfig,next)
+		docpad = @
+
+		# Allow DocPad to have unlimited event listeners
+		@setMaxListeners(0)
+
+		# Setup configuration event wrappers
+		configEventContext = {docpad}  # here to allow the config event context to persist between event calls
+		_.each @getEvents(), (eventName) ->
+			# Bind to the event
+			docpad.on eventName, (opts,next) ->
+				eventHandler = docpad.getConfig().events?[eventName]
+				# Fire the config event handler for this event, if it exists
+				if balUtil.isFunction(eventHandler)
+					args = [opts,next]
+					balUtil.fireWithOptionalCallback(eventHandler,args,configEventContext)
+				# It doesn't exist, so lets continue
+				else
+					next()
+
+		# Create our runner
+		@runnerInstance = new balUtil.Group 'sync', (err) ->
+			# Error?
+			return docpad.error(err)  if err
+		@runnerInstance.total = Infinity
+
+		# Initialize a default logger
+		logger = new caterpillar.Logger(
+			transports:
+				formatter: module: module
+		)
+		@setLogger(logger)
+		@setLogLevel(6)
+
+		# Log to bubbled events
+		@on 'log', (args...) ->
+			docpad.log.apply(@,args)
+
+		# Dereference and initialise advanced variables
+		# we deliberately ommit initialTemplateData here, as it is setup in getTemplateData
+		@slowPlugins = {}
+		@foundPlugins = {}
+		@loadedPlugins = {}
+		@exchange = {}
+		@pluginsTemplateData = {}
+		@instanceConfig = {}
+		@initialConfig = balUtil.dereference(@initialConfig)
+
+		# All done if we don't want to load configuration yet
+		if instanceConfig.load is false
+			return next?(null,docpad)
+
+		# Apply and load configuration
+		@action 'load', instanceConfig, (err,config) =>
+			# Error?
+			return @fatal(err)  if err
+
+			# Forward
+			@ready(next)
+
+		# Chain
+		@
+
+
+	# ---------------------------------
+	# Setup and Loading
+
+	# Ready
+	# next(err,docpadInstance)
+	ready: (opts,next) =>
+		# Prepare
+		[instanceConfig,next] = balUtil.extractOptsAndCallback(instanceConfig,next)
+		docpad = @
+
+		# Version Check
+		@compareVersion()
+
+		# Welcome
+		@log 'info', "Welcome to DocPad v#{@getVersion()}"
+		@log 'info', 'Environment:', @getEnvironment()
+		@log 'info', 'Plugins:', _.keys(@loadedPlugins).sort().join(', ')
+
+		# Ready
+		@emitSync 'docpadReady', {docpad}, (err) ->
+			# Error?
+			return docpad.error(err)  if err
+
+			# All done, forward our DocPad instance onto our creator
+			return next?(null,docpadInstance)
+
+		# Chain
+		@
+
+
+	# Load Configuration
+	# next(err,config)
+	load: (instanceConfig,next) =>
+		# Prepare
+		[instanceConfig,next] = balUtil.extractOptsAndCallback(instanceConfig,next)
 		docpad = @
 		instanceConfig or= {}
 
@@ -655,6 +757,20 @@ class DocPad extends EventEmitterEnhanced
 				for typePath,key in typePaths
 					typePaths[key] = pathUtil.resolve(@config.rootPath,typePath)
 
+			# Bind the error handler, so we don't crash on errors
+			if @config.catchExceptions
+				process.setMaxListeners(0)
+				process.on('uncaughtException', @error)
+			else
+				process.off('uncaughtException', @error)
+
+			# Load Airbrake if we want to reportErrors
+			if @config.reportErrors and /win/.test(process.platform) is false
+				try
+					airbrake = require('airbrake').createClient(@config.airbrakeToken)
+				catch err
+					airbrake = false
+
 			# Prepare the Post Tasks
 			postTasks = new balUtil.Group (err) =>
 				return next(err,@config)
@@ -676,18 +792,16 @@ class DocPad extends EventEmitterEnhanced
 						complete()
 
 			# Load collections
-			postTasks.push (complete) ->
-				docpad.loadCollections(complete)
+			postTasks.push (complete) =>
+				@createCollections(complete)
 
 			# Initialize
-			postTasks.push (complete) ->
-				docpad.loadPlugins(complete)
+			postTasks.push (complete) =>
+				@loadPlugins(complete)
 
 			# Fetch plugins templateData
-			postTasks.push (complete) ->
-				docpad.emitSync 'extendTemplateData', {templateData:docpad.pluginsTemplateData,extend:balUtil.extend}, (err) ->
-					# Forward
-					return complete(err)
+			postTasks.push (complete) =>
+				@emitSync('extendTemplateData', {templateData:@pluginsTemplateData}, complete)
 
 			# Fire post tasks
 			postTasks.sync()
@@ -742,202 +856,63 @@ class DocPad extends EventEmitterEnhanced
 		# Chain
 		@
 
-
-	# =================================
-	# Initialization Functions
-
-	# Construct DocPad
+	# Install
 	# next(err)
-	constructor: (instanceConfig,next) ->
+	install: (opts,next) =>
 		# Prepare
-		[instanceConfig,next] = balUtil.extractOptsAndCallback(instanceConfig,next)
+		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
 
-		# Ensure certain functions always have the scope of this instance
-		_.bindAll(@, 'createDocument', 'createFile')
+		# Re-Initialise the Website's modules
+		@initNodeModules(
+			path: @config.rootPath
+			output: true
+			next: (err) ->
+				# Forward on error?
+				return next(err)  if err
 
-		# Allow DocPad to have unlimited event listeners
-		@setMaxListeners(0)
-
-		# Setup configuration event wrappers
-		configEventContext = {docpad}  # here to allow the config event context to persist between event calls
-		_.each @getEvents(), (eventName) ->
-			# Bind to the event
-			docpad.on eventName, (opts,next) ->
-				eventHandler = docpad.getConfig().events?[eventName]
-				# Fire the config event handler for this event, if it exists
-				if balUtil.isFunction(eventHandler)
-					args = [opts,next]
-					balUtil.fireWithOptionalCallback(eventHandler,args,configEventContext)
-				# It doesn't exist, so lets continue
-				else
-					next()
-
-		# Create our runner
-		@runnerInstance = new balUtil.Group 'sync', (err) ->
-			# Error?
-			return docpad.error(err)  if err
-		@runnerInstance.total = Infinity
-
-		# Initialize a default logger
-		logger = new caterpillar.Logger(
-			transports:
-				formatter: module: module
+				# Re-load configuration
+				docpad.load (err) ->
+					# Forward
+					return next(err)
 		)
-		@setLogger(logger)
-		@setLogLevel(6)
 
-		# Log to bubbled events
-		@on 'log', (args...) ->
-			docpad.log.apply(@,args)
+		# Chain
+		@
 
-		# Dereference and initialise advanced variables
-		# we deliberately ommit initialTemplateData here, as it is setup in getTemplateData
-		@slowPlugins = {}
-		@foundPlugins = {}
-		@loadedPlugins = {}
-		@exchange = {}
-		@collections = {}
-		@blocks = {}
-		@pluginsTemplateData = {}
-		@instanceConfig = {}
-		@initialConfig = balUtil.dereference(@initialConfig)
+	# Clean
+	# next(err)
+	clean: (opts,next) =>
+		# Prepare
+		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		docpad = @
+		{rootPath,outPath} = @config
 
-		# Initialize the collections
-		@database = new FilesCollection()
+		# Log
+		docpad.log 'debug', 'Cleaning files'
 
-		# Apply and load configuration
-		@action 'load', instanceConfig, (err,config) =>
-			# Error?
-			return @fatal(err)  if err
+		# Clean collections
+		docpad.resetCollections (err) ->
+			# Check
+			return next(err)  if err
 
-			# Bind the error handler, so we don't crash on errors
-			if config.catchExceptions
-				process.setMaxListeners(0)
-				process.on 'uncaughtException', (err) ->
-					docpad.error(err)
+			# Clean files
+			# but only if our outPath is not a parent of our rootPath
+			if rootPath.indexOf(outPath) is -1
+				# our outPath is higher than our root path, so do not remove files
+				return next()
+			else
+				# our outPath is not related or lower than our root path, so do remove it
+				balUtil.rmdirDeep @config.outPath, (err,list,tree) ->
+					docpad.log 'debug', 'Cleaned files'  unless err
+					return next()
 
-			# Standard Collections
-			documentsCollection = @database.createLiveChildCollection()
-				.setQuery('isDocument', {
-					$or:
-						isDocument: true
-						fullPath: $startsWith: config.documentsPaths
-				})
-				.on('add', (model) ->
-					docpad.log('debug', "Adding document: #{model.attributes.fullPath}")
-					_.defaults(model.attributes,{
-						isDocument: true
-						render: true
-						write: true
-					})
-				)
-			filesCollection = @database.createLiveChildCollection()
-				.setQuery('isFile', {
-					$or:
-						isFile: true
-						fullPath: $startsWith: config.filesPaths
-				})
-				.on('add', (model) ->
-					docpad.log('debug', "Adding file: #{model.attributes.fullPath}")
-					_.defaults(model.attributes,{
-						isFile: true
-						render: false
-						write: true
-					})
-				)
-			layoutsCollection = @database.createLiveChildCollection()
-				.setQuery('isLayout', {
-					$or:
-						isLayout: true
-						fullPath: $startsWith: config.layoutsPaths
-				})
-				.on('add', (model) ->
-					docpad.log('debug', "Adding layout: #{model.attributes.fullPath}")
-					_.defaults(model.attributes,{
-						isLayout: true
-						render: false
-						write: false
-					})
-				)
-
-			# Special Collections
-			htmlCollection = @database.createLiveChildCollection()
-				.setQuery('isHTML', {
-					$or:
-						isDocument: true
-						isFile: true
-					outPath: $endsWith: '.html'
-				})
-				.on('add', (model) ->
-					docpad.log('debug', "Adding html file: #{model.attributes.fullPath}")
-				)
-
-			# Apply collections
-			@setCollection('documents',documentsCollection)
-			@setCollection('files',filesCollection)
-			@setCollection('layouts',layoutsCollection)
-			@setCollection('html',htmlCollection)
-
-
-			# Blocks
-			metaBlock = new MetaCollection()
-			scriptsBlock = new ScriptsCollection()
-			stylesBlock = new StylesCollection()
-
-			# Apply Blocks
-			@setBlock('meta', metaBlock)
-			@setBlock('scripts', scriptsBlock)
-			@setBlock('styles', stylesBlock)
-
-
-			# Load Airbrake if we want to reportErrors
-			if config.reportErrors and /win/.test(process.platform) is false
-				try
-					airbrake = require('airbrake').createClient('e7374dd1c5a346efe3895b9b0c1c0325')
-				catch err
-					airbrake = false
-
-
-			# Version Check
-			@compareVersion()
-
-
-			# Log
-			if @config.welcome
-				@log 'debug', "Welcome to DocPad v#{@getVersion()}"
-				@log 'debug', 'Environment:', @getEnvironment()
-				@log 'debug', 'Plugins:', _.keys(@loadedPlugins).sort().join(', ')
-
-
-			# Ready
-			@emitSync 'docpadReady', {docpad}, (err) ->
-				# Error?
-				return docpad.error(err)  if err
-
-				# All done, forward our DocPad instance onto our creator
-				return next?(null,docpad)
+		# Chain
+		@
 
 
 	# =================================
 	# Configuration
-
-	# Clean Resources
-	# next(err)
-	cleanResources: (next) ->
-		# Perform a complete clean of our collections
-		@getDatabase().reset([])
-		@getBlock('meta').reset([]).add([
-			'<meta http-equiv="X-Powered-By" content="DocPad"/>'
-		])
-		@getBlock('scripts').reset([])
-		@getBlock('styles').reset([])
-
-		# Perform any plugin extensions to what we just cleaned
-		@emitSync('extendCollections',{},next)
-
-		# Chain
-		@
 
 	# Load a configuration url
 	# next(err,parsedData)
@@ -1001,19 +976,95 @@ class DocPad extends EventEmitterEnhanced
 		# Chain
 		@
 
-	# Load collections
-	loadCollections: (next) ->
+	# Create Collections
+	# next(err)
+	createCollections: (next) ->
 		# Prepare
 		docpad = @
-		database = @getDatabase()
-		@config.collections or= {}
+		config = @config
+		@database = database = new FilesCollection()
+		@collections = {}
+		@blocks = {}
+		config.collections or= {}
 
-		# Group
+		# Standard Collections
+		documentsCollection = database.createLiveChildCollection()
+			.setQuery('isDocument', {
+				$or:
+					isDocument: true
+					fullPath: $startsWith: config.documentsPaths
+			})
+			.on('add', (model) ->
+				docpad.log('debug', "Adding document: #{model.attributes.fullPath}")
+				_.defaults(model.attributes,{
+					isDocument: true
+					render: true
+					write: true
+				})
+			)
+		filesCollection = database.createLiveChildCollection()
+			.setQuery('isFile', {
+				$or:
+					isFile: true
+					fullPath: $startsWith: config.filesPaths
+			})
+			.on('add', (model) ->
+				docpad.log('debug', "Adding file: #{model.attributes.fullPath}")
+				_.defaults(model.attributes,{
+					isFile: true
+					render: false
+					write: true
+				})
+			)
+		layoutsCollection = database.createLiveChildCollection()
+			.setQuery('isLayout', {
+				$or:
+					isLayout: true
+					fullPath: $startsWith: config.layoutsPaths
+			})
+			.on('add', (model) ->
+				docpad.log('debug', "Adding layout: #{model.attributes.fullPath}")
+				_.defaults(model.attributes,{
+					isLayout: true
+					render: false
+					write: false
+				})
+			)
+
+		# Special Collections
+		htmlCollection = database.createLiveChildCollection()
+			.setQuery('isHTML', {
+				$or:
+					isDocument: true
+					isFile: true
+				outPath: $endsWith: '.html'
+			})
+			.on('add', (model) ->
+				docpad.log('debug', "Adding html file: #{model.attributes.fullPath}")
+			)
+
+		# Apply collections
+		@setCollection('documents', documentsCollection)
+		@setCollection('files', filesCollection)
+		@setCollection('layouts', layoutsCollection)
+		@setCollection('html', htmlCollection)
+
+		# Blocks
+		metaBlock = new MetaCollection()
+		scriptsBlock = new ScriptsCollection()
+		stylesBlock = new StylesCollection()
+
+		# Apply Blocks
+		@setBlock('meta', metaBlock)
+		@setBlock('scripts', scriptsBlock)
+		@setBlock('styles', stylesBlock)
+
+		# Custom Collections Group
 		tasks = new balUtil.Group (err) ->
 			docpad.error(err)  if err
 			return next()
 
-		# Cycle
+		# Cycle through Custom Collections
 		_.each @config.collections, (fn,name) ->
 			tasks.push (complete) ->
 				if fn.length is 2 # callback
@@ -1030,8 +1081,26 @@ class DocPad extends EventEmitterEnhanced
 						docpad.setCollection(name,collection)  # apply the collection
 					complete()
 
-		# Run
+		# Run Custom collections
 		tasks.async()
+
+		# Chain
+		@
+
+	# Reset Collections
+	# next(err)
+	resetCollections: (next) ->
+		# Perform a complete clean of our collections
+		@getDatabase().reset([])
+		@getBlock('meta').reset([]).add([
+			'<meta http-equiv="X-Powered-By" content="DocPad"/>'
+		])
+		@getBlock('scripts').reset([])
+		@getBlock('styles').reset([])
+
+		# Perform any plugin extensions to what we just cleaned
+		# and forward
+		@emitSync('extendCollections',{},next)
 
 		# Chain
 		@
@@ -1081,7 +1150,7 @@ class DocPad extends EventEmitterEnhanced
 		return @getLogLevel() is 7
 
 	# Handle a fatal error
-	fatal: (err) ->
+	fatal: (err) =>
 		docpad = @
 		return @  unless err
 		@error err, 'err', ->
@@ -1092,13 +1161,13 @@ class DocPad extends EventEmitterEnhanced
 		@
 
 	# Log
-	log: (args...) ->
+	log: (args...) =>
 		logger = @getLogger()
 		logger.log.apply(logger,args)
 		@
 
 	# Handle an error
-	error: (err,type='err',next) ->
+	error: (err,type='err',next) =>
 		# Prepare
 		docpad = @
 
@@ -1129,7 +1198,7 @@ class DocPad extends EventEmitterEnhanced
 		@
 
 	# Handle a warning
-	warn: (message,err,next) ->
+	warn: (message,err,next) =>
 		# Prepare
 		docpad = @
 
@@ -1165,7 +1234,7 @@ class DocPad extends EventEmitterEnhanced
 	# Models and Collections
 
 	# Instantiate a File
-	createFile: (data={},options={}) ->
+	createFile: (data={},options={}) =>
 		# Prepare
 		docpad = @
 		options = balUtil.extend(
@@ -1187,7 +1256,7 @@ class DocPad extends EventEmitterEnhanced
 		file
 
 	# Instantiate a Document
-	createDocument: (data={},options={}) ->
+	createDocument: (data={},options={}) =>
 		# Prepare
 		docpad = @
 		options = balUtil.extend(
@@ -1221,7 +1290,7 @@ class DocPad extends EventEmitterEnhanced
 		document
 
 	# Ensure File
-	ensureFile: (data={},options={}) ->
+	ensureFile: (data={},options={}) =>
 		database = @getDatabase()
 		result = database.findOne(fullPath: data.fullPath)
 		unless result
@@ -1230,7 +1299,7 @@ class DocPad extends EventEmitterEnhanced
 		result
 
 	# Ensure Document
-	ensureDocument: (data={},options={}) ->
+	ensureDocument: (data={},options={}) =>
 		database = @getDatabase()
 		result = database.findOne(fullPath: data.fullPath)
 		unless result
@@ -1239,7 +1308,7 @@ class DocPad extends EventEmitterEnhanced
 		result
 
 	# Ensure File or Document
-	ensureFileOrDocument: (data={},options={}) ->
+	ensureFileOrDocument: (data={},options={}) =>
 		docpad = @
 		database = @getDatabase()
 		fileFullPath = data.fullPath
@@ -1932,77 +2001,6 @@ class DocPad extends EventEmitterEnhanced
 
 
 	# ---------------------------------
-	# Setup and Loading
-
-	# Load Configuration
-	# next(err,config)
-	load: (opts,next) ->
-		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
-		docpad = @
-
-		# Resolve the configuration
-		@resolveConfig(opts,next)
-
-		# Chain
-		@
-
-	# Install
-	# next(err)
-	install: (opts,next) ->
-		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
-		docpad = @
-
-		# Re-Initialise the Website's modules
-		@initNodeModules(
-			path: @config.rootPath
-			output: true
-			next: (err) ->
-				# Forward on error?
-				return next(err)  if err
-
-				# Re-load configuration
-				docpad.load (err) ->
-					# Forward
-					return next(err)
-		)
-
-		# Chain
-		@
-
-	# Clean
-	# next(err)
-	clean: (opts,next) ->
-		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
-		docpad = @
-		{rootPath,outPath} = @config
-
-		# Log
-		docpad.log 'debug', 'Cleaning files'
-
-		# Clean collections
-		docpad.cleanResources (err) ->
-			# Check
-			return next(err)  if err
-
-			# Clean files
-			# but only if our outPath is not a parent of our rootPath
-			if rootPath.indexOf(outPath) is -1
-				# our outPath is higher than our root path, so do not remove files
-				return next()
-			else
-				# our outPath is not related or lower than our root path, so do remove it
-				balUtil.rmdirDeep @config.outPath, (err,list,tree) ->
-					docpad.log 'debug', 'Cleaned files'  unless err
-					return next()
-
-		# Chain
-		@
-
-
-	# ---------------------------------
 	# Generate
 
 	# Generate Prepare
@@ -2057,7 +2055,7 @@ class DocPad extends EventEmitterEnhanced
 		docpad = @
 
 		# Perform a complete clean of our collections
-		docpad.cleanResources(next)
+		docpad.resetCollections(next)
 
 		# Chain
 		@

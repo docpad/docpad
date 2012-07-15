@@ -1,5 +1,4 @@
 # Requires
-DocPad = require(__dirname+'/../docpad')
 {cliColor} = require('caterpillar')
 
 # Console Interface
@@ -8,7 +7,8 @@ class ConsoleInterface
 	# Setup the CLI
 	constructor: (opts,next) ->
 		# Prepare
-		me = consoleInterface = @
+		consoleInterface = @
+		@docpad = docpad = opts.docpad
 		@commander = commander = require('commander')
 
 		# Version information
@@ -49,7 +49,7 @@ class ConsoleInterface
 				"a custom port to use for the server <port>"
 				parseInt
 			)
-			.action(me.wrapAction(me.run))
+			.action(consoleInterface.wrapAction(consoleInterface.run))
 
 		# server
 		commander
@@ -60,7 +60,7 @@ class ConsoleInterface
 				"a custom port to use for the server <port>"
 				parseInt
 			)
-			.action(me.wrapAction(me.server))
+			.action(consoleInterface.wrapAction(consoleInterface.server))
 
 		# skeleton
 		commander
@@ -70,56 +70,56 @@ class ConsoleInterface
 				'-s, --skeleton <skeleton>'
 				"instead of being asked for the skeleton, you can specify it here"
 			)
-			.action(me.wrapAction(me.skeleton))
+			.action(consoleInterface.wrapAction(consoleInterface.skeleton))
 
 		# render
 		commander
 			.command('render [path]')
 			.description("render the file at <path> and output its results to stdout")
-			.action(me.wrapAction(me.render))
+			.action(consoleInterface.wrapAction(consoleInterface.render))
 
 		# generate
 		commander
 			.command('generate')
 			.description("(re)generates your project")
-			.action(me.wrapAction(me.generate))
+			.action(consoleInterface.wrapAction(consoleInterface.generate))
 
 		# watch
 		commander
 			.command('watch')
 			.description("watches your project for changes, and (re)generates whenever a change is made")
-			.action(me.wrapAction(me.watch))
+			.action(consoleInterface.wrapAction(consoleInterface.watch))
 
 		# install
 		commander
 			.command('install')
 			.description("ensure everything is installed correctly")
-			.action(me.wrapAction(me.install))
+			.action(consoleInterface.wrapAction(consoleInterface.install))
 
 		# clean
 		commander
 			.command('clean')
 			.description("ensure everything is cleaned correctly (will remove your out directory)")
-			.action(me.wrapAction(me.clean))
+			.action(consoleInterface.wrapAction(consoleInterface.clean))
 
 		# info
 		commander
 			.command('info')
 			.description("display the information about your docpad instance")
-			.action(me.wrapAction(me.info))
+			.action(consoleInterface.wrapAction(consoleInterface.info))
 
 		# help
 		commander
 			.command('help')
 			.description("output the help")
-			.action(me.wrapAction(me.help))
+			.action(consoleInterface.wrapAction(consoleInterface.help))
 
 		# unknown
 		commander
 			.command('*')
 			.description("anything else ouputs the help")
 			.action ->
-				commander.emit 'help', []
+				commander.emit('help', [])
 
 
 		# -----------------------------
@@ -127,8 +127,11 @@ class ConsoleInterface
 
 		# Plugins
 		docpad.emitSync 'consoleSetup', {consoleInterface,commander}, (err) ->
-			return handleError(err)  if err
-			next?(null,me)
+			return consoleInterface.handleError(err)  if err
+			next(null,consoleInterface)
+
+		# Chain
+		@
 
 
 	# =================================
@@ -158,14 +161,16 @@ class ConsoleInterface
 
 	# Wrap Action
 	wrapAction: (action) =>
-		me = @
-		return (command) -> me.performAction(command,action)
+		consoleInterface = @
+		return (command) -> consoleInterface.performAction(command,action)
 
 	# Perform Action
 	performAction: (command,action) =>
 		# Create
-		@docpad = new DocPad @extractConfig(command), (err) =>
+		instanceConfig = @extractConfig(command)
+		@docpad.action 'load ready', instanceConfig, (err) =>
 			return @completeAction(err)  if err
+			@docpad.welcome()
 			action(@completeAction)
 
 		# Chain
@@ -187,6 +192,7 @@ class ConsoleInterface
 		# Prepare
 		config = {}
 		commanderConfig = @commander
+		docpad = @docpad
 
 		# Rename special configuration
 		if commanderConfig.debug
@@ -195,12 +201,12 @@ class ConsoleInterface
 
 		# Apply global configuration
 		for own key, value of commanderConfig
-			if DocPad::config[key]?
+			if docpad.config[key]?
 				config[key] = value
 
 		# Apply custom configuration
 		for own key, value of customConfig
-			if DocPad::config[key]?
+			if docpad.config[key]?
 				config[key] = value
 
 		# Return config object
@@ -271,7 +277,7 @@ class ConsoleInterface
 
 		# Prepare filename
 		filename = commander.args[0] or null
-		if !filename or filename.split('.').length <= 2 # [name,ext,ext] = 3 parts
+		if !filename or filenaconsoleInterface.split('.').length <= 2 # [name,ext,ext] = 3 parts
 			opts.renderSingleExtensions = true
 		opts.filename = filename
 
