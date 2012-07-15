@@ -55,11 +55,11 @@ class PluginTester
 	logger: null
 
 	# Constructor
-	constructor: (config) ->
+	constructor: (config={}) ->
 		# Apply Configuration
 		tester = @
-		@config = _.extend({},PluginTester::config,@config,config or {})
-		@docpadConfig = _.extend({},PluginTester::docpadConfig,@docpadConfig)
+		@config = balUtil.deepExtendPlainObjects({}, PluginTester::config ,@config, config)
+		@docpadConfig = balUtil.deepExtendPlainObjects({}, PluginTester::docpadConfig, @docpadConfig)
 		@docpadConfig.port ?= ++pluginPort
 
 		# Test API
@@ -85,7 +85,7 @@ class PluginTester
 	testCreate: ->
 		# Prepare
 		tester = @
-		docpadConfig = _.extend({},@docpadConfig)
+		docpadConfig = @docpadConfig
 
 		# Create Instance
 		@test "create", (done) ->
