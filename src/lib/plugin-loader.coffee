@@ -1,6 +1,5 @@
 # Requires
 pathUtil = require('path')
-_ = require('underscore')
 semver = require('semver')
 balUtil = require('bal-util')
 coffee = null
@@ -30,9 +29,6 @@ class PluginLoader
 	# The parsed contents of the plugin's package.json file
 	packageData: {}
 
-	# The plugin configuration to load into it
-	pluginConfig: {}
-
 	# The full path of the plugin's main file
 	pluginPath: null
 
@@ -54,7 +50,6 @@ class PluginLoader
 		# Apply
 		@pluginName = pathUtil.basename(@dirPath).replace(/^docpad-plugin-/,'')
 		@pluginClass = {}
-		@pluginConfig = {}
 		@packageData = {}
 		@nodeModulesPath = pathUtil.resolve(@dirPath, 'node_modules')
 
@@ -69,31 +64,30 @@ class PluginLoader
 			unless exists
 				balUtil.exists pluginPath, (exists) =>
 					unless exists
-						return next?(null,false)
+						return next(null,false)
 					else
 						@pluginPath = pluginPath
-						return next?(null,true)
+						return next(null,true)
 			else
 				@packagePath = packagePath
 				balUtil.readFile packagePath, (err,data) =>
 					if err
-						return next?(err,false)
+						return next(err,false)
 					else
 						try
 							@packageData = JSON.parse data.toString()
 						catch err
-							return next?(err,false)
-						return next?(null,false)  unless @packageData
+							return next(err,false)
+						return next(null,false)  unless @packageData
 
-						@pluginConfig = @packageData.docpad and @packageData.docpad.plugin or {}
-
-						pluginPath =  @packageData.main? and pathUtil.join(@dirPath, @pluginPath) or pluginPath
+						# Fetch the plugin path
+						pluginPath = @packageData.main? and pathUtil.join(@dirPath, @pluginPath) or pluginPath
 						balUtil.exists pluginPath, (exists) =>
 							unless exists
-								return next?(null,false)
+								return next(null,false)
 							else
 								@pluginPath = pluginPath
-								return next?(null,true)
+								return next(null,true)
 
 		# Chain
 		@
@@ -132,7 +126,7 @@ class PluginLoader
 					unsupported = 'version'
 
 		# Supported
-		next?(null,unsupported)
+		next(null,unsupported)
 
 		# Chain
 		@
@@ -151,11 +145,11 @@ class PluginLoader
 				path: @dirPath
 				next: (err,results) ->
 					# Forward
-					return next?(err)
+					return next(err)
 			)
 		else
 			# Continue
-			next?()
+			next()
 
 		# Chain
 		@
@@ -171,10 +165,10 @@ class PluginLoader
 			# Load in our plugin
 			@pluginClass = require(@pluginPath)(@BasePlugin)
 			# Return our plugin
-			next?(null,@pluginClass)
+			next(null,@pluginClass)
 		catch err
 			# An error occured, return it
-			next?(err,null)
+			next(err,null)
 
 		# Chain
 		@
@@ -184,13 +178,15 @@ class PluginLoader
 	create: (userConfiguration={},next) ->
 		# Load
 		try
-			docpadConfiguration = @docpad.config.plugins[@pluginName] or {}
-			config = _.extend {}, @pluginConfig, docpadConfiguration, userConfiguration
-			config.docpad = @docpad
-			pluginInstance = new @pluginClass config
-			next?(null,pluginInstance)
+			# Merge configurations
+			config = balUtil.deepExtendPlainObjects({}, @docpad.config.plugins[@pluginName], userConfiguration)
+			
+			# Create instance with merged configuration
+			docpad = @docpad
+			pluginInstance = new @pluginClass({docpad,config})
+			next(null,pluginInstance)
 		catch err
-			next?(err,null)
+			next(err,null)
 
 		# Chain
 		@

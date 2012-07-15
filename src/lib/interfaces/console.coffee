@@ -10,7 +10,6 @@ class ConsoleInterface
 	constructor: ({@docpad,@commander},next) ->
 		# Prepare
 		me = consoleInterface = @
-		docpad = @docpad
 		commander = @commander
 
 		# Ensure our actions always have the scope of this instance
@@ -159,6 +158,7 @@ class ConsoleInterface
 			.action ->
 				commander.emit 'help', []
 
+
 		# -----------------------------
 		# Finish Up
 
@@ -190,6 +190,7 @@ class ConsoleInterface
 		docpad.error(err)
 		process.exit(1)
 
+
 	# Action Completed
 	# What to do once an action completes
 	# Necessary, as we may want to exist
@@ -213,47 +214,35 @@ class ConsoleInterface
 		# Chain
 		@
 
-	# Parse the Configuration
-	applyConfiguration: (customConfig={}) ->
+	# Create DocPad Instance
+	createDocPadInstance: (userConfig={}) ->
+		balUtil.deepExtendPlainObjects(userConfig)
+
+	# Extract Configuration
+	extractConfig: (customConfig={}) ->
 		# Prepare
-		docpad = @docpad
+		config = {}
 		commander = @commander
 		commanderConfig = @commander
 
-		# Apply commander configuration
+		# Rename special configuration
 		if commanderConfig.debug
 			commanderConfig.debug = 7  if commanderConfig.debug is true
-			docpad.setLogLevel(commanderConfig.debug)
-			delete commanderConfig.debug
+			commanderConfig.logLevel = commanderConfig.debug
+
+		# Apply global configuration
 		for own key, value of commanderConfig
-			if docpad.config[key]?
-				docpad.config[key] = value
+			if DocPad::config[key]?
+				config[key] = value
 
 		# Apply custom configuration
 		for own key, value of customConfig
-			if docpad.config[key]?
-				docpad.config[key] = value
+			if DocPad::config[key]?
+				config[key] = value
 
-		# Return updated config object
-		docpad.config
+		# Return config object
+		config
 
-	# Welcome
-	welcome: ->
-		# Check
-		return  if @welcomed
-		@welcomed = true
-
-		# Prepare
-		docpad = @docpad
-		version = docpad.getVersion()
-		env = docpad.getEnvironments()
-
-		# Log
-		docpad.log 'info', "Welcome to DocPad v#{version}"
-		docpad.log 'info', "Environment: #{env}"
-
-		# Chain
-		@
 
 	# Select a skeleton
 	selectSkeletonCallback: (skeletonsCollection,next) =>
@@ -293,7 +282,6 @@ class ConsoleInterface
 
 	cli: (next) ->
 		# Prepare
-		@welcome()
 		commander = @commander
 
 		# Handle
@@ -311,33 +299,17 @@ class ConsoleInterface
 		process.exit(0)
 
 	generate: (next) ->
-		# Prepare
-		@welcome()
-
-		# Handle
 		@docpad.action('generate',next)
 
 	help: (next) ->
-		# Prepare
-		@welcome()
-
-		# Handle
 		console.log @commander.helpInformation()
 		next()
 
 	info: (next) ->
-		# Prepare
-		@welcome()
-
-		# Handle
-		console.log require('util').inspect @docpad.config
+		console.log require('util').inspect(@docpad.config)
 		next()
 
 	install: (next) ->
-		# Prepare
-		@welcome()
-
-		# Handle
 		@docpad.action('install',next)
 
 	render: (next) ->
@@ -393,10 +365,6 @@ class ConsoleInterface
 			renderDocument()
 
 	run: (next) ->
-		# Prepare
-		@welcome()
-
-		# Handle
 		@docpad.action(
 			'all'
 			{selectSkeletonCallback: @selectSkeletonCallback}
@@ -404,24 +372,12 @@ class ConsoleInterface
 		)
 
 	server: (next) ->
-		# Prepare
-		@welcome()
-
-		# Handle
 		@docpad.action('server',next)
 
 	clean: (next) ->
-		# Prepare
-		@welcome()
-
-		# Handle
 		@docpad.action('clean',next)
 
 	skeleton: (next) ->
-		# Prepare
-		@welcome()
-
-		# Handle
 		@docpad.action(
 			'skeleton'
 			{selectSkeletonCallback: @selectSkeletonCallback}
@@ -429,10 +385,6 @@ class ConsoleInterface
 		)
 
 	watch: (next) ->
-		# Prepare
-		@welcome()
-
-		# Handle
 		@docpad.action('watch',next)
 
 
