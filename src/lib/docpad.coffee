@@ -110,8 +110,10 @@ class DocPad extends EventEmitterEnhanced
 		'docpadReady'
 		'extendTemplateData'
 		'extendCollections'
+		'docpadLoaded'
 		'consoleSetup'
 		'generateBefore'
+		'populateCollections'
 		'generateAfter'
 		'parseBefore'
 		'parseAfter'
@@ -657,12 +659,12 @@ class DocPad extends EventEmitterEnhanced
 			return next?(null,docpad)
 
 		# Apply and load configuration
-		@action 'load', instanceConfig, (err,config) =>
+		@action 'load ready', instanceConfig, (err,config) =>
 			# Error?
 			return @fatal(err)  if err
 
 			# Forward
-			@ready(next)
+			next?(err,docpad)
 
 		# Chain
 		@
@@ -692,7 +694,7 @@ class DocPad extends EventEmitterEnhanced
 			return docpad.error(err)  if err
 
 			# All done, forward our DocPad instance onto our creator
-			return next?(null,docpadInstance)
+			return next?(null,docpad)
 
 		# Chain
 		@
@@ -718,9 +720,11 @@ class DocPad extends EventEmitterEnhanced
 		preTasks = new balUtil.Group (err) =>
 			return next(err)  if err
 
+
 			# Get environments
 			@config.env = @instanceConfig.env or @websiteConfig.env or @websitePackageConfig.env or @initialConfig.env
 			envs = @getEnvironments()
+
 
 			# Merge configurations
 			configPackages = [@initialConfig, @websitePackageConfig, @websiteConfig, @instanceConfig]
@@ -731,19 +735,22 @@ class DocPad extends EventEmitterEnhanced
 					envConfig = configPackage.environments?[env]
 					configsToMerge.push(envConfig)  if envConfig
 			balUtil.deepExtendPlainObjects(configsToMerge...)
-			console.log(@config.env, envs, @instanceConfig,instanceConfig)
+
 
 			# Extract and apply the server
 			@setServer(@config.server)  if @config.server
+
 
 			# Extract and apply the logger
 			@setLogger(@config.logger)  if @config.logger
 			@setLogLevel(@config.logLevel)
 
+
 			# Resolve any paths
 			@config.rootPath = pathUtil.resolve(@config.rootPath)
 			@config.outPath = pathUtil.resolve(@config.rootPath, @config.outPath)
 			@config.srcPath = pathUtil.resolve(@config.rootPath, @config.srcPath)
+
 
 			# Resolve Documents, Files, Layouts paths
 			for type in ['documents','files','layouts']
@@ -751,18 +758,21 @@ class DocPad extends EventEmitterEnhanced
 				for typePath,key in typePaths
 					typePaths[key] = pathUtil.resolve(@config.srcPath,typePath)
 
+
 			# Resolve Plugins paths
 			for type in ['plugins']
 				typePaths = @config[type+'Paths']
 				for typePath,key in typePaths
 					typePaths[key] = pathUtil.resolve(@config.rootPath,typePath)
 
+
 			# Bind the error handler, so we don't crash on errors
 			if @config.catchExceptions
 				process.setMaxListeners(0)
 				process.on('uncaughtException', @error)
 			else
-				process.off('uncaughtException', @error)
+				process.removeListener('uncaughtException', @error)
+
 
 			# Load Airbrake if we want to reportErrors
 			if @config.reportErrors and /win/.test(process.platform) is false
@@ -770,6 +780,7 @@ class DocPad extends EventEmitterEnhanced
 					airbrake = require('airbrake').createClient(@config.airbrakeToken)
 				catch err
 					airbrake = false
+
 
 			# Prepare the Post Tasks
 			postTasks = new balUtil.Group (err) =>
@@ -803,8 +814,13 @@ class DocPad extends EventEmitterEnhanced
 			postTasks.push (complete) =>
 				@emitSync('extendTemplateData', {templateData:@pluginsTemplateData}, complete)
 
+			# Fire the docpadLoaded event
+			postTasks.push (complete) =>
+				@emitSync('docpadLoaded', {}, complete)
+
 			# Fire post tasks
 			postTasks.sync()
+
 
 		# Load DocPad's Package Configuration
 		preTasks.push (complete) =>
@@ -818,6 +834,7 @@ class DocPad extends EventEmitterEnhanced
 
 				# Done loading
 				complete()
+
 
 		# Load Website's Package Configuration
 		preTasks.push (complete) =>
@@ -833,6 +850,7 @@ class DocPad extends EventEmitterEnhanced
 
 				# Done loading
 				complete()
+
 
 		# Load Website's Configuration
 		preTasks.push (complete) =>
@@ -850,8 +868,10 @@ class DocPad extends EventEmitterEnhanced
 				# Done loading
 				complete()
 
+
 		# Run the load tasks synchronously
 		preTasks.sync()
+
 
 		# Chain
 		@
@@ -1062,7 +1082,7 @@ class DocPad extends EventEmitterEnhanced
 		# Custom Collections Group
 		tasks = new balUtil.Group (err) ->
 			docpad.error(err)  if err
-			return next()
+			docpad.emitSync('extendCollections',{},next)
 
 		# Cycle through Custom Collections
 		_.each @config.collections, (fn,name) ->
@@ -1100,7 +1120,7 @@ class DocPad extends EventEmitterEnhanced
 
 		# Perform any plugin extensions to what we just cleaned
 		# and forward
-		@emitSync('extendCollections',{},next)
+		@emitSync('populateCollections',{},next)
 
 		# Chain
 		@
@@ -1547,7 +1567,6 @@ class DocPad extends EventEmitterEnhanced
 									return next()
 
 								# Add to plugin stores
-								console.log(loader.pluginName,pluginInstance.config,docpad.getEnvironments())
 								docpad.loadedPlugins[loader.pluginName] = pluginInstance
 
 								# Log completion
@@ -1924,7 +1943,7 @@ class DocPad extends EventEmitterEnhanced
 
 	# Perform an action
 	# next(err,...), ... = any special arguments from the action
-	action: (action,opts,next) ->
+	action: (action,opts,next) =>
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
@@ -1946,55 +1965,17 @@ class DocPad extends EventEmitterEnhanced
 		# Next
 		next ?= (err) ->
 			docpad.fatal(err)  if err
+		forward = (args...) =>
+			@log 'debug', "Performed the action #{action}"
+			balUtil.wait 0, -> next(args...)
 
 		# Wrap
 		runner.pushAndRun (complete) ->
-			# Handle
-			switch action
-				when 'install', 'update'
-					docpad.install opts, (args...) ->
-						next(args...)
-						complete()
-
-				when 'skeleton', 'scaffold'
-					docpad.skeleton opts, (args...) ->
-						next(args...)
-						complete()
-
-				when 'load'
-					docpad.load opts, (args...) ->
-						next(args...)
-						complete()
-
-				when 'generate'
-					docpad.generate opts, (args...) ->
-						next(args...)
-						complete()
-
-				when 'clean'
-					docpad.clean opts, (args...) ->
-						next(args...)
-						complete()
-
-				when 'render'
-					docpad.render opts, (args...) ->
-						next(args...)
-						complete()
-
-				when 'watch'
-					docpad.watch opts, (args...) ->
-						next(args...)
-						complete()
-
-				when 'server'
-					docpad.server opts, (args...) ->
-						next(args...)
-						complete()
-
-				else
-					docpad.run opts, (args...) ->
-						next(args...)
-						complete()
+			# Forward
+			fn = docpad[action] or docpad.run
+			fn opts, (args...) ->
+				forward(args...)
+				complete()
 
 		# Chain
 		@
@@ -2005,7 +1986,7 @@ class DocPad extends EventEmitterEnhanced
 
 	# Generate Prepare
 	# next(err)
-	generatePrepare: (opts,next) ->
+	generatePrepare: (opts,next) =>
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
@@ -2024,7 +2005,7 @@ class DocPad extends EventEmitterEnhanced
 
 	# Generate Check
 	# next(err)
-	generateCheck: (opts,next) ->
+	generateCheck: (opts,next) =>
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
@@ -2049,7 +2030,7 @@ class DocPad extends EventEmitterEnhanced
 
 	# Generate Clean
 	# next(err)
-	generateClean: (opts,next) ->
+	generateClean: (opts,next) =>
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
@@ -2062,7 +2043,7 @@ class DocPad extends EventEmitterEnhanced
 
 	# Parse the files
 	# next(err)
-	generateParse: (opts,next) ->
+	generateParse: (opts,next) =>
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
@@ -2117,7 +2098,7 @@ class DocPad extends EventEmitterEnhanced
 
 	# Generate Render
 	# next(err)
-	generateRender: (opts,next) ->
+	generateRender: (opts,next) =>
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
@@ -2138,7 +2119,7 @@ class DocPad extends EventEmitterEnhanced
 
 	# Generate Postpare
 	# next(err)
-	generatePostpare: (opts,next) ->
+	generatePostpare: (opts,next) =>
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
@@ -2165,7 +2146,7 @@ class DocPad extends EventEmitterEnhanced
 
 	# Generate
 	# next(err)
-	generate: (opts,next) ->
+	generate: (opts,next) =>
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
@@ -2287,7 +2268,7 @@ class DocPad extends EventEmitterEnhanced
 
 	# Render Action
 	# next(err,document,result)
-	render: (opts,next) ->
+	render: (opts,next) =>
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 
@@ -2315,7 +2296,7 @@ class DocPad extends EventEmitterEnhanced
 	# Watch
 
 	# Watch
-	watch: (opts,next) ->
+	watch: (opts,next) =>
 		# Require
 		watchr = require('watchr')
 
@@ -2425,7 +2406,7 @@ class DocPad extends EventEmitterEnhanced
 	# ---------------------------------
 	# Run Action
 
-	run: (opts,next) ->
+	run: (opts,next) =>
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
@@ -2478,7 +2459,7 @@ class DocPad extends EventEmitterEnhanced
 	# Skeleton
 
 	# Skeleton
-	skeleton: (opts,next) ->
+	skeleton: (opts,next) =>
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
@@ -2559,7 +2540,7 @@ class DocPad extends EventEmitterEnhanced
 	# Server
 
 	# Server
-	server: (opts,next) ->
+	server: (opts,next) =>
 		# Require
 		express = require('express')
 
