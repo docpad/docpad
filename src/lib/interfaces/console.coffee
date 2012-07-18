@@ -170,7 +170,6 @@ class ConsoleInterface
 		instanceConfig = @extractConfig(command)
 		@docpad.action 'load ready', instanceConfig, (err) =>
 			return @completeAction(err)  if err
-			@docpad.welcome()
 			action(@completeAction)
 
 		# Chain
@@ -192,7 +191,7 @@ class ConsoleInterface
 		# Prepare
 		config = {}
 		commanderConfig = @commander
-		docpad = @docpad
+		sourceConfig = @docpad.initialConfig
 
 		# Rename special configuration
 		if commanderConfig.debug
@@ -201,12 +200,12 @@ class ConsoleInterface
 
 		# Apply global configuration
 		for own key, value of commanderConfig
-			if docpad.config[key]?
+			if sourceConfig[key]?
 				config[key] = value
 
 		# Apply custom configuration
 		for own key, value of customConfig
-			if docpad.config[key]?
+			if sourceConfig[key]?
 				config[key] = value
 
 		# Return config object
@@ -277,7 +276,7 @@ class ConsoleInterface
 
 		# Prepare filename
 		filename = commander.args[0] or null
-		if !filename or filenaconsoleInterface.split('.').length <= 2 # [name,ext,ext] = 3 parts
+		if !filename or consoleInterface.split('.').length <= 2 # [name,ext,ext] = 3 parts
 			opts.renderSingleExtensions = true
 		opts.filename = filename
 

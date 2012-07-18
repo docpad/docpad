@@ -1,5 +1,20 @@
 ## History
 
+- v6.3.0 July 18, 2012
+	- Added support for multiple environments
+	- Top-level configuration assumed to reflect the production environment, other environments will extend from it
+		- This is because getting a production environment configuration inside your development environment is fine, however getting a development environment configuration inside your production environment is catastrophic - as such, having the top-level configuration reflect the production environment handles this assumption correctly
+	- Added environment configuration support to plugins and their configuration
+	- Removed `package.json > docpad > plugin` configuration mode for a plugin's `package.json`, they should use the `config` property in their class instead
+	- Added `isEnabled()` to the plugin class, this reflects the `enabled` property in the plugin configuration, if it is false, then no events are executed for that plugin
+	- Killed the `docpad cli` action, no one used it and introduced a lot of complexity to the codebase
+	- Added `populateCollections` event, use this to insert things into our collections and blocks
+	- Added `docpadLoaded` event which fires whenever our configuration is re-loaded
+	- Fixed `clean` action from not behaving as expected
+		- Had the wrong indexOf indice value in the check
+	- Fixed default attributes not being kept inside document and file attributes
+		- Turns out Backbone's clear wipes everything, rather than reset to the default attributes and values
+
 - v6.2.0 July 10, 2012
 	- Dropped node v0.4 support
 		- Minimum required version is now 0.6

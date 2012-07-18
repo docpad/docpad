@@ -264,9 +264,6 @@ class DocPad extends EventEmitterEnhanced
 	# Plugins that are loading really slow
 	slowPlugins: null  # {}
 
-	# Plugins which DocPad have found
-	foundPlugins: null  # {}
-
 	# Loaded plugins indexed by name
 	loadedPlugins: null  # {}
 
@@ -504,7 +501,7 @@ class DocPad extends EventEmitterEnhanced
 
 		# Max Age
 		# The caching time limit that is sent to the client
-		maxAge: false
+		maxAge: 86400000
 
 
 		# -----------------------------
@@ -529,7 +526,7 @@ class DocPad extends EventEmitterEnhanced
 		# Whether or not we should report our errors back to DocPad
 		reportErrors: true
 
-		# Airbrake Toekn
+		# Airbrake Token
 		airbrakeToken: 'e7374dd1c5a346efe3895b9b0c1c0325'
 
 
@@ -559,7 +556,7 @@ class DocPad extends EventEmitterEnhanced
 
 		# Check Version
 		# Whether or not to check for newer versions of DocPad
-		checkVersion: true
+		checkVersion: false
 
 		# Collections
 		# A hash of functions that create collections
@@ -581,9 +578,9 @@ class DocPad extends EventEmitterEnhanced
 		# Environments
 		# Environment specific configuration to over-ride the global configuration
 		environments:
-			production:
-				checkVersion: false
-				maxAge: 86400000
+			development:
+				checkVersion: true
+				maxAge: false
 
 
 	# Get Environment
@@ -647,7 +644,6 @@ class DocPad extends EventEmitterEnhanced
 		# Dereference and initialise advanced variables
 		# we deliberately ommit initialTemplateData here, as it is setup in getTemplateData
 		@slowPlugins = {}
-		@foundPlugins = {}
 		@loadedPlugins = {}
 		@exchange = {}
 		@pluginsTemplateData = {}
@@ -918,12 +914,12 @@ class DocPad extends EventEmitterEnhanced
 
 			# Clean files
 			# but only if our outPath is not a parent of our rootPath
-			if rootPath.indexOf(outPath) is -1
+			if rootPath.indexOf(outPath) isnt -1
 				# our outPath is higher than our root path, so do not remove files
 				return next()
 			else
 				# our outPath is not related or lower than our root path, so do remove it
-				balUtil.rmdirDeep @config.outPath, (err,list,tree) ->
+				balUtil.rmdirDeep outPath, (err,list,tree) ->
 					docpad.log 'debug', 'Cleaned files'  unless err
 					return next()
 
@@ -1507,13 +1503,12 @@ class DocPad extends EventEmitterEnhanced
 			config.enabledPlugins[pluginName] is true
 		)
 
-		# Check if we already exist
-		if docpad.foundPlugins[pluginName]?
+		# If we've already been loaded, then exit early as there is no use for us to load again
+		if docpad.loadedPlugins[pluginName]?
 			return _next()
 
 		# Add to loading stores
 		docpad.slowPlugins[pluginName] = true
-		docpad.foundPlugins[pluginName] = true
 
 		# Check
 		unless enabled
@@ -1560,11 +1555,6 @@ class DocPad extends EventEmitterEnhanced
 							# It is loaded, create it
 							loader.create {}, (err,pluginInstance) ->
 								return next(err)  if err
-
-								# Enabled?
-								if pluginInstance.isEnabled() is false
-									docpad.log 'info', "Skipped the disabled plugin: #{pluginName}"
-									return next()
 
 								# Add to plugin stores
 								docpad.loadedPlugins[loader.pluginName] = pluginInstance
