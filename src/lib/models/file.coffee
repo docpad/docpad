@@ -272,13 +272,12 @@ class FileModel extends Model
 	# Parses some data, and loads the meta data and content from it
 	# next(err)
 	parseData: (data,next) ->
-		# Wipe everything
-		backup = @toJSON()
-		@clear()
+		# Prepare
 		encoding = 'utf8'
 
 		# Reset the file properties back to their originals
-		@set(
+		backup = @attributes
+		reset = balUtil.dereference balUtil.extend({},@defaults,{
 			data: data
 			basename: backup.basename
 			extension: backup.extension
@@ -291,7 +290,8 @@ class FileModel extends Model
 			relativeBase: backup.relativeBase
 			contentType: backup.contentType
 			urls: []
-		)
+		})
+		@set(reset)
 
 		# Extract content from data
 		if data instanceof Buffer
@@ -395,11 +395,10 @@ class FileModel extends Model
 			else
 				basename = filename.replace(/\..*$/, '')
 
-			# Extension
-			extensions = filename.split(/\./g)
-
-			# ignore the first result, as that is our filename
-			extensions.shift()
+			# Extensions
+			if extensions? is false or extensions.length is 0
+				extensions = filename.split(/\./g)
+				extensions.shift() # ignore the first result, as that is our filename
 
 			# determine the single extension that determine this file
 			if extensions.length
@@ -418,6 +417,7 @@ class FileModel extends Model
 					pathUtil.join(relativeDirPath, basename)
 				else
 					basename
+
 		# ID
 		id or= relativePath or fullPath or @cid
 

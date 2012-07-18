@@ -80,6 +80,9 @@ class DocumentModel extends FileModel
 		# The tags for this document
 		tags: null  # Array
 
+		# Whether or not we want to render single extensions
+		renderSingleExtensions: false
+
 
 	# ---------------------------------
 	# Functions
@@ -269,12 +272,10 @@ class DocumentModel extends FileModel
 			# Extract
 			extensions = @get('extensions')
 
-			# Rendered
+			# Extension REndered
 			if extensions? and extensions.length
 				extensionRendered = extensions[0]
-
-			# Apply
-			@set({extensionRendered})
+				@set({extensionRendered})
 
 			# Next
 			next()
@@ -419,7 +420,7 @@ class DocumentModel extends FileModel
 		{content,templateData,renderSingleExtensions} = opts
 		content ?= @get('body')
 		templateData ?= {}
-		renderSingleExtensions ?= false
+		renderSingleExtensions ?= @get('renderSingleExtensions')
 
 		# Prepare result
 		result = content
@@ -432,7 +433,7 @@ class DocumentModel extends FileModel
 			extensionsReversed.unshift(extension)
 
 		# If we want to allow rendering of single extensions, then add null to the extension list
-		extensionsReversed.push(null)  if extensionsReversed.length is 1 and opts.renderSingleExtensions
+		extensionsReversed.push(null)  if extensionsReversed.length is 1 and renderSingleExtensions
 
 		# If we only have one extension, then skip ahead to rendering layouts
 		return next(null,result)  if extensionsReversed.length <= 1

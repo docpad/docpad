@@ -64,6 +64,8 @@ class BasePlugin
 				eventHandler = pluginInstance[eventName]
 				# Wrap the event handler, and bind it to docpad
 				docpad.on eventName, (opts,next) ->
+					# Finish right away if we are disabled
+					return next()  if pluginInstance.isEnabled() is false
 					# Fire the function, treating the callback as optional
 					balUtil.fireWithOptionalCallback(eventHandler, [opts,next], pluginInstance)
 

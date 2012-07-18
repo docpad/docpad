@@ -5,6 +5,7 @@ DocPad = require(__dirname+'/../lib/docpad')
 chai = require('chai')
 expect = chai.expect
 joe = require('joe')
+_ = require('underscore')
 
 # -------------------------------------
 # Configuration
@@ -79,37 +80,26 @@ joe.suite 'docpad-core', (suite,test) ->
 				done(err)
 
 		suite 'results', (suite,test) ->
-			testMarkup = (markupFile) ->
-				test "#{markupFile}", (done) ->
-					balUtil.readFile "#{outExpectedPath}/#{markupFile}", (err,expected) ->
-						return done(err)  if err
-						balUtil.readFile "#{outPath}/#{markupFile}", (err,actual) ->
-							return done(err)  if err
-							# trim whitespace, to avoid util conflicts between node versions and other oddities
-							actualString = actual.toString().replace(/\s+/mg,'')
-							expectedString = expected.toString().replace(/\s+/mg,'')
-							# check equality
-							expect(actualString).to.be.equal(expectedString)
-							done()
+			testMarkup = (key,actual,expected) ->
+				test key, ->
+					# trim whitespace, to avoid util conflicts between node versions and other oddities
+					actualString = actual.replace(/\s+/mg,'')
+					expectedString = expected.replace(/\s+/mg,'')
+					# check equality
+					expect(actualString).to.be.equal(expectedString)
 
-			testMarkup(markupFile)  for markupFile in [
-				'.htaccess'
-				'attributes-nolayout.txt'
-				'attributes-withlayout.txt'
-				'coffee-parser.html'
-				'correct-layout.html'
-				'docpad-config-collection.html'
-				'docpad-config-events.html'
-				'file-different-extensions.ext1'
-				'file-different-extensions.ext2'
-				'file-dir-test.txt'
-				'file.with.many.extensions'
-				'html.html'
-				'local-require.html'
-				'public-dir-test.txt'
-				'test-layout-single.html'
-				'test-layout-double.html'
-			]
+			test 'same files', (done) ->
+				balUtil.scanlist outPath, (err,outList) ->
+					balUtil.scanlist outExpectedPath, (err,outExpectedList) ->
+						# check we have the same files
+						expect(_.difference(_.keys(outList),_.keys(outExpectedList))).to.be.empty
+						# check the contents of those files match
+						for own key,actual of outList
+							expected = outExpectedList[key]
+							testMarkup(key,actual,expected)
+						# done with same file check
+						# start the markup tests
+						done()
 
 
 	suite 'server', (suite,test) ->
