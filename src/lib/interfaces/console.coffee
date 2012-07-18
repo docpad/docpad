@@ -263,7 +263,7 @@ class ConsoleInterface
 		next()
 		@
 
-	install: (next) ->
+	install: (next) =>
 		@docpad.action('install',next)
 		@
 
