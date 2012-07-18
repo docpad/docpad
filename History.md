@@ -1,5 +1,8 @@
 ## History
 
+- v6.3.1 July 18, 2012
+	- Fixed `extendCollections` being called before the plugins have loaded when using the CLI
+
 - v6.3.0 July 18, 2012
 	- Added support for multiple environments
 	- Top-level configuration assumed to reflect the production environment, other environments will extend from it
