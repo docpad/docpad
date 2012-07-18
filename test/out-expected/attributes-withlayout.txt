@@ -16,7 +16,7 @@
   id: 'attributes-withlayout.txt.coffee',
   isDocument: true,
   layout: 'attributes.txt.coffee',
-  meta:
+  meta: 
    { title: 'Attributes With Layout',
      layout: 'attributes',
      tags: [ 'attributes', 'with-layout' ] },
@@ -52,7 +52,7 @@
   id: 'attributes-withlayout.txt.coffee',
   isDocument: true,
   layout: 'attributes.txt.coffee',
-  meta:
+  meta: 
    { title: 'Attributes With Layout',
      layout: 'attributes',
      tags: [ 'attributes', 'with-layout' ] },

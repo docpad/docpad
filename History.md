@@ -1,5 +1,11 @@
 ## History
 
+- v6.3.3 July 18, 2012
+	- Fixed binary file output
+		- Added binary files to the test suite so this won't happen again
+		- Was due to the dereference on the new clear introduced in v6.3.0
+			- As such, we now store the `data` attribute for files outside of the attributes, use `getData` and `setData(data)` now instead of `get('data')` and `set({data:data})`
+
 - v6.3.2 July 18, 2012
 	- Fixed install action
 
