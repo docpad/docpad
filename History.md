@@ -10,10 +10,12 @@
 	- Killed the `docpad cli` action, no one used it and introduced a lot of complexity to the codebase
 	- Added `populateCollections` event, use this to insert things into our collections and blocks
 	- Added `docpadLoaded` event which fires whenever our configuration is re-loaded
+	- Added support for overriding the `extension` attribute via your document's meta data
+	- Added support for the `renderSingleExtensions` attribute in documents
 	- Fixed `clean` action from not behaving as expected
 		- Had the wrong indexOf indice value in the check
-	- Fixed default attributes not being kept inside document and file attributes
-		- Turns out Backbone's clear wipes everything, rather than reset to the default attributes and values
+	- Fixed default attributes not being kept inside document and file attributes when cleared
+		- Turns out Backbone's `Mode::clear()` wipes everything, rather than reset to the default attributes and values
 
 - v6.2.0 July 10, 2012
 	- Dropped node v0.4 support
