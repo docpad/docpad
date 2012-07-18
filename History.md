@@ -1,5 +1,8 @@
 ## History
 
+- v6.3.2 July 18, 2012
+	- Fixed install action
+
 - v6.3.1 July 18, 2012
 	- Fixed `extendCollections` being called before the plugins have loaded when using the CLI
 
