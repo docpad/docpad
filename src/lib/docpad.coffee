@@ -798,13 +798,13 @@ class DocPad extends EventEmitterEnhanced
 						@config.nodePath = nodePath
 						complete()
 
-			# Load collections
-			postTasks.push (complete) =>
-				@createCollections(complete)
-
 			# Initialize
 			postTasks.push (complete) =>
 				@loadPlugins(complete)
+
+			# Load collections
+			postTasks.push (complete) =>
+				@createCollections(complete)
 
 			# Fetch plugins templateData
 			postTasks.push (complete) =>
