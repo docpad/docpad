@@ -25,6 +25,9 @@ class FileModel extends Model
 	# Stat Object
 	stat: null
 
+	# The contents of the file, stored as a Buffer
+	data: null
+
 
 	# ---------------------------------
 	# Attributes
@@ -79,9 +82,6 @@ class FileModel extends Model
 		# ---------------------------------
 		# Content variables
 
-		# The contents of the file, stored as a Buffer
-		data: null
-
 		# The encoding of the file
 		encoding: null
 
@@ -116,28 +116,30 @@ class FileModel extends Model
 	# Functions
 
 	# Initialize
-	initialize: (data,options) ->
+	initialize: (attrs,opts) ->
 		# Prepare
-		{outDirPath,stat} = options
+		{outDirPath,stat,data} = opts
 
 		# Apply
 		@outDirPath = outDirPath  if outDirPath
 		@setStat(stat)  if stat
-		@set({extensions:[], urls:[]},{silent:true})
+		@setData(data)  if data
+		@set({
+			extensions:[]
+			urls:[]
+		},{silent:true})
 
 		# Super
 		super
 
-	# Get the arguments for the action
-	# Using this contains the transparency with using opts, and not using opts
-	getActionArgs: (opts,next) ->
-		if balUtil.isFunction(opts) and next? is false
-			next = opts
-			opts = {}
-		else
-			opts or= {}
-		next or= opts.next or null
-		return {next,opts}
+	# Set Data
+	setData: (data) ->
+		@data = data
+		@
+
+	# Get Data
+	getData: ->
+		return @data
 
 	# Set Stat
 	setStat: (stat) ->
@@ -164,6 +166,17 @@ class FileModel extends Model
 	isBinary: ->
 		return @get('encoding') is 'binary'
 
+	# Get the arguments for the action
+	# Using this contains the transparency with using opts, and not using opts
+	getActionArgs: (opts,next) ->
+		if balUtil.isFunction(opts) and next? is false
+			next = opts
+			opts = {}
+		else
+			opts or= {}
+		next or= opts.next or null
+		return {next,opts}
+
 	# Load
 	# If the fullPath exists, load the file
 	# If it doesn't, then parse and normalize the file
@@ -173,9 +186,7 @@ class FileModel extends Model
 		file = @
 		filePath = @get('relativePath') or @get('fullPath') or @get('filename')
 		fullPath = @get('fullPath') or filePath or null
-		data = @get('data')
-
-		# Apply
+		data = @getData()
 
 		# Log
 		file.log('debug', "Loading the file: #{filePath}")
@@ -203,8 +214,11 @@ class FileModel extends Model
 					handlePath()
 				else
 					handleData()
-		else
+		else if data
 			handleData()
+		else
+			err = new Error('Nothing to load')
+			return next(err)
 
 		# Chain
 		@
@@ -278,7 +292,6 @@ class FileModel extends Model
 		# Reset the file properties back to their originals
 		backup = @attributes
 		reset = balUtil.dereference balUtil.extend({},@defaults,{
-			data: data
 			basename: backup.basename
 			extension: backup.extension
 			extensions: backup.extensions
@@ -292,6 +305,7 @@ class FileModel extends Model
 			urls: []
 		})
 		@set(reset)
+		@setData(data)
 
 		# Extract content from data
 		if data instanceof Buffer
@@ -477,13 +491,14 @@ class FileModel extends Model
 		# Prepare
 		file = @
 		fileOutPath = @get('outPath')
-		contentOrData = @get('content') or @get('data')
+		content = @get('content') or @getData()
+		encoding = @get('encoding')
 
 		# Log
 		file.log 'debug', "Writing the file: #{fileOutPath}"
 
 		# Write data
-		balUtil.writeFile fileOutPath, contentOrData, (err) ->
+		balUtil.writeFile fileOutPath, content, encoding, (err) ->
 			# Check
 			return next(err)  if err
 

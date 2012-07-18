@@ -2619,16 +2619,13 @@ class DocPad extends EventEmitterEnhanced
 							if url isnt pageUrl
 								return res.redirect(url,301)
 
-							# Fetch
-							contentTypeRendered = document.get('contentTypeRendered')
-							dynamic = document.get('dynamic')
-							contentRendered = document.get('contentRendered')
-
 							# Content Type
+							contentTypeRendered = document.get('contentTypeRendered')
 							if contentTypeRendered
 								res.contentType(contentTypeRendered)
 
 							# Send
+							dynamic = document.get('dynamic')
 							if dynamic
 								templateData = docpad.getTemplateData(req:req)
 								document.render {templateData}, (err) ->
@@ -2639,6 +2636,7 @@ class DocPad extends EventEmitterEnhanced
 									else
 										return res.send(contentRendered)
 							else
+								contentRendered = document.get('contentRendered')
 								if contentRendered
 									return res.send(contentRendered)
 								else

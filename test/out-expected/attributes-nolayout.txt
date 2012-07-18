@@ -15,7 +15,7 @@
   header: 'title: \'Attributes No Layout\'\ntags: [\'attributes\',\'with-layout\']\n',
   id: 'attributes-nolayout.txt.coffee',
   isDocument: true,
-  meta:
+  meta: 
    { title: 'Attributes No Layout',
      tags: [ 'attributes', 'with-layout' ] },
   name: 'attributes-nolayout.txt',
