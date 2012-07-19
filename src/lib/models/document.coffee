@@ -119,11 +119,22 @@ class DocumentModel extends FileModel
 	# Parses some data, and loads the meta data and content from it
 	# next(err)
 	parseData: (data,next) ->
-		# Reset
-		@layout = null
-		@getMeta().clear()
+		# Prepare
+		meta = @getMeta()
 
-		# Super
+		# Wipe any meta attributes that we've copied over to our file
+		reset = {}
+		for own key,value of meta.attributes
+			reset[key] = @defaults[key]
+		reset = balUtil.dereference(reset)
+		@set(reset)
+
+		# Then wipe the layout and clear the meta attributes from the meta model
+		@layout = null
+		meta.clear()
+
+		# Reparse the data and extract the content
+		# With the content, fetch the new meta data, header, and body
 		super data, =>
 			# Content
 			content = @get('content')
@@ -146,7 +157,7 @@ class DocumentModel extends FileModel
 				# Language
 				try
 					switch parser
-						when 'coffee', 'cson', 'coffeescript', 'coffee-script'
+						when 'cson', 'coffee', 'coffeescript', 'coffee-script'
 							CSON = require('cson')  unless CSON
 							meta = CSON.parseSync(header)
 							@meta.set(meta)
@@ -297,47 +308,60 @@ class DocumentModel extends FileModel
 				# Check
 				return next(err)  if err
 
+				# Prepare
+				changes = {}
+
 				# Fetch
 				meta = @getMeta()
-				fullPath = @get('fullPath') or null
-				basename = @get('basename') or null
-				relativeBase = @get('relativeBase') or null
-				relativeDirPath = @get('relativeDirPath') ? null
+				fullPath = @get('fullPath')
+				basename = @get('basename')
+				relativeDirPath = @get('relativeDirPath')
 				extensions = @get('extensions')
-				extensionRendered = @get('extensionRendered') or null
-				url = meta.get('url') or null
-				name = meta.get('name') or null
-				outPath = meta.get('outPath') or null
-				contentTypeRendered = null
+				extensionRendered = @get('extensionRendered')
+				url = meta.get('url')
+				name = meta.get('name')
+				outPath = meta.get('outPath')
 				filenameRendered = null
 
-				# Adjust
+				# Use our eve's rendered extension if it exists
 				if eve?
 					extensionRendered = eve.get('extensionRendered')
-				if basename? and extensionRendered?
+
+				# Figure out the rendered filename
+				if basename and extensionRendered
 					if basename[0] is '.' and extensionRendered is extensions[0]
 						filenameRendered = basename
 					else
 						filenameRendered = "#{basename}.#{extensionRendered}"
-				if relativeDirPath? and filenameRendered?
+					changes.filenameRendered = filenameRendered
+
+				# Figure out the rendered url
+				if !url and filenameRendered
 					if relativeDirPath
 						url = "/#{relativeDirPath}/#{filenameRendered}"
 					else
 						url = "/#{filenameRendered}"
-				if filenameRendered?
-					name or= filenameRendered
-				if @outDirPath?
-					outPath = pathUtil.join(@outDirPath,url)
-				if url?
+					changes.url = url
+
+				# Set name if it doesn't exist already
+				if !name and filenameRendered?
+					changes.name = name = filenameRendered
+
+				# Create the outPath if we have a outpute directory
+				if @outDirPath
+					changes.outPath = outPath = pathUtil.join(@outDirPath,url)
+
+				# Update the URL
+				if url
 					@removeUrl(@get('url'))
 					@setUrl(url)
 
 				# Content Types
 				if outPath or fullPath
-					contentTypeRendered = mime.lookup(outPath or fullPath)
+					changes.contentTypeRendered = contentTypeRendered = mime.lookup(outPath or fullPath)
 
 				# Apply
-				@set({extensionRendered,filenameRendered,url,name,outPath,contentTypeRendered})
+				@set(changes)
 
 				# Forward
 				next()

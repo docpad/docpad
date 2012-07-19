@@ -276,7 +276,7 @@ class ConsoleInterface
 
 		# Prepare filename
 		filename = commander.args[0] or null
-		if !filename or consoleInterface.split('.').length <= 2 # [name,ext,ext] = 3 parts
+		if !filename or filename.split('.').length <= 2 # [name,ext,ext] = 3 parts
 			opts.renderSingleExtensions = true
 		opts.filename = filename
 

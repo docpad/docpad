@@ -11,7 +11,7 @@ CSON = require('cson')
 DocPad = require(__dirname+'/docpad')
 
 # Prepare
-pluginPort = 1000+process.pid
+pluginPort = 2000+process.pid
 testers = {
 	underscore,
 	balUtil,
