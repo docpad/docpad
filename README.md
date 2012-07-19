@@ -115,7 +115,7 @@ Licensed under the incredibly [permissive](http://en.wikipedia.org/wiki/Permissi
 
 ## Special Thanks
 
-Special thanks to all our wonderful contributors who have helped make the DocPad core what it is today:
+Special thanks to all our wonderful contributors who have helped shaped the DocPad core of today:
 
 - [Benjamin Lupton](https://github.com/balupton)
 - [eldios](https://github.com/eldios)
@@ -130,8 +130,9 @@ Special thanks to all our wonderful contributors who have helped make the DocPad
 - [Ferrari Lee](https://github.com/Ferrari)
 - [Ben Barber](https://github.com/barberboy)
 - [Nick Crohn](https://github.com/ncrohn)
+- [Sven Vetsch](https://github.com/disenchant)
 
-And thanks to everyone else who has submitted plugins, posted issue reports, praised us publicly, and helped raise us to higher land.
+Also thanks to everybody else who has submitted plugins, posted issue reports, praised us publicly, and helped raise us to higher land.
 
 Sincerely, thank you. Lots of love from the DocPad Team!
 
