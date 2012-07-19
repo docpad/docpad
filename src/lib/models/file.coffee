@@ -78,6 +78,12 @@ class FileModel extends Model
 		# The MIME content-type for the source document
 		contentType: null
 
+		# The date object for when this document was created
+		ctime: null
+
+		# The date object for when this document was last modified
+		mtime: null
+
 
 		# ---------------------------------
 		# Content variables
@@ -95,7 +101,7 @@ class FileModel extends Model
 		# The title for this document
 		title: null
 
-		# The date object for this document
+		# The date object for this document, defaults to mtime
 		date: null
 
 		# The generated slug (url safe seo title) for this document
@@ -125,8 +131,9 @@ class FileModel extends Model
 		@setStat(stat)  if stat
 		@setData(data)  if data
 		@set({
-			extensions:[]
-			urls:[]
+			extensions: []
+			urls: []
+			id: @cid
 		},{silent:true})
 
 		# Super
@@ -289,24 +296,6 @@ class FileModel extends Model
 		# Prepare
 		encoding = 'utf8'
 
-		# Reset the file properties back to their originals
-		backup = @attributes
-		reset = balUtil.dereference balUtil.extend({},@defaults,{
-			basename: backup.basename
-			extension: backup.extension
-			extensions: backup.extensions
-			filename: backup.filename
-			fullPath: backup.fullPath
-			outPath: backup.outPath
-			outDirPath: backup.outDirPath
-			relativePath: backup.relativePath
-			relativeBase: backup.relativeBase
-			contentType: backup.contentType
-			urls: []
-		})
-		@set(reset)
-		@setData(data)
-
 		# Extract content from data
 		if data instanceof Buffer
 			encoding = @getEncoding(data)
@@ -323,6 +312,7 @@ class FileModel extends Model
 		content = content.replace(/\r\n?/gm,'\n').replace(/\t/g,'    ')
 
 		# Apply
+		@setData(data)
 		@set({content,encoding})
 
 		# Next
@@ -332,7 +322,7 @@ class FileModel extends Model
 	# Set the url for the file
 	setUrl: (url) ->
 		@addUrl(url)
-		@set(url: url)
+		@set({url})
 		@
 
 	# Add a url
@@ -385,62 +375,63 @@ class FileModel extends Model
 	# next(err)
 	normalize: (opts={},next) ->
 		# Prepare
-		{opts,next} = @getActionArgs(opts,next)
-		basename = @get('basename') or null
-		filename = @get('filename') or null
-		fullPath = @get('fullPath') or null
-		relativePath = @get('relativePath') or null
-		id = @get('id') or null
-		date = @get('date') or null
-		fullDirPath = @get('fullDirPath') or null
-		relativeDirPath = @get('relativeDirPath') ? ''
-		relativeBase = @get('relativeBase') or null
-		extension = @get('extension') or null
-		extensions = @get('extensions') or null
-		contentType = @get('contentType') or null
+		changes = {}
 
+		# Fetch
+		{opts,next} = @getActionArgs(opts,next)
+		basename = @get('basename')
+		filename = @get('filename')
+		fullPath = @get('fullPath')
+		extensions = @get('extensions')
+		relativePath = @get('relativePath')
+		mtime = @get('mtime')
 
 		# Filename
-		if fullPath?
-			filename = pathUtil.basename(fullPath)
-		if filename?
+		if fullPath
+			changes.filename = filename = pathUtil.basename(fullPath)
+
+		# Basename, extensions, extension
+		if filename
 			if filename[0] is '.'
 				basename = filename.replace(/^(\.[^\.]+)\..*$/, '$1')
 			else
 				basename = filename.replace(/\..*$/, '')
+			changes.basename = basename
 
 			# Extensions
 			if extensions? is false or extensions.length is 0
 				extensions = filename.split(/\./g)
 				extensions.shift() # ignore the first result, as that is our filename
+			changes.extensions = extensions
 
 			# determine the single extension that determine this file
 			if extensions.length
 				extension = extensions[extensions.length-1]
 			else
 				extension = null
+			changes.extension = extension
 
-		# Paths
-		if fullPath?
-			fullDirPath = pathUtil.dirname(fullPath) or ''
-			contentType = mime.lookup(fullPath)
-		if relativePath?
-			relativeDirPath = pathUtil.dirname(relativePath).replace(/^\.$/,'') or ''
-			relativeBase =
+		# fullDirPath, contentType
+		if fullPath
+			changes.fullDirPath = fullDirPath = pathUtil.dirname(fullPath) or ''
+			changes.contentType = contentType = mime.lookup(fullPath)
+
+		# relativeDirPath, relativeBase
+		if relativePath
+			changes.relativeDirPath = relativeDirPath = pathUtil.dirname(relativePath).replace(/^\.$/,'') or ''
+			changes.relativeBase = relativeBase =
 				if relativeDirPath
 					pathUtil.join(relativeDirPath, basename)
 				else
 					basename
-
-		# ID
-		id or= relativePath or fullPath or @cid
+			changes.id = id = relativePath
 
 		# Date
-		if @stat?
-			date or= new Date(@stat.mtime)
+		if mtime
+			changes.date = date = mtime
 
 		# Apply
-		@set({basename,filename,fullPath,relativePath,fullDirPath,relativeDirPath,id,relativeBase,extensions,extension,contentType,date})
+		@set(changes)
 
 		# Next
 		next()
@@ -450,36 +441,38 @@ class FileModel extends Model
 	# Put our data into perspective of the bigger picture. For instance, generate the url for it's rendered equivalant.
 	# next(err)
 	contextualize: (opts={},next) ->
+		# Prepare
+		changes = {}
+
 		# Fetch
 		{opts,next} = @getActionArgs(opts,next)
+		relativePath = @get('relativePath') or null
 		relativeBase = @get('relativeBase') or null
-		extensions = @get('extensions') or null
 		filename = @get('filename') or null
-		url = @get('url') or null
-		slug = @get('slug') or null
-		name = @get('name') or null
 		outPath = @get('outPath') or null
 		outDirPath = @get('outDirPath') or null
 
-		# Adjust
+		# Create the URL for the file
+		if relativePath?
+			url = "/#{relativePath}"
+			@setUrl(url)
+
+		# Create a slug for the file
 		if relativeBase?
-			if extensions? and extensions.length and filename?
-				if filename[0] is '.'
-					extensions = extensions.slice(1)
-				url = "/#{relativeBase}.#{extensions.join('.')}"
-			else
-				url = "/#{relativeBase}"
-			slug or= balUtil.generateSlugSync(relativeBase)
+			changes.slug = slug = balUtil.generateSlugSync(relativeBase)
+
+		# Set name if it doesn't exist already
 		if filename?
-			name or= filename
-		if @outDirPath?
-			outPath = pathUtil.join(@outDirPath,url)
-			outDirPath = pathUtil.dirname(outPath)  if outPath
-		if url?
-			@addUrl(url)
+			changes.name = name = filename
+
+		# Create the outPath if we have a outpute directory
+		if @outDirPath? and relativePath?
+			changes.outPath = outPath = pathUtil.join(@outDirPath,relativePath)
+			if outPath
+				changes.outDirPath = outDirPath = pathUtil.dirname(outPath)
 
 		# Apply
-		@set({url,slug,name,outPath,outDirPath})
+		@set(changes)
 
 		# Forward
 		next()

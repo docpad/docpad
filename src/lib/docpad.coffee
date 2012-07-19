@@ -3,7 +3,6 @@
 
 # Necessary
 pathUtil = require('path')
-fsUtil = require('fs')
 _ = require('underscore')
 caterpillar = require('caterpillar')
 CSON = require('cson')
@@ -131,31 +130,6 @@ class DocPad extends EventEmitterEnhanced
 	getEvents: ->
 		@events
 
-	errors:
-		'400': 'Bad Request'
-		'401': 'Unauthorized'
-		'402': 'Payment Required'
-		'403': 'Forbidden'
-		'404': 'Not Found'
-		'405': 'Method Not Allowed'
-		'406': 'Not Acceptable'
-		'407': 'Proxy Authentication Required'
-		'408': 'Request Timeout'
-		'409': 'Conflict'
-		'410': 'Gone'
-		'411': 'Length Required'
-		'412': 'Precondition Failed'
-		'413': 'Request Entity Too Large'
-		'414': 'Request-URI Too Long'
-		'415': 'Unsupported Media Type'
-		'416': 'Requested Range Not Satisfiable'
-		'417': 'Expectation Failed'
-		'500': 'Internal Server Error'
-		'501': 'Not Implemented'
-		'502': 'Bad Gateway'
-		'503': 'Service Unavailable'
-		'504': 'Gateway Timeout'
-		'505': 'HTTP Version Not Supported'
 
 	# ---------------------------------
 	# Collections
@@ -521,10 +495,6 @@ class DocPad extends EventEmitterEnhanced
 		# Extend Server
 		# Whether or not we should extend the server with extra middleware and routing
 		extendServer: true
-
-		# Enable Custom Error Pages
-		# A flag to provide an entry to handle custom error pages
-		useCustomErrors: false
 
 		# Port
 		# The port that the server should use
@@ -1322,6 +1292,7 @@ class DocPad extends EventEmitterEnhanced
 			{layoutId} = opts
 			layouts = docpad.getCollection('layouts')
 			layout = layouts.findOne(id: layoutId)
+			layout = layouts.findOne(relativePath: layoutId)  unless layout
 			layout = layouts.findOne(relativeBase: layoutId)  unless layout
 			next(null,{layout})
 
@@ -2560,6 +2531,54 @@ class DocPad extends EventEmitterEnhanced
 	# ---------------------------------
 	# Server
 
+	# Serve Document
+	serveDocument: (opts,next) =>
+		# Prepare
+		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		{document,err,req,res} = opts
+		docpad = @
+
+		# If no document, then exit early
+		unless document
+			if opts.statusCode?
+				return res.send(opts.statusCode)
+			else
+				return next()
+
+		# Content Type
+		contentType = document.get('contentTypeRendered') or document.get('contentType')
+		res.contentType(contentType)
+
+		# Send
+		dynamic = document.get('dynamic')
+		if dynamic
+			templateData = docpad.getTemplateData({req,err})
+			document.render {templateData}, (err) ->
+				content = document.get('contentRendered') or document.get('content') or document.getData()
+				if err
+					docpad.error(err)
+					return next(err)
+				else
+					if opts.statusCode?
+						return res.send(content, opts.statusCode)
+					else
+						return res.send(content)
+		else
+			content = document.get('contentRendered') or document.get('content') or document.getData()
+			if content
+				if opts.statusCode?
+					return res.send(content, opts.statusCode)
+				else
+					return res.send(content)
+			else
+				if opts.statusCode?
+					return res.send(opts.statusCode)
+				else
+					return next()
+
+		# Chain
+		@
+
 	# Server
 	server: (opts,next) =>
 		# Require
@@ -2631,7 +2650,7 @@ class DocPad extends EventEmitterEnhanced
 						return next(err)  if err
 
 						# Router Middleware
-						server.use server.router
+						server.use(server.router)
 
 						# Routing
 						server.use (req,res,next) ->
@@ -2650,66 +2669,32 @@ class DocPad extends EventEmitterEnhanced
 							if url isnt pageUrl
 								return res.redirect(url,301)
 
-							# Content Type
-							contentTypeRendered = document.get('contentTypeRendered')
-							if contentTypeRendered
-								res.contentType(contentTypeRendered)
-
-							# Send
-							dynamic = document.get('dynamic')
-							if dynamic
-								templateData = docpad.getTemplateData(req:req)
-								document.render {templateData}, (err) ->
-									contentRendered = document.get('contentRendered')
-									if err
-										docpad.error(err)
-										return next(err)
-									else
-										return res.send(contentRendered)
-							else
-								contentRendered = document.get('contentRendered')
-								if contentRendered
-									return res.send(contentRendered)
-								else
-									return next()
+							# Serve the document to the user
+							docpad.serveDocument({document,req,res,next})
 
 						# Static
 						if config.maxAge
-							server.use(express.static config.outPath, maxAge: config.maxAge)
+							server.use(express.static(config.outPath,{maxAge:config.maxAge}))
 						else
-							server.use(express.static config.outPath)
+							server.use(express.static(config.outPath))
 
 						# 404 Middleware
-						server.use (req, res, next) ->
+						server.use (req,res,next) ->
 							database = docpad.getDatabase()
-							return next() unless database
-							notFound = 404
-							if config.useCustomErrors
-								file = database.findOne(relativePath: '404.html')
-								if file
-									data = file.get('contentRendered') or document.get('content')
-								else
-									data = notFound + ' ' + errorCodes[notFound]
+							return res.send(500)  unless database
 
-								return res.send(data, notFound)
-							else
-								return res.send(notFound)
+							# Serve the document to the user
+							document = database.findOne(relativePath: '404.html')
+							docpad.serveDocument({document,req,res,next,statusCode:404})
 
 						# 500 Middleware
-						server.use (err, req, res, next) ->
+						server.error (err,req,res,next) ->
 							database = docpad.getDatabase()
-							return next() unless database
-							serverError = 500
-							if config.useCustomErrors
-								file = database.findOne(relativePath: '404.html')
-								if file
-									data = file.get('contentRendered') or document.get('content')
-								else
-									data = serverError + ' ' + errorCodes[serverError]
+							return res.send(500)  unless database
 
-								return res.send(data, serverError)
-							else
-								res.send(serverError)
+							# Serve the document to the user
+							document = database.findOne(relativePath: '404.html')
+							docpad.serveDocument({document,req,res,next,statusCode:500,err})
 
 				# Start the Server
 				startServer()

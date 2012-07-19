@@ -89,17 +89,27 @@ joe.suite 'docpad-core', (suite,test) ->
 					expect(actualString).to.be.equal(expectedString)
 
 			test 'same files', (done) ->
-				balUtil.scanlist outPath, (err,outList) ->
-					balUtil.scanlist outExpectedPath, (err,outExpectedList) ->
-						# check we have the same files
-						expect(_.difference(_.keys(outList),_.keys(outExpectedList))).to.be.empty
-						# check the contents of those files match
-						for own key,actual of outList
-							expected = outExpectedList[key]
-							testMarkup(key,actual,expected)
-						# done with same file check
-						# start the markup tests
-						done()
+				balUtil.scandir(
+					path:outPath
+					readFiles: true
+					ignoreHiddenFiles: false
+					next: (err,outList) ->
+						balUtil.scandir(
+							path: outExpectedPath
+							readFiles: true
+							ignoreHiddenFiles: false
+							next: (err,outExpectedList) ->
+								# check we have the same files
+								expect(_.difference(_.keys(outList),_.keys(outExpectedList))).to.be.empty
+								# check the contents of those files match
+								for own key,actual of outList
+									expected = outExpectedList[key]
+									testMarkup(key,actual,expected)
+								# done with same file check
+								# start the markup tests
+								done()
+						)
+				)
 
 
 	suite 'server', (suite,test) ->

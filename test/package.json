@@ -5,7 +5,7 @@
 	"dependencies": {
 		"moment": "1.6.x",
 		"docpad-plugin-markdown": "latest",
-		"docpad-plugin-coffee": "latest",
+		"docpad-plugin-coffeekup": "latest",
 		"docpad-plugin-eco": "latest"
 	}
 }
