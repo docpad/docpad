@@ -1,5 +1,8 @@
 ## History
 
+- v6.4.1 July 19, 2012
+	- Added new `source` attribute to the file model, as the `content` attribute on the document model is actually the `body` not the original content like it is in the file model
+
 - v6.4.0 July 19, 2012
 	- We now support `404 Not Found` and `500 Internal Server Error` error pages thanks to [Nick Crohn](https://github.com/ncrohn) for [pull request #251](https://github.com/bevry/docpad/pull/251)
 	- Fixed [#269](https://github.com/bevry/docpad/issues/269) where the `docpad render` command wouldn't work
