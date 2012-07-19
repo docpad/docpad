@@ -68,7 +68,7 @@
 		"docpad-server": "./bin/docpad-server"
 	},
 	"scripts": {
-		"test": "node ./out/test/docpad.test.js"
+		"test": "node ./out/test/everything.test.js"
 	},
 	"main": "./out/main.js"
 }

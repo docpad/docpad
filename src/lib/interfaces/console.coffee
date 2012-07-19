@@ -76,7 +76,9 @@ class ConsoleInterface
 		commander
 			.command('render [path]')
 			.description("render the file at <path> and output its results to stdout")
-			.action(consoleInterface.wrapAction(consoleInterface.render))
+			.action (command) ->
+				commander.debug ?= 5
+				consoleInterface.performAction(command,consoleInterface.render)
 
 		# generate
 		commander
@@ -270,7 +272,6 @@ class ConsoleInterface
 	render: (next) =>
 		# Prepare
 		docpad = @docpad
-		docpad.setLogLevel(5)  unless docpad.getLogLevel() is 7
 		commander = @commander
 		opts = {}
 

@@ -47,7 +47,7 @@ logger = null
 # -------------------------------------
 # Tests
 
-joe.suite 'docpad-core', (suite,test) ->
+joe.suite 'docpad-actions', (suite,test) ->
 
 	test 'create', (done) ->
 		docpad = DocPad.createInstance docpadConfig, (err) ->
@@ -110,7 +110,6 @@ joe.suite 'docpad-core', (suite,test) ->
 								done()
 						)
 				)
-
 
 	suite 'server', (suite,test) ->
 
