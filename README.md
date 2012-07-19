@@ -132,8 +132,10 @@ Special thanks to all our wonderful contributors who have helped shaped the DocP
 - [Nick Crohn](https://github.com/ncrohn)
 - [Sven Vetsch](https://github.com/disenchant)
 
-Also thanks to everybody else who has submitted plugins, posted issue reports, praised us publicly, and helped raise us to higher land.
+Also thanks to all the countless others who have continued to raise DocPad even higher by submitting plugins, issues reports, discussion topics, IRC chat messages, and praise on twitter. We love you.
 
-Sincerely, thank you. Lots of love from the DocPad Team!
+Lastly, thank YOU for giving us a go, believing us, and loving us. We love you too.
+
+Sincerely, the DocPad team
 
 [![Flattr this project](http://api.flattr.com/button/flattr-badge-large.png)](http://flattr.com/thing/344188/balupton-on-Flattr)
