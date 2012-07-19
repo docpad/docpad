@@ -1,5 +1,10 @@
 ## History
 
+- v6.4.0 July 19, 2012
+	- We now support `404 Not Found` and `500 Internal Server Error` error pages thanks to [Nick Crohn](https://github.com/ncrohn) for [pull request #251](https://github.com/bevry/docpad/pull/251)
+	- Fixed [#269](https://github.com/bevry/docpad/issues/269) where the `docpad render` command wouldn't work
+	- Fixed [#268](https://github.com/bevry/docpad/issues/268) where files which names start with a `.` from having a `.` appended to their output filename
+
 - v6.3.3 July 18, 2012
 	- Fixed binary file output
 		- Added binary files to the test suite so this won't happen again
