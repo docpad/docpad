@@ -131,7 +131,7 @@ Special thanks to all our wonderful contributors who have helped make the DocPad
 - [Ben Barber](https://github.com/barberboy)
 - [Nick Crohn](https://github.com/ncrohn)
 
-And thanks to everyone else who has submitted plugins, posted issue reports, praised us publicly, and helped raise us to higher groups.
+And thanks to everyone else who has submitted plugins, posted issue reports, praised us publicly, and helped raise us to higher land.
 
 Sincerely, thank you. Lots of love from the DocPad Team!
 
