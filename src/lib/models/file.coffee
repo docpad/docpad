@@ -97,6 +97,9 @@ class FileModel extends Model
 		# The encoding of the file
 		encoding: null
 
+		# The raw contents of the file, stored as a String
+		source: null
+
 		# The contents of the file, stored as a String
 		content: null
 
@@ -310,20 +313,20 @@ class FileModel extends Model
 		if data instanceof Buffer
 			encoding = @getEncoding(data)
 			if encoding is 'binary'
-				content = ''
+				source = ''
 			else
-				content = data.toString(encoding)
+				source = data.toString(encoding)
 		else if balUtil.isString(data)
-			content = data
+			source = data
 		else
-			content = ''
+			source = ''
 
 		# Trim the content
-		content = content.replace(/\r\n?/gm,'\n').replace(/\t/g,'    ')
+		content = source.replace(/\r\n?/gm,'\n').replace(/\t/g,'    ')
 
 		# Apply
 		@setData(data)
-		@set({content,encoding})
+		@set({source,content,encoding})
 
 		# Next
 		next()

@@ -178,10 +178,11 @@ class DocumentModel extends FileModel
 			# Update meta data
 			body = body.replace(/^\n+/,'')
 			@set(
+				source: content
+				content: body
 				header: header
 				body: body
 				parser: parser
-				content: body
 				name: @get('name') or @get('title') or @get('basename')
 			)
 
