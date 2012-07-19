@@ -336,12 +336,13 @@ class DocumentModel extends FileModel
 					changes.filenameRendered = filenameRendered
 
 				# Figure out the rendered url
-				if !url and filenameRendered
+				if filenameRendered
 					if relativeDirPath
-						url = "/#{relativeDirPath}/#{filenameRendered}"
+						relativeOutPath = "#{relativeDirPath}/#{filenameRendered}"
 					else
-						url = "/#{filenameRendered}"
-					changes.url = url
+						relativeOutPath = "#{filenameRendered}"
+					changes.relativeOutPath = relativeOutPath
+					changes.url = url = "/#{relativeOutPath}"  unless url
 
 				# Set name if it doesn't exist already
 				if !name and filenameRendered?
