@@ -53,7 +53,7 @@ At its core DocPad is a language agnostic document management system. This means
 1. Install DocPad
 
 	``` bash
-	[sudo] npm install -g -f docpad@6.3
+	[sudo] npm install -g -f docpad@6.4
 	[sudo] docpad install
 	```
 
@@ -113,8 +113,26 @@ Licensed under the incredibly [permissive](http://en.wikipedia.org/wiki/Permissi
 <br/>Copyright &copy; 2011 [Benjamin Lupton](http://balupton.com)
 
 
-## Thanks
+## Special Thanks
 
-<small>Sincerely, thank you. Lots of love from the DocPad Team</small>
+Special thanks to all our wonderful contributors who have helped make the DocPad core what it is today:
+
+- [Benjamin Lupton](https://github.com/balupton)
+- [eldios](https://github.com/eldios)
+- [Changwoo Park](https://github.com/pismute)
+- [Todd Anglin](https://github.com/toddanglin)
+- [Olivier Bazoud](https://github.com/obazoud)
+- [Zhao Lei](https://github.com/firede)
+- [Aaron Powell](https://github.com/aaronpowell)
+- [Andrew Patton](https://github.com/acusti)
+- [Paul Armstrong](https://github.com/paularmstrong)
+- [Sorin Ionescu](https://github.com/sorin-ionescu)
+- [Ferrari Lee](https://github.com/Ferrari)
+- [Ben Barber](https://github.com/barberboy)
+- [Nick Crohn](https://github.com/ncrohn)
+
+Also, thank _you_ for your continued support, loving DocPad, talking about to everyone you know, and raising us higher :)
+
+Sincerely, thank you. Lots of love from the DocPad Team
 
 [![Flattr this project](http://api.flattr.com/button/flattr-badge-large.png)](http://flattr.com/thing/344188/balupton-on-Flattr)
