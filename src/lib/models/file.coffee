@@ -452,28 +452,28 @@ class FileModel extends Model
 
 		# Fetch
 		{opts,next} = @getActionArgs(opts,next)
-		relativePath = @get('relativePath') or null
-		relativeDirPath = @get('relativeDirPath') or null
-		relativeBase = @get('relativeBase') or null
-		filename = @get('filename') or null
-		outPath = @get('outPath') or null
-		outDirPath = @get('outDirPath') or null
+		relativePath = @get('relativePath')
+		relativeDirPath = @get('relativeDirPath')
+		relativeBase = @get('relativeBase')
+		filename = @get('filename')
+		outPath = @get('outPath')
+		outDirPath = @get('outDirPath')
 
 		# Create the URL for the file
-		if relativePath?
+		if relativePath
 			url = "/#{relativePath}"
 			@setUrl(url)
 
 		# Create a slug for the file
-		if relativeBase?
+		if relativeBase
 			changes.slug = slug = balUtil.generateSlugSync(relativeBase)
 
 		# Set name if it doesn't exist already
-		if filename?
+		if filename
 			changes.name = name = filename
 
 		# Create the outPath if we have a outpute directory
-		if @outDirPath? and relativePath?
+		if @outDirPath and relativePath
 			changes.relativeOutDirPath = relativeOutDirPath = relativeDirPath  if  relativeDirPath?
 			changes.relativeOutPath = relativeOutPath = relativePath
 			changes.outPath = outPath = pathUtil.join(@outDirPath,relativePath)
