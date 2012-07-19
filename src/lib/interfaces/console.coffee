@@ -78,6 +78,7 @@ class ConsoleInterface
 			.description("render the file at <path> and output its results to stdout")
 			.action (command) ->
 				commander.debug ?= 5
+				commander.checkVersion = false
 				consoleInterface.performAction(command,consoleInterface.render)
 
 		# generate
@@ -289,7 +290,7 @@ class ConsoleInterface
 		renderDocument = ->
 			docpad.action 'render', opts, (err,result) ->
 				return docpad.fatal(err)  if err
-				process.stdout.write(result+'\n')
+				process.stdout.write(result)
 				next()
 
 		# Timeout if we don't have stdin

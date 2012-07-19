@@ -10,7 +10,8 @@ debug:
 	cd test; node --debug-brk ../bin/docpad run
 
 test-clean:
-	rm -Rf test/node_modules test/out
+	rm -Rf test/node_modules test/out test/npm-debug.log
+	cd test; npm install
 
 test-prepare:
 	make test-clean
@@ -25,8 +26,8 @@ install:
 
 clean:
 	rm -Rf lib node_modules/ npm-debug.log
-	make test-clean
 	npm install
+	make test-clean
 
 publish:
 	make clean

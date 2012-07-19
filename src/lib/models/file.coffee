@@ -131,6 +131,10 @@ class FileModel extends Model
 	initialize: (attrs,opts) ->
 		# Prepare
 		{outDirPath,stat,data} = opts
+		if attrs.data?
+			data = attrs.data
+			delete attrs.data
+			delete @attributes.data
 
 		# Apply
 		@outDirPath = outDirPath  if outDirPath

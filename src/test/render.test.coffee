@@ -1,5 +1,6 @@
 # RequirestestServer
 balUtil = require('bal-util')
+fs = require('fs')
 chai = require('chai')
 expect = chai.expect
 joe = require('joe')
@@ -9,24 +10,11 @@ _ = require('underscore')
 # Configuration
 
 # Vars
-port = 9780
 docpadPath = __dirname+'/../..'
 rootPath = docpadPath+'/test'
-srcPath = rootPath+'/src'
-outPath = rootPath+'/out'
-outExpectedPath = rootPath+'/out-expected'
-baseUrl = "http://localhost:#{port}"
-testWait = 1000*60*5  # five minutes
+renderPath = rootPath+'/render'
+expectPath = rootPath+'/render-expected'
 cliPath = docpadPath+'/bin/docpad'
-
-# Configure DocPad
-docpadConfig =
-	growl: false
-	port: port
-	rootPath: rootPath
-	logLevel: if process.env.TRAVIS_NODE_VERSION? then 7 else 5
-	skipUnsupportedPlugins: false
-	catchExceptions: false
 
 
 # -------------------------------------
@@ -34,8 +22,57 @@ docpadConfig =
 
 joe.suite 'docpad-render', (suite,test) ->
 
-	test 'markdown-file', (done) ->
-		command = [cliPath, 'render', 'src/documents/render-single-extensions-false.md']
-		balUtil.spawn command, {cwd:rootPath}, (err,stdout,stderr,code,signal) ->
-			console.log({stdout,err})
-			done(err)
+	# Check render physical files
+	inputs = [
+		{
+			filename: 'markdown-with-extension.md'
+			stdout: '*awesome*'
+		}
+		{
+			filename: 'markdown-with-extensions.html.md'
+			stdout: '<p><em>awesome</em></p>'
+		}
+	]
+	balUtil.each inputs, (input) ->
+		test input.filename, (done) ->
+			command = [cliPath, 'render', renderPath+'/'+input.filename]
+			balUtil.spawn command, {cwd:rootPath}, (err,stdout,stderr,code,signal) ->
+				return done(err)  if err
+				expect(stdout).to.equal(input.stdout)
+				done()
+
+	# Check rendering stdin inputs
+	inputs = [
+		{
+			testname: 'markdown without extension'
+			filename: ''
+			stdin: '*awesome*'
+			stdout: '*awesome*'
+		}
+		{
+			testname: 'markdown with extension'
+			filename: 'markdown'
+			stdin: '*awesome*'
+			stdout: '<p><em>awesome</em></p>'
+		}
+		{
+			testname: 'markdown with extensions'
+			filename: '.html.md'
+			stdin: '*awesome*'
+			stdout: '<p><em>awesome</em></p>'
+		}
+		{
+			testname: 'markdown with filename'
+			filename: 'example.html.md'
+			stdin: '*awesome*'
+			stdout: '<p><em>awesome</em></p>'
+		}
+	]
+	balUtil.each inputs, (input) ->
+		test input.testname, (done) ->
+			command = [cliPath, 'render']
+			command.push(input.filename)  if input.filename
+			balUtil.spawn command, {stdin:input.stdin,cwd:rootPath}, (err,stdout,stderr,code,signal) ->
+				return done(err)  if err
+				expect(stdout).to.equal(input.stdout)
+				done()
