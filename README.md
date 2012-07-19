@@ -105,6 +105,14 @@ You can discover the version history inside the [History.md](https://github.com/
 
 
 
+## License
+
+Licensed under the incredibly [permissive](http://en.wikipedia.org/wiki/Permissive_free_software_licence) [MIT License](http://creativecommons.org/licenses/MIT/)
+<br/>Copyright &copy; 2012 [Bevry Pty Ltd](http://bevry.me)
+<br/>Copyright &copy; 2011 [Benjamin Lupton](http://balupton.com)
+
+
+
 ## Special Thanks
 
 Special thanks to all our wonderful contributors who have helped make the DocPad core what it is today:
@@ -128,11 +136,3 @@ And thanks to everyone else who has submitted plugins, posted issue reports, pra
 Sincerely, thank you. Lots of love from the DocPad Team!
 
 [![Flattr this project](http://api.flattr.com/button/flattr-badge-large.png)](http://flattr.com/thing/344188/balupton-on-Flattr)
-
-
-
-## License
-
-Licensed under the incredibly [permissive](http://en.wikipedia.org/wiki/Permissive_free_software_licence) [MIT License](http://creativecommons.org/licenses/MIT/)
-<br/>Copyright &copy; 2012 [Bevry Pty Ltd](http://bevry.me)
-<br/>Copyright &copy; 2011 [Benjamin Lupton](http://balupton.com)
