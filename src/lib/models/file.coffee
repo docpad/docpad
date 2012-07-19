@@ -60,11 +60,17 @@ class FileModel extends Model
 		# The full directory path of our source file
 		fullDirPath: null
 
-		# The final rendered path of our file
+		# The output path of our file
 		outPath: null
 
-		# The final rendered path of our file's directory
+		# The output path of our file's directory
 		outDirPath: null
+
+		# The relative output path of our file
+		relativeOutPath: null
+
+		# The relative output path of our file's directory
+		relativeOutDirPath: null
 
 		# The relative path of our source file (with extensions)
 		relativePath: null
@@ -447,6 +453,7 @@ class FileModel extends Model
 		# Fetch
 		{opts,next} = @getActionArgs(opts,next)
 		relativePath = @get('relativePath') or null
+		relativeDirPath = @get('relativeDirPath') or null
 		relativeBase = @get('relativeBase') or null
 		filename = @get('filename') or null
 		outPath = @get('outPath') or null
@@ -467,6 +474,8 @@ class FileModel extends Model
 
 		# Create the outPath if we have a outpute directory
 		if @outDirPath? and relativePath?
+			changes.relativeOutDirPath = relativeOutDirPath = relativeDirPath  if  relativeDirPath?
+			changes.relativeOutPath = relativeOutPath = relativePath
 			changes.outPath = outPath = pathUtil.join(@outDirPath,relativePath)
 			if outPath
 				changes.outDirPath = outDirPath = pathUtil.dirname(outPath)

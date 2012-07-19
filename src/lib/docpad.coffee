@@ -2684,7 +2684,7 @@ class DocPad extends EventEmitterEnhanced
 							return res.send(500)  unless database
 
 							# Serve the document to the user
-							document = database.findOne(relativePath: '404.html')
+							document = database.findOne(relativeOutPath: '404.html')
 							docpad.serveDocument({document,req,res,next,statusCode:404})
 
 						# 500 Middleware
@@ -2693,7 +2693,7 @@ class DocPad extends EventEmitterEnhanced
 							return res.send(500)  unless database
 
 							# Serve the document to the user
-							document = database.findOne(relativePath: '404.html')
+							document = database.findOne(relativeOutPath: '500.html')
 							docpad.serveDocument({document,req,res,next,statusCode:500,err})
 
 				# Start the Server
