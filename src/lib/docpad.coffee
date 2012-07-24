@@ -117,6 +117,8 @@ class DocPad extends EventEmitterEnhanced
 		'generateAfter'
 		'parseBefore'
 		'parseAfter'
+		'contextualizeBefore'
+		'contextualizeAfter'
 		'renderBefore'
 		'render'
 		'renderDocument'
