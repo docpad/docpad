@@ -5,10 +5,11 @@ fsUtil = require('fs')
 
 # Export
 module.exports =
-	# Common
+	# Pre-Defined
 	DocPad: DocPad
 	queryEngine: queryEngine
 	Backbone: Backbone
+	createInstance: createInstance
 
 	# Require a local DocPad file
 	require: (relativePath) ->

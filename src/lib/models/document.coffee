@@ -244,22 +244,22 @@ class DocumentModel extends FileModel
 		# Fetch
 		fullPath = @get('fullPath')
 		content = @get('content')
-		body = @get('body')
-		parser = @get('parser')
+		parser = 'cson'
+		seperator = '---'
 
 		# Log
 		file.log 'debug', "Writing the source file: #{fullPath}"
 
 		# Adjust
 		header = CSON.stringifySync(@meta.toJSON())
-		body = body.replace(/^\s+/,'')
-		content = "### #{parser}\n#{header}\n###\n\n#{body}"
+		content = body = content.replace(/^\s+/,'')
+		source = "#{seperator} #{parser}\n#{header}\n#{seperator}\n\n#{body}"
 
 		# Apply
-		@set({header,body,content})
+		@set({parser,header,body,content,source})
 
 		# Write content
-		balUtil.writeFile fileOutPath, content, (err) ->
+		balUtil.writeFile fileOutPath, source, (err) ->
 			# Check
 			return next(err)  if err
 

@@ -164,11 +164,12 @@ class PluginLoader
 			coffee = require('coffee-script')  if !coffee and /\.coffee$/.test(@pluginPath)
 			# Load in our plugin
 			@pluginClass = require(@pluginPath)(@BasePlugin)
-			# Return our plugin
-			next(null,@pluginClass)
 		catch err
 			# An error occured, return it
-			next(err,null)
+			return next(err,null)
+
+		# Return our plugin
+		next(null,@pluginClass)
 
 		# Chain
 		@
@@ -184,9 +185,12 @@ class PluginLoader
 			# Create instance with merged configuration
 			docpad = @docpad
 			pluginInstance = new @pluginClass({docpad,config})
-			next(null,pluginInstance)
 		catch err
-			next(err,null)
+			# An error occured, return it
+			return next(err,null)
+		
+		# Return our instance
+		return next(null,pluginInstance)
 
 		# Chain
 		@
