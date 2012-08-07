@@ -1,6 +1,5 @@
 # RequirestestServer
 balUtil = require('bal-util')
-fs = require('fs')
 chai = require('chai')
 expect = chai.expect
 joe = require('joe')
@@ -13,6 +12,7 @@ _ = require('underscore')
 docpadPath = __dirname+'/../..'
 rootPath = docpadPath+'/test'
 renderPath = rootPath+'/render'
+outPath = rootPath+'/render-out'
 expectPath = rootPath+'/render-expected'
 cliPath = docpadPath+'/bin/docpad'
 
@@ -75,4 +75,20 @@ joe.suite 'docpad-render', (suite,test) ->
 			balUtil.spawn command, {stdin:input.stdin,cwd:rootPath}, (err,stdout,stderr,code,signal) ->
 				return done(err)  if err
 				expect(stdout).to.equal(input.stdout)
+				done()
+
+	# Works with out path
+	test 'outPath', (done) ->
+		input = {
+			in: '*awesome*'
+			out: '<p><em>awesome</em></p>'
+			outPath: outPath+'/outpath-render.html'
+		}
+		balUtil.spawn [cliPath, 'render', 'markdown', '-o', input.outPath], {stdin:input.in, cwd:rootPath}, (err,stdout,stderr,code,signal) ->
+			return done(err)  if err
+			expect(stdout).to.equal('')
+			balUtil.readFile outPath+'/outpath-render.html', (err,data) ->
+				return done(err)  if err
+				result = data.toString()
+				expect(result).to.equal(input.out)
 				done()

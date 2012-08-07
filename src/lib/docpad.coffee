@@ -534,18 +534,6 @@ class DocPad extends EventEmitterEnhanced
 		# -----------------------------
 		# Other
 
-		# NPM Path
-		# The location of our npm executable
-		npmPath: null
-
-		# Node Path
-		# The location of our node executable
-		nodePath: null
-
-		# Git Path
-		# The location of our git executable
-		gitPath: null
-
 		# Safe Mode
 		# If enabled, we will try our best to sandbox our template rendering so that they cannot modify things outside of them
 		# Not yet implemented
@@ -782,22 +770,6 @@ class DocPad extends EventEmitterEnhanced
 			# Prepare the Post Tasks
 			postTasks = new balUtil.Group (err) =>
 				return next(err,@config)
-
-			# Get the git path
-			unless @config.gitPath?
-				postTasks.push (complete) =>
-					balUtil.getGitPath (err,gitPath) =>
-						return docpad.error(err)  if err
-						@config.gitPath = gitPath
-						complete()
-
-			# Get the node path
-			unless @config.nodePath?
-				postTasks.push (complete) =>
-					balUtil.getNodePath (err,nodePath) =>
-						return docpad.error(err)  if err
-						@config.nodePath = nodePath
-						complete()
 
 			# Initialize
 			postTasks.push (complete) =>
@@ -1125,9 +1097,6 @@ class DocPad extends EventEmitterEnhanced
 	# Init Git Repo
 	# next(err,results)
 	initGitRepo: (opts) ->
-		# Prepare
-		opts.gitPath ?= @config.gitPath
-
 		# Forward
 		balUtil.initGitRepo(opts)
 
@@ -1138,8 +1107,6 @@ class DocPad extends EventEmitterEnhanced
 	# next(err,results)
 	initNodeModules: (opts={}) ->
 		# Prepare
-		opts.npmPath ?= @config.npmPath
-		opts.nodePath ?= @config.nodePath
 		opts.force ?= @config.force
 		opts.output ?= @getDebugging()
 
@@ -1521,12 +1488,12 @@ class DocPad extends EventEmitterEnhanced
 			# Load
 			docpad.log 'debug', "Loading plugin: #{pluginName}"
 
-			# Check if it exists
+			# Check existance
 			loader.exists (err,exists) ->
 				# Error or doesn't exist?
 				return next(err)  if err or not exists
 
-				# Check if it is supported
+				# Check support
 				loader.unsupported (err,unsupported) ->
 					# Error?
 					return next(err)  if err
@@ -1546,26 +1513,22 @@ class DocPad extends EventEmitterEnhanced
 								docpad.log 'warn', "Skipped the unsupported plugin: #{pluginName} due to #{unsupported}"
 							return next()
 
-					# It is supported, install its deps
-					loader.install (err) ->
+					# Load the class
+					loader.load (err) ->
 						return next(err)  if err
 
-						# It is now installed, load it
-						loader.load (err) ->
+						# Create an instance
+						loader.create {}, (err,pluginInstance) ->
 							return next(err)  if err
 
-							# It is loaded, create it
-							loader.create {}, (err,pluginInstance) ->
-								return next(err)  if err
+							# Add to plugin stores
+							docpad.loadedPlugins[loader.pluginName] = pluginInstance
 
-								# Add to plugin stores
-								docpad.loadedPlugins[loader.pluginName] = pluginInstance
+							# Log completion
+							docpad.log 'debug', "Loaded plugin: #{pluginName}"
 
-								# Log completion
-								docpad.log 'debug', "Loaded plugin: #{pluginName}"
-
-								# Forward
-								return next()
+							# Forward
+							return next()
 
 		# Chain
 		@
@@ -2552,7 +2515,8 @@ class DocPad extends EventEmitterEnhanced
 		# Send
 		dynamic = document.get('dynamic')
 		if dynamic
-			templateData = docpad.getTemplateData({req,err})
+			templateData = balUtil.extend({}, req.templateData or {}, {req,err})
+			templateData = docpad.getTemplateData(templateData)
 			document.render {templateData}, (err) ->
 				content = document.get('contentRendered') or document.get('content') or document.getData()
 				if err
@@ -2611,9 +2575,10 @@ class DocPad extends EventEmitterEnhanced
 				serverLocation = "http://#{serverHostname}:#{serverPort}/"
 				serverDir = config.outPath
 				docpad.log 'info', "DocPad listening to #{serverLocation} on directory #{serverDir}"
-				complete()
 			catch err
-				complete(err)
+				return complete(err)
+			finally
+				return complete()
 
 		# Plugins
 		docpad.emitSync 'serverBefore', {}, (err) ->
@@ -2646,7 +2611,7 @@ class DocPad extends EventEmitterEnhanced
 
 					# Emit the serverExtend event
 					# So plugins can define their routes earlier than the DocPad routes
-					docpad.emitSync 'serverExtend', {server}, (err) ->
+					docpad.emitSync 'serverExtend', {server,express}, (err) ->
 						return next(err)  if err
 
 						# Router Middleware

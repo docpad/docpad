@@ -6,8 +6,11 @@ DocPad.createInstance (err,docpad) ->
 	# Check
 	return console.log(err.stack)  if err
 
+	# Fetch the server action
+	serverAction = process.env.DOCPAD_SERVER_ACTION or 'generate server'
+
 	# Generate and Serve
-	docpad.action 'generate server', (err) ->
+	docpad.action serverAction, (err) ->
 		# Check
 		return console.log(err.stack)  if err
 

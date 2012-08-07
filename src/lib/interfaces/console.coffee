@@ -1,5 +1,6 @@
 # Requires
 {cliColor} = require('caterpillar')
+pathUtil = require('path')
 
 # Console Interface
 class ConsoleInterface
@@ -19,6 +20,14 @@ class ConsoleInterface
 
 		commander
 			.version(version)
+			.option(
+				'-o, --out <outPath>'
+				"where to output the rendered files (to a directory) or file (to an output file)"
+			)
+			.option(
+				'-c, --config <configPath>'
+				"a custom configuration file to load in"
+			)
 			.option(
 				'-e, --env <environment>'
 				"the environment name to use for this instance, multiple names can be separated with a comma"
@@ -196,10 +205,20 @@ class ConsoleInterface
 		commanderConfig = @commander
 		sourceConfig = @docpad.initialConfig
 
-		# Rename special configuration
+		# debug -> logLevel
 		if commanderConfig.debug
 			commanderConfig.debug = 7  if commanderConfig.debug is true
 			commanderConfig.logLevel = commanderConfig.debug
+
+		# config -> configPaths
+		if commanderConfig.config
+			configPath = pathUtil.resolve(process.cwd(),commanderConfig.config)
+			commanderConfig.configPaths = [configPath]
+
+		# out -> outPath
+		if commanderConfig.out
+			outPath = pathUtil.resolve(process.cwd(),commanderConfig.out)
+			commanderConfig.outPath = outPath
 
 		# Apply global configuration
 		for own key, value of commanderConfig
@@ -274,6 +293,7 @@ class ConsoleInterface
 		# Prepare
 		docpad = @docpad
 		commander = @commander
+		balUtil = require('bal-util')
 		opts = {}
 
 		# Prepare filename
@@ -290,8 +310,13 @@ class ConsoleInterface
 		renderDocument = ->
 			docpad.action 'render', opts, (err,result) ->
 				return docpad.fatal(err)  if err
-				process.stdout.write(result)
-				next()
+				# Path
+				if commander.out?
+					balUtil.writeFile(commander.out, result, next)
+				# Stdout
+				else
+					process.stdout.write(result)
+					next()
 
 		# Timeout if we don't have stdin
 		timeout = setTimeout(
