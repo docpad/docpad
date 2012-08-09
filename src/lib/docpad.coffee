@@ -1026,10 +1026,26 @@ class DocPad extends EventEmitterEnhanced
 				$or:
 					isDocument: true
 					isFile: true
-				outPath: $endsWith: '.html'
+				outExtension: 'html'
 			})
 			.on('add', (model) ->
 				docpad.log('debug', "Adding html file: #{model.attributes.fullPath}")
+			)
+		stylesheetCollection = database.createLiveChildCollection()
+			.setQuery('isStylesheet', {
+				$or:
+					isDocument: true
+					isFile: true
+				outExtension: $in: [
+					'css',
+					'scss', 'sass',
+					'styl', 'stylus'
+					'less'
+				]
+			})
+			.on('add', (model) ->
+				docpad.log('debug', "Adding stylesheet file: #{model.attributes.fullPath}")
+				model.attributescd .referencesOthers = true
 			)
 
 		# Apply collections
@@ -1037,6 +1053,7 @@ class DocPad extends EventEmitterEnhanced
 		@setCollection('files', filesCollection)
 		@setCollection('layouts', layoutsCollection)
 		@setCollection('html', htmlCollection)
+		@setCollection('stylesheets', stylesheetCollection)
 
 		# Blocks
 		metaBlock = new MetaCollection()

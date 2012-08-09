@@ -47,6 +47,9 @@ class FileModel extends Model
 		# "hello.md.eco" -> "eco"
 		extension: null
 
+		# The extension used for our output file
+		outExtension: null
+
 		# The file's extensions as an array
 		# "hello.md.eco" -> ["md","eco"]
 		extensions: null  # Array
@@ -55,34 +58,42 @@ class FileModel extends Model
 		filename: null
 
 		# The full path of our source file, only necessary if called by @load
-		fullPath: null
-
-		# The full directory path of our source file
-		fullDirPath: null
+		# @TODO: rename to `path` in next major breaking version
+		path: null
 
 		# The output path of our file
 		outPath: null
 
+		# The full directory path of our source file
+		# @TODO: rename to `dirPath` in next major breaking version
+		dirPath: null
+
 		# The output path of our file's directory
 		outDirPath: null
 
-		# The relative output path of our file
-		relativeOutPath: null
-
-		# The relative output path of our file's directory
-		relativeOutDirPath: null
+		# The file's name with the rendered extension
+		outFilename: null
 
 		# The relative path of our source file (with extensions)
 		relativePath: null
 
+		# The relative output path of our file
+		relativeOutPath: null
+
 		# The relative directory path of our source file
 		relativeDirPath: null
+
+		# The relative output path of our file's directory
+		relativeOutDirPath: null
 
 		# The relative base of our source file (no extension)
 		relativeBase: null
 
-		# The MIME content-type for the source document
+		# The MIME content-type for the source file
 		contentType: null
+
+		# The MIME content-type for the out file
+		outContentType: null
 
 		# The date object for when this document was created
 		ctime: null
@@ -108,7 +119,12 @@ class FileModel extends Model
 		# User set variables
 
 		# The title for this document
+		# Useful for page headings
 		title: null
+
+		# The name for this document, defaults to the filename
+		# Useful for navigation listings
+		name: null
 
 		# The date object for this document, defaults to mtime
 		date: null
@@ -402,6 +418,7 @@ class FileModel extends Model
 		# Filename
 		if fullPath
 			changes.filename = filename = pathUtil.basename(fullPath)
+			changes.outFilename = filename
 
 		# Basename, extensions, extension
 		if filename
@@ -423,11 +440,13 @@ class FileModel extends Model
 			else
 				extension = null
 			changes.extension = extension
+			changes.outExtension = extension
 
 		# fullDirPath, contentType
 		if fullPath
 			changes.fullDirPath = fullDirPath = pathUtil.dirname(fullPath) or ''
 			changes.contentType = contentType = mime.lookup(fullPath)
+			changes.outContentType = contentType
 
 		# relativeDirPath, relativeBase
 		if relativePath

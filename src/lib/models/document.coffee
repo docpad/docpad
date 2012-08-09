@@ -32,18 +32,13 @@ class DocumentModel extends FileModel
 	defaults:
 
 		# ---------------------------------
-		# Automaticly set variables
+		# Special variables
 
-		# The final extension used for our rendered file
+		# outExtension
+		# The final extension used for our file
 		# Takes into accounts layouts
 		# "layout.html", "post.md.eco" -> "html"
-		extensionRendered: null
-
-		# The file's name with the rendered extension
-		filenameRendered: null
-
-		# The MIME content-type for the out document
-		contentTypeRendered: null
+		# already defined in file.coffee
 
 		# Whether or not we reference other doucments
 		referencesOthers: false
@@ -284,10 +279,10 @@ class DocumentModel extends FileModel
 			# Extract
 			extensions = @get('extensions')
 
-			# Extension REndered
+			# Extension Rendered
 			if extensions? and extensions.length
-				extensionRendered = extensions[0]
-				@set({extensionRendered})
+				outExtension = extensions[0]
+				@set({outExtension})
 
 			# Next
 			next()
@@ -318,36 +313,36 @@ class DocumentModel extends FileModel
 				basename = @get('basename')
 				relativeDirPath = @get('relativeDirPath')
 				extensions = @get('extensions')
-				extensionRendered = @get('extensionRendered')
+				outExtension = @get('outExtension')
 				url = meta.get('url')
 				name = meta.get('name')
 				outPath = meta.get('outPath')
-				filenameRendered = null
+				outFilename = null
 
 				# Use our eve's rendered extension if it exists
 				if eve?
-					extensionRendered = eve.get('extensionRendered')
+					outExtension = eve.get('outExtension')
 
 				# Figure out the rendered filename
-				if basename and extensionRendered
-					if basename[0] is '.' and extensionRendered is extensions[0]
-						filenameRendered = basename
+				if basename and outExtension
+					if basename[0] is '.' and outExtension is extensions[0]
+						outFilename = basename
 					else
-						filenameRendered = "#{basename}.#{extensionRendered}"
-					changes.filenameRendered = filenameRendered
+						outFilename = "#{basename}.#{outExtension}"
+					changes.outFilename = outFilename
 
 				# Figure out the rendered url
-				if filenameRendered
+				if outFilename
 					if relativeDirPath
-						relativeOutPath = "#{relativeDirPath}/#{filenameRendered}"
+						relativeOutPath = "#{relativeDirPath}/#{outFilename}"
 					else
-						relativeOutPath = "#{filenameRendered}"
+						relativeOutPath = "#{outFilename}"
 					changes.relativeOutPath = relativeOutPath
 					changes.url = url = "/#{relativeOutPath}"  unless url
 
 				# Set name if it doesn't exist already
-				if !name and filenameRendered?
-					changes.name = name = filenameRendered
+				if !name and outFilename?
+					changes.name = name = outFilename
 
 				# Create the outPath if we have a outpute directory
 				if @outDirPath
@@ -360,7 +355,7 @@ class DocumentModel extends FileModel
 
 				# Content Types
 				if outPath or fullPath
-					changes.contentTypeRendered = contentTypeRendered = mime.lookup(outPath or fullPath)
+					changes.outContentType = outContentType = mime.lookup(outPath or fullPath)
 
 				# Apply
 				@set(changes)
