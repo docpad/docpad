@@ -1,16 +1,19 @@
 ## History
 
-- v6.5.0 August 3, 2012
+- v6.5.0 Unreleased, 2012
 	- Can now specify a custom configuration file vis the command line using `-c, --config <configPath>`
 	- Can now specify a custom outPath via the command line using `-o, --out <outPath>`
-	- Can now set template data via `req.templateData`
 	- Fixed `Document::writeSource`
 	- The `serverExtend` event will now also emit the `express` dependency if used
 	- When using the `docpad-server` executable, you can now customise the action via the `DOCPAD_SERVER_ACTION` environment variable
 	- No longer attempts to install plugins dependencies every time, this is outside the scope of DocPad and in the standard use cases already handled via npm
-	- No longer accepts `npmPath`, `gitPath`, and `nodePath` as configuration options, instead these should be environment variables at `NPM_PATH`, `GIT_PATH`, and `NODE_PATH` respectively (without the underscore is also acceptable)
 	- Fixed `require('docpad').createInstance` (was accidentally dropped in v6.2.0)
 	- Removed markdown files from `.npmignore` as they are now required for the new npm website listing
+	- Added new `stylesheet` collection that contains any stylesheet file (including pre-processors) and sets their `referenceOthers` property to `true`
+	- Possible breaking changes:
+		- Can now set template data via `req.templateData`
+		- No longer accepts `npmPath`, `gitPath`, and `nodePath` as configuration options, instead these should be environment variables at `NPM_PATH`, `GIT_PATH`, and `NODE_PATH` respectively (without the underscore is also acceptable)
+		- Renamed `extensionRendered` to `outExtension`, `filenameRendered` to `outFilename`, and `contentTypeRendered` to `outContentType` and moved them from the Document model to the File model
 
 - v6.4.1 July 19, 2012
 	- Added new `source` attribute to the file model, as the `content` attribute on the document model is actually the `body` not the original content like it is in the file model
