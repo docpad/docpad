@@ -130,6 +130,7 @@ Special thanks to all our wonderful contributors who have helped shaped the DocP
 - [Ferrari Lee](https://github.com/Ferrari)
 - [Ben Barber](https://github.com/barberboy)
 - [Nick Crohn](https://github.com/ncrohn)
+- [Bruno Héridet](https://github.com/Delapouite)
 - [Sven Vetsch](https://github.com/disenchant)
 
 Also thanks to all the countless others who have continued to raise DocPad even higher by submitting plugins, issues reports, discussion topics, IRC chat messages, and praise on twitter. We love you.
