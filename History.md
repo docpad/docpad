@@ -1,6 +1,6 @@
 ## History
 
-- v6.5.0 Unreleased, 2012
+- v6.5.0-v6.5.4 August 10, 2012
 	- Can now specify a custom configuration file vis the command line using `-c, --config <configPath>`
 	- Can now specify a custom outPath via the command line using `-o, --out <outPath>`
 	- Fixed `Document::writeSource`
@@ -271,7 +271,7 @@
 	- Fixed some UTF8 encoded files from being detected as binary
 	- Fixed documents with no extension being outputted with an undefined extension
 
-- v5.1.1 April 25, 2012
+- v5.1.0-v5.1.1 April 25, 2012
 	- Fixed EventEmitter warning
 	- Binary files can now be placed within the `src/documents` directory
 	- Removed eyes devDependency
@@ -286,7 +286,7 @@
 		- That ignored common pattern files/dirs are properly ignored
 		- That attributes are being applied properly
 
-- v5.0.4 April 14, 2012
+- v5.0.1-v5.0.4 April 14, 2012
 	- Updated balUtil from 1.4 to 1.5
 		- Fixes some scandir bugs
 	- Updated watchr from 1.0 to 2.0
@@ -316,7 +316,7 @@
 	- Exchange data now moved to the [docpad-extras](https://github.com/bevry/docpad-extras) repository
 	- Fixed broken `balupton.docpad` skeleton repo url
 
-- v4.0.3 April 6, 2012
+- v4.0.0-v4.0.3 April 6, 2012
 	- Added support for partials, with the new [Partials Plugin](https://github.com/bevry/docpad/tree/master/lib/exchange/plugins/partials)
 	- Added support for caching remote assets, with the new [Cachr Plugin](https://github.com/bevry/docpad/tree/master/lib/exchange/plugins/cachr)
 	- Added support for caching and parsing remote feeds, with the new [Feedr Plugin](https://github.com/bevry/docpad/tree/master/lib/exchange/plugins/feedr)
@@ -389,10 +389,7 @@
 	- Closes
 		- [#143](https://github.com/bevry/docpad/issues/143) - No errors on wrong layout
 
-- v3.2.7 February 15, 2012
-	- Stabilised the v3.2 branch
-
-- v3.2 February 15, 2012
+- v3.2.0-v3.2.7 February 15, 2012
 	- Cleaned architecture
 	- Added unit tests (uses mocha)
 	- Better source code documentation
@@ -423,19 +420,15 @@
 		- #57 - Offline Setup: Skeletons needs to be cached for future offline installs
 		- #55 - As a User, I want support for Moustache, so that I can use my preferred markup
 
-
 - v3.1 Unreleased
 	- Added an interactive cli
 	- Closes
 		- #125 - As a User, I want an Interactive CLI, so that I can do more with DocPad's CLI
 
-
-
 - v3.0 Unreleased
 	- Added a new event system
 	- Closes
 		- #60 - DocPad needs a better event system
-
 
 - v2.6 January 2, 2012
 	- Transferred DocPad's ownership from [Benjamin Lupton](http://balupton.com) to [Bevry](http://bevry.me) (Benjamin's company)
