@@ -1045,7 +1045,7 @@ class DocPad extends EventEmitterEnhanced
 			})
 			.on('add', (model) ->
 				docpad.log('debug', "Adding stylesheet file: #{model.attributes.fullPath}")
-				model.attributescd .referencesOthers = true
+				model.attributes.referencesOthers = true
 			)
 
 		# Apply collections
