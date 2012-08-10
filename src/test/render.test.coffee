@@ -4,18 +4,18 @@ chai = require('chai')
 expect = chai.expect
 joe = require('joe')
 _ = require('underscore')
-pathUtil = require('path');
+pathUtil = require('path')
 
 # -------------------------------------
 # Configuration
 
 # Vars
-docpadPath = __dirname+'/../..'
-rootPath = docpadPath+'/test'
-renderPath = rootPath+'/render'
-outPath = rootPath+'/render-out'
-expectPath = rootPath+'/render-expected'
-cliPath = pathUtil.resolve(docpadPath+'/bin/docpad')
+docpadPath = pathUtil.join(__dirname,'..','..')
+rootPath = pathUtil.join(docpadPath,'test')
+renderPath = pathUtil.join(rootPath,'render')
+outPath = pathUtil.join(rootPath,'render-out')
+expectPath = pathUtil.join(rootPath,'render-expected')
+cliPath = pathUtil.join(docpadPath,'bin','docpad')
 nodePath = null
 
 # -------------------------------------
@@ -43,7 +43,7 @@ joe.suite 'docpad-render', (suite,test) ->
 		]
 		balUtil.each inputs, (input) ->
 			test input.filename, (done) ->
-				command = [nodePath, cliPath, 'render', pathUtil.resolve(renderPath+'/'+input.filename)]
+				command = [nodePath, cliPath, 'render', pathUtil.join(renderPath,input.filename)]
 				balUtil.spawn command, {cwd:rootPath}, (err,stdout,stderr,code,signal) ->
 					return done(err)  if err
 					console.log({expect:stdout,toEqual:input})
@@ -80,7 +80,7 @@ joe.suite 'docpad-render', (suite,test) ->
 		]
 		balUtil.each inputs, (input) ->
 			test input.testname, (done) ->
-				command = [cliPath, 'render']
+				command = [nodePath, cliPath, 'render']
 				command.push(input.filename)  if input.filename
 				balUtil.spawn command, {stdin:input.stdin,cwd:rootPath}, (err,stdout,stderr,code,signal) ->
 					return done(err)  if err
@@ -92,12 +92,12 @@ joe.suite 'docpad-render', (suite,test) ->
 			input = {
 				in: '*awesome*'
 				out: '<p><em>awesome</em></p>'
-				outPath: outPath+'/outpath-render.html'
+				outPath: pathUtil.join(outPath,'outpath-render.html')
 			}
-			balUtil.spawn [cliPath, 'render', 'markdown', '-o', input.outPath], {stdin:input.in, cwd:rootPath}, (err,stdout,stderr,code,signal) ->
+			balUtil.spawn [nodePath, cliPath, 'render', 'markdown', '-o', input.outPath], {stdin:input.in, cwd:rootPath}, (err,stdout,stderr,code,signal) ->
 				return done(err)  if err
 				expect(stdout).to.equal('')
-				balUtil.readFile outPath+'/outpath-render.html', (err,data) ->
+				balUtil.readFile input.outPath, (err,data) ->
 					return done(err)  if err
 					result = data.toString()
 					expect(result).to.equal(input.out)
