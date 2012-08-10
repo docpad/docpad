@@ -2531,7 +2531,7 @@ class DocPad extends EventEmitterEnhanced
 
 		# Content Type
 		contentType = document.get('contentTypeRendered') or document.get('contentType')
-		res.contentType(contentType)
+		res.setHeader('Content-Type', contentType);
 
 		# Send
 		dynamic = document.get('dynamic')
