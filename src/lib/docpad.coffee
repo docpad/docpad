@@ -2202,31 +2202,35 @@ class DocPad extends EventEmitterEnhanced
 	# Render Path
 	# next(err,result)
 	renderPath: (path,opts,next) ->
-		document = @ensureDocument(
+		attributes = balUtil.extend({
 			fullPath: path
-		)
+		},opts.attributes)
+		document = @ensureDocument(attributes)
 		@loadAndRenderDocument(document,opts,next)
 		@
 
 	# Render Data
 	# next(err,result)
 	renderData: (content,opts,next) ->
-		document = @createDocument(
+		attributes = balUtil.extend({
 			filename: opts.filename
 			data: content
-		)
+		},opts.attributes)
+		document = @createDocument(attributes)
 		@loadAndRenderDocument(document,opts,next)
 		@
 
 	# Render Text
+	# Doesn't extract meta information, or render layouts
 	# next(err,result)
 	renderText: (text,opts,next) ->
-		document = @createDocument(
+		attributes = balUtil.extend({
 			filename: opts.filename
 			data: text
 			body: text
 			content: text
-		)
+		},opts.attributes)
+		document = @createDocument(attributes)
 		opts.actions ?= ['renderExtensions','renderDocument']
 		balUtil.flow(
 			object: document
