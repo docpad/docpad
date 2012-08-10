@@ -46,7 +46,6 @@ joe.suite 'docpad-render', (suite,test) ->
 				command = [nodePath, cliPath, 'render', pathUtil.join(renderPath,input.filename)]
 				balUtil.spawn command, {cwd:rootPath}, (err,stdout,stderr,code,signal) ->
 					return done(err)  if err
-					console.log({expect:stdout,toEqual:input})
 					expect(stdout).to.equal(input.stdout)
 					done()
 
@@ -60,10 +59,16 @@ joe.suite 'docpad-render', (suite,test) ->
 				stdout: '*awesome*'
 			}
 			{
-				testname: 'markdown with extension'
+				testname: 'markdown with extension as filename'
 				filename: 'markdown'
 				stdin: '*awesome*'
 				stdout: '<p><em>awesome</em></p>'
+			}
+			{
+				testname: 'markdown with extension'
+				filename: 'example.md'
+				stdin: '*awesome*'
+				stdout: '*awesome*'
 			}
 			{
 				testname: 'markdown with extensions'

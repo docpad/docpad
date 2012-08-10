@@ -298,16 +298,17 @@ class ConsoleInterface
 
 		# Prepare filename
 		filename = commander.args[0] or null
-		if !filename or filename.split('.').length <= 2 # [name,ext,ext] = 3 parts
-			opts.renderSingleExtensions = true
+		basename = pathUtil.basename(filename)
 		opts.filename = filename
+		opts.renderSingleExtensions = 'auto'
 
 		# Prepare text
-		opts.data = ''
+		data = ''
 
 		# Render
 		useStdin = true
 		renderDocument = ->
+			# Perform the render
 			docpad.action 'render', opts, (err,result) ->
 				return docpad.fatal(err)  if err
 				# Path
@@ -324,7 +325,7 @@ class ConsoleInterface
 				# Clear timeout
 				timeout = null
 				# Skip if we are using stdin
-				return  if opts.data.replace(/\s+/,'')
+				return  if data.replace(/\s+/,'')
 				# Close stdin as we are not using it
 				useStdin = false
 				stdin.pause()
@@ -337,13 +338,14 @@ class ConsoleInterface
 		stdin = process.stdin
 		stdin.resume()
 		stdin.setEncoding('utf8')
-		stdin.on 'data', (data) ->
-			opts.data += data.toString()
+		stdin.on 'data', (_data) ->
+			data += _data.toString()
 		process.stdin.on 'end', ->
 			return  unless useStdin
 			if timeout
 				clearTimeout(timeout)
 				timeout = null
+			opts.data = data
 			renderDocument()
 
 		@

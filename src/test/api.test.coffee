@@ -59,10 +59,16 @@ joe.suite 'docpad-api', (suite,test) ->
 				stdout: '*awesome*'
 			}
 			{
-				testname: 'markdown with extension'
+				testname: 'markdown with extension as filename'
 				filename: 'markdown'
 				stdin: '*awesome*'
 				stdout: '<p><em>awesome</em></p>'
+			}
+			{
+				testname: 'markdown with extension'
+				filename: 'example.md'
+				stdin: '*awesome*'
+				stdout: '*awesome*'
 			}
 			{
 				testname: 'markdown with extensions'
@@ -82,7 +88,7 @@ joe.suite 'docpad-api', (suite,test) ->
 				opts =
 					data: input.stdin
 					filename: input.filename
-					renderSingleExtensions: true
+					renderSingleExtensions: 'auto'
 				docpad.action 'render', opts, (err,result) ->
 					return done(err)  if err
 					expect(result).to.equal(input.stdout)

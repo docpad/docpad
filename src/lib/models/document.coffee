@@ -454,7 +454,9 @@ class DocumentModel extends FileModel
 			extensionsReversed.unshift(extension)
 
 		# If we want to allow rendering of single extensions, then add null to the extension list
-		extensionsReversed.push(null)  if extensionsReversed.length is 1 and renderSingleExtensions
+		if renderSingleExtensions and extensionsReversed.length is 1
+			if renderSingleExtensions isnt 'auto' or filename.replace(/^\./,'') is extensionsReversed[0]
+				extensionsReversed.push(null)
 
 		# If we only have one extension, then skip ahead to rendering layouts
 		return next(null,result)  if extensionsReversed.length <= 1
