@@ -2532,7 +2532,7 @@ class DocPad extends EventEmitterEnhanced
 				return next()
 
 		# Content Type
-		contentType = document.get('contentTypeRendered') or document.get('contentType')
+		contentType = document.get('outContentType') or document.get('contentType')
 		res.setHeader('Content-Type', contentType);
 
 		# Send
