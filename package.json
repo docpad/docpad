@@ -1,6 +1,6 @@
 {
 	"name": "docpad",
-	"version": "6.5.4",
+	"version": "6.5.5",
 	"description": "DocPad is a language agnostic document management system. This means you write your website as documents, in whatever language you wish, and DocPad will handle the compiling, templates and layouts for you. For static documents it will generate static files, for dynamic documents it'll re-render them on each request. You can utilise DocPad by itself, or use it as a module your own custom system. It's pretty cool, and well worth checking out. We love it.",
 	"homepage": "https://github.com/bevry/docpad",
 	"keywords": [
@@ -22,7 +22,21 @@
 		"Benjamin Lupton <b@lupton.cc> (http://balupton.com)"
 	],
 	"contributors": [
-		"Benjamin Lupton <b@lupton.cc> (http://balupton.com)"
+		"Benjamin Lupton <b@lupton.cc> (http://balupton.com)",
+		"eldios <lele@amicofigo.com> (https://github.com/eldios)",
+		"Changwoo Park <pismute@gmail.com> (https://github.com/pismute)",
+		"Todd Anglin (https://github.com/toddanglin)",
+		"Olivier Bazoud (https://github.com/obazoud)",
+		"Zhao Lei <aicoylei@gmail.com> (https://github.com/firede)",
+		"Aaron Powell <me@aaron-powell.com> (https://github.com/aaronpowell)",
+		"Andrew Patton <andrew@acusti.ca> (https://github.com/acusti)",
+		"Paul Armstrong <paul@paularmstrongdesigns.com> (https://github.com/paularmstrong)",
+		"Sorin Ionescu <sorin.ionescu@gmail.com> (https://github.com/sorin-ionescu)",
+		"Ferrari Lee <shiyung@gmail.com> (https://github.com/Ferrari)",
+		"Ben Barber (https://github.com/barberboy)",
+		"Nick Crohn <ncrohn@me.com> (https://github.com/ncrohn)",
+		"Bruno Héridet (https://github.com/Delapouite)",
+		"Sven Vetsch (https://github.com/disenchant)"
 	],
 	"bugs": {
 		"url": "https://github.com/bevry/docpad/issues"

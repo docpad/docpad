@@ -1,6 +1,6 @@
 ## History
 
-- v6.5.0-v6.5.4 August 10, 2012
+- v6.5.0-v6.5.5 August 10, 2012
 	- IMPORTANT: Renamed `extensionRendered` to `outExtension`, `filenameRendered` to `outFilename`, and `contentTypeRendered` to `outContentType` and moved them from the Document model to the File model
 	- The `serverExtend` event will now also emit the `express` dependency if used
 	- No longer attempts to install plugins dependencies every time, this is outside the scope of DocPad and in the standard use cases already handled via npm
@@ -19,6 +19,10 @@
 		- Removed markdown files from `.npmignore` as they are now required for the new npm website listing
 	- Fixed the regeneration not picking up changes when modifying a referenced stylesheet
 		- Added a new `stylesheet` collection that contains any stylesheet file (including pre-processors) and sets their `referenceOthers` property to `true`
+	- Fixed `contextualizeBefore` and `contextualizeAfter` events not firing
+		- Thanks to [Bruno Héridet](https://github.com/Delapouite) for [pull request #277](https://github.com/bevry/docpad/pull/277)
+	- Fixed `contentType` being looked up twice
+		- Thanks to [Nick Crohn](https://github.com/ncrohn) for [pull request #273](https://github.com/bevry/docpad/pull/273)
 
 - v6.4.1 July 19, 2012
 	- Added new `source` attribute to the file model, as the `content` attribute on the document model is actually the `body` not the original content like it is in the file model
