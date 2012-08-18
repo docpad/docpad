@@ -1,5 +1,8 @@
 ## History
 
+- v6.5.6 August 19, 2012
+	- Added `regenerateEvery` configuration option
+
 - v6.5.0-v6.5.5 August 10, 2012
 	- IMPORTANT: Renamed `extensionRendered` to `outExtension`, `filenameRendered` to `outFilename`, and `contentTypeRendered` to `outContentType` and moved them from the Document model to the File model
 	- The `serverExtend` event will now also emit the `express` dependency if used
