@@ -557,6 +557,10 @@ class DocPad extends EventEmitterEnhanced
 		# A hash of event handlers
 		events: {}
 
+		# Regenerate Every
+		# Performs a rengeraete every x milliseconds, useful for always having the latest data
+		regenerateEvery: false
+
 
 		# -----------------------------
 		# Environment Configuration
@@ -573,6 +577,9 @@ class DocPad extends EventEmitterEnhanced
 				checkVersion: true
 				maxAge: false
 
+	# Regenerate Timer
+	# When config.regenerateEvery is set to a value, we create a timer here
+	regenerateTimer: null
 
 	# Get Environment
 	getEnvironment: ->
@@ -768,6 +775,17 @@ class DocPad extends EventEmitterEnhanced
 				catch err
 					airbrake = false
 
+			# Regenerate Timer
+			if @regenerateTimer
+				clearInterval(@regenerateTimer)
+				@regenerateTimer = null
+			if @config.regenerateEvery
+				@regenerateTimer = setInterval(
+					->
+						docpad.log('info', 'Performing interval regeneration')
+						docpad.action('generate')
+					@config.regenerateEvery
+				)
 
 			# Prepare the Post Tasks
 			postTasks = new balUtil.Group (err) =>
@@ -1315,25 +1333,27 @@ class DocPad extends EventEmitterEnhanced
 	ensureFileOrDocument: (data={},options={}) =>
 		docpad = @
 		database = @getDatabase()
-		fileFullPath = data.fullPath
+		fileFullPath = data.fullPath or null
 		result = database.findOne(fullPath: fileFullPath)
 
 		# Create result
 		unless result
-			# Check if we have a document or layout
-			for dirPath in docpad.config.documentsPaths.concat(docpad.config.layoutsPaths)
-				if fileFullPath.indexOf(dirPath) is 0
-					data.relativePath or= fileFullPath.replace(dirPath,'').replace(/^[\/\\]/,'')
-					result = @createDocument(data,options)
-					break
-
-			# Check if we have a file
-			unless result
-				for dirPath in docpad.config.filePaths
+			# If we have a file path to compare
+			if fileFullPath
+				# Check if we have a document or layout
+				for dirPath in docpad.config.documentsPaths.concat(docpad.config.layoutsPaths)
 					if fileFullPath.indexOf(dirPath) is 0
 						data.relativePath or= fileFullPath.replace(dirPath,'').replace(/^[\/\\]/,'')
-						result = @createFile(data,options)
+						result = @createDocument(data,options)
 						break
+
+				# Check if we have a file
+				unless result
+					for dirPath in docpad.config.filePaths
+						if fileFullPath.indexOf(dirPath) is 0
+							data.relativePath or= fileFullPath.replace(dirPath,'').replace(/^[\/\\]/,'')
+							result = @createFile(data,options)
+							break
 
 			# Otherwise, create a file anyway
 			unless result
