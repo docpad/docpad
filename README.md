@@ -1,6 +1,6 @@
 # DocPad. Streamlined web development. [![Build Status](https://secure.travis-ci.org/bevry/docpad.png?branch=master)](http://travis-ci.org/bevry/docpad)
 
-Hi! I'm DocPad, I streamline the web development process and help close the gap between experts and beginners. I've been used in production by big and small companies for over a year and a half now to create [plenty of amazing and powerful web sites and applications](https://github.com/bevry/docpad/wiki/Showcase) quicker than ever before. What makes me different is instead of being a box to cram yourself into and hold you back, I'm a freeway to what you want to accomplish, just getting out of your way and allowing you to create stuff quicker than ever before, without any limits. Leave the redudant stuff up to me, so you can focus on the awesome stuff.
+Hi! I'm DocPad, I streamline the web development process and help close the gap between experts and beginners. I've been used in production by big and small companies for over a year and a half now to create [plenty of amazing and powerful web sites and applications](https://github.com/bevry/docpad/wiki/Showcase) quicker than ever before. What makes me different is instead of being a box to cram yourself into and hold you back, I'm a freeway to what you want to accomplish, just getting out of your way and allowing you to create stuff quicker than ever before without limits. Leave the redudant stuff up to me, so you can focus on the awesome stuff.
 
 Discover my features below, or skip ahead to the installation instructions to get started with a [fully functional pre-made website](https://github.com/bevry/docpad/wiki/Skeletons) in a few minutes from reading this.
 
@@ -37,6 +37,14 @@ Discover my features below, or skip ahead to the installation instructions to ge
 - Add a admin interface to your website allowing you to edit, save and preview your changes on live websites then push them back to your source repository with the Admin Plugin - under construction, coming soon
 - Pretty much if DocPad doesn't already do something, it is trivial to [write a plugin](https://github.com/bevry/docpad/wiki/Extending) to do it, seriously DocPad can accomplish anything, it never holds you back, there are no limits, it's like super powered guardian angel
 - There are also [plenty of other plugins](https://github.com/bevry/docpad/wiki/Plugins) not listed here that are still definitely worth checking out! :)
+
+
+## People love DocPad
+
+All sorts of people love DocPad, from first time web developers to even industry leaders and experts. In fact, people even migrate to DocPad from other systems as they love it so much. Here are some our [favourite tweets](https://twitter.com/#!/DocPad/favorites) of what people are saying about DocPad :)
+
+[![Some favourite tweets about DocPad](https://raw.github.com/bevry/docpad/dev/docs/favs.gif)](https://twitter.com/#!/DocPad/favorites)
+
 
 
 
