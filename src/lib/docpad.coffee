@@ -1349,7 +1349,7 @@ class DocPad extends EventEmitterEnhanced
 
 				# Check if we have a file
 				unless result
-					for dirPath in docpad.config.filePaths
+					for dirPath in docpad.config.filesPaths
 						if fileFullPath.indexOf(dirPath) is 0
 							data.relativePath or= fileFullPath.replace(dirPath,'').replace(/^[\/\\]/,'')
 							result = @createFile(data,options)

@@ -1,5 +1,9 @@
 ## History
 
+- v6.5.7 August 26, 2012
+	- Fixed "cannot get length of undefined" intermittent error
+		- Due to an incorret variable name inside `DocPad::ensureDocumentOrFile`
+
 - v6.5.6 August 19, 2012
 	- Added `regenerateEvery` configuration option
 
