@@ -1,48 +1,53 @@
-# DocPad. Intuitive web development. [![Build Status](https://secure.travis-ci.org/bevry/docpad.png?branch=master)](http://travis-ci.org/bevry/docpad)
+# DocPad. Accessible web development. [![Build Status](https://secure.travis-ci.org/bevry/docpad.png?branch=master)](http://travis-ci.org/bevry/docpad)
 
-Initially web development was pretty easy, you just wrote a bunch of files and you got your website. These days, it's a lot more complicated than that. Things like databases, synchronisation, legacy frameworks and languages all slow the entire process down into a painful crawl. _It doesn't have to be like that._
+I'm DocPad, I streamline the processes of web development, and help close the gap between experts and beginners. I've helped companies big and small create [amazing powerful web sites and applications](https://github.com/bevry/docpad/wiki/Showcase) for over a year now quicker than ever before. What makes me different is that I just enhance web development in general, rather than being a new box to cram yourself into - meaing I have no limits and provide a powerful rubust infrastructure that helps you get stuff done faster while getting out of your way the entire time.
 
-DocPad takes that good ol' simple approach of writing files and wraps it with the best modern innovations, providing an awesome intuitive, liberating and empowering solution for HTML5 web design & development.
+Discover my features below, or simply skip to the installation instructions to get started with a [fully functional pre-made website](https://github.com/bevry/docpad/wiki/Skeletons) in a few minutes from reading this.
 
-At its core DocPad is a language agnostic document management system. This means you write your website as documents, in whatever language you wish, and DocPad will handle the compiling, templates and layouts for you. For static documents it will generate static files, for dynamic documents it'll re-render them on each request. You can utilise DocPad by itself, or use it as a module your own custom system. It's pretty cool, and well worth checking out. We love it.
+## Features
 
+### Out of the box
 
-
-## When would using DocPad be ideal?
-
-- for learning and implementing new languages and web technologies into real-world applications
-	- DocPad's ability to run a potential infinite amount of languages is amazing, and as you are always working with a real website you're never forced to re-implement anything into another system.
-
-- for rapid prototyping of new interfaces which need to facilate changes quickly
-	- The ability to get up and running as quickly as possible with DocPad really helps here, along with its support for pre-precessors you can quickly move about your codebase and rejig things when things need to change - without having to rewrite any architecture.
-
-- for frontend prototypes which will be handed over to the backend developers for implementation
-	- Often to gain layouts, templating, and pre-precessor support we'll have to implement a web framework, a templating engine, and code a custom build script for each of our pre-precessors that we use. This takes a lot of uncessary time, and complicates things during handover to the backend developers who then need to learn the tools that you've used. Using DocPad we abstract all that difficulty and handle it beautifully, allowing you to just focus on the files you want to write, and we'll provide you with the layout engine, templating engine, and pre-precessor support you need. When it comes to handover, the backend developers will have your source files, as well as the compiled files allowing them to use whichever is easiest for them.
-
-- for simple websites like blogs, launch pages, etc
-	- DocPad's static site generation abilities are great for this, and with DocPad's built-in support for dynamic documents we can also cater for the odd search page, enquiry form or twitter stream
-
-- for thick client-side web applications
-	- Combining DocPad's pre-precessor support and static site generation is amazing for developing thick client applications, as you can utilise the latest pre-precessors at any time, allowing you to focus on the problem, instead of how to implement the problem
+- Competely file based meaning there is no pesky database that needs to be installed, and you get version control with systems you're already use to like Git and SVN (You can still hook in remote data sources if you want, DocPad doesn't impose any limits on you, ever)
+- Plenty of community maintained [pre-made websites](https://github.com/bevry/docpad/wiki/Skeletons) for you to use for your next project instead of always starting from scratch
+- Write your documents in any language you wish, be it CoffeeScript to JavaScript, LESS to CSS or even Markdown or HAML to HTML via our [plentiful community maintained pugins](https://github.com/bevry/docpad/wiki/Plugins)
+- Changes to your website are automatically recompiled through our built in watch system
+- Add meta data to the top of your files to be used by templating engines to display non-standard information such as titles and descriptions for your documents
+- Display custom listings of content with our powerful Query Engine available to your templating engines
+- Abstract out generic headers and footers into layouts using our nested layout system
+- For simple static websites easily deploy your generated website to any web server like apache or github pages
+- For dynamic projects deploy them to servers like heroku and nodejitsu to take advantage of custom routing with express.js
+- Built-in server to save you from having to startup your own, for dynamic deployments this even supports things like clean urls and custom routes
+- Robust architecture and powerful plugin system means that you are never boxed in unlike traditional CMS systems, instead you can always [extend DocPad](https://github.com/bevry/docpad/wiki/Extending) to do what you need it to do, and you can even write and share plugins to bundle common custom functionality
+- You can use it standalone, or even easily include it within your existing systems with our [API](https://github.com/bevry/docpad/wiki/API)
 
 
+### With our amazing community maintained plugins
 
-## Benefits over other Static Site Generators
+- Use the [Live Reload](https://github.com/bevry/docpad-extras/tree/master/plugins/livereload) plugin to automatically refresh your web browser whenever a change is made
+- Pull in remote RSS/Atom/JSON feeds into your templating engines allowing you to display your latest twitter updates or github projects easily and effortlessly using the [Feedr Plugin](https://github.com/bevry/docpad-extras/tree/master/plugins/feedr/)
+- Support for every templating engine and pre-processor under the sun, including  but not limited to CoffeeScript, CoffeeKup, ECO, HAML, Handlebars, Jade, Less, Markdown, PHP, Ruby, SASS and Stylus - [full listing here](https://github.com/bevry/docpad/wiki/Plugins)
+- Use the [Partials Plugin](https://github.com/bevry/docpad-extras/tree/master/plugins/partials/) to abstract common pieces of code into their own individual file that can be included as much as you want
+- Syntax highlight code blocks automatically with our [Pygments Plugin](https://github.com/bevry/docpad-extras/tree/master/plugins/pygments/)
+- Get SEO friendly clean URLs with our [Clean URLs Plugin](https://github.com/bevry/docpad-extras/tree/master/plugins/cleanurls/) - dynamic deployments only
+- Lint your code automatically with our Lint Plugin - under development, coming soon
+- Concatenate and minify your JavaScript and CSS assets making pages load faster for your users with our Minify Plugin - under development, coming soon
+- Automatically translate your entire website into other languages with our Translation Plugin - under development, coming soon
+- Install common javascript libraries like jQuery, Backbone and Underscore directly from the common line - under development, coming soon
+- Add a admin interface to your website allowing you to edit, save and preview your changes on live websites then push them back to your source repository with the Admin Plugin - under development, coming soon
+- Pretty much if DocPad doesn't already do something, it is trivial to [write a plugin](https://github.com/bevry/docpad/wiki/Extending) to do it, seriously DocPad can accomplish anything, it never holds you back
+- There's also [plenty more plugins](https://github.com/bevry/docpad/wiki/Plugins) that haven't been listed here, well worth checking out!
 
-- Truly language agnostic, able to code your documents in any markup or pre-precessor that you like, you can even mix and match them!
-    - _[see what markups are already supported](https://github.com/bevry/docpad/wiki/Plugins)_
-- Great for any type of website, not just for blogging
-    - _[discover existing websites already built with DocPad](https://github.com/bevry/docpad/wiki/Showcase)_
-- Get started from scratch with a fully functional website in a few minutes
-    - _[you can use an already built website as the basis of your new one](https://github.com/bevry/docpad/wiki/Skeletons)_
-- Highly extensible and easy to use plugin system
-    - _[pretty much if DocPad doesn't already do something, it's trivial to get a plugin to do it](https://github.com/bevry/docpad/wiki/Extending)_
-- Easy to extend the server with custom routes, or use DocPad as module in an even bigger system
-    - _[it's easier than you think, find out how](https://github.com/bevry/docpad/wiki/API)_
-- Deploy easily to plenty of free Node.js hosting providers, or even just deploy it to plenty of free static file servers like GitHub Pages and more
-    - _[view our hosting guide](https://github.com/bevry/docpad/wiki/Hosting)_
-- Built in support for dynamic documents (e.g. search pages, signup forms, etc.), so you can code pages that change on each request
-    - _documentation coming soon_
+
+### Worth stating again
+
+- DocPad has been [used in production](https://github.com/bevry/docpad/wiki/Showcase) by big and small companies to create plenty of amazing web sites and applications (not just blogs) for over a year and a half now
+- DocPad is truly language agnostic, able to code your documents in any markup or pre-precessor that you like, when you need to you can even mix and match them by combining their extensions (e.g. `coffee-with-some-eco.js.coffee.eco`)
+- You can get started with DocPad started with DocPad from scratch with [a pre-made fully functional website](https://github.com/bevry/docpad/wiki/Skeletons) in a few minutes
+- DocPad is [highly extensible](https://github.com/bevry/docpad/wiki/Extending) and has a easy to use [plugin system](https://github.com/bevry/docpad/wiki/Writing-a-Plugin), allowing it to accomplish anything, really
+- Easy to extend the server with custom routes, or use DocPad as module in an even bigger system with it's powerful [API](https://github.com/bevry/docpad/wiki/API)
+- [Deploy easily](https://github.com/bevry/docpad/wiki/Hosting) to plenty of free Node.js hosting providers, or even just deploy it to plenty of free static file servers like GitHub Pages and more
+- Built in support for dynamic documents (e.g. search pages, signup forms, etc.), so you can code pages that change on each request by just adding `dynamic: true` to your document's meta data (exposes the [express.js](http://expressjs.com/) `req` and `res` objects to your templating engine)
 
 
 
@@ -53,7 +58,7 @@ At its core DocPad is a language agnostic document management system. This means
 1. Install DocPad
 
 	``` bash
-	[sudo] npm install -g -f docpad@6.5
+	[sudo] npm install -fg docpad@6.5
 	[sudo] docpad install
 	```
 
