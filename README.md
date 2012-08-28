@@ -8,7 +8,7 @@ Discover my features below, or skip ahead to the installation instructions to ge
 
 ### Out of the box
 
-- Competely file based meaning there is no pesky databases that need to be installed, and for version control you get use systems like Git and SVN which you're already use to (You can still hook in remote data sources if you want, DocPad doesn't impose any limits on you, ever)
+- Competely file based meaning there is no pesky databases that need to be installed, and for version control you get to use systems like Git and SVN which you're already use to (You can still hook in remote data sources if you want, DocPad doesn't impose any limits on you, ever)
 - Choose from plenty of community maintained [pre-made websites](https://github.com/bevry/docpad/wiki/Skeletons) to use for your next project instead of starting from scratch everytime
 - Write your documents in any language, markup, templating engine, or pre-processor you wish (we're truly agnostic thanks to your plugin system). You can even mix and match them when needed by combining their extensions in a rails like fashion (e.g. `coffee-with-some-eco.js.coffee.eco`)
 - Changes to your website are automatically recompiled through our built in watch system, saving you time

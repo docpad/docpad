@@ -1,5 +1,10 @@
 ## History
 
+- v6.6.0 August 28, 2012
+	- Added `docpad-debug` executable for easier debugging
+	- Will now ask if you would like to subscribe to our newsletter when running on the development environment
+	- Beginnings of localisation
+
 - v6.5.7 August 26, 2012
 	- Fixed "cannot get length of undefined" intermittent error
 		- Due to an incorret variable name inside `DocPad::ensureDocumentOrFile`
