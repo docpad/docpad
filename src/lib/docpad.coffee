@@ -289,6 +289,9 @@ class DocPad extends EventEmitterEnhanced
 	# The DocPad package.json path
 	packagePath: pathUtil.join(__dirname, '..', '..', 'package.json')
 
+	# The User's configuration path
+	userConfigPath: '.docpad.cson'
+
 
 	# -----------------------------
 	# Template Data
@@ -392,9 +395,30 @@ class DocPad extends EventEmitterEnhanced
 	# -----------------------------
 	# Configuration
 
+	# Locales Configuration
+	locales:
+		en:
+			# Subscription
+			subscribePrompt: "Thanks for installing DocPad!\nAs DocPad moves very fast, would you like to subscribe to our newsletter and stay up to date with the latest releases and tutorials?"
+			subscribeConfigNotify: "Great! To speed things up we've fetched your default values, press enter to default to them, or type your own values if you'd prefer."
+			subscribeNamePrompt: "Your nifty name is?"
+			subscribeEmailPrompt: "and your extravagant email is?"
+			subscribeUsernamePrompt: "and what ultimate username would you like for our upcoming cloud infrastructure?"
+			subscribeError: "Whoops, looks like something went wrong when subscribing you to our list... not to worry, we'll try again another time."
+			subscribeSuccess: "Awesome, you're now subscribed our newsletter. By the way, you're looking super fine today! Continuing with the desired action."
+			subscribeIgnore: "No worries. Have a lovely day, and we hope you enjoy DocPad! Continuing with the desired action."
+			subscribeProgress: "Subscribing..."
+			subscribeRequestData: "Subscription request data:"
+			subscribeRequestError: "Subsction request error:"
+
+			# Skeletons
+			skeletonSelectionIntroduction: "You are about to create your new project inside your current directory. Below is a list of skeletons to bootstrap your new project:\n"
+			skeletonSelectionPrompt: "Which skeleton will you use?"
+
 	# Merged Configuration
 	# Merged in the order of:
 	# - initialConfig
+	# - userConfig
 	# - websitePackageConfig
 	# - websiteConfig
 	# - instanceConfig
@@ -409,6 +433,24 @@ class DocPad extends EventEmitterEnhanced
 
 	# Website Package Configuration
 	websitePackageConfig: null  # {}
+
+	# User Configuraiton
+	userConfig:
+		# Name
+		name: null
+
+		# Email
+		email: null
+
+		# Username
+		username: null
+
+		# Subscribed
+		subscribed: null
+
+		# Subcribe Try Again
+		# If our subscription has failed, when should we try again?
+		subscribeTryAgain: null
 
 	# Initial Configuration
 	initialConfig:
@@ -536,6 +578,23 @@ class DocPad extends EventEmitterEnhanced
 		# -----------------------------
 		# Other
 
+		# Check Version
+		# Whether or not to check for newer versions of DocPad
+		checkVersion: false
+
+		# Welcome
+		# Whether or not we should display any custom welcome callbacks
+		welcome: false
+
+		# Prompts
+		# Whether or not we should display any prompts
+		prompts: false
+
+		# Helper Hostname & Port
+		# Used for subscribing to newsletter, account information, and statistics etc
+		helperHostname: 'docpad-helper.herokuapp.com'
+		helperPort: 80
+
 		# Safe Mode
 		# If enabled, we will try our best to sandbox our template rendering so that they cannot modify things outside of them
 		# Not yet implemented
@@ -544,10 +603,6 @@ class DocPad extends EventEmitterEnhanced
 		# Template Data
 		# What data would you like to expose to your templates
 		templateData: {}
-
-		# Check Version
-		# Whether or not to check for newer versions of DocPad
-		checkVersion: false
 
 		# Collections
 		# A hash of functions that create collections
@@ -574,12 +629,22 @@ class DocPad extends EventEmitterEnhanced
 		# Environment specific configuration to over-ride the global configuration
 		environments:
 			development:
-				checkVersion: true
+				# Always refresh from server
 				maxAge: false
+
+				# Only do these if we are running standalone (aka not included in a module)
+				checkVersion: process.argv.length >= 2 and /docpad$/.test(process.argv[1])
+				welcome: process.argv.length >= 2 and /docpad$/.test(process.argv[1])
+				prompts: process.argv.length >= 2 and /docpad$/.test(process.argv[1])
+
 
 	# Regenerate Timer
 	# When config.regenerateEvery is set to a value, we create a timer here
 	regenerateTimer: null
+
+	# Get Locale
+	getLocale: ->
+		return @locales.en
 
 	# Get Environment
 	getEnvironment: ->
@@ -646,19 +711,17 @@ class DocPad extends EventEmitterEnhanced
 		@exchange = {}
 		@pluginsTemplateData = {}
 		@instanceConfig = {}
+		@locales = balUtil.dereference(@locales)
+		@userConfig = balUtil.dereference(@userConfig)
 		@initialConfig = balUtil.dereference(@initialConfig)
 
-		# All done if we don't want to load configuration yet
+		# Check if we want to perform the initial configuration load automatically
 		if instanceConfig.load is false
-			return next?(null,docpad)
-
-		# Apply and load configuration
-		@action 'load ready', instanceConfig, (err,config) =>
-			# Error?
-			return @fatal(err)  if err
-
-			# Forward
-			next?(err,docpad)
+			next?(null,docpad)
+		else
+			@action 'load ready', instanceConfig, (err) ->
+				return @fatal(err)  if err
+				next?(null,docpad)
 
 		# Chain
 		@
@@ -682,17 +745,27 @@ class DocPad extends EventEmitterEnhanced
 		@log 'info', 'Environment:', @getEnvironment()
 		@log 'info', 'Plugins:', _.keys(@loadedPlugins).sort().join(', ')
 
-		# Ready
-		@emitSync 'docpadReady', {docpad}, (err) ->
+		# Prepare
+		tasks = new balUtil.Group (err) ->
 			# Error?
 			return docpad.error(err)  if err
-
 			# All done, forward our DocPad instance onto our creator
 			return next?(null,docpad)
 
+		# Welcome
+		tasks.push (complete) =>
+			return complete()  unless docpad.config.welcome
+			@emitSync('welcome', {docpad}, complete)
+
+		# DocPad Ready
+		tasks.push (complete) =>
+			@emitSync('docpadReady', {docpad}, complete)
+
+		# Run tasks
+		tasks.sync()
+
 		# Chain
 		@
-
 
 	# Load Configuration
 	# next(err,config)
@@ -702,7 +775,7 @@ class DocPad extends EventEmitterEnhanced
 		docpad = @
 		instanceConfig or= {}
 
-		# Reset configurations
+		# Reset non persistant configurations
 		@websitePackageConfig = {}
 		@websiteConfig = {}
 		@config = {}
@@ -714,14 +787,12 @@ class DocPad extends EventEmitterEnhanced
 		preTasks = new balUtil.Group (err) =>
 			return next(err)  if err
 
-
 			# Get environments
 			@config.env = @instanceConfig.env or @websiteConfig.env or @websitePackageConfig.env or @initialConfig.env
 			envs = @getEnvironments()
 
-
 			# Merge configurations
-			configPackages = [@initialConfig, @websitePackageConfig, @websiteConfig, @instanceConfig]
+			configPackages = [@initialConfig, @userConfig, @websitePackageConfig, @websiteConfig, @instanceConfig]
 			configsToMerge = [@config]
 			for configPackage in configPackages
 				configsToMerge.push(configPackage)
@@ -730,21 +801,17 @@ class DocPad extends EventEmitterEnhanced
 					configsToMerge.push(envConfig)  if envConfig
 			balUtil.deepExtendPlainObjects(configsToMerge...)
 
-
 			# Extract and apply the server
 			@setServer(@config.server)  if @config.server
-
 
 			# Extract and apply the logger
 			@setLogger(@config.logger)  if @config.logger
 			@setLogLevel(@config.logLevel)
 
-
 			# Resolve any paths
 			@config.rootPath = pathUtil.resolve(@config.rootPath)
 			@config.outPath = pathUtil.resolve(@config.rootPath, @config.outPath)
 			@config.srcPath = pathUtil.resolve(@config.rootPath, @config.srcPath)
-
 
 			# Resolve Documents, Files, Layouts paths
 			for type in ['documents','files','layouts']
@@ -752,13 +819,11 @@ class DocPad extends EventEmitterEnhanced
 				for typePath,key in typePaths
 					typePaths[key] = pathUtil.resolve(@config.srcPath,typePath)
 
-
 			# Resolve Plugins paths
 			for type in ['plugins']
 				typePaths = @config[type+'Paths']
 				for typePath,key in typePaths
 					typePaths[key] = pathUtil.resolve(@config.rootPath,typePath)
-
 
 			# Bind the error handler, so we don't crash on errors
 			if @config.catchExceptions
@@ -766,7 +831,6 @@ class DocPad extends EventEmitterEnhanced
 				process.on('uncaughtException', @error)
 			else
 				process.removeListener('uncaughtException', @error)
-
 
 			# Load Airbrake if we want to reportErrors
 			if @config.reportErrors and /win/.test(process.platform) is false
@@ -811,6 +875,27 @@ class DocPad extends EventEmitterEnhanced
 			postTasks.sync()
 
 
+		# Normalize the userConfigPath
+		preTasks.push (complete) =>
+			balUtil.getHomePath (err,homePath) =>
+				return complete(err)  if err
+				dropboxPath = pathUtil.join(homePath,'Dropbox')
+				balUtil.exists dropboxPath, (dropboxPathExists) =>
+					userConfigDirPath = if dropboxPathExists then dropboxPath else homePath
+					@userConfigPath = pathUtil.join(userConfigDirPath, @userConfigPath)
+					complete()
+
+		# Load User's Configuration
+		preTasks.push (complete) =>
+			@loadConfigPath @userConfigPath, (err,data) =>
+				return complete(err)  if err
+
+				# Apply loaded data
+				balUtil.extend(@userConfig, data or {})
+
+				# Done loading
+				complete()
+
 		# Load DocPad's Package Configuration
 		preTasks.push (complete) =>
 			@loadConfigPath @packagePath, (err,data) =>
@@ -823,7 +908,6 @@ class DocPad extends EventEmitterEnhanced
 
 				# Done loading
 				complete()
-
 
 		# Load Website's Package Configuration
 		preTasks.push (complete) =>
@@ -839,7 +923,6 @@ class DocPad extends EventEmitterEnhanced
 
 				# Done loading
 				complete()
-
 
 		# Load Website's Configuration
 		preTasks.push (complete) =>
@@ -857,10 +940,8 @@ class DocPad extends EventEmitterEnhanced
 				# Done loading
 				complete()
 
-
 		# Run the load tasks synchronously
 		preTasks.sync()
-
 
 		# Chain
 		@
@@ -923,6 +1004,31 @@ class DocPad extends EventEmitterEnhanced
 	# =================================
 	# Configuration
 
+	# Update User Configuration
+	updateUserConfig: (data,next) ->
+		# Prepare
+		[data,next] = balUtil.extractOptsAndCallback(data,next)
+		docpad = @
+		userConfigPath = @userConfigPath
+
+		# Apply back to our loaded configuration
+		# does not apply to @config as we would have to reparse everything
+		# and that appears to be an imaginary problem
+		balUtil.extend(@userConfig,data)  if data
+
+		# Write it with CSON
+		CSON.stringify @userConfig, (err,userConfigString) ->
+			# Check
+			return next(err)  if err
+
+			# Write it
+			balUtil.writeFile userConfigPath, userConfigString, 'utf8', (err) ->
+				# Forward
+				return next(err)
+
+		# Chain
+		@
+
 	# Load a configuration url
 	# next(err,parsedData)
 	loadConfigUrl: (configUrl,next) ->
@@ -931,7 +1037,9 @@ class DocPad extends EventEmitterEnhanced
 
 		# Read the url using balUtil
 		balUtil.readPath configUrl, (err,data) ->
+			# Check
 			return next(err)  if err
+
 			# Read the string using CSON
 			CSON.parse(data.toString(),next)
 
