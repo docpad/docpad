@@ -1,6 +1,6 @@
 ## History
 
-- v6.6.0-6.6.1 August 28, 2012
+- v6.6.0-6.6.2 August 28, 2012
 	- Added `docpad-debug` executable for easier debugging
 	- Will now ask if you would like to subscribe to our newsletter when running on the development environment
 	- Beginnings of localisation

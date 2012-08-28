@@ -251,7 +251,7 @@ class ConsoleInterface
 		# Prepare
 		commander = @commander
 		docpad = @docpad
-		locale = @getLocale()
+		locale = docpad.getLocale()
 		skeletonNames = []
 
 		# Show
@@ -275,7 +275,7 @@ class ConsoleInterface
 		@
 
 	# Welcome Callback
-	welcomeCallback: (opts,next) ->
+	welcomeCallback: (opts,next) =>
 		# Reuqires
 		balUtil = require('bal-util')
 
@@ -314,9 +314,10 @@ class ConsoleInterface
 				# return next(err)  if err
 
 				# Fetch
-				userConfig.name or= String(results[0]?[1]).trim() or null
-				userConfig.email or= String(results[1]?[1]).trim() or null
-				userConfig.username or= String(results[2]?[1]).trim() or null
+				# The or to '' is there because otherwise we will get "undefined" as a string if the value doesn't exist
+				userConfig.name or= String(results?[0]?[1] or '').trim() or null
+				userConfig.email or= String(results?[1]?[1] or '').trim() or null
+				userConfig.username or= String(results?[2]?[1] or '').trim() or null
 
 				# Let the user know we scanned their configuration if we got anything useful
 				if userConfig.name or userConfig.email or userConfig.username
