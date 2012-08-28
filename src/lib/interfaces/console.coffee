@@ -310,13 +310,13 @@ class ConsoleInterface
 				['config','--get','github.user']
 			]
 			balUtil.gitCommands commands, (err,results) ->
-				# Check
-				return next(err)  if err
+				# Ignore error as it just means a config value wasn't defined
+				# return next(err)  if err
 
 				# Fetch
-				userConfig.name or= String(results[0][1]).trim() or null
-				userConfig.email or= String(results[1][1]).trim() or null
-				userConfig.username or= String(results[2][1]).trim() or null
+				userConfig.name or= String(results[0]?[1]).trim() or null
+				userConfig.email or= String(results[1]?[1]).trim() or null
+				userConfig.username or= String(results[2]?[1]).trim() or null
 
 				# Let the user know we scanned their configuration if we got anything useful
 				if userConfig.name or userConfig.email or userConfig.username

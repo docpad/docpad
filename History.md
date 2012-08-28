@@ -1,6 +1,6 @@
 ## History
 
-- v6.6.0 August 28, 2012
+- v6.6.0-6.6.1 August 28, 2012
 	- Added `docpad-debug` executable for easier debugging
 	- Will now ask if you would like to subscribe to our newsletter when running on the development environment
 	- Beginnings of localisation
@@ -12,7 +12,7 @@
 - v6.5.6 August 19, 2012
 	- Added `regenerateEvery` configuration option
 
-- v6.5.0-v6.5.5 August 10, 2012
+- v6.5.0-6.5.5 August 10, 2012
 	- IMPORTANT: Renamed `extensionRendered` to `outExtension`, `filenameRendered` to `outFilename`, and `contentTypeRendered` to `outContentType` and moved them from the Document model to the File model
 	- The `serverExtend` event will now also emit the `express` dependency if used
 	- No longer attempts to install plugins dependencies every time, this is outside the scope of DocPad and in the standard use cases already handled via npm
@@ -292,7 +292,7 @@
 	- Fixed some UTF8 encoded files from being detected as binary
 	- Fixed documents with no extension being outputted with an undefined extension
 
-- v5.1.0-v5.1.1 April 25, 2012
+- v5.1.0-5.1.1 April 25, 2012
 	- Fixed EventEmitter warning
 	- Binary files can now be placed within the `src/documents` directory
 	- Removed eyes devDependency
@@ -337,7 +337,7 @@
 	- Exchange data now moved to the [docpad-extras](https://github.com/bevry/docpad-extras) repository
 	- Fixed broken `balupton.docpad` skeleton repo url
 
-- v4.0.0-v4.0.3 April 6, 2012
+- v4.0.0-4.0.3 April 6, 2012
 	- Added support for partials, with the new [Partials Plugin](https://github.com/bevry/docpad/tree/master/lib/exchange/plugins/partials)
 	- Added support for caching remote assets, with the new [Cachr Plugin](https://github.com/bevry/docpad/tree/master/lib/exchange/plugins/cachr)
 	- Added support for caching and parsing remote feeds, with the new [Feedr Plugin](https://github.com/bevry/docpad/tree/master/lib/exchange/plugins/feedr)
@@ -410,7 +410,7 @@
 	- Closes
 		- [#143](https://github.com/bevry/docpad/issues/143) - No errors on wrong layout
 
-- v3.2.0-v3.2.7 February 15, 2012
+- v3.2.0-3.2.7 February 15, 2012
 	- Cleaned architecture
 	- Added unit tests (uses mocha)
 	- Better source code documentation
