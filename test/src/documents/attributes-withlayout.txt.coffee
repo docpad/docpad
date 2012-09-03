@@ -1,5 +1,6 @@
 ---
 title: 'Attributes With Layout'
+date: 2012-03-14
 layout: 'attributes'
 tags: ['attributes','with-layout']
 ---
@@ -10,7 +11,6 @@ attrs = @getDocument().getAttributes()
 # Delete environment specific variables
 delete attrs.ctime
 delete attrs.mtime
-delete attrs.date
 delete attrs.fullPath
 delete attrs.fullDirPath
 delete attrs.outPath

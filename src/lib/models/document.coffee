@@ -21,10 +21,6 @@ class DocumentModel extends FileModel
 	# Model Type
 	type: 'document'
 
-	# The parsed file meta data (header)
-	# Is a Backbone.Model instance
-	meta: null
-
 
 	# ---------------------------------
 	# Attributes
@@ -83,13 +79,9 @@ class DocumentModel extends FileModel
 	# Functions
 
 	# Initialize
-	initialize: (data,options) ->
+	initialize: (attrs,opts) ->
 		# Prepare
-		{@layouts,meta} = options
-
-		# Apply meta
-		@meta = new Model()
-		@meta.set(meta)  if meta
+		{@layouts,meta} = opts
 
 		# Forward
 		super
@@ -314,9 +306,9 @@ class DocumentModel extends FileModel
 				relativeDirPath = @get('relativeDirPath')
 				extensions = @get('extensions')
 				outExtension = @get('outExtension')
-				url = meta.get('url')
-				name = meta.get('name')
-				outPath = meta.get('outPath')
+				url = meta.get('url') or null
+				name = meta.get('name') or null
+				outPath = meta.get('outPath') or null
 				outFilename = null
 
 				# Use our eve's rendered extension if it exists
@@ -338,7 +330,8 @@ class DocumentModel extends FileModel
 					else
 						relativeOutPath = "#{outFilename}"
 					changes.relativeOutPath = relativeOutPath
-					changes.url = url = "/#{relativeOutPath}"  unless url
+					unless url
+						changes.url = url = "/#{relativeOutPath}"
 
 				# Set name if it doesn't exist already
 				if !name and outFilename?

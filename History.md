@@ -1,5 +1,8 @@
 ## History
 
+- v6.6.3 September 3, 2012
+	- Fixed `date` and `name` always being their automatic values
+
 - v6.6.0-6.6.2 August 28, 2012
 	- Added `docpad-debug` executable for easier debugging
 	- Will now ask if you would like to subscribe to our newsletter when running on the development environment

@@ -28,6 +28,10 @@ class FileModel extends Model
 	# The contents of the file, stored as a Buffer
 	data: null
 
+	# The parsed file meta data (header)
+	# Is a Backbone.Model instance
+	meta: null
+
 
 	# ---------------------------------
 	# Attributes
@@ -149,7 +153,7 @@ class FileModel extends Model
 	# Initialize
 	initialize: (attrs,opts) ->
 		# Prepare
-		{outDirPath,stat,data} = opts
+		{outDirPath,stat,data,meta} = opts
 		if attrs.data?
 			data = attrs.data
 			delete attrs.data
@@ -163,7 +167,13 @@ class FileModel extends Model
 			extensions: []
 			urls: []
 			id: @cid
-		},{silent:true})
+		})
+
+		# Meta
+		@meta = new Model()
+		if meta
+			@meta.set(meta)
+			@set(meta)
 
 		# Super
 		super
@@ -233,10 +243,10 @@ class FileModel extends Model
 			file.log('debug', "Loaded the file: #{filePath}")
 			next()
 		handlePath = ->
-			file.set({fullPath},{silent:true})
+			file.set({fullPath})
 			file.readFile(fullPath, complete)
 		handleData = ->
-			file.set({fullPath:null},{silent:true})
+			file.set({fullPath:null})
 			file.parseData data, (err) =>
 					return next(err)  if err
 					file.normalize (err) =>
@@ -404,16 +414,18 @@ class FileModel extends Model
 	# next(err)
 	normalize: (opts={},next) ->
 		# Prepare
+		{opts,next} = @getActionArgs(opts,next)
 		changes = {}
 
 		# Fetch
-		{opts,next} = @getActionArgs(opts,next)
+		meta = @getMeta()
 		basename = @get('basename')
 		filename = @get('filename')
 		fullPath = @get('fullPath')
 		extensions = @get('extensions')
 		relativePath = @get('relativePath')
 		mtime = @get('mtime')
+		date = meta.get('date') or null
 
 		# Filename
 		if fullPath
@@ -459,7 +471,7 @@ class FileModel extends Model
 			changes.id = id = relativePath
 
 		# Date
-		if mtime
+		if !date and mtime
 			changes.date = date = mtime
 
 		# Apply
@@ -474,16 +486,19 @@ class FileModel extends Model
 	# next(err)
 	contextualize: (opts={},next) ->
 		# Prepare
+		{opts,next} = @getActionArgs(opts,next)
 		changes = {}
 
 		# Fetch
-		{opts,next} = @getActionArgs(opts,next)
+		meta = @getMeta()
 		relativePath = @get('relativePath')
 		relativeDirPath = @get('relativeDirPath')
 		relativeBase = @get('relativeBase')
 		filename = @get('filename')
 		outPath = @get('outPath')
 		outDirPath = @get('outDirPath')
+		name = meta.get('name') or null
+		slug = meta.get('slug') or null
 
 		# Create the URL for the file
 		if relativePath
@@ -491,11 +506,11 @@ class FileModel extends Model
 			@setUrl(url)
 
 		# Create a slug for the file
-		if relativeBase
+		if !slug and relativeBase
 			changes.slug = slug = balUtil.generateSlugSync(relativeBase)
 
 		# Set name if it doesn't exist already
-		if filename
+		if !name and filename
 			changes.name = name = filename
 
 		# Create the outPath if we have a outpute directory
