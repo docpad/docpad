@@ -1,6 +1,5 @@
 ---
 title: 'Attributes No Layout'
-date: 2012-03-14
 tags: ['attributes','with-layout']
 ---
 
