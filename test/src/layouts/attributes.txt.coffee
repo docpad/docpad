@@ -12,6 +12,9 @@ aside =>
 	attrs = @documentModel.getAttributes()
 
 	# Delete environment specific variables
+	# timezone makes the dates impossible
+	# path differences make them impossible
+	# data is too much output
 	delete attrs.ctime
 	delete attrs.mtime
 	delete attrs.date

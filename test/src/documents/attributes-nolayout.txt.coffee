@@ -8,8 +8,12 @@ tags: ['attributes','with-layout']
 attrs = @getDocument().getAttributes()
 
 # Delete environment specific variables
+# timezone makes the dates impossible
+# path differences make them impossible
+# data is too much output
 delete attrs.ctime
 delete attrs.mtime
+delete attrs.date
 delete attrs.fullPath
 delete attrs.fullDirPath
 delete attrs.outPath
