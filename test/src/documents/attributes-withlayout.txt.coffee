@@ -1,6 +1,5 @@
 ---
 title: 'Attributes With Layout'
-date: 2012-03-14
 layout: 'attributes'
 tags: ['attributes','with-layout']
 ---
