@@ -1,5 +1,9 @@
 ## History
 
+- v6.6.4 September 4, 2012
+	- Better file encoding detection
+		- Closes [#288: Output of certain binary files is corrupt](https://github.com/bevry/docpad/issues/288)
+
 - v6.6.3 September 3, 2012
 	- Fixed `date` and `name` always being their automatic values
 

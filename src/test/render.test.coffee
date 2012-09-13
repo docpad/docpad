@@ -46,7 +46,7 @@ joe.suite 'docpad-render', (suite,test) ->
 				command = [nodePath, cliPath, 'render', pathUtil.join(renderPath,input.filename)]
 				balUtil.spawn command, {cwd:rootPath}, (err,stdout,stderr,code,signal) ->
 					return done(err)  if err
-					expect(stdout).to.equal(input.stdout)
+					expect(stdout.trim()).to.equal(input.stdout)
 					done()
 
 	suite 'stdin', (suite,test) ->
@@ -89,7 +89,7 @@ joe.suite 'docpad-render', (suite,test) ->
 				command.push(input.filename)  if input.filename
 				balUtil.spawn command, {stdin:input.stdin,cwd:rootPath}, (err,stdout,stderr,code,signal) ->
 					return done(err)  if err
-					expect(stdout).to.equal(input.stdout)
+					expect(stdout.trim()).to.equal(input.stdout)
 					done()
 
 		# Works with out path
@@ -105,5 +105,5 @@ joe.suite 'docpad-render', (suite,test) ->
 				balUtil.readFile input.outPath, (err,data) ->
 					return done(err)  if err
 					result = data.toString()
-					expect(result).to.equal(input.out)
+					expect(result.trim()).to.equal(input.out)
 					done()

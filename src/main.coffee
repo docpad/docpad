@@ -1,6 +1,5 @@
 # Requires
 pathUtil = require('path')
-fsUtil = require('fs')
 {DocPad,queryEngine,Backbone,createInstance} = require(__dirname+'/lib/docpad')
 
 # Export

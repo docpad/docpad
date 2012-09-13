@@ -1,7 +1,6 @@
 # Requires
 pathUtil = require('path')
 balUtil = require('bal-util')
-_ = require('underscore')
 mime = require('mime')
 
 # Local
@@ -309,25 +308,6 @@ class FileModel extends Model
 		# Chain
 		@
 
-	# Get the encoding of a buffer
-	getEncoding: (buffer) ->
-		# Prepare
-		contentStartBinary = buffer.toString('binary',0,24)
-		contentStartUTF8 = buffer.toString('utf8',0,24)
-		encoding = 'utf8'
-
-		# Detect encoding
-		for i in [0...contentStartUTF8.length]
-			charCode = contentStartUTF8.charCodeAt(i)
-			if charCode is 65533 or charCode <= 8
-				# 8 and below are control characters (e.g. backspace, null, eof, etc.)
-				# 65533 is the unknown character
-				encoding = 'binary'
-				break
-
-		# Return encoding
-		return encoding
-
 	# Parse data
 	# Parses some data, and loads the meta data and content from it
 	# next(err)
@@ -337,7 +317,7 @@ class FileModel extends Model
 
 		# Extract content from data
 		if data instanceof Buffer
-			encoding = @getEncoding(data)
+			encoding = balUtil.getEncodingSync(data)
 			if encoding is 'binary'
 				source = ''
 			else
