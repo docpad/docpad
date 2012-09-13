@@ -91,5 +91,5 @@ joe.suite 'docpad-api', (suite,test) ->
 					renderSingleExtensions: 'auto'
 				docpad.action 'render', opts, (err,result) ->
 					return done(err)  if err
-					expect(result).to.equal(input.stdout)
+					expect(result.trim()).to.equal(input.stdout)
 					done()
