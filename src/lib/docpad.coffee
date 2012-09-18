@@ -2095,7 +2095,6 @@ class DocPad extends EventEmitterEnhanced
 
 		# Log generating
 		docpad.log 'info', 'Generating...'
-		docpad.notify (new Date()).toLocaleTimeString(), title: 'Website generating...'
 
 		# Fire plugins
 		docpad.emitSync 'generateBefore', server: docpad.getServer(), (err) ->
