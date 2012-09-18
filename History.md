@@ -1,5 +1,9 @@
 ## History
 
+- v6.6.5 September 18, 2012
+	- Further improved file encoding detection
+		- Closes [#266: Images are broken](https://github.com/bevry/docpad/issues/266)
+
 - v6.6.4 September 4, 2012
 	- Better file encoding detection
 		- Closes [#288: Output of certain binary files is corrupt](https://github.com/bevry/docpad/issues/288)
