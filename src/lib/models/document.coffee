@@ -203,9 +203,10 @@ class DocumentModel extends FileModel
 		file = @
 		fileOutPath = @get('outPath')
 		contentRendered = @get('contentRendered')
+		encoding = @get('encoding')
 
 		# Log
-		file.log 'debug', "Writing the rendered file: #{fileOutPath}"
+		file.log 'debug', "Writing the rendered file: #{fileOutPath} #{encoding}"
 
 		# Write data
 		balUtil.writeFile fileOutPath, contentRendered, (err) ->
@@ -213,7 +214,7 @@ class DocumentModel extends FileModel
 			return next(err)  if err
 
 			# Log
-			file.log 'debug', "Wrote the rendered file: #{fileOutPath}"
+			file.log 'debug', "Wrote the rendered file: #{fileOutPath} #{encoding}"
 
 			# Next
 			return next()
