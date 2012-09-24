@@ -1,5 +1,8 @@
 ## History
 
+- v6.6.6 September 24, 2012
+	- Further improved file text/binary detection
+
 - v6.6.5 September 18, 2012
 	- Further improved file encoding detection
 		- Closes [#266: Images are broken](https://github.com/bevry/docpad/issues/266)

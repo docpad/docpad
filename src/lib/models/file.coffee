@@ -313,17 +313,30 @@ class FileModel extends Model
 	# next(err)
 	parseData: (data,next) ->
 		# Prepare
-		encoding = 'utf8'
+		fullPath = @get('fullPath')
+		encoding = @get('encoding')
 
 		# Extract content from data
 		if data instanceof Buffer
-			encoding = balUtil.getEncodingSync(data)
-			if encoding is 'binary'
-				source = ''
-			else
+			# Detect encoding
+			unless encoding
+				isText = balUtil.isTextSync(fullPath,data)
+				if isText
+					encoding = 'utf8'
+				else
+					encoding = 'binary'
+
+			# Fetch source with encoding
+			if encoding is 'utf8'
 				source = data.toString(encoding)
+			else
+				source = ''
+
+		# Data is a string
 		else if balUtil.isString(data)
 			source = data
+
+		# Data is invalid
 		else
 			source = ''
 
@@ -518,7 +531,7 @@ class FileModel extends Model
 		encoding = @get('encoding')
 
 		# Log
-		file.log 'debug', "Writing the file: #{fileOutPath}"
+		file.log 'debug', "Writing the file: #{fileOutPath} #{encoding}"
 
 		# Write data
 		balUtil.writeFile fileOutPath, content, encoding, (err) ->
@@ -526,7 +539,7 @@ class FileModel extends Model
 			return next(err)  if err
 
 			# Log
-			file.log 'debug', "Wrote the file: #{fileOutPath}"
+			file.log 'debug', "Wrote the file: #{fileOutPath} #{encoding}"
 
 			# Next
 			next()
