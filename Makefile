@@ -1,36 +1,59 @@
-# If you change something here, be sure to change it in package.json's scripts as well
+# If you change something here, be sure to reflect the changes in:
+# - the scripts section of the package.json file
+# - the .travis.yml file
 
+# -----------------
+# Variables
+
+BIN=node_modules/.bin/
+COFFEE=$(BIN)coffee
+
+
+# -----------------
+# Documentation
+
+# Usage: coffee [options] path/to/script.coffee -- [args]
+# -b, --bare         compile without a top-level function wrapper
+# -c, --compile      compile to JavaScript and save as .js files
+# -o, --output       set the output directory for compiled JavaScript
+# -w, --watch        watch scripts for changes and rerun commands
+
+
+# -----------------
+# Commands
+
+# Watch and recompile our files
 dev:
-	node_modules/.bin/coffee -w -o out -c src
+	$(COFFEE) -cbwo out src
 
+# Compile our files
 compile:
-	node_modules/.bin/coffee -o out -c src
+	$(COFFEE) -cbo out src
 
-debug:
-	cd test; node --debug-brk ../bin/docpad run
+# Clean up
+clean:
+	rm -Rf out node_modules npm-debug.log
 
-test-clean:
+# Install
+install:
+	npm install
+
+# Reset
+reset:
+	make clean
+	make install
+
+# Ensure everything is ready for our tests (used by things like travis)
+test-prepare:
 	rm -Rf test/node_modules test/out test/npm-debug.log
+	make install
+	make compile
 	cd test; npm install
 
-test-prepare:
-	make test-clean
-	make compile
-
+# Run our tests
 test:
-	make test-prepare
 	npm test
 
-install:
-	node ./bin/docpad install
 
-clean:
-	rm -Rf lib node_modules/ npm-debug.log
-	npm install
-	make test-clean
-
-publish:
-	make clean
-	npm publish
-
-.PHONY: dev compile test-clean test-prepare test install clean publish
+# Ensure the listed commands always re-run and are never cached
+.PHONY: dev compile clean install reset test-prepare test
