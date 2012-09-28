@@ -1,5 +1,9 @@
 ## History
 
+- v6.6.8 September 29, 2012
+	- Fixed watching setup not completing under some conditions
+		- Bumped watchr minimum version to v2.1.5
+
 - v6.6.7 September 28, 2012
 	- Added built-in support for AppFog and CloudFoundry ports
 
