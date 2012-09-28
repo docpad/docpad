@@ -1,5 +1,8 @@
 ## History
 
+- v6.6.7 September 28, 2012
+	- Added built-in support for AppFog and CloudFoundry ports
+
 - v6.6.6 September 24, 2012
 	- Further improved file text/binary detection
 
