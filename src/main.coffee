@@ -1,6 +1,6 @@
 # Requires
 pathUtil = require('path')
-{DocPad,queryEngine,Backbone,createInstance} = require(__dirname+'/lib/docpad')
+{DocPad,queryEngine,Backbone,createInstance,createMiddlewareInstance} = require(__dirname+'/lib/docpad')
 
 # Export
 module.exports =
@@ -9,6 +9,7 @@ module.exports =
 	queryEngine: queryEngine
 	Backbone: Backbone
 	createInstance: createInstance
+	createMiddlewareInstance: createMiddlewareInstance
 
 	# Require a local DocPad file
 	require: (relativePath) ->
