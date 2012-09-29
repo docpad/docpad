@@ -1,5 +1,18 @@
 ## History
 
+- v6.7.0 Unreleased
+	- Updated [Express.js](http://expressjs.com/) from v2.5 to v3.0
+		- If you're doing custom routing, you'll want to check the [Express.js Upgrade Guide](https://github.com/visionmedia/express/wiki/Migrating-from-2.x-to-3.x)
+		- There are now two server objects: `serverExpress` and `serverHttp` - get them using `docpadInstance.getServer(true)`, set them using `docpad.setServer({serverExpress,serverHttp})` - `server` in events, and `docpadInstance.getServer()` return the `serverExpress` object for backwards compatibility (however things like socket.io require the `serverHttp` object)
+	- Abstracted out the different middlewares to `serverMiddlewarePowering`, `serverMiddlewareRouter`, `serverMiddleware404`, and `serverMiddleware500`
+	- Added the following options to the `server` actions:
+		- `serverExpress` for a custom express.js server
+		- `serverHttp` for a custom http server
+		- `middlewareBody` set it to `false` for us to not add the `bodyParser` middleware
+		- `middlewareOverride` set it to `false` for us to not add the `methodOverride` middleware
+		- `middleware404` set it to `false` for us to not add our `404` middleware
+		- `middleware500` set it to `false` for us to not add our `500` middleware
+
 - v6.6.8 September 29, 2012
 	- Fixed watching setup not completing under some conditions
 		- Bumped watchr minimum version to v2.1.5

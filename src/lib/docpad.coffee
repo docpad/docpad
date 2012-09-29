@@ -82,13 +82,18 @@ class DocPad extends EventEmitterEnhanced
 	getVersion: ->
 		@version
 
-	# The express server instance bound to docpad
-	serverInstance: null
-	getServer: ->
-		@serverInstance
-	setServer: (value) ->
-		@serverInstance = value
-		@
+	# The express and http server instances bound to docpad
+	serverExpress: null
+	serverHttp: null
+	getServer: (both) ->
+		{serverExpress,serverHttp} = @
+		if both
+			return {serverExpress,serverHttp}
+		else
+			return serverExpress
+	setServer: (servers) ->
+		@serverExpress = servers.serverExpress
+		@serverHttp = servers.serverHttp
 
 	# The caterpillar instance bound to docpad
 	loggerInstance: null
@@ -533,8 +538,10 @@ class DocPad extends EventEmitterEnhanced
 		# Server
 
 		# Server
-		# A express server that we want docpad to use
-		server: null
+		# The Express.js server that we want docpad to use
+		serverExpress: null
+		# The HTTP server that we want docpad to use
+		serverHttp: null
 
 		# Extend Server
 		# Whether or not we should extend the server with extra middleware and routing
@@ -550,6 +557,16 @@ class DocPad extends EventEmitterEnhanced
 		# Max Age
 		# The caching time limit that is sent to the client
 		maxAge: 86400000
+
+		# Which middlewares would you like us to activate
+		# The standard bodyParser middleware
+		middlewareBody: true
+		# The standard methodOverride middleware
+		middlewareOverride: true
+		# Our own 404 middleware
+		middleware404: true
+		# Our own 500 middleware
+		middleware500: true
 
 
 		# -----------------------------
@@ -2101,7 +2118,7 @@ class DocPad extends EventEmitterEnhanced
 		docpad.notify (new Date()).toLocaleTimeString(), title: 'Website generating...'
 
 		# Fire plugins
-		docpad.emitSync 'generateBefore', server: docpad.getServer(), (err) ->
+		docpad.emitSync 'generateBefore', server:docpad.getServer(), (err) ->
 			# Forward
 			return next(err)
 
@@ -2230,7 +2247,7 @@ class DocPad extends EventEmitterEnhanced
 		docpad = @
 
 		# Fire plugins
-		docpad.emitSync 'generateAfter', server: docpad.getServer(), (err) ->
+		docpad.emitSync 'generateAfter', server:docpad.getServer(), (err) ->
 			return next(err)  if err
 
 			# Log generated
@@ -2697,22 +2714,88 @@ class DocPad extends EventEmitterEnhanced
 		# Chain
 		@
 
+	# Server Middelware: Powering
+	serverMiddlewarePowering: (req,res,next) ->
+		tools = res.get('X-Powered-By').split(/[,\s]+/g)
+		tools.push 'DocPad'
+		tools = tools.join(',')
+		res.set('X-Powered-By',tools)
+		next()
+
+	# Server Middelware: Router
+	serverMiddlewareRouter: (req,res,next) =>
+		# Prepare
+		docpad = @
+		database = docpad.getDatabase()
+
+		# Check
+		return next()  unless database
+
+		# Prepare
+		pageUrl = req.url.replace(/\?.*/,'')
+		document = database.findOne(urls: $has: pageUrl)
+		return next()  unless document
+
+		# Check if we are the desired url
+		# if we aren't do a permanent redirect
+		url = document.get('url')
+		if url isnt pageUrl
+			console.log(url, url.indexOf?);
+			return res.redirect(301,url)
+
+		# Serve the document to the user
+		docpad.serveDocument({document,req,res,next})
+
+	# Server Middelware: 404
+	serverMiddleware404: (req,res,next) =>
+		# Prepare
+		docpad = @
+		database = docpad.getDatabase()
+
+		# Check
+		return res.send(500)  unless database
+
+		# Serve the document to the user
+		document = database.findOne(relativeOutPath: '404.html')
+		docpad.serveDocument({document,req,res,next,statusCode:404})
+
+	# Server Middelware: 404
+ 	serverMiddleware500: (err,req,res,next) =>
+		# Prepare
+		docpad = @
+		database = docpad.getDatabase()
+
+		# Check
+		return res.send(500)  unless database
+
+		# Serve the document to the user
+		document = database.findOne(relativeOutPath: '500.html')
+		docpad.serveDocument({document,req,res,next,statusCode:500,err})
+
 	# Server
 	server: (opts,next) =>
-		# Require
-		express = require('express')
+		# Requires
+		http = null
+		express = null
 
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
 		config = @config
-		server = null
+		serverExpress = null
+		serverHttp = null
+
+		# Config
+		opts.middlewareBody ?= config.middlewareBody
+		opts.middlewareOverride ?= config.middlewareOverride
+		opts.middleware404 ?= config.middleware404
+		opts.middleware500 ?= config.middleware500
 
 		# Handlers
 		complete = (err) ->
 			return next(err)  if err
 			# Plugins
-			docpad.emitSync 'serverAfter', {server}, (err) ->
+			docpad.emitSync 'serverAfter', {server:serverExpress,serverExpress,serverHttp,express}, (err) ->
 				return next(err)  if err
 				# Complete
 				docpad.log 'debug', 'Server setup'
@@ -2720,8 +2803,8 @@ class DocPad extends EventEmitterEnhanced
 		startServer = ->
 			# Start the server
 			try
-				server.listen(config.port)
-				address = server.address()
+				serverHttp.listen(config.port)
+				address = serverHttp.address()
 				unless address?
 					throw new Error("Could not start the web server, chances are the desired port #{config.port} is already in use")
 				serverHostname = if address.address is '0.0.0.0' then 'localhost' else address.address
@@ -2739,81 +2822,54 @@ class DocPad extends EventEmitterEnhanced
 			return complete(err)  if err
 
 			# Server
-			server = docpad.getServer()
-			unless server
-				server = express.createServer()
-				docpad.setServer(server)
+			{serverExpress,serverHttp} = docpad.getServer(true)
+			if !serverExpress and !serverHttp
+				# Require
+				http ?= require('http')
+				express ?= require('express')
+
+				# Create
+				serverExpress = opts.serverExpress or express()
+				serverHttp = opts.serverHttp or http.createServer(serverExpress)
+				docpad.setServer({serverExpress,serverHttp})
 
 			# Extend the server
 			unless config.extendServer
 				# Start the Server
 				startServer()
 			else
-				# Configure the server
-				server.configure ->
-					# POST Middleware
-					server.use express.bodyParser()
-					server.use express.methodOverride()
+				# Require
+				express ?= require('express')
 
-					# DocPad Header
-					server.use (req,res,next) ->
-						tools = res.header('X-Powered-By').split /[,\s]+/g
-						tools.push 'DocPad'
-						tools = tools.join(',')
-						res.header('X-Powered-By',tools)
-						next()
+				# POST Middleware
+				serverExpress.use(express.bodyParser())  if opts.middlewareBody isnt false
+				serverExpress.use(express.methodOverride())  if opts.middlewareOverride isnt false
 
-					# Emit the serverExtend event
-					# So plugins can define their routes earlier than the DocPad routes
-					docpad.emitSync 'serverExtend', {server,express}, (err) ->
-						return next(err)  if err
+				# DocPad Header
+				serverExpress.use(docpad.serverMiddlewarePowering)
 
-						# Router Middleware
-						server.use(server.router)
+				# Emit the serverExtend event
+				# So plugins can define their routes earlier than the DocPad routes
+				docpad.emitSync 'serverExtend', {server:serverExpress,serverExpress,serverHttp,express}, (err) ->
+					return next(err)  if err
 
-						# Routing
-						server.use (req,res,next) ->
-							# Check
-							database = docpad.getDatabase()
-							return next()  unless database
+					# Router Middleware
+					serverExpress.use(serverExpress.router)
 
-							# Prepare
-							pageUrl = req.url.replace(/\?.*/,'')
-							document = database.findOne(urls: $has: pageUrl)
-							return next()  unless document
+					# Routing
+					serverExpress.use(docpad.serverMiddlewareRouter)
 
-							# Check if we are the desired url
-							# if we aren't do a permanent redirect
-							url = document.get('url')
-							if url isnt pageUrl
-								return res.redirect(url,301)
+					# Static
+					if config.maxAge
+						serverExpress.use(express.static(config.outPath,{maxAge:config.maxAge}))
+					else
+						serverExpress.use(express.static(config.outPath))
 
-							# Serve the document to the user
-							docpad.serveDocument({document,req,res,next})
+					# 404 Middleware
+					serverExpress.use(docpad.serverMiddleware404)  if opts.middleware404 isnt false
 
-						# Static
-						if config.maxAge
-							server.use(express.static(config.outPath,{maxAge:config.maxAge}))
-						else
-							server.use(express.static(config.outPath))
-
-						# 404 Middleware
-						server.use (req,res,next) ->
-							database = docpad.getDatabase()
-							return res.send(500)  unless database
-
-							# Serve the document to the user
-							document = database.findOne(relativeOutPath: '404.html')
-							docpad.serveDocument({document,req,res,next,statusCode:404})
-
-						# 500 Middleware
-						server.error (err,req,res,next) ->
-							database = docpad.getDatabase()
-							return res.send(500)  unless database
-
-							# Serve the document to the user
-							document = database.findOne(relativeOutPath: '500.html')
-							docpad.serveDocument({document,req,res,next,statusCode:500,err})
+					# 500 Middleware
+					serverExpress.error(docpad.serverMiddleware500)  if opts.middleware500 isnt false
 
 				# Start the Server
 				startServer()
