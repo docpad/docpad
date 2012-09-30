@@ -59,7 +59,7 @@
 	},
 	"dependencies": {
 		"bal-util": ">=1.13.6 <1.14",
-		"express": "2.5.x",
+		"express": "3.x",
 		"mime": "1.2.x",
 		"query-engine": ">=1.2.3 <1.3",
 		"watchr": "2.1.x",
