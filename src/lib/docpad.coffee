@@ -2678,14 +2678,14 @@ class DocPad extends EventEmitterEnhanced
 					return next(err)
 				else
 					if opts.statusCode?
-						return res.send(content, opts.statusCode)
+						return res.send(opts.statusCode, content)
 					else
 						return res.send(content)
 		else
 			content = document.get('contentRendered') or document.get('content') or document.getData()
 			if content
 				if opts.statusCode?
-					return res.send(content, opts.statusCode)
+					return res.send(opts.statusCode, content)
 				else
 					return res.send(content)
 			else
@@ -2741,7 +2741,8 @@ class DocPad extends EventEmitterEnhanced
 			# Server
 			server = docpad.getServer()
 			unless server
-				server = express.createServer()
+				app = express()
+				server = require('http').createServer(app)
 				docpad.setServer(server)
 
 			# Extend the server
@@ -2750,17 +2751,17 @@ class DocPad extends EventEmitterEnhanced
 				startServer()
 			else
 				# Configure the server
-				server.configure ->
+				app.configure ->
 					# POST Middleware
-					server.use express.bodyParser()
-					server.use express.methodOverride()
+					app.use express.bodyParser()
+					app.use express.methodOverride()
 
 					# DocPad Header
-					server.use (req,res,next) ->
-						tools = res.header('X-Powered-By').split /[,\s]+/g
+					app.use (req,res,next) ->
+						tools = res.get('X-Powered-By').split /[,\s]+/g
 						tools.push 'DocPad'
 						tools = tools.join(',')
-						res.header('X-Powered-By',tools)
+						res.set 'X-Powered-By', tools
 						next()
 
 					# Emit the serverExtend event
@@ -2769,10 +2770,10 @@ class DocPad extends EventEmitterEnhanced
 						return next(err)  if err
 
 						# Router Middleware
-						server.use(server.router)
+						app.use(app.router)
 
 						# Routing
-						server.use (req,res,next) ->
+						app.use (req,res,next) ->
 							# Check
 							database = docpad.getDatabase()
 							return next()  unless database
@@ -2793,12 +2794,12 @@ class DocPad extends EventEmitterEnhanced
 
 						# Static
 						if config.maxAge
-							server.use(express.static(config.outPath,{maxAge:config.maxAge}))
+							app.use(express.static(config.outPath,{maxAge:config.maxAge}))
 						else
-							server.use(express.static(config.outPath))
+							app.use(express.static(config.outPath))
 
 						# 404 Middleware
-						server.use (req,res,next) ->
+						app.use (req,res,next) ->
 							database = docpad.getDatabase()
 							return res.send(500)  unless database
 
@@ -2807,7 +2808,7 @@ class DocPad extends EventEmitterEnhanced
 							docpad.serveDocument({document,req,res,next,statusCode:404})
 
 						# 500 Middleware
-						server.error (err,req,res,next) ->
+						app.use (err, req, res, next) ->
 							database = docpad.getDatabase()
 							return res.send(500)  unless database
 
