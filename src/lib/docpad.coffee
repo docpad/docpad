@@ -2678,14 +2678,14 @@ class DocPad extends EventEmitterEnhanced
 					return next(err)
 				else
 					if opts.statusCode?
-						return res.send(content, opts.statusCode)
+						return res.send(opts.statusCode, content)
 					else
 						return res.send(content)
 		else
 			content = document.get('contentRendered') or document.get('content') or document.getData()
 			if content
 				if opts.statusCode?
-					return res.send(content, opts.statusCode)
+					return res.send(opts.statusCode, content)
 				else
 					return res.send(content)
 			else
