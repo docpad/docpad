@@ -531,7 +531,10 @@ class DocPad extends EventEmitterEnhanced
 		pluginPaths: []
 
 		# The website's plugins directory
-		pluginsPaths: ['node_modules','plugins']
+		pluginsPaths: [
+			'node_modules',
+			'plugins'
+		]
 
 
 		# -----------------------------
@@ -2300,7 +2303,14 @@ class DocPad extends EventEmitterEnhanced
 						if fileToRender.get('isLayout')
 							filesToRender.add(database.findAll(layout: fileToRender.id).models)
 					# Add anything that references other documents (e.g. partials, listing, etc)
-					filesToRender.add(database.findAll(referencesOthers: true).models)
+					# if our files to reload aren't all standalone files
+					allStandalone = true
+					filesToReload.forEach (fileToReload) ->
+						if fileToReload.get('standalone') isnt true
+							allStandalone = false
+							return false
+					if allStandalone is false
+						filesToRender.add(database.findAll(referencesOthers: true).models)
 					# Add anything that was re-loaded
 					filesToRender.add(filesToReload.models)
 

@@ -144,6 +144,9 @@ class FileModel extends Model
 		# Whether or not we ignore this document (do not render it)
 		ignored: false
 
+		# Whether or not we should treat this file as standalone (that nothing depends on it)
+		standalone: false
+
 
 
 	# ---------------------------------

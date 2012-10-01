@@ -12,6 +12,8 @@
 		- `middlewareOverride` set it to `false` for us to not add the `methodOverride` middleware
 		- `middleware404` set it to `false` for us to not add our `404` middleware
 		- `middleware500` set it to `false` for us to not add our `500` middleware
+	- Added `standalone` attribute to files (defaults to `false`)
+		- If you set to `true`, changes to the file will only cause re-rendering of that file alone
 
 - v6.6.8 September 29, 2012
 	- Fixed watching setup not completing under some conditions
