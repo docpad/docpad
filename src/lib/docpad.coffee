@@ -1229,14 +1229,14 @@ class DocPad extends EventEmitterEnhanced
 		_.each @config.collections, (fn,name) ->
 			tasks.push (complete) ->
 				if fn.length is 2 # callback
-					fn database, (err,collection) ->
+					fn.call docpad, database, (err,collection) ->
 						docpad.error(err)  if err
 						if collection
 							collection.live(true)  # make it a live collection
 							docpad.setCollection(name,collection)  # apply the collection
 						complete()
 				else
-					collection = fn(database)
+					collection = fn.call(docpad,database)
 					if collection
 						collection.live(true)  # make it a live collection
 						docpad.setCollection(name,collection)  # apply the collection
@@ -2797,11 +2797,11 @@ class DocPad extends EventEmitterEnhanced
 		return res.send(500)  unless database
 
 		# Serve the document to the user
-		document = database.findOne(relativeOutPath: '404.html')
+		document = database.findOne({relativeOutPath: '404.html'})
 		docpad.serveDocument({document,req,res,next,statusCode:404})
 
-	# Server Middleware: 404
- 	serverMiddleware500: (err,req,res,next) =>
+	# Server Middleware: 500
+	serverMiddleware500: (err,req,res,next) =>
 		# Prepare
 		docpad = @
 		database = docpad.getDatabase()
@@ -2810,8 +2810,8 @@ class DocPad extends EventEmitterEnhanced
 		return res.send(500)  unless database
 
 		# Serve the document to the user
-		document = database.findOne(relativeOutPath: '500.html')
-		docpad.serveDocument({document,req,res,next,statusCode:500,err})
+		document = database.findOne({relativeOutPath: '500.html'})
+		docpad.serveDocument({document,err,req,res,next,statusCode:500})
 
 	# Server
 	server: (opts,next) =>
