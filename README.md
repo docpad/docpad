@@ -55,7 +55,7 @@ All sorts of people love DocPad, from first time web developers to even industry
 1. Install DocPad
 
 	``` bash
-	[sudo] npm install -fg docpad@6.6
+	[sudo] npm install -fg docpad@6.7
 	[sudo] docpad install
 	```
 
