@@ -562,10 +562,14 @@ class DocPad extends EventEmitterEnhanced
 		maxAge: 86400000
 
 		# Which middlewares would you like us to activate
+		# The standard middlewares (bodePArser, methodOverride, express router)
+		middlewareStandard: true
 		# The standard bodyParser middleware
-		middlewareBody: true
+		middlewareBodyParser: true
 		# The standard methodOverride middleware
-		middlewareOverride: true
+		middlewareMethodOverride: true
+		# The standard express router middleware
+		middlewareExpressRouter: true
 		# Our own 404 middleware
 		middleware404: true
 		# Our own 500 middleware
@@ -1955,8 +1959,11 @@ class DocPad extends EventEmitterEnhanced
 				docpad.log 'debug', "Contextualized #{collection.length} files"
 				return next()
 
+		# Set progress indicator
+		opts.setProgressIndicator? -> ['contextualizeFiles',tasks.completed,tasks.total]
+
 		# Fetch
-		collection.forEach (file) -> tasks.push (complete) ->
+		collection.forEach (file,index) -> tasks.push (complete) ->
 			file.contextualize(complete)
 
 		# Start contextualizing
@@ -1988,6 +1995,9 @@ class DocPad extends EventEmitterEnhanced
 				return next(err)  if err
 				docpad.log 'debug', "Rendered #{collection.length} files"
 				return next()
+
+		# Set progress indicator
+		opts.setProgressIndicator? -> ['renderFiles',tasks.completed,tasks.total]
 
 		# Push the render tasks
 		collection.forEach (file) -> tasks.push (complete) ->
@@ -2034,8 +2044,11 @@ class DocPad extends EventEmitterEnhanced
 				docpad.log 'debug', "Wrote #{collection.length} files"
 				return next()
 
+		# Set progress indicator
+		opts.setProgressIndicator? -> ['writeFiles',tasks.completed,tasks.total]
+
 		# Cycle
-		collection.forEach (file) -> tasks.push (complete) ->
+		collection.forEach (file,index) -> tasks.push (complete) ->
 			# Skip
 			dynamic = file.get('dynamic')
 			write = file.get('write')
@@ -2229,12 +2242,13 @@ class DocPad extends EventEmitterEnhanced
 		docpad = @
 		templateData = opts.templateData or @getTemplateData()
 		collection = opts.collection or @getDatabase()
+		setProgressIndicator = opts.setProgressIndicator or null
 
 		# Contextualize the datbaase, perform two render passes, and perform a write
 		balUtil.flow(
 			object: docpad
 			action: 'contextualizeFiles renderFiles renderFiles writeFiles'
-			args: [{collection,templateData}]
+			args: [{collection,templateData,setProgressIndicator}]
 			next: (err) ->
 				return next(err)
 		)
@@ -2277,11 +2291,29 @@ class DocPad extends EventEmitterEnhanced
 		docpad = @
 		docpad.lastGenerate ?= new Date('1970')
 
+		# Progress
+		progressIndicator = null
+		opts.setProgressIndicator = (_progressIndicator) ->
+			progressIndicator = _progressIndicator
+		showProgress = ->
+			progress = progressIndicator?()
+			if progress
+				[stage,completed,total] = progress
+				percent = Math.floor((completed/total)*100)+'%'
+				docpad.log 'info', "Currently on #{stage} at #{percent}"
+		progressInterval = setInterval(showProgress,10000)
+
+		# Finish
+		finish = (err) ->
+			clearInterval(progressInterval)
+			progressInterval = null
+			next(err)
+
 		# Re-load and re-render only what is necessary
 		if opts.reset? and opts.reset is false
 			# Prepare
 			docpad.generatePrepare (err) ->
-				return next(err)  if err
+				return finish(err)  if err
 				database = docpad.getDatabase()
 
 				# Create a colelction for the files to reload
@@ -2294,7 +2326,7 @@ class DocPad extends EventEmitterEnhanced
 
 				# Perform the reload of the selected files
 				docpad.loadFiles {collection:filesToReload}, (err) ->
-					return next(err)  if err
+					return finish(err)  if err
 
 					# Create a collection for the files to render
 					filesToRender = opts.filesToRender or new FilesCollection()
@@ -2316,11 +2348,11 @@ class DocPad extends EventEmitterEnhanced
 
 					# Perform the re-render of the selected files
 					docpad.generateRender {collection:filesToRender}, (err) ->
-						return next(err)  if err
+						return finish(err)  if err
 
 						# Finish up
 						docpad.generatePostpare {count:filesToRender.length}, (err) ->
-							return next(err)
+							return finish(err)
 
 		# Re-load and re-render everything
 		else
@@ -2330,7 +2362,7 @@ class DocPad extends EventEmitterEnhanced
 				action: 'generatePrepare generateCheck generateClean generateParse generateRender generatePostpare'
 				args: [opts]
 				next: (err) ->
-					return next(err)
+					return finish(err)
 			)
 
 		# Chain
@@ -2724,15 +2756,15 @@ class DocPad extends EventEmitterEnhanced
 		# Chain
 		@
 
-	# Server Middelware: Powering
-	serverMiddlewarePowering: (req,res,next) ->
+	# Server Middleware: Header
+	serverMiddlewareHeader: (req,res,next) ->
 		tools = res.get('X-Powered-By').split(/[,\s]+/g)
 		tools.push 'DocPad'
 		tools = tools.join(',')
 		res.set('X-Powered-By',tools)
 		next()
 
-	# Server Middelware: Router
+	# Server Middleware: Router
 	serverMiddlewareRouter: (req,res,next) =>
 		# Prepare
 		docpad = @
@@ -2750,13 +2782,12 @@ class DocPad extends EventEmitterEnhanced
 		# if we aren't do a permanent redirect
 		url = document.get('url')
 		if url isnt pageUrl
-			console.log(url, url.indexOf?);
 			return res.redirect(301,url)
 
 		# Serve the document to the user
 		docpad.serveDocument({document,req,res,next})
 
-	# Server Middelware: 404
+	# Server Middleware: 404
 	serverMiddleware404: (req,res,next) =>
 		# Prepare
 		docpad = @
@@ -2769,7 +2800,7 @@ class DocPad extends EventEmitterEnhanced
 		document = database.findOne(relativeOutPath: '404.html')
 		docpad.serveDocument({document,req,res,next,statusCode:404})
 
-	# Server Middelware: 404
+	# Server Middleware: 404
  	serverMiddleware500: (err,req,res,next) =>
 		# Prepare
 		docpad = @
@@ -2796,8 +2827,9 @@ class DocPad extends EventEmitterEnhanced
 		serverHttp = null
 
 		# Config
-		opts.middlewareBody ?= config.middlewareBody
-		opts.middlewareOverride ?= config.middlewareOverride
+		opts.middlewareBodyParser ?= config.middlewareBodyParser ? config.middlewareStandard
+		opts.middlewareMethodOverride ?= config.middlewareMethodOverride ? config.middlewareStandard
+		opts.middlewareExpressRouter ?= config.middlewareExpressRouter ? config.middlewareStandard
 		opts.middleware404 ?= config.middleware404
 		opts.middleware500 ?= config.middleware500
 
@@ -2852,21 +2884,21 @@ class DocPad extends EventEmitterEnhanced
 				express ?= require('express')
 
 				# POST Middleware
-				serverExpress.use(express.bodyParser())  if opts.middlewareBody isnt false
-				serverExpress.use(express.methodOverride())  if opts.middlewareOverride isnt false
+				serverExpress.use(express.bodyParser())  if opts.middlewareBodyParser isnt false
+				serverExpress.use(express.methodOverride())  if opts.middlewareMethodOverride isnt false
 
-				# DocPad Header
-				serverExpress.use(docpad.serverMiddlewarePowering)
+				# DocPad Header Middleware
+				serverExpress.use(docpad.serverMiddlewareHeader)
+
+				# Router Middleware
+				serverExpress.use(serverExpress.router)  if opts.middlewareExpressRouter isnt false
 
 				# Emit the serverExtend event
 				# So plugins can define their routes earlier than the DocPad routes
 				docpad.emitSync 'serverExtend', {server:serverExpress,serverExpress,serverHttp,express}, (err) ->
 					return next(err)  if err
 
-					# Router Middleware
-					serverExpress.use(serverExpress.router)
-
-					# Routing
+					# DocPad Router Middleware
 					serverExpress.use(docpad.serverMiddlewareRouter)
 
 					# Static
@@ -2875,10 +2907,10 @@ class DocPad extends EventEmitterEnhanced
 					else
 						serverExpress.use(express.static(config.outPath))
 
-					# 404 Middleware
+					# DocPad 404 Middleware
 					serverExpress.use(docpad.serverMiddleware404)  if opts.middleware404 isnt false
 
-					# 500 Middleware
+					# DocPad 500 Middleware
 					serverExpress.error(docpad.serverMiddleware500)  if opts.middleware500 isnt false
 
 				# Start the Server
