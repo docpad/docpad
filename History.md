@@ -1,5 +1,10 @@
 ## History
 
+- v6.7.1 October 2, 2012
+	- Can now use the `url` property in meta data to specify a custom URL to use
+	- Collection creation functions in the DocPad Configuration Files now scope to the DocPad Instance
+	- Fixed the 400 and 500 middlewares
+
 - v6.7.0 October 2, 2012
 	- Server changes:
 		- Updated [Express.js](http://expressjs.com/) from v2.5 to v3.0
