@@ -135,6 +135,14 @@ joe.suite 'docpad-actions', (suite,test) ->
 					expect(actual.toString()).to.be.equal(expected.toString())
 					done()
 
+		test 'served custom urls', (done) ->
+			request "#{baseUrl}/my-custom-url", (err,response,actual) ->
+				return done(err)  if err
+				balUtil.readFile "#{outExpectedPath}/custom-url.html", (err,expected) ->
+					return done(err)  if err
+					expect(actual.toString()).to.be.equal(expected.toString())
+					done()
+
 		test 'served dynamic documents - part 1/2', (done) ->
 			request "#{baseUrl}/dynamic.html?name=ben", (err,response,actual) ->
 				return done(err)  if err

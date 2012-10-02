@@ -340,7 +340,7 @@ class DocumentModel extends FileModel
 
 				# Create the outPath if we have a outpute directory
 				if @outDirPath
-					changes.outPath = outPath = pathUtil.join(@outDirPath,url)
+					changes.outPath = outPath = pathUtil.join(@outDirPath,relativeOutPath)
 
 				# Update the URL
 				if url

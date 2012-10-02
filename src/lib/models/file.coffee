@@ -495,9 +495,10 @@ class FileModel extends Model
 		outDirPath = @get('outDirPath')
 		name = meta.get('name') or null
 		slug = meta.get('slug') or null
+		url = meta.get('url') or null
 
 		# Create the URL for the file
-		if relativePath
+		if !url and relativePath
 			url = "/#{relativePath}"
 			@setUrl(url)
 
