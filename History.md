@@ -1,19 +1,28 @@
 ## History
 
-- v6.7.0 Unreleased
-	- Updated [Express.js](http://expressjs.com/) from v2.5 to v3.0
-		- If you're doing custom routing, you'll want to check the [Express.js Upgrade Guide](https://github.com/visionmedia/express/wiki/Migrating-from-2.x-to-3.x)
-		- There are now two server objects: `serverExpress` and `serverHttp` - get them using `docpadInstance.getServer(true)`, set them using `docpad.setServer({serverExpress,serverHttp})` - `server` in events, and `docpadInstance.getServer()` return the `serverExpress` object for backwards compatibility (however things like socket.io require the `serverHttp` object)
-	- Abstracted out the different middlewares to `serverMiddlewarePowering`, `serverMiddlewareRouter`, `serverMiddleware404`, and `serverMiddleware500`
-	- Added the following options to the `server` actions:
-		- `serverExpress` for a custom express.js server
-		- `serverHttp` for a custom http server
-		- `middlewareBody` set it to `false` for us to not add the `bodyParser` middleware
-		- `middlewareOverride` set it to `false` for us to not add the `methodOverride` middleware
-		- `middleware404` set it to `false` for us to not add our `404` middleware
-		- `middleware500` set it to `false` for us to not add our `500` middleware
+- v6.7.0 October 2, 2012
+	- Server changes:
+		- Updated [Express.js](http://expressjs.com/) from v2.5 to v3.0
+			- If you're doing custom routing, you'll want to check the [Express.js Upgrade Guide](https://github.com/visionmedia/express/wiki/Migrating-from-2.x-to-3.x)
+			- There are now two server objects: `serverExpress` and `serverHttp` - get them using `docpadInstance.getServer(true)`, set them using `docpad.setServer({serverExpress,serverHttp})` - `server` in events, and `docpadInstance.getServer()` return the `serverExpress` object for backwards compatibility (however things like socket.io require the `serverHttp` object)
+			- Closes [#311](https://github.com/bevry/docpad/pull/311), [#308](https://github.com/bevry/docpad/issues/308), [#272](https://github.com/bevry/docpad/issues/272), [#274](https://github.com/bevry/docpad/issues/274)
+			- Help by [dave8401](https://github.com/dave8401) and [Ben Harris](https://github.com/bharrisau)
+		- Abstracted out the different middlewares to `serverMiddlewareHeader`, `serverMiddlewareRouter`, `serverMiddleware404`, and `serverMiddleware500`
+		- Added the following options to the `server` actions:
+			- `serverExpress` for a custom express.js server
+			- `serverHttp` for a custom http server
+			- `middlewareStandard` set it to `false` for us to not use any of the standard middleware (body parse, method override, express router)
+			- `middlewareBodyParser` set it to `false` for us to not add the `bodyParser` middleware
+			- `middlewareMethodOverride` set it to `false` for us to not add the `methodOverride` middleware
+			- `middlewareExpressRouter` set it to `false` for us to not add the Express.js `router` middleware
+			- `middleware404` set it to `false` for us to not add our `404` middleware
+			- `middleware500` set it to `false` for us to not add our `500` middleware
+		- Example API usage can be found [here](https://github.com/bevry/docpad/wiki/API)
 	- Added `standalone` attribute to files (defaults to `false`)
 		- If you set to `true`, changes to the file will only cause re-rendering of that file alone
+	- Added a progress indicator during generation
+		- Closes [#247](https://github.com/bevry/docpad/issues/247)
+		- Help by [Bruno Héridet](https://github.com/Delapouite)
 
 - v6.6.8 September 29, 2012
 	- Fixed watching setup not completing under some conditions
