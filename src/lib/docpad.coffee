@@ -2887,30 +2887,36 @@ class DocPad extends EventEmitterEnhanced
 				serverExpress.use(express.bodyParser())  if opts.middlewareBodyParser isnt false
 				serverExpress.use(express.methodOverride())  if opts.middlewareMethodOverride isnt false
 
-				# DocPad Header Middleware
-				serverExpress.use(docpad.serverMiddlewareHeader)
-
-				# Router Middleware
-				serverExpress.use(serverExpress.router)  if opts.middlewareExpressRouter isnt false
-
 				# Emit the serverExtend event
 				# So plugins can define their routes earlier than the DocPad routes
 				docpad.emitSync 'serverExtend', {server:serverExpress,serverExpress,serverHttp,express}, (err) ->
 					return next(err)  if err
 
+					# DocPad Header Middleware
+					# Keep it before the serverExtend event
+					serverExpress.use(docpad.serverMiddlewareHeader)
+
+					# Router Middleware
+					# Keep it before the serverExtend event
+					serverExpress.use(serverExpress.router)  if opts.middlewareExpressRouter isnt false
+
 					# DocPad Router Middleware
+					# Keep it before the serverExtend event
 					serverExpress.use(docpad.serverMiddlewareRouter)
 
 					# Static
+					# Keep it before the serverExtend event
 					if config.maxAge
 						serverExpress.use(express.static(config.outPath,{maxAge:config.maxAge}))
 					else
 						serverExpress.use(express.static(config.outPath))
 
 					# DocPad 404 Middleware
+					# Keep it before the serverExtend event
 					serverExpress.use(docpad.serverMiddleware404)  if opts.middleware404 isnt false
 
 					# DocPad 500 Middleware
+					# Keep it before the serverExtend event
 					serverExpress.error(docpad.serverMiddleware500)  if opts.middleware500 isnt false
 
 				# Start the Server
