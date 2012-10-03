@@ -1,5 +1,8 @@
 ## History
 
+- v6.7.2 October 3, 2012
+	- Fixed custom middleware (via the `serverExtend` event) being loaded too late (after the express router middleware)
+
 - v6.7.1 October 2, 2012
 	- Can now use the `url` property in meta data to specify a custom URL to use
 	- Collection creation functions in the DocPad Configuration Files now scope to the DocPad Instance
