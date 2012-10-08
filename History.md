@@ -1,5 +1,14 @@
 ## History
 
+- v6.7.3 October 8, 2012
+	- Fixed logging when a fatal error occurs during initialisation
+	- We now do warnings when plugins do invalid naming conventions
+		- Closes [#313](https://github.com/bevry/docpad/issues/313)
+		- Help by [Eugene Mirotin](https://github.com/emirotin)
+	- We now display the plugin versions in the plugin listing information
+		- Help by [ashnur](https://github.com/ashnur)
+	- More localization progress
+
 - v6.7.2 October 3, 2012
 	- Fixed custom middleware (via the `serverExtend` event) being loaded too late (after the express router middleware)
 

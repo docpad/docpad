@@ -255,7 +255,7 @@ class ConsoleInterface
 		skeletonNames = []
 
 		# Show
-		console.log cliColor.bold locale.skeletonSelectionIntroduction
+		console.log cliColor.bold locale.skeletonSelectionIntroduction+'\n'
 		skeletonsCollection.forEach (skeletonModel) ->
 			skeletonName = skeletonModel.get('name')
 			skeletonDescription = skeletonModel.get('description').replace(/\n/g,'\n\t')
@@ -325,7 +325,7 @@ class ConsoleInterface
 
 				# Requires
 				querystring = require('querystring')
-				http = require('http')
+				request = require('request')
 
 				# Tasks
 				tasks = new balUtil.Group (err) ->
@@ -376,51 +376,33 @@ class ConsoleInterface
 
 					# Prepare our connection
 					options =
-						host: docpad.config.helperHostname
-						port: docpad.config.helperPort
-						path: '/?'+querystring.stringify({
+						uri: docpad.config.helperUrl
+						qs:
 							method:'add-subscriber'
 							name: userConfig.name
 							email: userConfig.email
 							username: userConfig.username
-						})
 						method: 'GET'
 
 					# Innitialize our request
-					req = http.request options, (res) ->
-						# Set the encoding of the request
-						res.setEncoding("utf8")
+					request options, (err,response,body) ->
+						# Check
+						if err
+							docpad.log 'debug', locale.subscribeRequestError, err.message
+							return complete(err)
 
-						# Fetch the data
-						data = ''
-						res.on "data", (chunk) ->
-							data += chunk
+						# Log it to debug console
+						docpad.log 'debug', locale.subscribeRequestData, body
 
-						# Finished receiving the response
-						res.on "end", ->
-							# Log it to debug console
-							docpad.log 'debug', locale.subscribeRequestData, data
-
-							# Inform the user know of the success or not
-							try
-								data = JSON.parse(data)
-								if data.success is false
-									complete(new Error(data.error or 'unknown error'))
-								else
-									complete()
-							catch err
-								complete(err)
-
-					# Fetch errors to the debug console
-					req.on 'error', (err) ->
-						# Log the precise error to debug
-						docpad.log 'debug', locale.subscribeRequestError, err.message
-
-						# Forward
-						complete(err)
-
-					# Finish our request
-					req.end()
+						# Inform the user know of the success or not
+						try
+							data = JSON.parse(body)
+							if data.success is false
+								complete(new Error(data.error or 'unknown error'))
+							else
+								complete()
+						catch err
+							complete(err)
 
 				# Run fallbacks
 				tasks.sync()
