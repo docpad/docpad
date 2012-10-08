@@ -1,0 +1,136 @@
+{
+	# Subscription
+	subscribePrompt: """
+		Thanks for installing DocPad!
+		As DocPad moves very fast, would you like to subscribe to our newsletter and stay up to date with the latest releases and tutorials?
+		"""
+	subscribeConfigNotify: "Great! To speed things up we've fetched your default values, press enter to default to them, or type your own values if you'd prefer."
+	subscribeNamePrompt: "Your nifty name is?"
+	subscribeEmailPrompt: "and your extravagant email is?"
+	subscribeUsernamePrompt: "and what ultimate username would you like for our upcoming cloud infrastructure?"
+	subscribeError: "Whoops, looks like something went wrong when subscribing you to our list... not to worry, we'll try again another time."
+	subscribeSuccess: "Awesome, you're now subscribed our newsletter. By the way, you're looking super fine today! Continuing with the desired action."
+	subscribeIgnore: "No worries. Have a lovely day, and we hope you enjoy DocPad! Continuing with the desired action."
+	subscribeProgress: "Subscribing..."
+	subscribeRequestData: "Subscription request data:"
+	subscribeRequestError: "Subsction request error:"
+
+	# Skeleton
+	skeletonSelectionIntroduction: "You are about to create your new project inside your current directory. Below is a list of skeletons to bootstrap your new project:"
+	skeletonSelectionPrompt: "Which skeleton will you use?"
+	skeletonInstall: "Installing the %s skeleton into %s"
+	skeletonInstalled: "Installed the skeleton succesfully"
+	skeletonExists: "Didn't place the skeleton as the desired structure already exists"
+	skeletonNonexistant: """
+		We couldn't find an existing DocPad project inside your current directory.
+		If you're wanting to use a pre-made skeleton for the basis of your new project, then run DocPad again inside an empty directory.
+		If you're wanting to start your new project from scratch, then refer to the Getting Started guide here:
+			https://docpad.org/get-started
+		For more information on what this means, visit:
+			https://docpad.org/troubleshoot
+		"""
+	skeletonNoneName: "No Skeleton"
+	skeletonNoneDescription: "Prefer to start from scratch? You can get started without any skeleton if you wish"
+
+	# Server
+	serverInUse: "Could not start the web server, chances are the desired port %s is already in use"
+	serverStarted: "DocPad listening to %s on directory %s"
+
+	# Watching
+	watchStart: 'Watching setup starting...'
+	watchStarted: 'Watching setup'
+	watchRegenerating: "Regenerating at %s"
+	watchRegenerated: "Regenerated at %s"
+	watchChange: "Change detected at %s"
+	watchIgnoredChange: "Ignored change at %s"
+	watchDirectoryChange: "Directory change at %s"
+	watchConfigChange: "Configuration change detected at %s"
+
+	# Render
+	renderingFiles: "Rendering %s files"
+	renderedFiles: "Rendered %s files"
+	renderInvalidOptions: 'Invalid options passed to the render action'
+	renderProgress: "Currently on %s at %s"
+	renderGenerating: "Generating..."
+	renderGeneratingNotification: "Website generated..."
+	renderGenerated: "Generated %s files"
+	renderGeneratedNotification: "Website generated"
+	renderParsing: 'Parsing everything'
+	renderParsed: 'Parsed everything'
+	renderNonexistant: 'Cannot generate website as the src dir was not found'
+	renderNoPlugins: "DocPad is currently running without any plugins installed. You probably want to install some: https://github.com/bevry/docpad/wiki/Plugins"
+	renderDirectoryParsing: "Parsing directory: %s"
+	renderDirectoryParsed: "Parsed directory: %s"
+	renderDirectoryNonexistant: "Skipped directory: %s (it does not exist)"
+	renderClean: "Cleaned files"
+	renderInterval: "Performing interval regeneration"
+
+	# Contextualize
+	contextualizingFiles: "Contextualizing %s files"
+	contextualizedFiles: "Contextualized %s files"
+
+	# Write
+	writingFiles: "Writing %s files"
+	wroteFiles: "Wrote %s files"
+
+	# Action
+	actionStart: "Performing the action %s"
+	actionFinished: "Performed the action %s"
+
+	# Plugins
+	pluginFailedToLoad: "Failed to load the plugin: %s at %s"
+	pluginsLoadingFor: "Plugins loading for: %s"
+	pluginsLoadedFor: "Plugins loaded for: %s"
+	pluginsSlow: "We're preparing your plugins, this may take a while the first time. Waiting on the plugins: %s"
+	pluginLoading: "loading plugin: %s"
+	pluginLoaded: "Loaded plugin: %s"
+	pluginSkipped: "Skipped plugin: %s"
+	pluginSkippedDueTo: "Skipped the unsupported plugin: %s due to %s"
+	pluginContinued: "Continuing with the unsupported plugin: %s"
+	pluginNamingConventionInvalid: """
+		The plugin %s uses an invalid naming convention. We only allow alphanumeric characters (no symbols). Perhaps change it to %s
+		More information here: https://docpad.org/plugin-conventions
+		"""
+	pluginPrototypeNameUndefined: """
+		The plugin %s did not have its name defined in its prototype, defaulting it to the directory naming convention.
+		More information here: https://docpad.org/plugin-conventions
+		"""
+	pluginPrototypeNameDifferent: """
+		The plugin %s is using a different name (%s) for its prototype name. This can cause issues.
+		More information here: https://docpad.org/plugin-conventions
+		"""
+
+	# Collections
+	addingDocument: "Adding document: %s"
+	addingFile: "Adding file: %s"
+	addingLayout: "Adding layout: %s"
+	addingHtml: "Adding html file: %s"
+	addingStylesheet: "Adding stylesheet file: %s"
+
+	# Loading
+	loadingConfigUrl: "Loading configuration url: %s"
+	loadingConfigPath: "Loading configuration path: %s"
+	loadingFiles: "Loading %s files"
+	loadedFiles: "Loaded %s files"
+	loadingFile: "Loading file: %s"
+	loadingFileFailed: "Failed to load the file: %s"
+	loadingFileIgnored: "Skipped ignored file: %s"
+	loadedFile: "Loaded file: %s"
+
+	# Misc
+	welcome: "Welcome to DocPad %s"
+	welcomePlugins: "Plugins: %s"
+	welcomeEnvironment: "Environment: %s"
+	includeFailed: "Could not include the file at path %s as we could not find it"
+	errorOccured: "An error occured:"
+	errorLoggedTo: "Error has been logged to: %s"
+	errorFollows: "The error follows:"
+	unknownModelInCollection: "Unknown model structure inside the collection"
+	upgradeNotification: "There is a new version of %s available"
+	upgradeDetails: """
+		There is a new version of %s available, you should probably upgrade...
+		current version:  %s
+		new version:      %s
+		grab it here:     %s
+		"""
+}

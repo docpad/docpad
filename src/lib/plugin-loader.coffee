@@ -2,6 +2,7 @@
 pathUtil = require('path')
 semver = require('semver')
 balUtil = require('bal-util')
+util = require('util')
 coffee = null
 
 # Define Plugin Loader
@@ -38,6 +39,9 @@ class PluginLoader
 	# Plugin name
 	pluginName: null
 
+	# Plugin version
+	pluginVersion: null
+
 	# Node modules path
 	nodeModulesPath: null
 
@@ -47,6 +51,9 @@ class PluginLoader
 
 	# Constructor
 	constructor: ({@docpad,@dirPath,@BasePlugin}) ->
+		# Prepare
+		docpad = @docpad
+
 		# Apply
 		@pluginName = pathUtil.basename(@dirPath).replace(/^docpad-plugin-/,'')
 		@pluginClass = {}
@@ -58,8 +65,10 @@ class PluginLoader
 	# next(err,exists)
 	exists: (next) ->
 		# Package.json
-		packagePath = pathUtil.resolve(@dirPath, "package.json")
-		pluginPath = pathUtil.resolve(@dirPath, "#{@pluginName}.plugin.coffee")
+		packagePath = @packagePath or pathUtil.resolve(@dirPath, "package.json")
+		pluginPath = @pluginPath or pathUtil.resolve(@dirPath, "#{@pluginName}.plugin.coffee")
+		# the fetch of the this value above allows advanced use cases of plugin loading
+		# hover, as of yet, we don't do any such advanced use cases
 		balUtil.exists packagePath, (exists) =>
 			unless exists
 				balUtil.exists pluginPath, (exists) =>
@@ -82,6 +91,7 @@ class PluginLoader
 
 						# Fetch the plugin path
 						pluginPath = @packageData.main? and pathUtil.join(@dirPath, @pluginPath) or pluginPath
+						@pluginVersion = @packageData.version
 						balUtil.exists pluginPath, (exists) =>
 							unless exists
 								return next(null,false)
@@ -97,6 +107,7 @@ class PluginLoader
 	# next(err,supported)
 	unsupported: (next) ->
 		# Prepare
+		docpad = @docpad
 		unsupported = false
 
 		# Check type
@@ -122,7 +133,7 @@ class PluginLoader
 
 			# DocPad engine
 			if engines.docpad?
-				unless semver.satisfies(@docpad.version, engines.docpad)
+				unless semver.satisfies(docpad.version, engines.docpad)
 					unsupported = 'version'
 
 		# Supported
@@ -158,12 +169,30 @@ class PluginLoader
 	# Load in the pluginClass from the pugin file
 	# next(err,pluginClass)
 	load: (next) ->
+		# Prepare
+		docpad = @docpad
+		locale = docpad.getLocale()
+
 		# Load
 		try
 			# Ensure we have coffee-script loaded if we are including a coffee-script file
 			coffee = require('coffee-script')  if !coffee and /\.coffee$/.test(@pluginPath)
 			# Load in our plugin
 			@pluginClass = require(@pluginPath)(@BasePlugin)
+			@pluginClass::version ?= @pluginVersion
+			pluginPrototypeName = @pluginClass::name
+
+			# Checks
+			# Alphanumeric
+			if /^[a-z0-9]+$/.test(@pluginName) is false
+				validPluginName = @pluginName.replace(/[^a-z0-9]/,'')
+				docpad.log('warn', util.format(locale.pluginNamingConventionInvalid, @pluginName, validPluginName))
+			# Same name
+			if pluginPrototypeName is null
+				@pluginClass::name = @pluginName
+				docpad.log('warn',  util.format(locale.pluginPrototypeNameUndefined, @pluginName))
+			else if pluginPrototypeName isnt @pluginName
+				docpad.log('warn', util.format(locale.pluginPrototypeNameDifferent, @pluginName, pluginPrototypeName))
 		catch err
 			# An error occured, return it
 			return next(err,null)
@@ -181,14 +210,14 @@ class PluginLoader
 		try
 			# Merge configurations
 			config = balUtil.deepExtendPlainObjects({}, @docpad.config.plugins[@pluginName], userConfiguration)
-			
+
 			# Create instance with merged configuration
 			docpad = @docpad
 			pluginInstance = new @pluginClass({docpad,config})
 		catch err
 			# An error occured, return it
 			return next(err,null)
-		
+
 		# Return our instance
 		return next(null,pluginInstance)
 

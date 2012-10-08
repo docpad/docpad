@@ -7,6 +7,7 @@ _ = require('underscore')
 caterpillar = require('caterpillar')
 CSON = require('cson')
 balUtil = require('bal-util')
+util = require('util')
 {EventEmitterEnhanced} = balUtil
 
 # Optional
@@ -236,6 +237,7 @@ class DocPad extends EventEmitterEnhanced
 	getSkeletons: (next) ->
 		# Prepare
 		docpad = @
+		locale = @getLocale()
 
 		# Check if we have cached locally
 		if @skeletonsCollection?
@@ -257,8 +259,8 @@ class DocPad extends EventEmitterEnhanced
 			# Add No Skeleton Option
 			docpad.skeletonsCollection.add(new Model(
 				id: 'none'
-				name: 'No Skeleton'
-				description: 'Prefer to start from scratch? You can get started without any skeleton if you wish'
+				name: locale.skeletonNoneName
+				description: locale.skeletonNoneDescription
 				position: Infinity
 			))
 			# Return Collection
@@ -381,7 +383,8 @@ class DocPad extends EventEmitterEnhanced
 				if result
 					return result.get('contentRendered') or result.get('content')
 				else
-					err = new Error("Could not include the file at path [#{subRelativePath}] as we could not find it")
+					locale = @getLocale()
+					err = new Error(util.format(locale.includeFailed, subRelativePath))
 					throw err
 
 		# Fetch our result template data
@@ -402,23 +405,8 @@ class DocPad extends EventEmitterEnhanced
 
 	# Locales Configuration
 	locales:
-		en:
-			# Subscription
-			subscribePrompt: "Thanks for installing DocPad!\nAs DocPad moves very fast, would you like to subscribe to our newsletter and stay up to date with the latest releases and tutorials?"
-			subscribeConfigNotify: "Great! To speed things up we've fetched your default values, press enter to default to them, or type your own values if you'd prefer."
-			subscribeNamePrompt: "Your nifty name is?"
-			subscribeEmailPrompt: "and your extravagant email is?"
-			subscribeUsernamePrompt: "and what ultimate username would you like for our upcoming cloud infrastructure?"
-			subscribeError: "Whoops, looks like something went wrong when subscribing you to our list... not to worry, we'll try again another time."
-			subscribeSuccess: "Awesome, you're now subscribed our newsletter. By the way, you're looking super fine today! Continuing with the desired action."
-			subscribeIgnore: "No worries. Have a lovely day, and we hope you enjoy DocPad! Continuing with the desired action."
-			subscribeProgress: "Subscribing..."
-			subscribeRequestData: "Subscription request data:"
-			subscribeRequestError: "Subsction request error:"
+		en: CSON.parseFileSync(pathUtil.join(__dirname, '..', '..', 'locale', 'en.cson'))
 
-			# Skeletons
-			skeletonSelectionIntroduction: "You are about to create your new project inside your current directory. Below is a list of skeletons to bootstrap your new project:\n"
-			skeletonSelectionPrompt: "Which skeleton will you use?"
 
 	# Merged Configuration
 	# Merged in the order of:
@@ -479,7 +467,7 @@ class DocPad extends EventEmitterEnhanced
 		plugins: {}
 
 		# Where to fetch the exchange information from
-		exchangeUrl: 'https://raw.github.com/bevry/docpad-extras/docpad-6.x/exchange.json'
+		exchangeUrl: 'https://docpad.org/exchange.json'
 
 
 		# -----------------------------
@@ -490,6 +478,9 @@ class DocPad extends EventEmitterEnhanced
 
 		# The website's package.json path
 		packagePath: 'package.json'
+
+		# Where to get the latest package information from
+		latestPackageUrl: 'https://docpad.org/latest.json'
 
 		# The website's configuration paths
 		# Reads only the first one that exists
@@ -617,10 +608,9 @@ class DocPad extends EventEmitterEnhanced
 		# Whether or not we should display any prompts
 		prompts: false
 
-		# Helper Hostname & Port
+		# Helper Url
 		# Used for subscribing to newsletter, account information, and statistics etc
-		helperHostname: 'docpad-helper.herokuapp.com'
-		helperPort: 80
+		helperUrl: 'https://docpad.org/helper/'
 
 		# Safe Mode
 		# If enabled, we will try our best to sandbox our template rendering so that they cannot modify things outside of them
@@ -747,7 +737,7 @@ class DocPad extends EventEmitterEnhanced
 			next?(null,docpad)
 		else
 			@action 'load ready', instanceConfig, (err) ->
-				return @fatal(err)  if err
+				return docpad.fatal(err)  if err
 				next?(null,docpad)
 
 		# Chain
@@ -763,14 +753,21 @@ class DocPad extends EventEmitterEnhanced
 		# Prepare
 		[instanceConfig,next] = balUtil.extractOptsAndCallback(instanceConfig,next)
 		docpad = @
+		locale = @getLocale()
 
 		# Version Check
 		@compareVersion()
 
-		# Welcome
-		@log 'info', "Welcome to DocPad v#{@getVersion()}"
-		@log 'info', 'Environment:', @getEnvironment()
-		@log 'info', 'Plugins:', _.keys(@loadedPlugins).sort().join(', ')
+		# Welcome prepare
+		if @getDebugging()
+			pluginsList = ("#{pluginName} v#{@loadedPlugins[pluginName].version}"  for pluginName in _.keys(@loadedPlugins).sort()).join(', ')
+		else
+			pluginsList = _.keys(@loadedPlugins).sort().join(', ')
+
+		# Welcome log
+		@log 'info', util.format(locale.welcome, "v#{@getVersion()}")
+		@log 'info', util.format(locale.welcomePlugins, pluginsList)
+		@log 'info', util.format(locale.welcomeEnvironment, @getEnvironment())
 
 		# Prepare
 		tasks = new balUtil.Group (err) ->
@@ -800,6 +797,7 @@ class DocPad extends EventEmitterEnhanced
 		# Prepare
 		[instanceConfig,next] = balUtil.extractOptsAndCallback(instanceConfig,next)
 		docpad = @
+		locale = @getLocale()
 		instanceConfig or= {}
 
 		# Reset non persistant configurations
@@ -873,7 +871,7 @@ class DocPad extends EventEmitterEnhanced
 			if @config.regenerateEvery
 				@regenerateTimer = setInterval(
 					->
-						docpad.log('info', 'Performing interval regeneration')
+						docpad.log('info', locale.renderInterval)
 						docpad.action('generate')
 					@config.regenerateEvery
 				)
@@ -1003,6 +1001,7 @@ class DocPad extends EventEmitterEnhanced
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
+		locale = @getLocale()
 		{rootPath,outPath} = @config
 
 		# Log
@@ -1021,7 +1020,7 @@ class DocPad extends EventEmitterEnhanced
 			else
 				# our outPath is not related or lower than our root path, so do remove it
 				balUtil.rmdirDeep outPath, (err,list,tree) ->
-					docpad.log 'debug', 'Cleaned files'  unless err
+					docpad.log('debug', locale.renderClean)  unless err
 					return next()
 
 		# Chain
@@ -1059,16 +1058,20 @@ class DocPad extends EventEmitterEnhanced
 	# Load a configuration url
 	# next(err,parsedData)
 	loadConfigUrl: (configUrl,next) ->
-		# Log
-		@log 'debug', "Loading configuration url: #{configUrl}"
+		# Prepare
+		locale = @getLocale()
+		request = require('request')
 
-		# Read the url using balUtil
-		balUtil.readPath configUrl, (err,data) ->
+		# Log
+		@log 'debug', util.format(locale.loadingConfigUrl, configUrl)
+
+		# Read the URL
+		request configUrl, (err,res,body) ->
 			# Check
 			return next(err)  if err
 
 			# Read the string using CSON
-			CSON.parse(data.toString(),next)
+			CSON.parse(body,next)
 
 		# Chain
 		@
@@ -1076,8 +1079,11 @@ class DocPad extends EventEmitterEnhanced
 	# Load a configuration file
 	# next(err,parsedData)
 	loadConfigPath: (configPath,next) ->
+		# Prepare
+		locale = @getLocale()
+
 		# Log
-		@log 'debug', "Loading configuration path: #{configPath}"
+		@log 'debug', util.format(locale.loadingConfigPath, configPath)
 
 		# Check that it exists
 		balUtil.exists configPath, (exists) ->
@@ -1126,6 +1132,7 @@ class DocPad extends EventEmitterEnhanced
 		# Prepare
 		docpad = @
 		config = @config
+		locale = @getLocale()
 		@database = database = new FilesCollection()
 		@collections = {}
 		@blocks = {}
@@ -1139,7 +1146,7 @@ class DocPad extends EventEmitterEnhanced
 					fullPath: $startsWith: config.documentsPaths
 			})
 			.on('add', (model) ->
-				docpad.log('debug', "Adding document: #{model.attributes.fullPath}")
+				docpad.log('debug', util.format(locale.addingDocument, model.attributes.fullPath))
 				_.defaults(model.attributes,{
 					isDocument: true
 					render: true
@@ -1153,7 +1160,7 @@ class DocPad extends EventEmitterEnhanced
 					fullPath: $startsWith: config.filesPaths
 			})
 			.on('add', (model) ->
-				docpad.log('debug', "Adding file: #{model.attributes.fullPath}")
+				docpad.log('debug', util.format(locale.addingFile, model.attributes.fullPath))
 				_.defaults(model.attributes,{
 					isFile: true
 					render: false
@@ -1167,7 +1174,7 @@ class DocPad extends EventEmitterEnhanced
 					fullPath: $startsWith: config.layoutsPaths
 			})
 			.on('add', (model) ->
-				docpad.log('debug', "Adding layout: #{model.attributes.fullPath}")
+				docpad.log('debug', util.format(locale.addingLayout, model.attributes.fullPath))
 				_.defaults(model.attributes,{
 					isLayout: true
 					render: false
@@ -1184,7 +1191,7 @@ class DocPad extends EventEmitterEnhanced
 				outExtension: 'html'
 			})
 			.on('add', (model) ->
-				docpad.log('debug', "Adding html file: #{model.attributes.fullPath}")
+				docpad.log('debug', util.format(locale.addingHtml, model.attributes.fullPath))
 			)
 		stylesheetCollection = database.createLiveChildCollection()
 			.setQuery('isStylesheet', {
@@ -1199,7 +1206,7 @@ class DocPad extends EventEmitterEnhanced
 				]
 			})
 			.on('add', (model) ->
-				docpad.log('debug', "Adding stylesheet file: #{model.attributes.fullPath}")
+				docpad.log('debug', util.format(locale.addingStylesheet, model.attributes.fullPath))
 				model.attributes.referencesOthers = true
 			)
 
@@ -1326,6 +1333,7 @@ class DocPad extends EventEmitterEnhanced
 	error: (err,type='err',next) =>
 		# Prepare
 		docpad = @
+		locale = @getLocale()
 
 		# Check
 		if !err or err.logged
@@ -1336,7 +1344,7 @@ class DocPad extends EventEmitterEnhanced
 		err.logged = true
 		err = new Error(err)  unless err instanceof Error
 		err.logged = true
-		docpad.log(type, 'An error occured:', err.message, err.stack)
+		docpad.log(type, locale.errorOccured, err.message, err.stack)
 
 		# Report the error back to DocPad using airbrake
 		if docpad.config.reportErrors and airbrake
@@ -1345,7 +1353,7 @@ class DocPad extends EventEmitterEnhanced
 				docpadConfig: @config
 			airbrake.notify err, (airbrakeErr,airbrakeUrl) ->
 				console.log(airbrakeErr)  if airbrakeErr
-				console.log('Error has been logged to:', airbrakeUrl)
+				console.log(util.format(locale.errorLoggedTo, airbrakeUrl))
 				next?()
 		else
 			next?()
@@ -1505,6 +1513,7 @@ class DocPad extends EventEmitterEnhanced
 	parseDirectory: (opts={},next) ->
 		# Prepare
 		me = @
+		locale = @getLocale()
 
 		# Extract
 		{path,createFunction} = opts
@@ -1513,13 +1522,13 @@ class DocPad extends EventEmitterEnhanced
 		# Check if the directory exists
 		unless balUtil.existsSync(path)
 			# Log
-			me.log 'debug', "Skipped directory: #{path} (it does not exist)"
+			me.log 'debug', util.format(locale.renderDirectoryNonexistant, path)
 
 			# Forward
 			return next()
 
 		# Log
-		me.log 'debug', "Parsing directory: #{path}"
+		me.log 'debug', util.format(locale.renderDirectoryParsing, path)
 
 		# Files
 		balUtil.scandir(
@@ -1551,7 +1560,7 @@ class DocPad extends EventEmitterEnhanced
 				return next(err)  if err
 
 				# Log
-				me.log 'debug', "Parsed directory: #{path}"
+				me.log 'debug', util.format(locale.renderDirectoryParsed, path)
 
 				# Load the files
 				me.loadFiles {collection:filesToLoad}, (err) ->
@@ -1578,9 +1587,12 @@ class DocPad extends EventEmitterEnhanced
 	loadPlugins: (next) ->
 		# Prepare
 		docpad = @
+		locale = @getLocale()
+
+		# Snore
 		@slowPlugins = {}
 		snore = @createSnore ->
-			docpad.log 'notice', "We're preparing your plugins, this may take a while the first time. Waiting on the plugins: #{_.keys(docpad.slowPlugins).join(', ')}"
+			docpad.log 'notice', util.format(locale.pluginsSlow, _.keys(docpad.slowPlugins).join(', '))
 
 		# Async
 		tasks = new balUtil.Group (err) ->
@@ -1628,6 +1640,7 @@ class DocPad extends EventEmitterEnhanced
 		# Prepare
 		docpad = @
 		config = @config
+		locale = @getLocale()
 		next = (err) ->
 			# Remove from slow plugins
 			delete docpad.slowPlugins[pluginName]
@@ -1656,11 +1669,11 @@ class DocPad extends EventEmitterEnhanced
 		# Check
 		unless enabled
 			# Skip
-			docpad.log 'debug', "Skipped plugin: #{pluginName}"
+			docpad.log 'debug', util.format(locale.pluginSkipped, pluginName)
 			return next()
 		else
 			# Load
-			docpad.log 'debug', "Loading plugin: #{pluginName}"
+			docpad.log 'debug', util.format(locale.pluginLoading, pluginName)
 
 			# Check existance
 			loader.exists (err,exists) ->
@@ -1676,15 +1689,15 @@ class DocPad extends EventEmitterEnhanced
 					if unsupported
 						# Version?
 						if unsupported is 'version' and  docpad.config.skipUnsupportedPlugins is false
-							docpad.log 'warn', "Continuing with the unsupported plugin: #{pluginName}"
+							docpad.log 'warn', util.format(locale.pluginContinued, pluginName)
 						else
 							# Type?
 							if unsupported is 'type'
-								docpad.log 'debug', "Skipped the unsupported plugin: #{pluginName} due to #{unsupported}"
+								docpad.log 'debug', util.format(locale.pluginSkippedDueTo, pluginName, unsupported)
 
 							# Something else?
 							else
-								docpad.log 'warn', "Skipped the unsupported plugin: #{pluginName} due to #{unsupported}"
+								docpad.log 'warn', util.format(locale.pluginSkippedDueTo, pluginName, unsupported)
 							return next()
 
 					# Load the class
@@ -1699,7 +1712,7 @@ class DocPad extends EventEmitterEnhanced
 							docpad.loadedPlugins[loader.pluginName] = pluginInstance
 
 							# Log completion
-							docpad.log 'debug', "Loaded plugin: #{pluginName}"
+							docpad.log 'debug', util.format(locale.pluginLoaded, pluginName)
 
 							# Forward
 							return next()
@@ -1711,9 +1724,10 @@ class DocPad extends EventEmitterEnhanced
 	loadPluginsIn: (pluginsPath, next) ->
 		# Prepare
 		docpad = @
+		locale = @getLocale()
 
 		# Load Plugins
-		docpad.log 'debug', "Plugins loading for: #{pluginsPath}"
+		docpad.log 'debug', util.format(locale.pluginsLoadingFor, pluginsPath)
 		balUtil.scandir(
 			# Path
 			path: pluginsPath
@@ -1731,7 +1745,7 @@ class DocPad extends EventEmitterEnhanced
 				return _nextFile(null,false)  if fileFullPath is pluginsPath
 				nextFile = (err,skip) ->
 					if err
-						docpad.warn("Failed to load the plugin: #{pluginName} at #{fileFullPath}. The error follows:",err)
+						docpad.warn(util.format(locale.pluginFailedToLoad, pluginName, fileFullPath)+'\n'+locale.errorFollows, err)
 					return _nextFile(null,skip)
 
 				# Forward
@@ -1740,7 +1754,7 @@ class DocPad extends EventEmitterEnhanced
 
 			# Next
 			next: (err) ->
-				docpad.log 'debug', "Plugins loaded for: #{pluginsPath}"
+				docpad.log 'debug', util.format(locale.pluginsLoadedFor, pluginsPath)
 				return next(err)
 		)
 
@@ -1791,16 +1805,11 @@ class DocPad extends EventEmitterEnhanced
 
 		# Check
 		balUtil.packageCompare
-			local: pathUtil.join(docpad.corePath, 'package.json')
-			remote: 'https://raw.github.com/bevry/docpad/master/package.json'
+			local: @packagePath
+			remote: @config.latestPackageUrl
 			newVersionCallback: (details) ->
-				docpad.notify "There is a new version of #{details.local.name} available"
-				docpad.log 'notice', """
-					There is a new version of #{details.local.name} available, you should probably upgrade...
-					current version:  #{details.local.version}
-					new version:      #{details.remote.version}
-					grab it here:     #{details.remote.homepage}
-					"""
+				docpad.notify util.format(locale.upgradeNotification, details.local.name)
+				docpad.log 'notice', util.format(locale.upgradeDetails, details.local.version, details.remote.version, details.remote.homepage)
 
 		# Chain
 		@
@@ -1882,18 +1891,19 @@ class DocPad extends EventEmitterEnhanced
 	loadFiles: (opts={},next) ->
 		# Prepare
 		docpad = @
+		locale = @getLocale()
 		database = @getDatabase()
 		{collection} = opts
 
 		# Log
-		docpad.log 'debug', "Loading #{collection.length} files"
+		docpad.log 'debug', util.format(locale.loadingFiles, collection.length)
 
 		# Async
 		tasks = new balUtil.Group (err) ->
 			return next(err)  if err
 			# After
 			docpad.emitSync 'loadAfter', {collection}, (err) ->
-				docpad.log 'debug', "Loaded #{collection.length} files"
+				docpad.log 'debug', util.format(locale.loadedFiles, collection.length)
 				next()
 
 		# Fetch
@@ -1902,13 +1912,13 @@ class DocPad extends EventEmitterEnhanced
 			fileRelativePath = file.get('relativePath')
 
 			# Log
-			docpad.log 'debug', "Loading file: #{fileRelativePath}"
+			docpad.log 'debug', util.format(locale.loadingFile, fileRelativePath)
 
 			# Load the file
 			file.load (err) ->
 				# Check
 				if err
-					docpad.warn("Failed to load the file: #{fileRelativePath}. The error follows:", err)
+					docpad.warn(util.format(locale.loadingFileFailed, fileRelativePath)+"\n"+locale.errorFollows, err)
 					return complete()
 
 				# Prepare
@@ -1917,11 +1927,11 @@ class DocPad extends EventEmitterEnhanced
 
 				# Ignored?
 				if fileIgnored or (fileParse? and !fileParse)
-					docpad.log 'info', "Skipped manually ignored file: #{fileRelativePath}"
+					docpad.log 'info', util.format(locale.loadingFileIgnored, fileRelativePath)
 					collection.remove(file)
 					return complete()
 				else
-					docpad.log 'debug', "Loaded file: #{fileRelativePath}"
+					docpad.log 'debug', util.format(locale.loadedFile, fileRelativePath)
 
 				# Store Document
 				database.add(file)
@@ -1945,10 +1955,11 @@ class DocPad extends EventEmitterEnhanced
 	contextualizeFiles: (opts={},next) ->
 		# Prepare
 		docpad = @
+		locale = @getLocale()
 		{collection,templateData} = opts
 
 		# Log
-		docpad.log 'debug', "Contextualizing #{collection.length} files"
+		docpad.log 'debug', util.format(locale.contextualizingFiles, collection.length)
 
 		# Async
 		tasks = new balUtil.Group (err) ->
@@ -1956,7 +1967,7 @@ class DocPad extends EventEmitterEnhanced
 			# After
 			docpad.emitSync 'contextualizeAfter', {collection}, (err) ->
 				return next(err)  if err
-				docpad.log 'debug', "Contextualized #{collection.length} files"
+				docpad.log 'debug', util.format(locale.contextualizedFiles, collection.length)
 				return next()
 
 		# Set progress indicator
@@ -1982,10 +1993,11 @@ class DocPad extends EventEmitterEnhanced
 	renderFiles: (opts={},next) ->
 		# Prepare
 		docpad = @
+		locale = @getLocale()
 		{collection,templateData} = opts
 
 		# Log
-		docpad.log 'debug', "Rendering #{collection.length} files"
+		docpad.log 'debug', util.format(locale.renderingFiles, collection.length)
 
 		# Async
 		tasks = new balUtil.Group (err) ->
@@ -1993,7 +2005,7 @@ class DocPad extends EventEmitterEnhanced
 			# After
 			docpad.emitSync 'renderAfter', {collection}, (err) ->
 				return next(err)  if err
-				docpad.log 'debug', "Rendered #{collection.length} files"
+				docpad.log 'debug', util.format(locale.renderedFiles, collection.length)
 				return next()
 
 		# Set progress indicator
@@ -2030,10 +2042,11 @@ class DocPad extends EventEmitterEnhanced
 	writeFiles: (opts={},next) ->
 		# Prepare
 		docpad = @
+		locale = @getLocale()
 		{collection,templateData} = opts
 
 		# Log
-		docpad.log 'debug', "Writing #{collection.length} files"
+		docpad.log 'debug', util.format(locale.writingFiles, collection.length)
 
 		# Async
 		tasks = new balUtil.Group (err) ->
@@ -2041,7 +2054,7 @@ class DocPad extends EventEmitterEnhanced
 			# After
 			docpad.emitSync 'writeAfter', {collection}, (err) ->
 				return next(err)  if err
-				docpad.log 'debug', "Wrote #{collection.length} files"
+				docpad.log 'debug', util.format(locale.wroteFiles, collection.length)
 				return next()
 
 		# Set progress indicator
@@ -2062,7 +2075,7 @@ class DocPad extends EventEmitterEnhanced
 			else if file.write?
 				file.write(complete)
 			else
-				complete(new Error('Unknown model in the collection'))
+				complete(new Error(locale.unknownModelInCollection))
 
 		#  Start writing
 		if tasks.total
@@ -2086,6 +2099,7 @@ class DocPad extends EventEmitterEnhanced
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
 		runner = @getRunner()
+		locale = @getLocale()
 
 		# Multiple actions?
 		actions = action.split /[,\s]+/g
@@ -2098,13 +2112,13 @@ class DocPad extends EventEmitterEnhanced
 			return docpad
 
 		# Log
-		@log 'debug', "Performing the action #{action}"
+		@log 'debug', util.format(locale.actionStart, action)
 
 		# Next
 		next ?= (err) ->
 			docpad.fatal(err)  if err
 		forward = (args...) =>
-			@log 'debug', "Performed the action #{action}"
+			@log 'debug', util.format(locale.actionFinished, action)
 			balUtil.wait 0, -> next(args...)
 
 		# Wrap
@@ -2128,10 +2142,11 @@ class DocPad extends EventEmitterEnhanced
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
+		locale = @getLocale()
 
 		# Log generating
-		docpad.log 'info', 'Generating...'
-		docpad.notify (new Date()).toLocaleTimeString(), title: 'Website generating...'
+		docpad.log 'info', locale.renderGenerating
+		docpad.notify (new Date()).toLocaleTimeString(), title: locale.renderGeneratingNotification
 
 		# Fire plugins
 		docpad.emitSync 'generateBefore', server:docpad.getServer(), (err) ->
@@ -2147,18 +2162,17 @@ class DocPad extends EventEmitterEnhanced
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
+		locale = @getLocale()
 
 		# Check plugin count
 		unless docpad.hasPlugins()
-			docpad.log 'warn', """
-				DocPad is currently running without any plugins installed. You probably want to install some: https://github.com/bevry/docpad/wiki/Plugins
-				"""
+			docpad.log 'warn', locale.renderNoPlugins
 
 		# Check if the source directory exists
 		balUtil.exists docpad.config.srcPath, (exists) ->
 			# Check and forward
 			if exists is false
-				err = new Error('Cannot generate website as the src dir was not found')
+				err = new Error(locale.renderNonexistant)
 				return next(err)
 			else
 				return next()
@@ -2187,13 +2201,14 @@ class DocPad extends EventEmitterEnhanced
 		docpad = @
 		database = @getDatabase()
 		config = docpad.config
+		locale = @getLocale()
 
 		# Before
 		@emitSync 'parseBefore', {}, (err) ->
 			return next(err)  if err
 
 			# Log
-			docpad.log 'debug', 'Parsing everything'
+			docpad.log 'debug', locale.renderParsing
 
 			# Async
 			tasks = new balUtil.Group (err) ->
@@ -2201,7 +2216,7 @@ class DocPad extends EventEmitterEnhanced
 				# After
 				docpad.emitSync 'parseAfter', {}, (err) ->
 					return next(err)  if err
-					docpad.log 'debug', 'Parsed everything'
+					docpad.log 'debug', locale.renderParsed
 					return next(err)
 
 			# Documents
@@ -2262,17 +2277,15 @@ class DocPad extends EventEmitterEnhanced
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
+		locale = @getLocale()
 
 		# Fire plugins
 		docpad.emitSync 'generateAfter', server:docpad.getServer(), (err) ->
 			return next(err)  if err
 
 			# Log generated
-			if opts.count?
-				docpad.log 'info', "Generated #{opts.count} files"
-			else
-				docpad.log 'info', "Generated all files"
-			docpad.notify (new Date()).toLocaleTimeString(), title: 'Website generated'
+			docpad.log 'info', util.format(locale.renderGenerated, (opts.count ? 'all'))
+			docpad.notify (new Date()).toLocaleTimeString(), title: locale.renderGeneratedNotification
 
 			# Completed
 			return next()
@@ -2290,6 +2303,7 @@ class DocPad extends EventEmitterEnhanced
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
 		docpad.lastGenerate ?= new Date('1970')
+		locale = @getLocale()
 
 		# Progress
 		progressIndicator = null
@@ -2300,7 +2314,7 @@ class DocPad extends EventEmitterEnhanced
 			if progress
 				[stage,completed,total] = progress
 				percent = Math.floor((completed/total)*100)+'%'
-				docpad.log 'info', "Currently on #{stage} at #{percent}"
+				docpad.log 'info', util.format(locale.renderProgress, stage, percent)
 		progressInterval = setInterval(showProgress,10000)
 
 		# Finish
@@ -2439,6 +2453,7 @@ class DocPad extends EventEmitterEnhanced
 	render: (opts,next) =>
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		locale = @getLocale()
 
 		# Extract document
 		if opts.document
@@ -2453,7 +2468,7 @@ class DocPad extends EventEmitterEnhanced
 				@renderPath(path, opts, next)
 			else
 				# Check
-				err = new Error('Invalid options passed to the render action')
+				err = new Error(locale.renderInvalidOptions)
 				return next(err)
 
 		# Chain
@@ -2471,6 +2486,7 @@ class DocPad extends EventEmitterEnhanced
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
+		locale = @getLocale()
 		database = @getDatabase()
 		watchrs = []
 
@@ -2494,7 +2510,7 @@ class DocPad extends EventEmitterEnhanced
 			watchrs = watchr.watch(
 				paths: docpad.config.configPaths
 				listener: ->
-					docpad.log 'info', "Configuration change detected at #{new Date().toLocaleTimeString()}"
+					docpad.log 'info', util.format(locale.watchConfigChange, new Date().toLocaleTimeString())
 					docpad.action 'load', (err) ->
 						return docpad.fatal(err)  if err
 						performGenerate(reset:true)
@@ -2525,25 +2541,25 @@ class DocPad extends EventEmitterEnhanced
 			# Do not reset when we do this generate
 			opts.reset ?= false
 			# Log
-			docpad.log "Regenerating at #{new Date().toLocaleTimeString()}"
+			docpad.log util.format(locale.watchRegenerating, new Date().toLocaleTimeString())
 			# Afterwards, re-render anything that should always re-render
 			docpad.action 'generate', opts, (err) ->
 				docpad.error(err)  if err
-				docpad.log "Regenerated at #{new Date().toLocaleTimeString()}"
+				docpad.log util.format(locale.watchRegenerated, new Date().toLocaleTimeString())
 
 		# Change event handler
 		changeHandler = (eventName,filePath,fileCurrentStat,filePreviousStat) ->
 			# Fetch the file
-			docpad.log 'debug', "Change detected at #{new Date().toLocaleTimeString()}", eventName, filePath
+			docpad.log 'debug', util.format(locale.watchChange, new Date().toLocaleTimeString()), eventName, filePath
 
 			# Check if we are a file we don't care about
 			if ( balUtil.commonIgnorePatterns.test(pathUtil.basename(filePath)) )
-				docpad.log 'debug', "Ignored change at #{new Date().toLocaleTimeString()}", filePath
+				docpad.log 'debug', util.format(locale.watchIgnoredChange, new Date().toLocaleTimeString()), filePath
 				return
 
 			# Don't care if we are a directory
 			if (fileCurrentStat or filePreviousStat).isDirectory()
-				docpad.log 'debug', "Directory change at #{new Date().toLocaleTimeString()}", filePath
+				docpad.log 'debug', util.format(locale.watchDirectoryChange, new Date().toLocaleTimeString()), filePath
 				return
 
 			# Create the file object
@@ -2562,9 +2578,9 @@ class DocPad extends EventEmitterEnhanced
 				queueRegeneration()
 
 		# Watch
-		docpad.log 'Watching setup starting...'
+		docpad.log locale.watchStart
 		resetWatchers (err) ->
-			docpad.log 'Watching setup'
+			docpad.log locale.watchStarted
 			return next(err)
 
 		# Chain
@@ -2580,6 +2596,7 @@ class DocPad extends EventEmitterEnhanced
 		docpad = @
 		srcPath = @config.srcPath
 		destinationPath = @config.rootPath
+		locale = @getLocale()
 
 		# Run docpad
 		runDocpad = ->
@@ -2604,15 +2621,7 @@ class DocPad extends EventEmitterEnhanced
 				# Check if our directory is empty
 				if files.length
 					# It isn't empty, display a warning
-					docpad.log 'warn', """
-
-						We couldn't find an existing DocPad project inside your current directory.
-						If you're wanting to use a pre-made skeleton for the basis of your new project, then run DocPad again inside an empty directory.
-						If you're wanting to start your new project from scratch, then refer to the Getting Started guide here:
-							https://github.com/bevry/docpad/wiki/Getting-Started
-						For more information on what this means, visit:
-							https://github.com/bevry/docpad/wiki/Troubleshooting
-						"""
+					docpad.log 'warn', "\n#{locale.skeletonNonexistant}"
 					return next()
 				else
 					docpad.skeleton opts, (err) ->
@@ -2635,11 +2644,12 @@ class DocPad extends EventEmitterEnhanced
 		srcPath = @config.srcPath
 		destinationPath = @config.rootPath
 		selectSkeletonCallback = opts.selectSkeletonCallback or null
+		locale = @getLocale()
 
 		# Use a Skeleton
 		useSkeleton = (skeletonModel) ->
 			# Log
-			docpad.log 'info', "Installing the #{skeletonModel.get('name')} skeleton into #{destinationPath}"
+			docpad.log 'info', util.format(locale.skeletonInstall, skeletonModel.get('name'), destinationPath)
 
 			# Install Skeleton
 			docpad.installSkeleton skeletonModel, destinationPath, (err) ->
@@ -2652,7 +2662,7 @@ class DocPad extends EventEmitterEnhanced
 					return next(err)  if err
 
 					# Log
-					docpad.log 'info', "Installed the skeleton succesfully"
+					docpad.log 'info', locale.skeletonInstalled
 
 					# Forward
 					return next(err)
@@ -2681,7 +2691,7 @@ class DocPad extends EventEmitterEnhanced
 		balUtil.exists srcPath, (exists) ->
 			# Check
 			if exists
-				docpad.log 'warn', "Didn't place the skeleton as the desired structure already exists"
+				docpad.log 'warn', locale.skeletonExists
 				return next()
 
 			# Do we already have a skeletonId selected?
@@ -2823,6 +2833,7 @@ class DocPad extends EventEmitterEnhanced
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
 		config = @config
+		locale = @getLocale()
 		serverExpress = null
 		serverHttp = null
 
@@ -2848,12 +2859,12 @@ class DocPad extends EventEmitterEnhanced
 				serverHttp.listen(config.port)
 				address = serverHttp.address()
 				unless address?
-					throw new Error("Could not start the web server, chances are the desired port #{config.port} is already in use")
+					throw new Error(util.format(locale.serverInUse, config.port))
 				serverHostname = if address.address is '0.0.0.0' then 'localhost' else address.address
 				serverPort = address.port
 				serverLocation = "http://#{serverHostname}:#{serverPort}/"
 				serverDir = config.outPath
-				docpad.log 'info', "DocPad listening to #{serverLocation} on directory #{serverDir}"
+				docpad.log 'info', util.format(locale.serverStarted, serverLocation, serverDir)
 			catch err
 				return complete(err)
 			finally
