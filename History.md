@@ -5,7 +5,7 @@
 	- We now do warnings when plugins do invalid naming conventions
 		- Closes [#313](https://github.com/bevry/docpad/issues/313)
 		- Help by [Eugene Mirotin](https://github.com/emirotin)
-	- We now display the plugin versions in the plugin listing information
+	- We now display the plugin versions in the plugin listing information when debugging
 		- Help by [ashnur](https://github.com/ashnur)
 	- More localization progress
 
