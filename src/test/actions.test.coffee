@@ -111,12 +111,6 @@ joe.suite 'docpad-actions', (suite,test) ->
 						)
 				)
 
-	suite 'server', (suite,test) ->
-
-		test 'server action', (done) ->
-			docpad.action 'server', (err) ->
-				done(err)
-
 		test 'ignored "ignored" documents"', (done) ->
 			balUtil.exists "#{outPath}/ignored.html", (exists) ->
 				expect(exists).to.be.false
@@ -127,7 +121,14 @@ joe.suite 'docpad-actions', (suite,test) ->
 				expect(exists).to.be.false
 				done()
 
+	suite 'server', (suite,test) ->
+
+		test 'server action', (done) ->
+			docpad.action 'server', (err) ->
+				done(err)
+
 		test 'served generated documents', (done) ->
+			console.log("#{baseUrl}/html.html")
 			request "#{baseUrl}/html.html", (err,response,actual) ->
 				return done(err)  if err
 				balUtil.readFile "#{outExpectedPath}/html.html", (err,expected) ->

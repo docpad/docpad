@@ -1,5 +1,9 @@
 ## History
 
+- v6.7.4 October 10, 2012
+	- `PORT` environment variable now comes before infrastructure specific port variables
+	- Can now do `docpad-server --action generate,server,watch --port 8080`
+
 - v6.7.3 October 8, 2012
 	- Fixed logging when a fatal error occurs during initialisation
 	- We now do warnings when plugins do invalid naming conventions
