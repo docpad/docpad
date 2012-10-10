@@ -543,10 +543,10 @@ class DocPad extends EventEmitterEnhanced
 
 		# Port
 		# The port that the server should use
+		# PORT - Heroku, Nodejitsu, Custom
 		# VCAP_APP_PORT - AppFog
 		# VMC_APP_PORT - CloudFoundry
-		# PORT - Heroku, Nodejitsu
-		port: process.env.VCAP_APP_PORT ? process.env.VMC_APP_PORT ? process.env.PORT ? 9778
+		port: process.env.PORT ? process.env.VCAP_APP_PORT ? process.env.VMC_APP_PORT ? 9778
 
 		# Max Age
 		# The caching time limit that is sent to the client
