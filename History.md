@@ -1,5 +1,12 @@
 ## History
 
+- v6.8.0-dev-stats
+	- Added Terms of Service and Privacy Policy confirmation
+	- Added statistic tracking
+	- Added automatic locale detection for OSX
+	- Improved error reporting
+	- Will now error if you try to run an action that doesn't exist (instead of defaulting to the `run` action instead)
+
 - v6.7.3 October 8, 2012
 	- Fixed logging when a fatal error occurs during initialisation
 	- We now do warnings when plugins do invalid naming conventions
