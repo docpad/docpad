@@ -285,127 +285,146 @@ class ConsoleInterface
 		docpad = @docpad
 		locale = docpad.getLocale()
 		userConfig = docpad.userConfig
+		welcomeTasks = new balUtil.Group(next)
 
-		# All done if we have already chosen to subscribe or unsubscribe
-		return next()  if userConfig.subscribed? or (new Date(userConfig.subscribeTryAgain)) > (new Date()) or docpad.config.prompts is false
+		# TOS
+		welcomeTasks.push (complete) ->
+			return complete()  if docpad.config.prompts is false or userConfig.tos is true
 
-		# Ask the user if they want to subscribe
-		consoleInterface.confirm locale.subscribePrompt, true, (ok) ->
-			# If they don't want to, that's okay
-			unless ok
-				# Inform the user that we received their preference
-				console.log locale.subscribeIgnore
-
-				# Save their preference in the user configuration
-				userConfig.subscribed = false
-				docpad.updateUserConfig (err) ->
-					return next(err)  if err
-					balUtil.wait(5000,next)
-				return
-
-			# Scan configuration to speed up the process
-			commands = [
-				['config','--get','user.name']
-				['config','--get','user.email']
-				['config','--get','github.user']
-			]
-			balUtil.gitCommands commands, (err,results) ->
-				# Ignore error as it just means a config value wasn't defined
-				# return next(err)  if err
-
-				# Fetch
-				# The or to '' is there because otherwise we will get "undefined" as a string if the value doesn't exist
-				userConfig.name or= String(results?[0]?[1] or '').trim() or null
-				userConfig.email or= String(results?[1]?[1] or '').trim() or null
-				userConfig.username or= String(results?[2]?[1] or '').trim() or null
-
-				# Let the user know we scanned their configuration if we got anything useful
-				if userConfig.name or userConfig.email or userConfig.username
-					console.log locale.subscribeConfigNotify
-
-				# Requires
-				querystring = require('querystring')
-				request = require('request')
-
-				# Tasks
-				tasks = new balUtil.Group (err) ->
-					# Error?
-					if err
-						# Inform the user
-						console.log locale.subscribeError
-						# Save a time when we should try to subscribe again
-						userConfig.subscribeTryAgain = new Date().getTime() + 1000*60*60*24  # tomorrow
-
-					# Success
-					else
-						# Inform the user
-						console.log locale.subscribeSuccess
-						# Save the updated subscription status, and continue to what is next
-						userConfig.subscribed = true
-						userConfig.subscribeTryAgain = null
-
-					# Save the new user configuration changes, and forward to the next task
-					docpad.updateUserConfig(userConfig,next)
-
-				# Name Fallback
-				tasks.push (complete) ->
-					consoleInterface.prompt locale.subscribeNamePrompt, userConfig.name, (result) ->
-						userConfig.name = result
-						complete()
-
-				# Email Fallback
-				tasks.push (complete) ->
-					consoleInterface.prompt locale.subscribeEmailPrompt, userConfig.email, (result) ->
-						userConfig.email = result
-						complete()
-
-				# Username Fallback
-				tasks.push (complete) ->
-					consoleInterface.prompt locale.subscribeUsernamePrompt, userConfig.username, (result) ->
-						userConfig.username = result
-						complete()
-
-				# Save the details
-				tasks.push (complete) ->
+			# Ask the user if they agree to the TOS
+			consoleInterface.confirm locale.tosPrompt, true, (ok) ->  docpad.track 'tos', {ok}, (err) ->
+				# Check
+				if ok
+					userConfig.tos = true
+					console.log locale.tosAgree
 					docpad.updateUserConfig(complete)
+					return
+				else
+					console.log locale.tosDisagree
+					process.exit()
+					return
 
-				# Perform the subscribe
-				tasks.push (complete) ->
-					# Inform the user
-					console.log locale.subscribeProgress
+		# Newsletter
+		welcomeTasks.push (complete) ->
+			return complete()  if docpad.config.prompts is false or userConfig.subscribed? or (userConfig.subscribeTryAgain? and (new Date()) > (new Date(userConfig.subscribeTryAgain)))
 
-					# Prepare our connection
-					options =
-						uri: docpad.config.helperUrl
-						qs:
-							method:'add-subscriber'
-							name: userConfig.name
-							email: userConfig.email
-							username: userConfig.username
-						method: 'GET'
+			# Ask the user if they want to subscribe to the newsletter
+			consoleInterface.confirm locale.subscribePrompt, true, (ok) ->  docpad.track 'subscribe', {ok}, (err) ->
+				# If they don't want to, that's okay
+				unless ok
+					# Inform the user that we received their preference
+					console.log locale.subscribeIgnore
 
-					# Innitialize our request
-					request options, (err,response,body) ->
-						# Check
+					# Save their preference in the user configuration
+					userConfig.subscribed = false
+					docpad.updateUserConfig (err) ->
+						return complete(err)  if err
+						balUtil.wait(5000,complete)
+					return
+
+				# Scan configuration to speed up the process
+				commands = [
+					['config','--get','user.name']
+					['config','--get','user.email']
+					['config','--get','github.user']
+				]
+				balUtil.gitCommands commands, (err,results) ->
+					# Ignore error as it just means a config value wasn't defined
+					# return next(err)  if err
+
+					# Fetch
+					# The or to '' is there because otherwise we will get "undefined" as a string if the value doesn't exist
+					userConfig.name or= String(results?[0]?[1] or '').trim() or null
+					userConfig.email or= String(results?[1]?[1] or '').trim() or null
+					userConfig.username or= String(results?[2]?[1] or '').trim() or null
+
+					# Let the user know we scanned their configuration if we got anything useful
+					if userConfig.name or userConfig.email or userConfig.username
+						console.log locale.subscribeConfigNotify
+
+					# Tasks
+					subscribeTasks = new balUtil.Group (err) ->
+						# Error?
 						if err
-							docpad.log 'debug', locale.subscribeRequestError, err.message
-							return complete(err)
+							# Inform the user
+							console.log locale.subscribeError
+							# Save a time when we should try to subscribe again
+							userConfig.subscribeTryAgain = new Date().getTime() + 1000*60*60*24  # tomorrow
 
-						# Log it to debug console
-						docpad.log 'debug', locale.subscribeRequestData, body
+						# Success
+						else
+							# Inform the user
+							console.log locale.subscribeSuccess
+							# Save the updated subscription status, and continue to what is next
+							userConfig.subscribed = true
+							userConfig.subscribeTryAgain = null
 
-						# Inform the user know of the success or not
-						try
-							data = JSON.parse(body)
-							if data.success is false
-								complete(new Error(data.error or 'unknown error'))
-							else
-								complete()
-						catch err
-							complete(err)
+						# Save the new user configuration changes, and forward to the next task
+						docpad.updateUserConfig(userConfig,complete)
 
-				# Run fallbacks
-				tasks.sync()
+					# Name Fallback
+					subscribeTasks.push (complete) ->
+						consoleInterface.prompt locale.subscribeNamePrompt, userConfig.name, (result) ->
+							userConfig.name = result
+							complete()
+
+					# Email Fallback
+					subscribeTasks.push (complete) ->
+						consoleInterface.prompt locale.subscribeEmailPrompt, userConfig.email, (result) ->
+							userConfig.email = result
+							complete()
+
+					# Username Fallback
+					subscribeTasks.push (complete) ->
+						consoleInterface.prompt locale.subscribeUsernamePrompt, userConfig.username, (result) ->
+							userConfig.username = result
+							complete()
+
+					# Save the details
+					subscribeTasks.push (complete) ->
+						docpad.updateUserConfig(complete)
+
+					# Perform the subscribe
+					subscribeTasks.push (complete) ->
+						# Inform the user
+						console.log locale.subscribeProgress
+
+						# Prepare our connection
+						options =
+							uri: docpad.config.helperUrl
+							qs:
+								method:'add-subscriber'
+								name: userConfig.name
+								email: userConfig.email
+								username: userConfig.username
+							method: 'GET'
+
+						# Innitialize our request
+						request = require('request')
+						request options, (err,response,body) ->
+							# Check
+							if err
+								docpad.log 'debug', locale.subscribeRequestError, err.message
+								return complete(err)
+
+							# Log it to debug console
+							docpad.log 'debug', locale.subscribeRequestData, body
+
+							# Inform the user know of the success or not
+							try
+								data = JSON.parse(body)
+								if data.success is false
+									complete(new Error(data.error or 'unknown error'))
+								else
+									complete()
+							catch err
+								complete(err)
+
+					# Run
+					subscribeTasks.sync()
+
+		# Run
+		welcomeTasks.sync()
 
 		# Chain
 		@
@@ -550,7 +569,7 @@ class ConsoleInterface
 
 	run: (next) =>
 		@docpad.action(
-			'all'
+			'run'
 			{selectSkeletonCallback: @selectSkeletonCallback}
 			next
 		)
