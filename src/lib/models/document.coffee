@@ -9,7 +9,6 @@ CSON = null
 yaml = null
 
 # Local
-{Model} = require(__dirname+'/../base')
 FileModel = require(__dirname+'/file')
 
 
