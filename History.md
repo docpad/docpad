@@ -1,5 +1,9 @@
 ## History
 
+- v6.7.5-dev
+	- Removed unused model requirement inside document model file
+		- Thanks to [Bruno Héridet](https://github.com/Delapouite) for [pull request #318](https://github.com/bevry/docpad/pull/318)
+
 - v6.7.4 October 10, 2012
 	- `PORT` environment variable now comes before infrastructure specific port variables
 	- Can now do `docpad-server --action generate,server,watch --port 8080`
