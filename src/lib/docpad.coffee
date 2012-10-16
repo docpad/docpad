@@ -1005,7 +1005,7 @@ class DocPad extends EventEmitterEnhanced
 		{rootPath,outPath} = @config
 
 		# Log
-		docpad.log 'debug', 'Cleaning files'
+		docpad.log 'debug', locale.renderCleaning
 
 		# Clean collections
 		docpad.resetCollections (err) ->
@@ -1020,7 +1020,7 @@ class DocPad extends EventEmitterEnhanced
 			else
 				# our outPath is not related or lower than our root path, so do remove it
 				balUtil.rmdirDeep outPath, (err,list,tree) ->
-					docpad.log('debug', locale.renderClean)  unless err
+					docpad.log('debug', locale.renderCleaned)  unless err
 					return next()
 
 		# Chain
