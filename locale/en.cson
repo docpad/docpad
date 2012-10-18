@@ -62,7 +62,8 @@
 	renderDirectoryParsing: "Parsing directory: %s"
 	renderDirectoryParsed: "Parsed directory: %s"
 	renderDirectoryNonexistant: "Skipped directory: %s (it does not exist)"
-	renderClean: "Cleaned files"
+	renderCleaning: "Cleaning files"
+	renderCleaned: "Cleaned files"
 	renderInterval: "Performing interval regeneration"
 
 	# Contextualize
@@ -82,7 +83,7 @@
 	pluginsLoadingFor: "Plugins loading for: %s"
 	pluginsLoadedFor: "Plugins loaded for: %s"
 	pluginsSlow: "We're preparing your plugins, this may take a while the first time. Waiting on the plugins: %s"
-	pluginLoading: "loading plugin: %s"
+	pluginLoading: "Loading plugin: %s"
 	pluginLoaded: "Loaded plugin: %s"
 	pluginSkipped: "Skipped plugin: %s"
 	pluginSkippedDueTo: "Skipped the unsupported plugin: %s due to %s"
