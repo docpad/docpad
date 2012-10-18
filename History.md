@@ -1,6 +1,11 @@
 ## History
 
-- v6.7.5-dev
+- v6.8.0 October 18, 2012
+	- Added support for `.env` files
+		- If a `.env` file is present in your website path, we will add its key values to `process.env`
+		- More information on `.env` files [here](https://devcenter.heroku.com/articles/config-vars#local-setup)
+	- Improved localisation
+		- Thanks to [Bruno Héridet](https://github.com/Delapouite) for [pull request #323](https://github.com/bevry/docpad/pull/323)
 	- Removed unused model requirement inside document model file
 		- Thanks to [Bruno Héridet](https://github.com/Delapouite) for [pull request #318](https://github.com/bevry/docpad/pull/318)
 
