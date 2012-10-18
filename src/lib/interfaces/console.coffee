@@ -275,6 +275,7 @@ class ConsoleInterface
 		# Select
 		console.log cliColor.bold locale.skeletonSelectionPrompt
 		commander.choose skeletonNames, (i) ->
+			process.stdin.destroy()
 			return next(null, skeletonsCollection.at(i))
 
 		# Chain
