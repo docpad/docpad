@@ -113,10 +113,10 @@ class DocPad extends EventEmitterEnhanced
 	# Whenever a event is created, it must be applied here to be available to plugins and configuration files
 	# https://github.com/bevry/docpad/wiki/Events
 	events: [
-		'docpadReady'
 		'extendTemplateData'
 		'extendCollections'
 		'docpadLoaded'
+		'docpadReady'
 		'consoleSetup'
 		'generateBefore'
 		'populateCollections'
@@ -546,7 +546,7 @@ class DocPad extends EventEmitterEnhanced
 		# PORT - Heroku, Nodejitsu, Custom
 		# VCAP_APP_PORT - AppFog
 		# VMC_APP_PORT - CloudFoundry
-		port: process.env.PORT ? process.env.VCAP_APP_PORT ? process.env.VMC_APP_PORT ? 9778
+		port: null
 
 		# Max Age
 		# The caching time limit that is sent to the client
@@ -640,7 +640,7 @@ class DocPad extends EventEmitterEnhanced
 		# Environment
 		# Whether or not we are in production or development
 		# Separate environments using a comma or a space
-		env: process.env.NODE_ENV or 'development'
+		env: null
 
 		# Environments
 		# Environment specific configuration to over-ride the global configuration
@@ -813,6 +813,8 @@ class DocPad extends EventEmitterEnhanced
 			return next(err)  if err
 
 			# Get environments
+			@initialConfig.port ?= process.env.PORT ? process.env.VCAP_APP_PORT ? process.env.VMC_APP_PORT ? 9778
+			@initialConfig.env ?= process.env.NODE_ENV or 'development'
 			@config.env = @instanceConfig.env or @websiteConfig.env or @websitePackageConfig.env or @initialConfig.env
 			envs = @getEnvironments()
 
@@ -899,7 +901,6 @@ class DocPad extends EventEmitterEnhanced
 			# Fire post tasks
 			postTasks.sync()
 
-
 		# Normalize the userConfigPath
 		preTasks.push (complete) =>
 			balUtil.getHomePath (err,homePath) =>
@@ -948,6 +949,24 @@ class DocPad extends EventEmitterEnhanced
 
 				# Done loading
 				complete()
+
+		# Read the .env file if it exists
+		preTasks.push (complete) =>
+			rootPath = pathUtil.resolve(@instanceConfig.rootPath or @websitePackageConfig.rootPath or @initialConfig.rootPath)
+			envPath = pathUtil.join(rootPath, '.env')
+			balUtil.exists envPath, (exists) ->
+				return complete()  unless exists
+				balUtil.readFile envPath, (err,data) ->
+					return complete(err)  if err
+					result = data.toString()
+					lines = result.split('\n')
+					for line in lines
+						match = line.match(/^([^=]+?)=(.*)/)
+						if match
+							key = match[1]
+							value = match[2]
+							process.env[key] = value
+					return complete()
 
 		# Load Website's Configuration
 		preTasks.push (complete) =>

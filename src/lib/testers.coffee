@@ -128,7 +128,6 @@ class PluginTester
 		# Chain
 		@
 
-
 	# Test Generate
 	testGenerate: ->
 		# Prepare
@@ -155,11 +154,26 @@ class PluginTester
 		@testCustom?()
 
 		# Finish
+		@finish()
+
+		# Chain
+		@
+
+	# Finish
+	finish: ->
+		# Prepare
+		tester = @
+
+		# Finish
 		if tester.config.autoExit
 			@test 'finish up', (done) ->
 				done()
 				tester.exit()
 				process.exit()
+
+		# Chain
+		@
+
 
 # Server Tester
 testers.ServerTester =
