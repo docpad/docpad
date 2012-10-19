@@ -55,7 +55,7 @@ All sorts of people love DocPad, from first time web developers to even industry
 1. Install DocPad
 
 	``` bash
-	[sudo] npm install -fg docpad@6.7
+	[sudo] npm install -fg docpad@6.8
 	[sudo] docpad install
 	```
 
@@ -120,8 +120,10 @@ Licensed under the incredibly [permissive](http://en.wikipedia.org/wiki/Permissi
 Special thanks to all our wonderful contributors who have helped shaped the DocPad core of today:
 
 - [Benjamin Lupton](https://github.com/balupton)
+- [Nick Crohn](https://github.com/ncrohn)
 - [eldios](https://github.com/eldios)
 - [Changwoo Park](https://github.com/pismute)
+- [Bruno Héridet](https://github.com/Delapouite)
 - [Todd Anglin](https://github.com/toddanglin)
 - [Olivier Bazoud](https://github.com/obazoud)
 - [Zhao Lei](https://github.com/firede)
@@ -131,8 +133,6 @@ Special thanks to all our wonderful contributors who have helped shaped the DocP
 - [Sorin Ionescu](https://github.com/sorin-ionescu)
 - [Ferrari Lee](https://github.com/Ferrari)
 - [Ben Barber](https://github.com/barberboy)
-- [Nick Crohn](https://github.com/ncrohn)
-- [Bruno Héridet](https://github.com/Delapouite)
 - [Sven Vetsch](https://github.com/disenchant)
 
 Also thanks to all the countless others who have continued to raise DocPad even higher by submitting plugins, issues reports, discussion topics, IRC chat messages, and praise on twitter. We love you.

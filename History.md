@@ -1,5 +1,12 @@
 ## History
 
+- v6.8.1 October 19, 2012
+	- Fixed `--port` CLI option not working (and possibly others)
+	- Fixed `docpad skeleton` blocking instead of ending
+		- Closes [#225](https://github.com/bevry/docpad/issues/225) thanks to [Bruno Héridet](https://github.com/Delapouite)
+	- Improved localisation
+		- Thanks to [Bruno Héridet](https://github.com/Delapouite) for [pull request #325](https://github.com/bevry/docpad/pull/325)
+
 - v6.8.0 October 18, 2012
 	- Added support for `.env` files
 		- If a `.env` file is present in your website path, we will add its key values to `process.env`
