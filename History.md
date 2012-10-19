@@ -1,5 +1,9 @@
 ## History
 
+- v6.8.2 October 19, 2012
+	- Updated the document meta data extraction regex
+		- It will now treat data that is wrapped in anything that repeats 3 or more times, as meta data allowing you to use whatever is appropriate for the markup you are currently in (before we only supported `---` and `###`)
+
 - v6.8.1 October 19, 2012
 	- Fixed `--port` CLI option not working (and possibly others)
 	- Fixed `docpad skeleton` blocking instead of ending

@@ -126,21 +126,15 @@ class DocumentModel extends FileModel
 			content = @get('content')
 
 			# Meta Data
-			match = /^\s*([\-\#][\-\#][\-\#]+) ?(\w*)\s*/.exec(content)
+			match = /^\s*([^\s\d\w]{3,})(?: ([a-z]+))?([\s\S]*?)\1/.exec(content)
 			if match
-				# Positions
+				# Extract
 				seperator = match[1]
-				a = match[0].length
-				b = content.indexOf("\n#{seperator}",a)+1
-				c = b+3
-
-				# Parts
-				fullPath = @get('fullPath')
-				header = content.substring(a,b)
-				body = content.substring(c)
 				parser = match[2] or 'yaml'
+				header = match[3].trim()
+				body = content.substring(match[0].length).trim()
 
-				# Language
+				# Parse
 				try
 					switch parser
 						when 'cson', 'coffee', 'coffeescript', 'coffee-script'
