@@ -241,12 +241,12 @@ class ConsoleInterface
 
 		# Apply global configuration
 		for own key, value of commanderConfig
-			if sourceConfig[key]?
+			if typeof sourceConfig[key] isnt 'undefined'
 				config[key] = value
 
 		# Apply custom configuration
 		for own key, value of customConfig
-			if sourceConfig[key]?
+			if typeof sourceConfig[key] isnt 'undefined'
 				config[key] = value
 
 		# Return config object
