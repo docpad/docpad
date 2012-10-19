@@ -118,6 +118,30 @@
 	loadingFileIgnored: "Skipped ignored file: %s"
 	loadedFile: "Loaded file: %s"
 
+	# Console
+	consoleError: "Something went wrong with the action"
+	consoleSuccess: "The action completed successfully"
+
+	consoleDescriptionRun: "does everyting: skeleton, generate, watch, server"
+	consoleDescriptionServer: "creates a server for your generated project"
+	consoleDescriptionSkeleton: "will create a new project in your cwd based off an existing skeleton"
+	consoleDescriptionRender: "render the file at <path> and output its results to stdout"
+	consoleDescriptionGenerate: "(re)generates your project"
+	consoleDescriptionWatch: "watches your project for changes, and (re)generates whenever a change is made"
+	consoleDescriptionInstall: "ensure everything is installed correctly"
+	consoleDescriptionClean: "ensure everything is cleaned correctly (will remove your out directory)"
+	consoleDescriptionInfo: "display the information about your docpad instance"
+	consoleDescriptionHelp: "output the help"
+	consoleDescriptionUnknown: "anything else ouputs the help"
+
+	consoleOptionOut: "where to output the rendered files (to a directory) or file (to an output file)"
+	consoleOptionConfig: "a custom configuration file to load in"
+	consoleOptionEnv: "the environment name to use for this instance, multiple names can be separated with a comma"
+	consoleOptionDebug: "the level of debug messages you would like to display, if specified defaults to 7, otherwise 6"
+	consoleOptionForce: "force a re-install of all modules"
+	consoleOptionPort: "a custom port to use for the server <port>"
+	consoleOptionSkeleton: "for new projects, instead of being asked for the skeleton, you can specify it here"
+
 	# Misc
 	welcome: "Welcome to DocPad %s"
 	welcomePlugins: "Plugins: %s"

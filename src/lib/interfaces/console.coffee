@@ -11,6 +11,7 @@ class ConsoleInterface
 		consoleInterface = @
 		@docpad = docpad = opts.docpad
 		@commander = commander = require('commander')
+		locale = docpad.getLocale()
 
 		# Version information
 		version = require(__dirname+'/../../../package.json').version
@@ -22,24 +23,24 @@ class ConsoleInterface
 			.version(version)
 			.option(
 				'-o, --out <outPath>'
-				"where to output the rendered files (to a directory) or file (to an output file)"
+				locale.consoleOptionOut
 			)
 			.option(
 				'-c, --config <configPath>'
-				"a custom configuration file to load in"
+				locale.consoleOptionConfig
 			)
 			.option(
 				'-e, --env <environment>'
-				"the environment name to use for this instance, multiple names can be separated with a comma"
+				locale.consoleOptionEnv
 			)
 			.option(
 				'-d, --debug [logLevel]'
-				"the level of debug messages you would like to display, if specified defaults to 7, otherwise 6"
+				locale.consoleOptionDebug
 				parseInt
 			)
 			.option(
 				'-f, --force'
-				"force a re-install of all modules"
+				locale.consoleOptionForce
 			)
 
 		# -----------------------------
@@ -48,14 +49,14 @@ class ConsoleInterface
 		# run
 		commander
 			.command('run')
-			.description('does everyting: skeleton, generate, watch, server')
+			.description(locale.consoleDescriptionRun)
 			.option(
 				'-s, --skeleton <skeleton>'
-				"for new projects, instead of being asked for the skeleton, you can specify it here"
+				locale.consoleOptionSkeleton
 			)
 			.option(
 				'-p, --port <port>'
-				"a custom port to use for the server <port>"
+				locale.consoleOptionPort
 				parseInt
 			)
 			.action(consoleInterface.wrapAction(consoleInterface.run))
@@ -63,10 +64,10 @@ class ConsoleInterface
 		# server
 		commander
 			.command('server')
-			.description('creates a server for your generated project')
+			.description(locale.consoleDescriptionServer)
 			.option(
 				'-p, --port <port>'
-				"a custom port to use for the server <port>"
+				locale.consoleOptionPort
 				parseInt
 			)
 			.action(consoleInterface.wrapAction(consoleInterface.server))
@@ -74,17 +75,17 @@ class ConsoleInterface
 		# skeleton
 		commander
 			.command('skeleton')
-			.description('will create a new project in your cwd based off an existing skeleton')
+			.description(locale.consoleDescriptionSkeleton)
 			.option(
 				'-s, --skeleton <skeleton>'
-				"instead of being asked for the skeleton, you can specify it here"
+				locale.consoleOptionSkeleton
 			)
 			.action(consoleInterface.wrapAction(consoleInterface.skeleton))
 
 		# render
 		commander
 			.command('render [path]')
-			.description("render the file at <path> and output its results to stdout")
+			.description(locale.consoleDescriptionRender)
 			.action (command) ->
 				# Disable anything uncessary or that could cause extra output we don't want
 				commander.debug ?= 5
@@ -98,43 +99,43 @@ class ConsoleInterface
 		# generate
 		commander
 			.command('generate')
-			.description("(re)generates your project")
+			.description(locale.consoleDescriptionGenerate)
 			.action(consoleInterface.wrapAction(consoleInterface.generate))
 
 		# watch
 		commander
 			.command('watch')
-			.description("watches your project for changes, and (re)generates whenever a change is made")
+			.description(locale.consoleDescriptionWatch)
 			.action(consoleInterface.wrapAction(consoleInterface.watch))
 
 		# install
 		commander
 			.command('install')
-			.description("ensure everything is installed correctly")
+			.description(locale.consoleDescriptionInstall)
 			.action(consoleInterface.wrapAction(consoleInterface.install))
 
 		# clean
 		commander
 			.command('clean')
-			.description("ensure everything is cleaned correctly (will remove your out directory)")
+			.description(locale.consoleDescriptionClean)
 			.action(consoleInterface.wrapAction(consoleInterface.clean))
 
 		# info
 		commander
 			.command('info')
-			.description("display the information about your docpad instance")
+			.description(locale.consoleDescriptionInfo)
 			.action(consoleInterface.wrapAction(consoleInterface.info))
 
 		# help
 		commander
 			.command('help')
-			.description("output the help")
+			.description(locale.consoleDescriptionHelp)
 			.action(consoleInterface.wrapAction(consoleInterface.help))
 
 		# unknown
 		commander
 			.command('*')
-			.description("anything else ouputs the help")
+			.description(locale.consoleDescriptionUnknown)
 			.action ->
 				commander.emit('help', [])
 
@@ -175,9 +176,10 @@ class ConsoleInterface
 	handleError: (err) =>
 		# Prepare
 		docpad = @docpad
+		locale = docpad.getLocale()
 
 		# Handle
-		docpad.log('error', "Something went wrong with the action")
+		docpad.log('error', locale.consoleError)
 		docpad.error(err)
 		process.exit(1)
 
@@ -200,13 +202,17 @@ class ConsoleInterface
 		# Chain
 		@
 
-	# Complete an anction
+	# Complete Action
 	completeAction: (err) =>
+		# Prepare
+		docpad = @docpad
+		locale = docpad.getLocale()
+
 		# Handle the error
 		if err
 			@handleError(err)
 		else
-			@docpad.log('info', "The action completed successfully")
+			docpad.log('info', locale.consoleSuccess)
 
 		# Chain
 		@
@@ -269,6 +275,7 @@ class ConsoleInterface
 		# Select
 		console.log cliColor.bold locale.skeletonSelectionPrompt
 		commander.choose skeletonNames, (i) ->
+			process.stdin.destroy()
 			return next(null, skeletonsCollection.at(i))
 
 		# Chain
