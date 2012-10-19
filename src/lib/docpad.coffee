@@ -814,7 +814,7 @@ class DocPad extends EventEmitterEnhanced
 
 			# Get environments
 			@initialConfig.port ?= process.env.PORT ? process.env.VCAP_APP_PORT ? process.env.VMC_APP_PORT ? 9778
-			@initialConfig.env ?= process.env.NODE_ENV or 'development'
+			@initialConfig.env or= process.env.NODE_ENV or 'development'
 			@config.env = @instanceConfig.env or @websiteConfig.env or @websitePackageConfig.env or @initialConfig.env
 			envs = @getEnvironments()
 
