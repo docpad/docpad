@@ -2513,8 +2513,7 @@ class DocPad extends EventEmitterEnhanced
 		database = @getDatabase()
 		watchrs = []
 		ignorePatterns = @config.ignorePatterns
-		if @config.ignorePatterns == true
-			ignorePatterns = balUtil.commonIgnorePatterns
+		ignorePatterns = balUtil.commonIgnorePatterns  if @config.ignorePatterns is true
 
 		# Close our watchers
 		closeWatchers = ->

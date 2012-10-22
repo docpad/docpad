@@ -52,7 +52,7 @@
 	renderInvalidOptions: 'Invalid options passed to the render action'
 	renderProgress: "Currently on %s at %s"
 	renderGenerating: "Generating..."
-	renderGeneratingNotification: "Website generated..."
+	renderGeneratingNotification: "Website generating..."
 	renderGenerated: "Generated %s files"
 	renderGeneratedNotification: "Website generated"
 	renderParsing: 'Parsing everything'

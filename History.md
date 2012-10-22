@@ -1,5 +1,10 @@
 ## History
 
+- v6.8.3 October 22, 2012
+	- Fixed growl generating notification from saying `generated` instead of `generating`
+	- Added `ignorePatterns` option
+		- Closes [#193](https://github.com/bevry/docpad/issues/193) thanks to [Bruno Héridet](https://github.com/Delapouite) for [pull request #326](https://github.com/bevry/docpad/pull/326)
+
 - v6.8.2 October 19, 2012
 	- Updated the document meta data extraction regex
 		- It will now treat data that is wrapped in anything that repeats 3 or more times, as meta data allowing you to use whatever is appropriate for the markup you are currently in (before we only supported `---` and `###`)
