@@ -34,7 +34,7 @@ compile:
 clean:
 	rm -Rf out node_modules npm-debug.log
 
-# Install
+# Install dependencies
 install:
 	npm install
 
