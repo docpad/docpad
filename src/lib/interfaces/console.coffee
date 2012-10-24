@@ -42,6 +42,10 @@ class ConsoleInterface
 				'-f, --force'
 				locale.consoleOptionForce
 			)
+			.option(
+				'--profile'
+				locale.consoleOptionProfile
+			)
 
 		# -----------------------------
 		# Commands

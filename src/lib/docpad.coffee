@@ -1,6 +1,13 @@
 # =====================================
 # Requires
 
+# Profile
+if ('--profile' in process.argv)
+	try
+		agent = require('webkit-devtools-agent')
+	catch err
+		console.log('no profiling')
+
 # Necessary
 pathUtil = require('path')
 _ = require('underscore')
