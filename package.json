@@ -81,8 +81,7 @@
   "devDependencies": {
     "chai": "1.1.x",
     "joe": "1.0.x",
-    "request": "2.9.x",
-    "nodetime": "0.4.x"
+    "request": "2.9.x"
   },
   "directories": {
     "lib": "./out/lib"

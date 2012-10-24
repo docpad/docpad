@@ -6,8 +6,7 @@ var command = [
 	process.argv[0],
 	'--debug-brk',
 	'--prof',
-	__dirname+'/../out/bin/docpad',
-	'--profile'
+	__dirname+'/../out/bin/docpad'
 ].concat(process.argv.slice(2));
 
 // Output the command we'll be running
