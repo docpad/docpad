@@ -138,6 +138,8 @@ class DocPad extends EventEmitterEnhanced
 		'renderAfter'
 		'writeBefore'
 		'writeAfter'
+		'cleanBefore'
+		'cleanAfter'
 		'serverBefore'
 		'serverExtend'
 		'serverAfter'
@@ -2118,6 +2120,44 @@ class DocPad extends EventEmitterEnhanced
 		# Chain
 		@
 
+	# Clean files
+	# next(err)
+	cleanFiles: (opts={},next) ->
+		# Prepare
+		docpad = @
+		locale = @getLocale()
+		{collection} = opts
+
+		# Log
+		docpad.log 'debug', util.format(locale.cleaningFiles, collection.length)
+
+		# Async
+		tasks = new balUtil.Group (err) ->
+			return next(err)  if err
+			# After
+			docpad.emitSync 'cleanAfter', {collection}, (err) ->
+				return next(err)  if err
+				docpad.log 'debug', util.format(locale.cleanedFiles, collection.length)
+				return next()
+
+		# Set progress indicator
+		opts.setProgressIndicator? -> ['cleanFiles',tasks.completed,tasks.total]
+
+		# Cycle
+		collection.forEach (file,index) -> tasks.push (complete) ->
+			file.clean(complete)
+
+		#  Start writing
+		if tasks.total
+			docpad.emitSync 'cleanBefore', {collection}, (err) =>
+				return next(err)  if err
+				tasks.async()
+		else
+			tasks.exit()
+
+		# Chain
+		@
+
 
 	# =================================
 	# Actions
@@ -2210,9 +2250,9 @@ class DocPad extends EventEmitterEnhanced
 		# Chain
 		@
 
-	# Generate Clean
+	# Generate Reset
 	# next(err)
-	generateClean: (opts,next) =>
+	generateReset: (opts,next) =>
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
@@ -2292,7 +2332,7 @@ class DocPad extends EventEmitterEnhanced
 		# Contextualize the datbaase, perform two render passes, and perform a write
 		balUtil.flow(
 			object: docpad
-			action: 'contextualizeFiles renderFiles renderFiles writeFiles'
+			action: 'contextualizeFiles renderFiles renderFiles writeFiles cleanFiles'
 			args: [{collection,templateData,setProgressIndicator}]
 			next: (err) ->
 				return next(err)
@@ -2403,7 +2443,7 @@ class DocPad extends EventEmitterEnhanced
 			docpad.lastGenerate = new Date()
 			balUtil.flow(
 				object: docpad
-				action: 'generatePrepare generateCheck generateClean generateParse generateRender generatePostpare'
+				action: 'generatePrepare generateCheck generateReset generateParse generateRender generatePostpare'
 				args: [opts]
 				next: (err) ->
 					return finish(err)
@@ -2424,8 +2464,8 @@ class DocPad extends EventEmitterEnhanced
 			action: 'load contextualize render'
 			args: [opts]
 			next: (err) ->
-				result = document.get('contentRendered')
-				return next(err,result,document)
+				document.getOutContent (err,result) ->
+					return next(err,result,document)
 		)
 		@
 
@@ -2473,8 +2513,8 @@ class DocPad extends EventEmitterEnhanced
 			action: 'normalize contextualize render'
 			args: [opts]
 			next: (err) ->
-				result = document.get('contentRendered')
-				return next(err,result,document)
+				document.getOutContent (err,result) ->
+					return next(err,result,document)
 		)
 		@
 
@@ -2755,6 +2795,9 @@ class DocPad extends EventEmitterEnhanced
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		{document,err,req,res} = opts
 		docpad = @
+		error = (err) ->
+			docpad.error(err)
+			return next(err)
 
 		# If no document, then exit early
 		unless document
@@ -2773,27 +2816,26 @@ class DocPad extends EventEmitterEnhanced
 			templateData = balUtil.extend({}, req.templateData or {}, {req,err})
 			templateData = docpad.getTemplateData(templateData)
 			document.render {templateData}, (err) ->
-				content = document.get('contentRendered') or document.get('content') or document.getData()
-				if err
-					docpad.error(err)
-					return next(err)
-				else
+				return error(err)  if err
+				document.getOutContent(err,content) ->
+					return error(err)  if err
 					if opts.statusCode?
 						return res.send(opts.statusCode, content)
 					else
 						return res.send(content)
 		else
-			content = document.get('contentRendered') or document.get('content') or document.getData()
-			if content
-				if opts.statusCode?
-					return res.send(opts.statusCode, content)
+			(document.getOutContent ? document.getContent) (err,content) ->
+				return error(err)  if err
+				if content
+					if opts.statusCode?
+						return res.send(opts.statusCode, content)
+					else
+						return res.send(content)
 				else
-					return res.send(content)
-			else
-				if opts.statusCode?
-					return res.send(opts.statusCode)
-				else
-					return next()
+					if opts.statusCode?
+						return res.send(opts.statusCode)
+					else
+						return next()
 
 		# Chain
 		@

@@ -74,6 +74,10 @@
 	writingFiles: "Writing %s files"
 	wroteFiles: "Wrote %s files"
 
+	# Clean
+	cleaningFiles: "Cleaning %s files"
+	cleanedFiles: "Cleaned %s files"
+
 	# Action
 	actionStart: "Performing the action %s"
 	actionFinished: "Performed the action %s"

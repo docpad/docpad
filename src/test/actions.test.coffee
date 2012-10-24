@@ -83,8 +83,8 @@ joe.suite 'docpad-actions', (suite,test) ->
 			testMarkup = (key,actual,expected) ->
 				test key, ->
 					# trim whitespace, to avoid util conflicts between node versions and other oddities
-					actualString = actual.trim().replace(/\s+/mg,'')
-					expectedString = expected.trim().replace(/\s+/mg,'')
+					actualString = actual.trim().replace(/\s+/g,'')
+					expectedString = expected.trim().replace(/\s+/g,'')
 					# check equality
 					expect(actualString).to.be.equal(expectedString)
 
