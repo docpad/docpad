@@ -1824,7 +1824,6 @@ class DocPad extends EventEmitterEnhanced
 
 		# Prepare
 		docpad = @
-		notify = @notify
 
 		# Check
 		balUtil.packageCompare
