@@ -329,6 +329,14 @@ class DocPad extends EventEmitterEnhanced
 			# Site Properties
 			site: {}
 
+			# Environment
+			getEnvironment: ->
+				return docpad.getEnvironment()
+
+			# Environments
+			getEnvironments: ->
+				return docpad.getEnvironments()
+
 			# Set that we reference other files
 			referencesOthers: (flag) ->
 				document = @getDocument()
