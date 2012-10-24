@@ -128,7 +128,6 @@ joe.suite 'docpad-actions', (suite,test) ->
 				done(err)
 
 		test 'served generated documents', (done) ->
-			console.log("#{baseUrl}/html.html")
 			request "#{baseUrl}/html.html", (err,response,actual) ->
 				return done(err)  if err
 				balUtil.readFile "#{outExpectedPath}/html.html", (err,expected) ->

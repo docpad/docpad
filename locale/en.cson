@@ -22,7 +22,7 @@
 	skeletonInstalled: "Installed the skeleton succesfully"
 	skeletonExists: "Didn't place the skeleton as the desired structure already exists"
 	skeletonNonexistant: """
-		We couldn't find an existing DocPad project inside your current directory.
+		We couldn't find an existing DocPad project inside your current directory. Looked at: %s
 		If you're wanting to use a pre-made skeleton for the basis of your new project, then run DocPad again inside an empty directory.
 		If you're wanting to start your new project from scratch, then refer to the Getting Started guide here:
 			https://docpad.org/get-started

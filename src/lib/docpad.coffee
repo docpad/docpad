@@ -2645,7 +2645,7 @@ class DocPad extends EventEmitterEnhanced
 				# Check if our directory is empty
 				if files.length
 					# It isn't empty, display a warning
-					docpad.log 'warn', "\n#{locale.skeletonNonexistant}"
+					docpad.log 'warn', "\n"+util.format(locale.skeletonNonexistant, destinationPath)
 					return next()
 				else
 					docpad.skeleton opts, (err) ->

@@ -1,4 +1,4 @@
-module.exports = {
+module.exports =
 	environments:
 		development:
 			a: 'websiteConfig'
@@ -21,4 +21,3 @@ module.exports = {
 			src = "testing the docpad configuration renderDocument event"
 			out = src.toUpperCase()
 			opts.content = opts.content.replace(src,out)
-}

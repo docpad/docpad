@@ -3,7 +3,6 @@ pathUtil = require('path')
 semver = require('semver')
 balUtil = require('bal-util')
 util = require('util')
-coffee = null
 
 # Define Plugin Loader
 class PluginLoader
@@ -175,8 +174,6 @@ class PluginLoader
 
 		# Load
 		try
-			# Ensure we have coffee-script loaded if we are including a coffee-script file
-			coffee = require('coffee-script')  if !coffee and /\.coffee$/.test(@pluginPath)
 			# Load in our plugin
 			@pluginClass = require(@pluginPath)(@BasePlugin)
 			@pluginClass::version ?= @pluginVersion
