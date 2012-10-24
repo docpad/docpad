@@ -1,5 +1,8 @@
 ## History
 
+- v6.8.4 October 25, 2012
+	- Added `getEnvironment` and `getEnvironments` template helpers
+
 - v6.8.3 October 22, 2012
 	- Fixed growl generating notification from saying `generated` instead of `generating`
 	- Added `ignorePatterns` option
