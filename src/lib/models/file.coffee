@@ -232,6 +232,11 @@ class FileModel extends Model
 			@getBuffer(next)
 		@
 
+	# Get Out Content
+	getOutContent: (next) ->
+		@getContent(next)
+		@
+
 	# Set Stat
 	setStat: (stat) ->
 		@stat = stat
@@ -388,13 +393,13 @@ class FileModel extends Model
 		{opts,next} = @getActionArgs(opts,next)
 		buffer = @buffer
 		fullPath = @get('fullPath')
-		encoding = @get('encoding') or 'utf8'
+		encoding = @get('encoding')
 
 		# Extract content
 		if buffer instanceof Buffer
 			# Detect encoding
 			unless encoding
-				isText = balUtil.isTextSync(fullPath,data)
+				isText = balUtil.isTextSync(fullPath,buffer)
 				if isText
 					encoding = 'utf8'
 				else
@@ -408,6 +413,7 @@ class FileModel extends Model
 
 		# Data is a string
 		else if balUtil.isString(buffer)
+			encoding = 'utf8'  unless encoding
 			source = buffer
 
 		# Data is invalid

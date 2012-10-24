@@ -2817,14 +2817,14 @@ class DocPad extends EventEmitterEnhanced
 			templateData = docpad.getTemplateData(templateData)
 			document.render {templateData}, (err) ->
 				return error(err)  if err
-				document.getOutContent(err,content) ->
+				document.getOutContent (err,content) ->
 					return error(err)  if err
 					if opts.statusCode?
 						return res.send(opts.statusCode, content)
 					else
 						return res.send(content)
 		else
-			(document.getOutContent ? document.getContent) (err,content) ->
+			document.getOutContent (err,content) ->
 				return error(err)  if err
 				if content
 					if opts.statusCode?
