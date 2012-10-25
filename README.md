@@ -48,14 +48,14 @@ All sorts of people love DocPad, from first time web developers to even industry
 
 
 
-## Installation
+## [Installation](http://bevry.me/docpad/install)
 
-[View our latest Installation Instructions](http://bevry.me/docpad/install)
+[Click here for our latest Installation Guide](http://bevry.me/docpad/install)
 
 
-## Quick Start
+## [Quick Start](http://bevry.me/docpad/start)
 
-[View our latest Quick Start Guide](http://bevry.me/docpad/start)
+[Click here for our latest Quick Start Guide](http://bevry.me/docpad/start)
 
 
 ## What next?
