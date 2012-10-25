@@ -1,5 +1,16 @@
 ## History
 
+- v6.9.0 October 25, 2012
+	- Updated dependencies
+		- [CoffeeScript](http://coffeescript.org/) 1.4.x from 1.3x
+		- [CSON](https://github.com/bevry/cson) 1.4.x from 1.2.x
+		- [Joe](https://github.com/bevry/joe) 1.1.x from 1.0.x
+		- [Underscore](http://underscorejs.org/) 1.4.x from 1.3.x
+		- [Chai](http://chaijs.com/) 1.3.x from 1.1.x
+	- Removed ability to require uncompiled plugins
+		- This is due to the CoffeeScript 1.4.x from 1.3.x upgrade
+	- `skeletonNonexistant` now tells us the path it checked
+
 - v6.8.4 October 25, 2012
 	- Added `getEnvironment` and `getEnvironments` template helpers
 
