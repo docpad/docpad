@@ -48,37 +48,14 @@ All sorts of people love DocPad, from first time web developers to even industry
 
 
 
-## Installing
+## Installation
 
-1. [Install Node.js](https://github.com/bevry/community/wiki/Installing-Node)
-
-1. Install DocPad
-
-	``` bash
-	[sudo] npm install -fg docpad@6.8
-	[sudo] docpad install
-	```
-
-1. If you also want growl notifications (OSX), then download and install the `GrowlNotify` tool from the [Growl Download Page](http://growl.info/downloads)
-
-_Getting errors? [Try troubleshooting](http://bevry.me/docpad/troubleshoot)_
-
+[View our latest Installation Instructions](http://bevry.me/docpad/install)
 
 
 ## Quick Start
 
-Once you've installed, you can get started with a brand new spunky functional website in a matter of minutes, by just running:
-
-``` bash
-mkdir my-new-website
-cd my-new-website
-docpad run
-```
-
-This will create your website, watch for changes, and launch the DocPad server. It will ask you if you would like to base your website from an [already existing one](http://bevry.me/docpad/skeletons "DocPad allows people to share their existing websites as skeletons, to help bootstrap your next website. You can discover a listing of them here.") to get started even quicker.
-
-Once done, simply go to [http://localhost:9778/](http://localhost:9778/) to view your new website :) or when your website uses a different port, go to the url that `docpad run` mentions
-
+[View our latest Quick Start Guide](http://bevry.me/docpad/start)
 
 
 ## What next?
