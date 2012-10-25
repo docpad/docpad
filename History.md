@@ -1,5 +1,12 @@
 ## History
 
+- v6.9.1 October 25, 2012
+	- Added `reloadPaths` configuration option
+		- When a change occurs in one of the reload paths then we will reload docpad
+	- Added `getBlocks` and `setBlocks`
+	- Added `getCollections` and `setCollections`
+	- Will now output how long the generation took
+
 - v6.9.0 October 25, 2012
 	- Updated dependencies
 		- [CoffeeScript](http://coffeescript.org/) 1.4.x from 1.3.x

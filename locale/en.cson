@@ -44,7 +44,7 @@
 	watchChange: "Change detected at %s"
 	watchIgnoredChange: "Ignored change at %s"
 	watchDirectoryChange: "Directory change at %s"
-	watchConfigChange: "Configuration change detected at %s"
+	watchReloadChange: "Reload change detected at %s"
 
 	# Render
 	renderingFiles: "Rendering %s files"
@@ -53,7 +53,7 @@
 	renderProgress: "Currently on %s at %s"
 	renderGenerating: "Generating..."
 	renderGeneratingNotification: "Website generating..."
-	renderGenerated: "Generated %s files"
+	renderGenerated: "Generated %s files in %s seconds"
 	renderGeneratedNotification: "Website generated"
 	renderParsing: 'Parsing everything'
 	renderParsed: 'Parsed everything'
