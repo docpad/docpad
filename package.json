@@ -71,7 +71,7 @@
 		"request": "2.11.x",
 		"underscore": "1.4.x",
 		"watchr": ">=2.1.5 <2.2",
-		"yaml": "0.2.1"
+		"yamljs": "0.1.x"
 	},
 	"optionalDependencies": {
 		"airbrake": "0.2.x",
