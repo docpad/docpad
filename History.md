@@ -9,7 +9,7 @@
 
 - v6.9.0 October 25, 2012
 	- Updated dependencies
-		- [CoffeeScript](http://coffeescript.org/) 1.4.x from 1.3x
+		- [CoffeeScript](http://coffeescript.org/) 1.4.x from 1.3.x
 		- [CSON](https://github.com/bevry/cson) 1.4.x from 1.2.x
 		- [Joe](https://github.com/bevry/joe) 1.1.x from 1.0.x
 		- [Underscore](http://underscorejs.org/) 1.4.x from 1.3.x
