@@ -6,7 +6,7 @@ mime = require('mime')
 
 # Optional
 CSON = null
-yaml = null
+YAML = null
 
 # Local
 FileModel = require(__dirname+'/file')
@@ -143,8 +143,8 @@ class DocumentModel extends FileModel
 							@meta.set(meta)
 
 						when 'yaml'
-							yaml = require('yaml')  unless yaml
-							meta = yaml.eval(header)
+							YAML = require('yamljs')  unless YAML
+							meta = YAML.parse(header)
 							@meta.set(meta)
 
 						else
