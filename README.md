@@ -50,7 +50,7 @@ All sorts of people love DocPad, from first time web developers to even industry
 
 ## [Installation](http://bevry.me/docpad/install)
 
-[Click here for our latest Installation Guide](http://bevry.me/docpad/install)
+[Click here for our latest Install Instructions](http://bevry.me/docpad/install)
 
 
 ## [Quick Start](http://bevry.me/docpad/start)
