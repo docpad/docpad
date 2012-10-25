@@ -172,6 +172,17 @@ class DocPad extends EventEmitterEnhanced
 		@blocks[name] = value
 		@
 
+	#  Get blocks
+	setBlocks: (blocks) ->
+		@blocks
+		@
+
+	#  Set blocks
+	setBlocks: (blocks) ->
+		for own name,value of blocks
+			@setBlock(name,value)
+		@
+
 	# Collections
 	collections: null
 	### {
@@ -192,6 +203,16 @@ class DocPad extends EventEmitterEnhanced
 	# Set a collection
 	setCollection: (name,value) ->
 		@collections[name] = value
+		@
+
+	# Get collections
+	getCollections: ->
+		return @collections
+
+	# Set collections
+	setCollections: (collections) ->
+		for own name,value of collections
+			@setCollection(name,value)
 		@
 
 
@@ -501,6 +522,20 @@ class DocPad extends EventEmitterEnhanced
 			'docpad.cson'
 		]
 
+		# Plugin directories to load
+		pluginPaths: []
+
+		# The website's plugins directory
+		pluginsPaths: [
+			'node_modules',
+			'plugins'
+		]
+
+		# Paths that we should watch for changes in
+		# and when a change occurs, reload our configuration and perform a complete regenerated
+		# Our configPaths are appended to this
+		reloadPaths: []
+
 		# The website's out directory
 		outPath: 'out'
 
@@ -524,15 +559,6 @@ class DocPad extends EventEmitterEnhanced
 		# relative to the srcPath
 		layoutsPaths: [
 			'layouts'
-		]
-
-		# Plugin directories to load
-		pluginPaths: []
-
-		# The website's plugins directory
-		pluginsPaths: [
-			'node_modules',
-			'plugins'
 		]
 
 		# Ignored files patterns during directory parsing
@@ -1170,93 +1196,86 @@ class DocPad extends EventEmitterEnhanced
 		config.collections or= {}
 
 		# Standard Collections
-		documentsCollection = database.createLiveChildCollection()
-			.setQuery('isDocument', {
-				$or:
-					isDocument: true
-					fullPath: $startsWith: config.documentsPaths
-			})
-			.on('add', (model) ->
-				docpad.log('debug', util.format(locale.addingDocument, model.attributes.fullPath))
-				_.defaults(model.attributes,{
-					isDocument: true
-					render: true
-					write: true
+		@setCollections(
+			# Standard Collections
+			documents: database.createLiveChildCollection()
+				.setQuery('isDocument', {
+					$or:
+						isDocument: true
+						fullPath: $startsWith: config.documentsPaths
 				})
-			)
-		filesCollection = database.createLiveChildCollection()
-			.setQuery('isFile', {
-				$or:
-					isFile: true
-					fullPath: $startsWith: config.filesPaths
-			})
-			.on('add', (model) ->
-				docpad.log('debug', util.format(locale.addingFile, model.attributes.fullPath))
-				_.defaults(model.attributes,{
-					isFile: true
-					render: false
-					write: true
+				.on('add', (model) ->
+					docpad.log('debug', util.format(locale.addingDocument, model.attributes.fullPath))
+					_.defaults(model.attributes,{
+						isDocument: true
+						render: true
+						write: true
+					})
+				)
+			files: database.createLiveChildCollection()
+				.setQuery('isFile', {
+					$or:
+						isFile: true
+						fullPath: $startsWith: config.filesPaths
 				})
-			)
-		layoutsCollection = database.createLiveChildCollection()
-			.setQuery('isLayout', {
-				$or:
-					isLayout: true
-					fullPath: $startsWith: config.layoutsPaths
-			})
-			.on('add', (model) ->
-				docpad.log('debug', util.format(locale.addingLayout, model.attributes.fullPath))
-				_.defaults(model.attributes,{
-					isLayout: true
-					render: false
-					write: false
+				.on('add', (model) ->
+					docpad.log('debug', util.format(locale.addingFile, model.attributes.fullPath))
+					_.defaults(model.attributes,{
+						isFile: true
+						render: false
+						write: true
+					})
+				)
+			layouts: database.createLiveChildCollection()
+				.setQuery('isLayout', {
+					$or:
+						isLayout: true
+						fullPath: $startsWith: config.layoutsPaths
 				})
-			)
+				.on('add', (model) ->
+					docpad.log('debug', util.format(locale.addingLayout, model.attributes.fullPath))
+					_.defaults(model.attributes,{
+						isLayout: true
+						render: false
+						write: false
+					})
+				)
 
-		# Special Collections
-		htmlCollection = database.createLiveChildCollection()
-			.setQuery('isHTML', {
-				$or:
-					isDocument: true
-					isFile: true
-				outExtension: 'html'
-			})
-			.on('add', (model) ->
-				docpad.log('debug', util.format(locale.addingHtml, model.attributes.fullPath))
-			)
-		stylesheetCollection = database.createLiveChildCollection()
-			.setQuery('isStylesheet', {
-				$or:
-					isDocument: true
-					isFile: true
-				outExtension: $in: [
-					'css',
-					'scss', 'sass',
-					'styl', 'stylus'
-					'less'
-				]
-			})
-			.on('add', (model) ->
-				docpad.log('debug', util.format(locale.addingStylesheet, model.attributes.fullPath))
-				model.attributes.referencesOthers = true
-			)
-
-		# Apply collections
-		@setCollection('documents', documentsCollection)
-		@setCollection('files', filesCollection)
-		@setCollection('layouts', layoutsCollection)
-		@setCollection('html', htmlCollection)
-		@setCollection('stylesheets', stylesheetCollection)
+			# Special Collections
+			html: database.createLiveChildCollection()
+				.setQuery('isHTML', {
+					$or:
+						isDocument: true
+						isFile: true
+					outExtension: 'html'
+				})
+				.on('add', (model) ->
+					docpad.log('debug', util.format(locale.addingHtml, model.attributes.fullPath))
+				)
+			stylesheet: database.createLiveChildCollection()
+				.setQuery('isStylesheet', {
+					$or:
+						isDocument: true
+						isFile: true
+					outExtension: $in: [
+						'css',
+						'scss', 'sass',
+						'styl', 'stylus'
+						'less'
+					]
+				})
+				.on('add', (model) ->
+					docpad.log('debug', util.format(locale.addingStylesheet, model.attributes.fullPath))
+					model.attributes.referencesOthers = true
+				)
+		)
 
 		# Blocks
-		metaBlock = new MetaCollection()
-		scriptsBlock = new ScriptsCollection()
-		stylesBlock = new StylesCollection()
-
-		# Apply Blocks
-		@setBlock('meta', metaBlock)
-		@setBlock('scripts', scriptsBlock)
-		@setBlock('styles', stylesBlock)
+		@setBlocks(
+			meta: new MetaCollection()
+			scripts: new ScriptsCollection()
+			styles: new StylesCollection()
+		)
 
 		# Custom Collections Group
 		tasks = new balUtil.Group (err) ->
@@ -2314,7 +2333,8 @@ class DocPad extends EventEmitterEnhanced
 			return next(err)  if err
 
 			# Log generated
-			docpad.log 'info', util.format(locale.renderGenerated, (opts.count ? 'all'))
+			seconds = (new Date() - docpad.lastGenerate) / 1000
+			docpad.log 'info', util.format(locale.renderGenerated, (opts.count ? 'all'), seconds)
 			docpad.notify (new Date()).toLocaleTimeString(), title: locale.renderGeneratedNotification
 
 			# Completed
@@ -2540,9 +2560,9 @@ class DocPad extends EventEmitterEnhanced
 
 			# Watch the config
 			watchrs = watchr.watch(
-				paths: docpad.config.configPaths
+				paths: _.union(docpad.config.reloadPaths, docpad.config.configPaths)
 				listener: ->
-					docpad.log 'info', util.format(locale.watchConfigChange, new Date().toLocaleTimeString())
+					docpad.log 'info', util.format(locale.watchReloadChange, new Date().toLocaleTimeString())
 					docpad.action 'load', (err) ->
 						return docpad.fatal(err)  if err
 						performGenerate(reset:true)
