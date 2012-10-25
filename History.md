@@ -1,5 +1,10 @@
 ## History
 
+- v6.9.2 October 26, 2012
+	- Swapped [yaml](https://github.com/visionmedia/js-yaml) dependency for [yamljs](https://github.com/jeremyfa/yaml.js)
+		- Fixes [#333](https://github.com/bevry/docpad/issues/333)
+	- Better error output on custom error objects
+
 - v6.9.1 October 25, 2012
 	- Added `reloadPaths` configuration option
 		- When a change occurs in one of the reload paths then we will reload docpad
