@@ -1392,7 +1392,7 @@ class DocPad extends EventEmitterEnhanced
 
 		# Log the error only if it hasn't been logged already
 		err.logged = true
-		err = new Error(err)  unless err instanceof Error
+		err = new Error(err)  unless err.message?
 		err.logged = true
 		docpad.log(type, locale.errorOccured, err.message, err.stack)
 
