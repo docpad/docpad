@@ -2327,6 +2327,8 @@ class DocPad extends EventEmitterEnhanced
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
 		locale = @getLocale()
+		database = @getDatabase()
+		collection = opts.collection or database
 
 		# Fire plugins
 		docpad.emitSync 'generateAfter', server:docpad.getServer(), (err) ->
@@ -2334,7 +2336,12 @@ class DocPad extends EventEmitterEnhanced
 
 			# Log generated
 			seconds = (new Date() - docpad.lastGenerate) / 1000
-			docpad.log 'info', util.format(locale.renderGenerated, (opts.count ? 'all'), seconds)
+			howMany =
+				if collection is database
+					"all #{collection.length}"
+				else
+					collection.length
+			docpad.log 'info', util.format(locale.renderGenerated, howMany, seconds)
 			docpad.notify (new Date()).toLocaleTimeString(), title: locale.renderGeneratedNotification
 
 			# Completed
@@ -2415,7 +2422,7 @@ class DocPad extends EventEmitterEnhanced
 						return finish(err)  if err
 
 						# Finish up
-						docpad.generatePostpare {count:filesToRender.length}, (err) ->
+						docpad.generatePostpare {collection:filesToRender}, (err) ->
 							return finish(err)
 
 		# Re-load and re-render everything

@@ -1,5 +1,10 @@
 ## History
 
+- v6.10.0 October 29, 2012
+	- Updated [QueryEngine](https://github.com/bevry/query-engine/) dependency from 1.2.3 to 1.3.x
+		- Should see better memory usage and massive speed improvements
+	- Now tells you how many files we have when doing a complete render
+
 - v6.9.2 October 26, 2012
 	- Swapped [yaml](https://github.com/visionmedia/js-yaml) dependency for [yamljs](https://github.com/jeremyfa/yaml.js)
 		- Fixes [#333](https://github.com/bevry/docpad/issues/333)
