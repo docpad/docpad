@@ -2963,30 +2963,30 @@ class DocPad extends EventEmitterEnhanced
 					return next(err)  if err
 
 					# DocPad Header Middleware
-					# Keep it before the serverExtend event
+					# Keep it after the serverExtend event
 					serverExpress.use(docpad.serverMiddlewareHeader)
 
 					# Router Middleware
-					# Keep it before the serverExtend event
+					# Keep it after the serverExtend event
 					serverExpress.use(serverExpress.router)  if opts.middlewareExpressRouter isnt false
 
 					# DocPad Router Middleware
-					# Keep it before the serverExtend event
+					# Keep it after the serverExtend event
 					serverExpress.use(docpad.serverMiddlewareRouter)
 
 					# Static
-					# Keep it before the serverExtend event
+					# Keep it after the serverExtend event
 					if config.maxAge
 						serverExpress.use(express.static(config.outPath,{maxAge:config.maxAge}))
 					else
 						serverExpress.use(express.static(config.outPath))
 
 					# DocPad 404 Middleware
-					# Keep it before the serverExtend event
+					# Keep it after the serverExtend event
 					serverExpress.use(docpad.serverMiddleware404)  if opts.middleware404 isnt false
 
 					# DocPad 500 Middleware
-					# Keep it before the serverExtend event
+					# Keep it after the serverExtend event
 					serverExpress.error(docpad.serverMiddleware500)  if opts.middleware500 isnt false
 
 				# Start the Server

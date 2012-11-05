@@ -1,8 +1,13 @@
 ## History
 
+- v6.11.0 October 29, 2012
+	- Updated [QueryEngine](https://github.com/bevry/query-engine/) dependency from 1.3.x to 1.4.x
+		- Should see speed improvements
+	- Added `docs` directory to `.npmignore`
+
 - v6.10.0 October 29, 2012
 	- Updated [QueryEngine](https://github.com/bevry/query-engine/) dependency from 1.2.3 to 1.3.x
-		- Should see better memory usage and massive speed improvements
+		- Should see better memory usage and speed improvements
 	- Now tells you how many files we have when doing a complete render
 
 - v6.9.2 October 26, 2012

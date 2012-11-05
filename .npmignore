@@ -1,6 +1,7 @@
 .travis*
 Makefile
 
+docs/
 src/
 out/test/
 test/
