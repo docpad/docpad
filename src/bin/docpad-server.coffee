@@ -3,7 +3,7 @@ DocPad = require(__dirname+'/../lib/docpad')
 
 # DocPad Configuration
 docpadConfig = {}
-serverAction = process.env.DOCPAD_SERVER_ACTION or 'generate server'
+serverAction = process.env.DOCPAD_SERVER_ACTION or 'server generate'
 
 # --action <value>
 (->
