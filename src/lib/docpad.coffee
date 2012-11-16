@@ -2186,6 +2186,7 @@ class DocPad extends EventEmitterEnhanced
 	# Generate
 
 	# Generate Prepare
+	# opts = {reset}
 	# next(err)
 	generatePrepare: (opts,next) =>
 		# Prepare
@@ -2193,12 +2194,15 @@ class DocPad extends EventEmitterEnhanced
 		docpad = @
 		locale = @getLocale()
 
+		# Update generating flag
+		docpad.generating = true
+
 		# Log generating
 		docpad.log 'info', locale.renderGenerating
 		docpad.notify (new Date()).toLocaleTimeString(), title: locale.renderGeneratingNotification
 
 		# Fire plugins
-		docpad.emitSync 'generateBefore', server:docpad.getServer(), (err) ->
+		docpad.emitSync 'generateBefore', {reset:opts.reset, server:docpad.getServer()}, (err) ->
 			# Forward
 			return next(err)
 
@@ -2206,6 +2210,7 @@ class DocPad extends EventEmitterEnhanced
 		@
 
 	# Generate Check
+	# opts = {}
 	# next(err)
 	generateCheck: (opts,next) =>
 		# Prepare
@@ -2230,6 +2235,7 @@ class DocPad extends EventEmitterEnhanced
 		@
 
 	# Generate Clean
+	# opts = {}
 	# next(err)
 	generateClean: (opts,next) =>
 		# Prepare
@@ -2243,6 +2249,7 @@ class DocPad extends EventEmitterEnhanced
 		@
 
 	# Parse the files
+	# opts = {}
 	# next(err)
 	generateParse: (opts,next) =>
 		# Prepare
@@ -2299,6 +2306,7 @@ class DocPad extends EventEmitterEnhanced
 		@
 
 	# Generate Render
+	# opts = {templateData,collection,setProgressIndicator}
 	# next(err)
 	generateRender: (opts,next) =>
 		# Prepare
@@ -2321,6 +2329,7 @@ class DocPad extends EventEmitterEnhanced
 		@
 
 	# Generate Postpare
+	# opts = {collection}
 	# next(err)
 	generatePostpare: (opts,next) =>
 		# Prepare
@@ -2329,6 +2338,9 @@ class DocPad extends EventEmitterEnhanced
 		locale = @getLocale()
 		database = @getDatabase()
 		collection = opts.collection or database
+
+		# Update generating flag
+		docpad.generating = false
 
 		# Fire plugins
 		docpad.emitSync 'generateAfter', server:docpad.getServer(), (err) ->
@@ -2352,6 +2364,9 @@ class DocPad extends EventEmitterEnhanced
 
 	# Date object of the last generate
 	lastGenerate: null
+
+	# Flag for whether or not we are generating
+	generating: false
 
 	# Generate
 	# next(err)
@@ -2378,12 +2393,12 @@ class DocPad extends EventEmitterEnhanced
 		finish = (err) ->
 			clearInterval(progressInterval)
 			progressInterval = null
-			next(err)
+			return next(err)
 
 		# Re-load and re-render only what is necessary
 		if opts.reset? and opts.reset is false
 			# Prepare
-			docpad.generatePrepare (err) ->
+			docpad.generatePrepare opts, (err) ->
 				return finish(err)  if err
 				database = docpad.getDatabase()
 
@@ -2427,6 +2442,8 @@ class DocPad extends EventEmitterEnhanced
 
 		# Re-load and re-render everything
 		else
+			# Prepare
+			opts.reset = true
 			docpad.lastGenerate = new Date()
 			balUtil.flow(
 				object: docpad
@@ -2661,7 +2678,7 @@ class DocPad extends EventEmitterEnhanced
 		runDocpad = ->
 			balUtil.flow(
 				object: docpad
-				action: 'generate server watch'
+				action: 'server generate watch'
 				args: [opts]
 				next: (err) ->
 					return next(err)
@@ -2833,14 +2850,23 @@ class DocPad extends EventEmitterEnhanced
 		res.set('X-Powered-By',tools)
 		next()
 
+		# Chain
+		return @
+
 	# Server Middleware: Router
 	serverMiddlewareRouter: (req,res,next) =>
 		# Prepare
 		docpad = @
 		database = docpad.getDatabase()
 
-		# Check
+		# If we have no database, then continue to 404 router
 		return next()  unless database
+
+		# If we are generating then wait until generation is complete before continuing
+		if docpad.generating
+			docpad.once 'generateAfter', ->
+				return docpad.serverMiddlewareRouter(req,res,next)
+			return @
 
 		# Prepare
 		pageUrl = req.url.replace(/\?.*/,'')
@@ -2856,6 +2882,9 @@ class DocPad extends EventEmitterEnhanced
 		# Serve the document to the user
 		docpad.serveDocument({document,req,res,next})
 
+		# Chain
+		return @
+
 	# Server Middleware: 404
 	serverMiddleware404: (req,res,next) =>
 		# Prepare
@@ -2869,6 +2898,9 @@ class DocPad extends EventEmitterEnhanced
 		document = database.findOne({relativeOutPath: '404.html'})
 		docpad.serveDocument({document,req,res,next,statusCode:404})
 
+		# Chain
+		return @
+
 	# Server Middleware: 500
 	serverMiddleware500: (err,req,res,next) =>
 		# Prepare
@@ -2881,6 +2913,9 @@ class DocPad extends EventEmitterEnhanced
 		# Serve the document to the user
 		document = database.findOne({relativeOutPath: '500.html'})
 		docpad.serveDocument({document,err,req,res,next,statusCode:500})
+
+		# Chain
+		return @
 
 	# Server
 	server: (opts,next) =>

@@ -1,5 +1,12 @@
 ## History
 
+- v6.11.1 November 16, 2012
+	- Changes made to help get the docpad server up and running as soon as possible:
+		- `server` action is now run before `generate` action
+		- if a request is made while a generation is occuring, the request will be put on hold until the generation completes
+	- We now pass the option `reset` to the `generateBefore` event
+		- Lets you know if the generation is a complete generation (`reset` is `true`) or a differential generation (`reset` is `false`)
+
 - v6.11.0 October 29, 2012
 	- Updated [QueryEngine](https://github.com/bevry/query-engine/) dependency from 1.3.x to 1.4.x
 		- Should see speed improvements
