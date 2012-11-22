@@ -1395,6 +1395,7 @@ class DocPad extends EventEmitterEnhanced
 		err = new Error(err)  unless err.message?
 		err.logged = true
 		docpad.log(type, locale.errorOccured, err.message, err.stack)
+		docpad.notify err.message, title: locale.errorOccured
 
 		# Report the error back to DocPad using airbrake
 		if docpad.config.reportErrors and airbrake
