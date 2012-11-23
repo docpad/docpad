@@ -1,5 +1,22 @@
 ## History
 
+- v6.12.0 November 23, 2012
+	- When creating new documents or files, if it is inside an unknown path we will now default to creating a document intead of a file
+	- We now send growl notifications when errors occur
+		- Thanks to [Luke Hagan](https://github.com/lhagan) for [pull request #346](https://github.com/bevry/docpad/pull/346) and [issue #343](https://github.com/bevry/docpad/issues/343)
+	- We now error and provide suggestions when an extension transform doesn't do anything
+		- Thanks to [Farid Neshat](https://github.com/alFReD-NSH), [Elias Dawson](https://github.com/eliasdawson) and [Steve Trevathan](https://github.com/kidfribble) for [issue #192](https://github.com/bevry/docpad/issues/192)
+	- Watching stability has been improved signifcantly
+		- Thanks to [ashnur](https://github.com/ashnur) for [issue #283](https://github.com/bevry/docpad/issues/283)
+	- Parser headers that don't include spacing now work again (e.g. `---cson` instead of `--- cson`)
+		- Thanks to [bobobo1618](https://github.com/bobobo1618) for [issue #341](https://github.com/bevry/docpad/issues/341)
+	- Removed default comparator on `FilesCollection` due to performance improvement it provides
+		- Thanks to [Bruno Héridet](https://github.com/Delapouite) for [issue #330](https://github.com/bevry/docpad/issues/330)
+	- Added
+		- `Document::parseFileDirectory(opts,next)`
+		- `Document::parseDocumentDirectory(opts,next)`
+		- `FilesCollection::fuzzyFindOne(data)`
+
 - v6.11.1 November 16, 2012
 	- Changes made to help get the docpad server up and running as soon as possible:
 		- `server` action is now run before `generate` action

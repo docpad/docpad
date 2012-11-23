@@ -1394,8 +1394,8 @@ class DocPad extends EventEmitterEnhanced
 		err.logged = true
 		err = new Error(err)  unless err.message?
 		err.logged = true
-		docpad.log(type, locale.errorOccured, err.message, err.stack)
-		docpad.notify err.message, title: locale.errorOccured
+		docpad.log(type, locale.errorOccured, '\n'+(err.stack ? err.message))
+		docpad.notify(err.message, title:locale.errorOccured)
 
 		# Report the error back to DocPad using airbrake
 		if docpad.config.reportErrors and airbrake
@@ -1416,10 +1416,12 @@ class DocPad extends EventEmitterEnhanced
 	warn: (message,err,next) =>
 		# Prepare
 		docpad = @
+		locale = @getLocale()
 
 		# Log
 		docpad.log('warn', message)
 		docpad.error(err, 'warn', next)
+		docpad.notify(message, title:locale.warnOccured)
 
 		# Chain
 		@
@@ -1489,9 +1491,7 @@ class DocPad extends EventEmitterEnhanced
 		document.on 'getLayout', (opts,next) ->
 			{layoutId} = opts
 			layouts = docpad.getCollection('layouts')
-			layout = layouts.findOne(id: layoutId)
-			layout = layouts.findOne(relativePath: layoutId)  unless layout
-			layout = layouts.findOne(relativeBase: layoutId)  unless layout
+			layout = layouts.fuzzyFindOne(layoutId)
 			next(null,{layout})
 
 		# Render
@@ -1551,13 +1551,25 @@ class DocPad extends EventEmitterEnhanced
 
 			# Otherwise, create a file anyway
 			unless result
-				result = @createFile(data,options)
+				result = @createDocument(data,options)
 
 			# Add result to database
 			database.add(result)
 
 		# Return
 		result
+
+	# Parse a file directory
+	# next(err)
+	parseFileDirectory: (opts={},next) ->
+		opts.createFunction ?= @createFile
+		return @parseDirectory(opts,next)
+
+	# Parse a document directory
+	# next(err)
+	parseDocumentDirectory: (opts={},next) ->
+		opts.createFunction ?= @createDocument
+		return @parseDirectory(opts,next)
 
 	# Parse a directory
 	# next(err)
@@ -2278,26 +2290,23 @@ class DocPad extends EventEmitterEnhanced
 
 			# Documents
 			_.each config.documentsPaths, (documentsPath) -> tasks.push (complete) ->
-				docpad.parseDirectory({
+				docpad.parseDocumentDirectory({
 					path: documentsPath
 					collection: database
-					createFunction: docpad.createDocument
 				},complete)
 
 			# Files
 			_.each config.filesPaths, (filesPath) -> tasks.push (complete) ->
-				docpad.parseDirectory({
+				docpad.parseFileDirectory({
 					path: filesPath
 					collection: database
-					createFunction: docpad.createFile
 				},complete)
 
 			# Layouts
 			_.each config.layoutsPaths, (layoutsPath) -> tasks.push (complete) ->
-				docpad.parseDirectory({
+				docpad.parseDocumentDirectory({
 					path: layoutsPath
 					collection: database
-					createFunction: docpad.createDocument
 				},complete)
 
 			# Async
@@ -2639,19 +2648,23 @@ class DocPad extends EventEmitterEnhanced
 				docpad.log 'debug', util.format(locale.watchDirectoryChange, new Date().toLocaleTimeString()), filePath
 				return
 
+			# Override the stat's mtime to now
+			# This is because renames will not update the mtime
+			fileCurrentStat?.mtime = new Date()
+
 			# Create the file object
-			file = docpad.ensureFileOrDocument({fullPath:filePath})
+			file = docpad.ensureFileOrDocument({fullPath:filePath},{stat:fileCurrentStat})
+			file.setStat(fileCurrentStat)  if eventName is 'change'
 
 			# File was deleted, delete the rendered file, and remove it from the database
 			if eventName is 'unlink'
 				database.remove(file)
-				queueRegeneration()
 				file.delete (err) ->
 					return docpad.error(err)  if err
+					queueRegeneration()
 
 			# File is new or was changed, update it's mtime by setting the stat
 			else if eventName in ['new','change']
-				file.setStat(fileCurrentStat)
 				queueRegeneration()
 
 		# Watch
