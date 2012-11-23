@@ -126,7 +126,7 @@ class DocumentModel extends FileModel
 			content = @get('content')
 
 			# Meta Data
-			match = /^\s*([^\s\d\w]{3,})(?: ([a-z]+))?([\s\S]*?)\1/.exec(content)
+			match = /^\s*([^\s\d\w]{3,})(?: *([a-z]+))?([\s\S]*?)\1/.exec(content)
 			if match
 				# Extract
 				seperator = match[1]
@@ -470,7 +470,20 @@ class DocumentModel extends FileModel
 
 				# Render
 				file.trigger 'render', eventData, (err) ->
+					# Check
 					return complete(err)  if err
+
+					# Check if the render did anything
+					# and only check if we actually have content to render!
+					# if this check fails, error with a suggestion
+					if result and result is eventData.content
+						err = new Error """
+							Rendering from the extension "#{eventData.inExtension}" to "#{eventData.outExtension}" didn't do anything.
+							You could have forgotten to install a plugin, or perhaps the document "#{file.attributes.relativePath or file.attributes.fullPath}" is better suited to be a file in the files directory?
+							"""
+						return complete(err)
+
+					# The render did something, so apply and continue
 					result = eventData.content
 					return complete()
 

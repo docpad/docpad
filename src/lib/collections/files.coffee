@@ -15,9 +15,23 @@ class FilesCollection extends QueryCollection
 	# Base Collection for all child collections
 	collection: FilesCollection
 
-	# Comparator
-	comparator: [date:-1, name:1]
+	# Fuzzy Find One
+	# Useful for layout searching
+	fuzzyFindOne: (data) ->
+		file = @findOne(id: data)
+		return file  if file
 
+		file = @findOne(relativePath: data)
+		return file  if file
+
+		file = @findOne(relativeBase: data)
+		return file  if file
+
+		file = @findOne(relativePath: $startsWith: data)
+		return file  if file
+
+		file = @findOne(fullPath: $startsWith: data)
+		return file
 
 # Export
 module.exports = FilesCollection

@@ -147,6 +147,7 @@
 	welcomePlugins: "Plugins: %s"
 	welcomeEnvironment: "Environment: %s"
 	includeFailed: "Could not include the file at path %s as we could not find it"
+	warnOccured: "A warning occured:"
 	errorOccured: "An error occured:"
 	errorLoggedTo: "Error has been logged to: %s"
 	errorFollows: "The error follows:"

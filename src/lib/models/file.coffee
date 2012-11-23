@@ -160,16 +160,20 @@ class FileModel extends Model
 			data = attrs.data
 			delete attrs.data
 			delete @attributes.data
-
-		# Apply
-		@outDirPath = outDirPath  if outDirPath
-		@setStat(stat)  if stat
-		@setData(data)  if data
-		@set({
+		defaults =
 			extensions: []
 			urls: []
 			id: @cid
-		})
+
+		# Apply
+		@outDirPath = outDirPath  if outDirPath
+		@setData(data)  if data
+		if stat
+			@setStat(stat)
+		else
+			defaults.ctime = new Date()
+			defaults.mtime = new Date()
+		@set(defaults)
 
 		# Meta
 		@meta = new Model()
@@ -534,6 +538,12 @@ class FileModel extends Model
 		content = @get('content') or @getData()
 		encoding = @get('encoding')
 
+		# Check
+		# Sometimes the out path could not be set if we are early on in the process
+		unless fileOutPath
+			next()
+			return @
+
 		# Log
 		file.log 'debug', "Writing the file: #{fileOutPath} #{encoding}"
 
@@ -558,19 +568,29 @@ class FileModel extends Model
 		file = @
 		fileOutPath = @get('outPath')
 
+		# Check
+		# Sometimes the out path could not be set if we are early on in the process
+		unless fileOutPath
+			next()
+			return @
+
 		# Log
 		file.log 'debug', "Delete the file: #{fileOutPath}"
 
-		# Write data
-		balUtil.unlink fileOutPath, (err) ->
-			# Check
-			return next(err)  if err
+		# Check existance
+		balUtil.exists fileOutPath, (exists) ->
+			# Exit if it doesn't exist
+			return next()  unless exists
+			# If it does exist delete it
+			balUtil.unlink fileOutPath, (err) ->
+				# Check
+				return next(err)  if err
 
-			# Log
-			file.log 'debug', "Deleted the file: #{fileOutPath}"
+				# Log
+				file.log 'debug', "Deleted the file: #{fileOutPath}"
 
-			# Next
-			next()
+				# Next
+				next()
 
 		# Chain
 		@
