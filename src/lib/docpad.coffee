@@ -1864,14 +1864,16 @@ class DocPad extends EventEmitterEnhanced
 
 		# Prepare
 		docpad = @
+		locale = @getLocale()
 
 		# Check
-		balUtil.packageCompare
+		balUtil.packageCompare(
 			local: @packagePath
 			remote: @config.latestPackageUrl
 			newVersionCallback: (details) ->
-				docpad.notify util.format(locale.upgradeNotification, details.local.name)
-				docpad.log 'notice', util.format(locale.upgradeDetails, details.local.version, details.remote.version, details.remote.homepage)
+				docpad.notify locale.upgradeNotification
+				docpad.log 'notice', util.format(locale.upgradeDetails, details.local.version, details.remote.version, details.local.upgradeUrl or details.remote.installUrl or details.remote.homepage)
+		)
 
 		# Chain
 		@
