@@ -152,11 +152,11 @@
 	errorLoggedTo: "Error has been logged to: %s"
 	errorFollows: "The error follows:"
 	unknownModelInCollection: "Unknown model structure inside the collection"
-	upgradeNotification: "There is a new version of %s available"
+	upgradeNotification: "There's a new version of DocPad available"
 	upgradeDetails: """
-		There is a new version of %s available, you should probably upgrade...
-		current version:  %s
-		new version:      %s
-		grab it here:     %s
+		There's a new version of DocPad available, you should probably upgrade...
+		current version:          %s
+		new version:              %s
+		upgrade instructions:     %s
 		"""
 }

@@ -1,5 +1,9 @@
 ## History
 
+- v6.12.1 November 23, 2012
+	- Fixed update check, been broken since v6.7.3
+	- Updated [bal-util](https://github.com/balupton/bal-util/) dependency from 1.13.13 to 1.14.x
+
 - v6.12.0 November 23, 2012
 	- When creating new documents or files, if it is inside an unknown path we will now default to creating a document intead of a file
 	- We now send growl notifications when errors occur
