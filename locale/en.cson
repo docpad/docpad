@@ -7,17 +7,17 @@
 		Fantastic. We like informed people!
 		"""
 	tosDisagree: """
-		Run us again when you've changed your mind.
+		Run us again once you've read and agree to them.
 		"""
 	subscribePrompt: """
 		Would you like to subscribe to our newsletter and stay up to date with the latest releases and tutorials?
 		"""
-	subscribeConfigNotify: "Great! To speed things up we've fetched your default values, press enter to use the default value, or type your own values if you'd prefer."
-	subscribeNamePrompt: "Your nifty name is?"
-	subscribeEmailPrompt: "and your extravagant email is?"
-	subscribeUsernamePrompt: "and what ultimate username would you like for our upcoming cloud infrastructure?"
+	subscribeConfigNotify: "To speed things up we've fetched your default values, press enter to use the default value or type your own values:"
+	subscribeNamePrompt: "Your name?"
+	subscribeEmailPrompt: "Your email?"
+	subscribeUsernamePrompt: "Your username?"
 	subscribeError: "Whoops, looks like something went wrong when subscribing you to our list... not to worry, we'll try again another time."
-	subscribeSuccess: "Awesome, you're now subscribed our newsletter. By the way, you're looking super fine today! Continuing with the desired action."
+	subscribeSuccess: "Awesome, you're now subscribed our newsletter. Continuing with the desired action."
 	subscribeIgnore: "No worries. Continuing with the desired action."
 	subscribeProgress: "Subscribing..."
 	subscribeRequestData: "Subscription request data:"
