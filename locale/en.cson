@@ -1,16 +1,24 @@
 {
 	# Subscription
-	subscribePrompt: """
-		Thanks for installing DocPad!
-		As DocPad moves very fast, would you like to subscribe to our newsletter and stay up to date with the latest releases and tutorials?
+	tosPrompt: """
+		Before we continue, have you read and agree to DocPad's Terms of Service (http://bevry.me/tos) and Privacy Policy (http://bevry.me/privacy)?
 		"""
-	subscribeConfigNotify: "Great! To speed things up we've fetched your default values, press enter to default to them, or type your own values if you'd prefer."
+	tosAgree: """
+		Fantastic. We like informed people!
+		"""
+	tosDisagree: """
+		Run us again when you've changed your mind.
+		"""
+	subscribePrompt: """
+		Would you like to subscribe to our newsletter and stay up to date with the latest releases and tutorials?
+		"""
+	subscribeConfigNotify: "Great! To speed things up we've fetched your default values, press enter to use the default value, or type your own values if you'd prefer."
 	subscribeNamePrompt: "Your nifty name is?"
 	subscribeEmailPrompt: "and your extravagant email is?"
 	subscribeUsernamePrompt: "and what ultimate username would you like for our upcoming cloud infrastructure?"
 	subscribeError: "Whoops, looks like something went wrong when subscribing you to our list... not to worry, we'll try again another time."
 	subscribeSuccess: "Awesome, you're now subscribed our newsletter. By the way, you're looking super fine today! Continuing with the desired action."
-	subscribeIgnore: "No worries. Have a lovely day, and we hope you enjoy DocPad! Continuing with the desired action."
+	subscribeIgnore: "No worries. Continuing with the desired action."
 	subscribeProgress: "Subscribing..."
 	subscribeRequestData: "Subscription request data:"
 	subscribeRequestError: "Subsction request error:"
@@ -77,6 +85,7 @@
 	# Action
 	actionStart: "Performing the action %s"
 	actionFinished: "Performed the action %s"
+	actionNonexistant: "The action %s does not exist"
 
 	# Plugins
 	pluginFailedToLoad: "Failed to load the plugin: %s at %s"
@@ -151,6 +160,8 @@
 	errorOccured: "An error occured:"
 	errorLoggedTo: "Error has been logged to: %s"
 	errorFollows: "The error follows:"
+	reportError: "An error occured reporting the error"
+	trackError: "An error occured sending statistics"
 	unknownModelInCollection: "Unknown model structure inside the collection"
 	upgradeNotification: "There's a new version of DocPad available"
 	upgradeDetails: """

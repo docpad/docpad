@@ -10,10 +10,6 @@ balUtil = require('bal-util')
 util = require('util')
 {EventEmitterEnhanced} = balUtil
 
-# Optional
-airbrake = null
-growl = null
-
 # Base
 {queryEngine,Backbone,Events,Model,Collection,View,QueryCollection} = require(__dirname+'/base')
 
@@ -76,6 +72,61 @@ class DocPad extends EventEmitterEnhanced
 
 
 	# ---------------------------------
+	# Instances
+
+	growlInstance: null
+	getGrowlInstance: ->
+		# Create
+		if @growlInstance? is false
+			config = @getConfig()
+			{growl} = config
+			if growl
+				try
+					@growlInstance = require('growl')
+				catch err
+					@growlInstance = false
+			else
+				@growlInstance = false
+
+		# Return
+		return @growlInstance
+
+	mixpanelInstance: null
+	getMixpanelInstance: ->
+		# Create
+		if @mixpanelIsntance? is false
+			config = @getConfig()
+			{reportStatistics,mixpanelToken} = config
+			if reportStatistics and mixpanelToken
+				try
+					@mixpanelInstance = require('mixpanel').init(mixpanelToken)
+				catch err
+					@mixpanelInstance = false
+			else
+				@mixpanelInstance = false
+
+		# Return
+		return @mixpanelInstance
+
+	airbrakeInstance: null
+	getAirbrakeInstance: ->
+		# Create
+		if @airbrakeInstance? is false
+			config = @getConfig()
+			{airbrakeToken,reportErrors} = config
+			if reportErrors is true and /win/.test(process.platform) is false
+				try
+					@airbrakeInstance = require('airbrake').createClientairbrakeToken()
+				catch err
+					@airbrakeInstance = false
+			else
+				@airbrakeInstance = false
+
+		# Return
+		return @airbrakeInstance
+
+
+	# ---------------------------------
 	# DocPad
 
 	# DocPad's version number
@@ -104,10 +155,17 @@ class DocPad extends EventEmitterEnhanced
 		@loggerInstance = value
 		@
 
-	# The runner instance bound to docpad
-	runnerInstance: null
-	getRunner: ->
-		@runnerInstance
+	# The action runner instance bound to docpad
+	actionRunnerInstance: null
+	getActionRunner: -> @actionRunnerInstance
+
+	# The error runner instance bound to docpad
+	errorRunnerInstance: null
+	getErrorRunner: -> @errorRunnerInstance
+
+	# The track runner instance bound to docpad
+	trackRunnerInstance: null
+	getTrackRunner: -> @trackRunnerInstance
 
 	# Event Listing
 	# Whenever a event is created, it must be applied here to be available to plugins and configuration files
@@ -317,6 +375,9 @@ class DocPad extends EventEmitterEnhanced
 	# The DocPad package.json path
 	packagePath: pathUtil.join(__dirname, '..', '..', 'package.json')
 
+	# The DocPad locale path
+	localePath: pathUtil.join(__dirname, '..', '..', 'locale')
+
 	# The User's configuration path
 	userConfigPath: '.docpad.cson'
 
@@ -430,18 +491,72 @@ class DocPad extends EventEmitterEnhanced
 
 
 	# -----------------------------
-	# Configuration
+	# Locales
 
-	# Locales Configuration
+	# All the locales we have
 	locales:
 		en: CSON.parseFileSync(pathUtil.join(__dirname, '..', '..', 'locale', 'en.cson'))
 
+	# Determined locale
+	locale: null
+
+	# Determined locale code
+	localeCode: null
+
+	# Get Locale Code
+	getLocaleCode: ->
+		if @localeCode? is false
+			localeCode = null
+			localeCodes = [@getConfig().localeCode, (process.env.LANG or '').replace(/\..+/,''), 'en_AU']
+			for localeCode in localeCodes
+				if localeCode and @locales[localeCode]?
+					break
+			@localeCode = localeCode.toLowerCase()
+		return @localeCode
+
+	# Get Language Code
+	getLanguageCode: ->
+		if @languageCode? is false
+			languageCode = @getLocaleCode().replace(/^([a-z]+)_([a-z]+)$/i,'$1')
+			@languageCode = languageCode.toLowerCase()
+		return @languageCode
+
+	# Get Country Code
+	getCountryCode: ->
+		if @countryCode? is false
+			countryCode = @getLocaleCode().replace(/^([a-z]+)_([a-z]+)$/i,'$2')
+			@countryCode = countryCode.toLowerCase()
+		return @countryCode
+
+	# Get Locale
+	getLocale: ->
+		if @locale? is false
+			@locale = @locales[@getLocaleCode()] or @locales[@getLanguageCode()] or @locales['en']
+		return @locale
+
+
+	# -----------------------------
+	# Environments
+
+	# Get Environment
+	getEnvironment: ->
+		return @getConfig().env
+
+	# Get Environments
+	getEnvironments: ->
+		return @getEnvironment().split(/[, ]+/)
+
+
+	# -----------------------------
+	# Configuration
+
+	# Website Package Configuration
+	websitePackageConfig: null  # {}
 
 	# Merged Configuration
 	# Merged in the order of:
 	# - initialConfig
 	# - userConfig
-	# - websitePackageConfig
 	# - websiteConfig
 	# - instanceConfig
 	# - environmentConfig
@@ -452,9 +567,6 @@ class DocPad extends EventEmitterEnhanced
 
 	# Website Configuration
 	websiteConfig: null  # {}
-
-	# Website Package Configuration
-	websitePackageConfig: null  # {}
 
 	# User Configuraiton
 	userConfig:
@@ -627,8 +739,15 @@ class DocPad extends EventEmitterEnhanced
 		# Whether or not we should report our errors back to DocPad
 		reportErrors: true
 
+		# Report Statistics
+		# Whether or not we should report statistics back to DocPad
+		reportStatistics: true
+
 		# Airbrake Token
 		airbrakeToken: 'e7374dd1c5a346efe3895b9b0c1c0325'
+
+		# MixPanel Token
+		mixpanelToken: 'd0f9b33c0ec921350b5419352028577e'
 
 
 		# -----------------------------
@@ -675,6 +794,10 @@ class DocPad extends EventEmitterEnhanced
 		# -----------------------------
 		# Environment Configuration
 
+		# Locale Code
+		# The code we shall use for our locale (e.g. en, fr, etc)
+		localeCode: null
+
 		# Environment
 		# Whether or not we are in production or development
 		# Separate environments using a comma or a space
@@ -696,18 +819,6 @@ class DocPad extends EventEmitterEnhanced
 	# Regenerate Timer
 	# When config.regenerateEvery is set to a value, we create a timer here
 	regenerateTimer: null
-
-	# Get Locale
-	getLocale: ->
-		return @locales.en
-
-	# Get Environment
-	getEnvironment: ->
-		return @getConfig().env
-
-	# Get Environments
-	getEnvironments: ->
-		return @getEnvironment().split(/[, ]+/)
 
 	# Get the Configuration
 	getConfig: ->
@@ -741,11 +852,24 @@ class DocPad extends EventEmitterEnhanced
 				else
 					next()
 
-		# Create our runner
-		@runnerInstance = new balUtil.Group 'sync', (err) ->
-			# Error?
-			return docpad.error(err)  if err
-		@runnerInstance.total = Infinity
+		# Create our action runner
+		@actionRunnerInstance = new balUtil.Group 'sync', (err) ->
+			docpad.error(err)  if err
+		@actionRunnerInstance.total = Infinity
+
+		# Create our error runner
+		@errorRunnerInstance = new balUtil.Group 'sync', (err) ->
+			if err and docpad.getDebugging()
+				locale = docpad.getLocale()
+				docpad.log('warn', locale.reportError+'\n'+locale.errorFollows, err)
+		@errorRunnerInstance.total = Infinity
+
+		# Create our track runner
+		@trackRunnerInstance = new balUtil.Group 'sync', (err) ->
+			if err and docpad.getDebugging()
+				locale = docpad.getLocale()
+				docpad.log('warn', locale.trackError+'\n'+locale.errorFollows, err)
+		@trackRunnerInstance.total = Infinity
 
 		# Initialize a default logger
 		logger = new caterpillar.Logger(
@@ -819,6 +943,33 @@ class DocPad extends EventEmitterEnhanced
 			return complete()  unless docpad.config.welcome
 			@emitSync('welcome', {docpad}, complete)
 
+		# Track
+		tasks.push =>
+			if @userConfig.username
+				lastLogin = new Date()
+				countryCode = @getCountryCode()
+				languageCode = @getLanguageCode()
+				if @userConfig.identified isnt true
+					# identify the new user with mixpanel
+					@getMixpanelInstance().people.set(@userConfig.username, {
+						$email: @userConfig.email
+						$name: @userConfig.name
+						$username: @userConfig.username
+						$created: lastLogin
+						$last_login: lastLogin
+						$country_code: countryCode
+						languageCode: languageCode
+					})
+					@updateUserConfig({
+						identified: true
+					})
+				else
+					# only update last login if we are another day
+					@getMixpanelInstance().people.set(@userConfig.username, {
+						$last_login: new Date()
+					})
+
+
 		# DocPad Ready
 		tasks.push (complete) =>
 			@emitSync('docpadReady', {docpad}, complete)
@@ -857,7 +1008,7 @@ class DocPad extends EventEmitterEnhanced
 			envs = @getEnvironments()
 
 			# Merge configurations
-			configPackages = [@initialConfig, @userConfig, @websitePackageConfig, @websiteConfig, @instanceConfig]
+			configPackages = [@initialConfig, @userConfig, @websiteConfig, @instanceConfig]
 			configsToMerge = [@config]
 			for configPackage in configPackages
 				configsToMerge.push(configPackage)
@@ -896,13 +1047,6 @@ class DocPad extends EventEmitterEnhanced
 				process.on('uncaughtException', @error)
 			else
 				process.removeListener('uncaughtException', @error)
-
-			# Load Airbrake if we want to reportErrors
-			if @config.reportErrors and /win/.test(process.platform) is false
-				try
-					airbrake = require('airbrake').createClient(@config.airbrakeToken)
-				catch err
-					airbrake = false
 
 			# Regenerate Timer
 			if @regenerateTimer
@@ -968,7 +1112,7 @@ class DocPad extends EventEmitterEnhanced
 
 				# Version
 				@version = data.version
-				airbrake.appVersion = data.version  if airbrake
+				@getAirbrakeInstance()?.appVersion = data.version
 
 				# Done loading
 				complete()
@@ -980,10 +1124,9 @@ class DocPad extends EventEmitterEnhanced
 			@loadConfigPath websitePackagePath, (err,data) =>
 				return complete(err)  if err
 				data or= {}
-				data.docpad or= {}
 
 				# Apply loaded data
-				balUtil.extend(@websitePackageConfig, data.docpad)
+				@websitePackageConfig = data
 
 				# Done loading
 				complete()
@@ -1008,8 +1151,8 @@ class DocPad extends EventEmitterEnhanced
 
 		# Load Website's Configuration
 		preTasks.push (complete) =>
-			rootPath = pathUtil.resolve(@instanceConfig.rootPath or @websitePackageConfig.rootPath or @initialConfig.rootPath)
-			configPaths = @instanceConfig.configPaths or @websitePackageConfig.configPaths or @initialConfig.configPaths
+			rootPath = pathUtil.resolve(@instanceConfig.rootPath or @initialConfig.rootPath)
+			configPaths = @instanceConfig.configPaths or @initialConfig.configPaths
 			for configPath, index in configPaths
 				configPaths[index] = pathUtil.resolve(rootPath, configPath)
 			@loadConfigPaths configPaths, (err,data) =>
@@ -1088,7 +1231,7 @@ class DocPad extends EventEmitterEnhanced
 	# Configuration
 
 	# Update User Configuration
-	updateUserConfig: (data,next) ->
+	updateUserConfig: (data={},next) ->
 		# Prepare
 		[data,next] = balUtil.extractOptsAndCallback(data,next)
 		docpad = @
@@ -1102,12 +1245,12 @@ class DocPad extends EventEmitterEnhanced
 		# Write it with CSON
 		CSON.stringify @userConfig, (err,userConfigString) ->
 			# Check
-			return next(err)  if err
+			return next?(err)  if err
 
 			# Write it
 			balUtil.writeFile userConfigPath, userConfigString, 'utf8', (err) ->
 				# Forward
-				return next(err)
+				return next?(err)
 
 		# Chain
 		@
@@ -1397,15 +1540,21 @@ class DocPad extends EventEmitterEnhanced
 		docpad.log(type, locale.errorOccured, '\n'+(err.stack ? err.message))
 		docpad.notify(err.message, title:locale.errorOccured)
 
-		# Report the error back to DocPad using airbrake
-		if docpad.config.reportErrors and airbrake
+		# Check
+		airbrake = @getAirbrakeInstance()
+		if airbrake
+			# Prepare
 			err.params =
 				docpadVersion: @version
 				docpadConfig: @config
-			airbrake.notify err, (airbrakeErr,airbrakeUrl) ->
-				console.log(airbrakeErr)  if airbrakeErr
-				console.log(util.format(locale.errorLoggedTo, airbrakeUrl))
-				next?()
+			# Apply
+			@getErrorRunner().pushAndRun (complete) ->
+				airbrake.notify err, (airbrakeErr,airbrakeUrl) ->
+					if airbrakeErr
+						complete(airbrakeErr)
+					else
+						console.log(util.format(locale.errorLoggedTo, airbrakeUrl))
+						complete()
 		else
 			next?()
 
@@ -1428,22 +1577,40 @@ class DocPad extends EventEmitterEnhanced
 
 	# Perform a growl notification
 	notify: (args...) =>
-		# Check if we want to use growl
-		return @  unless @config.growl
-
-		# Try
-		try
-			# Load growl
-			growl = require('growl')  unless growl?
-
-			# Use growl
-			growl.apply(growl,args)  if growl
-
-		# Catch
-		catch err
-			# Ignore
+		# Check
+		growl = @getGrowlInstance()
+		if growl
+			# Apply
+			try
+				growl.apply(growl,args)
+			catch err
+				@err(err,'warn')
 
 		# Chain
+		@
+
+	# Track
+	track: (name,data={},next) ->
+		# Check
+		mixpanelInstance = @getMixpanelInstance()
+		if mixpanelInstance
+			# Prepare
+			if @userConfig?.username
+				data.distinct_id = @userConfig.username
+				data.username = @userConfig.username
+			if @websitePackageConfig?.name
+				data.websiteName = @websitePackageConfig.name
+			data.version = @version
+			data.platform = process.platform
+			data.environment = @getEnvironment()
+			balUtil.each @loadedPlugins, (value,key) ->
+				data['plugin-'+key] = value.version or true
+
+			# Apply
+			@getTrackRunner().pushAndRun (complete) ->
+				mixpanelInstance.track name, data, (err) ->
+					next?()
+					complete(err)
 		@
 
 
@@ -2162,7 +2329,7 @@ class DocPad extends EventEmitterEnhanced
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
-		runner = @getRunner()
+		runner = @getActionRunner()
 		locale = @getLocale()
 
 		# Multiple actions?
@@ -2187,8 +2354,13 @@ class DocPad extends EventEmitterEnhanced
 
 		# Wrap
 		runner.pushAndRun (complete) ->
+			# Fetch
+			fn = docpad[action]
+			# Check
+			return complete(new Error(util.format(locale.actionNonexistant, action)))  unless fn
+			# Track
+			docpad.track(action)
 			# Forward
-			fn = docpad[action] or docpad.run
 			fn opts, (args...) ->
 				forward(args...)
 				complete()
@@ -2740,6 +2912,9 @@ class DocPad extends EventEmitterEnhanced
 
 		# Use a Skeleton
 		useSkeleton = (skeletonModel) ->
+			# Track
+			docpad.track('skeleton-use',{skeletonId:skeletonModel.id})
+
 			# Log
 			docpad.log 'info', util.format(locale.skeletonInstall, skeletonModel.get('name'), destinationPath)
 
@@ -2761,6 +2936,9 @@ class DocPad extends EventEmitterEnhanced
 
 		# Use No Skeleton
 		useNoSkeleton = ->
+			# Track
+			docpad.track('skeleton-use',{skeletonId:'none'})
+
 			# Create the paths
 			balUtil.ensurePath srcPath, (err) ->
 				# Error?
@@ -2785,6 +2963,9 @@ class DocPad extends EventEmitterEnhanced
 			if exists
 				docpad.log 'warn', locale.skeletonExists
 				return next()
+
+			# Track
+			docpad.track('skeleton-ask')
 
 			# Do we already have a skeletonId selected?
 			if skeletonId
