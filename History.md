@@ -1,5 +1,8 @@
 ## History
 
+- v6.13.1 November 26, 2012
+	- Fixed up growl notifications
+
 - v6.13.0 November 26, 2012
 	- Added [Terms of Service](http://bevry.me/terms) and [Privacy Policy](http://bevry.me/privacy) confirmation
 	- Added statistic tracking so we can better understand usage allowing us to improve DocPad is much greater ways
