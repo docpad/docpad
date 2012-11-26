@@ -477,11 +477,9 @@ class DocumentModel extends FileModel
 					# and only check if we actually have content to render!
 					# if this check fails, error with a suggestion
 					if result and result is eventData.content
-						err = new Error """
-							Rendering from the extension "#{eventData.inExtension}" to "#{eventData.outExtension}" didn't do anything.
-							You could have forgotten to install a plugin, or perhaps the document "#{file.attributes.relativePath or file.attributes.fullPath}" is better suited to be a file in the files directory?
-							"""
-						return complete(err)
+						message = "\n  Rendering the extension \"#{eventData.inExtension}\" to \"#{eventData.outExtension}\" on \"#{file.attributes.relativePath or file.attributes.fullPath}\" didn't do anything.\n  Explanation here: http://docpad.org/extension-not-rendering"
+						file.log('warn', message)
+						return complete()
 
 					# The render did something, so apply and continue
 					result = eventData.content

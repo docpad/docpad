@@ -1,5 +1,8 @@
 ## History
 
+- v6.13.2 November 27, 2012
+	- Reduced the extension not rendering error to a warning
+
 - v6.13.1 November 26, 2012
 	- Fixed up growl notifications
 

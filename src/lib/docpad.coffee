@@ -1569,7 +1569,7 @@ class DocPad extends EventEmitterEnhanced
 
 		# Log
 		docpad.log('warn', message)
-		docpad.error(err, 'warn', next)
+		docpad.error(err, 'warn', next)  if err
 		docpad.notify(message, title:locale.warnOccured)
 
 		# Chain
@@ -2407,7 +2407,7 @@ class DocPad extends EventEmitterEnhanced
 
 		# Check plugin count
 		unless docpad.hasPlugins()
-			docpad.log 'warn', locale.renderNoPlugins
+			docpad.log('warn', locale.renderNoPlugins)
 
 		# Check if the source directory exists
 		balUtil.exists docpad.config.srcPath, (exists) ->
@@ -2885,7 +2885,7 @@ class DocPad extends EventEmitterEnhanced
 				# Check if our directory is empty
 				if files.length
 					# It isn't empty, display a warning
-					docpad.log 'warn', "\n"+util.format(locale.skeletonNonexistant, destinationPath)
+					docpad.log('warn', "\n"+util.format(locale.skeletonNonexistant, destinationPath))
 					return next()
 				else
 					docpad.skeleton opts, (err) ->
@@ -2961,7 +2961,7 @@ class DocPad extends EventEmitterEnhanced
 		balUtil.exists srcPath, (exists) ->
 			# Check
 			if exists
-				docpad.log 'warn', locale.skeletonExists
+				docpad.log('warn', locale.skeletonExists)
 				return next()
 
 			# Track
