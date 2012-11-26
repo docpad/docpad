@@ -74,13 +74,12 @@ class DocPad extends EventEmitterEnhanced
 	# ---------------------------------
 	# Instances
 
+	# Growl
 	growlInstance: null
 	getGrowlInstance: ->
 		# Create
 		if @growlInstance? is false
-			config = @getConfig()
-			{growl} = config
-			if growl
+			if @getConfig().growl
 				try
 					@growlInstance = require('growl')
 				catch err
@@ -91,6 +90,7 @@ class DocPad extends EventEmitterEnhanced
 		# Return
 		return @growlInstance
 
+	# MixPanel
 	mixpanelInstance: null
 	getMixpanelInstance: ->
 		# Create
@@ -108,6 +108,7 @@ class DocPad extends EventEmitterEnhanced
 		# Return
 		return @mixpanelInstance
 
+	# Airbrake
 	airbrakeInstance: null
 	getAirbrakeInstance: ->
 		# Create
@@ -1575,13 +1576,13 @@ class DocPad extends EventEmitterEnhanced
 		@
 
 	# Perform a growl notification
-	notify: (args...) =>
+	notify: (message,opts) =>
 		# Check
 		growl = @getGrowlInstance()
 		if growl
 			# Apply
 			try
-				growl.apply(growl,args)
+				growl(message,opts)
 			catch err
 				@err(err,'warn')
 
