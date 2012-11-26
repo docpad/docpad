@@ -1,11 +1,19 @@
 ## History
 
-- v6.8.0-dev-stats
-	- Added Terms of Service and Privacy Policy confirmation
-	- Added statistic tracking
+- v6.13.0 November 26, 2012
+	- Added [Terms of Service](http://bevry.me/terms) and [Privacy Policy](http://bevry.me/privacy) confirmation
+	- Added statistic tracking so we can better understand usage allowing us to improve DocPad is much greater ways
 	- Added automatic locale detection for OSX
 	- Improved error reporting
 	- Will now error if you try to run an action that doesn't exist (instead of defaulting to the `run` action instead)
+	- Updated dependencies
+		- [Commander](https://github.com/visionmedia/commander.js) 1.1.x from 1.0.x
+		- [Growl](https://github.com/visionmedia/node-growl) 1.6.x from 1.4.x
+		- [Semver](https://github.com/isaacs/node-semver) 1.1.x from 1.0.x
+	- Added dependencies
+		- [Mixpanel](https://github.com/carlsverre/mixpanel-node) 0.0.9
+	- Moved dependencies to dev dependencies
+		- [Request](https://github.com/mikeal/request)
 
 - v6.12.1 November 23, 2012
 	- Fixed update check, been broken since v6.7.3
