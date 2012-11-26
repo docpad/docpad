@@ -1260,13 +1260,12 @@ class DocPad extends EventEmitterEnhanced
 	loadConfigUrl: (configUrl,next) ->
 		# Prepare
 		locale = @getLocale()
-		request = require('request')
 
 		# Log
 		@log 'debug', util.format(locale.loadingConfigUrl, configUrl)
 
 		# Read the URL
-		request configUrl, (err,res,body) ->
+		balUtil.readPath configUrl, (err,body) ->
 			# Check
 			return next(err)  if err
 

@@ -397,18 +397,15 @@ class ConsoleInterface
 						console.log locale.subscribeProgress
 
 						# Prepare our connection
-						options =
-							uri: docpad.config.helperUrl
-							qs:
-								method:'add-subscriber'
-								name: userConfig.name
-								email: userConfig.email
-								username: userConfig.username
-							method: 'GET'
+						requestUrl = docpad.config.helperUrl+'?'+require('querystring').stringify(
+							method: 'add-subscriber'
+							name: userConfig.name
+							email: userConfig.email
+							username: userConfig.username
+						)
 
 						# Innitialize our request
-						request = require('request')
-						request options, (err,response,body) ->
+						balUtil.readPath requestUrl, (err,body) ->
 							# Check
 							if err
 								docpad.log 'debug', locale.subscribeRequestError, err.message
