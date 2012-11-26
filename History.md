@@ -1,5 +1,12 @@
 ## History
 
+- v6.8.0-dev-stats
+	- Added Terms of Service and Privacy Policy confirmation
+	- Added statistic tracking
+	- Added automatic locale detection for OSX
+	- Improved error reporting
+	- Will now error if you try to run an action that doesn't exist (instead of defaulting to the `run` action instead)
+
 - v6.12.1 November 23, 2012
 	- Fixed update check, been broken since v6.7.3
 	- Updated [bal-util](https://github.com/balupton/bal-util/) dependency from 1.13.13 to 1.14.x
