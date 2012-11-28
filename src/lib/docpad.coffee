@@ -300,8 +300,7 @@ class DocPad extends EventEmitterEnhanced
 
 	# Get another file's model based on a relative path
 	getFileAtPath: (path,sorting,paging) ->
-		query = $or: [{relativePath: path}, {fullPath: path}]
-		result = @getDatabase().findOne(query,sorting,paging)
+		result = @getDatabase().fuzzyFindOne(path,sorting,paging)
 		return result
 
 
@@ -397,6 +396,7 @@ class DocPad extends EventEmitterEnhanced
 		# Prepare
 		userTemplateData or= {}
 		docpad = @
+		locale = @getLocale()
 
 		# Set the initial docpad template data
 		@initialTemplateData ?=
@@ -474,7 +474,6 @@ class DocPad extends EventEmitterEnhanced
 				if result
 					return result.get('contentRendered') or result.get('content')
 				else
-					locale = @getLocale()
 					err = new Error(util.format(locale.includeFailed, subRelativePath))
 					throw err
 

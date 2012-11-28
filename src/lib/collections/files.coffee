@@ -17,21 +17,25 @@ class FilesCollection extends QueryCollection
 
 	# Fuzzy Find One
 	# Useful for layout searching
-	fuzzyFindOne: (data) ->
-		file = @findOne(id: data)
-		return file  if file
+	fuzzyFindOne: (data,sorting,paging) ->
+		# Prepare
+		queries = [
+			{id: data}
+			{relativePath: data}
+			{relativeBase: data}
+			{url: data}
+			{relativePath: $startsWith: data}
+			{fullPath: $startsWith: data}
+			{url: $startsWith: data}
+		]
 
-		file = @findOne(relativePath: data)
-		return file  if file
+		# Try the queries
+		for query in queries
+			file = @findOne(query,sorting,paging)
+			return file  if file
 
-		file = @findOne(relativeBase: data)
-		return file  if file
-
-		file = @findOne(relativePath: $startsWith: data)
-		return file  if file
-
-		file = @findOne(fullPath: $startsWith: data)
-		return file
+		# Didn't find a file
+		return null
 
 # Export
 module.exports = FilesCollection
