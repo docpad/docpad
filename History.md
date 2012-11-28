@@ -1,5 +1,8 @@
 ## History
 
+- Upcoming
+	- Added  `DocPad::getFileByUrl(url)` and updated the middleware router to use it
+
 - v6.13.3 November 28, 2012
 	- Reduced the extension not rendering warning to a notice
 	- Fixed the `include` template helper
