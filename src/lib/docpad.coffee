@@ -205,6 +205,10 @@ class DocPad extends EventEmitterEnhanced
 	database: null  # QueryEngine Collection
 	getDatabase: -> @database
 
+	# Files by URL
+	# Used to speed up fetching
+	filesByUrl: null
+
 	# Blocks
 	blocks: null
 	### {
@@ -301,6 +305,11 @@ class DocPad extends EventEmitterEnhanced
 	# Get another file's model based on a relative path
 	getFileAtPath: (path,sorting,paging) ->
 		result = @getDatabase().fuzzyFindOne(path,sorting,paging)
+		return result
+
+	# Get a file by its url
+	getFileByUrl: (url) ->
+		result = @getDatabase().getByCid(@filesByUrl[url])
 		return result
 
 
@@ -2382,6 +2391,8 @@ class DocPad extends EventEmitterEnhanced
 
 		# Update generating flag
 		docpad.generating = true
+		if opts.reset is true
+			docpad.filesByUrl = {}
 
 		# Log generating
 		docpad.log 'info', locale.renderGenerating
@@ -2524,6 +2535,9 @@ class DocPad extends EventEmitterEnhanced
 
 		# Update generating flag
 		docpad.generating = false
+		collection.each (file) ->
+			for url in file.get('urls')
+				docpad.filesByUrl[url] = file.cid
 
 		# Fire plugins
 		docpad.emitSync 'generateAfter', server:docpad.getServer(), (err) ->
@@ -3053,30 +3067,26 @@ class DocPad extends EventEmitterEnhanced
 	serverMiddlewareRouter: (req,res,next) =>
 		# Prepare
 		docpad = @
-		database = docpad.getDatabase()
-
-		# If we have no database, then continue to 404 router
-		return next()  unless database
 
 		# If we are generating then wait until generation is complete before continuing
-		if docpad.generating
+		if docpad.lastGenerate is null or docpad.generating is true
 			docpad.once 'generateAfter', ->
 				return docpad.serverMiddlewareRouter(req,res,next)
 			return @
 
 		# Prepare
-		pageUrl = req.url.replace(/\?.*/,'')
-		document = database.findOne(urls: $has: pageUrl)
-		return next()  unless document
+		cleanUrl = req.url.replace(/\?.*/,'')
+		file = docpad.getFileByUrl(req.url) or docpad.getFileByUrl(cleanUrl)
+		return next()  if file? is false
 
 		# Check if we are the desired url
 		# if we aren't do a permanent redirect
-		url = document.get('url')
-		if url isnt pageUrl
+		url = file.get('url')
+		if (url isnt cleanUrl) and (url isnt req.url)
 			return res.redirect(301,url)
 
-		# Serve the document to the user
-		docpad.serveDocument({document,req,res,next})
+		# Serve the file to the user
+		docpad.serveDocument({document:file,req,res,next})
 
 		# Chain
 		return @
