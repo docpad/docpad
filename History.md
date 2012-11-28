@@ -1,7 +1,6 @@
 ## History
 
 - v6.13.3 November 28, 2012
-	- Reduced the extension not rendering warning to a notice
 	- Fixed the `include` template helper
 	- `DocPad::getFileAtPath` now does fuzzy finding
 	- `FilesCollection::fuzzyFindOne` now also fuzzy matches against the url and accepts `sorting` and `paging` arguments
