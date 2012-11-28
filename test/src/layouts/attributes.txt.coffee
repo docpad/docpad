@@ -33,4 +33,4 @@ aside =>
 		sortedAttrs[key] = attrs[key]
 
 	# Output data
-	text @require('util').inspect(sortedAttrs)
+	text JSON.stringify(sortedAttrs,null,'\t')

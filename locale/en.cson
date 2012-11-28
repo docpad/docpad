@@ -82,6 +82,10 @@
 	writingFiles: "Writing %s files"
 	wroteFiles: "Wrote %s files"
 
+	# Clean
+	cleaningFiles: "Cleaning %s files"
+	cleanedFiles: "Cleaned %s files"
+
 	# Action
 	actionStart: "Performing the action %s"
 	actionFinished: "Performed the action %s"
@@ -150,6 +154,7 @@
 	consoleOptionForce: "force a re-install of all modules"
 	consoleOptionPort: "a custom port to use for the server <port>"
 	consoleOptionSkeleton: "for new projects, instead of being asked for the skeleton, you can specify it here"
+	consoleOptionProfile: "enable profiling"
 
 	# Misc
 	welcome: "Welcome to DocPad %s"
