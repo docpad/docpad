@@ -5,8 +5,8 @@ node_js:
   - 0.8
 notifications:
   irc:
-    - "irc.freenode.org#bevry"
-    - "irc.freenode.org#docpad"
+    - "irc.freenode.org#bevry-dev"
+    - "irc.freenode.org#docpad-dev"
   email:
     recipients:
-      - docpad@bevry.me
+      - travis@docpad.org
