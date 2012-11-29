@@ -71,11 +71,10 @@ Here are some quick links to help you get started:
 - [Plugins](http://bevry.me/docpad/plugins)
 - [Skeletons](http://bevry.me/docpad/skeletons)
 - [Troubleshooting](http://bevry.me/docpad/troubleshoot)
-- [Support Forum](http://bevry.me/docpad/forum)
-- [Bug Tracker](http://bevry.me/docpad/issues)
-- IRC Chat Room: `#docpad` on freenode
+- [Support Channels](http://docpad.org/support)
+- [Bug Tracker](http://docpad.org/issues)
+- [IRC Chat Room: `#docpad` on freenode](http://webchat.freenode.net?channels=docpad)
 - [Everything else](http://bevry.me/learn/)
-
 
 
 ## History
