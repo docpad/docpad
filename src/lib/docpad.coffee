@@ -746,11 +746,13 @@ class DocPad extends EventEmitterEnhanced
 
 		# Report Errors
 		# Whether or not we should report our errors back to DocPad
-		reportErrors: true
+		# By default it is only enabled if we are not running inside a test
+		reportErrors: process.argv.join('').indexOf('test') is -1
 
 		# Report Statistics
 		# Whether or not we should report statistics back to DocPad
-		reportStatistics: true
+		# By default it is only enabled if we are not running inside a test
+		reportStatistics: process.argv.join('').indexOf('test') is -1
 
 		# Airbrake Token
 		airbrakeToken: 'e7374dd1c5a346efe3895b9b0c1c0325'
@@ -958,25 +960,27 @@ class DocPad extends EventEmitterEnhanced
 				lastLogin = new Date()
 				countryCode = @getCountryCode()
 				languageCode = @getLanguageCode()
-				if @userConfig.identified isnt true
-					# identify the new user with mixpanel
-					@getMixpanelInstance().people.set(@userConfig.username, {
-						$email: @userConfig.email
-						$name: @userConfig.name
-						$username: @userConfig.username
-						$created: lastLogin
-						$last_login: lastLogin
-						$country_code: countryCode
-						languageCode: languageCode
-					})
-					@updateUserConfig({
-						identified: true
-					})
-				else
-					# only update last login if we are another day
-					@getMixpanelInstance().people.set(@userConfig.username, {
-						$last_login: new Date()
-					})
+				mixpanelInstance = @getMixpanelInstance()
+				if mixpanelInstance
+					if @userConfig.identified isnt true
+						# identify the new user with mixpanel
+						mixpanelInstance.people.set(@userConfig.username, {
+							$email: @userConfig.email
+							$name: @userConfig.name
+							$username: @userConfig.username
+							$created: lastLogin
+							$last_login: lastLogin
+							$country_code: countryCode
+							languageCode: languageCode
+						})
+						@updateUserConfig({
+							identified: true
+						})
+					else
+						# only update last login if we are another day
+						mixpanelInstance.people.set(@userConfig.username, {
+							$last_login: new Date()
+						})
 
 
 		# DocPad Ready

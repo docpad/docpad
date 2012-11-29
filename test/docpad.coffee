@@ -1,4 +1,7 @@
 module.exports =
+	reportStatistics: false
+	reportErrors: false
+
 	environments:
 		development:
 			a: 'websiteConfig'

@@ -2,9 +2,13 @@
 
 - Upcoming
 	- Added  `DocPad::getFileByUrl(url)` and updated the middleware router to use it
+		- Offers a great performance gain on the request response time
+
+- v6.13.4 November 29, 2012
+	- `reportErrors` and `reportStatistics` are now `false` if `test` is included in the `process.argv`
+		- Closes [issue #354](https://github.com/bevry/docpad/issues/354)
 
 - v6.13.3 November 28, 2012
-	- Reduced the extension not rendering warning to a notice
 	- Fixed the `include` template helper
 	- `DocPad::getFileAtPath` now does fuzzy finding
 	- `FilesCollection::fuzzyFindOne` now also fuzzy matches against the url and accepts `sorting` and `paging` arguments
