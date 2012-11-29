@@ -1,8 +1,8 @@
 ## History
 
-- Upcoming
+- v6.14.0 November 29, 2012
 	- Added  `DocPad::getFileByUrl(url)` and updated the middleware router to use it
-		- Offers a great performance gain on the request response time
+		- Big performance gain on request response time
 
 - v6.13.4 November 29, 2012
 	- `reportErrors` and `reportStatistics` are now `false` if `test` is included in the `process.argv`
