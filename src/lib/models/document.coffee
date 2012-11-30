@@ -55,7 +55,7 @@ class DocumentModel extends FileModel
 		rendered: false
 
 		# The rendered content (after it has been wrapped in the layouts)
-		contentRendered: false
+		contentRendered: null
 
 		# The rendered content (before being passed through the layouts)
 		contentRenderedWithoutLayouts: null
