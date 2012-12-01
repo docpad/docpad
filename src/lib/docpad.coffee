@@ -2183,12 +2183,9 @@ class DocPad extends EventEmitterEnhanced
 				return complete()
 
 		# Start contextualizing
-		if tasks.total
-			docpad.emitSync 'loadBefore', {collection}, (err) ->
-				return next(err)  if err
-				tasks.async()
-		else
-			tasks.exit()
+		docpad.emitSync 'loadBefore', {collection}, (err) ->
+			return next(err)  if err
+			tasks.async()
 
 		# Chain
 		@
@@ -2221,12 +2218,9 @@ class DocPad extends EventEmitterEnhanced
 			file.contextualize(complete)
 
 		# Start contextualizing
-		if tasks.total
-			docpad.emitSync 'contextualizeBefore', {collection,templateData}, (err) ->
-				return next(err)  if err
-				tasks.async()
-		else
-			tasks.exit()
+		docpad.emitSync 'contextualizeBefore', {collection,templateData}, (err) ->
+			return next(err)  if err
+			tasks.async()
 
 		# Chain
 		@
@@ -2238,6 +2232,8 @@ class DocPad extends EventEmitterEnhanced
 		docpad = @
 		locale = @getLocale()
 		{collection,templateData} = opts
+		total = 0
+		completed = 0
 
 		# Log
 		docpad.log 'debug', util.format(locale.renderingFiles, collection.length)
@@ -2252,30 +2248,48 @@ class DocPad extends EventEmitterEnhanced
 				return next()
 
 		# Set progress indicator
-		opts.setProgressIndicator? -> ['renderFiles',tasks.completed,tasks.total]
+		opts.setProgressIndicator? -> ['renderFiles',completed,total]
 
-		# Push the render tasks
-		collection.forEach (file) -> tasks.push (complete) ->
+		# Render File
+		renderFile = (file,next) ->
 			# Skip?
 			dynamic = file.get('dynamic')
 			render = file.get('render')
 			relativePath = file.get('relativePath')
 
 			# Render
-			if dynamic or (render? and !render) or !relativePath
-				complete()
-			else if file.render?
-				file.render({templateData},complete)
+			if dynamic or (render? and !render) or !relativePath or file.render? is false
+				next()
 			else
-				complete()
+				file.render({templateData},next)
+			return file
+
+		# Render Collection
+		renderCollection = (collection) ->
+			total += collection.length
+			tasks.push (next) ->
+				# Cycle
+				subTasks = new balUtil.Group(next)
+				collection.forEach (file) -> subTasks.push (complete) -> renderFile file, (err) ->
+					++completed
+					complete(err)
+
+				# Fire
+				subTasks.async()
+			return collection
+
+		# Prepare the collections
+		standaloneCollection = collection.findAll('referencesOthers':false)
+
+		# Render the collections
+		renderCollection standaloneCollection
+		tasks.push ->
+			renderCollection renderCollection collection.findAll('referencesOthers':true)
 
 		# Start rendering
-		if tasks.total
-			docpad.emitSync 'renderBefore', {collection,templateData}, (err) =>
-				return next(err)  if err
-				tasks.async()
-		else
-			tasks.exit()
+		docpad.emitSync 'renderBefore', {collection,templateData}, (err) =>
+			return next(err)  if err
+			tasks.sync()
 
 		# Chain
 		@
@@ -2321,12 +2335,9 @@ class DocPad extends EventEmitterEnhanced
 				complete(new Error(locale.unknownModelInCollection))
 
 		#  Start writing
-		if tasks.total
-			docpad.emitSync 'writeBefore', {collection,templateData}, (err) =>
-				return next(err)  if err
-				tasks.async()
-		else
-			tasks.exit()
+		docpad.emitSync 'writeBefore', {collection,templateData}, (err) =>
+			return next(err)  if err
+			tasks.async()
 
 		# Chain
 		@
@@ -2517,7 +2528,7 @@ class DocPad extends EventEmitterEnhanced
 		# Contextualize the datbaase, perform two render passes, and perform a write
 		balUtil.flow(
 			object: docpad
-			action: 'contextualizeFiles renderFiles renderFiles writeFiles'
+			action: 'contextualizeFiles renderFiles writeFiles'
 			args: [{collection,templateData,setProgressIndicator}]
 			next: (err) ->
 				return next(err)

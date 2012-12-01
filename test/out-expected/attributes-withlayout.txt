@@ -121,7 +121,8 @@ text JSON.stringify(sortedAttrs,null,'\\\\t')\",
 \t\"filename\": \"attributes-withlayout.txt.coffee\",
 \t\"header\": \"title: 'Attributes With Layout'
 layout: 'attributes'
-tags: ['attributes','with-layout']\",
+tags: ['attributes','with-layout']
+referencesOthers: true\",
 \t\"id\": \"attributes-withlayout.txt.coffee\",
 \t\"isDocument\": true,
 \t\"layout\": \"attributes.txt.coffee\",
@@ -131,14 +132,15 @@ tags: ['attributes','with-layout']\",
 \t\t\"tags\": [
 \t\t\t\"attributes\",
 \t\t\t\"with-layout\"
-\t\t]
+\t\t],
+\t\t\"referencesOthers\": true
 \t},
 \t\"name\": \"attributes-withlayout.txt\",
 \t\"outContentType\": \"text/plain\",
 \t\"outExtension\": \"txt\",
 \t\"outFilename\": \"attributes-withlayout.txt\",
 \t\"parser\": \"yaml\",
-\t\"referencesOthers\": false,
+\t\"referencesOthers\": true,
 \t\"relativeBase\": \"attributes-withlayout\",
 \t\"relativeDirPath\": \"\",
 \t\"relativeOutDirPath\": \"\",
@@ -152,6 +154,7 @@ tags: ['attributes','with-layout']\",
 title: 'Attributes With Layout'
 layout: 'attributes'
 tags: ['attributes','with-layout']
+referencesOthers: true
 ---
 
 # Fetch data
@@ -259,7 +262,8 @@ text JSON.stringify(sortedAttrs,null,'\\\\t')\",
 \t\"filename\": \"attributes-withlayout.txt.coffee\",
 \t\"header\": \"title: 'Attributes With Layout'\
 layout: 'attributes'\
-tags: ['attributes','with-layout']\",
+tags: ['attributes','with-layout']\
+referencesOthers: true\",
 \t\"id\": \"attributes-withlayout.txt.coffee\",
 \t\"isDocument\": true,
 \t\"layout\": \"attributes.txt.coffee\",
@@ -269,14 +273,15 @@ tags: ['attributes','with-layout']\",
 \t\t\"tags\": [
 \t\t\t\"attributes\",
 \t\t\t\"with-layout\"
-\t\t]
+\t\t],
+\t\t\"referencesOthers\": true
 \t},
 \t\"name\": \"attributes-withlayout.txt\",
 \t\"outContentType\": \"text/plain\",
 \t\"outExtension\": \"txt\",
 \t\"outFilename\": \"attributes-withlayout.txt\",
 \t\"parser\": \"yaml\",
-\t\"referencesOthers\": false,
+\t\"referencesOthers\": true,
 \t\"relativeBase\": \"attributes-withlayout\",
 \t\"relativeDirPath\": \"\",
 \t\"relativeOutDirPath\": \"\",
@@ -290,6 +295,7 @@ tags: ['attributes','with-layout']\",
 title: 'Attributes With Layout'\
 layout: 'attributes'\
 tags: ['attributes','with-layout']\
+referencesOthers: true\
 ---\
 \
 # Fetch data\
@@ -397,7 +403,8 @@ text JSON.stringify(sortedAttrs,null,'\\\\t')\",
 \t\"filename\": \"attributes-withlayout.txt.coffee\",
 \t\"header\": \"title: 'Attributes With Layout'\
 layout: 'attributes'\
-tags: ['attributes','with-layout']\",
+tags: ['attributes','with-layout']\
+referencesOthers: true\",
 \t\"id\": \"attributes-withlayout.txt.coffee\",
 \t\"isDocument\": true,
 \t\"layout\": \"attributes.txt.coffee\",
@@ -407,14 +414,15 @@ tags: ['attributes','with-layout']\",
 \t\t\"tags\": [
 \t\t\t\"attributes\",
 \t\t\t\"with-layout\"
-\t\t]
+\t\t],
+\t\t\"referencesOthers\": true
 \t},
 \t\"name\": \"attributes-withlayout.txt\",
 \t\"outContentType\": \"text/plain\",
 \t\"outExtension\": \"txt\",
 \t\"outFilename\": \"attributes-withlayout.txt\",
 \t\"parser\": \"yaml\",
-\t\"referencesOthers\": false,
+\t\"referencesOthers\": true,
 \t\"relativeBase\": \"attributes-withlayout\",
 \t\"relativeDirPath\": \"\",
 \t\"relativeOutDirPath\": \"\",
@@ -428,6 +436,7 @@ tags: ['attributes','with-layout']\",
 title: 'Attributes With Layout'\
 layout: 'attributes'\
 tags: ['attributes','with-layout']\
+referencesOthers: true\
 ---\
 \
 # Fetch data\
@@ -478,7 +487,8 @@ text JSON.stringify(sortedAttrs,null,'\\\\t')\",
 	"filename": "attributes-withlayout.txt.coffee",
 	"header": "title: 'Attributes With Layout'
 layout: 'attributes'
-tags: ['attributes','with-layout']",
+tags: ['attributes','with-layout']
+referencesOthers: true",
 	"id": "attributes-withlayout.txt.coffee",
 	"isDocument": true,
 	"layout": "attributes.txt.coffee",
@@ -488,14 +498,15 @@ tags: ['attributes','with-layout']",
 		"tags": [
 			"attributes",
 			"with-layout"
-		]
+		],
+		"referencesOthers": true
 	},
 	"name": "attributes-withlayout.txt",
 	"outContentType": "text/plain",
 	"outExtension": "txt",
 	"outFilename": "attributes-withlayout.txt",
 	"parser": "yaml",
-	"referencesOthers": false,
+	"referencesOthers": true,
 	"relativeBase": "attributes-withlayout",
 	"relativeDirPath": "",
 	"relativeOutDirPath": "",
@@ -509,6 +520,7 @@ tags: ['attributes','with-layout']",
 title: 'Attributes With Layout'
 layout: 'attributes'
 tags: ['attributes','with-layout']
+referencesOthers: true
 ---
 
 # Fetch data
@@ -553,8 +565,8 @@ text JSON.stringify(sortedAttrs,null,'\\t')",
 	"basename": "attributes-withlayout",
 	"body": "# Fetch data\nattrs = @getDocument().getAttributes()\n\n# Delete environment specific variables\n# timezone makes the dates impossible\n# path differences make them impossible\n# data is too much output\ndelete attrs.ctime\ndelete attrs.mtime\ndelete attrs.date\ndelete attrs.fullPath\ndelete attrs.fullDirPath\ndelete attrs.outPath\ndelete attrs.outDirPath\ndelete attrs.data\n\n# Sort the attributes\nkeys = []\nkeys.push(key)  for own key,value of attrs\nkeys.sort()\nsortedAttrs = {}\nfor key in keys\n    sortedAttrs[key] = attrs[key]\n\n# Output data\ntext JSON.stringify(sortedAttrs,null,'\\t')",
 	"content": "# Fetch data\nattrs = @getDocument().getAttributes()\n\n# Delete environment specific variables\n# timezone makes the dates impossible\n# path differences make them impossible\n# data is too much output\ndelete attrs.ctime\ndelete attrs.mtime\ndelete attrs.date\ndelete attrs.fullPath\ndelete attrs.fullDirPath\ndelete attrs.outPath\ndelete attrs.outDirPath\ndelete attrs.data\n\n# Sort the attributes\nkeys = []\nkeys.push(key)  for own key,value of attrs\nkeys.sort()\nsortedAttrs = {}\nfor key in keys\n    sortedAttrs[key] = attrs[key]\n\n# Output data\ntext JSON.stringify(sortedAttrs,null,'\\t')",
-	"contentRendered": "=====================================================\n{\n\t\"basename\": \"attributes-withlayout\",\n\t\"body\": \"# Fetch data\nattrs = @getDocument().getAttributes()\n\n# Delete environment specific variables\n# timezone makes the dates impossible\n# path differences make them impossible\n# data is too much output\ndelete attrs.ctime\ndelete attrs.mtime\ndelete attrs.date\ndelete attrs.fullPath\ndelete attrs.fullDirPath\ndelete attrs.outPath\ndelete attrs.outDirPath\ndelete attrs.data\n\n# Sort the attributes\nkeys = []\nkeys.push(key)  for own key,value of attrs\nkeys.sort()\nsortedAttrs = {}\nfor key in keys\n    sortedAttrs[key] = attrs[key]\n\n# Output data\ntext JSON.stringify(sortedAttrs,null,'\\\\t')\",\n\t\"content\": \"# Fetch data\nattrs = @getDocument().getAttributes()\n\n# Delete environment specific variables\n# timezone makes the dates impossible\n# path differences make them impossible\n# data is too much output\ndelete attrs.ctime\ndelete attrs.mtime\ndelete attrs.date\ndelete attrs.fullPath\ndelete attrs.fullDirPath\ndelete attrs.outPath\ndelete attrs.outDirPath\ndelete attrs.data\n\n# Sort the attributes\nkeys = []\nkeys.push(key)  for own key,value of attrs\nkeys.sort()\nsortedAttrs = {}\nfor key in keys\n    sortedAttrs[key] = attrs[key]\n\n# Output data\ntext JSON.stringify(sortedAttrs,null,'\\\\t')\",\n\t\"contentRendered\": null,\n\t\"contentRenderedWithoutLayouts\": null,\n\t\"contentType\": \"application/octet-stream\",\n\t\"dynamic\": false,\n\t\"encoding\": \"utf8\",\n\t\"extension\": \"coffee\",\n\t\"extensions\": [\n\t\t\"txt\",\n\t\t\"coffee\"\n\t],\n\t\"filename\": \"attributes-withlayout.txt.coffee\",\n\t\"header\": \"title: 'Attributes With Layout'\nlayout: 'attributes'\ntags: ['attributes','with-layout']\",\n\t\"id\": \"attributes-withlayout.txt.coffee\",\n\t\"isDocument\": true,\n\t\"layout\": \"attributes.txt.coffee\",\n\t\"meta\": {\n\t\t\"title\": \"Attributes With Layout\",\n\t\t\"layout\": \"attributes\",\n\t\t\"tags\": [\n\t\t\t\"attributes\",\n\t\t\t\"with-layout\"\n\t\t]\n\t},\n\t\"name\": \"attributes-withlayout.txt\",\n\t\"outContentType\": \"text/plain\",\n\t\"outExtension\": \"txt\",\n\t\"outFilename\": \"attributes-withlayout.txt\",\n\t\"parser\": \"yaml\",\n\t\"referencesOthers\": false,\n\t\"relativeBase\": \"attributes-withlayout\",\n\t\"relativeDirPath\": \"\",\n\t\"relativeOutDirPath\": \"\",\n\t\"relativeOutPath\": \"attributes-withlayout.txt\",\n\t\"relativePath\": \"attributes-withlayout.txt.coffee\",\n\t\"render\": true,\n\t\"renderSingleExtensions\": false,\n\t\"rendered\": false,\n\t\"slug\": \"attributes-withlayout\",\n\t\"source\": \"---\ntitle: 'Attributes With Layout'\nlayout: 'attributes'\ntags: ['attributes','with-layout']\n---\n\n# Fetch data\nattrs = @getDocument().getAttributes()\n\n# Delete environment specific variables\n# timezone makes the dates impossible\n# path differences make them impossible\n# data is too much output\ndelete attrs.ctime\ndelete attrs.mtime\ndelete attrs.date\ndelete attrs.fullPath\ndelete attrs.fullDirPath\ndelete attrs.outPath\ndelete attrs.outDirPath\ndelete attrs.data\n\n# Sort the attributes\nkeys = []\nkeys.push(key)  for own key,value of attrs\nkeys.sort()\nsortedAttrs = {}\nfor key in keys\n    sortedAttrs[key] = attrs[key]\n\n# Output data\ntext JSON.stringify(sortedAttrs,null,'\\\\t')\",\n\t\"tags\": [\n\t\t\"attributes\",\n\t\t\"with-layout\"\n\t],\n\t\"title\": \"Attributes With Layout\",\n\t\"url\": \"/attributes-withlayout.txt\",\n\t\"urls\": [\n\t\t\"/attributes-withlayout.txt\"\n\t],\n\t\"write\": true\n}=====================================================\n=====================================================\n{\n\t\"basename\": \"attributes-withlayout\",\n\t\"body\": \"# Fetch data\\nattrs = @getDocument().getAttributes()\\n\\n# Delete environment specific variables\\n# timezone makes the dates impossible\\n# path differences make them impossible\\n# data is too much output\\ndelete attrs.ctime\\ndelete attrs.mtime\\ndelete attrs.date\\ndelete attrs.fullPath\\ndelete attrs.fullDirPath\\ndelete attrs.outPath\\ndelete attrs.outDirPath\\ndelete attrs.data\\n\\n# Sort the attributes\\nkeys = []\\nkeys.push(key)  for own key,value of attrs\\nkeys.sort()\\nsortedAttrs = {}\\nfor key in keys\\n    sortedAttrs[key] = attrs[key]\\n\\n# Output data\\ntext JSON.stringify(sortedAttrs,null,'\\\\t')\",\n\t\"content\": \"# Fetch data\\nattrs = @getDocument().getAttributes()\\n\\n# Delete environment specific variables\\n# timezone makes the dates impossible\\n# path differences make them impossible\\n# data is too much output\\ndelete attrs.ctime\\ndelete attrs.mtime\\ndelete attrs.date\\ndelete attrs.fullPath\\ndelete attrs.fullDirPath\\ndelete attrs.outPath\\ndelete attrs.outDirPath\\ndelete attrs.data\\n\\n# Sort the attributes\\nkeys = []\\nkeys.push(key)  for own key,value of attrs\\nkeys.sort()\\nsortedAttrs = {}\\nfor key in keys\\n    sortedAttrs[key] = attrs[key]\\n\\n# Output data\\ntext JSON.stringify(sortedAttrs,null,'\\\\t')\",\n\t\"contentRendered\": null,\n\t\"contentRenderedWithoutLayouts\": null,\n\t\"contentType\": \"application/octet-stream\",\n\t\"dynamic\": false,\n\t\"encoding\": \"utf8\",\n\t\"extension\": \"coffee\",\n\t\"extensions\": [\n\t\t\"txt\",\n\t\t\"coffee\"\n\t],\n\t\"filename\": \"attributes-withlayout.txt.coffee\",\n\t\"header\": \"title: 'Attributes With Layout'\\nlayout: 'attributes'\\ntags: ['attributes','with-layout']\",\n\t\"id\": \"attributes-withlayout.txt.coffee\",\n\t\"isDocument\": true,\n\t\"layout\": \"attributes.txt.coffee\",\n\t\"meta\": {\n\t\t\"title\": \"Attributes With Layout\",\n\t\t\"layout\": \"attributes\",\n\t\t\"tags\": [\n\t\t\t\"attributes\",\n\t\t\t\"with-layout\"\n\t\t]\n\t},\n\t\"name\": \"attributes-withlayout.txt\",\n\t\"outContentType\": \"text/plain\",\n\t\"outExtension\": \"txt\",\n\t\"outFilename\": \"attributes-withlayout.txt\",\n\t\"parser\": \"yaml\",\n\t\"referencesOthers\": false,\n\t\"relativeBase\": \"attributes-withlayout\",\n\t\"relativeDirPath\": \"\",\n\t\"relativeOutDirPath\": \"\",\n\t\"relativeOutPath\": \"attributes-withlayout.txt\",\n\t\"relativePath\": \"attributes-withlayout.txt.coffee\",\n\t\"render\": true,\n\t\"renderSingleExtensions\": false,\n\t\"rendered\": false,\n\t\"slug\": \"attributes-withlayout\",\n\t\"source\": \"---\\ntitle: 'Attributes With Layout'\\nlayout: 'attributes'\\ntags: ['attributes','with-layout']\\n---\\n\\n# Fetch data\\nattrs = @getDocument().getAttributes()\\n\\n# Delete environment specific variables\\n# timezone makes the dates impossible\\n# path differences make them impossible\\n# data is too much output\\ndelete attrs.ctime\\ndelete attrs.mtime\\ndelete attrs.date\\ndelete attrs.fullPath\\ndelete attrs.fullDirPath\\ndelete attrs.outPath\\ndelete attrs.outDirPath\\ndelete attrs.data\\n\\n# Sort the attributes\\nkeys = []\\nkeys.push(key)  for own key,value of attrs\\nkeys.sort()\\nsortedAttrs = {}\\nfor key in keys\\n    sortedAttrs[key] = attrs[key]\\n\\n# Output data\\ntext JSON.stringify(sortedAttrs,null,'\\\\t')\",\n\t\"tags\": [\n\t\t\"attributes\",\n\t\t\"with-layout\"\n\t],\n\t\"title\": \"Attributes With Layout\",\n\t\"url\": \"/attributes-withlayout.txt\",\n\t\"urls\": [\n\t\t\"/attributes-withlayout.txt\"\n\t],\n\t\"write\": true\n}=====================================================\n",
-	"contentRenderedWithoutLayouts": "{\n\t\"basename\": \"attributes-withlayout\",\n\t\"body\": \"# Fetch data\\nattrs = @getDocument().getAttributes()\\n\\n# Delete environment specific variables\\n# timezone makes the dates impossible\\n# path differences make them impossible\\n# data is too much output\\ndelete attrs.ctime\\ndelete attrs.mtime\\ndelete attrs.date\\ndelete attrs.fullPath\\ndelete attrs.fullDirPath\\ndelete attrs.outPath\\ndelete attrs.outDirPath\\ndelete attrs.data\\n\\n# Sort the attributes\\nkeys = []\\nkeys.push(key)  for own key,value of attrs\\nkeys.sort()\\nsortedAttrs = {}\\nfor key in keys\\n    sortedAttrs[key] = attrs[key]\\n\\n# Output data\\ntext JSON.stringify(sortedAttrs,null,'\\\\t')\",\n\t\"content\": \"# Fetch data\\nattrs = @getDocument().getAttributes()\\n\\n# Delete environment specific variables\\n# timezone makes the dates impossible\\n# path differences make them impossible\\n# data is too much output\\ndelete attrs.ctime\\ndelete attrs.mtime\\ndelete attrs.date\\ndelete attrs.fullPath\\ndelete attrs.fullDirPath\\ndelete attrs.outPath\\ndelete attrs.outDirPath\\ndelete attrs.data\\n\\n# Sort the attributes\\nkeys = []\\nkeys.push(key)  for own key,value of attrs\\nkeys.sort()\\nsortedAttrs = {}\\nfor key in keys\\n    sortedAttrs[key] = attrs[key]\\n\\n# Output data\\ntext JSON.stringify(sortedAttrs,null,'\\\\t')\",\n\t\"contentRendered\": null,\n\t\"contentRenderedWithoutLayouts\": null,\n\t\"contentType\": \"application/octet-stream\",\n\t\"dynamic\": false,\n\t\"encoding\": \"utf8\",\n\t\"extension\": \"coffee\",\n\t\"extensions\": [\n\t\t\"txt\",\n\t\t\"coffee\"\n\t],\n\t\"filename\": \"attributes-withlayout.txt.coffee\",\n\t\"header\": \"title: 'Attributes With Layout'\\nlayout: 'attributes'\\ntags: ['attributes','with-layout']\",\n\t\"id\": \"attributes-withlayout.txt.coffee\",\n\t\"isDocument\": true,\n\t\"layout\": \"attributes.txt.coffee\",\n\t\"meta\": {\n\t\t\"title\": \"Attributes With Layout\",\n\t\t\"layout\": \"attributes\",\n\t\t\"tags\": [\n\t\t\t\"attributes\",\n\t\t\t\"with-layout\"\n\t\t]\n\t},\n\t\"name\": \"attributes-withlayout.txt\",\n\t\"outContentType\": \"text/plain\",\n\t\"outExtension\": \"txt\",\n\t\"outFilename\": \"attributes-withlayout.txt\",\n\t\"parser\": \"yaml\",\n\t\"referencesOthers\": false,\n\t\"relativeBase\": \"attributes-withlayout\",\n\t\"relativeDirPath\": \"\",\n\t\"relativeOutDirPath\": \"\",\n\t\"relativeOutPath\": \"attributes-withlayout.txt\",\n\t\"relativePath\": \"attributes-withlayout.txt.coffee\",\n\t\"render\": true,\n\t\"renderSingleExtensions\": false,\n\t\"rendered\": false,\n\t\"slug\": \"attributes-withlayout\",\n\t\"source\": \"---\\ntitle: 'Attributes With Layout'\\nlayout: 'attributes'\\ntags: ['attributes','with-layout']\\n---\\n\\n# Fetch data\\nattrs = @getDocument().getAttributes()\\n\\n# Delete environment specific variables\\n# timezone makes the dates impossible\\n# path differences make them impossible\\n# data is too much output\\ndelete attrs.ctime\\ndelete attrs.mtime\\ndelete attrs.date\\ndelete attrs.fullPath\\ndelete attrs.fullDirPath\\ndelete attrs.outPath\\ndelete attrs.outDirPath\\ndelete attrs.data\\n\\n# Sort the attributes\\nkeys = []\\nkeys.push(key)  for own key,value of attrs\\nkeys.sort()\\nsortedAttrs = {}\\nfor key in keys\\n    sortedAttrs[key] = attrs[key]\\n\\n# Output data\\ntext JSON.stringify(sortedAttrs,null,'\\\\t')\",\n\t\"tags\": [\n\t\t\"attributes\",\n\t\t\"with-layout\"\n\t],\n\t\"title\": \"Attributes With Layout\",\n\t\"url\": \"/attributes-withlayout.txt\",\n\t\"urls\": [\n\t\t\"/attributes-withlayout.txt\"\n\t],\n\t\"write\": true\n}",
+	"contentRendered": "=====================================================\n{\n\t\"basename\": \"attributes-withlayout\",\n\t\"body\": \"# Fetch data\nattrs = @getDocument().getAttributes()\n\n# Delete environment specific variables\n# timezone makes the dates impossible\n# path differences make them impossible\n# data is too much output\ndelete attrs.ctime\ndelete attrs.mtime\ndelete attrs.date\ndelete attrs.fullPath\ndelete attrs.fullDirPath\ndelete attrs.outPath\ndelete attrs.outDirPath\ndelete attrs.data\n\n# Sort the attributes\nkeys = []\nkeys.push(key)  for own key,value of attrs\nkeys.sort()\nsortedAttrs = {}\nfor key in keys\n    sortedAttrs[key] = attrs[key]\n\n# Output data\ntext JSON.stringify(sortedAttrs,null,'\\\\t')\",\n\t\"content\": \"# Fetch data\nattrs = @getDocument().getAttributes()\n\n# Delete environment specific variables\n# timezone makes the dates impossible\n# path differences make them impossible\n# data is too much output\ndelete attrs.ctime\ndelete attrs.mtime\ndelete attrs.date\ndelete attrs.fullPath\ndelete attrs.fullDirPath\ndelete attrs.outPath\ndelete attrs.outDirPath\ndelete attrs.data\n\n# Sort the attributes\nkeys = []\nkeys.push(key)  for own key,value of attrs\nkeys.sort()\nsortedAttrs = {}\nfor key in keys\n    sortedAttrs[key] = attrs[key]\n\n# Output data\ntext JSON.stringify(sortedAttrs,null,'\\\\t')\",\n\t\"contentRendered\": null,\n\t\"contentRenderedWithoutLayouts\": null,\n\t\"contentType\": \"application/octet-stream\",\n\t\"dynamic\": false,\n\t\"encoding\": \"utf8\",\n\t\"extension\": \"coffee\",\n\t\"extensions\": [\n\t\t\"txt\",\n\t\t\"coffee\"\n\t],\n\t\"filename\": \"attributes-withlayout.txt.coffee\",\n\t\"header\": \"title: 'Attributes With Layout'\nlayout: 'attributes'\ntags: ['attributes','with-layout']\nreferencesOthers: true\",\n\t\"id\": \"attributes-withlayout.txt.coffee\",\n\t\"isDocument\": true,\n\t\"layout\": \"attributes.txt.coffee\",\n\t\"meta\": {\n\t\t\"title\": \"Attributes With Layout\",\n\t\t\"layout\": \"attributes\",\n\t\t\"tags\": [\n\t\t\t\"attributes\",\n\t\t\t\"with-layout\"\n\t\t],\n\t\t\"referencesOthers\": true\n\t},\n\t\"name\": \"attributes-withlayout.txt\",\n\t\"outContentType\": \"text/plain\",\n\t\"outExtension\": \"txt\",\n\t\"outFilename\": \"attributes-withlayout.txt\",\n\t\"parser\": \"yaml\",\n\t\"referencesOthers\": true,\n\t\"relativeBase\": \"attributes-withlayout\",\n\t\"relativeDirPath\": \"\",\n\t\"relativeOutDirPath\": \"\",\n\t\"relativeOutPath\": \"attributes-withlayout.txt\",\n\t\"relativePath\": \"attributes-withlayout.txt.coffee\",\n\t\"render\": true,\n\t\"renderSingleExtensions\": false,\n\t\"rendered\": false,\n\t\"slug\": \"attributes-withlayout\",\n\t\"source\": \"---\ntitle: 'Attributes With Layout'\nlayout: 'attributes'\ntags: ['attributes','with-layout']\nreferencesOthers: true\n---\n\n# Fetch data\nattrs = @getDocument().getAttributes()\n\n# Delete environment specific variables\n# timezone makes the dates impossible\n# path differences make them impossible\n# data is too much output\ndelete attrs.ctime\ndelete attrs.mtime\ndelete attrs.date\ndelete attrs.fullPath\ndelete attrs.fullDirPath\ndelete attrs.outPath\ndelete attrs.outDirPath\ndelete attrs.data\n\n# Sort the attributes\nkeys = []\nkeys.push(key)  for own key,value of attrs\nkeys.sort()\nsortedAttrs = {}\nfor key in keys\n    sortedAttrs[key] = attrs[key]\n\n# Output data\ntext JSON.stringify(sortedAttrs,null,'\\\\t')\",\n\t\"tags\": [\n\t\t\"attributes\",\n\t\t\"with-layout\"\n\t],\n\t\"title\": \"Attributes With Layout\",\n\t\"url\": \"/attributes-withlayout.txt\",\n\t\"urls\": [\n\t\t\"/attributes-withlayout.txt\"\n\t],\n\t\"write\": true\n}=====================================================\n=====================================================\n{\n\t\"basename\": \"attributes-withlayout\",\n\t\"body\": \"# Fetch data\\nattrs = @getDocument().getAttributes()\\n\\n# Delete environment specific variables\\n# timezone makes the dates impossible\\n# path differences make them impossible\\n# data is too much output\\ndelete attrs.ctime\\ndelete attrs.mtime\\ndelete attrs.date\\ndelete attrs.fullPath\\ndelete attrs.fullDirPath\\ndelete attrs.outPath\\ndelete attrs.outDirPath\\ndelete attrs.data\\n\\n# Sort the attributes\\nkeys = []\\nkeys.push(key)  for own key,value of attrs\\nkeys.sort()\\nsortedAttrs = {}\\nfor key in keys\\n    sortedAttrs[key] = attrs[key]\\n\\n# Output data\\ntext JSON.stringify(sortedAttrs,null,'\\\\t')\",\n\t\"content\": \"# Fetch data\\nattrs = @getDocument().getAttributes()\\n\\n# Delete environment specific variables\\n# timezone makes the dates impossible\\n# path differences make them impossible\\n# data is too much output\\ndelete attrs.ctime\\ndelete attrs.mtime\\ndelete attrs.date\\ndelete attrs.fullPath\\ndelete attrs.fullDirPath\\ndelete attrs.outPath\\ndelete attrs.outDirPath\\ndelete attrs.data\\n\\n# Sort the attributes\\nkeys = []\\nkeys.push(key)  for own key,value of attrs\\nkeys.sort()\\nsortedAttrs = {}\\nfor key in keys\\n    sortedAttrs[key] = attrs[key]\\n\\n# Output data\\ntext JSON.stringify(sortedAttrs,null,'\\\\t')\",\n\t\"contentRendered\": null,\n\t\"contentRenderedWithoutLayouts\": null,\n\t\"contentType\": \"application/octet-stream\",\n\t\"dynamic\": false,\n\t\"encoding\": \"utf8\",\n\t\"extension\": \"coffee\",\n\t\"extensions\": [\n\t\t\"txt\",\n\t\t\"coffee\"\n\t],\n\t\"filename\": \"attributes-withlayout.txt.coffee\",\n\t\"header\": \"title: 'Attributes With Layout'\\nlayout: 'attributes'\\ntags: ['attributes','with-layout']\\nreferencesOthers: true\",\n\t\"id\": \"attributes-withlayout.txt.coffee\",\n\t\"isDocument\": true,\n\t\"layout\": \"attributes.txt.coffee\",\n\t\"meta\": {\n\t\t\"title\": \"Attributes With Layout\",\n\t\t\"layout\": \"attributes\",\n\t\t\"tags\": [\n\t\t\t\"attributes\",\n\t\t\t\"with-layout\"\n\t\t],\n\t\t\"referencesOthers\": true\n\t},\n\t\"name\": \"attributes-withlayout.txt\",\n\t\"outContentType\": \"text/plain\",\n\t\"outExtension\": \"txt\",\n\t\"outFilename\": \"attributes-withlayout.txt\",\n\t\"parser\": \"yaml\",\n\t\"referencesOthers\": true,\n\t\"relativeBase\": \"attributes-withlayout\",\n\t\"relativeDirPath\": \"\",\n\t\"relativeOutDirPath\": \"\",\n\t\"relativeOutPath\": \"attributes-withlayout.txt\",\n\t\"relativePath\": \"attributes-withlayout.txt.coffee\",\n\t\"render\": true,\n\t\"renderSingleExtensions\": false,\n\t\"rendered\": false,\n\t\"slug\": \"attributes-withlayout\",\n\t\"source\": \"---\\ntitle: 'Attributes With Layout'\\nlayout: 'attributes'\\ntags: ['attributes','with-layout']\\nreferencesOthers: true\\n---\\n\\n# Fetch data\\nattrs = @getDocument().getAttributes()\\n\\n# Delete environment specific variables\\n# timezone makes the dates impossible\\n# path differences make them impossible\\n# data is too much output\\ndelete attrs.ctime\\ndelete attrs.mtime\\ndelete attrs.date\\ndelete attrs.fullPath\\ndelete attrs.fullDirPath\\ndelete attrs.outPath\\ndelete attrs.outDirPath\\ndelete attrs.data\\n\\n# Sort the attributes\\nkeys = []\\nkeys.push(key)  for own key,value of attrs\\nkeys.sort()\\nsortedAttrs = {}\\nfor key in keys\\n    sortedAttrs[key] = attrs[key]\\n\\n# Output data\\ntext JSON.stringify(sortedAttrs,null,'\\\\t')\",\n\t\"tags\": [\n\t\t\"attributes\",\n\t\t\"with-layout\"\n\t],\n\t\"title\": \"Attributes With Layout\",\n\t\"url\": \"/attributes-withlayout.txt\",\n\t\"urls\": [\n\t\t\"/attributes-withlayout.txt\"\n\t],\n\t\"write\": true\n}=====================================================\n",
+	"contentRenderedWithoutLayouts": "{\n\t\"basename\": \"attributes-withlayout\",\n\t\"body\": \"# Fetch data\\nattrs = @getDocument().getAttributes()\\n\\n# Delete environment specific variables\\n# timezone makes the dates impossible\\n# path differences make them impossible\\n# data is too much output\\ndelete attrs.ctime\\ndelete attrs.mtime\\ndelete attrs.date\\ndelete attrs.fullPath\\ndelete attrs.fullDirPath\\ndelete attrs.outPath\\ndelete attrs.outDirPath\\ndelete attrs.data\\n\\n# Sort the attributes\\nkeys = []\\nkeys.push(key)  for own key,value of attrs\\nkeys.sort()\\nsortedAttrs = {}\\nfor key in keys\\n    sortedAttrs[key] = attrs[key]\\n\\n# Output data\\ntext JSON.stringify(sortedAttrs,null,'\\\\t')\",\n\t\"content\": \"# Fetch data\\nattrs = @getDocument().getAttributes()\\n\\n# Delete environment specific variables\\n# timezone makes the dates impossible\\n# path differences make them impossible\\n# data is too much output\\ndelete attrs.ctime\\ndelete attrs.mtime\\ndelete attrs.date\\ndelete attrs.fullPath\\ndelete attrs.fullDirPath\\ndelete attrs.outPath\\ndelete attrs.outDirPath\\ndelete attrs.data\\n\\n# Sort the attributes\\nkeys = []\\nkeys.push(key)  for own key,value of attrs\\nkeys.sort()\\nsortedAttrs = {}\\nfor key in keys\\n    sortedAttrs[key] = attrs[key]\\n\\n# Output data\\ntext JSON.stringify(sortedAttrs,null,'\\\\t')\",\n\t\"contentRendered\": null,\n\t\"contentRenderedWithoutLayouts\": null,\n\t\"contentType\": \"application/octet-stream\",\n\t\"dynamic\": false,\n\t\"encoding\": \"utf8\",\n\t\"extension\": \"coffee\",\n\t\"extensions\": [\n\t\t\"txt\",\n\t\t\"coffee\"\n\t],\n\t\"filename\": \"attributes-withlayout.txt.coffee\",\n\t\"header\": \"title: 'Attributes With Layout'\\nlayout: 'attributes'\\ntags: ['attributes','with-layout']\\nreferencesOthers: true\",\n\t\"id\": \"attributes-withlayout.txt.coffee\",\n\t\"isDocument\": true,\n\t\"layout\": \"attributes.txt.coffee\",\n\t\"meta\": {\n\t\t\"title\": \"Attributes With Layout\",\n\t\t\"layout\": \"attributes\",\n\t\t\"tags\": [\n\t\t\t\"attributes\",\n\t\t\t\"with-layout\"\n\t\t],\n\t\t\"referencesOthers\": true\n\t},\n\t\"name\": \"attributes-withlayout.txt\",\n\t\"outContentType\": \"text/plain\",\n\t\"outExtension\": \"txt\",\n\t\"outFilename\": \"attributes-withlayout.txt\",\n\t\"parser\": \"yaml\",\n\t\"referencesOthers\": true,\n\t\"relativeBase\": \"attributes-withlayout\",\n\t\"relativeDirPath\": \"\",\n\t\"relativeOutDirPath\": \"\",\n\t\"relativeOutPath\": \"attributes-withlayout.txt\",\n\t\"relativePath\": \"attributes-withlayout.txt.coffee\",\n\t\"render\": true,\n\t\"renderSingleExtensions\": false,\n\t\"rendered\": false,\n\t\"slug\": \"attributes-withlayout\",\n\t\"source\": \"---\\ntitle: 'Attributes With Layout'\\nlayout: 'attributes'\\ntags: ['attributes','with-layout']\\nreferencesOthers: true\\n---\\n\\n# Fetch data\\nattrs = @getDocument().getAttributes()\\n\\n# Delete environment specific variables\\n# timezone makes the dates impossible\\n# path differences make them impossible\\n# data is too much output\\ndelete attrs.ctime\\ndelete attrs.mtime\\ndelete attrs.date\\ndelete attrs.fullPath\\ndelete attrs.fullDirPath\\ndelete attrs.outPath\\ndelete attrs.outDirPath\\ndelete attrs.data\\n\\n# Sort the attributes\\nkeys = []\\nkeys.push(key)  for own key,value of attrs\\nkeys.sort()\\nsortedAttrs = {}\\nfor key in keys\\n    sortedAttrs[key] = attrs[key]\\n\\n# Output data\\ntext JSON.stringify(sortedAttrs,null,'\\\\t')\",\n\t\"tags\": [\n\t\t\"attributes\",\n\t\t\"with-layout\"\n\t],\n\t\"title\": \"Attributes With Layout\",\n\t\"url\": \"/attributes-withlayout.txt\",\n\t\"urls\": [\n\t\t\"/attributes-withlayout.txt\"\n\t],\n\t\"write\": true\n}",
 	"contentType": "application/octet-stream",
 	"dynamic": false,
 	"encoding": "utf8",
@@ -564,7 +576,7 @@ text JSON.stringify(sortedAttrs,null,'\\t')",
 		"coffee"
 	],
 	"filename": "attributes-withlayout.txt.coffee",
-	"header": "title: 'Attributes With Layout'\nlayout: 'attributes'\ntags: ['attributes','with-layout']",
+	"header": "title: 'Attributes With Layout'\nlayout: 'attributes'\ntags: ['attributes','with-layout']\nreferencesOthers: true",
 	"id": "attributes-withlayout.txt.coffee",
 	"isDocument": true,
 	"layout": "attributes.txt.coffee",
@@ -574,14 +586,15 @@ text JSON.stringify(sortedAttrs,null,'\\t')",
 		"tags": [
 			"attributes",
 			"with-layout"
-		]
+		],
+		"referencesOthers": true
 	},
 	"name": "attributes-withlayout.txt",
 	"outContentType": "text/plain",
 	"outExtension": "txt",
 	"outFilename": "attributes-withlayout.txt",
 	"parser": "yaml",
-	"referencesOthers": false,
+	"referencesOthers": true,
 	"relativeBase": "attributes-withlayout",
 	"relativeDirPath": "",
 	"relativeOutDirPath": "",
@@ -591,7 +604,7 @@ text JSON.stringify(sortedAttrs,null,'\\t')",
 	"renderSingleExtensions": false,
 	"rendered": true,
 	"slug": "attributes-withlayout",
-	"source": "---\ntitle: 'Attributes With Layout'\nlayout: 'attributes'\ntags: ['attributes','with-layout']\n---\n\n# Fetch data\nattrs = @getDocument().getAttributes()\n\n# Delete environment specific variables\n# timezone makes the dates impossible\n# path differences make them impossible\n# data is too much output\ndelete attrs.ctime\ndelete attrs.mtime\ndelete attrs.date\ndelete attrs.fullPath\ndelete attrs.fullDirPath\ndelete attrs.outPath\ndelete attrs.outDirPath\ndelete attrs.data\n\n# Sort the attributes\nkeys = []\nkeys.push(key)  for own key,value of attrs\nkeys.sort()\nsortedAttrs = {}\nfor key in keys\n    sortedAttrs[key] = attrs[key]\n\n# Output data\ntext JSON.stringify(sortedAttrs,null,'\\t')",
+	"source": "---\ntitle: 'Attributes With Layout'\nlayout: 'attributes'\ntags: ['attributes','with-layout']\nreferencesOthers: true\n---\n\n# Fetch data\nattrs = @getDocument().getAttributes()\n\n# Delete environment specific variables\n# timezone makes the dates impossible\n# path differences make them impossible\n# data is too much output\ndelete attrs.ctime\ndelete attrs.mtime\ndelete attrs.date\ndelete attrs.fullPath\ndelete attrs.fullDirPath\ndelete attrs.outPath\ndelete attrs.outDirPath\ndelete attrs.data\n\n# Sort the attributes\nkeys = []\nkeys.push(key)  for own key,value of attrs\nkeys.sort()\nsortedAttrs = {}\nfor key in keys\n    sortedAttrs[key] = attrs[key]\n\n# Output data\ntext JSON.stringify(sortedAttrs,null,'\\t')",
 	"tags": [
 		"attributes",
 		"with-layout"
