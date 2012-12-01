@@ -1,6 +1,7 @@
 ---
 title: 'Attributes No Layout'
 tags: ['attributes','with-layout']
+referencesOthers: true
 ---
 
 # Fetch data
