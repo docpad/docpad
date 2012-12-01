@@ -1,6 +1,19 @@
 # Contributing
 
-## Setup
+## Support
+
+1. Use the GitHub Issues only for development tasks and bug reports
+1. For anything else (questions, support, etc) use any of our [Official Support Channels](http://bevry.me/support)
+1. With bug reports, be sure to specify:
+	1. Your docpad version `docpad --version`
+	1. Your node version `node --version`
+	1. Your npm version `npm --version`
+	1. Your operating system's name, architecture, and version
+	1. What you did
+	1. What happened
+	1. What you expected
+
+## Development
 
 1. Fork the DocPad Repository
 1. Clone your fork and cd into it
@@ -20,7 +33,3 @@
 
 1. Run `npm test` to run the tests
 1. There are several types of tests run, the most common is the rendering test, which compares files inside `test/out` to `test/out-expected`
-
-## Questions?
-
-Hop on any of our [Official Support Channels](http://bevry.me/support)
