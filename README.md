@@ -1,8 +1,13 @@
+[![DocPad Logo](http://d.pr/i/cfmt+)](http://bevry.me/docpad/intro "Get started with DocPad today via the Bevry Learning Centre")
+
 # DocPad. Streamlined web development. [![Build Status](https://secure.travis-ci.org/bevry/docpad.png?branch=master)](http://travis-ci.org/bevry/docpad)
 
 Hi! I'm DocPad, I streamline the web development process and help close the gap between experts and beginners. I've been used in production by big and small companies for over a year and a half now to create [plenty of amazing and powerful web sites and applications](http://bevry.me/docpad/showcase) quicker than ever before. What makes me different is instead of being a box to cram yourself into and hold you back, I'm a freeway to what you want to accomplish, just getting out of your way and allowing you to create stuff quicker than ever before without limits. Leave the redudant stuff up to me, so you can focus on the awesome stuff.
 
 Discover my features below, or skip ahead to the installation instructions to get started with a [fully functional pre-made website](http://bevry.me/docpad/skeletons) in a few minutes from reading this.
+
+**[Watch the Screencast!](https://vimeo.com/53755097)**
+
 
 ## Features
 
@@ -55,14 +60,14 @@ All sorts of people love DocPad, from first time web developers to even industry
 
 ## [Quick Start](http://bevry.me/docpad/start)
 
-[Click here for our latest Quick Start Guide](http://bevry.me/docpad/start)
+[Click here to skip ahead to our latest Quick Start Guide](http://bevry.me/docpad/start)
 
 
 ## What next?
 
 Here are some quick links to help you get started:
 
-- [Getting Started](http://bevry.me/docpad/overview)
+- [Getting Started](http://bevry.me/docpad/intro)
 - [Frequently Asked Questions](http://bevry.me/docpad/faq)
 - [Showcase and Examples](http://bevry.me/docpad/showcase)
 - [Guides and Tutorials](http://bevry.me/learn)
