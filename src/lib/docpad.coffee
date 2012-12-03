@@ -767,6 +767,10 @@ class DocPad extends EventEmitterEnhanced
 		# -----------------------------
 		# Other
 
+		# Render Passes
+		# How many times should we render documents that reference other documents?
+		renderPasses: 1
+
 		# Check Version
 		# Whether or not to check for newer versions of DocPad
 		checkVersion: false
@@ -2244,9 +2248,7 @@ class DocPad extends EventEmitterEnhanced
 		# Prepare
 		docpad = @
 		locale = @getLocale()
-		{collection,templateData} = opts
-		total = 0
-		completed = 0
+		{collection,templateData,renderPasses} = opts
 
 		# Log
 		docpad.log 'debug', util.format(locale.renderingFiles, collection.length)
@@ -2260,46 +2262,51 @@ class DocPad extends EventEmitterEnhanced
 				docpad.log 'debug', util.format(locale.renderedFiles, collection.length)
 				return next()
 
-		# Set progress indicator
-		opts.setProgressIndicator? -> ['renderFiles',completed,total]
-
 		# Render File
-		renderFile = (file,next) ->
+		renderFile = (fileToRender,next) ->
 			# Skip?
-			dynamic = file.get('dynamic')
-			render = file.get('render')
-			relativePath = file.get('relativePath')
+			dynamic = fileToRender.get('dynamic')
+			render = fileToRender.get('render')
+			relativePath = fileToRender.get('relativePath')
 
 			# Render
-			if dynamic or (render? and !render) or !relativePath or file.render? is false
+			if dynamic or (render? and !render) or !relativePath or fileToRender.render? is false
 				next()
 			else
-				file.render({templateData},next)
-			return file
+				fileToRender.render({templateData},next)
+			return fileToRender
 
 		# Render Collection
-		renderCollection = (collection) ->
-			total += collection.length
-			tasks.push (next) ->
-				# Cycle
-				subTasks = new balUtil.Group(next)
-				collection.forEach (file) -> subTasks.push (complete) -> renderFile file, (err) ->
-					++completed
-					complete(err)
+		renderCollection = (collectionToRender,_opts={},next) ->
+			# Prepare
+			_opts.total ?= collectionToRender.length
+			_opts.renderPass ?= 1
+			_opts.offset ?= 0
+			subTasks = new balUtil.Group(next)
+			opts.setProgressIndicator? -> ['renderFiles'+(if _opts.renderPass > 1 then " (pass #{_opts.renderPass})" else ''),_opts.offset+subTasks.completed,_opts.total]
 
-				# Fire
-				subTasks.async()
-			return collection
+			# Cycle
+			collectionToRender.forEach (file) ->  subTasks.push (complete) ->  renderFile(file,complete)
 
-		# Prepare the collections
-		standaloneCollection = collection.findAll('referencesOthers':false)
+			# Fire
+			subTasks.async()
+			return collectionToRender
 
-		# Render the collections
-		renderCollection standaloneCollection
-		tasks.push ->
-			renderCollection renderCollection collection.findAll('referencesOthers':true)
+		# Queue the initial render
+		initialCollection = collection.findAll('referencesOthers':false)
+		subsequentCollection = null
+		tasks.push (complete) ->
+			renderCollection initialCollection, null, (err) ->
+				return complete(err)  if err
+				subsequentCollection = collection.findAll('referencesOthers':true)
+				renderCollection(subsequentCollection, {offset:collection.length-subsequentCollection.length, total:collection.length}, complete)
 
-		# Start rendering
+		# Queue the subsequent renders
+		if renderPasses > 1
+			balUtil.each [2..renderPasses], (renderPass) ->  tasks.push (complete) ->
+				renderCollection(subsequentCollection, {renderPass}, complete)
+
+		# Fire the queue
 		docpad.emitSync 'renderBefore', {collection,templateData}, (err) =>
 			return next(err)  if err
 			tasks.sync()
@@ -2534,15 +2541,16 @@ class DocPad extends EventEmitterEnhanced
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
-		templateData = opts.templateData or @getTemplateData()
-		collection = opts.collection or @getDatabase()
-		setProgressIndicator = opts.setProgressIndicator or null
+		opts.templateData or= @getTemplateData()
+		opts.collection or= @getDatabase()
+		opts.renderPasses or= @getConfig().renderPasses
+		opts.setProgressIndicator or= null
 
 		# Contextualize the datbaase, perform two render passes, and perform a write
 		balUtil.flow(
 			object: docpad
 			action: 'contextualizeFiles renderFiles writeFiles'
-			args: [{collection,templateData,setProgressIndicator}]
+			args: [opts]
 			next: (err) ->
 				return next(err)
 		)
