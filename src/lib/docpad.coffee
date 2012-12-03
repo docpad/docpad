@@ -549,11 +549,14 @@ class DocPad extends EventEmitterEnhanced
 
 	# Get Environment
 	getEnvironment: ->
-		return @getConfig().env
+		env = @getConfig().env or 'development'
+		return env
 
 	# Get Environments
 	getEnvironments: ->
-		return @getEnvironment().split(/[, ]+/)
+		env = @getEnvironment()
+		envs = env.split(/[, ]+/)
+		return envs
 
 
 	# -----------------------------
@@ -835,6 +838,10 @@ class DocPad extends EventEmitterEnhanced
 	getConfig: ->
 		return @config or {}
 
+	# Get the Port
+	getPort: ->
+		return @getConfig().port or 9778
+
 
 	# =================================
 	# Initialization Functions
@@ -1015,9 +1022,15 @@ class DocPad extends EventEmitterEnhanced
 			return next(err)  if err
 
 			# Get environments
-			@initialConfig.port ?= process.env.PORT ? process.env.VCAP_APP_PORT ? process.env.VMC_APP_PORT ? 9778
-			@initialConfig.env or= process.env.NODE_ENV or 'development'
-			@config.env = @instanceConfig.env or @websiteConfig.env or @websitePackageConfig.env or @initialConfig.env
+			# Here as by now we would have loaded our .env file, whereas earlier we may not have
+			@initialConfig.port ?= process.env.PORT ? process.env.VCAP_APP_PORT ? process.env.VMC_APP_PORT
+			@initialConfig.env ?= process.env.NODE_ENV
+
+			# Apply the environment
+			# websitePackageConfig.env is left out of the detection here as it is usually an object
+			# that is already merged with our process.env by the environment runner
+			# rather than a string which is the docpad convention
+			@config.env = @instanceConfig.env or @websiteConfig.env or @initialConfig.env
 			envs = @getEnvironments()
 
 			# Merge configurations
@@ -3138,6 +3151,7 @@ class DocPad extends EventEmitterEnhanced
 		docpad = @
 		config = @config
 		locale = @getLocale()
+		port = @getPort()
 		serverExpress = null
 		serverHttp = null
 
@@ -3148,35 +3162,45 @@ class DocPad extends EventEmitterEnhanced
 		opts.middleware404 ?= config.middleware404
 		opts.middleware500 ?= config.middleware500
 
-		# Handlers
-		complete = (err) ->
+		# Finish
+		finish = (err) ->
 			return next(err)  if err
+
 			# Plugins
 			docpad.emitSync 'serverAfter', {server:serverExpress,serverExpress,serverHttp,express}, (err) ->
 				return next(err)  if err
-				# Complete
+
+				# Done
 				docpad.log 'debug', 'Server setup'
 				return next()
-		startServer = ->
-			# Start the server
-			try
-				serverHttp.listen(config.port)
+
+		# Start Server
+		startServer = (next) ->
+			# Catch
+			serverHttp.once 'error', (err) ->
+				# Friendlify the error message if it is what we suspect it is
+				if err.message.indexOf('EADDRINUSE') isnt -1
+					err = new Error(util.format(locale.serverInUse, port))
+
+				# Done
+				return next(err)
+
+			# Listen
+			serverHttp.listen port,  ->
+				# Log
 				address = serverHttp.address()
-				unless address?
-					throw new Error(util.format(locale.serverInUse, config.port))
 				serverHostname = if address.address is '0.0.0.0' then 'localhost' else address.address
 				serverPort = address.port
 				serverLocation = "http://#{serverHostname}:#{serverPort}/"
 				serverDir = config.outPath
 				docpad.log 'info', util.format(locale.serverStarted, serverLocation, serverDir)
-			catch err
-				return complete(err)
-			finally
-				return complete()
 
-		# Plugins
+				# Done
+				return next()
+
+		# Start
 		docpad.emitSync 'serverBefore', {}, (err) ->
-			return complete(err)  if err
+			return finish(err)  if err
 
 			# Server
 			{serverExpress,serverHttp} = docpad.getServer(true)
@@ -3193,7 +3217,7 @@ class DocPad extends EventEmitterEnhanced
 			# Extend the server
 			unless config.extendServer
 				# Start the Server
-				startServer()
+				startServer(finish)
 			else
 				# Require
 				express ?= require('express')
@@ -3235,7 +3259,7 @@ class DocPad extends EventEmitterEnhanced
 					serverExpress.error(docpad.serverMiddleware500)  if opts.middleware500 isnt false
 
 				# Start the Server
-				startServer()
+				startServer(finish)
 
 
 		# Chain
