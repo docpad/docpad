@@ -1,5 +1,8 @@
 ## History
 
+- v6.15.0 December 3, 2012
+	- [Nodejitsu](http://nodejitsu.com/) Support
+
 - v6.14.0 November 29, 2012
 	- Added  `DocPad::getFileByUrl(url)` and updated the middleware router to use it
 		- Big performance gain on request response time
