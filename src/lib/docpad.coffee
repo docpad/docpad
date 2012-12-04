@@ -477,11 +477,10 @@ class DocPad extends EventEmitterEnhanced
 				return docpad.getBlock(name,true)
 
 			# Include another file taking in a relative path
-			# Will return the contentRendered otherwise content
 			include: (subRelativePath) ->
 				result = @getFileAtPath(subRelativePath)
 				if result
-					return result.get('contentRendered') or result.get('content')
+					return result.getOutContent()
 				else
 					err = new Error(util.format(locale.includeFailed, subRelativePath))
 					throw err
@@ -2701,7 +2700,7 @@ class DocPad extends EventEmitterEnhanced
 			action: 'load contextualize render'
 			args: [opts]
 			next: (err) ->
-				result = document.get('contentRendered')
+				result = document.getOutContent()
 				return next(err,result,document)
 		)
 		@
@@ -2750,7 +2749,7 @@ class DocPad extends EventEmitterEnhanced
 			action: 'normalize contextualize render'
 			args: [opts]
 			next: (err) ->
-				result = document.get('contentRendered')
+				result = document.getOutContent()
 				return next(err,result,document)
 		)
 		@
@@ -3063,7 +3062,7 @@ class DocPad extends EventEmitterEnhanced
 			templateData = balUtil.extend({}, req.templateData or {}, {req,err})
 			templateData = docpad.getTemplateData(templateData)
 			document.render {templateData}, (err) ->
-				content = document.get('contentRendered') or document.get('content') or document.getData()
+				content = document.getOutContent()
 				if err
 					docpad.error(err)
 					return next(err)
@@ -3073,7 +3072,7 @@ class DocPad extends EventEmitterEnhanced
 					else
 						return res.send(content)
 		else
-			content = document.get('contentRendered') or document.get('content') or document.getData()
+			content = document.getOutContent()
 			if content
 				if opts.statusCode?
 					return res.send(opts.statusCode, content)
