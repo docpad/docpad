@@ -22,6 +22,12 @@ _.extend(Events::, Backbone.Events)
 class Model extends Backbone.Model
 	log: log
 	emit: emit
+	setDefaults: (defaults) ->
+		set = {}
+		for own key,value of defaults
+			set[key] = value  if @get('key') is @defaults?[key]
+		@set(set)
+		return @
 
 # Collection
 class Collection extends Backbone.Collection
