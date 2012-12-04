@@ -176,10 +176,8 @@ class FileModel extends Model
 		@set(defaults)
 
 		# Meta
-		@meta = new Model()
 		if meta
-			@meta.set(meta)
-			@set(meta)
+			@setMeta(meta)
 
 		# Super
 		super
@@ -208,7 +206,20 @@ class FileModel extends Model
 
 	# Get Meta
 	getMeta: ->
+		@meta = new Model()  if @meta is null
 		return @meta
+
+	# Set Meta
+	setMeta: (attrs) ->
+		@getMeta().set(attrs)
+		@set(attrs)
+		return @
+
+	# Set Meta Defaults
+	setMetaDefaults: (defaults) ->
+		@getMeta().setDefaults(defaults)
+		@setDefaults(defaults)
+		return @
 
 	# Is Text?
 	isText: ->

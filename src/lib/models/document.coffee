@@ -77,18 +77,6 @@ class DocumentModel extends FileModel
 	# ---------------------------------
 	# Functions
 
-	# Initialize
-	initialize: (attrs,opts) ->
-		# Prepare
-		{@layouts,meta} = opts
-
-		# Forward
-		super
-
-	# Get Meta
-	getMeta: ->
-		return @meta
-
 	# To JSON
 	toJSON: ->
 		data = super
