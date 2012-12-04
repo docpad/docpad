@@ -580,7 +580,7 @@ class ConsoleInterface
 		@
 
 	server: (next) =>
-		@docpad.action('server',next)
+		@docpad.action('server generate',next)
 		@
 
 	clean: (next) =>
@@ -596,7 +596,7 @@ class ConsoleInterface
 		@
 
 	watch: (next) =>
-		@docpad.action('watch',next)
+		@docpad.action('generate watch',next)
 		@
 
 
