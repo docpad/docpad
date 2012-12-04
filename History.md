@@ -1,5 +1,13 @@
 ## History
 
+- v6.16.0 December 4, 2012
+	- The amount of render passes is now customisable via the `renderPasses` configuration option, defaults to `1`
+		- Increment this value dependening on how many levels of cross-document references you have (e.g. 2 passes for C includes B, B includes A)
+	- The render pass functionality has been changed to render all documents that don't reference anything else first, then for each additional render pass, render documents that do reference others
+		- Previously it would render both types of documents in the one batch, which resulted in hit and miss results
+		- Doing this, we now safely have the default `renderPasses` value set to `1` which has the same effect as the traditional `2` render pass
+		- Refer to [issue #359](https://github.com/bevry/docpad/issues/359) for more information
+
 - v6.15.0 December 3, 2012
 	- [Nodejitsu](http://nodejitsu.com/) Support
 
