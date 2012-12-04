@@ -1,5 +1,10 @@
 ## History
 
+- v6.17.2 December 5, 2012
+	- `watch` and `server` actions now perform an initial generation
+		- Thanks [Khalid Jebbari](https://github.com/DjebbZ), [Vladislav Botvin](https://github.com/darrrk)
+		- Closes [#369](https://github.com/bevry/docpad/issues/369), [#368](https://github.com/bevry/docpad/issues/368), [#366](https://github.com/bevry/docpad/issues/366)
+
 - v6.17.1 December 4, 2012
 	- Updated misc internals to use the new `File::getOutContent` call
 
