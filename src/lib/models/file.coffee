@@ -211,8 +211,7 @@ class FileModel extends Model
 
 	# Get Content
 	getContent: ->
-		content = @get('content') or @getBuffer()
-		return content
+		return @get('content') or @getBuffer()
 
 	# Get Out Content
 	getOutContent: ->

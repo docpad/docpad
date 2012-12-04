@@ -1,5 +1,8 @@
 ## History
 
+- v6.17.1 December 4, 2012
+	- Updated misc internals to use the new `File::getOutContent` call
+
 - v6.17.0 December 4, 2012
 	- Cleaned up the way we handle buffers, data, and meta data - more effecient and simpler api
 	- Updated
