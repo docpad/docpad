@@ -75,7 +75,12 @@ class DocumentModel extends FileModel
 
 
 	# ---------------------------------
-	# Functions
+	# Helpers
+
+	# Get Out Content
+	getOutContent: ->
+		content = @get('contentRendered') or @get('content') or @getBuffer()
+		return content
 
 	# To JSON
 	toJSON: ->
@@ -89,11 +94,17 @@ class DocumentModel extends FileModel
 		@set({referencesOthers:flag})
 		@
 
-	# Parse data
-	# Parses some data, and loads the meta data and content from it
+
+	# ---------------------------------
+	# Actions
+
+	# Parse
+	# Parse our buffer and extract some meaningful data from it
 	# next(err)
-	parseData: (data,next) ->
+	parse: (opts={},next) ->
 		# Prepare
+		{opts,next} = @getActionArgs(opts,next)
+		buffer = @getBuffer()
 		meta = @getMeta()
 
 		# Wipe any meta attributes that we've copied over to our file
@@ -109,7 +120,7 @@ class DocumentModel extends FileModel
 
 		# Reparse the data and extract the content
 		# With the content, fetch the new meta data, header, and body
-		super data, =>
+		super buffer, =>
 			# Content
 			content = @get('content')
 
@@ -175,70 +186,6 @@ class DocumentModel extends FileModel
 
 			# Next
 			next()
-		@
-
-	# Write the rendered file
-	# next(err)
-	writeRendered: (next) ->
-		# Prepare
-		file = @
-		fileOutPath = @get('outPath')
-		contentRendered = @get('contentRendered')
-		encoding = @get('encoding')
-
-		# Log
-		file.log 'debug', "Writing the rendered file: #{fileOutPath} #{encoding}"
-
-		# Write data
-		balUtil.writeFile fileOutPath, contentRendered, (err) ->
-			# Check
-			return next(err)  if err
-
-			# Log
-			file.log 'debug', "Wrote the rendered file: #{fileOutPath} #{encoding}"
-
-			# Next
-			return next()
-
-		# Chain
-		@
-
-	# Write the file
-	# next(err)
-	writeSource: (next) ->
-		# Prepare
-		file = @
-		CSON = require('cson')  unless CSON
-
-		# Fetch
-		fullPath = @get('fullPath')
-		content = @get('content')
-		parser = 'cson'
-		seperator = '---'
-
-		# Log
-		file.log 'debug', "Writing the source file: #{fullPath}"
-
-		# Adjust
-		header = CSON.stringifySync(@meta.toJSON())
-		content = body = content.replace(/^\s+/,'')
-		source = "#{seperator} #{parser}\n#{header}\n#{seperator}\n\n#{body}"
-
-		# Apply
-		@set({parser,header,body,content,source})
-
-		# Write content
-		balUtil.writeFile fileOutPath, source, (err) ->
-			# Check
-			return next(err)  if err
-
-			# Log
-			file.log 'info', "Wrote the source file: #{fullPath}"
-
-			# Next
-			next()
-
-		# Chain
 		@
 
 	# Normalize data
@@ -341,6 +288,10 @@ class DocumentModel extends FileModel
 		# Chain
 		@
 
+
+	# ---------------------------------
+	# Layouts
+
 	# Has Layout
 	# Checks if the file has a layout
 	hasLayout: ->
@@ -405,6 +356,9 @@ class DocumentModel extends FileModel
 			next(null,@)
 		@
 
+
+	# ---------------------------------
+	# Rendering
 
 	# Render extensions
 	# next(err,result)
@@ -619,6 +573,74 @@ class DocumentModel extends FileModel
 
 		# Fire the tasks
 		tasks.sync()
+
+		# Chain
+		@
+
+
+	# ---------------------------------
+	# CRUD
+
+	# Write the rendered file
+	# next(err)
+	writeRendered: (next) ->
+		# Prepare
+		file = @
+		fileOutPath = @get('outPath')
+		encoding = @get('encoding')
+		outContent = @getOutContent()
+
+		# Log
+		file.log 'debug', "Writing the rendered file: #{fileOutPath} #{encoding}"
+
+		# Write data
+		balUtil.writeFile fileOutPath, outContent, (err) ->
+			# Check
+			return next(err)  if err
+
+			# Log
+			file.log 'debug', "Wrote the rendered file: #{fileOutPath} #{encoding}"
+
+			# Next
+			return next()
+
+		# Chain
+		@
+
+	# Write the file
+	# next(err)
+	writeSource: (next) ->
+		# Prepare
+		file = @
+		CSON = require('cson')  unless CSON
+
+		# Fetch
+		fullPath = @get('fullPath')
+		content = @get('content')
+		parser = 'cson'
+		seperator = '---'
+
+		# Log
+		file.log 'debug', "Writing the source file: #{fullPath}"
+
+		# Adjust
+		header = CSON.stringifySync(@meta.toJSON())
+		content = body = content.replace(/^\s+/,'')
+		source = "#{seperator} #{parser}\n#{header}\n#{seperator}\n\n#{body}"
+
+		# Apply
+		@set({parser,header,body,content,source})
+
+		# Write content
+		balUtil.writeFile fileOutPath, source, (err) ->
+			# Check
+			return next(err)  if err
+
+			# Log
+			file.log 'info', "Wrote the source file: #{fullPath}"
+
+			# Next
+			next()
 
 		# Chain
 		@

@@ -1,5 +1,24 @@
 ## History
 
+- v6.17.0 December 4, 2012
+	- Cleaned up the way we handle buffers, data, and meta data - more effecient and simpler api
+	- Updated
+		- `File::getMeta` to create meta if it doesn't exist yet
+	- Removed
+		-  `Document::initialize` didn't do anything
+		-  `Document::getMeta` didn't do anything
+		-  `File::readFile` merged into `File::parse`
+		- `File::parseData` renamed to `File::parse` and cleaned signficantly
+	- Added
+		- `Base::setDefaults` to update attributes that haven't been set
+		- `File::setMeta` to update the meta more easily than `File.getMeta().set`
+		- `File::setMetaDefaults` to update the meta attributes that haven't been set
+		- `File::getContent` to get the content or buffer
+		- `File::getOutContent` to get the rendered content, or content, or buffer
+		- `File::getStat` to get the stat
+		- `File::setBuffer` to set the buffer
+		- `File::getBuffer` to get the buffer
+
 - v6.16.0 December 4, 2012
 	- The amount of render passes is now customisable via the `renderPasses` configuration option, defaults to `1`
 		- Increment this value dependening on how many levels of cross-document references you have (e.g. 2 passes for C includes B, B includes A)

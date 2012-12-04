@@ -24,8 +24,13 @@ class FileModel extends Model
 	# Stat Object
 	stat: null
 
-	# The contents of the file, stored as a Buffer
+	# File data
+	# When we do not have a path to scan
+	# we can just pass over some data instead
 	data: null
+
+	# File buffer
+	buffer: null
 
 	# The parsed file meta data (header)
 	# Is a Backbone.Model instance
@@ -150,37 +155,7 @@ class FileModel extends Model
 
 
 	# ---------------------------------
-	# Functions
-
-	# Initialize
-	initialize: (attrs,opts) ->
-		# Prepare
-		{outDirPath,stat,data,meta} = opts
-		if attrs.data?
-			data = attrs.data
-			delete attrs.data
-			delete @attributes.data
-		defaults =
-			extensions: []
-			urls: []
-			id: @cid
-
-		# Apply
-		@outDirPath = outDirPath  if outDirPath
-		@setData(data)  if data
-		if stat
-			@setStat(stat)
-		else
-			defaults.ctime = new Date()
-			defaults.mtime = new Date()
-		@set(defaults)
-
-		# Meta
-		if meta
-			@setMeta(meta)
-
-		# Super
-		super
+	# Helpers
 
 	# Set Data
 	setData: (data) ->
@@ -191,6 +166,15 @@ class FileModel extends Model
 	getData: ->
 		return @data
 
+	# Set Buffer
+	setBuffer: (buffer) ->
+		@buffer = buffer
+		@
+
+	# Get Buffer
+	getBuffer: ->
+		return @buffer
+
 	# Set Stat
 	setStat: (stat) ->
 		@stat = stat
@@ -199,6 +183,10 @@ class FileModel extends Model
 			mtime: new Date(stat.mtime)
 		)
 		@
+
+	# Get Stat
+	getStat: ->
+		return @stat
 
 	# Get Attributes
 	getAttributes: ->
@@ -221,6 +209,15 @@ class FileModel extends Model
 		@setDefaults(defaults)
 		return @
 
+	# Get Content
+	getContent: ->
+		content = @get('content') or @getBuffer()
+		return content
+
+	# Get Out Content
+	getOutContent: ->
+		return @getContent()
+
 	# Is Text?
 	isText: ->
 		return @get('encoding') isnt 'binary'
@@ -228,146 +225,6 @@ class FileModel extends Model
 	# Is Binary?
 	isBinary: ->
 		return @get('encoding') is 'binary'
-
-	# Get the arguments for the action
-	# Using this contains the transparency with using opts, and not using opts
-	getActionArgs: (opts,next) ->
-		if balUtil.isFunction(opts) and next? is false
-			next = opts
-			opts = {}
-		else
-			opts or= {}
-		next or= opts.next or null
-		return {next,opts}
-
-	# Load
-	# If the fullPath exists, load the file
-	# If it doesn't, then parse and normalize the file
-	load: (opts={},next) ->
-		# Prepare
-		{opts,next} = @getActionArgs(opts,next)
-		file = @
-		filePath = @get('relativePath') or @get('fullPath') or @get('filename')
-		fullPath = @get('fullPath') or filePath or null
-		data = @getData()
-
-		# Log
-		file.log('debug', "Loading the file: #{filePath}")
-
-		# Handler
-		complete = (err) ->
-			return next(err)  if err
-			file.log('debug', "Loaded the file: #{filePath}")
-			next()
-		handlePath = ->
-			file.set({fullPath})
-			file.readFile(fullPath, complete)
-		handleData = ->
-			file.set({fullPath:null})
-			file.parseData data, (err) =>
-					return next(err)  if err
-					file.normalize (err) =>
-						return next(err)  if err
-						complete()
-		# Exists?
-		if fullPath
-			balUtil.exists fullPath, (exists) ->
-				# Read the file
-				if exists
-					handlePath()
-				else
-					handleData()
-		else if data
-			handleData()
-		else
-			err = new Error('Nothing to load')
-			return next(err)
-
-		# Chain
-		@
-
-	# Read File
-	# Reads in the source file and parses it
-	# next(err)
-	readFile: (fullPath,next) ->
-		# Prepare
-		file = @
-		fullPath = @get('fullPath')
-
-		# Log
-		file.log('debug', "Reading the file: #{fullPath}")
-
-		# Async
-		tasks = new balUtil.Group (err) =>
-			if err
-				file.log('err', "Failed to read the file: #{fullPath}")
-				return next(err)
-			else
-				@normalize (err) =>
-					return next(err)  if err
-					file.log('debug', "Read the file: #{fullPath}")
-					next()
-		tasks.total = 2
-
-		# Stat the file
-		if file.stat
-			tasks.complete()
-		else
-			balUtil.stat fullPath, (err,fileStat) ->
-				return next(err)  if err
-				file.stat = fileStat
-				tasks.complete()
-
-		# Read the file
-		balUtil.readFile fullPath, (err,data) ->
-			return next(err)  if err
-			file.parseData(data, tasks.completer())
-
-		# Chain
-		@
-
-	# Parse data
-	# Parses some data, and loads the meta data and content from it
-	# next(err)
-	parseData: (data,next) ->
-		# Prepare
-		fullPath = @get('fullPath')
-		encoding = @get('encoding')
-
-		# Extract content from data
-		if data instanceof Buffer
-			# Detect encoding
-			unless encoding
-				isText = balUtil.isTextSync(fullPath,data)
-				if isText
-					encoding = 'utf8'
-				else
-					encoding = 'binary'
-
-			# Fetch source with encoding
-			if encoding is 'utf8'
-				source = data.toString(encoding)
-			else
-				source = ''
-
-		# Data is a string
-		else if balUtil.isString(data)
-			source = data
-
-		# Data is invalid
-		else
-			source = ''
-
-		# Trim the content
-		content = source.replace(/\r\n?/gm,'\n').replace(/\t/g,'    ')
-
-		# Apply
-		@setData(data)
-		@set({source,content,encoding})
-
-		# Next
-		next()
-		@
 
 	# Set the url for the file
 	setUrl: (url) ->
@@ -419,6 +276,145 @@ class FileModel extends Model
 			else
 				path = relativePath
 		return path
+
+
+	# ---------------------------------
+	# Actions
+
+	# Initialize
+	initialize: (attrs,opts) ->
+		# Prepare
+		{outDirPath,stat,data,meta} = opts
+		if attrs.data?
+			data = attrs.data
+			delete attrs.data
+			delete @attributes.data
+		defaults =
+			extensions: []
+			urls: []
+			id: @cid
+
+		# Apply
+		@outDirPath = outDirPath  if outDirPath
+		@setData(data)  if data
+		if stat
+			@setStat(stat)
+		else
+			defaults.ctime = new Date()
+			defaults.mtime = new Date()
+		@set(defaults)
+
+		# Meta
+		if meta
+			@setMeta(meta)
+
+		# Super
+		super
+
+	# Get the arguments for the action
+	# Using this contains the transparency with using opts, and not using opts
+	getActionArgs: (opts,next) ->
+		if balUtil.isFunction(opts) and next? is false
+			next = opts
+			opts = {}
+		else
+			opts or= {}
+		next or= opts.next or null
+		return {next,opts}
+
+	# Load
+	# If the fullPath exists, load the file
+	# If it doesn't, then parse and normalize the file
+	load: (opts={},next) ->
+		# Prepare
+		{opts,next} = @getActionArgs(opts,next)
+		file = @
+
+		# Normalize
+		fullPath = @get('fullPath')
+		unless fullPath
+			filePath = @get('relativePath') or @get('fullPath') or @get('filename')
+			fullPath = @get('fullPath') or filePath or null
+			file.set({fullPath})
+
+		# Log
+		file.log('debug', "Loading the file: #{filePath}")
+
+		# Async
+		tasks = new balUtil.Group (err) =>
+			return next(err)  if err
+			file.log('debug', "Loaded the file: #{fullPath}")
+			file.parse (err) ->
+				return next(err)  if err
+				file.normalize (err) ->
+					return next(err)  if err
+					return next(null,file.buffer)
+
+		# Read the data if it is set
+		tasks.push (complete) ->
+			data = file.getData()
+			if data
+				buffer = new Buffer(data)
+				file.setBuffer(buffer)
+				tasks.exit()
+			else
+				complete()
+
+		# Stat the file and cache the result
+		tasks.push (complete) ->
+			return complete()  if file.getStat()
+			balUtil.stat fullPath, (err,fileStat) ->
+				return complete(err)  if err
+				file.setStat(fileStat)
+				tasks.complete()
+
+		# Read the file and cache the result
+		tasks.push (complete) ->
+			return complete()  if file.getBuffer()
+			balUtil.readFile fullPath, (err,buffer) ->
+				return complete(err)  if err
+				file.setBuffer(buffer)
+				return complete()
+
+		# Run the tasks
+		tasks.sync()
+
+		# Chain
+		@
+
+	# Parse
+	# Parse our buffer and extract meaningful data from it
+	# next(err)
+	parse: (opts={},next) ->
+		# Prepare
+		{opts,next} = @getActionArgs(opts,next)
+		buffer = @getBuffer()
+		fullPath = @get('fullPath')
+		encoding = @get('encoding')
+
+		# Detect encoding
+		unless encoding
+			isText = balUtil.isTextSync(fullPath,buffer)
+			if isText
+				encoding = 'utf8'
+			else
+				encoding = 'binary'
+
+		# Fetch source with encoding
+		if encoding is 'utf8'
+			source = buffer.toString(encoding)
+		else
+			source = ''
+
+		# Trim the content
+		content = source.replace(/\r\n?/gm,'\n').replace(/\t/g,'    ')
+
+		# Apply
+		@set({source,content,encoding})
+
+		# Next
+		next()
+		@
 
 	# Normalize data
 	# Normalize any parsing we have done, as if a value has updates it may have consequences on another value. This will ensure everything is okay.
@@ -540,14 +536,18 @@ class FileModel extends Model
 		next()
 		@
 
+
+	# ---------------------------------
+	# CRUD
+
 	# Write the rendered file
 	# next(err)
 	write: (next) ->
 		# Prepare
 		file = @
 		fileOutPath = @get('outPath')
-		content = @get('content') or @getData()
 		encoding = @get('encoding')
+		content = @getContent()
 
 		# Check
 		# Sometimes the out path could not be set if we are early on in the process
