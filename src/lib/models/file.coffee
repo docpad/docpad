@@ -337,7 +337,7 @@ class FileModel extends Model
 			file.set({fullPath})
 
 		# Log
-		file.log('debug', "Loading the file: #{filePath}")
+		file.log('notice', "Loading the file: #{fullPath}")
 
 		# Async
 		tasks = new balUtil.Group (err) =>
@@ -351,6 +351,7 @@ class FileModel extends Model
 
 		# Read the data if it is set
 		tasks.push (complete) ->
+			file.log('notice', "Data check for: #{fullPath}")
 			data = file.getData()
 			if data
 				buffer = new Buffer(data)
@@ -361,7 +362,8 @@ class FileModel extends Model
 
 		# Stat the file and cache the result
 		tasks.push (complete) ->
-			return complete()  if file.getStat()
+			file.log('notice', "Stat check for: #{fullPath}")
+			#return complete()  if file.getStat()
 			balUtil.stat fullPath, (err,fileStat) ->
 				return complete(err)  if err
 				file.setStat(fileStat)
@@ -369,7 +371,9 @@ class FileModel extends Model
 
 		# Read the file and cache the result
 		tasks.push (complete) ->
-			return complete()  if file.getBuffer()
+			file.log('notice', "Read check for: #{fullPath}")
+			#return complete()  if file.getBuffer()
+			file.log('notice', "Read check blah: #{fullPath}")
 			balUtil.readFile fullPath, (err,buffer) ->
 				return complete(err)  if err
 				file.setBuffer(buffer)
