@@ -1,5 +1,9 @@
 ## History
 
+- v6.17.3 December 5, 2012
+	- Fixed an issue introduced in v6.17.0 that prevented files from reloading under certain circumstances
+		- Thanks [Vladislav Botvin](https://github.com/darrrk) for [issue #370](https://github.com/bevry/docpad/issues/370) and [pull request #371](https://github.com/bevry/docpad/pull/371)
+
 - v6.17.2 December 5, 2012
 	- `watch` and `server` actions now perform an initial generation
 		- Thanks [Khalid Jebbari](https://github.com/DjebbZ), [Vladislav Botvin](https://github.com/darrrk)
