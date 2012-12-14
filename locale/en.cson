@@ -33,9 +33,9 @@
 		We couldn't find an existing DocPad project inside your current directory. Looked at: %s
 		If you're wanting to use a pre-made skeleton for the basis of your new project, then run DocPad again inside an empty directory.
 		If you're wanting to start your new project from scratch, then refer to the Getting Started guide here:
-			https://docpad.org/get-started
+			http://docpad.org/get-started
 		For more information on what this means, visit:
-			https://docpad.org/troubleshoot
+			http://docpad.org/troubleshoot
 		"""
 	skeletonNoneName: "No Skeleton"
 	skeletonNoneDescription: "Prefer to start from scratch? You can get started without any skeleton if you wish"
@@ -66,7 +66,7 @@
 	renderParsing: 'Parsing everything'
 	renderParsed: 'Parsed everything'
 	renderNonexistant: 'Cannot generate website as the src dir was not found'
-	renderNoPlugins: "DocPad is currently running without any plugins installed. You probably want to install some: https://github.com/bevry/docpad/wiki/Plugins"
+	renderNoPlugins: "DocPad is currently running without any plugins installed. You probably want to install some: http://docpad.org/plugins"
 	renderDirectoryParsing: "Parsing directory: %s"
 	renderDirectoryParsed: "Parsed directory: %s"
 	renderDirectoryNonexistant: "Skipped directory: %s (it does not exist)"
@@ -99,15 +99,15 @@
 	pluginContinued: "Continuing with the unsupported plugin: %s"
 	pluginNamingConventionInvalid: """
 		The plugin %s uses an invalid naming convention. We only allow alphanumeric characters (no symbols). Perhaps change it to %s
-		More information here: https://docpad.org/plugin-conventions
+		More information here: http://docpad.org/plugin-conventions
 		"""
 	pluginPrototypeNameUndefined: """
 		The plugin %s did not have its name defined in its prototype, defaulting it to the directory naming convention.
-		More information here: https://docpad.org/plugin-conventions
+		More information here: http://docpad.org/plugin-conventions
 		"""
 	pluginPrototypeNameDifferent: """
 		The plugin %s is using a different name (%s) for its prototype name. This can cause issues.
-		More information here: https://docpad.org/plugin-conventions
+		More information here: http://docpad.org/plugin-conventions
 		"""
 
 	# Collections
@@ -152,6 +152,10 @@
 	consoleOptionSkeleton: "for new projects, instead of being asked for the skeleton, you can specify it here"
 
 	# Misc
+	renderedEarlyViaInclude: """
+		Your include of %s has failed as that document has not been rendered yet.
+		More information here: http://docpad.org/render-early-via-include
+		"""
 	welcome: "Welcome to DocPad %s"
 	welcomePlugins: "Plugins: %s"
 	welcomeEnvironment: "Environment: %s"

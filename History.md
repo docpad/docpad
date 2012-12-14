@@ -1,5 +1,14 @@
 ## History
 
+- v6.18.0 December 14, 2012
+	- Added `regeneratePaths` configuration option
+	- Include now returns expected results if the content hasn't been rendered yet
+		- Closes [issue #378](https://github.com/bevry/docpad/issues/378)
+	- Updated [QueryEngine](https://github.com/bevry/query-engine/) to v1.5.x from v1.4.x
+	- [Backbone](http://backbonejs.org/) dependency now moved to our dependencies from QueryEngine's. Version set explicitly to v0.9.9.
+		- If you have any plugins or whatever that used the `myCollection.getByCid` function, change that call to `myCollection.get`
+	- Improved help URLs
+
 - v6.17.3 December 5, 2012
 	- Fixed an issue introduced in v6.17.0 that prevented files from reloading under certain circumstances
 		- Thanks [Vladislav Botvin](https://github.com/darrrk) for [issue #370](https://github.com/bevry/docpad/issues/370) and [pull request #371](https://github.com/bevry/docpad/pull/371)

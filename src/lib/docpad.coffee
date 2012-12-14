@@ -309,7 +309,7 @@ class DocPad extends EventEmitterEnhanced
 
 	# Get a file by its url
 	getFileByUrl: (url) ->
-		result = @getDatabase().getByCid(@filesByUrl[url])
+		result = @getDatabase().get(@filesByUrl[url])
 		return result
 
 
@@ -405,6 +405,7 @@ class DocPad extends EventEmitterEnhanced
 		# Prepare
 		userTemplateData or= {}
 		docpad = @
+		{renderPasses} = @config
 		locale = @getLocale()
 
 		# Set the initial docpad template data
@@ -477,10 +478,14 @@ class DocPad extends EventEmitterEnhanced
 				return docpad.getBlock(name,true)
 
 			# Include another file taking in a relative path
-			include: (subRelativePath) ->
-				result = @getFileAtPath(subRelativePath)
-				if result
-					return result.getOutContent()
+			include: (subRelativePath,strict=true) ->
+				file = @getFileAtPath(subRelativePath)
+				if file
+					if strict and file.get('rendered') is false
+						if renderPasses is 1
+							docpad.warn util.format(locale.renderedEarlyViaInclude, subRelativePath)
+						return null
+					return file.getOutContent()
 				else
 					err = new Error(util.format(locale.includeFailed, subRelativePath))
 					throw err
@@ -654,10 +659,11 @@ class DocPad extends EventEmitterEnhanced
 			'plugins'
 		]
 
-		# Paths that we should watch for changes in
-		# and when a change occurs, reload our configuration and perform a complete regenerated
-		# Our configPaths are appended to this
+		# Paths that we should watch for reload changes in
 		reloadPaths: []
+
+		# Paths that we should watch for regeneration changes in
+		regeneratePaths: []
 
 		# The website's out directory
 		outPath: 'out'
@@ -2814,7 +2820,7 @@ class DocPad extends EventEmitterEnhanced
 			tasks = new balUtil.Group(next)
 			tasks.total = 2
 
-			# Watch the config
+			# Watch reload paths
 			watchrs = watchr.watch(
 				paths: _.union(docpad.config.reloadPaths, docpad.config.configPaths)
 				listener: ->
@@ -2822,6 +2828,14 @@ class DocPad extends EventEmitterEnhanced
 					docpad.action 'load', (err) ->
 						return docpad.fatal(err)  if err
 						performGenerate(reset:true)
+				next: tasks.completer()
+			)
+
+			# Watch regenerate paths
+			watchrs.push watchr.watch(
+				paths: docpad.config.regeneratePaths
+				listener: ->
+					performGenerate(reset:true)
 				next: tasks.completer()
 			)
 
