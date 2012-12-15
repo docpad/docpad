@@ -690,9 +690,9 @@ class DocPad extends EventEmitterEnhanced
 			'layouts'
 		]
 
-		# Ignored files patterns during directory parsing
-		# Default to balUtil.commonIgnorePatterns
-		ignorePatterns: true
+		# Ignored file patterns during directory parsing
+		ignoreCommonPatterns: true
+		ignoreCustomPatterns: null
 
 
 		# -----------------------------
@@ -1800,7 +1800,8 @@ class DocPad extends EventEmitterEnhanced
 			path: path
 
 			# Ignore patterns
-			ignorePatterns: docpad.config.ignorePatterns
+			ignoreCommonPatterns: docpad.config.ignoreCommonPatterns
+			ignoreCustomPatterns: docpad.config.ignoreCustomPatterns
 
 			# File Action
 			fileAction: (fileFullPath,fileRelativePath,nextFile,fileStat) ->
@@ -1997,7 +1998,8 @@ class DocPad extends EventEmitterEnhanced
 			path: pluginsPath
 
 			# Ignore patterns
-			ignorePatterns: docpad.config.ignorePatterns
+			ignoreCommonPatterns: docpad.config.ignoreCommonPatterns
+			ignoreCustomPatterns: docpad.config.ignoreCustomPatterns
 
 			# Skip files
 			fileAction: false
@@ -2615,6 +2617,7 @@ class DocPad extends EventEmitterEnhanced
 		docpad.lastGenerate ?= new Date('1970')
 		locale = @getLocale()
 
+
 		# Progress
 		progressIndicator = null
 		opts.setProgressIndicator = (_progressIndicator) ->
@@ -2801,8 +2804,6 @@ class DocPad extends EventEmitterEnhanced
 		locale = @getLocale()
 		database = @getDatabase()
 		watchrs = []
-		ignorePatterns = @config.ignorePatterns
-		ignorePatterns = balUtil.commonIgnorePatterns  if @config.ignorePatterns is true
 
 		# Close our watchers
 		closeWatchers = ->
@@ -2844,7 +2845,8 @@ class DocPad extends EventEmitterEnhanced
 				path: docpad.config.srcPath
 				listener: changeHandler
 				next: tasks.completer()
-				ignorePatterns: docpad.config.ignorePatterns
+				ignoreCommonPatterns: docpad.config.ignoreCommonPatterns
+				ignoreCustomPatterns: docpad.config.ignoreCustomPatterns
 			)
 
 		# Timer
@@ -2875,12 +2877,17 @@ class DocPad extends EventEmitterEnhanced
 			docpad.log 'debug', util.format(locale.watchChange, new Date().toLocaleTimeString()), eventName, filePath
 
 			# Check if we are a file we don't care about
-			if ( ignorePatterns and ignorePatterns.test(pathUtil.basename(filePath)) )
+			isIgnored = balUtil.testIgnorePatterns(filePath, {
+				ignoreCommonPatterns: docpad.config.ignoreCommonPatterns
+				ignoreCustomPatterns: docpad.config.ignoreCustomPatterns
+			})
+			if isIgnored
 				docpad.log 'debug', util.format(locale.watchIgnoredChange, new Date().toLocaleTimeString()), filePath
 				return
 
 			# Don't care if we are a directory
-			if (fileCurrentStat or filePreviousStat).isDirectory()
+			isDirectory = (fileCurrentStat or filePreviousStat).isDirectory()
+			if isDirectory
 				docpad.log 'debug', util.format(locale.watchDirectoryChange, new Date().toLocaleTimeString()), filePath
 				return
 

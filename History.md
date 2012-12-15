@@ -1,5 +1,15 @@
 ## History
 
+- v6.19.0 December 15, 2012
+	- Renamed `ignorePatterns` configuration option to `ignoreCommonPatterns` and added new `ignoreCustomPatterns` configuration option
+	- Updated dependencies
+		- [bal-util](https://github.com/balupton/bal-util) from 1.14.x to ~1.15.2
+		- [watchr](https://github.com/bevry/watchr) from 2.1.x to ~2.2.1
+	- Updated optional dependencies
+		- [mixpanel](https://github.com/carlsverre/mixpanel-node) from 0.0.9 to 0.0.10
+	- Updated dev dependencies
+		- [chai](https://github.com/chaijs/chai) from 1.3.x to 1.4.x
+
 - v6.18.0 December 14, 2012
 	- Added `regeneratePaths` configuration option
 	- Include now returns expected results if the content hasn't been rendered yet
