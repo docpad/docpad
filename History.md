@@ -1,5 +1,10 @@
 ## History
 
+- v6.20.0 December 17, 2012
+	- Better watch handling
+	- Updated dependencies
+		- [watchr](https://github.com/bevry/watchr) from ~2.2.1 to 2.3.x
+
 - v6.19.0 December 15, 2012
 	- Renamed `ignorePatterns` configuration option to `ignoreCommonPatterns` and added new `ignoreCustomPatterns` configuration option
 	- Updated dependencies
