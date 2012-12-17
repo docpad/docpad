@@ -2803,14 +2803,14 @@ class DocPad extends EventEmitterEnhanced
 		docpad = @
 		locale = @getLocale()
 		database = @getDatabase()
-		watchrs = []
+		watchers = []
 
 		# Close our watchers
 		closeWatchers = ->
-			for watchr in watchrs
-				watchr.close()
-				watchr = null
-			watchrs = []
+			for watcher in watchers
+				watcher.close()
+				watcher = null
+			watchers = []
 
 		# Restart our watchers
 		resetWatchers = (next) ->
@@ -2819,34 +2819,54 @@ class DocPad extends EventEmitterEnhanced
 
 			# Start a group
 			tasks = new balUtil.Group(next)
-			tasks.total = 2
+			tasks.total = 3
 
 			# Watch reload paths
-			watchrs = watchr.watch(
+			watchr.watch(
 				paths: _.union(docpad.config.reloadPaths, docpad.config.configPaths)
-				listener: ->
-					docpad.log 'info', util.format(locale.watchReloadChange, new Date().toLocaleTimeString())
-					docpad.action 'load', (err) ->
-						return docpad.fatal(err)  if err
-						performGenerate(reset:true)
-				next: tasks.completer()
+				ignoreCommonPatterns: docpad.config.ignoreCommonPatterns
+				ignoreCustomPatterns: docpad.config.ignoreCustomPatterns
+				listeners:
+					'log': docpad.log
+					'error': docpad.error
+					'change': ->
+						docpad.log 'info', util.format(locale.watchReloadChange, new Date().toLocaleTimeString())
+						docpad.action 'load', (err) ->
+							return docpad.fatal(err)  if err
+							performGenerate(reset:true)
+				next: (err,_watchers) ->
+					for watcher in _watchers
+						watchers.push(watcher)
+					tasks.complete()
 			)
 
 			# Watch regenerate paths
-			watchrs.push watchr.watch(
+			watchr.watch(
 				paths: docpad.config.regeneratePaths
-				listener: ->
-					performGenerate(reset:true)
-				next: tasks.completer()
+				ignoreCommonPatterns: docpad.config.ignoreCommonPatterns
+				ignoreCustomPatterns: docpad.config.ignoreCustomPatterns
+				listeners:
+					'log': docpad.log
+					'error': docpad.error
+					'change': -> performGenerate(reset:true)
+				next: (err,_watchers) ->
+					for watcher in _watchers
+						watchers.push(watcher)
+					tasks.complete()
 			)
 
 			# Watch the source
-			watchrs.push watchr.watch(
+			watchr.watch(
 				path: docpad.config.srcPath
-				listener: changeHandler
-				next: tasks.completer()
 				ignoreCommonPatterns: docpad.config.ignoreCommonPatterns
 				ignoreCustomPatterns: docpad.config.ignoreCustomPatterns
+				listeners:
+					'log': docpad.log
+					'error': docpad.error
+					'change': changeHandler
+				next: (err,watcher) ->
+					watchers.push(watcher)
+					tasks.complete()
 			)
 
 		# Timer
@@ -2872,9 +2892,9 @@ class DocPad extends EventEmitterEnhanced
 				docpad.log util.format(locale.watchRegenerated, new Date().toLocaleTimeString())
 
 		# Change event handler
-		changeHandler = (eventName,filePath,fileCurrentStat,filePreviousStat) ->
+		changeHandler = (changeType,filePath,fileCurrentStat,filePreviousStat) ->
 			# Fetch the file
-			docpad.log 'debug', util.format(locale.watchChange, new Date().toLocaleTimeString()), eventName, filePath
+			docpad.log 'debug', util.format(locale.watchChange, new Date().toLocaleTimeString()), changeType, filePath
 
 			# Check if we are a file we don't care about
 			isIgnored = balUtil.testIgnorePatterns(filePath, {
@@ -2897,23 +2917,23 @@ class DocPad extends EventEmitterEnhanced
 
 			# Create the file object
 			file = docpad.ensureFileOrDocument({fullPath:filePath},{stat:fileCurrentStat})
-			file.setStat(fileCurrentStat)  if eventName is 'change'
+			file.setStat(fileCurrentStat)  if changeType is 'update'
 
 			# File was deleted, delete the rendered file, and remove it from the database
-			if eventName is 'unlink'
+			if changeType is 'delete'
 				database.remove(file)
 				file.delete (err) ->
 					return docpad.error(err)  if err
 					queueRegeneration()
 
 			# File is new or was changed, update it's mtime by setting the stat
-			else if eventName in ['new','change']
+			else if changeType in ['create','update']
 				queueRegeneration()
 
 		# Watch
-		docpad.log locale.watchStart
+		docpad.log(locale.watchStart)
 		resetWatchers (err) ->
-			docpad.log locale.watchStarted
+			docpad.log(locale.watchStarted)
 			return next(err)
 
 		# Chain
