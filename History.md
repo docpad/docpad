@@ -1,5 +1,9 @@
 ## History
 
+- v6.20.1 December 24, 2012
+	- Fixed `File::writeSource`
+		- Thanks to [ashnur](https://github.com/ashnur) for [pull request #381](https://github.com/bevry/docpad/pull/381)
+
 - v6.20.0 December 17, 2012
 	- Better watch handling
 	- Updated dependencies
