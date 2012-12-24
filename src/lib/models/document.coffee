@@ -613,7 +613,6 @@ class DocumentModel extends FileModel
 		# Prepare
 		file = @
 		CSON = require('cson')  unless CSON
-
 		# Fetch
 		fullPath = @get('fullPath')
 		content = @get('content')
@@ -632,7 +631,7 @@ class DocumentModel extends FileModel
 		@set({parser,header,body,content,source})
 
 		# Write content
-		balUtil.writeFile fileOutPath, source, (err) ->
+		balUtil.writeFile fullPath, source, (err) ->
 			# Check
 			return next(err)  if err
 
