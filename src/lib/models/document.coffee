@@ -138,13 +138,13 @@ class DocumentModel extends FileModel
 					switch parser
 						when 'cson', 'coffee', 'coffeescript', 'coffee-script'
 							CSON = require('cson')  unless CSON
-							meta = CSON.parseSync(header)
-							@meta.set(meta)
+							metaData = CSON.parseSync(header)
+							meta.set(metaData)
 
 						when 'yaml'
 							YAML = require('yamljs')  unless YAML
-							meta = YAML.parse(header)
-							@meta.set(meta)
+							metaData = YAML.parse(header)
+							meta.set(metaData)
 
 						else
 							err = new Error("Unknown meta parser: #{parser}")
@@ -166,26 +166,28 @@ class DocumentModel extends FileModel
 			)
 
 			# Correct data format
-			metaDate = @meta.get('date')
+			metaDate = meta.get('date')
 			if metaDate
 				metaDate = new Date(metaDate)
-				@meta.set({date:metaDate})
+				meta.set({date:metaDate})
 
 			# Correct ignore
-			ignored = @meta.get('ignored') or @meta.get('ignore') or @meta.get('skip') or @meta.get('draft') or (@meta.get('published') is false)
-			@meta.set({ignored:true})  if ignored
+			ignored = meta.get('ignored') or meta.get('ignore') or meta.get('skip') or meta.get('draft') or (meta.get('published') is false)
+			meta.set({ignored:true})  if ignored
 
 			# Handle urls
-			metaUrls = @meta.get('urls')
-			metaUrl = @meta.get('url')
+			metaUrls = meta.get('urls')
+			metaUrl = meta.get('url')
 			@addUrl(metaUrls)  if metaUrls
 			@addUrl(metaUrl)   if metaUrl
 
 			# Apply meta to us
-			@set(@meta.toJSON())
+			@set(meta.toJSON())
 
 			# Next
 			next()
+
+		# Chain
 		@
 
 	# Normalize data
@@ -612,10 +614,12 @@ class DocumentModel extends FileModel
 	writeSource: (next) ->
 		# Prepare
 		file = @
+		meta = @getMeta()
 		CSON = require('cson')  unless CSON
+
 		# Fetch
 		fullPath = @get('fullPath')
-		content = @get('content')
+		content = (@getContent() or '').toString()
 		parser = 'cson'
 		seperator = '---'
 
@@ -623,7 +627,9 @@ class DocumentModel extends FileModel
 		file.log 'debug', "Writing the source file: #{fullPath}"
 
 		# Adjust
-		header = CSON.stringifySync(@meta.toJSON())
+		metaData = meta.toJSON()
+		console.log({metaData})
+		header = CSON.stringifySync(metaData)
 		content = body = content.replace(/^\s+/,'')
 		source = "#{seperator} #{parser}\n#{header}\n#{seperator}\n\n#{body}"
 

@@ -4,7 +4,7 @@
 ## Support
 
 1. Use the GitHub Issues only for development tasks and bug reports
-1. For anything else (questions, support, etc) use our [Official Support Channels](http://bevry.me/support)
+1. For anything else (questions, support, etc) use our [Official Support Channels](http://docpad.org/support)
 1. With bug reports, be sure to specify:
 	1. Your docpad version `docpad --version`
 	1. Your node version `node --version`

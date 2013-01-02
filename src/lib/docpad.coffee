@@ -1383,7 +1383,7 @@ class DocPad extends EventEmitterEnhanced
 				})
 				.on('add', (model) ->
 					docpad.log('debug', util.format(locale.addingDocument, model.attributes.fullPath))
-					_.defaults(model.attributes,{
+					model.setDefaults({
 						isDocument: true
 						render: true
 						write: true
@@ -1397,7 +1397,7 @@ class DocPad extends EventEmitterEnhanced
 				})
 				.on('add', (model) ->
 					docpad.log('debug', util.format(locale.addingFile, model.attributes.fullPath))
-					_.defaults(model.attributes,{
+					model.setDefaults({
 						isFile: true
 						render: false
 						write: true
@@ -1411,7 +1411,7 @@ class DocPad extends EventEmitterEnhanced
 				})
 				.on('add', (model) ->
 					docpad.log('debug', util.format(locale.addingLayout, model.attributes.fullPath))
-					_.defaults(model.attributes,{
+					model.setDefaults({
 						isLayout: true
 						render: false
 						write: false
@@ -1443,7 +1443,9 @@ class DocPad extends EventEmitterEnhanced
 				})
 				.on('add', (model) ->
 					docpad.log('debug', util.format(locale.addingStylesheet, model.attributes.fullPath))
-					model.attributes.referencesOthers = true
+					model.setDefaults({
+						referencesOthers: true
+					})
 				)
 		)
 
@@ -2701,58 +2703,115 @@ class DocPad extends EventEmitterEnhanced
 	# ---------------------------------
 	# Render
 
+	# Flow through a Document
+	# next(err,document)
+	flowDocument: (document,opts,next) ->
+		# Prepare
+		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+
+		# Flow
+		balUtil.flow(
+			object: document
+			action: opts.action
+			args: [opts]
+			next: (err) ->
+				return next?(err,document)
+		)
+
+		# Chain
+		@
+
+	# Load a Document
+	# next(err,document)
+	loadDocument: (document,opts,next) ->
+		# Prepare
+		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		opts.action or= 'load contextualize'
+
+		# Flow
+		@flowDocument(document, opts, next)
+
+		# Chain
+		@
+
 	# Load and Render a Document
 	# next(err,document)
 	loadAndRenderDocument: (document,opts,next) ->
-		balUtil.flow(
-			object: document
-			action: 'load contextualize render'
-			args: [opts]
-			next: (err) ->
-				result = document.getOutContent()
-				return next(err,result,document)
-		)
+		# Prepare
+		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		opts.action or= 'load contextualize render'
+
+		# Flow
+		@flowDocument document, opts, (err) ->
+			result = document.getOutContent()
+			return next?(err,result,document)
+
+		# Chain
 		@
 
 	# Render Document
 	# next(err,result)
 	renderDocument: (document,opts,next) ->
+		# Prepare
+		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+
+		# Render
 		document.render(opts,next)
+
+		# Chain
 		@
 
 	# Render Path
 	# next(err,result)
 	renderPath: (path,opts,next) ->
+		# Prepare
+		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		attributes = balUtil.extend({
 			fullPath: path
 		},opts.attributes)
+
+		# Handle
 		document = @ensureDocument(attributes)
 		@loadAndRenderDocument(document,opts,next)
+
+		# Chain
 		@
 
 	# Render Data
 	# next(err,result)
 	renderData: (content,opts,next) ->
+		# Prepare
+		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		attributes = balUtil.extend({
 			filename: opts.filename
 			data: content
 		},opts.attributes)
+
+		# Handle
 		document = @createDocument(attributes)
 		@loadAndRenderDocument(document,opts,next)
+
+		# Chain
 		@
 
 	# Render Text
 	# Doesn't extract meta information, or render layouts
 	# next(err,result)
 	renderText: (text,opts,next) ->
+		# Prepare
+		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		opts.actions ?= ['renderExtensions','renderDocument']
 		attributes = balUtil.extend({
 			filename: opts.filename
 			data: text
 			body: text
 			content: text
 		},opts.attributes)
+
+		# Handle
 		document = @createDocument(attributes)
-		opts.actions ?= ['renderExtensions','renderDocument']
+
+		# Flow
 		balUtil.flow(
 			object: document
 			action: 'normalize contextualize render'
@@ -2761,6 +2820,8 @@ class DocPad extends EventEmitterEnhanced
 				result = document.getOutContent()
 				return next(err,result,document)
 		)
+
+		# Chain
 		@
 
 	# Render Action

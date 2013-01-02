@@ -109,6 +109,9 @@ class FileModel extends Model
 		# The date object for when this document was last modified
 		mtime: null
 
+		# Does the file actually exist on the file system
+		exists: null
+
 
 		# ---------------------------------
 		# Content variables
@@ -284,26 +287,38 @@ class FileModel extends Model
 	initialize: (attrs,opts) ->
 		# Prepare
 		{outDirPath,stat,data,meta} = opts
-		if attrs.data?
-			data = attrs.data
-			delete attrs.data
-			delete @attributes.data
+
+		# Special
+		@outDirPath = outDirPath  if outDirPath
+
+		# Defaults
 		defaults =
 			extensions: []
 			urls: []
 			id: @cid
 
-		# Apply
-		@outDirPath = outDirPath  if outDirPath
-		@setData(data)  if data
+		# Stat
 		if stat
 			@setStat(stat)
 		else
 			defaults.ctime = new Date()
 			defaults.mtime = new Date()
+
+		# Defaults
 		@set(defaults)
 
+		# Data
+		if attrs.data?
+			data = attrs.data
+			delete attrs.data
+			delete @attributes.data
+		if data
+			@setData(data)
+
 		# Meta
+		if attrs.meta?
+			@setMeta(attrs.meta)
+			delete attrs.meta
 		if meta
 			@setMeta(meta)
 
@@ -328,6 +343,7 @@ class FileModel extends Model
 		# Prepare
 		{opts,next} = @getActionArgs(opts,next)
 		file = @
+		exists = opts.exists ? false
 
 		# Normalize
 		fullPath = @get('fullPath')
@@ -349,44 +365,50 @@ class FileModel extends Model
 					return next(err)  if err
 					return next(null,file.buffer)
 
-		# Read the data if it is set
-		tasks.push (complete) ->
-			data = file.getData()
-			if data
-				buffer = new Buffer(data)
-				file.setBuffer(buffer)
-				return tasks.exit()
-			else
-				return complete()
+		# If data is set, use that as the buffer
+		data = file.getData()
+		if data
+			buffer = new Buffer(data)
+			file.setBuffer(buffer)
+
+		# If stat is set, use that
+		if opts.stat
+			file.setStat(opts.stat)
+
+		# If buffer is set, use that
+		if opts.buffer
+			file.setBuffer(opts.buffer)
 
 		# Stat the file and cache the result
 		tasks.push (complete) ->
-			# Check for override stat
-			if opts.stat
-				file.setBuffer(opts.stat)
-				return complete()
-
 			# Otherwise fetch new stat
-			balUtil.stat fullPath, (err,fileStat) ->
-				return complete(err)  if err
-				file.setStat(fileStat)
+			if fullPath and exists and opts.stat? is false
+				return balUtil.stat fullPath, (err,fileStat) ->
+					return complete(err)  if err
+					file.setStat(fileStat)
+					return complete()
+			else
 				return complete()
 
 		# Read the file and cache the result
 		tasks.push (complete) ->
-			# Check for override buffer
-			if opts.buffer
-				file.setBuffer(opts.buffer)
-				return complete()
-
 			# Otherwise fetch new buffer
-			balUtil.readFile fullPath, (err,buffer) ->
-				return complete(err)  if err
-				file.setBuffer(buffer)
+			if fullPath and exists and opts.buffer? is false
+				return balUtil.readFile fullPath, (err,buffer) ->
+					return complete(err)  if err
+					file.setBuffer(buffer)
+					return complete()
+			else
 				return complete()
 
 		# Run the tasks
-		tasks.sync()
+		if fullPath
+			balUtil.exists fullPath, (_exists) ->
+				exists = _exists
+				file.set({exists:true})
+				tasks.async()
+		else
+			tasks.async()
 
 		# Chain
 		@

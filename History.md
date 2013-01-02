@@ -1,5 +1,13 @@
 ## History
 
+- v6.21.0 January 2, 2013
+	- Cleanup focused around loading, parsing, and writing of files and documents
+	- Added
+		- `DocPad::flowDocument`
+		- `DocPad::loadDocument`
+		- `exists` attribute on `File` model
+	- Fixed `Document::writeSource`
+
 - v6.20.1 December 24, 2012
 	- Fixed `File::writeSource`
 		- Thanks to [ashnur](https://github.com/ashnur) for [pull request #381](https://github.com/bevry/docpad/pull/381)
