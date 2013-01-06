@@ -35,18 +35,22 @@ class PluginTester
 	config:
 		pluginName: null
 		pluginPath: null
-		outExpectedPath: null
 		autoExit: true
+		testPath: null
+		outExpectedPath: null
 	docpadConfig:
 		port: null
 		growl: false
 		logLevel: (if ('-d' in process.argv) then 7 else 5)
 		rootPath: null
+		outPath: null
+		srcPath: null
 		pluginPaths: null
 		enableUnlistedPlugins: false
 		enabledPlugins: null
 		skipUnsupportedPlugins: false
 		catchExceptions: false
+		environment: null
 
 	# DocPad Instance
 	docpad: null
@@ -55,18 +59,13 @@ class PluginTester
 	logger: null
 
 	# Constructor
-	constructor: (config={}) ->
+	constructor: (config={},docpadConfig={},next) ->
 		# Apply Configuration
 		tester = @
 		@config = balUtil.deepExtendPlainObjects({}, PluginTester::config ,@config, config)
-		@docpadConfig = balUtil.deepExtendPlainObjects({}, PluginTester::docpadConfig, @docpadConfig)
+		@docpadConfig = balUtil.deepExtendPlainObjects({}, PluginTester::docpadConfig, @docpadConfig, docpadConfig)
 		@docpadConfig.port ?= ++pluginPort
-
-		# Test API
-		joe.describe @config.pluginName, (suite,task,complete) ->
-			tester.describe = tester.suite = suite
-			tester.it = tester.test = task
-			tester.done = tester.exit = complete
+		@config.testerName ?= @config.pluginName
 
 		# Extend Configuration
 		@config.testPath or= pathUtil.join(@config.pluginPath,'test')
@@ -81,6 +80,16 @@ class PluginTester
 		defaultEnabledPlugins[@config.pluginName] = true
 		@docpadConfig.enabledPlugins or= defaultEnabledPlugins
 
+		# Test API
+		joe.describe @config.testerName, (suite,task,complete) ->
+			tester.describe = tester.suite = suite
+			tester.it = tester.test = task
+			tester.done = tester.exit = complete
+			next?(null,tester)
+
+		# Chain
+		@
+
 	# Create DocPad Instance
 	testCreate: ->
 		# Prepare
@@ -89,9 +98,10 @@ class PluginTester
 
 		# Create Instance
 		@test "create", (done) ->
-			tester.docpad = DocPad.createInstance docpadConfig, (err) ->
+			DocPad.createInstance docpadConfig, (err,docpad) ->
 				return done(err)  if err
-				tester.logger = tester.docpad.logger
+				tester.docpad = docpad
+				tester.logger = docpad.logger
 				tester.docpad.action 'clean', (err) ->
 					return done(err)  if err
 					tester.docpad.action 'install', (err) ->
@@ -169,7 +179,8 @@ class PluginTester
 			@test 'finish up', (done) ->
 				done()
 				tester.exit()
-				process.exit()
+				if tester.config.autoExit isnt 'safe'
+					process.exit()
 
 		# Chain
 		@
@@ -212,23 +223,21 @@ class RendererTester extends PluginTester
 # Test a plugin
 # test({pluginPath: String})
 testers.test =
-test = (pluginDetails) ->
+test = (testerConfig, docpadConfig) ->
 	# Configure
-	pluginDetails.pluginPath = pathUtil.resolve(pluginDetails.pluginPath)
-	pluginDetails.pluginName ?= pathUtil.basename(pluginDetails.pluginPath)
-	pluginDetails.testerPath ?= pathUtil.join('out', "#{pluginDetails.pluginName}.tester.js")
-	pluginDetails.testerPath = pathUtil.resolve(pluginDetails.pluginPath, pluginDetails.testerPath)
+	testerConfig.pluginPath = pathUtil.resolve(testerConfig.pluginPath)
+	testerConfig.pluginName ?= pathUtil.basename(testerConfig.pluginPath)
+	testerConfig.testerPath ?= pathUtil.join('out', "#{testerConfig.pluginName}.tester.js")
+	testerConfig.testerPath = pathUtil.resolve(testerConfig.pluginPath, testerConfig.testerPath)
 
 	# Test the plugin's tester
-	testerClass = require(pluginDetails.testerPath)(testers)
-	testerInstance = new testerClass(
-		pluginName: pluginDetails.pluginName
-		pluginPath: pluginDetails.pluginPath
-	)
-	testerInstance.testEverything()
+	testerClass = require(testerConfig.testerPath)(testers)
+	new testerClass testerConfig, docpadConfig, (err,testerInstance) ->
+		throw err  if err
+		testerInstance.testEverything()
 
 	# Chain
-	@
+	return testers
 
 # Export Testers
 module.exports = testers
