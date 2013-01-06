@@ -1,5 +1,9 @@
 ## History
 
+- v6.21.1 January 6, 2013
+	- Added support for running multiple plugin tests for the same plugin
+		- Closes [issue #393](https://github.com/bevry/docpad/issues/393)
+ 
 - v6.21.0 January 2, 2013
 	- Cleanup focused around loading, parsing, and writing of files and documents
 	- Added
