@@ -25,7 +25,7 @@ class Model extends Backbone.Model
 	setDefaults: (defaults) ->
 		set = {}
 		for own key,value of defaults
-			set[key] = value  if @get('key') is @defaults?[key]
+			set[key] = value  if @get(key) is @defaults?[key]
 		@set(set)
 		return @
 
