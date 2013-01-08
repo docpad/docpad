@@ -1,5 +1,9 @@
 ## History
 
+- v6.21.2 January 8, 2013
+	- Fixed `Base::setDefaults` and `File::setMetaDefaults` always forcing defaults
+		- Thanks to [Stefan](https://github.com/stegrams) for [pull request #396](https://github.com/bevry/docpad/pull/396)
+
 - v6.21.1 January 6, 2013
 	- Added support for running multiple plugin tests for the same plugin
 		- Closes [issue #393](https://github.com/bevry/docpad/issues/393)

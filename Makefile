@@ -5,8 +5,8 @@
 # -----------------
 # Variables
 
-BIN=node_modules/.bin/
-COFFEE=$(BIN)coffee
+BIN=node_modules/.bin
+COFFEE=$(BIN)/coffee
 OUT=out
 SRC=src
 
