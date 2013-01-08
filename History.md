@@ -1,5 +1,10 @@
 ## History
 
+- v6.21.3 January 9, 2013
+	- Fixed ignored files sometimes triggering reloads
+	- Added `ignorePaths`, `ignoreHiddenFiles` options
+	- Added `DocPad::isIgnoredPath`, `DocPad::scandir`, `DocPad::watchdir` helpers
+
 - v6.21.2 January 8, 2013
 	- Fixed `Base::setDefaults` and `File::setMetaDefaults` always forcing defaults
 		- Thanks to [Stefan](https://github.com/stegrams) for [pull request #396](https://github.com/bevry/docpad/pull/396)

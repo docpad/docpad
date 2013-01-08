@@ -691,8 +691,10 @@ class DocPad extends EventEmitterEnhanced
 		]
 
 		# Ignored file patterns during directory parsing
+		ignorePaths: false
+		ignoreHiddenFiles: false
 		ignoreCommonPatterns: true
-		ignoreCustomPatterns: null
+		ignoreCustomPatterns: false
 
 
 		# -----------------------------
@@ -933,7 +935,41 @@ class DocPad extends EventEmitterEnhanced
 		@
 
 
-	# ---------------------------------
+	# =================================
+	# Helpers
+
+	# Is Ignored Path
+	isIgnoredPath: (path,opts={}) ->
+		opts = balUtil.extend({
+			ignorePaths: @config.ignorePaths
+			ignoreHiddenFiles: @config.ignoreHiddenFiles
+			ignoreCommonPatterns: @config.ignoreCommonPatterns
+			ignoreCustomPatterns: @config.ignoreCustomPatterns
+		},opts)
+		return balUtil.isIgnoredPath(path,opts)
+
+	# Scan Directory
+	scandir: (opts={}) ->
+		opts = balUtil.extend({
+			ignorePaths: @config.ignorePaths
+			ignoreHiddenFiles: @config.ignoreHiddenFiles
+			ignoreCommonPatterns: @config.ignoreCommonPatterns
+			ignoreCustomPatterns: @config.ignoreCustomPatterns
+		},opts)
+		return balUtil.scandir(opts)
+
+	# Watch Directory
+	watchdir: (opts={}) ->
+		opts = balUtil.extend({
+			ignorePaths: @config.ignorePaths
+			ignoreHiddenFiles: @config.ignoreHiddenFiles
+			ignoreCommonPatterns: @config.ignoreCommonPatterns
+			ignoreCustomPatterns: @config.ignoreCustomPatterns
+		},opts)
+		return require('watchr').watch(opts)
+
+
+	# =================================
 	# Setup and Loading
 
 	# Ready
@@ -1797,13 +1833,9 @@ class DocPad extends EventEmitterEnhanced
 		docpad.log 'debug', util.format(locale.renderDirectoryParsing, path)
 
 		# Files
-		balUtil.scandir(
+		@scandir(
 			# Path
 			path: path
-
-			# Ignore patterns
-			ignoreCommonPatterns: docpad.config.ignoreCommonPatterns
-			ignoreCustomPatterns: docpad.config.ignoreCustomPatterns
 
 			# File Action
 			fileAction: (fileFullPath,fileRelativePath,nextFile,fileStat) ->
@@ -1995,13 +2027,9 @@ class DocPad extends EventEmitterEnhanced
 
 		# Load Plugins
 		docpad.log 'debug', util.format(locale.pluginsLoadingFor, pluginsPath)
-		balUtil.scandir(
+		@scandir(
 			# Path
 			path: pluginsPath
-
-			# Ignore patterns
-			ignoreCommonPatterns: docpad.config.ignoreCommonPatterns
-			ignoreCustomPatterns: docpad.config.ignoreCustomPatterns
 
 			# Skip files
 			fileAction: false
@@ -2856,9 +2884,6 @@ class DocPad extends EventEmitterEnhanced
 
 	# Watch
 	watch: (opts,next) =>
-		# Require
-		watchr = require('watchr')
-
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
@@ -2883,10 +2908,8 @@ class DocPad extends EventEmitterEnhanced
 			tasks.total = 3
 
 			# Watch reload paths
-			watchr.watch(
+			docpad.watchdir(
 				paths: _.union(docpad.config.reloadPaths, docpad.config.configPaths)
-				ignoreCommonPatterns: docpad.config.ignoreCommonPatterns
-				ignoreCustomPatterns: docpad.config.ignoreCustomPatterns
 				listeners:
 					'log': docpad.log
 					'error': docpad.error
@@ -2902,10 +2925,8 @@ class DocPad extends EventEmitterEnhanced
 			)
 
 			# Watch regenerate paths
-			watchr.watch(
+			docpad.watchdir(
 				paths: docpad.config.regeneratePaths
-				ignoreCommonPatterns: docpad.config.ignoreCommonPatterns
-				ignoreCustomPatterns: docpad.config.ignoreCustomPatterns
 				listeners:
 					'log': docpad.log
 					'error': docpad.error
@@ -2917,10 +2938,8 @@ class DocPad extends EventEmitterEnhanced
 			)
 
 			# Watch the source
-			watchr.watch(
+			docpad.watchdir(
 				path: docpad.config.srcPath
-				ignoreCommonPatterns: docpad.config.ignoreCommonPatterns
-				ignoreCustomPatterns: docpad.config.ignoreCustomPatterns
 				listeners:
 					'log': docpad.log
 					'error': docpad.error
@@ -2958,10 +2977,9 @@ class DocPad extends EventEmitterEnhanced
 			docpad.log 'debug', util.format(locale.watchChange, new Date().toLocaleTimeString()), changeType, filePath
 
 			# Check if we are a file we don't care about
-			isIgnored = balUtil.testIgnorePatterns(filePath, {
-				ignoreCommonPatterns: docpad.config.ignoreCommonPatterns
-				ignoreCustomPatterns: docpad.config.ignoreCustomPatterns
-			})
+			# This check should not be needed with v2.3.3 of watchr
+			# however we've still got it here as it may still be an issue
+			isIgnored = docpad.isIgnoredPath(filePath)
 			if isIgnored
 				docpad.log 'debug', util.format(locale.watchIgnoredChange, new Date().toLocaleTimeString()), filePath
 				return
