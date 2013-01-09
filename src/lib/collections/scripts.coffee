@@ -13,12 +13,12 @@ class ScriptsCollection extends ElementsCollection
 		# Prepare
 		opts or= {}
 		opts.defer ?= true
+		opts.attrs or= ''
 		values = [values]  unless _.isArray(values)
-		attrs = ''
 
 		# Build attrs
 		if opts.defer
-			attrs += """defer="defer" """
+			opts.attrs += """defer="defer" """
 
 		# Convert urls into script element html
 		for value,key in values
@@ -28,12 +28,12 @@ class ScriptsCollection extends ElementsCollection
 				else if value.indexOf(' ') is -1
 					# we are a url
 					values[key] = """
-						<script #{attrs} src="#{value}"></script>
+						<script #{opts.attrs} src="#{value}"></script>
 						"""
 				else
 					# we are javascript not in a script element
 					values[key] = """
-						<script #{attrs}>#{value}</script>
+						<script #{opts.attrs}>#{value}</script>
 						"""
 
 		# Call the super with our values
