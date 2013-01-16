@@ -125,12 +125,39 @@ class DocumentModel extends FileModel
 			content = @get('content')
 
 			# Meta Data
-			match = /^\s*([^\s\d\w]{3,})(?: *([a-z]+))?([\s\S]*?)\1/.exec(content)
+			regex = ///
+				# allow some space
+				^\s*
+
+				# discover our seperator
+				(
+					([^\s\d\w])\2{2,} # match a symbol character repeated 3 or more times
+				) #\1
+
+				# discover our parser
+				(?:
+					\x20* # allow zero or more space characters, see https://github.com/jashkenas/coffee-script/issues/2668
+					(
+						[a-z]+  # parser must be lowercase alpha
+					) #\3
+				)?
+
+				# discover our meta content
+				(
+					[\s\S]*? # match anything/everything lazily
+				) #\4
+
+				# match our seperator (the first group) exactly
+				\1
+				///
+
+			# Extract Meta Data
+			match = regex.exec(content)
 			if match
-				# Extract
+				# Prepare
 				seperator = match[1]
-				parser = match[2] or 'yaml'
-				header = match[3].trim()
+				parser = match[3] or 'yaml'
+				header = match[4].trim()
 				body = content.substring(match[0].length).trim()
 
 				# Parse

@@ -12,7 +12,7 @@ class ElementsCollection extends Collection
 
 	# Add an element to the collection
 	# Right now we just support strings
-	add: (values,options) ->
+	add: (values,opts) ->
 		# Ensure array
 		values = [values]  unless _.isArray(values)
 
@@ -22,7 +22,7 @@ class ElementsCollection extends Collection
 				values[key] = new Model({html:value})
 
 		# Call the super with our values
-		super(values,options)
+		super(values,opts)
 
 	# Create a way to output our elements to HTML
 	toHTML: ->

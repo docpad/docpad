@@ -13,12 +13,13 @@ class ScriptsCollection extends ElementsCollection
 		# Prepare
 		opts or= {}
 		opts.defer ?= true
+		opts.async ?= false
 		opts.attrs or= ''
 		values = [values]  unless _.isArray(values)
 
 		# Build attrs
-		if opts.defer
-			opts.attrs += """defer="defer" """
+		opts.attrs += """defer="defer" """  if opts.defer
+		opts.attrs += """async="async" """  if opts.async
 
 		# Convert urls into script element html
 		for value,key in values

@@ -1,5 +1,12 @@
 ## History
 
+- v6.21.4 January 16, 2013
+	- Fixed incorrect meta data parsing for certain files
+		- Closes [issue #394](https://github.com/bevry/docpad/issues/394) thanks to [Jose Quesada](https://github.com/quesada) and [Stefan](https://github.com/stegrams)
+	- Scripts and styles blocks now support an `attrs` option string
+		- Closes [pull request #397](https://github.com/bevry/docpad/pull/397) thanks to [Alex](https://github.com/amesarosh)
+		- Closes [issue #400](https://github.com/bevry/docpad/issues/400) thanks to [edzillion](https://github.com/edzillion)
+
 - v6.21.3 January 9, 2013
 	- Fixed ignored files sometimes triggering reloads
 	- Added `ignorePaths`, `ignoreHiddenFiles` options
