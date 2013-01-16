@@ -9,7 +9,11 @@ class StylesCollection extends ElementsCollection
 
 	# Add an element to the collection
 	# Right now we just support strings
-	add: (values,options) ->
+	add: (values,opts) ->
+		# Prepare
+		opts or= {}
+		opts.attrs or= ''
+
 		# Ensure array
 		values = [values]  unless _.isArray(values)
 
@@ -18,11 +22,11 @@ class StylesCollection extends ElementsCollection
 			if _.isString(value) and /^\</.test(value) is false
 				# convert url to script tag
 				values[key] = """
-					<link rel="stylesheet" href="#{value}" />
+					<link #{opts.attrs} rel="stylesheet" href="#{value}" />
 					"""
 
 		# Call the super with our values
-		super(values,options)
+		super(values,opts)
 
 
 # Export
