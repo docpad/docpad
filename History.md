@@ -1,5 +1,13 @@
 ## History
 
+- v6.21.5 January 24, 2013
+	- Supports Node v0.9
+	- Added `renderSingleExtensions` option
+		- Note: currently this will render `src/documents/script.coffee` from CoffeeScript to JavaScript as intended, HOWEVER the outfile will be `out/script.coffee` instead of the expected `out/script.js`. We will likely have to do an extension mapping for single extensions.
+	- Added expiremental `docpad-compile` executable
+	- Updated dependencies
+		- [bal-util](https://github.com/balupton/bal-util) from ~1.15.4 to ~1.16.0
+
 - v6.21.4 January 16, 2013
 	- Fixed incorrect meta data parsing for certain files
 		- Closes [issue #394](https://github.com/bevry/docpad/issues/394) thanks to [Jose Quesada](https://github.com/quesada) and [Stefan](https://github.com/stegrams)

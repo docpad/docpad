@@ -774,6 +774,10 @@ class DocPad extends EventEmitterEnhanced
 		# -----------------------------
 		# Other
 
+		# Render Single Extensions
+		# Whether or not we should render single extensions by default
+		renderSingleExtensions: false
+
 		# Render Passes
 		# How many times should we render documents that reference other documents?
 		renderPasses: 1
@@ -979,6 +983,9 @@ class DocPad extends EventEmitterEnhanced
 		[instanceConfig,next] = balUtil.extractOptsAndCallback(instanceConfig,next)
 		docpad = @
 		locale = @getLocale()
+
+		# Render Single Extensions
+		@DocumentModel::defaults.renderSingleExtensions = docpad.config.renderSingleExtensions
 
 		# Version Check
 		@compareVersion()
@@ -1890,7 +1897,7 @@ class DocPad extends EventEmitterEnhanced
 
 		# Snore
 		@slowPlugins = {}
-		snore = @createSnore ->
+		snore = balUtil.createSnore ->
 			docpad.log 'notice', util.format(locale.pluginsSlow, _.keys(docpad.slowPlugins).join(', '))
 
 		# Async
@@ -2063,33 +2070,6 @@ class DocPad extends EventEmitterEnhanced
 
 	# ---------------------------------
 	# Utilities: Misc
-
-	# Create snore
-	createSnore: (message) ->
-		# Prepare
-		docpad = @
-
-		# Create snore object
-		snore =
-			snoring: false
-			timer: setTimeout(
-				->
-					snore.clear()
-					snore.snoring = true
-					if _.isFunction(message)
-						message()
-					else
-						docpad.log 'notice', message
-				5000
-			)
-			clear: ->
-				if snore.timer
-					clearTimeout(snore.timer)
-					snore.timer = false
-
-		# Return
-		snore
-
 
 	# Compare current DocPad version to the latest
 	compareVersion: ->
