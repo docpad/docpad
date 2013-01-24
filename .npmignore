@@ -1,5 +1,7 @@
 .travis*
+Cakefile
 Makefile
+History.md
 
 docs/
 src/

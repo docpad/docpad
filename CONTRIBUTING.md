@@ -19,9 +19,10 @@
 
 1. Fork the DocPad Repository
 1. Clone your fork and cd into it
-1. Run `npm install` to install dependencies
+1. Insure CoffeeScript is installed globally; `npm install -g coffee-script`
+1. Run `cake setup` to setup project for development
 1. Run `npm link` to link our local copy as the global instance (so it is available via `docpad`)
-1. Run `make dev` to compile our coffeescript and recompile on changes
+1. Run `cake watch` to compile our source files and recompile on changes
 
 
 ## Pull Requests
@@ -35,5 +36,5 @@
 
 ## Testing
 
-1. Run `npm test` to run the tests
+1. Run `cake test` to run the tests
 1. There are several types of tests run, the most common is the rendering test, which compares files inside `test/out` to `test/out-expected`

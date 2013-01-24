@@ -1,29 +1,23 @@
 # Require
 DocPad = require(__dirname+'/../lib/docpad')
 
+# Prepare
+getArgument = (name,value=null,defaultValue=null) ->
+	result = defaultValue
+	argumentIndex = process.argv.indexOf("--#{name}")
+	if argumentIndex isnt -1
+		result = value ? process.argv[argumentIndex+1]
+	return result
+
+# DocPad Action
+action = getArgument('action',null,'server generate')
+
 # DocPad Configuration
 docpadConfig = {}
-serverAction = process.env.DOCPAD_SERVER_ACTION or 'server generate'
-
-# --action <value>
-(->
-	actionArgumentIndex = process.argv.indexOf('--action')
-	if actionArgumentIndex isnt -1
-		serverAction = process.argv[actionArgumentIndex+1]
-)()
-
-# --port <value>
-(->
-	portArgument = null
-	portArgumentIndex = process.argv.indexOf('--port')
-	if portArgumentIndex isnt -1
-		portArgument = process.argv[portArgumentIndex+1]
-		if isNaN(portArgument)
-			portArgument = null
-		else
-			portArgument = parseInt(portArgument,10)
-	if portArgument
-		docpadConfig.port = portArgument
+docpadConfig.port = (->
+	port = getArgument('port')
+	port = parseInt(port,10)  if port and isNaN(port) is false
+	return port
 )()
 
 # Create DocPad Instance
@@ -32,7 +26,7 @@ DocPad.createInstance docpadConfig, (err,docpad) ->
 	return console.log(err.stack)  if err
 
 	# Generate and Serve
-	docpad.action serverAction, (err) ->
+	docpad.action action, (err) ->
 		# Check
 		return console.log(err.stack)  if err
 
