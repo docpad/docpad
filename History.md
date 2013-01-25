@@ -1,5 +1,8 @@
 ## History
 
+- v6.21.6 January 25, 2013
+	- Better debugging around server starting
+
 - v6.21.5 January 24, 2013
 	- Supports Node v0.9
 	- Added `renderSingleExtensions` option

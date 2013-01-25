@@ -42,6 +42,7 @@
 
 	# Server
 	serverInUse: "Could not start the web server, chances are the desired port %s is already in use"
+	serverStart: "Starting server on port %s and directory %s"
 	serverStarted: "DocPad listening to %s on directory %s"
 
 	# Watching
