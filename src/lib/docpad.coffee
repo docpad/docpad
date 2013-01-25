@@ -855,7 +855,7 @@ class DocPad extends EventEmitterEnhanced
 
 	# Get the Port
 	getPort: ->
-		return @getConfig().port or 9778
+		return @getConfig().port ? process.env.PORT ? process.env.VCAP_APP_PORT ? process.env.VMC_APP_PORT ? 9778
 
 
 	# =================================
@@ -1073,16 +1073,11 @@ class DocPad extends EventEmitterEnhanced
 		preTasks = new balUtil.Group (err) =>
 			return next(err)  if err
 
-			# Get environments
-			# Here as by now we would have loaded our .env file, whereas earlier we may not have
-			@initialConfig.port ?= process.env.PORT ? process.env.VCAP_APP_PORT ? process.env.VMC_APP_PORT
-			@initialConfig.env ?= process.env.NODE_ENV
-
 			# Apply the environment
 			# websitePackageConfig.env is left out of the detection here as it is usually an object
 			# that is already merged with our process.env by the environment runner
 			# rather than a string which is the docpad convention
-			@config.env = @instanceConfig.env or @websiteConfig.env or @initialConfig.env
+			@config.env = @instanceConfig.env or @websiteConfig.env or @initialConfig.env or process.env.NODE_ENV
 			envs = @getEnvironments()
 
 			# Merge configurations
@@ -1093,7 +1088,7 @@ class DocPad extends EventEmitterEnhanced
 				for env in envs
 					envConfig = configPackage.environments?[env]
 					configsToMerge.push(envConfig)  if envConfig
-			balUtil.deepExtendPlainObjects(configsToMerge...)
+			balUtil.safeDeepExtendPlainObjects(configsToMerge...)
 
 			# Extract and apply the server
 			@setServer(@config.server)  if @config.server

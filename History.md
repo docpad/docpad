@@ -1,5 +1,11 @@
 ## History
 
+- v6.21.7 January 25, 2013
+	- Fixed port not defaulting correctly on the `docpad-server` executable since v6.21.5
+		- Closes [issue #407](https://github.com/bevry/docpad/issues/407) thanks to [man4u](https://github.com/man4u)
+	- Updated dependencies
+		- [bal-util](https://github.com/balupton/bal-util) from ~1.16.0 to ~1.16.1
+
 - v6.21.6 January 25, 2013
 	- Better debugging around server starting
 
