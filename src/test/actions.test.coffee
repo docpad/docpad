@@ -132,7 +132,7 @@ joe.suite 'docpad-actions', (suite,test) ->
 				return done(err)  if err
 				balUtil.readFile "#{outExpectedPath}/html.html", (err,expected) ->
 					return done(err)  if err
-					expect(actual.toString()).to.be.equal(expected.toString())
+					expect(actual.toString().trim()).to.be.equal(expected.toString().trim())
 					done()
 
 		test 'served custom urls', (done) ->
@@ -140,21 +140,21 @@ joe.suite 'docpad-actions', (suite,test) ->
 				return done(err)  if err
 				balUtil.readFile "#{outExpectedPath}/custom-url.html", (err,expected) ->
 					return done(err)  if err
-					expect(actual.toString()).to.be.equal(expected.toString())
+					expect(actual.toString().trim()).to.be.equal(expected.toString().trim())
 					done()
 
 		test 'served dynamic documents - part 1/2', (done) ->
 			request "#{baseUrl}/dynamic.html?name=ben", (err,response,actual) ->
 				return done(err)  if err
 				expected = 'hi ben'
-				expect(actual.toString()).to.be.equal(expected)
+				expect(actual.toString().trim()).to.be.equal(expected)
 				done()
 
 		test 'served dynamic documents - part 2/2', (done) ->
 			request "#{baseUrl}/dynamic.html?name=joe", (err,response,actual) ->
 				return done(err)  if err
 				expected = 'hi joe'
-				expect(actual.toString()).to.be.equal(expected)
+				expect(actual.toString().trim()).to.be.equal(expected)
 				done()
 
 	test 'completed', (done) ->

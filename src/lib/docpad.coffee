@@ -3289,7 +3289,6 @@ class DocPad extends EventEmitterEnhanced
 				return next(err)  if err
 
 				# Done
-				docpad.log 'debug', 'Server setup'
 				return next()
 
 		# Start Server
@@ -3304,14 +3303,14 @@ class DocPad extends EventEmitterEnhanced
 				return next(err)
 
 			# Listen
+			docpad.log 'debug', util.format(locale.serverStart, port, config.outPath)
 			serverHttp.listen port,  ->
 				# Log
 				address = serverHttp.address()
 				serverHostname = if address.address is '0.0.0.0' then 'localhost' else address.address
 				serverPort = address.port
 				serverLocation = "http://#{serverHostname}:#{serverPort}/"
-				serverDir = config.outPath
-				docpad.log 'info', util.format(locale.serverStarted, serverLocation, serverDir)
+				docpad.log 'info', util.format(locale.serverStarted, serverLocation, config.outPath)
 
 				# Done
 				return next()
