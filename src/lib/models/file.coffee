@@ -405,7 +405,7 @@ class FileModel extends Model
 		if fullPath
 			balUtil.exists fullPath, (_exists) ->
 				exists = _exists
-				file.set({exists:true})
+				file.set({exists})
 				tasks.async()
 		else
 			tasks.async()
