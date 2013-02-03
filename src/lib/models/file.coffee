@@ -423,22 +423,30 @@ class FileModel extends Model
 		fullPath = @get('fullPath')
 		encoding = @get('encoding')
 
-		# Detect encoding
+		# Detect Encoding
 		unless encoding
 			isText = balUtil.isTextSync(fullPath,buffer)
-			if isText
-				encoding = 'utf8'
+
+			# Text
+			if isText is true
+				console.log("Detecting encoding for #{fullPath}")
+				encoding = require('jschardet').detect(buffer).encoding
+				console.log("Detected encoding for #{fullPath} as #{encoding}")
+				# need to add a conversion step here to utf8
+			# Binary
 			else
 				encoding = 'binary'
 
-		# Fetch source with encoding
-		if encoding is 'utf8'
-			source = buffer.toString(encoding)
-		else
-			source = ''
+		# Binary
+		if encoding is 'binary'
+			countent = source = ''
 
-		# Trim the content
-		content = source.replace(/\r\n?/gm,'\n').replace(/\t/g,'    ')
+		# Text
+		else
+			source = buffer.toString('utf8')
+			content = source
+				.replace(/\r\n?/gm,'\n')  # trim
+				.replace(/\t/g,'    ')    # tabs to spaces
 
 		# Apply
 		@set({source,content,encoding})
