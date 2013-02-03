@@ -75,6 +75,7 @@
 		"yamljs": "~0.1.4"
 	},
 	"optionalDependencies": {
+		"jschardet": "~1.0.2",
 		"airbrake": "~0.2.9",
 		"growl": "~1.6.1",
 		"mixpanel": "0.0.10"
