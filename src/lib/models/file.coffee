@@ -1,7 +1,15 @@
-# Requires
+# Import
 pathUtil = require('path')
 balUtil = require('bal-util')
 mime = require('mime')
+jschardet = require('jschardet')
+
+# Import: Optional
+try
+	Iconv = require('iconv').Iconv
+catch err
+	jschardet = null
+	Iconv = null
 
 # Local
 {Backbone,Model} = require(__dirname+'/../base')
@@ -119,6 +127,9 @@ class FileModel extends Model
 		# The encoding of the file
 		encoding: null
 
+		# The encoding of the out file
+		outEncoding: null
+
 		# The raw contents of the file, stored as a String
 		source: null
 
@@ -196,9 +207,12 @@ class FileModel extends Model
 		return @toJSON()
 
 	# Get Meta
-	getMeta: ->
+	getMeta: (attr) ->
 		@meta = new Model()  if @meta is null
-		return @meta
+		if attr?
+			return @meta.get(attr)
+		else
+			return @meta
 
 	# Set Meta
 	setMeta: (attrs) ->
@@ -421,35 +435,66 @@ class FileModel extends Model
 		{opts,next} = @getActionArgs(opts,next)
 		buffer = @getBuffer()
 		fullPath = @get('fullPath')
-		encoding = @get('encoding')
+		encoding = @get('encoding') or null
+		changes = {}
 
 		# Detect Encoding
-		unless encoding
+		if encoding? is false or opts.reencode is true
 			isText = balUtil.isTextSync(fullPath,buffer)
 
 			# Text
 			if isText is true
-				console.log("Detecting encoding for #{fullPath}")
-				encoding = require('jschardet').detect(buffer).encoding
-				console.log("Detected encoding for #{fullPath} as #{encoding}")
-				# need to add a conversion step here to utf8
+				# Detect source encoding if not manually specified
+				if detectEncoding
+					encoding ?= jschardet.detect(buffer)?.encoding or 'utf8'
+				else
+					encoding ?= 'utf8'
+
+				# Convert into utf8
+				outEncoding = 'utf8'
+				if encoding and (encoding.toLowerCase() in ['ascii','utf8','utf-8']) is false
+					if Iconv
+						@log('info', "Converting encoding #{encoding} to #{outEncoding} on #{fullPath}")
+						buffer = new Iconv(encoding,outEncoding).convert(buffer)
+					else
+						@log('warn', "Iconv did not load, therefore we cannot convert the encoding #{encoding} to #{outEncoding} on #{fullPath}")
+
+				# Apply
+				changes.outEncoding = outEncoding
+				changes.encoding = encoding
+
 			# Binary
 			else
-				encoding = 'binary'
+				# Set
+				outEncoding = encoding = 'binary'
+
+				# Apply
+				changes.outEncoding = outEncoding
+				changes.encoding = encoding
 
 		# Binary
 		if encoding is 'binary'
-			countent = source = ''
+			# Set
+			content = source = ''
+
+			# Apply
+			changes.content = content
+			changes.source = source
 
 		# Text
 		else
-			source = buffer.toString('utf8')
+			# Set
+			source = buffer.toString(outEncoding)
 			content = source
 				.replace(/\r\n?/gm,'\n')  # trim
 				.replace(/\t/g,'    ')    # tabs to spaces
 
+			# Apply
+			changes.content = content
+			changes.source = source
+
 		# Apply
-		@set({source,content,encoding})
+		@set(changes)
 
 		# Next
 		next()
@@ -464,14 +509,13 @@ class FileModel extends Model
 		changes = {}
 
 		# Fetch
-		meta = @getMeta()
 		basename = @get('basename')
 		filename = @get('filename')
 		fullPath = @get('fullPath')
 		extensions = @get('extensions')
 		relativePath = @get('relativePath')
 		mtime = @get('mtime')
-		date = meta.get('date') or null
+		date = @getMeta('date') or null
 
 		# Filename
 		if fullPath

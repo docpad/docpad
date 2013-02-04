@@ -120,7 +120,7 @@ class DocumentModel extends FileModel
 
 		# Reparse the data and extract the content
 		# With the content, fetch the new meta data, header, and body
-		super buffer, =>
+		super opts, =>
 			# Content
 			content = @get('content')
 
@@ -153,6 +153,7 @@ class DocumentModel extends FileModel
 
 			# Extract Meta Data
 			match = regex.exec(content)
+			metaData = {}
 			if match
 				# Prepare
 				seperator = match[1]
@@ -180,6 +181,13 @@ class DocumentModel extends FileModel
 					return next(err)
 			else
 				body = content
+
+			# Incorrect encoding detection?
+			# If so, re-parse with the correct encoding conversion
+			if metaData.encoding and metaData.encoding isnt @get('encoding')
+				@setMeta({encoding:metaData.encoding})
+				opts.reencode = true
+				return @parse(opts, next)
 
 			# Update meta data
 			body = body.replace(/^\n+/,'')
@@ -225,7 +233,7 @@ class DocumentModel extends FileModel
 		{opts,next} = @getActionArgs(opts,next)
 
 		# Super
-		super =>
+		super opts, =>
 			# Extract
 			extensions = @get('extensions')
 
@@ -248,7 +256,7 @@ class DocumentModel extends FileModel
 		{opts,next} = @getActionArgs(opts,next)
 
 		# Super
-		super =>
+		super opts, =>
 			# Get our highest ancestor
 			@getEve (err,eve) =>
 				# Check
@@ -616,11 +624,11 @@ class DocumentModel extends FileModel
 		# Prepare
 		file = @
 		fileOutPath = @get('outPath')
-		encoding = @get('encoding')
+		outEncoding = @get('outEncoding')
 		outContent = @getOutContent()
 
 		# Log
-		file.log 'debug', "Writing the rendered file: #{fileOutPath} #{encoding}"
+		file.log 'debug', "Writing the rendered file: #{fileOutPath} #{outEncoding}"
 
 		# Write data
 		balUtil.writeFile fileOutPath, outContent, (err) ->
@@ -628,7 +636,7 @@ class DocumentModel extends FileModel
 			return next(err)  if err
 
 			# Log
-			file.log 'debug', "Wrote the rendered file: #{fileOutPath} #{encoding}"
+			file.log 'debug', "Wrote the rendered file: #{fileOutPath} #{outEncoding}"
 
 			# Next
 			return next()
