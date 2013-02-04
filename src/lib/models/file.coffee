@@ -8,7 +8,6 @@ jschardet = require('jschardet')
 try
 	Iconv = require('iconv').Iconv
 catch err
-	jschardet = null
 	Iconv = null
 
 # Local
