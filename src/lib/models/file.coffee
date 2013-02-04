@@ -127,9 +127,6 @@ class FileModel extends Model
 		# The encoding of the file
 		encoding: null
 
-		# The encoding of the out file
-		outEncoding: null
-
 		# The raw contents of the file, stored as a String
 		source: null
 
@@ -300,10 +297,11 @@ class FileModel extends Model
 	# Initialize
 	initialize: (attrs,opts) ->
 		# Prepare
-		{outDirPath,stat,data,meta} = opts
+		{detectEncoding,outDirPath,stat,data,meta} = opts
 
 		# Special
-		@outDirPath = outDirPath  if outDirPath
+		@detectEncoding = detectEncoding  if detectEncoding?
+		@outDirPath     = outDirPath      if outDirPath
 
 		# Defaults
 		defaults =
@@ -445,31 +443,31 @@ class FileModel extends Model
 			# Text
 			if isText is true
 				# Detect source encoding if not manually specified
-				if detectEncoding
+				if @detectEncoding
 					encoding ?= jschardet.detect(buffer)?.encoding or 'utf8'
 				else
 					encoding ?= 'utf8'
 
 				# Convert into utf8
-				outEncoding = 'utf8'
-				if encoding and (encoding.toLowerCase() in ['ascii','utf8','utf-8']) is false
-					if Iconv
-						@log('info', "Converting encoding #{encoding} to #{outEncoding} on #{fullPath}")
-						buffer = new Iconv(encoding,outEncoding).convert(buffer)
+				unless encoding.toLowerCase() in ['ascii','utf8','utf-8']
+					if Iconv?
+						@log('info', "Converting encoding #{encoding} to UTF-8 on #{fullPath}")
+						try
+							buffer = new Iconv(encoding,'utf8').convert(buffer)
+						catch err
+							@log('warn', "Encoding conversion failed, therefore we cannot convert the encoding #{encoding} to UTF-8 on #{fullPath}")
 					else
-						@log('warn', "Iconv did not load, therefore we cannot convert the encoding #{encoding} to #{outEncoding} on #{fullPath}")
+						@log('warn', "Iconv did not load, therefore we cannot convert the encoding #{encoding} to UTF-8 on #{fullPath}")
 
 				# Apply
-				changes.outEncoding = outEncoding
 				changes.encoding = encoding
 
 			# Binary
 			else
 				# Set
-				outEncoding = encoding = 'binary'
+				encoding = 'binary'
 
 				# Apply
-				changes.outEncoding = outEncoding
 				changes.encoding = encoding
 
 		# Binary
@@ -484,7 +482,7 @@ class FileModel extends Model
 		# Text
 		else
 			# Set
-			source = buffer.toString(outEncoding)
+			source = buffer.toString('utf8')
 			content = source
 				.replace(/\r\n?/gm,'\n')  # trim
 				.replace(/\t/g,'    ')    # tabs to spaces
@@ -625,29 +623,44 @@ class FileModel extends Model
 
 	# Write the rendered file
 	# next(err)
-	write: (next) ->
+	write: (opts,next) ->
 		# Prepare
+		{opts,next} = @getActionArgs(opts,next)
 		file = @
-		fileOutPath = @get('outPath')
-		encoding = @get('encoding')
-		content = @getContent()
+
+		# Fetch
+		opts.path      or= @get('outPath')
+		opts.encoding  or= @get('encoding')
+		opts.content   or= @getContent()
+		opts.type      or= 'file'
 
 		# Check
 		# Sometimes the out path could not be set if we are early on in the process
-		unless fileOutPath
+		unless opts.path
 			next()
 			return @
 
+		# Convert utf8 to original encoding
+		unless opts.encoding.toLowerCase() in ['ascii','utf8','utf-8','binary']
+			if Iconv?
+				@log('info', "Converting encoding UTF-8 to #{opts.encoding} on #{opts.path}")
+				try
+					opts.content = new Iconv('utf8',opts.encoding).convert(opts.content)
+				catch err
+					@log('warn', "Encoding conversion failed, therefore we cannot convert the encoding UTF-8 to #{opts.encoding} on #{opts.path}")
+			else
+				@log('warn', "Iconv did not load, therefore we cannot convert the encoding UTF-8 to #{opts.encoding} on #{opts.path}")
+
 		# Log
-		file.log 'debug', "Writing the file: #{fileOutPath} #{encoding}"
+		file.log 'debug', "Writing the #{opts.type}: #{opts.path} #{opts.encoding}"
 
 		# Write data
-		balUtil.writeFile fileOutPath, content, encoding, (err) ->
+		balUtil.writeFile opts.path, opts.content, (err) ->
 			# Check
 			return next(err)  if err
 
 			# Log
-			file.log 'debug', "Wrote the file: #{fileOutPath} #{encoding}"
+			file.log 'debug', "Wrote the #{opts.type}: #{opts.path} #{opts.encoding}"
 
 			# Next
 			next()
