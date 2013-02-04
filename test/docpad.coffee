@@ -1,6 +1,7 @@
 module.exports =
 	reportStatistics: false
 	reportErrors: false
+	detectEncoding: true
 
 	environments:
 		development:
