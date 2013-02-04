@@ -1699,9 +1699,10 @@ class DocPad extends EventEmitterEnhanced
 	createFile: (data={},options={}) =>
 		# Prepare
 		docpad = @
-		options = balUtil.extend(
+		options = balUtil.extend({
+			detectEncoding: @config.detectEncoding
 			outDirPath: @config.outPath
-		,options)
+		},options)
 
 		# Create and return
 		file = new FileModel(data,options)
@@ -1721,9 +1722,10 @@ class DocPad extends EventEmitterEnhanced
 	createDocument: (data={},options={}) =>
 		# Prepare
 		docpad = @
-		options = balUtil.extend(
+		options = balUtil.extend({
+			detectEncoding: @config.detectEncoding
 			outDirPath: @config.outPath
-		,options)
+		},options)
 
 		# Create and return
 		document = new DocumentModel(data,options)

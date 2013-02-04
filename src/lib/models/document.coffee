@@ -620,34 +620,26 @@ class DocumentModel extends FileModel
 
 	# Write the rendered file
 	# next(err)
-	writeRendered: (next) ->
+	writeRendered: (opts,next) ->
 		# Prepare
+		{opts,next} = @getActionArgs(opts,next)
 		file = @
-		fileOutPath = @get('outPath')
-		outEncoding = @get('outEncoding')
-		outContent = @getOutContent()
 
-		# Log
-		file.log 'debug', "Writing the rendered file: #{fileOutPath} #{outEncoding}"
+		# Fetch
+		opts.content or= @getOutContent()
+		opts.type    or= 'rendered document'
 
 		# Write data
-		balUtil.writeFile fileOutPath, outContent, (err) ->
-			# Check
-			return next(err)  if err
-
-			# Log
-			file.log 'debug', "Wrote the rendered file: #{fileOutPath} #{outEncoding}"
-
-			# Next
-			return next()
+		@write(opts,next)
 
 		# Chain
 		@
 
 	# Write the file
 	# next(err)
-	writeSource: (next) ->
+	writeSource: (opts,next) ->
 		# Prepare
+		{opts,next} = @getActionArgs(opts,next)
 		file = @
 		meta = @getMeta()
 		CSON = require('cson')  unless CSON
@@ -671,16 +663,13 @@ class DocumentModel extends FileModel
 		# Apply
 		@set({parser,header,body,content,source})
 
-		# Write content
-		balUtil.writeFile fullPath, source, (err) ->
-			# Check
-			return next(err)  if err
+		# Fetch
+		opts.path    or= fullPath
+		opts.content or= content
+		opts.type    or= 'source document'
 
-			# Log
-			file.log 'info', "Wrote the source file: #{fullPath}"
-
-			# Next
-			next()
+		# Write data
+		@write(opts,next)
 
 		# Chain
 		@
