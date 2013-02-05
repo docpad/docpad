@@ -196,9 +196,12 @@ class FileModel extends Model
 		return @toJSON()
 
 	# Get Meta
-	getMeta: ->
+	getMeta: (args...) ->
 		@meta = new Model()  if @meta is null
-		return @meta
+		if args.length
+			return @meta.get(args...)
+		else
+			return @meta
 
 	# Set Meta
 	setMeta: (attrs) ->

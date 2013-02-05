@@ -1,5 +1,17 @@
 ## History
 
+- v6.21.8 February 5, 2013
+	- Swapped out underscore dependency for lodash
+	- Underscore is no longer provided to testers
+	- `File::getMeta` now alises to `File.getMeta().get` if arguments have been supplied
+	- No longer does deep clones on template data per file render (just shallow clone now)
+	- Fixed a bug that keeps `exists` attribute on `File` always `true`
+		- Thanks to [Stefan](https://github.com/stegrams) for [pull request #409](https://github.com/bevry/docpad/pull/409)
+	- Updated dependencies
+		- [bal-util](https://github.com/balupton/bal-util) from ~1.16.3 to ~1.16.3
+		- [watchr](https://github.com/bevry/watchr) from ~2.3.3 to ~2.3.4
+			- Way better performance and reliability
+
 - v6.21.7 January 25, 2013
 	- Fixed port not defaulting correctly on the `docpad-server` executable since v6.21.5
 		- Closes [issue #407](https://github.com/bevry/docpad/issues/407) thanks to [man4u](https://github.com/man4u)

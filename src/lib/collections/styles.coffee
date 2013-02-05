@@ -1,5 +1,5 @@
 # Necessary
-_ = require('underscore')
+balUtil = require('bal-util')
 
 # Local
 ElementsCollection = require(__dirname+'/elements')
@@ -15,11 +15,11 @@ class StylesCollection extends ElementsCollection
 		opts.attrs or= ''
 
 		# Ensure array
-		values = [values]  unless _.isArray(values)
+		values = [values]  unless balUtil.isArray(values)
 
 		# Convert urls into script element html
 		for value,key in values
-			if _.isString(value) and /^\</.test(value) is false
+			if balUtil.isString(value) and /^\</.test(value) is false
 				# convert url to script tag
 				values[key] = """
 					<link #{opts.attrs} rel="stylesheet" href="#{value}" />

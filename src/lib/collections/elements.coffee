@@ -1,5 +1,5 @@
 # Necessary
-_ = require('underscore')
+balUtil = require('bal-util')
 
 # Local
 {Collection,Model} = require(__dirname+'/../base')
@@ -14,11 +14,11 @@ class ElementsCollection extends Collection
 	# Right now we just support strings
 	add: (values,opts) ->
 		# Ensure array
-		values = [values]  unless _.isArray(values)
+		values = [values]  unless balUtil.isArray(values)
 
 		# Convert string based array properties into html
 		for value,key in values
-			if _.isString(value)
+			if balUtil.isString(value)
 				values[key] = new Model({html:value})
 
 		# Call the super with our values
