@@ -3,7 +3,6 @@ balUtil = require('bal-util')
 chai = require('chai')
 expect = chai.expect
 joe = require('joe')
-_ = require('underscore')
 pathUtil = require('path')
 
 # -------------------------------------
