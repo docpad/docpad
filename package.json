@@ -65,7 +65,7 @@
 		"caterpillar": "~1.1.3",
 		"commander": "~1.1.1",
 		"cson": "~1.4.0",
-		"express": "~3.0.6",
+		"express": "~3.1.0",
 		"mime": "~1.2.7",
 		"query-engine": "~1.5.0",
 		"semver": "~1.1.2",
@@ -76,12 +76,12 @@
 	},
 	"optionalDependencies": {
 		"airbrake": "~0.2.9",
-		"growl": "~1.6.1",
+		"growl": "~1.7.0",
 		"mixpanel": "0.0.10"
 	},
 	"devDependencies": {
 		"coffee-script": "~1.4.0",
-		"chai": "~1.4.2",
+		"chai": "~1.5.0",
 		"joe": "~1.1.1",
 		"request": "~2.12.0"
 	},
