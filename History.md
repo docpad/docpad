@@ -1,5 +1,14 @@
 ## History
 
+- v6.21.9 February 6, 2013
+	- We now completely ignore growl failures
+	- We now alert the user of watch failures but still ignore them overall (as to not bring down the entire app)
+	- Updated dependencies
+		- [growl](https://github.com/visionmedia/node-growl) from ~1.6.1 to ~1.7.0
+		- [express](https://github.com/visionmedia/express) from ~3.0.6 to ~3.1.0
+		- [watchr](https://github.com/bevry/watchr) from ~2.3.4 to ~2.3.5
+			- Fixes a bug with uncaught watching exceptions
+
 - v6.21.8 February 5, 2013
 	- Swapped out underscore dependency for lodash
 	- Underscore is no longer provided to testers
