@@ -1,5 +1,10 @@
 ## History
 
+- v6.21.10 February 6, 2013
+	- Updated dependencies
+		- [watchr](https://github.com/bevry/watchr) from ~2.3.4 to ~2.3.7
+			- Works better for projects that have a large amount of files
+
 - v6.21.9 February 6, 2013
 	- We now completely ignore growl failures
 	- We now alert the user of watch failures but still ignore them overall (as to not bring down the entire app)
