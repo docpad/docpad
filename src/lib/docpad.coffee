@@ -1651,6 +1651,9 @@ class DocPad extends EventEmitterEnhanced
 
 	# Perform a growl notification
 	notify: (message,opts) =>
+		# Prepare
+		docpad = @
+
 		# Check
 		growl = @getGrowlInstance()
 		if growl
@@ -1658,7 +1661,7 @@ class DocPad extends EventEmitterEnhanced
 			try
 				growl(message,opts)
 			catch err
-				@err(err,'warn')
+				# ignore
 
 		# Chain
 		@
@@ -2883,8 +2886,9 @@ class DocPad extends EventEmitterEnhanced
 			tasks.total = 3
 
 			# Watch reload paths
+			reloadPaths = _.union(docpad.config.reloadPaths, docpad.config.configPaths)
 			docpad.watchdir(
-				paths: _.union(docpad.config.reloadPaths, docpad.config.configPaths)
+				paths: reloadPaths
 				listeners:
 					'log': docpad.log
 					'error': docpad.error
@@ -2894,34 +2898,45 @@ class DocPad extends EventEmitterEnhanced
 							return docpad.fatal(err)  if err
 							performGenerate(reset:true)
 				next: (err,_watchers) ->
+					if err
+						docpad.log('warn', "Watching the reload paths has failed:", reloadPaths, err)
+						return tasks.complete()
 					for watcher in _watchers
 						watchers.push(watcher)
-					tasks.complete()
+					return tasks.complete()
 			)
 
 			# Watch regenerate paths
+			regeneratePaths = docpad.config.regeneratePaths
 			docpad.watchdir(
-				paths: docpad.config.regeneratePaths
+				paths: regeneratePaths
 				listeners:
 					'log': docpad.log
 					'error': docpad.error
 					'change': -> performGenerate(reset:true)
 				next: (err,_watchers) ->
+					if err
+						docpad.log('warn', "Watching the regenerate paths has failed:", regeneratePaths, err)
+						return tasks.complete()
 					for watcher in _watchers
 						watchers.push(watcher)
-					tasks.complete()
+					return tasks.complete()
 			)
 
 			# Watch the source
+			srcPath = docpad.config.srcPath
 			docpad.watchdir(
-				path: docpad.config.srcPath
+				path: srcPath
 				listeners:
 					'log': docpad.log
 					'error': docpad.error
 					'change': changeHandler
 				next: (err,watcher) ->
+					if err
+						docpad.log('warn', "Watching the src path has failed:", srcPath, err)
+						return tasks.complete()
 					watchers.push(watcher)
-					tasks.complete()
+					return tasks.complete()
 			)
 
 		# Timer
@@ -2987,8 +3002,9 @@ class DocPad extends EventEmitterEnhanced
 		# Watch
 		docpad.log(locale.watchStart)
 		resetWatchers (err) ->
+			return next(err)  if err
 			docpad.log(locale.watchStarted)
-			return next(err)
+			return next()
 
 		# Chain
 		@
