@@ -1,22 +1,22 @@
 {
 	# Subscription
 	tosPrompt: """
-		Voordat we verder gaan, heb je de DocPad Gebruiksvoorwaarden (http://bevry.me/tos) en het Privacybeleid (http://bevry.me/privacy) gelezen en ga je hiermee akkoord?
+		Voordat we verder gaan, heeft u de DocPad Gebruiksvoorwaarden (http://bevry.me/tos) en het Privacybeleid (http://bevry.me/privacy) gelezen en gaat u hiermee akkoord?
 		"""
 	tosAgree: """
 		Geweldig. We houden van geïnformeerde mensen!
 		"""
 	tosDisagree: """
-		Dit opnieuw openen als je het hebt gelezen, om vervolgens akkoord te gaan.
+		Dit opnieuw openen als u het gelezen hebt, daarna kunt u akkoord gaan of deze verwerpen.
 		"""
 	subscribePrompt: """
-		Wilt u zich op onze nieuwsbrief abonneren? Zo blijft u op de hoogte van de nieuwste releases en tutorials! (Engelstalig)
+		Wilt u zich op onze nieuwsbrief abonneren? Zo blijft u op de hoogte van de nieuwste publicaties van DocPad, plugins en gebruikersdocumentatie! (Engelstalig)
 		"""
 	subscribeConfigNotify: "Om dingen te versnellen hebben we de standaard waarden opgehaald, druk op enter om de standaardinstellingen te gebruiken of voer de door u gewenste waarden in.
 	subscribeNamePrompt: "Uw naam?"
 	subscribeEmailPrompt: "Uw email?"
 	subscribeUsernamePrompt: "Uw gebruikersnaam?"
-	subscribeError: " Oeps, het ziet ernaaruit dat er iets mis ging bij het inschrijving voor de nieuwsbrief ... uw hoeft zich geen zorgen te maken, we zullen het later opnieuw proberen"
+	subscribeError: " Oeps, het ziet ernaaruit dat er iets mis ging bij het inschrijving voor de nieuwsbrief ... u hoeft zich geen zorgen te maken, we zullen het later opnieuw proberen"
 	subscribeSuccess: "Geweldig, u bent nu ingeschreven voor onze nieuwsbrief. Doorgaan met de gewenste actie."
 	subscribeIgnore: "No worries. Continuing with the desired action."
 	subscribeProgress: "Bezig met aanmelden..."
@@ -24,7 +24,7 @@
 	subscribeRequestError: "Inschrijven verzoek fout:"
 
 	# Skeleton
-	skeletonSelectionIntroduction: "Je staat op het punt om in de huidige map een nieuw project aan te maken. Hieronder ziet u de keuzelijst met web site sjablonen:"
+	skeletonSelectionIntroduction: "U staat op het punt om in de huidige map een nieuw project aan te maken. Hieronder ziet u de keuzelijst met web site sjablonen:"
 	skeletonSelectionPrompt: "Welk sjabloon wenst u te gebruiken?"
 	skeletonInstall: "Sjbaloon %s installeren op locatie %s"
 	skeletonInstalled: "Sjabloon succesvol geinstalleerd."
@@ -39,13 +39,13 @@
 	skeletonNoneDescription: "Wenst u vanaf een blanco project te starten? Het is mogelijk om zonder sjabloon te starten."
 
 	# Server
-	serverInUse: "Niet in staat de web server te starten. Mogelijk is de gewenste poort al in gebruik."
-	serverStart: "Start server op poort %s en in bestandslocatie %s"
+	serverInUse: "Web server kan niet gestart worden. Mogelijk is de gewenste poort al in gebruik."
+	serverStart: "Start server op poort %s en locatie %s"
 	serverStarted: "DocPad aan het luisteren op %s in bestandslocatie %s"
 
 
 	# Watching
-	watchStart: 'Monitoren installatie opstarten...'
+	watchStart: 'Monitoren van installatie starten...'
 	watchStarted: 'Monitoren installatie'
 	watchRegenerating: "Hergenereren op %s"
 	watchRegenerated: "Hergenereerd op %s"
@@ -57,7 +57,7 @@
 	# Render
 	renderingFiles: "Transformeren %s bestanden"
 	renderedFiles: "%s bestanden getransformeerd"
-	renderInvalidOptions: 'Ongeldige instellingen aan de transformatie actie doorgegeven!'
+	renderInvalidOptions: 'Ongeldige opties aan de transformatie-actie doorgegeven!'
 	renderProgress: "Momenteel op %s bij %s"
 	renderGenerating: "Hergenereren..."
 	renderGeneratingNotification: "Website hergenereren..."
@@ -66,7 +66,7 @@
 	renderParsing: 'Alles invoegen'
 	renderParsed: 'Alles ingevoegd'
 	renderNonexistant: 'Kan geen website genereren als de src map niet gevonden is.'
-	renderNoPlugins: "DocPad draait momenteel zonder enige plugins geinstalleerd. U wilt er waarschijnlijk wel enkele installeren: http://docpad.org/plugins"
+	renderNoPlugins: "DocPad draait momenteel zonder plugins. U wilt er zeer waarschijnlijk wel enkele installeren, kijk op: http://docpad.org/plugins"
 	renderDirectoryParsing: "Invoegen mappen: %s"
 	renderDirectoryParsed: "Mappen ingevoegd: %s"
 	renderDirectoryNonexistant: "Map overgeslagen: %s (bestaat niet)"
@@ -91,23 +91,23 @@
 	pluginFailedToLoad: "Plugin laden gefaald: %s bij %s"
 	pluginsLoadingFor: "Plugins laden voor: %s"
 	pluginsLoadedFor: "Plugins geladen voor: %s"
-	pluginsSlow: "We zijn uw plugins aan het voorbereiden. Dit kan in het begin enige tijd in beslag nemen. Op plugins aan het wachten: %s"
-	pluginLoading: "Laden plugin: %s"
+	pluginsSlow: "Plugins aan het voorbereiden, dit kan in het begin enige tijd duren. Op plugins aan het wachten: %s"
+	pluginLoading: "Laden van plugin: %s"
 	pluginLoaded: "Geladen plugin: %s"
 	pluginSkipped: "Overgeslagen plugin: %s"
 	pluginSkippedDueTo: "Overslaan van niet-ondersteunde plugin: %s met als reden %s"
 	pluginContinued: "Doorgaan met uitvoeren van de niet-ondersteunde plugin: %s"
 	pluginNamingConventionInvalid: """
-		De plugin% s gebruikt een ongeldig naamgeving. We staan ​​alleen alfanumerieke tekens (geen symbolen) toe.
-		Wellicht veranderen naar %s? Meer informatie vindt u op: http://docpad.org/plugin-conventions
+		De plugin %s gebruikt een ongeldig naamgeving. We staan alleen alfanumerieke tekens (geen symbolen) toe.
+		Wellicht wilt u deze veranderen naar %s? Meer informatie over deze melding vindt u op: http://docpad.org/plugin-conventions
 		"""
 	pluginPrototypeNameUndefined: """
 		De plugin %s heeft niet een naam in het prototype gedefineerd, schakel over op standaardinstellingen naamgeving mappen.
 		Meer informatie vindt u op: http://docpad.org/plugin-conventions
 		"""
 	pluginPrototypeNameDifferent: """
-		De plugin %s gebruikt een andere naam voor het prototype. Dit kan problemen veroorzaken.
-		Meer informatie vindt u op: http://docpad.org/plugin-conventions
+		De plugin %s gebruikt een andere naam dan die bij het prototype vermeldt staat. Dit kan problemen veroorzaken.
+		Meer informatie over deze melding vindt u op: http://docpad.org/plugin-conventions
 		"""
 
 	# Collections
@@ -131,45 +131,45 @@
 	consoleError: "Iets is tijdens het uitvoeren van de opdracht misgegaan."
 	consoleSuccess: "De actie is succesvol uitgevoerd."
 
-	consoleDescriptionRun: "alles uitvoeren: skeleton, generate, watch, server"
-	consoleDescriptionServer: "maakt een server voor uw gegenereerd project"
-	consoleDescriptionSkeleton: "zal een nieuw project in uw huidige map aanmaken op basis van een bestaande sjabloon"
+	consoleDescriptionRun: "alles uitvoeren: skeleton (sjabloon kiezen), generate, watch, server"
+	consoleDescriptionServer: "maakt een server voor het gegenereerde project"
+	consoleDescriptionSkeleton: "zal een op basis van een bestaande sjabloon een nieuw project in uw huidige map aanmaken"
 	consoleDescriptionRender: "transformeer het bestand op <locatie> en toon het resultaat op de standaard uitvoer"
 	consoleDescriptionGenerate: "(her)genereren van het project"
-	consoleDescriptionWatch: "monitort uw project op wijzigingen en (her)genereerd zodra de wijziging is opgeslagen"
+	consoleDescriptionWatch: "monitort uw project op wijzigingen en (her)genereerd zodra deze doorgevoerd zijn"
 	consoleDescriptionInstall: "zekerstellen dat alles correct is geinstalleerd"
 	consoleDescriptionClean: "zekerstellen dat alles correct schoongemaakt is (zal de map out/ verwijderen)"
-	consoleDescriptionInfo: "toon de informatie over de huidige docpad entiteit"
-	consoleDescriptionHelp: "help uitvoeren"
-	consoleDescriptionUnknown: "al het overige voert standaard de helpfunctie uit"
+	consoleDescriptionInfo: "toon informatie over de huidige docpad entiteit"
+	consoleDescriptionHelp: "deze help informatie weergeven"
+	consoleDescriptionUnknown: "al het overige voert standaard de help uit"
 
-	consoleOptionOut: "locatie (bestandsmap) om de uitgevoerde en getransformeerde bestanden en mappen te plaatsen"
-	consoleOptionConfig: "een aangepast (maatwerk) configuratiebestand inladen"
-	consoleOptionEnv: "de naam van de omgeving waarvoor deze programmatuur bestemd is, meerdere namen kunnen door een comma gescheiden worden (vb. test, ontwikkeling, productieomgeving)"
-	consoleOptionDebug: "het niveau (detail/aantal) van foutopsporingsberichten dat u wenst weer te geven, indien opgegeven standaard op 7, anders 6"
-	consoleOptionForce: "forceer een herinstallatie van alle modules"
+	consoleOptionOut: "locatie (bestandsmap) om de uitgevoerde bestanden te plaatsen"
+	consoleOptionConfig: "een aangepast (custom) configuratiebestand inladen"
+	consoleOptionEnv: "naam van de systeemomgeving, meerdere namen kunnen door een komma gescheiden worden (bijv. test-, ontwikkeling-, productieomgeving)"
+	consoleOptionDebug: "het detail / niveau van foutopsporingsberichten weer te geven, indien opgegeven standaard op 7, anders 6"
+	consoleOptionForce: "forceer een volledige herinstallatie van alle modules"
 	consoleOptionPort: "een aangepast <poortnummer> voor de web server opgeven"
-	consoleOptionSkeleton: "voor nieuwe projecten, inplaats van om een sjabloon te vragen, kunt u deze hier opgeven"
+	consoleOptionSkeleton: "voor nieuwe projecten, inplaats van om een sjabloon te vragen deze hier opgeven"
 
 	# Misc
 	renderedEarlyViaInclude: """
-		Het invoegen van %s is mislukt, dit aangezien het bestand nog niet getransformeerd is.
-		Meer informatie vindt u hier: http://docpad.org/render-early-via-include
+		Het invoegen van %s is mislukt, het bestand is nog niet getransformeerd.
+		Meer informatie over deze melding: http://docpad.org/render-early-via-include
 		"""
 	welcome: "Welkom bij DocPad %s"
 	welcomePlugins: "Plugins: %s"
-	welcomeEnvironment: "Omgeving: %s"
-	includeFailed: "Niet in staat om bestand op locatie %s in te voegen. Kregen deze niet gevonden."
+	welcomeEnvironment: "Systeemomgeving: %s"
+	includeFailed: "Niet in staat om bestand op locatie %s in te voegen: niet gevonden."
 	warnOccured: "Een waarschuwing heeft plaatsgevonden:"
-	errorOccured: "Een fout het plaatsgevonden:"
+	errorOccured: "Een fout heeft plaatsgevonden:"
 	errorLoggedTo: "Fout is geregistreerd: %s"
 	errorFollows: "De fout volgt op:"
 	reportError: "Fout tijdens uitvoeren van foutrapportage."
 	trackError: "Fout tijdens verzenden van statistieken."
 	unknownModelInCollection: "Onbekend model in de verzameling."
-	upgradeNotification: "Er is een nieuwe versie van DocPad beschikbaar voor download!"
+	upgradeNotification: "Er is een nieuwe versie van DocPad beschikbaar!"
 	upgradeDetails: """
-		Er is een nieuwe versie van DocPad beschikbaar, u doet er verstandig aan deze oudere versie bij te werken...
+		Er is een nieuwe versie van DocPad beschikbaar, u doet er verstandig aan deze veroudere versie bij te werken...
 		huidige versie:            %s
 		nieuwe versie:             %s
 		handleiding voor upgrade:  %sd
