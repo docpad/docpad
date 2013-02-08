@@ -665,6 +665,13 @@ class DocPad extends EventEmitterEnhanced
 		# Paths that we should watch for regeneration changes in
 		regeneratePaths: []
 
+		# The time (in milliseconds) to wait after a source
+		# file has changed before using it to regenerate. If
+		# updating a template via FTP or some other relatively
+		# slow method you might want to increase this to
+		# ensure the source is fully rendered.
+		regenerateDelay: 100
+
 		# The website's out directory
 		outPath: 'out'
 
@@ -2941,7 +2948,7 @@ class DocPad extends EventEmitterEnhanced
 
 		# Timer
 		regenerateTimer = null
-		regenerateDelay = 100
+		regenerateDelay = docpad.config.regenerateDelay
 		queueRegeneration = ->
 			# Reset the wait
 			if regenerateTimer
