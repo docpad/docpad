@@ -1,0 +1,180 @@
+{
+	# Subscription
+	tosPrompt: """
+		Antes de continuar, você já leu e concordou com os termos de serviço do DocPad (http://bevry.me/tos) e com a Política de Privacidade (http://bevry.me/privacy)?
+		"""
+	tosAgree: """
+		Fantástico. Gostamos de pessoas informadas!
+		"""
+	tosDisagree: """
+		Rode-nos novamente quando você tiver lido e concordado com eles.
+		"""
+	subscribePrompt: """
+		Você quer se inscrever na nossa newsletter e estar em dia com os últimos lançamentos e tutoriais?
+		"""
+	subscribeConfigNotify: "Para acelerar as coisas nós já definimos os seus valores padrão, presione enter para usar os valores padrão ou digite os seus próprios valores:"
+	subscribeNamePrompt: "Seu nome?"
+	subscribeEmailPrompt: "Seu email?"
+	subscribeUsernamePrompt: "Seu nome de usuário?"
+	subscribeError: "Ops, parece que alguma coisa deu errado quando tentamos inscrever você na lista... não se preoculo, tentaremos de novo outra hora."
+	subscribeSuccess: "Excelente, agora você está inscrito na nossa newsletter. Continuando com a ação desejada."
+	subscribeIgnore: "Sem problemas, continuando com a ação desejada."
+	subscribeProgress: "Subscribing..."
+	subscribeProgress: "Inscrevendo..."
+	subscribeRequestData: "Dados da requisição da inscrição:"
+	subscribeRequestError: "Erro da requisição da inscrição:"
+
+	# Skeleton
+	skeletonSelectionIntroduction: "Você está prestes a criar um novo projeto dentro do seu atual diretório. Abaixo há uma lista de esqueletos para iniciar o seu novo projeto:"
+	skeletonSelectionPrompt: "Qual esqueleto você irá usar?"
+	skeletonInstall: "Instalando o esqueleto %s dentro de %s"
+	skeletonInstalled: "O esqueleto foi instalado com sucesso"
+	skeletonExists: "O esqueleto não foi colocado pois a estrutura desejada já existe"
+	skeletonNonexistant: """
+		Não foi possível localizar um projeto DocPad dentro do atual diretório, Procurado em: %s
+		Se você pretende usar um esqueleto pré-feito para a base do seu novo projeto rode o DocPad novamente dentro de um diretório vazio.
+		Se você pretende começar um novo projeto do zero acesse o nosso guia para iniciantes aqui:
+			http://docpad.org/get-started
+		Para mais informações sobre o que essa mensagem significa, visite:
+			http://docpad.org/troubleshoot
+		"""
+	skeletonNoneName: "Sem esqueleto"
+	skeletonNoneDescription: "Prefere começar do zero? Você pode começar sem nenhum esqueleto se desejar"
+
+	# Server
+	serverInUse: "Não foi possível iniciar o servidor, provavelmente a porta %s já está em uso"
+	serverStart: "Iniciando servidor na porta %s e no diretório %s"
+	serverStarted: "DocPad rodando na porta %s e no diretório %s"
+
+	# Watching
+	watchStart: 'Inicializando o monitoramento...'
+	watchStarted: 'Monitoramento inicializado'
+	watchRegenerating: "Regenerando às %s"
+	watchRegenerated: "Regenerado às %s"
+	watchChange: "Alteração detectada às %s"
+	watchIgnoredChange: "Alteração ignorada às %s"
+	watchDirectoryChange: "Diretório alterado às %s"
+	watchReloadChange: "Recarregamento detectado às %s"
+
+	# Render
+	renderingFiles: "Renderizando %s arquivos"
+	renderedFiles: "%s arquivos renderizados"
+	renderInvalidOptions: 'Opções inválidas foram passadas para renderizar a ação'
+	renderProgress: "Atualmente em %s às %s"
+	renderGenerating: "Gerando..."
+	renderGeneratingNotification: "Gerando website..."
+	renderGenerated: "Gerados %s arquivos em %s segundos"
+	renderGeneratedNotification: "Website gerado"
+	renderParsing: 'Parsing everything'
+	renderParsing: 'Analisando tudo'
+	renderParsed: 'Análise concluída'
+	renderNonexistant: 'Não foi possível gerar o website pois o diretório src não foi encontrado'
+	renderNoPlugins: "O DocPad está rodando sem nenhum plugin instalado. Você provavelmente vai querer instalar alguns: http://docpad.org/plugins"
+	renderDirectoryParsing: "Analisando diretório: %s"
+	renderDirectoryNonexistant: "Diretório pulado: %s (ele não existe)"
+	renderCleaning: "Limpando arquivos"
+	renderCleaned: "Arquivos limpos"
+	renderInterval: "Executando regereração de intervalo"
+
+	# Contextualize
+	contextualizingFiles: "Conxtualizando %s arquivos"
+	contextualizedFiles: "%s arquivos contextualizados"
+
+	# Write
+	writingFiles: "Escrevendo %s arquivos"
+	wroteFiles: "%s arquivos escritos"
+
+	# Action
+	actionStart: "Executando a ação %s"
+	actionFinished: "Ação %s executada"
+	actionNonexistant: "A ação %s não existe"
+
+	# Plugins
+	pluginFailedToLoad: "Falha ao carregar o plugin: %s às %s"
+	pluginsLoadingFor: "Carregando plugins para: %s"
+	pluginsLoadedFor: "Plugins carregados para: %s"
+	pluginsSlow: "Estamos preparando seus plugins, isso pode levar algum tempo na primeira vez. Esperando pelos plugins: %s"
+	pluginLoading: "Carregando plugin: %s"
+	pluginLoaded: "Plugin carregado: %s"
+	pluginSkipped: "Skipped plugin: %s"
+	pluginSkipped: "Plugin pulado: %s"
+	pluginSkippedDueTo: "Pulado o plugin não suportado: %s devido a %s"
+	pluginContinued: "Continuando com o plugin não suportado: %s"
+	pluginNamingConventionInvalid: """
+		O plugin %s não segue nossa convenção de nomes. Apenas permitimos caracteres alfanuméricos (sem símbolos). Sugerimos mudar para %s
+		Mais informações aqui: http://docpad.org/plugin-conventions
+		"""
+	pluginPrototypeNameUndefined: """
+		O plugin %s não tem seu nome definido no seu prototype, transformando o nome através da conveção de nomes do diretório.
+		Mais informações aqui: http://docpad.org/plugin-conventions
+		"""
+	pluginPrototypeNameDifferent: """
+		O plugin %s possui um nome diferente (%s) daquele em seu prototype. Isso pode causar problemas.
+		Mais informações aqui: http://docpad.org/plugin-conventions
+		"""
+
+	# Collections
+	addingDocument: "Adicionando documento: %s"
+	addingFile: "Adicionando arquivo: %s"
+	addingLayout: "Adicionando layout: %s"
+	addingHtml: "Adicionando arquivo html: %s"
+	addingStylesheet: "Adicionado folha de estilo: %s"
+
+	# Loading
+	loadingConfigUrl: "Carregando url de configuração: %s"
+	loadingConfigPath: "Carregando caminho de configuração: %s"
+	loadingFiles: "Carregando %s arquivos"
+	loadedFiles: "%s arquivos carregados"
+	loadingFile: "Carregando arquivo: %s"
+	loadingFileFailed: "Falha ao carregar o arquivo: %s"
+	loadingFileIgnored: "Arquivo ignorado pulado: %s"
+	loadedFile: "Arquivo carregado: %s"
+
+	# Console
+	consoleError: "Algo de errado aconteceu com a ação"
+	consoleSuccess: "A ação foi completada com sucesso"
+
+	consoleDescriptionRun: "faz tudo: cria esqueleto, gera, monitora, cria servidor"
+	consoleDescriptionServer: "cria um servidor para o seu projeto gerado"
+	consoleDescriptionSkeleton: "irá criar um novo projeto no seu diretório atual baseado em um esqueleto existente"
+	consoleDescriptionRender: "renderiza o arquivo em <path> e mostra os resultados na saída padrão"
+	consoleDescriptionGenerate: "(re)gera o seu projeto"
+	consoleDescriptionWatch: "monitora o seu projeto procurando mudanças, e (re)gera ele quando uma mudança é feita"
+	consoleDescriptionInstall: "garante que tudo está instalado corretamente"
+	consoleDescriptionClean: "garante que tudo está limpo corretamente (vai remover o seu diretório out)"
+	consoleDescriptionInfo: "mostra informação sobre a sua instância docpad"
+	consoleDescriptionHelp: "mostra a ajuda"
+	consoleDescriptionUnknown: "qualquer outro comando mostra a ajuda"
+
+	consoleOptionOut: "onde depositar os arquivos rederizados (um diretório) ou arquivo (um arquivo de saída)"
+	consoleOptionConfig: "um arquivo de configuração customizada para carregar"
+	consoleOptionEnv: "o nome de ambiente para usar nesta instância, múltiplos nomes podem ser separados por vírgula"
+	consoleOptionDebug: "o nível das mensagens de debug que você deseja exibir, se especificado vai para 7, se não vai para 6"
+	consoleOptionForce: "força uma reinstalação de todos os módulos"
+	consoleOptionPort: "uma porta customizada para usar no servidor <port>"
+	consoleOptionSkeleton: "para novos projetos, em vez de ser perguntado por um esqueleto, você pode especificá-lo aqui"
+
+	# Misc
+	renderedEarlyViaInclude: """
+		Seu include de %s falhou pois o documento não foi renderizado ainda.
+		Mais informação aqui: http://docpad.org/render-early-via-include
+		"""
+	welcome: "Bem-vindo ao DocPad %s"
+	welcomePlugins: "Plugins: %s"
+	welcomeEnvironment: "Ambiente: %s"
+	includeFailed: "Não foi possível incluir o arquivo no caminho %s pois o mesmo não foi encontrado"
+	warnOccured: "Um aviso ocorreu:"
+	errorOccured: "Um erro ocorreu:"
+	errorLoggedTo: "Erro logado para: %s"
+	errorFollows: "Segue o erro:"
+	reportError: "Um erro ocorreu ao reportar o erro"
+	trackError: "Um erro ocorreu ao enviar estatísticas"
+	unknownModelInCollection: "Estrutura de modelo desconhecida na coleção"
+	upgradeNotification: "Há uma nova versão do DocPad disponível"
+	upgradeDetails: """
+		Há uma nova versão do DocPad disponível, você devia atualizar...
+		versão atual:              %s
+		nova versão:               %s
+		Instruções de atualização: %s
+		"""
+}
