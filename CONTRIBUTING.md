@@ -27,7 +27,7 @@
 
 ## Pull Requests
 
-1. Each pull request should be made on its own branch. Branches should be stemmed from master. E.g. `git checout master; git checkout -b your-new-branch`
+1. Each pull request should be made on its own branch. Branches should be stemmed from master. E.g. `git checkout master; git checkout -b your-new-branch`
 1. Test your changes before you submit the pull request (see testing section), if possible, add tests for your change - if you don't know how to fix the tests, submit your pull request and say so, happy to help (but it will slow down integration)
 1. **When submitting the pull request, specify the `dev` branch as the integration branch (the integration branch is which branch your pull request will be merged into on the official repo)**
 1. If you'd like, feel free to add yourself to the contributors section of the `package.json` file if it exists
