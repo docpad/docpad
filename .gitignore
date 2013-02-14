@@ -1,5 +1,7 @@
 lib-cov
 .DS_Store
+.Spotlight-V100
+Thumbs.db
 *.seed
 *.log
 *.csv
