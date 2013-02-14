@@ -509,6 +509,7 @@ class DocPad extends EventEmitterEnhanced
 	# All the locales we have
 	locales:
 		en: CSON.parseFileSync(pathUtil.join(__dirname, '..', '..', 'locale', 'en.cson'))
+		pt_br: CSON.parseFileSync(pathUtil.join(__dirname, '..', '..', 'locale', 'pt_br.cson'))
 
 	# Determined locale
 	locale: null
@@ -522,7 +523,7 @@ class DocPad extends EventEmitterEnhanced
 			localeCode = null
 			localeCodes = [@getConfig().localeCode, (process.env.LANG or '').replace(/\..+/,''), 'en_AU']
 			for localeCode in localeCodes
-				if localeCode and @locales[localeCode]?
+				if localeCode and @locales[localeCode.toLowerCase()]?
 					break
 			@localeCode = localeCode.toLowerCase()
 		return @localeCode
