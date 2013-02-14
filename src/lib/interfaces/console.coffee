@@ -42,34 +42,36 @@ class ConsoleInterface
 				'-f, --force'
 				locale.consoleOptionForce
 			)
-
-		# -----------------------------
-		# Commands
-
-		# run
-		commander
-			.command('run')
-			.description(locale.consoleDescriptionRun)
-			.option(
-				'-s, --skeleton <skeleton>'
-				locale.consoleOptionSkeleton
-			)
 			.option(
 				'-p, --port <port>'
 				locale.consoleOptionPort
 				parseInt
 			)
+			.option(
+				'-s, --skeleton <skeleton>'
+				locale.consoleOptionSkeleton
+			)
+
+
+		# -----------------------------
+		# Commands
+
+		# actions
+		commander
+			.command('action <actions>')
+			.description(locale.consoleDescriptionRun)
+			.action(consoleInterface.wrapAction(consoleInterface.action))
+
+		# run
+		commander
+			.command('run')
+			.description(locale.consoleDescriptionRun)
 			.action(consoleInterface.wrapAction(consoleInterface.run))
 
 		# server
 		commander
 			.command('server')
 			.description(locale.consoleDescriptionServer)
-			.option(
-				'-p, --port <port>'
-				locale.consoleOptionPort
-				parseInt
-			)
 			.action(consoleInterface.wrapAction(consoleInterface.server))
 
 		# skeleton
@@ -136,8 +138,7 @@ class ConsoleInterface
 		commander
 			.command('*')
 			.description(locale.consoleDescriptionUnknown)
-			.action ->
-				commander.emit('help', [])
+			.action(consoleInterface.wrapAction(consoleInterface.help))
 
 
 		# -----------------------------
@@ -189,15 +190,22 @@ class ConsoleInterface
 	# Wrap Action
 	wrapAction: (action) =>
 		consoleInterface = @
-		return (command) -> consoleInterface.performAction(command,action)
+		return (args...) -> consoleInterface.performAction(action,args)
 
 	# Perform Action
-	performAction: (command,action) =>
+	performAction: (action,args) =>
 		# Create
-		instanceConfig = @extractConfig(command)
-		@docpad.action 'load ready', instanceConfig, (err) =>
-			return @completeAction(err)  if err
-			action(@completeAction)
+		opts = {}
+		opts.commander = args[-1...][0]
+		opts.instanceConfig = @extractConfig(opts.commander)
+		opts.args = args[...-1]
+		@docpad.action 'load ready', opts.instanceConfig, (err) =>
+			# Error
+			if err
+				return @completeAction(err)
+
+			# Action
+			return action(@completeAction,opts)  # this order for b/c
 
 		# Chain
 		@
@@ -489,6 +497,12 @@ class ConsoleInterface
 
 	# =================================
 	# Actions
+
+	action: (next,opts) =>
+		actions = opts.args[0]
+		@docpad.log 'info', 'Performing the actions:', actions
+		@docpad.action(actions,next)
+		@
 
 	generate: (next) =>
 		@docpad.action('generate',next)

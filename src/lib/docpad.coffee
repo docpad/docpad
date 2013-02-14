@@ -628,18 +628,18 @@ class DocPad extends EventEmitterEnhanced
 
 
 		# -----------------------------
-		# Website Paths
+		# Project Paths
 
-		# The website directory
+		# The project directory
 		rootPath: process.cwd()
 
-		# The website's package.json path
+		# The project's package.json path
 		packagePath: 'package.json'
 
 		# Where to get the latest package information from
 		latestPackageUrl: 'https://docpad.org/latest.json'
 
-		# The website's configuration paths
+		# The project's configuration paths
 		# Reads only the first one that exists
 		# If you want to read multiple configuration paths, then point it to a coffee|js file that requires
 		# the other paths you want and exports the merged config
@@ -653,9 +653,9 @@ class DocPad extends EventEmitterEnhanced
 		# Plugin directories to load
 		pluginPaths: []
 
-		# The website's plugins directory
+		# The project's plugins directory
 		pluginsPaths: [
-			'node_modules',
+			'node_modules'
 			'plugins'
 		]
 
@@ -665,26 +665,26 @@ class DocPad extends EventEmitterEnhanced
 		# Paths that we should watch for regeneration changes in
 		regeneratePaths: []
 
-		# The website's out directory
+		# The project's out directory
 		outPath: 'out'
 
-		# The website's src directory
+		# The project's src directory
 		srcPath: 'src'
 
-		# The website's documents directories
+		# The project's documents directories
 		# relative to the srcPath
 		documentsPaths: [
 			'documents'
 		]
 
-		# The website's files directories
+		# The project's files directories
 		# relative to the srcPath
 		filesPaths: [
 			'files'
 			'public'
 		]
 
-		# The website's layouts directory
+		# The project's layouts directory
 		# relative to the srcPath
 		layoutsPaths: [
 			'layouts'
@@ -700,16 +700,6 @@ class DocPad extends EventEmitterEnhanced
 		# -----------------------------
 		# Server
 
-		# Server
-		# The Express.js server that we want docpad to use
-		serverExpress: null
-		# The HTTP server that we want docpad to use
-		serverHttp: null
-
-		# Extend Server
-		# Whether or not we should extend the server with extra middleware and routing
-		extendServer: true
-
 		# Port
 		# The port that the server should use
 		# PORT - Heroku, Nodejitsu, Custom
@@ -721,8 +711,18 @@ class DocPad extends EventEmitterEnhanced
 		# The caching time limit that is sent to the client
 		maxAge: 86400000
 
+		# Server
+		# The Express.js server that we want docpad to use
+		serverExpress: null
+		# The HTTP server that we want docpad to use
+		serverHttp: null
+
+		# Extend Server
+		# Whether or not we should extend the server with extra middleware and routing
+		extendServer: true
+
 		# Which middlewares would you like us to activate
-		# The standard middlewares (bodePArser, methodOverride, express router)
+		# The standard middlewares (bodyParser, methodOverride, express router)
 		middlewareStandard: true
 		# The standard bodyParser middleware
 		middlewareBodyParser: true
@@ -816,7 +816,7 @@ class DocPad extends EventEmitterEnhanced
 		events: {}
 
 		# Regenerate Every
-		# Performs a rengeraete every x milliseconds, useful for always having the latest data
+		# Performs a regenerate every x milliseconds, useful for always having the latest data
 		regenerateEvery: false
 
 
@@ -927,13 +927,19 @@ class DocPad extends EventEmitterEnhanced
 		@userConfig = balUtil.dereference(@userConfig)
 		@initialConfig = balUtil.dereference(@initialConfig)
 
-		# Check if we want to perform the initial configuration load automatically
-		if instanceConfig.load is false
-			next?(null,docpad)
+		# Extract action
+		if instanceConfig.action?
+			action = instanceConfig.action
 		else
-			@action 'load ready', instanceConfig, (err) ->
+			action = 'load ready'
+
+		# Check if we want to perform an action
+		if action
+			@action action, instanceConfig, (err) ->
 				return docpad.fatal(err)  if err
 				next?(null,docpad)
+		else
+			next?(null,docpad)
 
 		# Chain
 		@
@@ -2390,9 +2396,19 @@ class DocPad extends EventEmitterEnhanced
 		runner = @getActionRunner()
 		locale = @getLocale()
 
+		# Array?
+		if balUtil.isArray(action)
+			actions = action
+		else
+			actions = action.split(/[,\s]+/g)
+
+		# Clean actions
+		actions = _.uniq _.compact actions
+
 		# Multiple actions?
-		actions = action.split /[,\s]+/g
-		if actions.length > 1
+		if actions.length is 1
+			action = actions[0]
+		else
 			tasks = new balUtil.Group (err) ->
 				return next(err)
 			balUtil.each actions, (action) -> tasks.push (complete) ->
