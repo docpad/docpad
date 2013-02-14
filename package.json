@@ -72,7 +72,8 @@
 		"lodash": "~1.0.0",
 		"backbone": "0.9.9",
 		"watchr": "~2.3.7",
-		"yamljs": "~0.1.4"
+		"yamljs": "~0.1.4",
+		"getmac": "~1.0.4"
 	},
 	"optionalDependencies": {
 		"airbrake": "~0.2.9",
