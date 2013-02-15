@@ -1058,6 +1058,124 @@ class DocPad extends EventEmitterEnhanced
 		# Chain
 		@
 
+	# Merge Configurations
+	mergeConfigurations: (configPackages,configsToMerge) ->
+		# Prepare
+		envs = @getEnvironments()
+
+		# Figure out merging
+		for configPackage in configPackages
+			continue  unless configPackage
+			configsToMerge.push(configPackage)
+			for env in envs
+				envConfig = configPackage.environments?[env]
+				configsToMerge.push(envConfig)  if envConfig
+
+		# Merge
+		balUtil.safeDeepExtendPlainObjects(configsToMerge...)
+
+		# Chain
+		return @
+
+	# Set Instance Configuration
+	setInstanceConfig: (instanceConfig) ->
+		# Merge in the instance configurations
+		if instanceConfig
+			balUtil.safeDeepExtendPlainObjects(@instanceConfig, instanceConfig)
+			balUtil.safeDeepExtendPlainObjects(@config, instanceConfig)  if @config
+		@
+
+	# Set Configuration
+	# next(err,config)
+	setConfig: (instanceConfig,next) =>
+		# Prepare
+		[instanceConfig,next] = balUtil.extractOptsAndCallback(instanceConfig,next)
+		docpad = @
+
+		# Apply the instance configuration, generally we won't have it at this level
+		# as it would have been applied earlier the load step
+		@setInstanceConfig(instanceConfig)  if instanceConfig
+
+		# Apply the environment
+		# websitePackageConfig.env is left out of the detection here as it is usually an object
+		# that is already merged with our process.env by the environment runner
+		# rather than a string which is the docpad convention
+		@config.env = @instanceConfig.env or @websiteConfig.env or @initialConfig.env or process.env.NODE_ENV
+
+		# Merge configurations
+		configPackages = [@initialConfig, @userConfig, @websiteConfig, @instanceConfig]
+		configsToMerge = [@config]
+		docpad.mergeConfigurations(configPackages,configsToMerge)
+
+		# Extract and apply the server
+		@setServer(@config.server)  if @config.server
+
+		# Extract and apply the logger
+		@setLogger(@config.logger)  if @config.logger
+		@setLogLevel(@config.logLevel)
+
+		# Resolve any paths
+		@config.rootPath = pathUtil.resolve(@config.rootPath)
+		@config.outPath = pathUtil.resolve(@config.rootPath, @config.outPath)
+		@config.srcPath = pathUtil.resolve(@config.rootPath, @config.srcPath)
+
+		# Resolve Documents, Files, Layouts paths
+		for type in ['documents','files','layouts']
+			typePaths = @config[type+'Paths']
+			for typePath,key in typePaths
+				typePaths[key] = pathUtil.resolve(@config.srcPath,typePath)
+
+		# Resolve Plugins paths
+		for type in ['plugins']
+			typePaths = @config[type+'Paths']
+			for typePath,key in typePaths
+				typePaths[key] = pathUtil.resolve(@config.rootPath,typePath)
+
+		# Bind the error handler, so we don't crash on errors
+		process.removeListener('uncaughtException', @error)
+		if @config.catchExceptions
+			process.setMaxListeners(0)
+			process.on('uncaughtException', @error)
+
+		# Regenerate Timer
+		if @regenerateTimer
+			clearInterval(@regenerateTimer)
+			@regenerateTimer = null
+		if @config.regenerateEvery
+			@regenerateTimer = setInterval(
+				->
+					docpad.log('info', locale.renderInterval)
+					docpad.action('generate')
+				@config.regenerateEvery
+			)
+
+		# Prepare the Post Tasks
+		postTasks = new balUtil.Group (err) =>
+			return next(err,@config)
+
+		# Initialize
+		postTasks.push (complete) =>
+			@loadPlugins(complete)
+
+		# Load collections
+		postTasks.push (complete) =>
+			@createCollections(complete)
+
+		# Fetch plugins templateData
+		postTasks.push (complete) =>
+			@emitSync('extendTemplateData', {templateData:@pluginsTemplateData}, complete)
+
+		# Fire the docpadLoaded event
+		postTasks.push (complete) =>
+			@emitSync('docpadLoaded', {}, complete)
+
+		# Fire post tasks
+		postTasks.sync()
+
+		# Chain
+		@
+
+
 	# Load Configuration
 	# next(err,config)
 	load: (instanceConfig,next) =>
@@ -1073,94 +1191,12 @@ class DocPad extends EventEmitterEnhanced
 		@config = {}
 
 		# Merge in the instance configurations
-		balUtil.extend(@instanceConfig,instanceConfig)
+		@setInstanceConfig(instanceConfig)
 
 		# Prepare the Load Tasks
 		preTasks = new balUtil.Group (err) =>
 			return next(err)  if err
-
-			# Apply the environment
-			# websitePackageConfig.env is left out of the detection here as it is usually an object
-			# that is already merged with our process.env by the environment runner
-			# rather than a string which is the docpad convention
-			@config.env = @instanceConfig.env or @websiteConfig.env or @initialConfig.env or process.env.NODE_ENV
-			envs = @getEnvironments()
-
-			# Merge configurations
-			configPackages = [@initialConfig, @userConfig, @websiteConfig, @instanceConfig]
-			configsToMerge = [@config]
-			for configPackage in configPackages
-				configsToMerge.push(configPackage)
-				for env in envs
-					envConfig = configPackage.environments?[env]
-					configsToMerge.push(envConfig)  if envConfig
-			balUtil.safeDeepExtendPlainObjects(configsToMerge...)
-
-			# Extract and apply the server
-			@setServer(@config.server)  if @config.server
-
-			# Extract and apply the logger
-			@setLogger(@config.logger)  if @config.logger
-			@setLogLevel(@config.logLevel)
-
-			# Resolve any paths
-			@config.rootPath = pathUtil.resolve(@config.rootPath)
-			@config.outPath = pathUtil.resolve(@config.rootPath, @config.outPath)
-			@config.srcPath = pathUtil.resolve(@config.rootPath, @config.srcPath)
-
-			# Resolve Documents, Files, Layouts paths
-			for type in ['documents','files','layouts']
-				typePaths = @config[type+'Paths']
-				for typePath,key in typePaths
-					typePaths[key] = pathUtil.resolve(@config.srcPath,typePath)
-
-			# Resolve Plugins paths
-			for type in ['plugins']
-				typePaths = @config[type+'Paths']
-				for typePath,key in typePaths
-					typePaths[key] = pathUtil.resolve(@config.rootPath,typePath)
-
-			# Bind the error handler, so we don't crash on errors
-			if @config.catchExceptions
-				process.setMaxListeners(0)
-				process.on('uncaughtException', @error)
-			else
-				process.removeListener('uncaughtException', @error)
-
-			# Regenerate Timer
-			if @regenerateTimer
-				clearInterval(@regenerateTimer)
-				@regenerateTimer = null
-			if @config.regenerateEvery
-				@regenerateTimer = setInterval(
-					->
-						docpad.log('info', locale.renderInterval)
-						docpad.action('generate')
-					@config.regenerateEvery
-				)
-
-			# Prepare the Post Tasks
-			postTasks = new balUtil.Group (err) =>
-				return next(err,@config)
-
-			# Initialize
-			postTasks.push (complete) =>
-				@loadPlugins(complete)
-
-			# Load collections
-			postTasks.push (complete) =>
-				@createCollections(complete)
-
-			# Fetch plugins templateData
-			postTasks.push (complete) =>
-				@emitSync('extendTemplateData', {templateData:@pluginsTemplateData}, complete)
-
-			# Fire the docpadLoaded event
-			postTasks.push (complete) =>
-				@emitSync('docpadLoaded', {}, complete)
-
-			# Fire post tasks
-			postTasks.sync()
+			return @setConfig(next)
 
 		# Normalize the userConfigPath
 		preTasks.push (complete) =>
@@ -1170,7 +1206,7 @@ class DocPad extends EventEmitterEnhanced
 				balUtil.exists dropboxPath, (dropboxPathExists) =>
 					userConfigDirPath = if dropboxPathExists then dropboxPath else homePath
 					@userConfigPath = pathUtil.join(userConfigDirPath, @userConfigPath)
-					complete()
+					return complete()
 
 		# Load User's Configuration
 		preTasks.push (complete) =>
@@ -1181,7 +1217,7 @@ class DocPad extends EventEmitterEnhanced
 				balUtil.extend(@userConfig, data or {})
 
 				# Done loading
-				complete()
+				return complete()
 
 		# Load DocPad's Package Configuration
 		preTasks.push (complete) =>
@@ -1194,7 +1230,7 @@ class DocPad extends EventEmitterEnhanced
 				@getAirbrakeInstance()?.appVersion = data.version
 
 				# Done loading
-				complete()
+				return complete()
 
 		# Load Website's Package Configuration
 		preTasks.push (complete) =>
@@ -1208,7 +1244,7 @@ class DocPad extends EventEmitterEnhanced
 				@websitePackageConfig = data
 
 				# Done loading
-				complete()
+				return complete()
 
 		# Read the .env file if it exists
 		preTasks.push (complete) =>
@@ -1242,7 +1278,7 @@ class DocPad extends EventEmitterEnhanced
 				balUtil.extend(@websiteConfig, data)
 
 				# Done loading
-				complete()
+				return complete()
 
 		# Run the load tasks synchronously
 		preTasks.sync()
@@ -1971,6 +2007,9 @@ class DocPad extends EventEmitterEnhanced
 
 		# If we've already been loaded, then exit early as there is no use for us to load again
 		if docpad.loadedPlugins[pluginName]?
+			# However we probably want to reload the configuration as perhaps the user or environment configuration has changed
+			docpad.loadedPlugins[pluginName].setConfig()
+			# Complete
 			return _next()
 
 		# Add to loading stores

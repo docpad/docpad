@@ -1,6 +1,7 @@
 # Requires
 {cliColor} = require('caterpillar')
 pathUtil = require('path')
+balUtil = require('bal-util')
 
 # Console Interface
 class ConsoleInterface
@@ -88,15 +89,13 @@ class ConsoleInterface
 		commander
 			.command('render [path]')
 			.description(locale.consoleDescriptionRender)
-			.action (command) ->
+			.action(consoleInterface.wrapAction(consoleInterface.render,{
 				# Disable anything uncessary or that could cause extra output we don't want
-				commander.debug ?= 5
-				commander.checkVersion = false
-				commander.welcome = false
-				commander.prompts = false
-
-				# Perform the render
-				consoleInterface.performAction(command,consoleInterface.render)
+				logLevel: 5
+				checkVersion: false
+				welcome: false
+				prompts: false
+			}))
 
 		# generate
 		commander
@@ -188,17 +187,20 @@ class ConsoleInterface
 		@
 
 	# Wrap Action
-	wrapAction: (action) =>
+	wrapAction: (action,config) ->
 		consoleInterface = @
-		return (args...) -> consoleInterface.performAction(action,args)
+		return (args...) ->
+			consoleInterface.performAction(action,args,config)
 
 	# Perform Action
-	performAction: (action,args) =>
+	performAction: (action,args,config) =>
 		# Create
 		opts = {}
 		opts.commander = args[-1...][0]
-		opts.instanceConfig = @extractConfig(opts.commander)
 		opts.args = args[...-1]
+		opts.instanceConfig = balUtil.safeDeepExtendPlainObjects({}, @extractConfig(opts.commander), config)
+
+		# Load
 		@docpad.action 'load ready', opts.instanceConfig, (err) =>
 			# Error
 			if err
@@ -291,9 +293,6 @@ class ConsoleInterface
 
 	# Welcome Callback
 	welcomeCallback: (opts,next) =>
-		# Reuqires
-		balUtil = require('bal-util')
-
 		# Prepare
 		consoleInterface = @
 		commander = @commander
@@ -524,18 +523,17 @@ class ConsoleInterface
 		@docpad.action('install',next)
 		@
 
-	render: (next) =>
+	render: (next,opts) =>
 		# Prepare
 		docpad = @docpad
 		commander = @commander
-		balUtil = require('bal-util')
-		opts = {}
+		renderOpts = {}
 
 		# Prepare filename
-		filename = commander.args[0] or null
+		filename = opts.args[0] or null
 		basename = pathUtil.basename(filename)
-		opts.filename = filename
-		opts.renderSingleExtensions = 'auto'
+		renderOpts.filename = filename
+		renderOpts.renderSingleExtensions = 'auto'
 
 		# Prepare text
 		data = ''
@@ -544,7 +542,7 @@ class ConsoleInterface
 		useStdin = true
 		renderDocument = ->
 			# Perform the render
-			docpad.action 'render', opts, (err,result) ->
+			docpad.action 'render', renderOpts, (err,result) ->
 				return docpad.fatal(err)  if err
 				# Path
 				if commander.out?
@@ -580,7 +578,7 @@ class ConsoleInterface
 			if timeout
 				clearTimeout(timeout)
 				timeout = null
-			opts.data = data
+			renderOpts.data = data
 			renderDocument()
 
 		@
