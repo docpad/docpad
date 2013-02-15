@@ -29,17 +29,11 @@ class BasePlugin
 		me = @
 		{docpad,config} = opts
 		@docpad = docpad
-		envs = @docpad.getEnvironments()
 
-		# Merge configurations
-		configPackages = [@config, config]
-		configsToMerge = [{}]
-		for configPackage in configPackages
-			configsToMerge.push(configPackage)
-			for env in envs
-				envConfig = configPackage.environments?[env]
-				configsToMerge.push(envConfig)  if envConfig
-		@config = balUtil.deepExtendPlainObjects(configsToMerge...)
+		# Swap out our configuration
+		@config = balUtil.deepExtendPlainObjects({},@config)
+		@initialConfig = @config
+		@setConfig(config)
 
 		# Return early if we are disabled
 		return @  if @isEnabled() is false
@@ -49,6 +43,25 @@ class BasePlugin
 
 		# Chain
 		@
+
+	# Set Configuration
+	setConfig: (instanceConfig=null) =>
+		# Prepare
+		docpad = @docpad
+		userConfig = @docpad.config.plugins[@name]
+		@config = @docpad.config.plugins[@name] = {}
+
+		# Merge configurations
+		configPackages = [@initialConfig, userConfig, instanceConfig]
+		configsToMerge = [@config]
+		docpad.mergeConfigurations(configPackages,configsToMerge)
+
+		# Chain
+		@
+
+	# Get Configuration
+	getConfig: =>
+		return @config
 
 	# Bind Events
 	bindEvents: ->
