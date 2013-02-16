@@ -19,6 +19,7 @@ class BasePlugin
 
 	# Plugin config
 	config: {}
+	instanceConfig: {}
 
 	# Plugin priority
 	priority: 500
@@ -31,7 +32,8 @@ class BasePlugin
 		@docpad = docpad
 
 		# Swap out our configuration
-		@config = balUtil.deepExtendPlainObjects({},@config)
+		@config = balUtil.deepClone(@config)
+		@instanceConfig = balUtil.deepClone(@instanceConfig)
 		@initialConfig = @config
 		@setConfig(config)
 
@@ -44,6 +46,14 @@ class BasePlugin
 		# Chain
 		@
 
+	# Set Instance Configuration
+	setInstanceConfig: (instanceConfig) ->
+		# Merge in the instance configurations
+		if instanceConfig
+			balUtil.safeDeepExtendPlainObjects(@instanceConfig, instanceConfig)
+			balUtil.safeDeepExtendPlainObjects(@config, instanceConfig)  if @config
+		@
+
 	# Set Configuration
 	setConfig: (instanceConfig=null) =>
 		# Prepare
@@ -51,8 +61,11 @@ class BasePlugin
 		userConfig = @docpad.config.plugins[@name]
 		@config = @docpad.config.plugins[@name] = {}
 
+		# Instance config
+		@setInstanceConfig(instanceConfig)  if instanceConfig
+
 		# Merge configurations
-		configPackages = [@initialConfig, userConfig, instanceConfig]
+		configPackages = [@initialConfig, userConfig, @instanceConfig]
 		configsToMerge = [@config]
 		docpad.mergeConfigurations(configPackages,configsToMerge)
 
