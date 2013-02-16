@@ -232,7 +232,14 @@ class DocPad extends EventEmitterEnhanced
 
 	#  Set a block
 	setBlock: (name,value) ->
-		@blocks[name] = value
+		if @blocks[name]?
+			@blocks[name].destroy()
+			if value
+				@blocks[name] = value
+			else
+				delete @blocks[name]
+		else
+			@blocks[name] = value
 		@
 
 	#  Get blocks
@@ -265,7 +272,14 @@ class DocPad extends EventEmitterEnhanced
 
 	# Set a collection
 	setCollection: (name,value) ->
-		@collections[name] = value
+		if @collections[name]?
+			@collections[name].destroy()
+			if value
+				@collections[name] = value
+			else
+				delete @collections[name]
+		else
+			@collections[name] = value
 		@
 
 	# Get collections
@@ -923,6 +937,9 @@ class DocPad extends EventEmitterEnhanced
 		@exchange = {}
 		@pluginsTemplateData = {}
 		@instanceConfig = {}
+		@collections = {}
+		@blocks = {}
+		@database = new FilesCollection()
 		@locales = balUtil.dereference(@locales)
 		@userConfig = balUtil.dereference(@userConfig)
 		@initialConfig = balUtil.dereference(@initialConfig)
@@ -1141,9 +1158,9 @@ class DocPad extends EventEmitterEnhanced
 			postTasks.push (complete) =>
 				@loadPlugins(complete)
 
-			# Load collections
+			# Extend collections
 			postTasks.push (complete) =>
-				@createCollections(complete)
+				@extendCollections(complete)
 
 			# Fetch plugins templateData
 			postTasks.push (complete) =>
@@ -1398,17 +1415,14 @@ class DocPad extends EventEmitterEnhanced
 		# Chain
 		@
 
-	# Create Collections
+	# Extend Collecitons
 	# next(err)
-	createCollections: (next) ->
+	extendCollections: (next) ->
 		# Prepare
 		docpad = @
 		config = @config
 		locale = @getLocale()
-		@database = database = new FilesCollection()
-		@collections = {}
-		@blocks = {}
-		config.collections or= {}
+		database = @getDatabase()
 
 		# Standard Collections
 		@setCollections(
@@ -1500,20 +1514,22 @@ class DocPad extends EventEmitterEnhanced
 			docpad.emitSync('extendCollections',{},next)
 
 		# Cycle through Custom Collections
-		balUtil.each @config.collections, (fn,name) ->
+		balUtil.each @config.collections or {}, (fn,name) ->
 			tasks.push (complete) ->
 				if fn.length is 2 # callback
 					fn.call docpad, database, (err,collection) ->
 						docpad.error(err)  if err
-						if collection
-							collection.live(true)  # make it a live collection
-							docpad.setCollection(name,collection)  # apply the collection
+						# make it a live collection
+						collection.live(true)  if collection
+						# apply the collection
+						docpad.setCollection(name,collection)
 						complete()
 				else
 					collection = fn.call(docpad,database)
-					if collection
-						collection.live(true)  # make it a live collection
-						docpad.setCollection(name,collection)  # apply the collection
+					# make it a live collection
+					collection.live(true)  if collection
+					# apply the collection
+					docpad.setCollection(name,collection)
 					complete()
 
 		# Run Custom collections
