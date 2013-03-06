@@ -923,6 +923,7 @@ class DocPad extends EventEmitterEnhanced
 		@exchange = {}
 		@pluginsTemplateData = {}
 		@instanceConfig = {}
+		@filesByUrl = {}
 		@locales = balUtil.dereference(@locales)
 		@userConfig = balUtil.dereference(@userConfig)
 		@initialConfig = balUtil.dereference(@initialConfig)
