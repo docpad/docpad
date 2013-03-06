@@ -1,5 +1,10 @@
 ## History
 
+- v6.22.0 March 6, 2013
+	- Better port assignment to testers - [changeset](https://github.com/bevry/docpad/commit/244390c5d349598e35e2b99347c8b067006aa293)
+	- We now identify anonymous users (while respecting their anonymity) - [changeset](https://github.com/bevry/docpad/commit/fb8de48d7dcfc4e9211fd898cda91c54553c1f58)
+		- Closes [#430](https://github.com/bevry/docpad/issues/430)
+
 - v6.21.10 February 6, 2013
 	- Updated dependencies
 		- [watchr](https://github.com/bevry/watchr) from ~2.3.4 to ~2.3.7
