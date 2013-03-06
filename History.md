@@ -1,5 +1,36 @@
 ## History
 
+- v6.22.0 March 6, 2013
+	- Better port assignment to testers - [changeset](https://github.com/bevry/docpad/commit/244390c5d349598e35e2b99347c8b067006aa293)
+	- We now identify anonymous users (while respecting their anonymity) - [changeset](https://github.com/bevry/docpad/commit/fb8de48d7dcfc4e9211fd898cda91c54553c1f58)
+		- Closes [#430](https://github.com/bevry/docpad/issues/430)
+
+- v6.21.10 February 6, 2013
+	- Updated dependencies
+		- [watchr](https://github.com/bevry/watchr) from ~2.3.4 to ~2.3.7
+			- Works better for projects that have a large amount of files
+
+- v6.21.9 February 6, 2013
+	- We now completely ignore growl failures
+	- We now alert the user of watch failures but still ignore them overall (as to not bring down the entire app)
+	- Updated dependencies
+		- [growl](https://github.com/visionmedia/node-growl) from ~1.6.1 to ~1.7.0
+		- [express](https://github.com/visionmedia/express) from ~3.0.6 to ~3.1.0
+		- [watchr](https://github.com/bevry/watchr) from ~2.3.4 to ~2.3.5
+			- Fixes a bug with uncaught watching exceptions
+
+- v6.21.8 February 5, 2013
+	- Swapped out underscore dependency for lodash
+	- Underscore is no longer provided to testers
+	- `File::getMeta` now alises to `File.getMeta().get` if arguments have been supplied
+	- No longer does deep clones on template data per file render (just shallow clone now)
+	- Fixed a bug that keeps `exists` attribute on `File` always `true`
+		- Thanks to [Stefan](https://github.com/stegrams) for [pull request #409](https://github.com/bevry/docpad/pull/409)
+	- Updated dependencies
+		- [bal-util](https://github.com/balupton/bal-util) from ~1.16.3 to ~1.16.3
+		- [watchr](https://github.com/bevry/watchr) from ~2.3.3 to ~2.3.4
+			- Way better performance and reliability
+
 - v6.21.7 January 25, 2013
 	- Fixed port not defaulting correctly on the `docpad-server` executable since v6.21.5
 		- Closes [issue #407](https://github.com/bevry/docpad/issues/407) thanks to [man4u](https://github.com/man4u)
@@ -968,9 +999,9 @@
 	- Got the generation and server going
 
 - v0.2 March 24, 2011
-	- Prototyping with [disenchant](https://github.com/disenchant)
+	- Initial prototyping with [Sven Vetsch](https://github.com/disenchant)
 
 - v0.1 March 16, 2011
-	- Initial commit with [bergie](https://github.com/bergie)
+	- Initial discussions with [Henri Bergius](https://github.com/bergie)
 
 

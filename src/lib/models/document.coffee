@@ -1,7 +1,6 @@
 # Necessary
 pathUtil = require('path')
 balUtil = require('bal-util')
-_ = require('underscore')
 mime = require('mime')
 
 # Optional
@@ -516,7 +515,7 @@ class DocumentModel extends FileModel
 
 				# Merge in the layout meta data into the document JSON
 				# and make the result available via documentMerged
-				# templateData.document.metaMerged = _.extend({}, layout.getMeta().toJSON(), file.getMeta().toJSON())
+				# templateData.document.metaMerged = balUtil.extend({}, layout.getMeta().toJSON(), file.getMeta().toJSON())
 
 				# Render the layout with the templateData
 				layout.render {templateData}, (err,result) ->
@@ -538,14 +537,14 @@ class DocumentModel extends FileModel
 
 		# Prepare options
 		{opts,next} = @getActionArgs(opts,next)
-		opts = _.clone(opts or {})
+		opts = balUtil.clone(opts or {})
 		opts.actions ?= ['renderExtensions','renderDocument','renderLayouts']
 
 		# Prepare content
 		opts.content ?= @get('body')
 
 		# Prepare templateData
-		opts.templateData = _.clone(opts.templateData or {})
+		opts.templateData = balUtil.clone(opts.templateData or {})  # deepClone may be more suitable
 		opts.templateData.document ?= file.toJSON()
 		opts.templateData.documentModel ?= file
 

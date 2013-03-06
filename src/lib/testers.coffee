@@ -1,6 +1,5 @@
 # Requires
 pathUtil = require('path')
-_ = underscore = require('underscore')
 balUtil = require('bal-util')
 joe = require('joe')
 chai = require('chai')
@@ -11,9 +10,8 @@ CSON = require('cson')
 DocPad = require(__dirname+'/docpad')
 
 # Prepare
-pluginPort = 2000+process.pid
+pluginPort = 2000+String((new Date()).getTime()).substr(-6,4)
 testers = {
-	underscore,
 	balUtil,
 	chai,
 	expect,

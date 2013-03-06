@@ -1,7 +1,3 @@
-# Necessary
-_ = require('underscore')
-balUtil = require('bal-util')
-
 # Local
 {QueryCollection,Model} = require(__dirname+'/../base')
 FileModel = require(__dirname+'/../models/file')

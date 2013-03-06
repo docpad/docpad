@@ -1,5 +1,5 @@
 # Necessary
-_ = require('underscore')
+balUtil = require('bal-util')
 
 # Local
 ElementsCollection = require(__dirname+'/elements')
@@ -15,7 +15,7 @@ class ScriptsCollection extends ElementsCollection
 		opts.defer ?= true
 		opts.async ?= false
 		opts.attrs or= ''
-		values = [values]  unless _.isArray(values)
+		values = [values]  unless balUtil.isArray(values)
 
 		# Build attrs
 		opts.attrs += """defer="defer" """  if opts.defer
@@ -23,7 +23,7 @@ class ScriptsCollection extends ElementsCollection
 
 		# Convert urls into script element html
 		for value,key in values
-			if _.isString(value)
+			if balUtil.isString(value)
 				if value[0] is '<'
 					# we are a script element already, don't bother doing anything
 				else if value.indexOf(' ') is -1
