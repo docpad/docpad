@@ -333,7 +333,7 @@ class ConsoleInterface
 					userConfig.subscribed = false
 					docpad.updateUserConfig (err) ->
 						return complete(err)  if err
-						balUtil.wait(5000,complete)
+						balUtil.wait(2000,complete)
 					return
 
 				# Scan configuration to speed up the process

@@ -764,6 +764,10 @@ class DocPad extends EventEmitterEnhanced
 		# By default it is only enabled if we are not running inside a test
 		reportStatistics: process.argv.join('').indexOf('test') is -1
 
+		# Hash Key
+		# The key that we use to hash some data before sending it to our statistic server
+		hashKey: '7>9}$3hP86o,4=@T'  # const
+
 		# Airbrake Token
 		airbrakeToken: 'e7374dd1c5a346efe3895b9b0c1c0325'
 
@@ -773,6 +777,12 @@ class DocPad extends EventEmitterEnhanced
 
 		# -----------------------------
 		# Other
+
+		# Detect Encoding
+		# Should we attempt to auto detect the encoding of our files?
+		# Useful when you are using foreign encoding (e.g. GBK) for your files
+		# Only works on unix systems currently (limit of iconv module)
+		detectEncoding: false
 
 		# Render Single Extensions
 		# Whether or not we should render single extensions by default
@@ -904,6 +914,7 @@ class DocPad extends EventEmitterEnhanced
 				docpad.log('warn', locale.trackError+'\n'+locale.errorFollows, err)
 		@trackRunnerInstance.total = Infinity
 
+
 		# Initialize a default logger
 		logger = new caterpillar.Logger(
 			transports:
@@ -990,6 +1001,7 @@ class DocPad extends EventEmitterEnhanced
 		[instanceConfig,next] = balUtil.extractOptsAndCallback(instanceConfig,next)
 		docpad = @
 		locale = @getLocale()
+		mixpanelInstance = @getMixpanelInstance()
 
 		# Render Single Extensions
 		@DocumentModel::defaults.renderSingleExtensions = docpad.config.renderSingleExtensions
@@ -1012,41 +1024,73 @@ class DocPad extends EventEmitterEnhanced
 		tasks = new balUtil.Group (err) ->
 			# Error?
 			return docpad.error(err)  if err
+
 			# All done, forward our DocPad instance onto our creator
 			return next?(null,docpad)
 
 		# Welcome
 		tasks.push (complete) =>
+			# No welcome
 			return complete()  unless docpad.config.welcome
+
+			# Welcome
 			@emitSync('welcome', {docpad}, complete)
+
+		# Anyomous
+		# Ignore errors
+		tasks.push (complete) =>
+			# No statistics or username is already identified
+			return complete()  if !mixpanelInstance or @userConfig.username
+
+			# User is anonymous, set their username to the hashed and salted mac address
+			require('getmac').getMac (err,macAddress) =>
+				return complete()  if err or !macAddress
+
+				# Hash with salt
+				try
+					macAddressHash = require('crypto').createHmac('sha1',docpad.config.hashKey).update(macAddress).digest('hex')
+				catch err
+					return complete()  if err
+
+				# Apply
+				if macAddressHash
+					@userConfig.name ?= "MAC #{macAddressHash}"
+					@userConfig.username ?= macAddressHash
+
+				# Next
+				return complete()
 
 		# Track
 		tasks.push =>
-			if @userConfig.username
-				lastLogin = new Date()
-				countryCode = @getCountryCode()
-				languageCode = @getLanguageCode()
-				mixpanelInstance = @getMixpanelInstance()
-				if mixpanelInstance
-					if @userConfig.identified isnt true
-						# identify the new user with mixpanel
-						mixpanelInstance.people.set(@userConfig.username, {
-							$email: @userConfig.email
-							$name: @userConfig.name
-							$username: @userConfig.username
-							$created: lastLogin
-							$last_login: lastLogin
-							$country_code: countryCode
-							languageCode: languageCode
-						})
-						@updateUserConfig({
-							identified: true
-						})
-					else
-						# only update last login if we are another day
-						mixpanelInstance.people.set(@userConfig.username, {
-							$last_login: new Date()
-						})
+			# No stats or no username
+			return  if !mixpanelInstance or !@userConfig.username
+
+			# Update the user in mixpanel
+			lastLogin = new Date()
+			if @userConfig.identified isnt true
+				# Identify the new user with mixpanel
+				mixpanelInstance.people.set(@userConfig.username, {
+					$created: lastLogin
+					$username: @userConfig.username
+					$email: @userConfig.email
+					$name: @userConfig.name
+					$last_login: lastLogin
+					$country_code: @getCountryCode()
+					languageCode: @getLanguageCode()
+				})
+				# Save the changes with these
+				@updateUserConfig({
+					identified: true
+				})
+			else
+				# Update existing user if they have already been identified
+				mixpanelInstance.people.set(@userConfig.username, {
+					$email: @userConfig.email
+					$name: @userConfig.name
+					$last_login: lastLogin
+					$country_code: @getCountryCode()
+					languageCode: @getLanguageCode()
+				})
 
 
 		# DocPad Ready
@@ -1741,9 +1785,10 @@ class DocPad extends EventEmitterEnhanced
 	createFile: (data={},options={}) =>
 		# Prepare
 		docpad = @
-		options = balUtil.extend(
+		options = balUtil.extend({
+			detectEncoding: @config.detectEncoding
 			outDirPath: @config.outPath
-		,options)
+		},options)
 
 		# Create and return
 		file = new FileModel(data,options)
@@ -1763,9 +1808,10 @@ class DocPad extends EventEmitterEnhanced
 	createDocument: (data={},options={}) =>
 		# Prepare
 		docpad = @
-		options = balUtil.extend(
+		options = balUtil.extend({
+			detectEncoding: @config.detectEncoding
 			outDirPath: @config.outPath
-		,options)
+		},options)
 
 		# Create and return
 		document = new DocumentModel(data,options)

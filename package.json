@@ -1,6 +1,6 @@
 {
 	"name": "docpad",
-	"version": "6.21.10",
+	"version": "6.23.0",
 	"description": "DocPad is a language agnostic document management system. This means you write your website as documents, in whatever language you wish, and DocPad will handle the compiling, templates and layouts for you. For static documents it will generate static files, for dynamic documents it'll re-render them on each request. You can utilise DocPad by itself, or use it as a module your own custom system. It's pretty cool, and well worth checking out. We love it.",
 	"homepage": "https://github.com/bevry/docpad",
 	"installUrl": "http://docpad.org/install",
@@ -66,16 +66,19 @@
 		"commander": "~1.1.1",
 		"cson": "~1.4.0",
 		"express": "~3.1.0",
+		"jschardet": "~1.0.2",
 		"mime": "~1.2.7",
 		"query-engine": "~1.5.0",
 		"semver": "~1.1.2",
 		"lodash": "~1.0.0",
 		"backbone": "0.9.9",
 		"watchr": "~2.3.7",
-		"yamljs": "~0.1.4"
+		"yamljs": "~0.1.4",
+		"getmac": "~1.0.4"
 	},
 	"optionalDependencies": {
 		"airbrake": "~0.2.9",
+		"iconv": "~2.0.2",
 		"growl": "~1.7.0",
 		"mixpanel": "0.0.10"
 	},
