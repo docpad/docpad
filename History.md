@@ -1,5 +1,9 @@
 ## History
 
+- v6.23.0 March 6, 2013
+	- DocPad can now handle foreign encodings when you set `detectEncoding: true` in the [docpad configuration](http://docpad.org/docs/config)
+		- Thanks to [Yellow Dragon](https://github.com/huanglong) for [issue #411](https://github.com/bevry/docpad/issues/411)
+
 - v6.22.0 March 6, 2013
 	- Better port assignment to testers - [changeset](https://github.com/bevry/docpad/commit/244390c5d349598e35e2b99347c8b067006aa293)
 	- We now identify anonymous users (while respecting their anonymity) - [changeset](https://github.com/bevry/docpad/commit/fb8de48d7dcfc4e9211fd898cda91c54553c1f58)
