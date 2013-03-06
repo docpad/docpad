@@ -999,9 +999,9 @@
 	- Got the generation and server going
 
 - v0.2 March 24, 2011
-	- Prototyping with [disenchant](https://github.com/disenchant)
+	- Initial prototyping with [Sven Vetsch](https://github.com/disenchant)
 
 - v0.1 March 16, 2011
-	- Initial commit with [bergie](https://github.com/bergie)
+	- Initial discussions with [Henri Bergius](https://github.com/bergie)
 
 
