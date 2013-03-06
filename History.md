@@ -1,5 +1,17 @@
 ## History
 
+- v6.24.0 March 6, 2013
+	- Configuration changes and improvements
+		- Can now load the configuration before the console interface is setup, allowing us to have plugins that extend the console interface
+			- Currently explicit commands only
+		- Configuration can now load multiple times safely
+		- Plugins now have `initialConfig`, `instanceConfig`, and a `setConfig(instanceConfig=null)` helper and their configuration will be reloaded via `setConfig` each time the docpad configuration is reloaded
+			- **NOTE: This means no modifying `config` directly in your constructor as the changes won't persist, instead modify them via the `setConfig` call after calling `super`**
+				- See the partials plugin for an example of this
+		- Thanks to [Olivier Bazoud](https://github.com/obazoud) for [issue #63](https://github.com/bevry/docpad/issues/63) and thanks to [Avi Deitcher](https://github.com/deitch), [Sergey Lukin](https://github.com/sergeylukin), [Zeno Rocha](https://github.com/zenorocha) for [issue #39](https://github.com/bevry/docpad/issues/39)
+	- Added `docpad action <actions>` command line action
+	- When passing arrays to blocks we now clone the array to avoid modifying the argument
+
 - v6.23.0 March 6, 2013
 	- DocPad can now handle foreign encodings when you set `detectEncoding: true` in the [docpad configuration](http://docpad.org/docs/config)
 		- Thanks to [Yellow Dragon](https://github.com/huanglong) for [issue #411](https://github.com/bevry/docpad/issues/411)
