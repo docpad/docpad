@@ -1,5 +1,5 @@
 # Requires
-_ = require('underscore')
+balUtil = require('bal-util')
 queryEngine = require('query-engine')
 Backbone = queryEngine.Backbone
 
@@ -16,7 +16,7 @@ class Events
 	log: log
 	emit: emit
 
-_.extend(Events::, Backbone.Events)
+balUtil.extend(Events::, Backbone.Events)
 
 # Model
 class Model extends Backbone.Model

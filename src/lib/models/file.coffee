@@ -2,13 +2,10 @@
 pathUtil = require('path')
 balUtil = require('bal-util')
 mime = require('mime')
-jschardet = require('jschardet')
 
 # Import: Optional
-try
-	Iconv = require('iconv').Iconv
-catch err
-	Iconv = null
+jschardet = null
+Iconv = null
 
 # Local
 {Backbone,Model} = require(__dirname+'/../base')
@@ -203,10 +200,10 @@ class FileModel extends Model
 		return @toJSON()
 
 	# Get Meta
-	getMeta: (attr) ->
+	getMeta: (args...) ->
 		@meta = new Model()  if @meta is null
-		if attr?
-			return @meta.get(attr)
+		if args.length
+			return @meta.get(args...)
 		else
 			return @meta
 
@@ -416,7 +413,7 @@ class FileModel extends Model
 		if fullPath
 			balUtil.exists fullPath, (_exists) ->
 				exists = _exists
-				file.set({exists:true})
+				file.set({exists})
 				tasks.async()
 		else
 			tasks.async()
@@ -443,6 +440,14 @@ class FileModel extends Model
 			if isText is true
 				# Detect source encoding if not manually specified
 				if @detectEncoding
+					# Import
+					jschardet ?= require('jschardet')
+					try
+						Iconv ?= require('iconv').Iconv
+					catch err
+						Iconv = null
+
+					# Detect
 					encoding ?= jschardet.detect(buffer)?.encoding or 'utf8'
 				else
 					encoding ?= 'utf8'

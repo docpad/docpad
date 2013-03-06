@@ -5,7 +5,7 @@ DocPad = require(__dirname+'/../lib/docpad')
 chai = require('chai')
 expect = chai.expect
 joe = require('joe')
-_ = require('underscore')
+_ = require('lodash')
 
 # -------------------------------------
 # Configuration
@@ -100,7 +100,7 @@ joe.suite 'docpad-actions', (suite,test) ->
 							ignoreHiddenFiles: false
 							next: (err,outExpectedList) ->
 								# check we have the same files
-								expect(_.difference(_.keys(outList),_.keys(outExpectedList))).to.be.empty
+								expect(_.difference(Object.keys(outList),Object.keys(outExpectedList))).to.be.empty
 								# check the contents of those files match
 								for own key,actual of outList
 									expected = outExpectedList[key]

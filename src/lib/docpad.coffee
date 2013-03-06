@@ -3,7 +3,7 @@
 
 # Necessary
 pathUtil = require('path')
-_ = require('underscore')
+_ = require('lodash')
 caterpillar = require('caterpillar')
 CSON = require('cson')
 balUtil = require('bal-util')
@@ -496,7 +496,7 @@ class DocPad extends EventEmitterEnhanced
 		# Add site data
 		templateData.site.date or= new Date()
 		templateData.site.keywords or= []
-		if _.isString(templateData.site.keywords)
+		if balUtil.isString(templateData.site.keywords)
 			templateData.site.keywords = templateData.site.keywords.split(/,\s*/g)
 
 		# Return
@@ -764,6 +764,10 @@ class DocPad extends EventEmitterEnhanced
 		# By default it is only enabled if we are not running inside a test
 		reportStatistics: process.argv.join('').indexOf('test') is -1
 
+		# Hash Key
+		# The key that we use to hash some data before sending it to our statistic server
+		hashKey: '7>9}$3hP86o,4=@T'  # const
+
 		# Airbrake Token
 		airbrakeToken: 'e7374dd1c5a346efe3895b9b0c1c0325'
 
@@ -877,7 +881,7 @@ class DocPad extends EventEmitterEnhanced
 
 		# Setup configuration event wrappers
 		configEventContext = {docpad}  # here to allow the config event context to persist between event calls
-		_.each @getEvents(), (eventName) ->
+		balUtil.each @getEvents(), (eventName) ->
 			# Bind to the event
 			docpad.on eventName, (opts,next) ->
 				eventHandler = docpad.getConfig().events?[eventName]
@@ -907,6 +911,7 @@ class DocPad extends EventEmitterEnhanced
 				locale = docpad.getLocale()
 				docpad.log('warn', locale.trackError+'\n'+locale.errorFollows, err)
 		@trackRunnerInstance.total = Infinity
+
 
 		# Initialize a default logger
 		logger = new caterpillar.Logger(
@@ -987,6 +992,7 @@ class DocPad extends EventEmitterEnhanced
 		[instanceConfig,next] = balUtil.extractOptsAndCallback(instanceConfig,next)
 		docpad = @
 		locale = @getLocale()
+		mixpanelInstance = @getMixpanelInstance()
 
 		# Render Single Extensions
 		@DocumentModel::defaults.renderSingleExtensions = docpad.config.renderSingleExtensions
@@ -996,9 +1002,9 @@ class DocPad extends EventEmitterEnhanced
 
 		# Welcome prepare
 		if @getDebugging()
-			pluginsList = ("#{pluginName} v#{@loadedPlugins[pluginName].version}"  for pluginName in _.keys(@loadedPlugins).sort()).join(', ')
+			pluginsList = ("#{pluginName} v#{@loadedPlugins[pluginName].version}"  for pluginName in Object.keys(@loadedPlugins).sort()).join(', ')
 		else
-			pluginsList = _.keys(@loadedPlugins).sort().join(', ')
+			pluginsList = Object.keys(@loadedPlugins).sort().join(', ')
 
 		# Welcome log
 		@log 'info', util.format(locale.welcome, "v#{@getVersion()}")
@@ -1009,41 +1015,73 @@ class DocPad extends EventEmitterEnhanced
 		tasks = new balUtil.Group (err) ->
 			# Error?
 			return docpad.error(err)  if err
+
 			# All done, forward our DocPad instance onto our creator
 			return next?(null,docpad)
 
 		# Welcome
 		tasks.push (complete) =>
+			# No welcome
 			return complete()  unless docpad.config.welcome
+
+			# Welcome
 			@emitSync('welcome', {docpad}, complete)
+
+		# Anyomous
+		# Ignore errors
+		tasks.push (complete) =>
+			# No statistics or username is already identified
+			return complete()  if !mixpanelInstance or @userConfig.username
+
+			# User is anonymous, set their username to the hashed and salted mac address
+			require('getmac').getMac (err,macAddress) =>
+				return complete()  if err or !macAddress
+
+				# Hash with salt
+				try
+					macAddressHash = require('crypto').createHmac('sha1',docpad.config.hashKey).update(macAddress).digest('hex')
+				catch err
+					return complete()  if err
+
+				# Apply
+				if macAddressHash
+					@userConfig.name ?= "MAC #{macAddressHash}"
+					@userConfig.username ?= macAddressHash
+
+				# Next
+				return complete()
 
 		# Track
 		tasks.push =>
-			if @userConfig.username
-				lastLogin = new Date()
-				countryCode = @getCountryCode()
-				languageCode = @getLanguageCode()
-				mixpanelInstance = @getMixpanelInstance()
-				if mixpanelInstance
-					if @userConfig.identified isnt true
-						# identify the new user with mixpanel
-						mixpanelInstance.people.set(@userConfig.username, {
-							$email: @userConfig.email
-							$name: @userConfig.name
-							$username: @userConfig.username
-							$created: lastLogin
-							$last_login: lastLogin
-							$country_code: countryCode
-							languageCode: languageCode
-						})
-						@updateUserConfig({
-							identified: true
-						})
-					else
-						# only update last login if we are another day
-						mixpanelInstance.people.set(@userConfig.username, {
-							$last_login: new Date()
-						})
+			# No stats or no username
+			return  if !mixpanelInstance or !@userConfig.username
+
+			# Update the user in mixpanel
+			lastLogin = new Date()
+			if @userConfig.identified isnt true
+				# Identify the new user with mixpanel
+				mixpanelInstance.people.set(@userConfig.username, {
+					$created: lastLogin
+					$username: @userConfig.username
+					$email: @userConfig.email
+					$name: @userConfig.name
+					$last_login: lastLogin
+					$country_code: @getCountryCode()
+					languageCode: @getLanguageCode()
+				})
+				# Save the changes with these
+				@updateUserConfig({
+					identified: true
+				})
+			else
+				# Update existing user if they have already been identified
+				mixpanelInstance.people.set(@userConfig.username, {
+					$email: @userConfig.email
+					$name: @userConfig.name
+					$last_login: lastLogin
+					$country_code: @getCountryCode()
+					languageCode: @getLanguageCode()
+				})
 
 
 		# DocPad Ready
@@ -1378,7 +1416,7 @@ class DocPad extends EventEmitterEnhanced
 		result = {}
 
 		# Ensure array
-		configPaths = [configPaths]  unless _.isArray(configPaths)
+		configPaths = [configPaths]  unless balUtil.isArray(configPaths)
 
 		# Group
 		tasks = new balUtil.Group (err) ->
@@ -1386,7 +1424,7 @@ class DocPad extends EventEmitterEnhanced
 
 		# Read our files
 		# On the first file that returns a result, exit
-		_.each configPaths, (configPath) ->
+		balUtil.each configPaths, (configPath) ->
 			tasks.push (complete) ->
 				docpad.loadConfigPath configPath, (err,config) ->
 					return complete(err)  if err
@@ -1504,7 +1542,7 @@ class DocPad extends EventEmitterEnhanced
 			docpad.emitSync('extendCollections',{},next)
 
 		# Cycle through Custom Collections
-		_.each @config.collections, (fn,name) ->
+		balUtil.each @config.collections, (fn,name) ->
 			tasks.push (complete) ->
 				if fn.length is 2 # callback
 					fn.call docpad, database, (err,collection) ->
@@ -1655,6 +1693,9 @@ class DocPad extends EventEmitterEnhanced
 
 	# Perform a growl notification
 	notify: (message,opts) =>
+		# Prepare
+		docpad = @
+
 		# Check
 		growl = @getGrowlInstance()
 		if growl
@@ -1662,7 +1703,7 @@ class DocPad extends EventEmitterEnhanced
 			try
 				growl(message,opts)
 			catch err
-				@err(err,'warn')
+				# ignore
 
 		# Chain
 		@
@@ -1888,7 +1929,7 @@ class DocPad extends EventEmitterEnhanced
 
 	# Check if we have any plugins
 	hasPlugins: ->
-		return _.isEmpty(@loadedPlugins) is false
+		return balUtil.isEmptyObject(@loadedPlugins) is false
 
 	# Load Plugins
 	loadPlugins: (next) ->
@@ -1899,7 +1940,7 @@ class DocPad extends EventEmitterEnhanced
 		# Snore
 		@slowPlugins = {}
 		snore = balUtil.createSnore ->
-			docpad.log 'notice', util.format(locale.pluginsSlow, _.keys(docpad.slowPlugins).join(', '))
+			docpad.log 'notice', util.format(locale.pluginsSlow, Object.keys(docpad.slowPlugins).join(', '))
 
 		# Async
 		tasks = new balUtil.Group (err) ->
@@ -1908,14 +1949,14 @@ class DocPad extends EventEmitterEnhanced
 			return next(err)
 
 		# Load website plugins
-		_.each @config.pluginsPaths or [], (pluginsPath) =>
+		balUtil.each @config.pluginsPaths or [], (pluginsPath) =>
 			exists = balUtil.existsSync(pluginsPath)
 			if exists
 				tasks.push (complete) =>
 					@loadPluginsIn(pluginsPath, complete)
 
 		# Load specific plugins
-		_.each @config.pluginPaths or [], (pluginPath) =>
+		balUtil.each @config.pluginPaths or [], (pluginPath) =>
 			exists = balUtil.existsSync(pluginPath)
 			if exists
 				tasks.push (complete) =>
@@ -2102,7 +2143,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err,exchange)
 	getExchange: (next) ->
 		# Check if it is stored locally
-		return next(null,@exchange)  unless _.isEmpty(@exchange)
+		return next(null,@exchange)  unless balUtil.isEmptyObject(@exchange)
 
 		# Otherwise fetch it from the exchangeUrl
 		@loadConfigUrl @config.exchangeUrl, (err,parsedData) ->
@@ -2398,7 +2439,7 @@ class DocPad extends EventEmitterEnhanced
 		if actions.length > 1
 			tasks = new balUtil.Group (err) ->
 				return next(err)
-			_.each actions, (action) -> tasks.push (complete) ->
+			balUtil.each actions, (action) -> tasks.push (complete) ->
 				docpad.action(action,opts,complete)
 			tasks.sync()
 			return docpad
@@ -2526,21 +2567,21 @@ class DocPad extends EventEmitterEnhanced
 					return next(err)
 
 			# Documents
-			_.each config.documentsPaths, (documentsPath) -> tasks.push (complete) ->
+			balUtil.each config.documentsPaths, (documentsPath) -> tasks.push (complete) ->
 				docpad.parseDocumentDirectory({
 					path: documentsPath
 					collection: database
 				},complete)
 
 			# Files
-			_.each config.filesPaths, (filesPath) -> tasks.push (complete) ->
+			balUtil.each config.filesPaths, (filesPath) -> tasks.push (complete) ->
 				docpad.parseFileDirectory({
 					path: filesPath
 					collection: database
 				},complete)
 
 			# Layouts
-			_.each config.layoutsPaths, (layoutsPath) -> tasks.push (complete) ->
+			balUtil.each config.layoutsPaths, (layoutsPath) -> tasks.push (complete) ->
 				docpad.parseDocumentDirectory({
 					path: layoutsPath
 					collection: database
@@ -2889,8 +2930,9 @@ class DocPad extends EventEmitterEnhanced
 			tasks.total = 3
 
 			# Watch reload paths
+			reloadPaths = _.union(docpad.config.reloadPaths, docpad.config.configPaths)
 			docpad.watchdir(
-				paths: _.union(docpad.config.reloadPaths, docpad.config.configPaths)
+				paths: reloadPaths
 				listeners:
 					'log': docpad.log
 					'error': docpad.error
@@ -2900,34 +2942,45 @@ class DocPad extends EventEmitterEnhanced
 							return docpad.fatal(err)  if err
 							performGenerate(reset:true)
 				next: (err,_watchers) ->
+					if err
+						docpad.log('warn', "Watching the reload paths has failed:", reloadPaths, err)
+						return tasks.complete()
 					for watcher in _watchers
 						watchers.push(watcher)
-					tasks.complete()
+					return tasks.complete()
 			)
 
 			# Watch regenerate paths
+			regeneratePaths = docpad.config.regeneratePaths
 			docpad.watchdir(
-				paths: docpad.config.regeneratePaths
+				paths: regeneratePaths
 				listeners:
 					'log': docpad.log
 					'error': docpad.error
 					'change': -> performGenerate(reset:true)
 				next: (err,_watchers) ->
+					if err
+						docpad.log('warn', "Watching the regenerate paths has failed:", regeneratePaths, err)
+						return tasks.complete()
 					for watcher in _watchers
 						watchers.push(watcher)
-					tasks.complete()
+					return tasks.complete()
 			)
 
 			# Watch the source
+			srcPath = docpad.config.srcPath
 			docpad.watchdir(
-				path: docpad.config.srcPath
+				path: srcPath
 				listeners:
 					'log': docpad.log
 					'error': docpad.error
 					'change': changeHandler
 				next: (err,watcher) ->
+					if err
+						docpad.log('warn', "Watching the src path has failed:", srcPath, err)
+						return tasks.complete()
 					watchers.push(watcher)
-					tasks.complete()
+					return tasks.complete()
 			)
 
 		# Timer
@@ -2993,8 +3046,9 @@ class DocPad extends EventEmitterEnhanced
 		# Watch
 		docpad.log(locale.watchStart)
 		resetWatchers (err) ->
+			return next(err)  if err
 			docpad.log(locale.watchStarted)
-			return next(err)
+			return next()
 
 		# Chain
 		@
