@@ -1024,13 +1024,14 @@ class DocPad extends EventEmitterEnhanced
 			@emitSync('welcome', {docpad}, complete)
 
 		# Anyomous
+		# Ignore errors
 		tasks.push (complete) =>
 			# No statistics or username is already identified
 			return complete()  if !mixpanelInstance or @userConfig.username
 
 			# User is anonymous, set their username to the hashed and salted mac address
 			require('getmac').getMac (err,macAddress) =>
-				return complete()  if err
+				return complete()  if err or !macAddress
 
 				# Hash with salt
 				try
@@ -1039,8 +1040,11 @@ class DocPad extends EventEmitterEnhanced
 					return complete()  if err
 
 				# Apply
-				@userConfig.name ?= "MAC #{macAddressHash}"
-				@userConfig.username ?= macAddressHash
+				if macAddressHash
+					@userConfig.name ?= "MAC #{macAddressHash}"
+					@userConfig.username ?= macAddressHash
+
+				# Next
 				return complete()
 
 		# Track
@@ -1061,6 +1065,7 @@ class DocPad extends EventEmitterEnhanced
 					$country_code: @getCountryCode()
 					languageCode: @getLanguageCode()
 				})
+				# Save the changes with these
 				@updateUserConfig({
 					identified: true
 				})
