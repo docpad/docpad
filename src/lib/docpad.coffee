@@ -520,7 +520,7 @@ class DocPad extends EventEmitterEnhanced
 	getLocaleCode: ->
 		if @localeCode? is false
 			localeCode = null
-			localeCodes = [@getConfig().localeCode, (process.env.LANG or '').replace(/\..+/,''), 'en_AU']
+			localeCodes = [@getConfig().localeCode, balUtil.getLocaleCode(), 'en_AU']
 			for localeCode in localeCodes
 				if localeCode and @locales[localeCode]?
 					break
@@ -530,14 +530,14 @@ class DocPad extends EventEmitterEnhanced
 	# Get Language Code
 	getLanguageCode: ->
 		if @languageCode? is false
-			languageCode = @getLocaleCode().replace(/^([a-z]+)_([a-z]+)$/i,'$1')
+			languageCode = balUtil.getLanguageCode(@getLocaleCode())
 			@languageCode = languageCode.toLowerCase()
 		return @languageCode
 
 	# Get Country Code
 	getCountryCode: ->
 		if @countryCode? is false
-			countryCode = @getLocaleCode().replace(/^([a-z]+)_([a-z]+)$/i,'$2')
+			countryCode = balUtil.getCountryCode(@getLocaleCode())
 			@countryCode = countryCode.toLowerCase()
 		return @countryCode
 
@@ -1075,8 +1075,8 @@ class DocPad extends EventEmitterEnhanced
 					$email: @userConfig.email
 					$name: @userConfig.name
 					$last_login: lastLogin
-					$country_code: @getCountryCode()
-					languageCode: @getLanguageCode()
+					$country_code: balUtil.getCountryCode()
+					languageCode: balUtil.getLanguageCode()
 				})
 				# Save the changes with these
 				@updateUserConfig({
@@ -1088,8 +1088,8 @@ class DocPad extends EventEmitterEnhanced
 					$email: @userConfig.email
 					$name: @userConfig.name
 					$last_login: lastLogin
-					$country_code: @getCountryCode()
-					languageCode: @getLanguageCode()
+					$country_code: balUtil.getCountryCode()
+					languageCode: balUtil.getLanguageCode()
 				})
 
 
