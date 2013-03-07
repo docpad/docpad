@@ -1,5 +1,14 @@
 ## History
 
+- v6.24.1 March 7, 2013
+	- Typo fixes
+		- Fixes `getMixpanelInstance()` always re-creating the mixpanel instance instead of just doing it once
+		- Fixes `DocPad::getBlocks`
+		- Thanks to [Richard A](https://github.com/rantecki) for [pull request #450](https://github.com/bevry/docpad/pull/450)
+	- Fixed mixpanel country and language always being au and en
+	- Updated dependencies
+		- [bal-util](https://github.com/balupton/bal-util) from ~1.16.3 to ~1.16.10
+
 - v6.24.0 March 6, 2013
 	- Configuration changes and improvements
 		- Can now load the configuration before the console interface is setup, allowing us to have plugins that extend the console interface
