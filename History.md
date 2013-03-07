@@ -1,6 +1,9 @@
 ## History
 
-- v6.24.1 March 7, 2013
+- v6.24.2 March 8, 2013
+	- Fixed regression from v6.24.1 that caused new installs or very old upgrades to get stuck in the TOS section
+
+- v6.24.1 March 8, 2013
 	- Typo fixes
 		- Fixes `getMixpanelInstance()` always re-creating the mixpanel instance instead of just doing it once
 		- Fixes `DocPad::getBlocks`

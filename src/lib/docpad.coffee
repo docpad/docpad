@@ -97,13 +97,16 @@ class DocPad extends EventEmitterEnhanced
 		if @mixpanelInstance? is false
 			config = @getConfig()
 			{reportStatistics,mixpanelToken} = config
-			if reportStatistics and mixpanelToken
-				try
-					@mixpanelInstance = require('mixpanel').init(mixpanelToken)
-				catch err
+			if reportStatistics? and mixpanelToken?
+				if reportStatistics and mixpanelToken
+					try
+						@mixpanelInstance = require('mixpanel').init(mixpanelToken)
+					catch err
+						@mixpanelInstance = false
+				else
 					@mixpanelInstance = false
 			else
-				@mixpanelInstance = false
+				@mixpanelInstance = null
 
 		# Return
 		return @mixpanelInstance
