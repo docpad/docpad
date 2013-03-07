@@ -94,7 +94,7 @@ class DocPad extends EventEmitterEnhanced
 	mixpanelInstance: null
 	getMixpanelInstance: ->
 		# Create
-		if @mixpanelIsntance? is false
+		if @mixpanelInstance? is false
 			config = @getConfig()
 			{reportStatistics,mixpanelToken} = config
 			if reportStatistics and mixpanelToken
@@ -236,7 +236,7 @@ class DocPad extends EventEmitterEnhanced
 		@
 
 	#  Get blocks
-	setBlocks: (blocks) ->
+	getBlocks: (blocks) ->
 		@blocks
 		@
 
