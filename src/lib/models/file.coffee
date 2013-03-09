@@ -1,7 +1,11 @@
-# Requires
+# Import
 pathUtil = require('path')
 balUtil = require('bal-util')
 mime = require('mime')
+
+# Import: Optional
+jschardet = null
+Iconv = null
 
 # Local
 {Backbone,Model} = require(__dirname+'/../base')
@@ -289,10 +293,11 @@ class FileModel extends Model
 	# Initialize
 	initialize: (attrs,opts) ->
 		# Prepare
-		{outDirPath,stat,data,meta} = opts
+		{detectEncoding,outDirPath,stat,data,meta} = opts
 
 		# Special
-		@outDirPath = outDirPath  if outDirPath
+		@detectEncoding = detectEncoding  if detectEncoding?
+		@outDirPath     = outDirPath      if outDirPath
 
 		# Defaults
 		defaults =
@@ -424,27 +429,74 @@ class FileModel extends Model
 		{opts,next} = @getActionArgs(opts,next)
 		buffer = @getBuffer()
 		fullPath = @get('fullPath')
-		encoding = @get('encoding')
+		encoding = @get('encoding') or null
+		changes = {}
 
-		# Detect encoding
-		unless encoding
+		# Detect Encoding
+		if encoding? is false or opts.reencode is true
 			isText = balUtil.isTextSync(fullPath,buffer)
-			if isText
-				encoding = 'utf8'
+
+			# Text
+			if isText is true
+				# Detect source encoding if not manually specified
+				if @detectEncoding
+					# Import
+					jschardet ?= require('jschardet')
+					try
+						Iconv ?= require('iconv').Iconv
+					catch err
+						Iconv = null
+
+					# Detect
+					encoding ?= jschardet.detect(buffer)?.encoding or 'utf8'
+				else
+					encoding ?= 'utf8'
+
+				# Convert into utf8
+				unless encoding.toLowerCase() in ['ascii','utf8','utf-8']
+					if Iconv?
+						@log('info', "Converting encoding #{encoding} to UTF-8 on #{fullPath}")
+						try
+							buffer = new Iconv(encoding,'utf8').convert(buffer)
+						catch err
+							@log('warn', "Encoding conversion failed, therefore we cannot convert the encoding #{encoding} to UTF-8 on #{fullPath}")
+					else
+						@log('warn', "Iconv did not load, therefore we cannot convert the encoding #{encoding} to UTF-8 on #{fullPath}")
+
+				# Apply
+				changes.encoding = encoding
+
+			# Binary
 			else
+				# Set
 				encoding = 'binary'
 
-		# Fetch source with encoding
-		if encoding is 'utf8'
-			source = buffer.toString(encoding)
-		else
-			source = ''
+				# Apply
+				changes.encoding = encoding
 
-		# Trim the content
-		content = source.replace(/\r\n?/gm,'\n').replace(/\t/g,'    ')
+		# Binary
+		if encoding is 'binary'
+			# Set
+			content = source = ''
+
+			# Apply
+			changes.content = content
+			changes.source = source
+
+		# Text
+		else
+			# Set
+			source = buffer.toString('utf8')
+			content = source
+				.replace(/\r\n?/gm,'\n')  # trim
+				.replace(/\t/g,'    ')    # tabs to spaces
+
+			# Apply
+			changes.content = content
+			changes.source = source
 
 		# Apply
-		@set({source,content,encoding})
+		@set(changes)
 
 		# Next
 		next()
@@ -459,14 +511,13 @@ class FileModel extends Model
 		changes = {}
 
 		# Fetch
-		meta = @getMeta()
 		basename = @get('basename')
 		filename = @get('filename')
 		fullPath = @get('fullPath')
 		extensions = @get('extensions')
 		relativePath = @get('relativePath')
 		mtime = @get('mtime')
-		date = meta.get('date') or null
+		date = @getMeta('date') or null
 
 		# Filename
 		if fullPath
@@ -576,29 +627,44 @@ class FileModel extends Model
 
 	# Write the rendered file
 	# next(err)
-	write: (next) ->
+	write: (opts,next) ->
 		# Prepare
+		{opts,next} = @getActionArgs(opts,next)
 		file = @
-		fileOutPath = @get('outPath')
-		encoding = @get('encoding')
-		content = @getContent()
+
+		# Fetch
+		opts.path      or= @get('outPath')
+		opts.encoding  or= @get('encoding')
+		opts.content   or= @getContent()
+		opts.type      or= 'file'
 
 		# Check
 		# Sometimes the out path could not be set if we are early on in the process
-		unless fileOutPath
+		unless opts.path
 			next()
 			return @
 
+		# Convert utf8 to original encoding
+		unless opts.encoding.toLowerCase() in ['ascii','utf8','utf-8','binary']
+			if Iconv?
+				@log('info', "Converting encoding UTF-8 to #{opts.encoding} on #{opts.path}")
+				try
+					opts.content = new Iconv('utf8',opts.encoding).convert(opts.content)
+				catch err
+					@log('warn', "Encoding conversion failed, therefore we cannot convert the encoding UTF-8 to #{opts.encoding} on #{opts.path}")
+			else
+				@log('warn', "Iconv did not load, therefore we cannot convert the encoding UTF-8 to #{opts.encoding} on #{opts.path}")
+
 		# Log
-		file.log 'debug', "Writing the file: #{fileOutPath} #{encoding}"
+		file.log 'debug', "Writing the #{opts.type}: #{opts.path} #{opts.encoding}"
 
 		# Write data
-		balUtil.writeFile fileOutPath, content, encoding, (err) ->
+		balUtil.writeFile opts.path, opts.content, (err) ->
 			# Check
 			return next(err)  if err
 
 			# Log
-			file.log 'debug', "Wrote the file: #{fileOutPath} #{encoding}"
+			file.log 'debug', "Wrote the #{opts.type}: #{opts.path} #{opts.encoding}"
 
 			# Next
 			next()

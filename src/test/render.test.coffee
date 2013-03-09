@@ -42,6 +42,8 @@ joe.suite 'docpad-render', (suite,test) ->
 		]
 		balUtil.each inputs, (input) ->
 			test input.filename, (done) ->
+				# IMPORTANT THAT ANY OPTIONS GO AFTER THE RENDER CALL, SERIOUSLY
+				# OTHERWISE the sky falls down on scoping, seriously, it is wierd
 				command = [nodePath, cliPath, 'render', pathUtil.join(renderPath,input.filename)]
 				balUtil.spawn command, {cwd:rootPath}, (err,stdout,stderr,code,signal) ->
 					return done(err)  if err

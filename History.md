@@ -1,5 +1,38 @@
 ## History
 
+- v6.24.2 March 8, 2013
+	- Fixed regression from v6.24.1 that caused new installs or very old upgrades to get stuck in the TOS section
+
+- v6.24.1 March 8, 2013
+	- Typo fixes
+		- Fixes `getMixpanelInstance()` always re-creating the mixpanel instance instead of just doing it once
+		- Fixes `DocPad::getBlocks`
+		- Thanks to [Richard A](https://github.com/rantecki) for [pull request #450](https://github.com/bevry/docpad/pull/450)
+	- Fixed mixpanel country and language always being au and en
+	- Updated dependencies
+		- [bal-util](https://github.com/balupton/bal-util) from ~1.16.3 to ~1.16.10
+
+- v6.24.0 March 6, 2013
+	- Configuration changes and improvements
+		- Can now load the configuration before the console interface is setup, allowing us to have plugins that extend the console interface
+			- Currently explicit commands only
+		- Configuration can now load multiple times safely
+		- Plugins now have `initialConfig`, `instanceConfig`, and a `setConfig(instanceConfig=null)` helper and their configuration will be reloaded via `setConfig` each time the docpad configuration is reloaded
+			- **NOTE: This means no modifying `config` directly in your constructor as the changes won't persist, instead modify them via the `setConfig` call after calling `super`**
+				- See the partials plugin for an example of this
+		- Thanks to [Olivier Bazoud](https://github.com/obazoud) for [issue #63](https://github.com/bevry/docpad/issues/63) and thanks to [Avi Deitcher](https://github.com/deitch), [Sergey Lukin](https://github.com/sergeylukin), [Zeno Rocha](https://github.com/zenorocha) for [issue #39](https://github.com/bevry/docpad/issues/39)
+	- Added `docpad action <actions>` command line action
+	- When passing arrays to blocks we now clone the array to avoid modifying the argument
+
+- v6.23.0 March 6, 2013
+	- DocPad can now handle foreign encodings when you set `detectEncoding: true` in the [docpad configuration](http://docpad.org/docs/config)
+		- Thanks to [Yellow Dragon](https://github.com/huanglong) for [issue #411](https://github.com/bevry/docpad/issues/411)
+
+- v6.22.0 March 6, 2013
+	- Better port assignment to testers - [changeset](https://github.com/bevry/docpad/commit/244390c5d349598e35e2b99347c8b067006aa293)
+	- We now identify anonymous users (while respecting their anonymity) - [changeset](https://github.com/bevry/docpad/commit/fb8de48d7dcfc4e9211fd898cda91c54553c1f58)
+		- Closes [#430](https://github.com/bevry/docpad/issues/430)
+
 - v6.21.10 February 6, 2013
 	- Updated dependencies
 		- [watchr](https://github.com/bevry/watchr) from ~2.3.4 to ~2.3.7
@@ -28,7 +61,7 @@
 
 - v6.21.7 January 25, 2013
 	- Fixed port not defaulting correctly on the `docpad-server` executable since v6.21.5
-		- Closes [issue #407](https://github.com/bevry/docpad/issues/407) thanks to [man4u](https://github.com/man4u)
+		- Thanks to [man4u](https://github.com/man4u) for [issue #407](https://github.com/bevry/docpad/issues/407)
 	- Updated dependencies
 		- [bal-util](https://github.com/balupton/bal-util) from ~1.16.0 to ~1.16.1
 
@@ -45,10 +78,10 @@
 
 - v6.21.4 January 16, 2013
 	- Fixed incorrect meta data parsing for certain files
-		- Closes [issue #394](https://github.com/bevry/docpad/issues/394) thanks to [Jose Quesada](https://github.com/quesada) and [Stefan](https://github.com/stegrams)
+		- Thanks to [Jose Quesada](https://github.com/quesada) and [Stefan](https://github.com/stegrams) for [issue #394](https://github.com/bevry/docpad/issues/394)
 	- Scripts and styles blocks now support an `attrs` option string
-		- Closes [pull request #397](https://github.com/bevry/docpad/pull/397) thanks to [Alex](https://github.com/amesarosh)
-		- Closes [issue #400](https://github.com/bevry/docpad/issues/400) thanks to [edzillion](https://github.com/edzillion)
+		- Thanks to [Alex](https://github.com/amesarosh) for [pull request #397](https://github.com/bevry/docpad/pull/397)
+		- Thanks to [edzillion](https://github.com/edzillion) for [issue #400](https://github.com/bevry/docpad/issues/400)
 
 - v6.21.3 January 9, 2013
 	- Fixed ignored files sometimes triggering reloads
@@ -101,12 +134,11 @@
 
 - v6.17.3 December 5, 2012
 	- Fixed an issue introduced in v6.17.0 that prevented files from reloading under certain circumstances
-		- Thanks [Vladislav Botvin](https://github.com/darrrk) for [issue #370](https://github.com/bevry/docpad/issues/370) and [pull request #371](https://github.com/bevry/docpad/pull/371)
+		- Thanks to [Vladislav Botvin](https://github.com/darrrk) for [issue #370](https://github.com/bevry/docpad/issues/370) and [pull request #371](https://github.com/bevry/docpad/pull/371)
 
 - v6.17.2 December 5, 2012
 	- `watch` and `server` actions now perform an initial generation
-		- Thanks [Khalid Jebbari](https://github.com/DjebbZ), [Vladislav Botvin](https://github.com/darrrk)
-		- Closes [#369](https://github.com/bevry/docpad/issues/369), [#368](https://github.com/bevry/docpad/issues/368), [#366](https://github.com/bevry/docpad/issues/366)
+		- Thanks to [Khalid Jebbari](https://github.com/DjebbZ), [Vladislav Botvin](https://github.com/darrrk) for [issue #369](https://github.com/bevry/docpad/issues/369), [issue #368](https://github.com/bevry/docpad/issues/368), [issue #366](https://github.com/bevry/docpad/issues/366)
 
 - v6.17.1 December 4, 2012
 	- Updated misc internals to use the new `File::getOutContent` call
@@ -182,9 +214,9 @@
 - v6.12.0 November 23, 2012
 	- When creating new documents or files, if it is inside an unknown path we will now default to creating a document intead of a file
 	- We now send growl notifications when errors occur
-		- Thanks to [Luke Hagan](https://github.com/lhagan) for [pull request #346](https://github.com/bevry/docpad/pull/346) and [issue #343](https://github.com/bevry/docpad/issues/343)
+		- Thanks to [Luke Hagan](https://github.com/lhagan) for [pull request #346](https://github.com/bevry/docpad/pull/346), [issue #343](https://github.com/bevry/docpad/issues/343)
 	- We now error and provide suggestions when an extension transform doesn't do anything
-		- Thanks to [Farid Neshat](https://github.com/alFReD-NSH), [Elias Dawson](https://github.com/eliasdawson) and [Steve Trevathan](https://github.com/kidfribble) for [issue #192](https://github.com/bevry/docpad/issues/192)
+		- Thanks to [Farid Neshat](https://github.com/alFReD-NSH), [Elias Dawson](https://github.com/eliasdawson), [Steve Trevathan](https://github.com/kidfribble) for [issue #192](https://github.com/bevry/docpad/issues/192)
 	- Watching stability has been improved signifcantly
 		- Thanks to [ashnur](https://github.com/ashnur) for [issue #283](https://github.com/bevry/docpad/issues/283)
 	- Parser headers that don't include spacing now work again (e.g. `---cson` instead of `--- cson`)
@@ -242,7 +274,7 @@
 - v6.8.3 October 22, 2012
 	- Fixed growl generating notification from saying `generated` instead of `generating`
 	- Added `ignorePatterns` option
-		- Closes [#193](https://github.com/bevry/docpad/issues/193) thanks to [Bruno Héridet](https://github.com/Delapouite) for [pull request #326](https://github.com/bevry/docpad/pull/326)
+		- Thanks to[Bruno Héridet](https://github.com/Delapouite) for [issue #193](https://github.com/bevry/docpad/issues/193), [pull request #326](https://github.com/bevry/docpad/pull/326)
 
 - v6.8.2 October 19, 2012
 	- Updated the document meta data extraction regex
@@ -251,7 +283,7 @@
 - v6.8.1 October 19, 2012
 	- Fixed `--port` CLI option not working (and possibly others)
 	- Fixed `docpad skeleton` blocking instead of ending
-		- Closes [#225](https://github.com/bevry/docpad/issues/225) thanks to [Bruno Héridet](https://github.com/Delapouite)
+		- Thanks to [Bruno Héridet](https://github.com/Delapouite) for [issue #225](https://github.com/bevry/docpad/issues/225)
 	- Improved localisation
 		- Thanks to [Bruno Héridet](https://github.com/Delapouite) for [pull request #325](https://github.com/bevry/docpad/pull/325)
 
@@ -660,7 +692,7 @@
 
 - v4.1.1 April 9, 2012
 	- Fixed DocPad from outputting `undefined` instead the layout's name which it could not find
-		- Thanks to [Changwoo Park](https://github.com/pismute) for the [fix](https://github.com/bevry/docpad/pull/173), and [https://github.com/msutherl](Mogran Sutherland) for the [report](https://github.com/bevry/docpad/issues/172)
+		- Thanks to [Changwoo Park](https://github.com/pismute) for [pull request #173](https://github.com/bevry/docpad/pull/173) and [Morgan Sutherland](https://github.com/msutherl) for [issue #172](https://github.com/bevry/docpad/issues/172)
 
 - v4.1.0 April 6, 2012
 	- [Feedr Plugin](https://github.com/bevry/docpad/tree/master/lib/exchange/plugins/feedr) now exposes `@feedr.feeds` to the `templateData` instead of `@feeds`
@@ -710,7 +742,7 @@
 
 - v3.3.0 February 29, 2012
 	- Fixed ruby rendering with ruby v1.8
-		- Thanks to [Sorin Ionescu](https://github.com/sorin-ionescu) - [patch here](https://github.com/bevry/docpad/commit/a3f711b1b015b2fa31490bbbaca2cf9c3ead3016)
+		- Thanks to [Sorin Ionescu](https://github.com/sorin-ionescu) for [the patch](https://github.com/bevry/docpad/commit/a3f711b1b015b2fa31490bbbaca2cf9c3ead3016)
 	- The `enabledPlugins` config option will now correctly only overwrite the default values if you have set it to be a string
 		- Before it would always incorrectly overwrite the default value if set, which would cause some experimental disabled-by-default plugins to enable
 	- Added a [Pygments](http://pygments.org/) Syntax Highlighting plugin
@@ -941,7 +973,7 @@
 - v1.1 September 28, 2011
 	- Added [Buildr](http://github.com/balupton/buildr.npm) Plugin so you can now bundle your scripts and styles together :-)
 	- The `action` method now supports an optional callback
-		- Thanks to [#41](https://github.com/bevry/docpad/pull/41) by [Aaron Powell](https://github.com/aaronpowell)
+		- Thanks to [Aaron Powell](https://github.com/aaronpowell) for [#41](https://github.com/bevry/docpad/pull/41)
 	- Added a try..catch around the version detection to ensure it never kills docpad if something goes wrong
 	- Skeletons have been removed from the repository due to circular references. The chosen skeleton is now pulled during the skeleton action. We also now perform a recursive git submodule init and update, as well as a npm install if necessary.
 
@@ -994,9 +1026,9 @@
 	- Got the generation and server going
 
 - v0.2 March 24, 2011
-	- Prototyping with [disenchant](https://github.com/disenchant)
+	- Initial prototyping with [Sven Vetsch](https://github.com/disenchant)
 
 - v0.1 March 16, 2011
-	- Initial commit with [bergie](https://github.com/bergie)
+	- Initial discussions with [Henri Bergius](https://github.com/bergie)
 
 

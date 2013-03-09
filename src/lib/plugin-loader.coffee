@@ -202,12 +202,9 @@ class PluginLoader
 
 	# Create Instance
 	# next(err,pluginInstance)
-	create: (userConfiguration={},next) ->
+	create: (config,next) ->
 		# Load
 		try
-			# Merge configurations
-			config = balUtil.deepExtendPlainObjects({}, @docpad.config.plugins[@pluginName], userConfiguration)
-
 			# Create instance with merged configuration
 			docpad = @docpad
 			pluginInstance = new @pluginClass({docpad,config})

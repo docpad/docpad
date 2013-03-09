@@ -1,6 +1,7 @@
 # Requires
 {cliColor} = require('caterpillar')
 pathUtil = require('path')
+balUtil = require('bal-util')
 
 # Console Interface
 class ConsoleInterface
@@ -42,34 +43,36 @@ class ConsoleInterface
 				'-f, --force'
 				locale.consoleOptionForce
 			)
-
-		# -----------------------------
-		# Commands
-
-		# run
-		commander
-			.command('run')
-			.description(locale.consoleDescriptionRun)
-			.option(
-				'-s, --skeleton <skeleton>'
-				locale.consoleOptionSkeleton
-			)
 			.option(
 				'-p, --port <port>'
 				locale.consoleOptionPort
 				parseInt
 			)
+			.option(
+				'-s, --skeleton <skeleton>'
+				locale.consoleOptionSkeleton
+			)
+
+
+		# -----------------------------
+		# Commands
+
+		# actions
+		commander
+			.command('action <actions>')
+			.description(locale.consoleDescriptionRun)
+			.action(consoleInterface.wrapAction(consoleInterface.action))
+
+		# run
+		commander
+			.command('run')
+			.description(locale.consoleDescriptionRun)
 			.action(consoleInterface.wrapAction(consoleInterface.run))
 
 		# server
 		commander
 			.command('server')
 			.description(locale.consoleDescriptionServer)
-			.option(
-				'-p, --port <port>'
-				locale.consoleOptionPort
-				parseInt
-			)
 			.action(consoleInterface.wrapAction(consoleInterface.server))
 
 		# skeleton
@@ -86,15 +89,13 @@ class ConsoleInterface
 		commander
 			.command('render [path]')
 			.description(locale.consoleDescriptionRender)
-			.action (command) ->
+			.action(consoleInterface.wrapAction(consoleInterface.render,{
 				# Disable anything uncessary or that could cause extra output we don't want
-				commander.debug ?= 5
-				commander.checkVersion = false
-				commander.welcome = false
-				commander.prompts = false
-
-				# Perform the render
-				consoleInterface.performAction(command,consoleInterface.render)
+				logLevel: 5
+				checkVersion: false
+				welcome: false
+				prompts: false
+			}))
 
 		# generate
 		commander
@@ -136,8 +137,7 @@ class ConsoleInterface
 		commander
 			.command('*')
 			.description(locale.consoleDescriptionUnknown)
-			.action ->
-				commander.emit('help', [])
+			.action(consoleInterface.wrapAction(consoleInterface.help))
 
 
 		# -----------------------------
@@ -187,17 +187,27 @@ class ConsoleInterface
 		@
 
 	# Wrap Action
-	wrapAction: (action) =>
+	wrapAction: (action,config) ->
 		consoleInterface = @
-		return (command) -> consoleInterface.performAction(command,action)
+		return (args...) ->
+			consoleInterface.performAction(action,args,config)
 
 	# Perform Action
-	performAction: (command,action) =>
+	performAction: (action,args,config) =>
 		# Create
-		instanceConfig = @extractConfig(command)
-		@docpad.action 'load ready', instanceConfig, (err) =>
-			return @completeAction(err)  if err
-			action(@completeAction)
+		opts = {}
+		opts.commander = args[-1...][0]
+		opts.args = args[...-1]
+		opts.instanceConfig = balUtil.safeDeepExtendPlainObjects({}, @extractConfig(opts.commander), config)
+
+		# Load
+		@docpad.action 'load ready', opts.instanceConfig, (err) =>
+			# Error
+			if err
+				return @completeAction(err)
+
+			# Action
+			return action(@completeAction,opts)  # this order for b/c
 
 		# Chain
 		@
@@ -283,9 +293,6 @@ class ConsoleInterface
 
 	# Welcome Callback
 	welcomeCallback: (opts,next) =>
-		# Reuqires
-		balUtil = require('bal-util')
-
 		# Prepare
 		consoleInterface = @
 		commander = @commander
@@ -326,7 +333,7 @@ class ConsoleInterface
 					userConfig.subscribed = false
 					docpad.updateUserConfig (err) ->
 						return complete(err)  if err
-						balUtil.wait(5000,complete)
+						balUtil.wait(2000,complete)
 					return
 
 				# Scan configuration to speed up the process
@@ -490,6 +497,12 @@ class ConsoleInterface
 	# =================================
 	# Actions
 
+	action: (next,opts) =>
+		actions = opts.args[0]
+		@docpad.log 'info', 'Performing the actions:', actions
+		@docpad.action(actions,next)
+		@
+
 	generate: (next) =>
 		@docpad.action('generate',next)
 		@
@@ -510,18 +523,17 @@ class ConsoleInterface
 		@docpad.action('install',next)
 		@
 
-	render: (next) =>
+	render: (next,opts) =>
 		# Prepare
 		docpad = @docpad
 		commander = @commander
-		balUtil = require('bal-util')
-		opts = {}
+		renderOpts = {}
 
 		# Prepare filename
-		filename = commander.args[0] or null
+		filename = opts.args[0] or null
 		basename = pathUtil.basename(filename)
-		opts.filename = filename
-		opts.renderSingleExtensions = 'auto'
+		renderOpts.filename = filename
+		renderOpts.renderSingleExtensions = 'auto'
 
 		# Prepare text
 		data = ''
@@ -530,7 +542,7 @@ class ConsoleInterface
 		useStdin = true
 		renderDocument = ->
 			# Perform the render
-			docpad.action 'render', opts, (err,result) ->
+			docpad.action 'render', renderOpts, (err,result) ->
 				return docpad.fatal(err)  if err
 				# Path
 				if commander.out?
@@ -566,7 +578,7 @@ class ConsoleInterface
 			if timeout
 				clearTimeout(timeout)
 				timeout = null
-			opts.data = data
+			renderOpts.data = data
 			renderDocument()
 
 		@
