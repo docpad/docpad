@@ -94,16 +94,19 @@ class DocPad extends EventEmitterEnhanced
 	mixpanelInstance: null
 	getMixpanelInstance: ->
 		# Create
-		if @mixpanelIsntance? is false
+		if @mixpanelInstance? is false
 			config = @getConfig()
 			{reportStatistics,mixpanelToken} = config
-			if reportStatistics and mixpanelToken
-				try
-					@mixpanelInstance = require('mixpanel').init(mixpanelToken)
-				catch err
+			if reportStatistics? and mixpanelToken?
+				if reportStatistics and mixpanelToken
+					try
+						@mixpanelInstance = require('mixpanel').init(mixpanelToken)
+					catch err
+						@mixpanelInstance = false
+				else
 					@mixpanelInstance = false
 			else
-				@mixpanelInstance = false
+				@mixpanelInstance = null
 
 		# Return
 		return @mixpanelInstance
@@ -243,7 +246,7 @@ class DocPad extends EventEmitterEnhanced
 		@
 
 	#  Get blocks
-	setBlocks: (blocks) ->
+	getBlocks: (blocks) ->
 		@blocks
 		@
 
@@ -534,7 +537,7 @@ class DocPad extends EventEmitterEnhanced
 	getLocaleCode: ->
 		if @localeCode? is false
 			localeCode = null
-			localeCodes = [@getConfig().localeCode, (process.env.LANG or '').replace(/\..+/,''), 'en_AU']
+			localeCodes = [@getConfig().localeCode, balUtil.getLocaleCode(), 'en_AU']
 			for localeCode in localeCodes
 				if localeCode and @locales[localeCode]?
 					break
@@ -544,14 +547,14 @@ class DocPad extends EventEmitterEnhanced
 	# Get Language Code
 	getLanguageCode: ->
 		if @languageCode? is false
-			languageCode = @getLocaleCode().replace(/^([a-z]+)_([a-z]+)$/i,'$1')
+			languageCode = balUtil.getLanguageCode(@getLocaleCode())
 			@languageCode = languageCode.toLowerCase()
 		return @languageCode
 
 	# Get Country Code
 	getCountryCode: ->
 		if @countryCode? is false
-			countryCode = @getLocaleCode().replace(/^([a-z]+)_([a-z]+)$/i,'$2')
+			countryCode = balUtil.getCountryCode(@getLocaleCode())
 			@countryCode = countryCode.toLowerCase()
 		return @countryCode
 
@@ -642,18 +645,18 @@ class DocPad extends EventEmitterEnhanced
 
 
 		# -----------------------------
-		# Website Paths
+		# Project Paths
 
-		# The website directory
+		# The project directory
 		rootPath: process.cwd()
 
-		# The website's package.json path
+		# The project's package.json path
 		packagePath: 'package.json'
 
 		# Where to get the latest package information from
 		latestPackageUrl: 'https://docpad.org/latest.json'
 
-		# The website's configuration paths
+		# The project's configuration paths
 		# Reads only the first one that exists
 		# If you want to read multiple configuration paths, then point it to a coffee|js file that requires
 		# the other paths you want and exports the merged config
@@ -667,9 +670,9 @@ class DocPad extends EventEmitterEnhanced
 		# Plugin directories to load
 		pluginPaths: []
 
-		# The website's plugins directory
+		# The project's plugins directory
 		pluginsPaths: [
-			'node_modules',
+			'node_modules'
 			'plugins'
 		]
 
@@ -679,26 +682,26 @@ class DocPad extends EventEmitterEnhanced
 		# Paths that we should watch for regeneration changes in
 		regeneratePaths: []
 
-		# The website's out directory
+		# The project's out directory
 		outPath: 'out'
 
-		# The website's src directory
+		# The project's src directory
 		srcPath: 'src'
 
-		# The website's documents directories
+		# The project's documents directories
 		# relative to the srcPath
 		documentsPaths: [
 			'documents'
 		]
 
-		# The website's files directories
+		# The project's files directories
 		# relative to the srcPath
 		filesPaths: [
 			'files'
 			'public'
 		]
 
-		# The website's layouts directory
+		# The project's layouts directory
 		# relative to the srcPath
 		layoutsPaths: [
 			'layouts'
@@ -714,16 +717,6 @@ class DocPad extends EventEmitterEnhanced
 		# -----------------------------
 		# Server
 
-		# Server
-		# The Express.js server that we want docpad to use
-		serverExpress: null
-		# The HTTP server that we want docpad to use
-		serverHttp: null
-
-		# Extend Server
-		# Whether or not we should extend the server with extra middleware and routing
-		extendServer: true
-
 		# Port
 		# The port that the server should use
 		# PORT - Heroku, Nodejitsu, Custom
@@ -735,8 +728,18 @@ class DocPad extends EventEmitterEnhanced
 		# The caching time limit that is sent to the client
 		maxAge: 86400000
 
+		# Server
+		# The Express.js server that we want docpad to use
+		serverExpress: null
+		# The HTTP server that we want docpad to use
+		serverHttp: null
+
+		# Extend Server
+		# Whether or not we should extend the server with extra middleware and routing
+		extendServer: true
+
 		# Which middlewares would you like us to activate
-		# The standard middlewares (bodePArser, methodOverride, express router)
+		# The standard middlewares (bodyParser, methodOverride, express router)
 		middlewareStandard: true
 		# The standard bodyParser middleware
 		middlewareBodyParser: true
@@ -778,6 +781,10 @@ class DocPad extends EventEmitterEnhanced
 		# By default it is only enabled if we are not running inside a test
 		reportStatistics: process.argv.join('').indexOf('test') is -1
 
+		# Hash Key
+		# The key that we use to hash some data before sending it to our statistic server
+		hashKey: '7>9}$3hP86o,4=@T'  # const
+
 		# Airbrake Token
 		airbrakeToken: 'e7374dd1c5a346efe3895b9b0c1c0325'
 
@@ -787,6 +794,12 @@ class DocPad extends EventEmitterEnhanced
 
 		# -----------------------------
 		# Other
+
+		# Detect Encoding
+		# Should we attempt to auto detect the encoding of our files?
+		# Useful when you are using foreign encoding (e.g. GBK) for your files
+		# Only works on unix systems currently (limit of iconv module)
+		detectEncoding: false
 
 		# Render Single Extensions
 		# Whether or not we should render single extensions by default
@@ -830,7 +843,7 @@ class DocPad extends EventEmitterEnhanced
 		events: {}
 
 		# Regenerate Every
-		# Performs a rengeraete every x milliseconds, useful for always having the latest data
+		# Performs a regenerate every x milliseconds, useful for always having the latest data
 		regenerateEvery: false
 
 
@@ -918,6 +931,7 @@ class DocPad extends EventEmitterEnhanced
 				docpad.log('warn', locale.trackError+'\n'+locale.errorFollows, err)
 		@trackRunnerInstance.total = Infinity
 
+
 		# Initialize a default logger
 		logger = new caterpillar.Logger(
 			transports:
@@ -937,6 +951,7 @@ class DocPad extends EventEmitterEnhanced
 		@exchange = {}
 		@pluginsTemplateData = {}
 		@instanceConfig = {}
+		@filesByUrl = {}
 		@collections = {}
 		@blocks = {}
 		@database = new FilesCollection()
@@ -944,13 +959,19 @@ class DocPad extends EventEmitterEnhanced
 		@userConfig = balUtil.dereference(@userConfig)
 		@initialConfig = balUtil.dereference(@initialConfig)
 
-		# Check if we want to perform the initial configuration load automatically
-		if instanceConfig.load is false
-			next?(null,docpad)
+		# Extract action
+		if instanceConfig.action?
+			action = instanceConfig.action
 		else
-			@action 'load ready', instanceConfig, (err) ->
+			action = 'load ready'
+
+		# Check if we want to perform an action
+		if action
+			@action action, instanceConfig, (err) ->
 				return docpad.fatal(err)  if err
 				next?(null,docpad)
+		else
+			next?(null,docpad)
 
 		# Chain
 		@
@@ -1000,6 +1021,7 @@ class DocPad extends EventEmitterEnhanced
 		[instanceConfig,next] = balUtil.extractOptsAndCallback(instanceConfig,next)
 		docpad = @
 		locale = @getLocale()
+		mixpanelInstance = @getMixpanelInstance()
 
 		# Render Single Extensions
 		@DocumentModel::defaults.renderSingleExtensions = docpad.config.renderSingleExtensions
@@ -1022,41 +1044,73 @@ class DocPad extends EventEmitterEnhanced
 		tasks = new balUtil.Group (err) ->
 			# Error?
 			return docpad.error(err)  if err
+
 			# All done, forward our DocPad instance onto our creator
 			return next?(null,docpad)
 
 		# Welcome
 		tasks.push (complete) =>
+			# No welcome
 			return complete()  unless docpad.config.welcome
+
+			# Welcome
 			@emitSync('welcome', {docpad}, complete)
+
+		# Anyomous
+		# Ignore errors
+		tasks.push (complete) =>
+			# No statistics or username is already identified
+			return complete()  if !mixpanelInstance or @userConfig.username
+
+			# User is anonymous, set their username to the hashed and salted mac address
+			require('getmac').getMac (err,macAddress) =>
+				return complete()  if err or !macAddress
+
+				# Hash with salt
+				try
+					macAddressHash = require('crypto').createHmac('sha1',docpad.config.hashKey).update(macAddress).digest('hex')
+				catch err
+					return complete()  if err
+
+				# Apply
+				if macAddressHash
+					@userConfig.name ?= "MAC #{macAddressHash}"
+					@userConfig.username ?= macAddressHash
+
+				# Next
+				return complete()
 
 		# Track
 		tasks.push =>
-			if @userConfig.username
-				lastLogin = new Date()
-				countryCode = @getCountryCode()
-				languageCode = @getLanguageCode()
-				mixpanelInstance = @getMixpanelInstance()
-				if mixpanelInstance
-					if @userConfig.identified isnt true
-						# identify the new user with mixpanel
-						mixpanelInstance.people.set(@userConfig.username, {
-							$email: @userConfig.email
-							$name: @userConfig.name
-							$username: @userConfig.username
-							$created: lastLogin
-							$last_login: lastLogin
-							$country_code: countryCode
-							languageCode: languageCode
-						})
-						@updateUserConfig({
-							identified: true
-						})
-					else
-						# only update last login if we are another day
-						mixpanelInstance.people.set(@userConfig.username, {
-							$last_login: new Date()
-						})
+			# No stats or no username
+			return  if !mixpanelInstance or !@userConfig.username
+
+			# Update the user in mixpanel
+			lastLogin = new Date()
+			if @userConfig.identified isnt true
+				# Identify the new user with mixpanel
+				mixpanelInstance.people.set(@userConfig.username, {
+					$created: lastLogin
+					$username: @userConfig.username
+					$email: @userConfig.email
+					$name: @userConfig.name
+					$last_login: lastLogin
+					$country_code: balUtil.getCountryCode()
+					languageCode: balUtil.getLanguageCode()
+				})
+				# Save the changes with these
+				@updateUserConfig({
+					identified: true
+				})
+			else
+				# Update existing user if they have already been identified
+				mixpanelInstance.people.set(@userConfig.username, {
+					$email: @userConfig.email
+					$name: @userConfig.name
+					$last_login: lastLogin
+					$country_code: balUtil.getCountryCode()
+					languageCode: balUtil.getLanguageCode()
+				})
 
 
 		# DocPad Ready
@@ -1068,6 +1122,124 @@ class DocPad extends EventEmitterEnhanced
 
 		# Chain
 		@
+
+	# Merge Configurations
+	mergeConfigurations: (configPackages,configsToMerge) ->
+		# Prepare
+		envs = @getEnvironments()
+
+		# Figure out merging
+		for configPackage in configPackages
+			continue  unless configPackage
+			configsToMerge.push(configPackage)
+			for env in envs
+				envConfig = configPackage.environments?[env]
+				configsToMerge.push(envConfig)  if envConfig
+
+		# Merge
+		balUtil.safeDeepExtendPlainObjects(configsToMerge...)
+
+		# Chain
+		return @
+
+	# Set Instance Configuration
+	setInstanceConfig: (instanceConfig) ->
+		# Merge in the instance configurations
+		if instanceConfig
+			balUtil.safeDeepExtendPlainObjects(@instanceConfig, instanceConfig)
+			balUtil.safeDeepExtendPlainObjects(@config, instanceConfig)  if @config
+		@
+
+	# Set Configuration
+	# next(err,config)
+	setConfig: (instanceConfig,next) =>
+		# Prepare
+		[instanceConfig,next] = balUtil.extractOptsAndCallback(instanceConfig,next)
+		docpad = @
+
+		# Apply the instance configuration, generally we won't have it at this level
+		# as it would have been applied earlier the load step
+		@setInstanceConfig(instanceConfig)  if instanceConfig
+
+		# Apply the environment
+		# websitePackageConfig.env is left out of the detection here as it is usually an object
+		# that is already merged with our process.env by the environment runner
+		# rather than a string which is the docpad convention
+		@config.env = @instanceConfig.env or @websiteConfig.env or @initialConfig.env or process.env.NODE_ENV
+
+		# Merge configurations
+		configPackages = [@initialConfig, @userConfig, @websiteConfig, @instanceConfig]
+		configsToMerge = [@config]
+		docpad.mergeConfigurations(configPackages,configsToMerge)
+
+		# Extract and apply the server
+		@setServer(@config.server)  if @config.server
+
+		# Extract and apply the logger
+		@setLogger(@config.logger)  if @config.logger
+		@setLogLevel(@config.logLevel)
+
+		# Resolve any paths
+		@config.rootPath = pathUtil.resolve(@config.rootPath)
+		@config.outPath = pathUtil.resolve(@config.rootPath, @config.outPath)
+		@config.srcPath = pathUtil.resolve(@config.rootPath, @config.srcPath)
+
+		# Resolve Documents, Files, Layouts paths
+		for type in ['documents','files','layouts']
+			typePaths = @config[type+'Paths']
+			for typePath,key in typePaths
+				typePaths[key] = pathUtil.resolve(@config.srcPath,typePath)
+
+		# Resolve Plugins paths
+		for type in ['plugins']
+			typePaths = @config[type+'Paths']
+			for typePath,key in typePaths
+				typePaths[key] = pathUtil.resolve(@config.rootPath,typePath)
+
+		# Bind the error handler, so we don't crash on errors
+		process.removeListener('uncaughtException', @error)
+		if @config.catchExceptions
+			process.setMaxListeners(0)
+			process.on('uncaughtException', @error)
+
+		# Regenerate Timer
+		if @regenerateTimer
+			clearInterval(@regenerateTimer)
+			@regenerateTimer = null
+		if @config.regenerateEvery
+			@regenerateTimer = setInterval(
+				->
+					docpad.log('info', locale.renderInterval)
+					docpad.action('generate')
+				@config.regenerateEvery
+			)
+
+		# Prepare the Post Tasks
+		postTasks = new balUtil.Group (err) =>
+			return next(err,@config)
+
+		# Initialize
+		postTasks.push (complete) =>
+			@loadPlugins(complete)
+
+		# Extend collections
+		postTasks.push (complete) =>
+			@extendCollections(complete)
+
+		# Fetch plugins templateData
+		postTasks.push (complete) =>
+			@emitSync('extendTemplateData', {templateData:@pluginsTemplateData}, complete)
+
+		# Fire the docpadLoaded event
+		postTasks.push (complete) =>
+			@emitSync('docpadLoaded', {}, complete)
+
+		# Fire post tasks
+		postTasks.sync()
+
+		# Chain
+		@
+
 
 	# Load Configuration
 	# next(err,config)
@@ -1084,94 +1256,12 @@ class DocPad extends EventEmitterEnhanced
 		@config = {}
 
 		# Merge in the instance configurations
-		balUtil.extend(@instanceConfig,instanceConfig)
+		@setInstanceConfig(instanceConfig)
 
 		# Prepare the Load Tasks
 		preTasks = new balUtil.Group (err) =>
 			return next(err)  if err
-
-			# Apply the environment
-			# websitePackageConfig.env is left out of the detection here as it is usually an object
-			# that is already merged with our process.env by the environment runner
-			# rather than a string which is the docpad convention
-			@config.env = @instanceConfig.env or @websiteConfig.env or @initialConfig.env or process.env.NODE_ENV
-			envs = @getEnvironments()
-
-			# Merge configurations
-			configPackages = [@initialConfig, @userConfig, @websiteConfig, @instanceConfig]
-			configsToMerge = [@config]
-			for configPackage in configPackages
-				configsToMerge.push(configPackage)
-				for env in envs
-					envConfig = configPackage.environments?[env]
-					configsToMerge.push(envConfig)  if envConfig
-			balUtil.safeDeepExtendPlainObjects(configsToMerge...)
-
-			# Extract and apply the server
-			@setServer(@config.server)  if @config.server
-
-			# Extract and apply the logger
-			@setLogger(@config.logger)  if @config.logger
-			@setLogLevel(@config.logLevel)
-
-			# Resolve any paths
-			@config.rootPath = pathUtil.resolve(@config.rootPath)
-			@config.outPath = pathUtil.resolve(@config.rootPath, @config.outPath)
-			@config.srcPath = pathUtil.resolve(@config.rootPath, @config.srcPath)
-
-			# Resolve Documents, Files, Layouts paths
-			for type in ['documents','files','layouts']
-				typePaths = @config[type+'Paths']
-				for typePath,key in typePaths
-					typePaths[key] = pathUtil.resolve(@config.srcPath,typePath)
-
-			# Resolve Plugins paths
-			for type in ['plugins']
-				typePaths = @config[type+'Paths']
-				for typePath,key in typePaths
-					typePaths[key] = pathUtil.resolve(@config.rootPath,typePath)
-
-			# Bind the error handler, so we don't crash on errors
-			if @config.catchExceptions
-				process.setMaxListeners(0)
-				process.on('uncaughtException', @error)
-			else
-				process.removeListener('uncaughtException', @error)
-
-			# Regenerate Timer
-			if @regenerateTimer
-				clearInterval(@regenerateTimer)
-				@regenerateTimer = null
-			if @config.regenerateEvery
-				@regenerateTimer = setInterval(
-					->
-						docpad.log('info', locale.renderInterval)
-						docpad.action('generate')
-					@config.regenerateEvery
-				)
-
-			# Prepare the Post Tasks
-			postTasks = new balUtil.Group (err) =>
-				return next(err,@config)
-
-			# Initialize
-			postTasks.push (complete) =>
-				@loadPlugins(complete)
-
-			# Extend collections
-			postTasks.push (complete) =>
-				@extendCollections(complete)
-
-			# Fetch plugins templateData
-			postTasks.push (complete) =>
-				@emitSync('extendTemplateData', {templateData:@pluginsTemplateData}, complete)
-
-			# Fire the docpadLoaded event
-			postTasks.push (complete) =>
-				@emitSync('docpadLoaded', {}, complete)
-
-			# Fire post tasks
-			postTasks.sync()
+			return @setConfig(next)
 
 		# Normalize the userConfigPath
 		preTasks.push (complete) =>
@@ -1181,7 +1271,7 @@ class DocPad extends EventEmitterEnhanced
 				balUtil.exists dropboxPath, (dropboxPathExists) =>
 					userConfigDirPath = if dropboxPathExists then dropboxPath else homePath
 					@userConfigPath = pathUtil.join(userConfigDirPath, @userConfigPath)
-					complete()
+					return complete()
 
 		# Load User's Configuration
 		preTasks.push (complete) =>
@@ -1192,7 +1282,7 @@ class DocPad extends EventEmitterEnhanced
 				balUtil.extend(@userConfig, data or {})
 
 				# Done loading
-				complete()
+				return complete()
 
 		# Load DocPad's Package Configuration
 		preTasks.push (complete) =>
@@ -1205,7 +1295,7 @@ class DocPad extends EventEmitterEnhanced
 				@getAirbrakeInstance()?.appVersion = data.version
 
 				# Done loading
-				complete()
+				return complete()
 
 		# Load Website's Package Configuration
 		preTasks.push (complete) =>
@@ -1219,7 +1309,7 @@ class DocPad extends EventEmitterEnhanced
 				@websitePackageConfig = data
 
 				# Done loading
-				complete()
+				return complete()
 
 		# Read the .env file if it exists
 		preTasks.push (complete) =>
@@ -1253,7 +1343,7 @@ class DocPad extends EventEmitterEnhanced
 				balUtil.extend(@websiteConfig, data)
 
 				# Done loading
-				complete()
+				return complete()
 
 		# Run the load tasks synchronously
 		preTasks.sync()
@@ -1714,9 +1804,10 @@ class DocPad extends EventEmitterEnhanced
 	createFile: (data={},options={}) =>
 		# Prepare
 		docpad = @
-		options = balUtil.extend(
+		options = balUtil.extend({
+			detectEncoding: @config.detectEncoding
 			outDirPath: @config.outPath
-		,options)
+		},options)
 
 		# Create and return
 		file = new FileModel(data,options)
@@ -1736,9 +1827,10 @@ class DocPad extends EventEmitterEnhanced
 	createDocument: (data={},options={}) =>
 		# Prepare
 		docpad = @
-		options = balUtil.extend(
+		options = balUtil.extend({
+			detectEncoding: @config.detectEncoding
 			outDirPath: @config.outPath
-		,options)
+		},options)
 
 		# Create and return
 		document = new DocumentModel(data,options)
@@ -1981,6 +2073,9 @@ class DocPad extends EventEmitterEnhanced
 
 		# If we've already been loaded, then exit early as there is no use for us to load again
 		if docpad.loadedPlugins[pluginName]?
+			# However we probably want to reload the configuration as perhaps the user or environment configuration has changed
+			docpad.loadedPlugins[pluginName].setConfig()
+			# Complete
 			return _next()
 
 		# Add to loading stores
@@ -2406,9 +2501,19 @@ class DocPad extends EventEmitterEnhanced
 		runner = @getActionRunner()
 		locale = @getLocale()
 
+		# Array?
+		if balUtil.isArray(action)
+			actions = action
+		else
+			actions = action.split(/[,\s]+/g)
+
+		# Clean actions
+		actions = _.uniq _.compact actions
+
 		# Multiple actions?
-		actions = action.split /[,\s]+/g
-		if actions.length > 1
+		if actions.length is 1
+			action = actions[0]
+		else
 			tasks = new balUtil.Group (err) ->
 				return next(err)
 			balUtil.each actions, (action) -> tasks.push (complete) ->

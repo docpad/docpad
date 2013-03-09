@@ -14,7 +14,10 @@ class ElementsCollection extends Collection
 	# Right now we just support strings
 	add: (values,opts) ->
 		# Ensure array
-		values = [values]  unless balUtil.isArray(values)
+		if balUtil.isArray(values)
+			values = values.slice()
+		else
+			values = [values]
 
 		# Convert string based array properties into html
 		for value,key in values

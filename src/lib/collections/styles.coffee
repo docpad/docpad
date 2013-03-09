@@ -15,7 +15,10 @@ class StylesCollection extends ElementsCollection
 		opts.attrs or= ''
 
 		# Ensure array
-		values = [values]  unless balUtil.isArray(values)
+		if balUtil.isArray(values)
+			values = values.slice()
+		else
+			values = [values]
 
 		# Convert urls into script element html
 		for value,key in values

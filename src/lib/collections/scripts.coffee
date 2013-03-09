@@ -15,7 +15,10 @@ class ScriptsCollection extends ElementsCollection
 		opts.defer ?= true
 		opts.async ?= false
 		opts.attrs or= ''
-		values = [values]  unless balUtil.isArray(values)
+		if balUtil.isArray(values)
+			values = values.slice()
+		else
+			values = [values]
 
 		# Build attrs
 		opts.attrs += """defer="defer" """  if opts.defer
