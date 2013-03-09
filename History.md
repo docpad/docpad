@@ -1,5 +1,9 @@
 ## History
 
+- v6.25.0 March 10, 2013
+	- Database is now persistant
+	- We now destroy unused collections
+
 - v6.24.2 March 8, 2013
 	- Fixed regression from v6.24.1 that caused new installs or very old upgrades to get stuck in the TOS section
 
