@@ -320,7 +320,7 @@ class FileModel extends Model
 			data = attrs.data
 			delete attrs.data
 			delete @attributes.data
-		if data
+		if data?
 			@setData(data)
 
 		# Meta
@@ -375,7 +375,7 @@ class FileModel extends Model
 
 		# If data is set, use that as the buffer
 		data = file.getData()
-		if data
+		if data?
 			buffer = new Buffer(data)
 			file.setBuffer(buffer)
 
