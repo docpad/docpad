@@ -1,5 +1,13 @@
 ## History
 
+- v6.26.0 March 12, 2013
+	- Node v0.10.0 support - fixes the "Arguments to path.join must be strings" errors
+	- The requirement of "plugins must have their own `package.json` file with `version` and `main` defined within them" is now enforced
+	- Updated dependencies
+		- [backbone](http://backbonejs.org/) 0.9.9 to 0.9.10
+		- [iconv](https://github.com/bnoordhuis/node-iconv) ~2.0.2 to ~2.0.3
+		- [request](https://github.com/mikeal/request) ~2.12.0 to ~2.14.0
+
 - v6.25.0 March 10, 2013
 	- Database is now persistant
 	- We now destroy unused collections
@@ -14,7 +22,7 @@
 		- Thanks to [Richard A](https://github.com/rantecki) for [pull request #450](https://github.com/bevry/docpad/pull/450)
 	- Fixed mixpanel country and language always being au and en
 	- Updated dependencies
-		- [bal-util](https://github.com/balupton/bal-util) from ~1.16.3 to ~1.16.10
+		- [bal-util](https://github.com/balupton/bal-util) ~1.16.3 to ~1.16.10
 
 - v6.24.0 March 6, 2013
 	- Configuration changes and improvements
@@ -39,16 +47,16 @@
 
 - v6.21.10 February 6, 2013
 	- Updated dependencies
-		- [watchr](https://github.com/bevry/watchr) from ~2.3.4 to ~2.3.7
+		- [watchr](https://github.com/bevry/watchr) ~2.3.4 to ~2.3.7
 			- Works better for projects that have a large amount of files
 
 - v6.21.9 February 6, 2013
 	- We now completely ignore growl failures
 	- We now alert the user of watch failures but still ignore them overall (as to not bring down the entire app)
 	- Updated dependencies
-		- [growl](https://github.com/visionmedia/node-growl) from ~1.6.1 to ~1.7.0
-		- [express](https://github.com/visionmedia/express) from ~3.0.6 to ~3.1.0
-		- [watchr](https://github.com/bevry/watchr) from ~2.3.4 to ~2.3.5
+		- [growl](https://github.com/visionmedia/node-growl) ~1.6.1 to ~1.7.0
+		- [express](https://github.com/visionmedia/express) ~3.0.6 to ~3.1.0
+		- [watchr](https://github.com/bevry/watchr) ~2.3.4 to ~2.3.5
 			- Fixes a bug with uncaught watching exceptions
 
 - v6.21.8 February 5, 2013
@@ -59,15 +67,15 @@
 	- Fixed a bug that keeps `exists` attribute on `File` always `true`
 		- Thanks to [Stefan](https://github.com/stegrams) for [pull request #409](https://github.com/bevry/docpad/pull/409)
 	- Updated dependencies
-		- [bal-util](https://github.com/balupton/bal-util) from ~1.16.3 to ~1.16.3
-		- [watchr](https://github.com/bevry/watchr) from ~2.3.3 to ~2.3.4
+		- [bal-util](https://github.com/balupton/bal-util) ~1.16.3 to ~1.16.3
+		- [watchr](https://github.com/bevry/watchr) ~2.3.3 to ~2.3.4
 			- Way better performance and reliability
 
 - v6.21.7 January 25, 2013
 	- Fixed port not defaulting correctly on the `docpad-server` executable since v6.21.5
 		- Thanks to [man4u](https://github.com/man4u) for [issue #407](https://github.com/bevry/docpad/issues/407)
 	- Updated dependencies
-		- [bal-util](https://github.com/balupton/bal-util) from ~1.16.0 to ~1.16.1
+		- [bal-util](https://github.com/balupton/bal-util) ~1.16.0 to ~1.16.1
 
 - v6.21.6 January 25, 2013
 	- Better debugging around server starting
@@ -78,7 +86,7 @@
 		- Note: currently this will render `src/documents/script.coffee` from CoffeeScript to JavaScript as intended, HOWEVER the outfile will be `out/script.coffee` instead of the expected `out/script.js`. We will likely have to do an extension mapping for single extensions.
 	- Added expiremental `docpad-compile` executable
 	- Updated dependencies
-		- [bal-util](https://github.com/balupton/bal-util) from ~1.15.4 to ~1.16.0
+		- [bal-util](https://github.com/balupton/bal-util) ~1.15.4 to ~1.16.0
 
 - v6.21.4 January 16, 2013
 	- Fixed incorrect meta data parsing for certain files
@@ -115,23 +123,23 @@
 - v6.20.0 December 17, 2012
 	- Better watch handling
 	- Updated dependencies
-		- [watchr](https://github.com/bevry/watchr) from ~2.2.1 to 2.3.x
+		- [watchr](https://github.com/bevry/watchr) ~2.2.1 to 2.3.x
 
 - v6.19.0 December 15, 2012
 	- Renamed `ignorePatterns` configuration option to `ignoreCommonPatterns` and added new `ignoreCustomPatterns` configuration option
 	- Updated dependencies
-		- [bal-util](https://github.com/balupton/bal-util) from 1.14.x to ~1.15.2
-		- [watchr](https://github.com/bevry/watchr) from 2.1.x to ~2.2.1
+		- [bal-util](https://github.com/balupton/bal-util) 1.14.x to ~1.15.2
+		- [watchr](https://github.com/bevry/watchr) 2.1.x to ~2.2.1
 	- Updated optional dependencies
-		- [mixpanel](https://github.com/carlsverre/mixpanel-node) from 0.0.9 to 0.0.10
+		- [mixpanel](https://github.com/carlsverre/mixpanel-node) 0.0.9 to 0.0.10
 	- Updated dev dependencies
-		- [chai](https://github.com/chaijs/chai) from 1.3.x to 1.4.x
+		- [chai](https://github.com/chaijs/chai) 1.3.x to 1.4.x
 
 - v6.18.0 December 14, 2012
 	- Added `regeneratePaths` configuration option
 	- Include now returns expected results if the content hasn't been rendered yet
 		- Closes [issue #378](https://github.com/bevry/docpad/issues/378)
-	- Updated [QueryEngine](https://github.com/bevry/query-engine/) to v1.5.x from v1.4.x
+	- Updated [QueryEngine](https://github.com/bevry/query-engine/) v1.4.x to v1.5.x
 	- [Backbone](http://backbonejs.org/) dependency now moved to our dependencies from QueryEngine's. Version set explicitly to v0.9.9.
 		- If you have any plugins or whatever that used the `myCollection.getByCid` function, change that call to `myCollection.get`
 	- Improved help URLs
@@ -203,9 +211,9 @@
 	- Improved error reporting
 	- Will now error if you try to run an action that doesn't exist (instead of defaulting to the `run` action instead)
 	- Updated dependencies
-		- [Commander](https://github.com/visionmedia/commander.js) 1.1.x from 1.0.x
-		- [Growl](https://github.com/visionmedia/node-growl) 1.6.x from 1.4.x
-		- [Semver](https://github.com/isaacs/node-semver) 1.1.x from 1.0.x
+		- [Commander](https://github.com/visionmedia/commander.js) 1.0.x to 1.1.x
+		- [Growl](https://github.com/visionmedia/node-growl) 1.4.x to 1.6.x
+		- [Semver](https://github.com/isaacs/node-semver) 1.0.x to 1.1.x
 	- Added dependencies
 		- [Mixpanel](https://github.com/carlsverre/mixpanel-node) 0.0.9
 	- Moved dependencies to dev dependencies
@@ -263,11 +271,11 @@
 
 - v6.9.0 October 25, 2012
 	- Updated dependencies
-		- [CoffeeScript](http://coffeescript.org/) 1.4.x from 1.3.x
-		- [CSON](https://github.com/bevry/cson) 1.4.x from 1.2.x
-		- [Joe](https://github.com/bevry/joe) 1.1.x from 1.0.x
-		- [Underscore](http://underscorejs.org/) 1.4.x from 1.3.x
-		- [Chai](http://chaijs.com/) 1.3.x from 1.1.x
+		- [CoffeeScript](http://coffeescript.org/) 1.3.x to 1.4.x
+		- [CSON](https://github.com/bevry/cson) 1.2.x to 1.4.x
+		- [Joe](https://github.com/bevry/joe) 1.0.x to 1.1.x
+		- [Underscore](http://underscorejs.org/) 1.3.x to 1.4.x
+		- [Chai](http://chaijs.com/) 1.1.x to 1.3.x
 	- Removed ability to require uncompiled plugins
 		- This is due to the CoffeeScript 1.4.x from 1.3.x upgrade
 	- `skeletonNonexistant` now tells us the path it checked

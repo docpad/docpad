@@ -302,8 +302,8 @@ class DocumentModel extends FileModel
 				if !name and outFilename?
 					changes.name = name = outFilename
 
-				# Create the outPath if we have a outpute directory
-				if @outDirPath
+				# Create the outPath if we have a output directory
+				if @outDirPath and relativeOutPath
 					changes.outPath = outPath = pathUtil.join(@outDirPath,relativeOutPath)
 
 				# Update the URL
