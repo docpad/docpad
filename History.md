@@ -2,6 +2,7 @@
 
 - v6.26.0 March 12, 2013
 	- Node v0.10.0 support - fixes the "Arguments to path.join must be strings" errors
+		- Thanks to [Merrick Christensen](https://github.com/iammerrick) for [issue #455](https://github.com/bevry/docpad/issues/455)
 	- The requirement of "plugins must have their own `package.json` file with `version` and `main` defined within them" is now enforced
 	- Updated dependencies
 		- [backbone](http://backbonejs.org/) 0.9.9 to 0.9.10
