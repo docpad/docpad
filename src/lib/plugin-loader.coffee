@@ -60,43 +60,47 @@ class PluginLoader
 		@nodeModulesPath = pathUtil.resolve(@dirPath, 'node_modules')
 
 	# Exists
-	# Loads in the plugin either via a package.json file, or a guessing based on the name
+	# Loads the package.json file and extracts the main path
 	# next(err,exists)
 	exists: (next) ->
-		# Package.json
+		# Prepare
 		packagePath = @packagePath or pathUtil.resolve(@dirPath, "package.json")
-		pluginPath = @pluginPath or pathUtil.resolve(@dirPath, "#{@pluginName}.plugin.coffee")
-		# the fetch of the this value above allows advanced use cases of plugin loading
-		# hover, as of yet, we don't do any such advanced use cases
-		balUtil.exists packagePath, (exists) =>
-			unless exists
-				balUtil.exists pluginPath, (exists) =>
-					unless exists
-						return next(null,false)
-					else
-						@pluginPath = pluginPath
-						return next(null,true)
-			else
-				@packagePath = packagePath
-				balUtil.readFile packagePath, (err,data) =>
-					if err
-						return next(err,false)
-					else
-						try
-							@packageData = JSON.parse data.toString()
-						catch err
-							return next(err,false)
-						return next(null,false)  unless @packageData
+		failure = (err=null) =>
+			return next(err,false)
+		success = =>
+			return next(null,true)
 
-						# Fetch the plugin path
-						pluginPath = @packageData.main? and pathUtil.join(@dirPath, @pluginPath) or pluginPath
-						@pluginVersion = @packageData.version
-						balUtil.exists pluginPath, (exists) =>
-							unless exists
-								return next(null,false)
-							else
-								@pluginPath = pluginPath
-								return next(null,true)
+		# Check the package
+		balUtil.exists packagePath, (exists) =>
+			return failure()  unless exists
+
+			# Apply
+			@packagePath = packagePath
+
+			# Read the package
+			balUtil.readFile packagePath, (err,data) =>
+				return failure(err)  if err
+
+				# Parse the package
+				try
+					@packageData = JSON.parse data.toString()
+				catch err
+					return failure(err)
+				finally
+					return failure()  unless @packageData
+
+				# Extract the version and main
+				pluginVersion = @packageData.version
+				pluginPath = @packageData.main and pathUtil.join(@dirPath, @packageData.main)
+
+				# Check defined
+				return failure()  unless pluginVersion
+				return failure()  unless pluginPath
+
+				# Success
+				@pluginPath = pluginVersion
+				@pluginPath = pluginPath
+				return success()
 
 		# Chain
 		@
@@ -110,19 +114,18 @@ class PluginLoader
 		unsupported = false
 
 		# Check type
-		if @packageData
-			keywords = @packageData.keywords or []
-			unless 'docpad-plugin' in keywords
-				unsupported = 'type'
+		keywords = @packageData.keywords or []
+		unless 'docpad-plugin' in keywords
+			unsupported = 'type'
 
 		# Check platform
-		if @packageData and @packageData.platforms
+		if @packageData.platforms
 			platforms = @packageData.platforms or []
 			unless process.platform in platforms
 				unsupported = 'platform'
 
 		# Check engines
-		if @packageData and @packageData.engines
+		if @packageData.engines
 			engines = @packageData.engines or {}
 
 			# Node engine
