@@ -135,8 +135,11 @@ class DocPad extends EventEmitterEnhanced
 
 	# DocPad's version number
 	version: null
-	getVersion: ->
-		@version
+	getVersion: -> @version
+
+	# Process getters
+	getProcessPlatform: -> process.platform
+	getProcessVersion: -> process.version.replace(/^v/,'')
 
 	# The express and http server instances bound to docpad
 	serverExpress: null
@@ -1085,33 +1088,33 @@ class DocPad extends EventEmitterEnhanced
 			# No stats or no username
 			return  if !mixpanelInstance or !@userConfig.username
 
-			# Update the user in mixpanel
+			# Prepare the latest user data
 			lastLogin = new Date()
+			userData =
+				$email: @userConfig.email
+				$name: @userConfig.name
+				$last_login: lastLogin
+				$country_code: balUtil.getCountryCode()
+				languageCode: balUtil.getLanguageCode()
+				version: @getVersion()
+				platform: @getProcessPlatform()
+				nodeVersion: @getProcessVersion()
+
+			# Is this a new user?
 			if @userConfig.identified isnt true
 				# Identify the new user with mixpanel
-				mixpanelInstance.people.set(@userConfig.username, {
+				mixpanelInstance.people.set @userConfig.username, balUtil.extend(userData, {
 					$created: lastLogin
 					$username: @userConfig.username
-					$email: @userConfig.email
-					$name: @userConfig.name
-					$last_login: lastLogin
-					$country_code: balUtil.getCountryCode()
-					languageCode: balUtil.getLanguageCode()
-				})
-				# Save the changes with these
-				@updateUserConfig({
-					identified: true
-				})
-			else
-				# Update existing user if they have already been identified
-				mixpanelInstance.people.set(@userConfig.username, {
-					$email: @userConfig.email
-					$name: @userConfig.name
-					$last_login: lastLogin
-					$country_code: balUtil.getCountryCode()
-					languageCode: balUtil.getLanguageCode()
 				})
 
+				# Save the changes with these
+				@updateUserConfig(identified:true)
+
+			# Or an existing user?
+			else
+				# Update the existing user's information witht he latest
+				mixpanelInstance.people.set(@userConfig.username, userData)
 
 		# DocPad Ready
 		tasks.push (complete) =>
@@ -1783,8 +1786,9 @@ class DocPad extends EventEmitterEnhanced
 				data.username = @userConfig.username
 			if @websitePackageConfig?.name
 				data.websiteName = @websitePackageConfig.name
-			data.version = @version
-			data.platform = process.platform
+			data.version = @getVersion()
+			data.platform = @getProcessPlatform()
+			data.nodeVersion = @getProcessVersion()
 			data.environment = @getEnvironment()
 			balUtil.each @loadedPlugins, (value,key) ->
 				data['plugin-'+key] = value.version or true

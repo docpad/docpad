@@ -1,5 +1,11 @@
 ## History
 
+- v6.26.1 March 12, 2013
+	- We now gather statistics on the node version and platform you are using to better understand where issues are coming from
+	- Updated dev dependencies
+		- [coffee-script](http://jashkenas.github.com/coffee-script/) ~1.4.0 to ~1.6.1
+		- [request](https://github.com/mikeal/request) ~2.14.0 to ~2.16.2
+
 - v6.26.0 March 12, 2013
 	- Node v0.10.0 support - fixes the "Arguments to path.join must be strings" errors
 		- Thanks to [Merrick Christensen](https://github.com/iammerrick) for [issue #455](https://github.com/bevry/docpad/issues/455)
@@ -962,7 +968,7 @@
 		- `extensionRendered` is the result extension
 		- `filenameRendered` is the result filename: `"#{basename}.#{extensionRendered}"
 		- `title` if now set to `filenameRendered` if not set
-	- Added support for different meta parsers, starting with [CoffeeScript](http://jashkenas.github.com/coffee-script/) and [YAML](https://github.com/visionmedia/js-yaml) support. YAML is still the default meta parser
+	- Added support for different meta parsers, starting with [CoffeeScript](https://github.com/jashkenas/coffee-script) and [YAML](https://github.com/visionmedia/js-yaml) support. YAML is still the default meta parser
 	- The YAML dependency is specifically set now to v0.2.1 as the newer version has a bug in it
 	- Fixed multiple renderers for a single document. E.g. `file.html.md.eco`
 	- Now also supports using `###` along with `---` for wrapping the meta data
@@ -996,7 +1002,7 @@
 	- Coffee Plugin
 		- Added [CoffeeKup](http://coffeekup.org/) to anything and HTML to CoffeeKup support
 			- Uses [Maurice Machado's](https://github.com/mauricemach) [CoffeeKup](https://github.com/mauricemach/coffeekup) and [Brandon Bloom's](https://github.com/brandonbloom) [Html2CoffeeKup](https://github.com/brandonbloom/html2coffeekup)
-		- Added [CoffeeScript](http://jashkenas.github.com/coffee-script/) to JavaScript and JavaScript to CoffeeScript support
+		- Added [CoffeeScript](https://github.com/jashkenas/coffee-script) to JavaScript and JavaScript to CoffeeScript support
 			- Uses [Jeremy Ashkenas's](https://github.com/jashkenas) [CoffeeScript](https://github.com/jashkenas/coffee-script/) and [Rico Sta. Cruz's](https://github.com/rstacruz) [Js2Coffee](https://github.com/rstacruz/js2coffee)
 	- Added a [Commander.js](https://github.com/visionmedia/commander.js) based CLI
 		- Thanks to [~eldios](https://github.com/eldios)
