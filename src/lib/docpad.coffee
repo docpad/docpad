@@ -716,6 +716,9 @@ class DocPad extends EventEmitterEnhanced
 		ignoreCommonPatterns: true
 		ignoreCustomPatterns: false
 
+		# Watch options
+		watchOptions: null
+
 
 		# -----------------------------
 		# Server
@@ -1010,7 +1013,7 @@ class DocPad extends EventEmitterEnhanced
 			ignoreHiddenFiles: @config.ignoreHiddenFiles
 			ignoreCommonPatterns: @config.ignoreCommonPatterns
 			ignoreCustomPatterns: @config.ignoreCustomPatterns
-		},opts)
+		},opts,@config.watchOptions)
 		return require('watchr').watch(opts)
 
 
