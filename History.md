@@ -1,5 +1,11 @@
 ## History
 
+- v6.26.2 March 23, 2013
+	- Fixes `TypeError: Object #<Object> has no method 'removeListener'`
+		- Thanks to [Steven Lindberg](https://github.com/slindberg) for [issue #462](https://github.com/bevry/docpad/issues/462)
+	- Can now customise the `watchOptions` that are used to construct the [watchr](https://github.com/bevry/watchr) instances we create
+	- Updated dependencies
+
 - v6.26.1 March 12, 2013
 	- We now gather statistics on the node version and platform you are using to better understand where issues are coming from
 	- Updated dev dependencies
