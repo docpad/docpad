@@ -268,7 +268,7 @@ class FileModel extends Model
 		urls = @get('urls')
 		for url,index in urls
 			if url is userUrl
-				urls.remove(index)
+				urls.splice(index,1)
 				break
 		@
 

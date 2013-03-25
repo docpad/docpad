@@ -1,5 +1,11 @@
 ## History
 
+- v6.28.0 March 25, 2013
+	- Removed native prototype extensions
+		- Thanks to [David Baird](https://github.com/dhbaird) for [issue #441](https://github.com/bevry/docpad/issues/441)
+		- If you were using `toShortDateString`, then we'd recommend [this gist](https://gist.github.com/4166882) instead
+		- If you were using `toISODateString`, just replace it with `toISOString`
+
 - v6.27.0 March 25, 2013
 	- Engine requirements are now:
 		- node >=0.8
