@@ -1,5 +1,14 @@
 ## History
 
+- v6.27.0 March 25, 2013
+	- Engine requirements are now:
+		- node >=0.8
+		- npm >=1.2
+	- Iconv is now a lazy loaded dependency
+		- Thanks to [jhuntdog](https://github.com/jhuntdog) for [issue #468](https://github.com/bevry/docpad/issues/468)
+	- Added `regenerateDelay` configuration option
+		- Thanks to [Homme Zwaagstra](https://github.com/homme) for [pull request #426](https://github.com/bevry/docpad/pull/426)
+
 - v6.26.2 March 23, 2013
 	- Fixes `TypeError: Object #<Object> has no method 'removeListener'`
 		- Thanks to [Steven Lindberg](https://github.com/slindberg) for [issue #462](https://github.com/bevry/docpad/issues/462)

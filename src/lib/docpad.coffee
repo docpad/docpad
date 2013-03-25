@@ -8,6 +8,7 @@ caterpillar = require('caterpillar')
 CSON = require('cson')
 balUtil = require('bal-util')
 util = require('util')
+canihaz = null
 {EventEmitterEnhanced} = balUtil
 
 # Base
@@ -685,6 +686,9 @@ class DocPad extends EventEmitterEnhanced
 		# Paths that we should watch for regeneration changes in
 		regeneratePaths: []
 
+		# The time to wait after a source file has changed before using it to regenerate
+		regenerateDelay: 100
+
 		# The project's out directory
 		outPath: 'out'
 
@@ -950,6 +954,13 @@ class DocPad extends EventEmitterEnhanced
 		@on 'log', (args...) ->
 			docpad.log.apply(@,args)
 
+		# Require canihaz
+		canihaz ?= require('canihaz')(
+			installation: docpad.corePath
+			location: docpad.packagePath
+			key: 'lazyDependencies'
+		)
+
 		# Dereference and initialise advanced variables
 		# we deliberately ommit initialTemplateData here, as it is setup in getTemplateData
 		@slowPlugins = {}
@@ -1026,22 +1037,23 @@ class DocPad extends EventEmitterEnhanced
 		# Prepare
 		[instanceConfig,next] = balUtil.extractOptsAndCallback(instanceConfig,next)
 		docpad = @
+		config = @getConfig()
 		locale = @getLocale()
 		mixpanelInstance = @getMixpanelInstance()
 
 		# Render Single Extensions
-		@DocumentModel::defaults.renderSingleExtensions = docpad.config.renderSingleExtensions
+		@DocumentModel::defaults.renderSingleExtensions = config.renderSingleExtensions
 
 		# Version Check
 		@compareVersion()
 
-		# Welcome prepare
+		# Welcome Prepare
 		if @getDebugging()
 			pluginsList = ("#{pluginName} v#{@loadedPlugins[pluginName].version}"  for pluginName in Object.keys(@loadedPlugins).sort()).join(', ')
 		else
 			pluginsList = Object.keys(@loadedPlugins).sort().join(', ')
 
-		# Welcome log
+		# Welcome Output
 		@log 'info', util.format(locale.welcome, "v#{@getVersion()}")
 		@log 'info', util.format(locale.welcomePlugins, pluginsList)
 		@log 'info', util.format(locale.welcomeEnvironment, @getEnvironment())
@@ -1054,10 +1066,10 @@ class DocPad extends EventEmitterEnhanced
 			# All done, forward our DocPad instance onto our creator
 			return next?(null,docpad)
 
-		# Welcome
+		# Welcome Event
 		tasks.push (complete) =>
 			# No welcome
-			return complete()  unless docpad.config.welcome
+			return complete()  unless config.welcome
 
 			# Welcome
 			@emitSync('welcome', {docpad}, complete)
@@ -1074,7 +1086,7 @@ class DocPad extends EventEmitterEnhanced
 
 				# Hash with salt
 				try
-					macAddressHash = require('crypto').createHmac('sha1',docpad.config.hashKey).update(macAddress).digest('hex')
+					macAddressHash = require('crypto').createHmac('sha1',config.hashKey).update(macAddress).digest('hex')
 				catch err
 					return complete()  if err
 
@@ -1224,7 +1236,12 @@ class DocPad extends EventEmitterEnhanced
 		postTasks = new balUtil.Group (err) =>
 			return next(err,@config)
 
-		# Initialize
+		# Lazy Dependencies: Iconv
+		postTasks.push (complete) =>
+			return complete()  unless @config.detectEncoding
+			return canihaz('iconv',complete)
+
+		# Plugins
 		postTasks.push (complete) =>
 			@loadPlugins(complete)
 
@@ -1694,9 +1711,10 @@ class DocPad extends EventEmitterEnhanced
 	# Handle a fatal error
 	fatal: (err) =>
 		docpad = @
+		config = @getConfig()
 		return @  unless err
 		@error err, 'err', ->
-			if docpad.config.catchExceptions
+			if config.catchExceptions
 				process.exit(-1)
 			else
 				throw err
@@ -1885,6 +1903,7 @@ class DocPad extends EventEmitterEnhanced
 	# Ensure File or Document
 	ensureFileOrDocument: (data={},options={}) =>
 		docpad = @
+		config = @getConfig()
 		database = @getDatabase()
 		fileFullPath = data.fullPath or null
 		result = database.findOne(fullPath: fileFullPath)
@@ -1894,7 +1913,7 @@ class DocPad extends EventEmitterEnhanced
 			# If we have a file path to compare
 			if fileFullPath
 				# Check if we have a document or layout
-				for dirPath in docpad.config.documentsPaths.concat(docpad.config.layoutsPaths)
+				for dirPath in config.documentsPaths.concat(config.layoutsPaths)
 					if fileFullPath.indexOf(dirPath) is 0
 						data.relativePath or= fileFullPath.replace(dirPath,'').replace(/^[\/\\]/,'')
 						result = @createDocument(data,options)
@@ -1902,7 +1921,7 @@ class DocPad extends EventEmitterEnhanced
 
 				# Check if we have a file
 				unless result
-					for dirPath in docpad.config.filesPaths
+					for dirPath in config.filesPaths
 						if fileFullPath.indexOf(dirPath) is 0
 							data.relativePath or= fileFullPath.replace(dirPath,'').replace(/^[\/\\]/,'')
 							result = @createFile(data,options)
@@ -2058,7 +2077,7 @@ class DocPad extends EventEmitterEnhanced
 	loadPlugin: (fileFullPath,_next) ->
 		# Prepare
 		docpad = @
-		config = @config
+		config = @getConfig()
 		locale = @getLocale()
 		next = (err) ->
 			# Remove from slow plugins
@@ -2110,7 +2129,7 @@ class DocPad extends EventEmitterEnhanced
 					# Unsupported?
 					if unsupported
 						# Version?
-						if unsupported is 'version' and  docpad.config.skipUnsupportedPlugins is false
+						if unsupported is 'version' and config.skipUnsupportedPlugins is false
 							docpad.log 'warn', util.format(locale.pluginContinued, pluginName)
 						else
 							# Type?
@@ -2591,6 +2610,7 @@ class DocPad extends EventEmitterEnhanced
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
+		config = @getConfig()
 		locale = @getLocale()
 
 		# Check plugin count
@@ -2598,7 +2618,7 @@ class DocPad extends EventEmitterEnhanced
 			docpad.log('warn', locale.renderNoPlugins)
 
 		# Check if the source directory exists
-		balUtil.exists docpad.config.srcPath, (exists) ->
+		balUtil.exists config.srcPath, (exists) ->
 			# Check and forward
 			if exists is false
 				err = new Error(locale.renderNonexistant)
@@ -2631,7 +2651,7 @@ class DocPad extends EventEmitterEnhanced
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
 		database = @getDatabase()
-		config = docpad.config
+		config = @getConfig()
 		locale = @getLocale()
 
 		# Before
@@ -2993,6 +3013,7 @@ class DocPad extends EventEmitterEnhanced
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
+		config = @getConfig()
 		locale = @getLocale()
 		database = @getDatabase()
 		watchers = []
@@ -3014,7 +3035,7 @@ class DocPad extends EventEmitterEnhanced
 			tasks.total = 3
 
 			# Watch reload paths
-			reloadPaths = _.union(docpad.config.reloadPaths, docpad.config.configPaths)
+			reloadPaths = _.union(config.reloadPaths, config.configPaths)
 			docpad.watchdir(
 				paths: reloadPaths
 				listeners:
@@ -3035,7 +3056,7 @@ class DocPad extends EventEmitterEnhanced
 			)
 
 			# Watch regenerate paths
-			regeneratePaths = docpad.config.regeneratePaths
+			regeneratePaths = config.regeneratePaths
 			docpad.watchdir(
 				paths: regeneratePaths
 				listeners:
@@ -3052,7 +3073,7 @@ class DocPad extends EventEmitterEnhanced
 			)
 
 			# Watch the source
-			srcPath = docpad.config.srcPath
+			srcPath = config.srcPath
 			docpad.watchdir(
 				path: srcPath
 				listeners:
@@ -3069,14 +3090,13 @@ class DocPad extends EventEmitterEnhanced
 
 		# Timer
 		regenerateTimer = null
-		regenerateDelay = 100
 		queueRegeneration = ->
 			# Reset the wait
 			if regenerateTimer
 				clearTimeout(regenerateTimer)
 				regenerateTimer = null
 			# Regenerat after a while
-			regenerateTimer = setTimeout(performGenerate, regenerateDelay)
+			regenerateTimer = setTimeout(performGenerate, config.regenerateDelay)
 		performGenerate = (opts) ->
 			# Prepare
 			opts or= {}
@@ -3191,9 +3211,10 @@ class DocPad extends EventEmitterEnhanced
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
-		skeletonId = @config.skeleton
-		srcPath = @config.srcPath
-		destinationPath = @config.rootPath
+		config = @getConfig()
+		skeletonId = config.skeleton
+		srcPath = config.srcPath
+		destinationPath = config.rootPath
 		selectSkeletonCallback = opts.selectSkeletonCallback or null
 		locale = @getLocale()
 
@@ -3236,13 +3257,13 @@ class DocPad extends EventEmitterEnhanced
 				tasks.total = 3
 
 				# Create
-				balUtil.ensurePath(docpad.config.documentsPaths[0], tasks.completer())
+				balUtil.ensurePath(config.documentsPaths[0], tasks.completer())
 
 				# Create
-				balUtil.ensurePath(docpad.config.layoutsPaths[0], tasks.completer())
+				balUtil.ensurePath(config.layoutsPaths[0], tasks.completer())
 
 				# Create
-				balUtil.ensurePath(docpad.config.filesPaths[0], tasks.completer())
+				balUtil.ensurePath(config.filesPaths[0], tasks.completer())
 
 		# Check if already exists
 		balUtil.exists srcPath, (exists) ->
