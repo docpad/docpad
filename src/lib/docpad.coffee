@@ -29,9 +29,6 @@ StylesCollection = require(__dirname+'/collections/styles')
 PluginLoader = require(__dirname+'/plugin-loader')
 BasePlugin = require(__dirname+'/plugin')
 
-# Prototypes
-require(__dirname+'/prototypes')
-
 
 # =====================================
 # DocPad
