@@ -67,7 +67,7 @@ class BasePlugin
 		# Merge configurations
 		configPackages = [@initialConfig, userConfig, @instanceConfig]
 		configsToMerge = [@config]
-		docpad.mergeConfigurations(configPackages,configsToMerge)
+		docpad.mergeConfigurations(configPackages, configsToMerge)
 
 		# Chain
 		@
@@ -93,7 +93,7 @@ class BasePlugin
 					# Finish right away if we are disabled
 					return next()  if pluginInstance.isEnabled() is false
 					# Fire the function, treating the callback as optional
-					balUtil.fireWithOptionalCallback(eventHandler, [opts,next], pluginInstance)
+					balUtil.fireWithOptionalCallback(eventHandler.bind(pluginInstance), opts, next)
 
 		# Chain
 		@
