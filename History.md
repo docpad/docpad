@@ -1,5 +1,11 @@
 ## History
 
+- v6.29.0 April 1, 2013
+	- Progress on [issue #474](https://github.com/bevry/docpad/issues/474)
+	- DocPad will now set permissions based on the process's ability
+		- Thanks to [Avi Deitcher](https://github.com/deitch), [Stephan Lough](https://github.com/stephanlough) for [issue #165](https://github.com/bevry/docpad/issues/165)
+	- Updated dependencies
+
 - v6.28.0 March 25, 2013
 	- Removed native prototype extensions
 		- Thanks to [David Baird](https://github.com/dhbaird) for [issue #441](https://github.com/bevry/docpad/issues/441)

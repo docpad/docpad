@@ -914,7 +914,7 @@ class DocPad extends EventEmitterEnhanced
 				# Fire the config event handler for this event, if it exists
 				if balUtil.isFunction(eventHandler)
 					args = [opts,next]
-					balUtil.fireWithOptionalCallback(eventHandler,args,configEventContext)
+					balUtil.fireWithOptionalCallback(eventHandler.bind(configEventContext), args...)
 				# It doesn't exist, so lets continue
 				else
 					next()
