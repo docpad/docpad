@@ -1,6 +1,9 @@
 # Import
 pathUtil = require('path')
 balUtil = require('bal-util')
+typeChecker = require('typechecker')
+{TaskGroup} = require('taskgroup')
+safefs = require('safefs')
 mime = require('mime')
 
 # Import: Optional
@@ -336,7 +339,7 @@ class FileModel extends Model
 	# Get the arguments for the action
 	# Using this contains the transparency with using opts, and not using opts
 	getActionArgs: (opts,next) ->
-		if balUtil.isFunction(opts) and next? is false
+		if typeChecker.isFunction(opts) and next? is false
 			next = opts
 			opts = {}
 		else
@@ -364,7 +367,7 @@ class FileModel extends Model
 		file.log('debug', "Loading the file: #{fullPath}")
 
 		# Async
-		tasks = new balUtil.Group (err) =>
+		tasks = new TaskGroup().setConfig(concurrency:0).once 'complete', (err) =>
 			return next(err)  if err
 			file.log('debug', "Loaded the file: #{fullPath}")
 			file.parse (err) ->
@@ -388,10 +391,10 @@ class FileModel extends Model
 			file.setBuffer(opts.buffer)
 
 		# Stat the file and cache the result
-		tasks.push (complete) ->
+		tasks.addTask (complete) ->
 			# Otherwise fetch new stat
 			if fullPath and exists and opts.stat? is false
-				return balUtil.stat fullPath, (err,fileStat) ->
+				return safefs.stat fullPath, (err,fileStat) ->
 					return complete(err)  if err
 					file.setStat(fileStat)
 					return complete()
@@ -399,10 +402,10 @@ class FileModel extends Model
 				return complete()
 
 		# Read the file and cache the result
-		tasks.push (complete) ->
+		tasks.addTask (complete) ->
 			# Otherwise fetch new buffer
 			if fullPath and exists and opts.buffer? is false
-				return balUtil.readFile fullPath, (err,buffer) ->
+				return safefs.readFile fullPath, (err,buffer) ->
 					return complete(err)  if err
 					file.setBuffer(buffer)
 					return complete()
@@ -411,12 +414,12 @@ class FileModel extends Model
 
 		# Run the tasks
 		if fullPath
-			balUtil.exists fullPath, (_exists) ->
+			safefs.exists fullPath, (_exists) ->
 				exists = _exists
 				file.set({exists})
-				tasks.async()
+				tasks.run()
 		else
-			tasks.async()
+			tasks.run()
 
 		# Chain
 		@
@@ -659,7 +662,7 @@ class FileModel extends Model
 		file.log 'debug', "Writing the #{opts.type}: #{opts.path} #{opts.encoding}"
 
 		# Write data
-		balUtil.writeFile opts.path, opts.content, (err) ->
+		safefs.writeFile opts.path, opts.content, (err) ->
 			# Check
 			return next(err)  if err
 
@@ -689,11 +692,11 @@ class FileModel extends Model
 		file.log 'debug', "Delete the file: #{fileOutPath}"
 
 		# Check existance
-		balUtil.exists fileOutPath, (exists) ->
+		safefs.exists fileOutPath, (exists) ->
 			# Exit if it doesn't exist
 			return next()  unless exists
 			# If it does exist delete it
-			balUtil.unlink fileOutPath, (err) ->
+			safefs.unlink fileOutPath, (err) ->
 				# Check
 				return next(err)  if err
 

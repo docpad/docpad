@@ -1,5 +1,5 @@
 # Necessary
-balUtil = require('bal-util')
+typeChecker = require('typechecker')
 
 # Local
 {Collection,Model} = require(__dirname+'/../base')
@@ -14,14 +14,14 @@ class ElementsCollection extends Collection
 	# Right now we just support strings
 	add: (values,opts) ->
 		# Ensure array
-		if balUtil.isArray(values)
+		if typeChecker.isArray(values)
 			values = values.slice()
 		else
 			values = [values]
 
 		# Convert string based array properties into html
 		for value,key in values
-			if balUtil.isString(value)
+			if typeChecker.isString(value)
 				values[key] = new Model({html:value})
 
 		# Call the super with our values

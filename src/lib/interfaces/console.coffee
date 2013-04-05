@@ -2,6 +2,9 @@
 {cliColor} = require('caterpillar')
 pathUtil = require('path')
 balUtil = require('bal-util')
+safefs = require('safefs')
+{TaskGroup} = require('taskgroup')
+extendr = require('extendr')
 
 # Console Interface
 class ConsoleInterface
@@ -198,7 +201,7 @@ class ConsoleInterface
 		opts = {}
 		opts.commander = args[-1...][0]
 		opts.args = args[...-1]
-		opts.instanceConfig = balUtil.safeDeepExtendPlainObjects({}, @extractConfig(opts.commander), config)
+		opts.instanceConfig = extendr.safeDeepExtendPlainObjects({}, @extractConfig(opts.commander), config)
 
 		# Load
 		@docpad.action 'load ready', opts.instanceConfig, (err) =>
@@ -299,10 +302,10 @@ class ConsoleInterface
 		docpad = @docpad
 		locale = docpad.getLocale()
 		userConfig = docpad.userConfig
-		welcomeTasks = new balUtil.Group(next)
+		welcomeTasks = new TaskGroup().once('complete',next)
 
 		# TOS
-		welcomeTasks.push (complete) ->
+		welcomeTasks.addTask (complete) ->
 			return complete()  if docpad.config.prompts is false or userConfig.tos is true
 
 			# Ask the user if they agree to the TOS
@@ -319,7 +322,7 @@ class ConsoleInterface
 					return
 
 		# Newsletter
-		welcomeTasks.push (complete) ->
+		welcomeTasks.addTask (complete) ->
 			return complete()  if docpad.config.prompts is false or userConfig.subscribed? or (userConfig.subscribeTryAgain? and (new Date()) > (new Date(userConfig.subscribeTryAgain)))
 
 			# Ask the user if they want to subscribe to the newsletter
@@ -342,7 +345,7 @@ class ConsoleInterface
 					['config','--get','user.email']
 					['config','--get','github.user']
 				]
-				balUtil.gitCommands commands, (err,results) ->
+				balUtil.spawnCommands 'git', commands, (err,results) ->
 					# Ignore error as it just means a config value wasn't defined
 					# return next(err)  if err
 
@@ -357,7 +360,7 @@ class ConsoleInterface
 						console.log locale.subscribeConfigNotify
 
 					# Tasks
-					subscribeTasks = new balUtil.Group (err) ->
+					subscribeTasks = new TaskGroup().once 'complete', (err) ->
 						# Error?
 						if err
 							# Inform the user
@@ -377,29 +380,29 @@ class ConsoleInterface
 						docpad.updateUserConfig(userConfig,complete)
 
 					# Name Fallback
-					subscribeTasks.push (complete) ->
+					subscribeTasks.addTask (complete) ->
 						consoleInterface.prompt locale.subscribeNamePrompt, userConfig.name, (result) ->
 							userConfig.name = result
 							complete()
 
 					# Email Fallback
-					subscribeTasks.push (complete) ->
+					subscribeTasks.addTask (complete) ->
 						consoleInterface.prompt locale.subscribeEmailPrompt, userConfig.email, (result) ->
 							userConfig.email = result
 							complete()
 
 					# Username Fallback
-					subscribeTasks.push (complete) ->
+					subscribeTasks.addTask (complete) ->
 						consoleInterface.prompt locale.subscribeUsernamePrompt, userConfig.username, (result) ->
 							userConfig.username = result
 							complete()
 
 					# Save the details
-					subscribeTasks.push (complete) ->
+					subscribeTasks.addTask (complete) ->
 						docpad.updateUserConfig(complete)
 
 					# Perform the subscribe
-					subscribeTasks.push (complete) ->
+					subscribeTasks.addTask (complete) ->
 						# Inform the user
 						console.log locale.subscribeProgress
 
@@ -432,10 +435,10 @@ class ConsoleInterface
 								complete(err)
 
 					# Run
-					subscribeTasks.sync()
+					subscribeTasks.run()
 
 		# Run
-		welcomeTasks.sync()
+		welcomeTasks.run()
 
 		# Chain
 		@
@@ -546,7 +549,7 @@ class ConsoleInterface
 				return docpad.fatal(err)  if err
 				# Path
 				if commander.out?
-					balUtil.writeFile(commander.out, result, next)
+					safefs.writeFile(commander.out, result, next)
 				# Stdout
 				else
 					process.stdout.write(result)

@@ -7,6 +7,12 @@ _ = require('lodash')
 caterpillar = require('caterpillar')
 CSON = require('cson')
 balUtil = require('bal-util')
+extendr = require('extendr')
+eachr = require('eachr')
+typeChecker = require('typechecker')
+ambi = require('ambi')
+{TaskGroup} = require('taskgroup')
+safefs = require('safefs')
 util = require('util')
 canihaz = null
 {EventEmitterEnhanced} = balUtil
@@ -509,12 +515,12 @@ class DocPad extends EventEmitterEnhanced
 					throw err
 
 		# Fetch our result template data
-		templateData = balUtil.extend({}, @initialTemplateData, @pluginsTemplateData, @config.templateData, userTemplateData)
+		templateData = extendr.extend({}, @initialTemplateData, @pluginsTemplateData, @config.templateData, userTemplateData)
 
 		# Add site data
 		templateData.site.date or= new Date()
 		templateData.site.keywords or= []
-		if balUtil.isString(templateData.site.keywords)
+		if typeChecker.isString(templateData.site.keywords)
 			templateData.site.keywords = templateData.site.keywords.split(/,\s*/g)
 
 		# Return
@@ -907,37 +913,33 @@ class DocPad extends EventEmitterEnhanced
 
 		# Setup configuration event wrappers
 		configEventContext = {docpad}  # here to allow the config event context to persist between event calls
-		balUtil.each @getEvents(), (eventName) ->
+		eachr @getEvents(), (eventName) ->
 			# Bind to the event
 			docpad.on eventName, (opts,next) ->
 				eventHandler = docpad.getConfig().events?[eventName]
 				# Fire the config event handler for this event, if it exists
-				if balUtil.isFunction(eventHandler)
+				if typeChecker.isFunction(eventHandler)
 					args = [opts,next]
-					balUtil.fireWithOptionalCallback(eventHandler.bind(configEventContext), args...)
+					ambi(eventHandler.bind(configEventContext), args...)
 				# It doesn't exist, so lets continue
 				else
 					next()
 
 		# Create our action runner
-		@actionRunnerInstance = new balUtil.Group 'sync', (err) ->
+		@actionRunnerInstance = new TaskGroup().run().on 'complete', (err) ->
 			docpad.error(err)  if err
-		@actionRunnerInstance.total = Infinity
 
 		# Create our error runner
-		@errorRunnerInstance = new balUtil.Group 'sync', (err) ->
+		@errorRunnerInstance = new TaskGroup().run().on 'complete', (err) ->
 			if err and docpad.getDebugging()
 				locale = docpad.getLocale()
 				docpad.log('warn', locale.reportError+'\n'+locale.errorFollows, err)
-		@errorRunnerInstance.total = Infinity
 
 		# Create our track runner
-		@trackRunnerInstance = new balUtil.Group 'sync', (err) ->
+		@trackRunnerInstance = new TaskGroup().run().on 'complete', (err) ->
 			if err and docpad.getDebugging()
 				locale = docpad.getLocale()
 				docpad.log('warn', locale.trackError+'\n'+locale.errorFollows, err)
-		@trackRunnerInstance.total = Infinity
-
 
 		# Initialize a default logger
 		logger = new caterpillar.Logger(
@@ -969,9 +971,9 @@ class DocPad extends EventEmitterEnhanced
 		@collections = {}
 		@blocks = {}
 		@database = new FilesCollection()
-		@locales = balUtil.dereference(@locales)
-		@userConfig = balUtil.dereference(@userConfig)
-		@initialConfig = balUtil.dereference(@initialConfig)
+		@locales = extendr.dereference(@locales)
+		@userConfig = extendr.dereference(@userConfig)
+		@initialConfig = extendr.dereference(@initialConfig)
 
 		# Extract action
 		if instanceConfig.action?
@@ -996,7 +998,7 @@ class DocPad extends EventEmitterEnhanced
 
 	# Is Ignored Path
 	isIgnoredPath: (path,opts={}) ->
-		opts = balUtil.extend({
+		opts = extendr.extend({
 			ignorePaths: @config.ignorePaths
 			ignoreHiddenFiles: @config.ignoreHiddenFiles
 			ignoreCommonPatterns: @config.ignoreCommonPatterns
@@ -1006,7 +1008,7 @@ class DocPad extends EventEmitterEnhanced
 
 	# Scan Directory
 	scandir: (opts={}) ->
-		opts = balUtil.extend({
+		opts = extendr.extend({
 			ignorePaths: @config.ignorePaths
 			ignoreHiddenFiles: @config.ignoreHiddenFiles
 			ignoreCommonPatterns: @config.ignoreCommonPatterns
@@ -1016,7 +1018,7 @@ class DocPad extends EventEmitterEnhanced
 
 	# Watch Directory
 	watchdir: (opts={}) ->
-		opts = balUtil.extend({
+		opts = extendr.extend({
 			ignorePaths: @config.ignorePaths
 			ignoreHiddenFiles: @config.ignoreHiddenFiles
 			ignoreCommonPatterns: @config.ignoreCommonPatterns
@@ -1056,7 +1058,7 @@ class DocPad extends EventEmitterEnhanced
 		@log 'info', util.format(locale.welcomeEnvironment, @getEnvironment())
 
 		# Prepare
-		tasks = new balUtil.Group (err) ->
+		tasks = new TaskGroup().once 'complete', (err) ->
 			# Error?
 			return docpad.error(err)  if err
 
@@ -1064,7 +1066,7 @@ class DocPad extends EventEmitterEnhanced
 			return next?(null,docpad)
 
 		# Welcome Event
-		tasks.push (complete) =>
+		tasks.addTask (complete) =>
 			# No welcome
 			return complete()  unless config.welcome
 
@@ -1073,7 +1075,7 @@ class DocPad extends EventEmitterEnhanced
 
 		# Anyomous
 		# Ignore errors
-		tasks.push (complete) =>
+		tasks.addTask (complete) =>
 			# No statistics or username is already identified
 			return complete()  if !mixpanelInstance or @userConfig.username
 
@@ -1096,7 +1098,7 @@ class DocPad extends EventEmitterEnhanced
 				return complete()
 
 		# Track
-		tasks.push =>
+		tasks.addTask =>
 			# No stats or no username
 			return  if !mixpanelInstance or !@userConfig.username
 
@@ -1115,7 +1117,7 @@ class DocPad extends EventEmitterEnhanced
 			# Is this a new user?
 			if @userConfig.identified isnt true
 				# Identify the new user with mixpanel
-				mixpanelInstance.people.set @userConfig.username, balUtil.extend(userData, {
+				mixpanelInstance.people.set @userConfig.username, extendr.extend(userData, {
 					$created: lastLogin
 					$username: @userConfig.username
 				})
@@ -1129,11 +1131,11 @@ class DocPad extends EventEmitterEnhanced
 				mixpanelInstance.people.set(@userConfig.username, userData)
 
 		# DocPad Ready
-		tasks.push (complete) =>
+		tasks.addTask (complete) =>
 			@emitSync('docpadReady', {docpad}, complete)
 
 		# Run tasks
-		tasks.sync()
+		tasks.run()
 
 		# Chain
 		@
@@ -1152,7 +1154,7 @@ class DocPad extends EventEmitterEnhanced
 				configsToMerge.push(envConfig)  if envConfig
 
 		# Merge
-		balUtil.safeDeepExtendPlainObjects(configsToMerge...)
+		extendr.safeDeepExtendPlainObjects(configsToMerge...)
 
 		# Chain
 		return @
@@ -1161,8 +1163,8 @@ class DocPad extends EventEmitterEnhanced
 	setInstanceConfig: (instanceConfig) ->
 		# Merge in the instance configurations
 		if instanceConfig
-			balUtil.safeDeepExtendPlainObjects(@instanceConfig, instanceConfig)
-			balUtil.safeDeepExtendPlainObjects(@config, instanceConfig)  if @config
+			extendr.safeDeepExtendPlainObjects(@instanceConfig, instanceConfig)
+			extendr.safeDeepExtendPlainObjects(@config, instanceConfig)  if @config
 		@
 
 	# Set Configuration
@@ -1230,32 +1232,32 @@ class DocPad extends EventEmitterEnhanced
 			)
 
 		# Prepare the Post Tasks
-		postTasks = new balUtil.Group (err) =>
+		postTasks = new TaskGroup().once 'complete', (err) =>
 			return next(err,@config)
 
 		# Lazy Dependencies: Iconv
-		postTasks.push (complete) =>
+		postTasks.addTask (complete) =>
 			return complete()  unless @config.detectEncoding
 			return canihaz('iconv',complete)
 
 		# Plugins
-		postTasks.push (complete) =>
+		postTasks.addTask (complete) =>
 			@loadPlugins(complete)
 
 		# Extend collections
-		postTasks.push (complete) =>
+		postTasks.addTask (complete) =>
 			@extendCollections(complete)
 
 		# Fetch plugins templateData
-		postTasks.push (complete) =>
+		postTasks.addTask (complete) =>
 			@emitSync('extendTemplateData', {templateData:@pluginsTemplateData}, complete)
 
 		# Fire the docpadLoaded event
-		postTasks.push (complete) =>
+		postTasks.addTask (complete) =>
 			@emitSync('docpadLoaded', {}, complete)
 
 		# Fire post tasks
-		postTasks.sync()
+		postTasks.run()
 
 		# Chain
 		@
@@ -1279,33 +1281,33 @@ class DocPad extends EventEmitterEnhanced
 		@setInstanceConfig(instanceConfig)
 
 		# Prepare the Load Tasks
-		preTasks = new balUtil.Group (err) =>
+		preTasks = new TaskGroup().once 'complete', (err) =>
 			return next(err)  if err
 			return @setConfig(next)
 
 		# Normalize the userConfigPath
-		preTasks.push (complete) =>
+		preTasks.addTask (complete) =>
 			balUtil.getHomePath (err,homePath) =>
 				return complete(err)  if err
 				dropboxPath = pathUtil.join(homePath,'Dropbox')
-				balUtil.exists dropboxPath, (dropboxPathExists) =>
+				safefs.exists dropboxPath, (dropboxPathExists) =>
 					userConfigDirPath = if dropboxPathExists then dropboxPath else homePath
 					@userConfigPath = pathUtil.join(userConfigDirPath, @userConfigPath)
 					return complete()
 
 		# Load User's Configuration
-		preTasks.push (complete) =>
+		preTasks.addTask (complete) =>
 			@loadConfigPath @userConfigPath, (err,data) =>
 				return complete(err)  if err
 
 				# Apply loaded data
-				balUtil.extend(@userConfig, data or {})
+				extendr.extend(@userConfig, data or {})
 
 				# Done loading
 				return complete()
 
 		# Load DocPad's Package Configuration
-		preTasks.push (complete) =>
+		preTasks.addTask (complete) =>
 			@loadConfigPath @packagePath, (err,data) =>
 				return complete(err)  if err
 				data or= {}
@@ -1318,7 +1320,7 @@ class DocPad extends EventEmitterEnhanced
 				return complete()
 
 		# Load Website's Package Configuration
-		preTasks.push (complete) =>
+		preTasks.addTask (complete) =>
 			rootPath = pathUtil.resolve(@instanceConfig.rootPath or @initialConfig.rootPath)
 			websitePackagePath = pathUtil.resolve(rootPath, @instanceConfig.packagePath or @initialConfig.packagePath)
 			@loadConfigPath websitePackagePath, (err,data) =>
@@ -1332,12 +1334,12 @@ class DocPad extends EventEmitterEnhanced
 				return complete()
 
 		# Read the .env file if it exists
-		preTasks.push (complete) =>
+		preTasks.addTask (complete) =>
 			rootPath = pathUtil.resolve(@instanceConfig.rootPath or @websitePackageConfig.rootPath or @initialConfig.rootPath)
 			envPath = pathUtil.join(rootPath, '.env')
-			balUtil.exists envPath, (exists) ->
+			safefs.exists envPath, (exists) ->
 				return complete()  unless exists
-				balUtil.readFile envPath, (err,data) ->
+				safefs.readFile envPath, (err,data) ->
 					return complete(err)  if err
 					result = data.toString()
 					lines = result.split('\n')
@@ -1350,7 +1352,7 @@ class DocPad extends EventEmitterEnhanced
 					return complete()
 
 		# Load Website's Configuration
-		preTasks.push (complete) =>
+		preTasks.addTask (complete) =>
 			rootPath = pathUtil.resolve(@instanceConfig.rootPath or @initialConfig.rootPath)
 			configPaths = @instanceConfig.configPaths or @initialConfig.configPaths
 			for configPath, index in configPaths
@@ -1360,13 +1362,13 @@ class DocPad extends EventEmitterEnhanced
 				data or= {}
 
 				# Apply loaded data
-				balUtil.extend(@websiteConfig, data)
+				extendr.extend(@websiteConfig, data)
 
 				# Done loading
 				return complete()
 
 		# Run the load tasks synchronously
-		preTasks.sync()
+		preTasks.run()
 
 		# Chain
 		@
@@ -1440,7 +1442,7 @@ class DocPad extends EventEmitterEnhanced
 		# Apply back to our loaded configuration
 		# does not apply to @config as we would have to reparse everything
 		# and that appears to be an imaginary problem
-		balUtil.extend(@userConfig,data)  if data
+		extendr.extend(@userConfig,data)  if data
 
 		# Write it with CSON
 		CSON.stringify @userConfig, (err,userConfigString) ->
@@ -1448,7 +1450,7 @@ class DocPad extends EventEmitterEnhanced
 			return next?(err)  if err
 
 			# Write it
-			balUtil.writeFile userConfigPath, userConfigString, 'utf8', (err) ->
+			safefs.writeFile userConfigPath, userConfigString, 'utf8', (err) ->
 				# Forward
 				return next?(err)
 
@@ -1485,7 +1487,7 @@ class DocPad extends EventEmitterEnhanced
 		@log 'debug', util.format(locale.loadingConfigPath, configPath)
 
 		# Check that it exists
-		balUtil.exists configPath, (exists) ->
+		safefs.exists configPath, (exists) ->
 			return next(null,null)  unless exists
 			# Read the path using CSON
 			CSON.parseFile(configPath, next)
@@ -1498,29 +1500,30 @@ class DocPad extends EventEmitterEnhanced
 	loadConfigPaths: (configPaths,next) ->
 		# Prepare
 		docpad = @
-		result = {}
+		result = null
 
 		# Ensure array
-		configPaths = [configPaths]  unless balUtil.isArray(configPaths)
+		configPaths = [configPaths]  unless typeChecker.isArray(configPaths)
 
 		# Group
-		tasks = new balUtil.Group (err) ->
+		tasks = new TaskGroup().once 'complete', (err) ->
 			return next(err,result)
 
 		# Read our files
 		# On the first file that returns a result, exit
-		balUtil.each configPaths, (configPath) ->
-			tasks.push (complete) ->
+		eachr configPaths, (configPath) ->
+			tasks.addTask (complete) ->
+				return complete()  if result
 				docpad.loadConfigPath configPath, (err,config) ->
 					return complete(err)  if err
 					if config
 						result = config
-						tasks.exit()
+						tasks.clear(); complete()
 					else
 						complete()
 
 		# Run them synchronously
-		tasks.sync()
+		tasks.run()
 
 		# Chain
 		@
@@ -1619,13 +1622,13 @@ class DocPad extends EventEmitterEnhanced
 		)
 
 		# Custom Collections Group
-		tasks = new balUtil.Group (err) ->
+		tasks = new TaskGroup().setConfig(concurrency:0).once 'complete', (err) ->
 			docpad.error(err)  if err
 			docpad.emitSync('extendCollections',{},next)
 
 		# Cycle through Custom Collections
-		balUtil.each @config.collections or {}, (fn,name) ->
-			tasks.push (complete) ->
+		eachr @config.collections or {}, (fn,name) ->
+			tasks.addTask (complete) ->
 				if fn.length is 2 # callback
 					fn.call docpad, database, (err,collection) ->
 						docpad.error(err)  if err
@@ -1643,7 +1646,7 @@ class DocPad extends EventEmitterEnhanced
 					complete()
 
 		# Run Custom collections
-		tasks.async()
+		tasks.run()
 
 		# Chain
 		@
@@ -1749,7 +1752,7 @@ class DocPad extends EventEmitterEnhanced
 				docpadVersion: @version
 				docpadConfig: @config
 			# Apply
-			@getErrorRunner().pushAndRun (complete) ->
+			@getErrorRunner().addTask (complete) ->
 				airbrake.notify err, (airbrakeErr,airbrakeUrl) ->
 					if airbrakeErr
 						complete(airbrakeErr)
@@ -1808,11 +1811,11 @@ class DocPad extends EventEmitterEnhanced
 			data.platform = @getProcessPlatform()
 			data.nodeVersion = @getProcessVersion()
 			data.environment = @getEnvironment()
-			balUtil.each @loadedPlugins, (value,key) ->
+			eachr @loadedPlugins, (value,key) ->
 				data['plugin-'+key] = value.version or true
 
 			# Apply
-			@getTrackRunner().pushAndRun (complete) ->
+			@getTrackRunner().addTask (complete) ->
 				mixpanelInstance.track name, data, (err) ->
 					next?()
 					complete(err)
@@ -1826,7 +1829,7 @@ class DocPad extends EventEmitterEnhanced
 	createFile: (data={},options={}) =>
 		# Prepare
 		docpad = @
-		options = balUtil.extend({
+		options = extendr.extend({
 			detectEncoding: @config.detectEncoding
 			outDirPath: @config.outPath
 		},options)
@@ -1849,7 +1852,7 @@ class DocPad extends EventEmitterEnhanced
 	createDocument: (data={},options={}) =>
 		# Prepare
 		docpad = @
-		options = balUtil.extend({
+		options = extendr.extend({
 			detectEncoding: @config.detectEncoding
 			outDirPath: @config.outPath
 		},options)
@@ -1958,7 +1961,7 @@ class DocPad extends EventEmitterEnhanced
 		filesToLoad = new FilesCollection()
 
 		# Check if the directory exists
-		unless balUtil.existsSync(path)
+		unless safefs.existsSync(path)
 			# Log
 			docpad.log 'debug', util.format(locale.renderDirectoryNonexistant, path)
 
@@ -2016,7 +2019,7 @@ class DocPad extends EventEmitterEnhanced
 
 	# Check if we have any plugins
 	hasPlugins: ->
-		return balUtil.isEmptyObject(@loadedPlugins) is false
+		return typeChecker.isEmptyObject(@loadedPlugins) is false
 
 	# Load Plugins
 	loadPlugins: (next) ->
@@ -2030,27 +2033,27 @@ class DocPad extends EventEmitterEnhanced
 			docpad.log 'notice', util.format(locale.pluginsSlow, Object.keys(docpad.slowPlugins).join(', '))
 
 		# Async
-		tasks = new balUtil.Group (err) ->
+		tasks = new TaskGroup().setConfig(concurrency:0).once 'complete', (err) ->
 			docpad.slowPlugins = {}
 			snore.clear()
 			return next(err)
 
 		# Load website plugins
-		balUtil.each @config.pluginsPaths or [], (pluginsPath) =>
-			exists = balUtil.existsSync(pluginsPath)
+		eachr @config.pluginsPaths or [], (pluginsPath) =>
+			exists = safefs.existsSync(pluginsPath)
 			if exists
-				tasks.push (complete) =>
+				tasks.addTask (complete) =>
 					@loadPluginsIn(pluginsPath, complete)
 
 		# Load specific plugins
-		balUtil.each @config.pluginPaths or [], (pluginPath) =>
-			exists = balUtil.existsSync(pluginPath)
+		eachr @config.pluginPaths or [], (pluginPath) =>
+			exists = safefs.existsSync(pluginPath)
 			if exists
-				tasks.push (complete) =>
+				tasks.addTask (complete) =>
 					@loadPlugin(pluginPath, complete)
 
 		# Execute the loading asynchronously
-		tasks.async()
+		tasks.run()
 
 		# Chain
 		@
@@ -2233,7 +2236,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err,exchange)
 	getExchange: (next) ->
 		# Check if it is stored locally
-		return next(null,@exchange)  unless balUtil.isEmptyObject(@exchange)
+		return next(null,@exchange)  unless typeChecker.isEmptyObject(@exchange)
 
 		# Otherwise fetch it from the exchangeUrl
 		@loadConfigUrl @config.exchangeUrl, (err,parsedData) ->
@@ -2279,7 +2282,7 @@ class DocPad extends EventEmitterEnhanced
 				)
 
 		# Check if the skeleton path already exists
-		balUtil.ensurePath destinationPath, (err) ->
+		safefs.ensurePath destinationPath, (err) ->
 			# Error?
 			return docpad.error(err)  if err
 
@@ -2308,7 +2311,7 @@ class DocPad extends EventEmitterEnhanced
 		docpad.log 'debug', util.format(locale.loadingFiles, collection.length)
 
 		# Async
-		tasks = new balUtil.Group (err) ->
+		tasks = new TaskGroup().setConfig(concurrency:0).once 'complete', (err) ->
 			return next(err)  if err
 			# After
 			docpad.emitSync 'loadAfter', {collection}, (err) ->
@@ -2316,7 +2319,7 @@ class DocPad extends EventEmitterEnhanced
 				next()
 
 		# Fetch
-		collection.forEach (file) -> tasks.push (complete) ->
+		collection.forEach (file) ->  tasks.addTask (complete) ->
 			# Prepare
 			fileRelativePath = file.get('relativePath')
 
@@ -2351,7 +2354,7 @@ class DocPad extends EventEmitterEnhanced
 		# Start contextualizing
 		docpad.emitSync 'loadBefore', {collection}, (err) ->
 			return next(err)  if err
-			tasks.async()
+			tasks.run()
 
 		# Chain
 		@
@@ -2368,7 +2371,7 @@ class DocPad extends EventEmitterEnhanced
 		docpad.log 'debug', util.format(locale.contextualizingFiles, collection.length)
 
 		# Async
-		tasks = new balUtil.Group (err) ->
+		tasks = new TaskGroup().setConfig(concurrency:0).once 'complete', (err) ->
 			return next(err)  if err
 			# After
 			docpad.emitSync 'contextualizeAfter', {collection}, (err) ->
@@ -2377,16 +2380,16 @@ class DocPad extends EventEmitterEnhanced
 				return next()
 
 		# Set progress indicator
-		opts.setProgressIndicator? -> ['contextualizeFiles',tasks.completed,tasks.total]
+		opts.setProgressIndicator? -> ['contextualizeFiles', collection.length-tasks.remaining.length, collection.length]
 
 		# Fetch
-		collection.forEach (file,index) -> tasks.push (complete) ->
+		collection.forEach (file,index) ->  tasks.addTask (complete) ->
 			file.contextualize(complete)
 
 		# Start contextualizing
 		docpad.emitSync 'contextualizeBefore', {collection,templateData}, (err) ->
 			return next(err)  if err
-			tasks.async()
+			tasks.run()
 
 		# Chain
 		@
@@ -2403,7 +2406,7 @@ class DocPad extends EventEmitterEnhanced
 		docpad.log 'debug', util.format(locale.renderingFiles, collection.length)
 
 		# Async
-		tasks = new balUtil.Group (err) ->
+		tasks = new TaskGroup().once 'complete', (err) ->
 			return next(err)  if err
 			# After
 			docpad.emitSync 'renderAfter', {collection}, (err) ->
@@ -2431,20 +2434,26 @@ class DocPad extends EventEmitterEnhanced
 			_opts.total ?= collectionToRender.length
 			_opts.renderPass ?= 1
 			_opts.offset ?= 0
-			subTasks = new balUtil.Group(next)
-			opts.setProgressIndicator? -> ['renderFiles'+(if _opts.renderPass > 1 then " (pass #{_opts.renderPass})" else ''),_opts.offset+subTasks.completed,_opts.total]
+			subTasks = new TaskGroup().setConfig(concurrency:0).once('complete',next)
+			opts.setProgressIndicator? -> [
+				'renderFiles'+(if _opts.renderPass > 1 then " (pass #{_opts.renderPass})" else ''),
+				_opts.offset+(collectionToRender.length-subTasks.remaining.length),
+				_opts.total
+			]
 
 			# Cycle
-			collectionToRender.forEach (file) ->  subTasks.push (complete) ->  renderFile(file,complete)
+			collectionToRender.forEach (file) ->
+				subTasks.addTask (complete) ->
+					renderFile(file,complete)
 
 			# Fire
-			subTasks.async()
+			subTasks.run()
 			return collectionToRender
 
 		# Queue the initial render
 		initialCollection = collection.findAll('referencesOthers':false)
 		subsequentCollection = null
-		tasks.push (complete) ->
+		tasks.addTask (complete) ->
 			renderCollection initialCollection, null, (err) ->
 				return complete(err)  if err
 				subsequentCollection = collection.findAll('referencesOthers':true)
@@ -2452,13 +2461,13 @@ class DocPad extends EventEmitterEnhanced
 
 		# Queue the subsequent renders
 		if renderPasses > 1
-			balUtil.each [2..renderPasses], (renderPass) ->  tasks.push (complete) ->
+			eachr [2..renderPasses], (renderPass) ->  tasks.addTask (complete) ->
 				renderCollection(subsequentCollection, {renderPass}, complete)
 
 		# Fire the queue
 		docpad.emitSync 'renderBefore', {collection,templateData}, (err) =>
 			return next(err)  if err
-			tasks.sync()
+			tasks.run()
 
 		# Chain
 		@
@@ -2475,7 +2484,7 @@ class DocPad extends EventEmitterEnhanced
 		docpad.log 'debug', util.format(locale.writingFiles, collection.length)
 
 		# Async
-		tasks = new balUtil.Group (err) ->
+		tasks = new TaskGroup().setConfig(concurrency:0).once 'complete', (err) ->
 			return next(err)  if err
 			# After
 			docpad.emitSync 'writeAfter', {collection}, (err) ->
@@ -2484,10 +2493,10 @@ class DocPad extends EventEmitterEnhanced
 				return next()
 
 		# Set progress indicator
-		opts.setProgressIndicator? -> ['writeFiles',tasks.completed,tasks.total]
+		opts.setProgressIndicator? -> ['writeFiles', collection.length-tasks.remaining.length, collection.length]
 
 		# Cycle
-		collection.forEach (file,index) -> tasks.push (complete) ->
+		collection.forEach (file,index) -> tasks.addTask (complete) ->
 			# Skip
 			dynamic = file.get('dynamic')
 			write = file.get('write')
@@ -2506,7 +2515,7 @@ class DocPad extends EventEmitterEnhanced
 		#  Start writing
 		docpad.emitSync 'writeBefore', {collection,templateData}, (err) =>
 			return next(err)  if err
-			tasks.async()
+			tasks.run()
 
 		# Chain
 		@
@@ -2525,7 +2534,7 @@ class DocPad extends EventEmitterEnhanced
 		locale = @getLocale()
 
 		# Array?
-		if balUtil.isArray(action)
+		if typeChecker.isArray(action)
 			actions = action
 		else
 			actions = action.split(/[,\s]+/g)
@@ -2537,11 +2546,11 @@ class DocPad extends EventEmitterEnhanced
 		if actions.length is 1
 			action = actions[0]
 		else
-			tasks = new balUtil.Group (err) ->
+			tasks = new TaskGroup().once 'complete', (err) ->
 				return next(err)
-			balUtil.each actions, (action) -> tasks.push (complete) ->
+			eachr actions, (action) -> tasks.addTask (complete) ->
 				docpad.action(action,opts,complete)
-			tasks.sync()
+			tasks.run()
 			return docpad
 
 		# Log
@@ -2555,7 +2564,7 @@ class DocPad extends EventEmitterEnhanced
 			balUtil.wait 0, -> next(args...)
 
 		# Wrap
-		runner.pushAndRun (complete) ->
+		runner.addTask (complete) ->
 			# Fetch
 			fn = docpad[action]
 			# Check
@@ -2615,7 +2624,7 @@ class DocPad extends EventEmitterEnhanced
 			docpad.log('warn', locale.renderNoPlugins)
 
 		# Check if the source directory exists
-		balUtil.exists config.srcPath, (exists) ->
+		safefs.exists config.srcPath, (exists) ->
 			# Check and forward
 			if exists is false
 				err = new Error(locale.renderNonexistant)
@@ -2659,7 +2668,7 @@ class DocPad extends EventEmitterEnhanced
 			docpad.log 'debug', locale.renderParsing
 
 			# Async
-			tasks = new balUtil.Group (err) ->
+			tasks = new TaskGroup().setConfig(concurrency:0).once 'complete', (err) ->
 				return next(err)  if err
 				# After
 				docpad.emitSync 'parseAfter', {}, (err) ->
@@ -2668,28 +2677,28 @@ class DocPad extends EventEmitterEnhanced
 					return next(err)
 
 			# Documents
-			balUtil.each config.documentsPaths, (documentsPath) -> tasks.push (complete) ->
+			eachr config.documentsPaths, (documentsPath) -> tasks.addTask (complete) ->
 				docpad.parseDocumentDirectory({
 					path: documentsPath
 					collection: database
 				},complete)
 
 			# Files
-			balUtil.each config.filesPaths, (filesPath) -> tasks.push (complete) ->
+			eachr config.filesPaths, (filesPath) -> tasks.addTask (complete) ->
 				docpad.parseFileDirectory({
 					path: filesPath
 					collection: database
 				},complete)
 
 			# Layouts
-			balUtil.each config.layoutsPaths, (layoutsPath) -> tasks.push (complete) ->
+			eachr config.layoutsPaths, (layoutsPath) -> tasks.addTask (complete) ->
 				docpad.parseDocumentDirectory({
 					path: layoutsPath
 					collection: database
 				},complete)
 
 			# Async
-			tasks.async()
+			tasks.run()
 
 		# Chain
 		@
@@ -2917,7 +2926,7 @@ class DocPad extends EventEmitterEnhanced
 	renderPath: (path,opts,next) ->
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
-		attributes = balUtil.extend({
+		attributes = extendr.extend({
 			fullPath: path
 		},opts.attributes)
 
@@ -2933,7 +2942,7 @@ class DocPad extends EventEmitterEnhanced
 	renderData: (content,opts,next) ->
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
-		attributes = balUtil.extend({
+		attributes = extendr.extend({
 			filename: opts.filename
 			data: content
 		},opts.attributes)
@@ -2952,7 +2961,7 @@ class DocPad extends EventEmitterEnhanced
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		opts.actions ?= ['renderExtensions','renderDocument']
-		attributes = balUtil.extend({
+		attributes = extendr.extend({
 			filename: opts.filename
 			data: text
 			body: text
@@ -3028,12 +3037,11 @@ class DocPad extends EventEmitterEnhanced
 			closeWatchers()
 
 			# Start a group
-			tasks = new balUtil.Group(next)
-			tasks.total = 3
+			tasks = new TaskGroup().setConfig(concurrency:0).once('complete',next)
 
 			# Watch reload paths
 			reloadPaths = _.union(config.reloadPaths, config.configPaths)
-			docpad.watchdir(
+			tasks.addTask (complete) -> docpad.watchdir(
 				paths: reloadPaths
 				listeners:
 					'log': docpad.log
@@ -3046,15 +3054,15 @@ class DocPad extends EventEmitterEnhanced
 				next: (err,_watchers) ->
 					if err
 						docpad.log('warn', "Watching the reload paths has failed:", reloadPaths, err)
-						return tasks.complete()
+						return complete()
 					for watcher in _watchers
 						watchers.push(watcher)
-					return tasks.complete()
+					return complete()
 			)
 
 			# Watch regenerate paths
 			regeneratePaths = config.regeneratePaths
-			docpad.watchdir(
+			tasks.addTask (complete) -> docpad.watchdir(
 				paths: regeneratePaths
 				listeners:
 					'log': docpad.log
@@ -3063,15 +3071,15 @@ class DocPad extends EventEmitterEnhanced
 				next: (err,_watchers) ->
 					if err
 						docpad.log('warn', "Watching the regenerate paths has failed:", regeneratePaths, err)
-						return tasks.complete()
+						return complete()
 					for watcher in _watchers
 						watchers.push(watcher)
-					return tasks.complete()
+					return complete()
 			)
 
 			# Watch the source
 			srcPath = config.srcPath
-			docpad.watchdir(
+			tasks.addTask (complete) -> docpad.watchdir(
 				path: srcPath
 				listeners:
 					'log': docpad.log
@@ -3080,10 +3088,13 @@ class DocPad extends EventEmitterEnhanced
 				next: (err,watcher) ->
 					if err
 						docpad.log('warn', "Watching the src path has failed:", srcPath, err)
-						return tasks.complete()
+						return complete()
 					watchers.push(watcher)
-					return tasks.complete()
+					return complete()
 			)
+
+			# Run
+			tasks.run()
 
 		# Timer
 		regenerateTimer = null
@@ -3177,13 +3188,13 @@ class DocPad extends EventEmitterEnhanced
 			)
 
 		# Check if we have the docpad structure
-		if balUtil.existsSync(srcPath)
+		if safefs.existsSync(srcPath)
 			# We have the correct structure, so let's proceed with DocPad
 			runDocpad()
 		else
 			# We don't have the correct structure
 			# Check if we are running on an empty directory
-			balUtil.readdir destinationPath, (err,files) ->
+			safefs.readdir destinationPath, (err,files) ->
 				return next(err)  if err
 
 				# Check if our directory is empty
@@ -3245,25 +3256,30 @@ class DocPad extends EventEmitterEnhanced
 			docpad.track('skeleton-use',{skeletonId:'none'})
 
 			# Create the paths
-			balUtil.ensurePath srcPath, (err) ->
+			safefs.ensurePath srcPath, (err) ->
 				# Error?
 				return next(err)  if err
 
 				# Group
-				tasks = new balUtil.Group(next)
-				tasks.total = 3
+				tasks = new TaskGroup().setConfig(concurrency:0).once('complete',next)
 
 				# Create
-				balUtil.ensurePath(config.documentsPaths[0], tasks.completer())
+				tasks.addTask (complete) ->
+					balUtil.ensurePath(config.documentsPaths[0], complete)
 
 				# Create
-				balUtil.ensurePath(config.layoutsPaths[0], tasks.completer())
+				tasks.addTask (complete) ->
+					balUtil.ensurePath(config.layoutsPaths[0], complete)
 
 				# Create
-				balUtil.ensurePath(config.filesPaths[0], tasks.completer())
+				tasks.addTask (complete) ->
+					balUtil.ensurePath(config.filesPaths[0], complete)
+
+				# Run
+				tasks.run()
 
 		# Check if already exists
-		balUtil.exists srcPath, (exists) ->
+		safefs.exists srcPath, (exists) ->
 			# Check
 			if exists
 				docpad.log('warn', locale.skeletonExists)
@@ -3316,7 +3332,7 @@ class DocPad extends EventEmitterEnhanced
 		# Send
 		dynamic = document.get('dynamic')
 		if dynamic
-			templateData = balUtil.extend({}, req.templateData or {}, {req,err})
+			templateData = extendr.extend({}, req.templateData or {}, {req,err})
 			templateData = docpad.getTemplateData(templateData)
 			document.render {templateData}, (err) ->
 				content = document.getOutContent()

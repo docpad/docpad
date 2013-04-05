@@ -1,9 +1,9 @@
 # RequirestestServer
 request = require('request')
 balUtil = require('bal-util')
+safefs = require('safefs')
 DocPad = require(__dirname+'/../lib/docpad')
-chai = require('chai')
-expect = chai.expect
+{expect} = require('chai')
 joe = require('joe')
 _ = require('lodash')
 
@@ -112,12 +112,12 @@ joe.suite 'docpad-actions', (suite,test) ->
 				)
 
 		test 'ignored "ignored" documents"', (done) ->
-			balUtil.exists "#{outPath}/ignored.html", (exists) ->
+			safefs.exists "#{outPath}/ignored.html", (exists) ->
 				expect(exists).to.be.false
 				done()
 
 		test 'ignored common patterns documents"', (done) ->
-			balUtil.exists "#{outPath}/.svn", (exists) ->
+			safefs.exists "#{outPath}/.svn", (exists) ->
 				expect(exists).to.be.false
 				done()
 
@@ -130,7 +130,7 @@ joe.suite 'docpad-actions', (suite,test) ->
 		test 'served generated documents', (done) ->
 			request "#{baseUrl}/html.html", (err,response,actual) ->
 				return done(err)  if err
-				balUtil.readFile "#{outExpectedPath}/html.html", (err,expected) ->
+				safefs.readFile "#{outExpectedPath}/html.html", (err,expected) ->
 					return done(err)  if err
 					expect(actual.toString().trim()).to.be.equal(expected.toString().trim())
 					done()
@@ -138,7 +138,7 @@ joe.suite 'docpad-actions', (suite,test) ->
 		test 'served custom urls', (done) ->
 			request "#{baseUrl}/my-custom-url", (err,response,actual) ->
 				return done(err)  if err
-				balUtil.readFile "#{outExpectedPath}/custom-url.html", (err,expected) ->
+				safefs.readFile "#{outExpectedPath}/custom-url.html", (err,expected) ->
 					return done(err)  if err
 					expect(actual.toString().trim()).to.be.equal(expected.toString().trim())
 					done()

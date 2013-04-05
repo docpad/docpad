@@ -1,5 +1,5 @@
 # Necessary
-balUtil = require('bal-util')
+typeChecker = require('typechecker')
 
 # Local
 ElementsCollection = require(__dirname+'/elements')
@@ -15,14 +15,14 @@ class StylesCollection extends ElementsCollection
 		opts.attrs or= ''
 
 		# Ensure array
-		if balUtil.isArray(values)
+		if typeChecker.isArray(values)
 			values = values.slice()
 		else
 			values = [values]
 
 		# Convert urls into script element html
 		for value,key in values
-			if balUtil.isString(value) and /^\</.test(value) is false
+			if typeChecker.isString(value) and /^\</.test(value) is false
 				# convert url to script tag
 				values[key] = """
 					<link #{opts.attrs} rel="stylesheet" href="#{value}" />

@@ -1,5 +1,6 @@
 # RequirestestServer
 balUtil = require('bal-util')
+safefs = require('safefs')
 chai = require('chai')
 expect = chai.expect
 joe = require('joe')
@@ -22,12 +23,6 @@ nodePath = null
 
 joe.suite 'docpad-render', (suite,test) ->
 
-	test 'nodePath', (done) ->
-		balUtil.getNodePath (err,result) ->
-			return done(err)  if err
-			nodePath = result
-			return done()
-
 	suite 'files', (suite,test) ->
 		# Check render physical files
 		inputs = [
@@ -40,12 +35,12 @@ joe.suite 'docpad-render', (suite,test) ->
 				stdout: '<p><em>awesome</em></p>'
 			}
 		]
-		balUtil.each inputs, (input) ->
+		inputs.forEach (input) ->
 			test input.filename, (done) ->
 				# IMPORTANT THAT ANY OPTIONS GO AFTER THE RENDER CALL, SERIOUSLY
 				# OTHERWISE the sky falls down on scoping, seriously, it is wierd
-				command = [nodePath, cliPath, 'render', pathUtil.join(renderPath,input.filename)]
-				balUtil.spawn command, {cwd:rootPath}, (err,stdout,stderr,code,signal) ->
+				command = [cliPath, 'render', pathUtil.join(renderPath,input.filename)]
+				balUtil.spawnCommand 'node', command, {cwd:rootPath}, (err,stdout,stderr,code,signal) ->
 					return done(err)  if err
 					expect(stdout.trim()).to.equal(input.stdout)
 					done()
@@ -84,11 +79,11 @@ joe.suite 'docpad-render', (suite,test) ->
 				stdout: '<p><em>awesome</em></p>'
 			}
 		]
-		balUtil.each inputs, (input) ->
+		inputs.forEach (input) ->
 			test input.testname, (done) ->
-				command = [nodePath, cliPath, 'render']
+				command = [cliPath, 'render']
 				command.push(input.filename)  if input.filename
-				balUtil.spawn command, {stdin:input.stdin,cwd:rootPath}, (err,stdout,stderr,code,signal) ->
+				balUtil.spawnCommand 'node', command, {stdin:input.stdin,cwd:rootPath}, (err,stdout,stderr,code,signal) ->
 					return done(err)  if err
 					expect(stdout.trim()).to.equal(input.stdout)
 					done()
@@ -100,10 +95,10 @@ joe.suite 'docpad-render', (suite,test) ->
 				out: '<p><em>awesome</em></p>'
 				outPath: pathUtil.join(outPath,'outpath-render.html')
 			}
-			balUtil.spawn [nodePath, cliPath, 'render', 'markdown', '-o', input.outPath], {stdin:input.in, cwd:rootPath}, (err,stdout,stderr,code,signal) ->
+			balUtil.spawnCommand 'node', [cliPath, 'render', 'markdown', '-o', input.outPath], {stdin:input.in, cwd:rootPath}, (err,stdout,stderr,code,signal) ->
 				return done(err)  if err
 				expect(stdout).to.equal('')
-				balUtil.readFile input.outPath, (err,data) ->
+				safefs.readFile input.outPath, (err,data) ->
 					return done(err)  if err
 					result = data.toString()
 					expect(result.trim()).to.equal(input.out)

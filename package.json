@@ -1,6 +1,6 @@
 {
 	"name": "docpad",
-	"version": "6.29.0",
+	"version": "6.30.0",
 	"description": "DocPad is a language agnostic document management system. This means you write your website as documents, in whatever language you wish, and DocPad will handle the compiling, templates and layouts for you. For static documents it will generate static files, for dynamic documents it'll re-render them on each request. You can utilise DocPad by itself, or use it as a module your own custom system. It's pretty cool, and well worth checking out. We love it.",
 	"homepage": "https://github.com/bevry/docpad",
 	"installUrl": "http://docpad.org/install",
@@ -63,7 +63,13 @@
 		"npm": ">=1.2"
 	},
 	"dependencies": {
-		"bal-util": "~1.18.0",
+		"bal-util": "~2.0.3",
+		"typechecker": "~2.0.1",
+		"ambi": "~2.0.0",
+		"extendr": "~2.0.1",
+		"eachr": "~2.0.2",
+		"safefs": "~3.0.1",
+		"taskgroup": "~3.1.1",
 		"caterpillar": "~1.1.4",
 		"commander": "~1.1.1",
 		"cson": "~1.4.1",
@@ -74,7 +80,7 @@
 		"semver": "~1.1.4",
 		"lodash": "~1.1.1",
 		"backbone": "1.0.0",
-		"watchr": "~2.3.9",
+		"watchr": "~2.4.0",
 		"yamljs": "~0.1.4",
 		"getmac": "~1.0.4",
 		"canihaz": "~1.0.0"
@@ -90,7 +96,8 @@
 	"devDependencies": {
 		"coffee-script": "~1.6.2",
 		"chai": "~1.5.0",
-		"joe": "~1.1.2",
+		"joe": "~1.2.0",
+		"joe-reporter-console": "~1.2.1",
 		"request": "~2.16.6"
 	},
 	"directories": {
