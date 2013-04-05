@@ -1,5 +1,10 @@
 ## History
 
+- v6.30.0 April 5, 2013
+	- Progress on [issue #474](https://github.com/bevry/docpad/issues/474)
+	- `balUtil`, `chai`, `expect`, `assert`, `request` are no longer exposed to plugin testers, you'll need to include them yourself from now on
+	- Updated dependencies
+
 - v6.29.0 April 1, 2013
 	- Progress on [issue #474](https://github.com/bevry/docpad/issues/474)
 	- DocPad will now set permissions based on the process's ability

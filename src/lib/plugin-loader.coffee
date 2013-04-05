@@ -1,7 +1,7 @@
 # Requires
 pathUtil = require('path')
 semver = require('semver')
-balUtil = require('bal-util')
+safefs = require('safefs')
 util = require('util')
 
 # Define Plugin Loader
@@ -71,14 +71,14 @@ class PluginLoader
 			return next(null,true)
 
 		# Check the package
-		balUtil.exists packagePath, (exists) =>
+		safefs.exists packagePath, (exists) =>
 			return failure()  unless exists
 
 			# Apply
 			@packagePath = packagePath
 
 			# Read the package
-			balUtil.readFile packagePath, (err,data) =>
+			safefs.readFile packagePath, (err,data) =>
 				return failure(err)  if err
 
 				# Parse the package

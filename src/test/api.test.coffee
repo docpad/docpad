@@ -1,7 +1,5 @@
 # RequirestestServer
-balUtil = require('bal-util')
-chai = require('chai')
-expect = chai.expect
+{expect} = require('chai')
 joe = require('joe')
 
 # -------------------------------------
@@ -82,7 +80,7 @@ joe.suite 'docpad-api', (suite,test) ->
 				stdout: '<p><em>awesome</em></p>'
 			}
 		]
-		balUtil.each inputs, (input) ->
+		inputs.forEach (input) ->
 			test input.testname, (done) ->
 				opts =
 					data: input.stdin

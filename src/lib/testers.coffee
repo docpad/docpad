@@ -1,22 +1,15 @@
 # Requires
 pathUtil = require('path')
 balUtil = require('bal-util')
+extendr = require('extendr')
 joe = require('joe')
-chai = require('chai')
-expect = chai.expect
-assert = chai.assert
-request = require('request')
+{expect} = require('chai')
 CSON = require('cson')
 DocPad = require(__dirname+'/docpad')
 
 # Prepare
 pluginPort = 2000+String((new Date()).getTime()).substr(-6,4)
 testers = {
-	balUtil,
-	chai,
-	expect,
-	assert,
-	request,
 	CSON,
 	DocPad
 }
@@ -24,11 +17,6 @@ testers = {
 # Plugin Tester
 testers.PluginTester =
 class PluginTester
-	# Requires
-	chai: chai
-	expect: expect
-	assert: assert
-
 	# Configuration
 	config:
 		pluginName: null
@@ -60,8 +48,8 @@ class PluginTester
 	constructor: (config={},docpadConfig={},next) ->
 		# Apply Configuration
 		tester = @
-		@config = balUtil.deepExtendPlainObjects({}, PluginTester::config ,@config, config)
-		@docpadConfig = balUtil.deepExtendPlainObjects({}, PluginTester::docpadConfig, @docpadConfig, docpadConfig)
+		@config = extendr.deepExtendPlainObjects({}, PluginTester::config ,@config, config)
+		@docpadConfig = extendr.deepExtendPlainObjects({}, PluginTester::docpadConfig, @docpadConfig, docpadConfig)
 		@docpadConfig.port ?= ++pluginPort
 		@config.testerName ?= @config.pluginName
 
@@ -79,10 +67,10 @@ class PluginTester
 		@docpadConfig.enabledPlugins or= defaultEnabledPlugins
 
 		# Test API
-		joe.describe @config.testerName, (suite,task,complete) ->
+		joe.describe @config.testerName, (suite,task) ->
 			tester.describe = tester.suite = suite
 			tester.it = tester.test = task
-			tester.done = tester.exit = complete
+			tester.done = tester.exit = -> # b/c
 			next?(null,tester)
 
 		# Chain

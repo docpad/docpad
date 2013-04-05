@@ -1,5 +1,8 @@
 # Requires
-balUtil = require('bal-util')
+extendr = require('extendr')
+typeChecker = require('typechecker')
+ambi = require('ambi')
+eachr = require('eachr')
 
 # Define Plugin
 class BasePlugin
@@ -32,8 +35,8 @@ class BasePlugin
 		@docpad = docpad
 
 		# Swap out our configuration
-		@config = balUtil.deepClone(@config)
-		@instanceConfig = balUtil.deepClone(@instanceConfig)
+		@config = extendr.deepClone(@config)
+		@instanceConfig = extendr.deepClone(@instanceConfig)
 		@initialConfig = @config
 		@setConfig(config)
 
@@ -50,8 +53,8 @@ class BasePlugin
 	setInstanceConfig: (instanceConfig) ->
 		# Merge in the instance configurations
 		if instanceConfig
-			balUtil.safeDeepExtendPlainObjects(@instanceConfig, instanceConfig)
-			balUtil.safeDeepExtendPlainObjects(@config, instanceConfig)  if @config
+			extendr.safeDeepExtendPlainObjects(@instanceConfig, instanceConfig)
+			extendr.safeDeepExtendPlainObjects(@config, instanceConfig)  if @config
 		@
 
 	# Set Configuration
@@ -84,8 +87,8 @@ class BasePlugin
 		events = docpad.getEvents()
 
 		# Bind events
-		balUtil.each events, (eventName) ->
-			if balUtil.isFunction(pluginInstance[eventName])
+		eachr events, (eventName) ->
+			if typeChecker.isFunction(pluginInstance[eventName])
 				# Fetch the event handler
 				eventHandler = pluginInstance[eventName]
 				# Wrap the event handler, and bind it to docpad
@@ -93,7 +96,7 @@ class BasePlugin
 					# Finish right away if we are disabled
 					return next()  if pluginInstance.isEnabled() is false
 					# Fire the function, treating the callback as optional
-					balUtil.fireWithOptionalCallback(eventHandler.bind(pluginInstance), opts, next)
+					ambi(eventHandler.bind(pluginInstance), opts, next)
 
 		# Chain
 		@

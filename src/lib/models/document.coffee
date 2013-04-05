@@ -1,6 +1,8 @@
 # Necessary
 pathUtil = require('path')
-balUtil = require('bal-util')
+extendr = require('extendr')
+eachr = require('eachr')
+{TaskGroup} = require('taskgroup')
 mime = require('mime')
 
 # Optional
@@ -110,7 +112,7 @@ class DocumentModel extends FileModel
 		reset = {}
 		for own key,value of meta.attributes
 			reset[key] = @defaults[key]
-		reset = balUtil.dereference(reset)
+		reset = extendr.dereference(reset)
 		@set(reset)
 
 		# Then wipe the layout and clear the meta attributes from the meta model
@@ -427,44 +429,39 @@ class DocumentModel extends FileModel
 		return next(null,result)  if extensionsReversed.length <= 1
 
 		# Prepare the tasks
-		tasks = new balUtil.Group (err) ->
+		tasks = new TaskGroup().once 'complete', (err) ->
 			# Forward with result
 			return next(err,result)
 
 		# Cycle through all the extension groups and render them
-		for extension,index in extensionsReversed[1..]
-			# Push the task
-			context =
+		eachr extensionsReversed[1..], (extension,index) -> tasks.addTask (complete) ->
+			# Prepare
+			eventData =
 				inExtension: extensionsReversed[index]
 				outExtension: extension
-			tasks.push context, (complete) ->
-				# Prepare
-				eventData =
-					inExtension: @inExtension
-					outExtension: @outExtension
-					templateData: templateData
-					file: file
-					content: result
+				templateData: templateData
+				file: file
+				content: result
 
-				# Render
-				file.trigger 'render', eventData, (err) ->
-					# Check
-					return complete(err)  if err
+			# Render
+			file.trigger 'render', eventData, (err) ->
+				# Check
+				return complete(err)  if err
 
-					# Check if the render did anything
-					# and only check if we actually have content to render!
-					# if this check fails, error with a suggestion
-					if result and result is eventData.content
-						message = "\n  Rendering the extension \"#{eventData.inExtension}\" to \"#{eventData.outExtension}\" on \"#{file.attributes.relativePath or file.attributes.fullPath}\" didn't do anything.\n  Explanation here: http://docpad.org/extension-not-rendering"
-						file.log('warn', message)
-						return complete()
-
-					# The render did something, so apply and continue
-					result = eventData.content
+				# Check if the render did anything
+				# and only check if we actually have content to render!
+				# if this check fails, error with a suggestion
+				if result and result is eventData.content
+					message = "\n  Rendering the extension \"#{eventData.inExtension}\" to \"#{eventData.outExtension}\" on \"#{file.attributes.relativePath or file.attributes.fullPath}\" didn't do anything.\n  Explanation here: http://docpad.org/extension-not-rendering"
+					file.log('warn', message)
 					return complete()
 
+				# The render did something, so apply and continue
+				result = eventData.content
+				return complete()
+
 		# Run tasks synchronously
-		tasks.sync()
+		tasks.run()
 
 		# Chain
 		@
@@ -515,7 +512,7 @@ class DocumentModel extends FileModel
 
 				# Merge in the layout meta data into the document JSON
 				# and make the result available via documentMerged
-				# templateData.document.metaMerged = balUtil.extend({}, layout.getMeta().toJSON(), file.getMeta().toJSON())
+				# templateData.document.metaMerged = extendr.extend({}, layout.getMeta().toJSON(), file.getMeta().toJSON())
 
 				# Render the layout with the templateData
 				layout.render {templateData}, (err,result) ->
@@ -537,14 +534,14 @@ class DocumentModel extends FileModel
 
 		# Prepare options
 		{opts,next} = @getActionArgs(opts,next)
-		opts = balUtil.clone(opts or {})
+		opts = extendr.clone(opts or {})
 		opts.actions ?= ['renderExtensions','renderDocument','renderLayouts']
 
 		# Prepare content
 		opts.content ?= @get('body')
 
 		# Prepare templateData
-		opts.templateData = balUtil.clone(opts.templateData or {})  # deepClone may be more suitable
+		opts.templateData = extendr.clone(opts.templateData or {})  # deepClone may be more suitable
 		opts.templateData.document ?= file.toJSON()
 		opts.templateData.documentModel ?= file
 
@@ -555,7 +552,7 @@ class DocumentModel extends FileModel
 		file.log 'debug', "Rendering the file: #{fullPath}"
 
 		# Prepare the tasks
-		tasks = new balUtil.Group (err) ->
+		tasks = new TaskGroup().once 'complete', (err) ->
 			# Error?
 			if err
 				file.log 'warn', "Something went wrong while rendering: #{fullPath}"
@@ -575,7 +572,7 @@ class DocumentModel extends FileModel
 
 		# Render Extensions Task
 		if 'renderExtensions' in opts.actions
-			tasks.push (complete) ->
+			tasks.addTask (complete) ->
 				file.renderExtensions opts, (err,result) ->
 					# Check
 					return complete(err)  if err
@@ -586,7 +583,7 @@ class DocumentModel extends FileModel
 
 		# Render Document Task
 		if 'renderDocument' in opts.actions
-			tasks.push (complete) ->
+			tasks.addTask (complete) ->
 				file.renderDocument opts, (err,result) ->
 					# Check
 					return complete(err)  if err
@@ -598,7 +595,7 @@ class DocumentModel extends FileModel
 
 		# Render Layouts Task
 		if 'renderLayouts' in opts.actions
-			tasks.push (complete) ->
+			tasks.addTask (complete) ->
 				file.renderLayouts opts, (err,result) ->
 					# Check
 					return complete(err)  if err
@@ -608,7 +605,7 @@ class DocumentModel extends FileModel
 					return complete()
 
 		# Fire the tasks
-		tasks.sync()
+		tasks.run()
 
 		# Chain
 		@
