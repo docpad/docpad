@@ -1,5 +1,8 @@
 ## History
 
+- v6.30.1 April 6, 2013
+	- Updated dependencies
+
 - v6.30.0 April 5, 2013
 	- Progress on [issue #474](https://github.com/bevry/docpad/issues/474)
 	- `balUtil`, `chai`, `expect`, `assert`, `request` are no longer exposed to plugin testers, you'll need to include them yourself from now on
