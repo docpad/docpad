@@ -2380,7 +2380,9 @@ class DocPad extends EventEmitterEnhanced
 				return next()
 
 		# Set progress indicator
-		opts.setProgressIndicator? -> ['contextualizeFiles', collection.length-tasks.remaining.length, collection.length]
+		opts.setProgressIndicator? ->
+			totals = tasks.getTotals()
+			return ['contextualizeFiles', totals.completed, totals.total]
 
 		# Fetch
 		collection.forEach (file,index) ->  tasks.addTask (complete) ->
@@ -2435,11 +2437,13 @@ class DocPad extends EventEmitterEnhanced
 			_opts.renderPass ?= 1
 			_opts.offset ?= 0
 			subTasks = new TaskGroup().setConfig(concurrency:0).once('complete',next)
-			opts.setProgressIndicator? -> [
-				'renderFiles'+(if _opts.renderPass > 1 then " (pass #{_opts.renderPass})" else ''),
-				_opts.offset+(collectionToRender.length-subTasks.remaining.length),
-				_opts.total
-			]
+			opts.setProgressIndicator? ->
+				totals = subTasks.getTotals()
+				return [
+					'renderFiles'+(if _opts.renderPass > 1 then " (pass #{_opts.renderPass})" else ''),
+					_opts.offset+(totals.completed),
+					_opts.total
+				]
 
 			# Cycle
 			collectionToRender.forEach (file) ->
@@ -2493,7 +2497,9 @@ class DocPad extends EventEmitterEnhanced
 				return next()
 
 		# Set progress indicator
-		opts.setProgressIndicator? -> ['writeFiles', collection.length-tasks.remaining.length, collection.length]
+		opts.setProgressIndicator? ->
+			totals = tasks.getTotals()
+			return ['writeFiles', totals.completed, totals.total]
 
 		# Cycle
 		collection.forEach (file,index) -> tasks.addTask (complete) ->
@@ -2790,7 +2796,7 @@ class DocPad extends EventEmitterEnhanced
 				[stage,completed,total] = progress
 				percent = Math.floor((completed/total)*100)+'%'
 				docpad.log 'info', util.format(locale.renderProgress, stage, percent)
-		progressInterval = setInterval(showProgress,10000)
+		progressInterval = setInterval(showProgress,10*1000)
 
 		# Finish
 		finish = (err) ->
