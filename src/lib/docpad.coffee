@@ -3271,15 +3271,15 @@ class DocPad extends EventEmitterEnhanced
 
 				# Create
 				tasks.addTask (complete) ->
-					balUtil.ensurePath(config.documentsPaths[0], complete)
+					safefs.ensurePath(config.documentsPaths[0], complete)
 
 				# Create
 				tasks.addTask (complete) ->
-					balUtil.ensurePath(config.layoutsPaths[0], complete)
+					safefs.ensurePath(config.layoutsPaths[0], complete)
 
 				# Create
 				tasks.addTask (complete) ->
-					balUtil.ensurePath(config.filesPaths[0], complete)
+					safefs.ensurePath(config.filesPaths[0], complete)
 
 				# Run
 				tasks.run()
