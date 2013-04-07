@@ -1,5 +1,11 @@
 ## History
 
+- v6.30.2 April 7, 2013
+	- Allow for empty `data` when injecting files into the database
+		- Thanks to [Richard A](https://github.com/rantecki) for [pull request #454](https://github.com/bevry/docpad/pull/454)
+	- Fixed "No Skeleton" option not working (bug introduced in v6.30.0)
+		- Thanks to [Adrian Olaru](https://github.com/adrianolaru) for [pull request #475](https://github.com/bevry/docpad/issues/475)
+
 - v6.30.1 April 6, 2013
 	- Updated dependencies
 
