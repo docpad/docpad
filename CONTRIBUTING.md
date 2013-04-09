@@ -3,6 +3,8 @@
 
 ## Support
 
+To get support:
+
 - For bug reports relating to the core, use our [GitHub Issue Tracker](https://github.com/bevry/docpad/issues)
 - For bug reports relating to plugins, use their GitHub Issue Tracker
 	- You can find the link by going to the plugin's page, then looking for the "Issues" button
