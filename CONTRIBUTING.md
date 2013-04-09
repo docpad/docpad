@@ -3,10 +3,10 @@
 
 ## Support
 
-To get support:
-
-- For bug reports only, use our [GitHub Issue Tracker](https://github.com/bevry/docpad/issues)
-	- With your bug reports, be sure to specify:
+- For bug reports relating to the core, use our [GitHub Issue Tracker](https://github.com/bevry/docpad/issues)
+- For bug reports relating to plugins, use their GitHub Issue Tracker
+	- You can find the link by going to the plugin's page, then looking for the "Issues" button
+- With your bug reports, be sure to specify:
 		- Your docpad version `docpad --version`
 		- Your node version `node --version`
 		- Your npm version `npm --version`
@@ -14,7 +14,7 @@ To get support:
 		- What you did
 		- What happened
 		- What you expected
-- For everything else (questions, support, etc), use our [Official Support Channels](http://docpad.org/support)
+- For everything else that isn't bug reports (e.g. questions, support, etc), use our [Official Support Channels](http://docpad.org/support)
 
 
 ## Skeletons
