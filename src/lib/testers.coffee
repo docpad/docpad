@@ -212,7 +212,7 @@ testers.test =
 test = (testerConfig, docpadConfig) ->
 	# Configure
 	testerConfig.pluginPath = pathUtil.resolve(testerConfig.pluginPath)
-	testerConfig.pluginName ?= pathUtil.basename(testerConfig.pluginPath)
+	testerConfig.pluginName ?= pathUtil.basename(testerConfig.pluginPath).replace('docpad-plugin-','')
 	testerConfig.testerPath ?= pathUtil.join('out', "#{testerConfig.pluginName}.tester.js")
 	testerConfig.testerPath = pathUtil.resolve(testerConfig.pluginPath, testerConfig.testerPath)
 
