@@ -1,5 +1,9 @@
 ## History
 
+- v6.30.4 April 16, 2013
+	- Testing of plugins now works when the plugin directory is the full plugin name
+		- Thanks to [Mark Groves](https://github.com/mgroves84) for [issue #485](https://github.com/bevry/docpad/issues/485) 
+
 - v6.30.3 April 10, 2013
 	- Updated dependencies
 
