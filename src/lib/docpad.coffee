@@ -3269,15 +3269,50 @@ class DocPad extends EventEmitterEnhanced
 				# Group
 				tasks = new TaskGroup().setConfig(concurrency:0).once('complete',next)
 
-				# Create
+				# Node Modules
+				tasks.addTask (complete) ->
+					safefs.ensurePath(pathUtil.join(config.rootPath,'node_modules'), complete)
+
+				# Package
+				tasks.addTask (complete) ->
+					data = JSON.stringify({
+						name: 'no-skeleton.docpad'
+						version: '0.1.0'
+						description: 'New DocPad project without using a skeleton'
+						engines:
+							node: '0.10'
+							npm: '1.2'
+						dependencies:
+							docpad: '6.x'
+						main: 'node_modules/docpad/bin/docpad-server'
+					},null,'\t')
+					safefs.writeFile(pathUtil.join(config.rootPath,'package.json'), data, complete)
+
+				# Config
+				tasks.addTask (complete) ->
+					data = """
+						# DocPad Configuration File
+						# http://docpad.org/docs/config
+
+						# Define the DocPad Configuration
+						docpadConfig = {
+							# ...
+						}
+
+						# Export the DocPad Configuration
+						module.exports = docpadConfig
+						"""
+					safefs.writeFile(pathUtil.join(config.rootPath,'docpad.coffee'), data, complete)
+
+				# Documents
 				tasks.addTask (complete) ->
 					safefs.ensurePath(config.documentsPaths[0], complete)
 
-				# Create
+				# Layouts
 				tasks.addTask (complete) ->
 					safefs.ensurePath(config.layoutsPaths[0], complete)
 
-				# Create
+				# Files
 				tasks.addTask (complete) ->
 					safefs.ensurePath(config.filesPaths[0], complete)
 
