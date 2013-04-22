@@ -1,5 +1,8 @@
 ## History
 
+- v6.30.5 April 23, 2013
+	- The no skeleton option will now create a `node_modules` directory, and `package.json` and `docpad.coffee` files
+
 - v6.30.4 April 16, 2013
 	- Testing of plugins now works when the plugin directory is the full plugin name
 		- Thanks to [Mark Groves](https://github.com/mgroves84) for [issue #485](https://github.com/bevry/docpad/issues/485) 
