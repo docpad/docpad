@@ -115,8 +115,7 @@ class DocumentModel extends FileModel
 		reset = extendr.dereference(reset)
 		@set(reset)
 
-		# Then wipe the layout and clear the meta attributes from the meta model
-		@layout = null
+		# Then clear the meta attributes from the meta model
 		meta.clear()
 
 		# Reparse the data and extract the content
@@ -341,41 +340,32 @@ class DocumentModel extends FileModel
 	getLayout: (next) ->
 		# Prepare
 		file = @
-		layoutId = @get('layout')
+		layoutSelector = @get('layout')
 
-		# No layout
-		unless layoutId
-			return next(null,null)
+		# Check
+		return next(null,null)  unless layoutSelector
 
-		# Cached layout
-		else if @layout and layoutId is @layout.id
-			# Forward
-			return next(null,@layout)
+		# Find parent
+		@emit 'getLayout', {selector:layoutSelector}, (err,opts) ->
+			# Prepare
+			{layout} = opts
 
-		# Uncached layout
-		else
-			# Find parent
-			@emit 'getLayout', {layoutId}, (err,opts) ->
-				# Prepare
-				{layout} = opts
+			# Error
+			if err
+				file.set('layoutId': null)
+				return next(err)
+			# Not Found
+			else unless layout
+				file.set('layoutId': null)
+				err = new Error("Could not find the specified layout: #{layoutSelector}")
+				return next(err)
+			# Found
+			else
+				# Update our layout id with the definitive correct one
+				file.set('layoutId': layout.id)
 
-				# Error
-				if err
-					return next(err)
-				# Not Found
-				else unless layout
-					err = new Error "Could not find the specified layout: #{layoutId}"
-					return next(err)
-				# Found
-				else
-					# Update our layout id with the definitive correct one
-					file.set('layout': layout.id)
-
-					# Cache our layout
-					file.layout = layout
-
-					# Forward
-					return next(null,layout)
+				# Forward
+				return next(null,layout)
 
 		# Chain
 		@

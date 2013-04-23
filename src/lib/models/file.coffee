@@ -563,7 +563,6 @@ class FileModel extends Model
 					pathUtil.join(relativeDirPath, basename)
 				else
 					basename
-			changes.id = id = relativePath
 
 		# Date
 		if !date and mtime
