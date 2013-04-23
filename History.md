@@ -1,5 +1,10 @@
 ## History
 
+- v6.31.0 April 23, 2013
+	- DocPad will now warn you when you have files of the same relativePath
+	- File and Document IDs are now always their `cid`
+	- Added `DocPad::getFileBySelector(selector,{collection})`
+
 - v6.30.5 April 23, 2013
 	- The no skeleton option will now create a `node_modules` directory, and `package.json` and `docpad.coffee` files
 

@@ -219,6 +219,10 @@ class DocPad extends EventEmitterEnhanced
 	# Used to speed up fetching
 	filesByUrl: null
 
+	# Files by Selector
+	# Used to speed up fetching
+	filesBySelector: null
+
 	# Blocks
 	blocks: null
 	### {
@@ -334,6 +338,16 @@ class DocPad extends EventEmitterEnhanced
 	# Get a file by its url
 	getFileByUrl: (url) ->
 		result = @getDatabase().get(@filesByUrl[url])
+		return result
+
+	# Get a file by its selector
+	getFileBySelector: (selector,opts) ->
+		opts.collection ?= @getDatabase()
+		result = collection.get(@filesBySelector[selector])
+		unless result
+			result = collection.fuzzyFindOne(selector)
+			if result
+				@filesBySelector[selector] = result.id
 		return result
 
 
@@ -968,9 +982,17 @@ class DocPad extends EventEmitterEnhanced
 		@pluginsTemplateData = {}
 		@instanceConfig = {}
 		@filesByUrl = {}
+		@filesBySelector = {}
 		@collections = {}
 		@blocks = {}
-		@database = new FilesCollection()
+		@database = new FilesCollection().on 'add', (model,collection,options) => process.nextTick =>
+			conflicts = @database.where({
+				write: true
+				relativePath: model.get('relativePath')
+			})
+			if conflicts.length >= 2
+				conflictPaths = (item.get('fullPath') for item in conflicts)
+				docpad.warn("The following files have conflicting relative paths, this can cause problems:\n  "+conflictPaths.join('\n  '))
 		@locales = extendr.dereference(@locales)
 		@userConfig = extendr.dereference(@userConfig)
 		@initialConfig = extendr.dereference(@initialConfig)
@@ -1865,10 +1887,9 @@ class DocPad extends EventEmitterEnhanced
 			docpad.log(args...)
 
 		# Fetch a layout
-		document.on 'getLayout', (opts,next) ->
-			{layoutId} = opts
-			layouts = docpad.getCollection('layouts')
-			layout = layouts.fuzzyFindOne(layoutId)
+		document.on 'getLayout', (opts={},next) ->
+			opts.collection = docpad.getCollection('layouts')
+			layout = docpad.getFileBySelector(opts.selector,opts)
 			next(null,{layout})
 
 		# Render
@@ -2602,6 +2623,7 @@ class DocPad extends EventEmitterEnhanced
 		docpad.generating = true
 		if opts.reset is true
 			docpad.filesByUrl = {}
+			docpad.filesBySelector = {}
 
 		# Log generating
 		docpad.log 'info', locale.renderGenerating
@@ -2784,7 +2806,7 @@ class DocPad extends EventEmitterEnhanced
 		docpad = @
 		docpad.lastGenerate ?= new Date('1970')
 		locale = @getLocale()
-
+		opts.reset ?= true
 
 		# Progress
 		progressIndicator = null
@@ -2828,7 +2850,7 @@ class DocPad extends EventEmitterEnhanced
 					# For anything that gets added, if it is a layout, then add that layouts children too
 					filesToRender.on 'add', (fileToRender) ->
 						if fileToRender.get('isLayout')
-							filesToRender.add(database.findAll(layout: fileToRender.id).models)
+							filesToRender.add(database.findAll(layoutId: fileToRender.id).models)
 					# Add anything that references other documents (e.g. partials, listing, etc)
 					# if our files to reload aren't all standalone files
 					allStandalone = true
@@ -2856,7 +2878,7 @@ class DocPad extends EventEmitterEnhanced
 			docpad.lastGenerate = new Date()
 			balUtil.flow(
 				object: docpad
-				action: 'generatePrepare generateCheck generateClean generateParse generateRender generatePostpare'
+				action: 'generatePrepare generateParse generateRender generatePostpare'
 				args: [opts]
 				next: (err) ->
 					return finish(err)
