@@ -491,8 +491,6 @@ class FileModel extends Model
 			# Set
 			source = buffer.toString('utf8')
 			content = source
-				.replace(/\r\n?/gm,'\n')  # trim
-				.replace(/\t/g,'    ')    # tabs to spaces
 
 			# Apply
 			changes.content = content

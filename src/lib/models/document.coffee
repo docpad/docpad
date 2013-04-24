@@ -123,6 +123,7 @@ class DocumentModel extends FileModel
 		super opts, =>
 			# Content
 			content = @get('content')
+				.replace(/\r\n?/gm,'\n')  # normalise line endings for the web, just for convience, if it causes problems we can remove
 
 			# Meta Data
 			regex = ///
@@ -171,7 +172,9 @@ class DocumentModel extends FileModel
 
 						when 'yaml'
 							YAML = require('yamljs')  unless YAML
-							metaData = YAML.parse(header)
+							metaData = YAML.parse(
+								header.replace(/\t/g,'    ')  # YAML doesn't support tabs that well
+							)
 							meta.set(metaData)
 
 						else
@@ -354,18 +357,19 @@ class DocumentModel extends FileModel
 			if err
 				file.set('layoutId': null)
 				return next(err)
+
 			# Not Found
 			else unless layout
 				file.set('layoutId': null)
 				err = new Error("Could not find the specified layout: #{layoutSelector}")
 				return next(err)
+
 			# Found
 			else
-				# Update our layout id with the definitive correct one
 				file.set('layoutId': layout.id)
-
-				# Forward
 				return next(null,layout)
+
+			# We update the layoutId as it is used for finding what documents are used by a layout for when a layout changes
 
 		# Chain
 		@
