@@ -1029,7 +1029,8 @@ class DocPad extends EventEmitterEnhanced
 				previousOutPath = model.previous('outPath')
 				if previousOutPath
 					# Ensure we regenerate anything (on the next regeneration) that was using the same outPath
-					previousModels = @database.findAll(outPath:previousOutPath).each (model) ->
+					previousModels = @database.findAll(outPath:previousOutPath)
+					previousModels.each (model) ->
 						model.set('mtime': new Date())
 
 					# Update the cache entry with another file that has the same outPath or delete it if there aren't any others
@@ -2467,14 +2468,12 @@ class DocPad extends EventEmitterEnhanced
 				docpad.log 'debug', util.format(locale.contextualizedFiles, collection.length)
 				return next()
 
-		# Set progress indicator
-		opts.setProgressIndicator? ->
-			totals = tasks.getTotals()
-			return ['contextualizeFiles', totals.completed, totals.total]
-
 		# Fetch
+		opts.progress?.step('contextualizeFiles').total(collection.length)
 		collection.forEach (file,index) ->  tasks.addTask (complete) ->
-			file.contextualize(complete)
+			file.contextualize (err) ->
+				opts.progress?.tick()
+				return complete(err)
 
 		# Start contextualizing
 		docpad.emitSync 'contextualizeBefore', {collection,templateData}, (err) ->
@@ -2521,22 +2520,14 @@ class DocPad extends EventEmitterEnhanced
 		# Render Collection
 		renderCollection = (collectionToRender,_opts={},next) ->
 			# Prepare
-			_opts.total ?= collectionToRender.length
-			_opts.renderPass ?= 1
-			_opts.offset ?= 0
 			subTasks = new TaskGroup().setConfig(concurrency:0).once('complete',next)
-			opts.setProgressIndicator? ->
-				totals = subTasks.getTotals()
-				return [
-					'renderFiles'+(if _opts.renderPass > 1 then " (pass #{_opts.renderPass})" else ''),
-					_opts.offset+(totals.completed),
-					_opts.total
-				]
 
 			# Cycle
-			collectionToRender.forEach (file) ->
-				subTasks.addTask (complete) ->
-					renderFile(file,complete)
+			opts.progress?.step('renderFiles').total(collectionToRender.length)
+			collectionToRender.forEach (file) -> subTasks.addTask (complete) ->
+				renderFile file, (err) ->
+					opts.progress?.tick()
+					return complete(err)
 
 			# Fire
 			subTasks.run()
@@ -2549,7 +2540,7 @@ class DocPad extends EventEmitterEnhanced
 			renderCollection initialCollection, null, (err) ->
 				return complete(err)  if err
 				subsequentCollection = collection.findAll('referencesOthers':true)
-				renderCollection(subsequentCollection, {offset:collection.length-subsequentCollection.length, total:collection.length}, complete)
+				renderCollection(subsequentCollection, {renderPass:1}, complete)
 
 		# Queue the subsequent renders
 		if renderPasses > 1
@@ -2584,27 +2575,27 @@ class DocPad extends EventEmitterEnhanced
 				docpad.log 'debug', util.format(locale.wroteFiles, collection.length)
 				return next()
 
-		# Set progress indicator
-		opts.setProgressIndicator? ->
-			totals = tasks.getTotals()
-			return ['writeFiles', totals.completed, totals.total]
-
 		# Cycle
+		opts.progress?.step('writeFiles').total(collection.length)
 		collection.forEach (file,index) -> tasks.addTask (complete) ->
 			# Skip
 			dynamic = file.get('dynamic')
 			write = file.get('write')
 			relativePath = file.get('relativePath')
+			finish = (err) ->
+				opts.progress?.tick()
+				return complete(err)
 
 			# Write
 			if dynamic or (write? and !write) or !relativePath
-				complete()
+				finish()
 			else if file.writeRendered?
-				file.writeRendered(complete)
+				file.writeRendered(finish)
 			else if file.write?
-				file.write(complete)
+				file.write(finish)
 			else
-				complete(new Error(locale.unknownModelInCollection))
+				err = new Error(locale.unknownModelInCollection)
+				finish(err)
 
 		#  Start writing
 		docpad.emitSync 'writeBefore', {collection,templateData}, (err) =>
@@ -2791,7 +2782,6 @@ class DocPad extends EventEmitterEnhanced
 		opts.templateData or= @getTemplateData()
 		opts.collection or= @getDatabase()
 		opts.renderPasses or= @getConfig().renderPasses
-		opts.setProgressIndicator or= null
 
 		# Contextualize the datbaase, perform two render passes, and perform a write
 		balUtil.flow(
@@ -2843,11 +2833,9 @@ class DocPad extends EventEmitterEnhanced
 		# Chain
 		@
 
-	# Generate times
+	# Generate Helpers
 	generateStarted: null
 	generateEnded: null
-
-	# Flag for whether or not we are generating
 	generating: false
 
 	# Generate
@@ -2863,21 +2851,48 @@ class DocPad extends EventEmitterEnhanced
 		return next()  if opts.collection?.length is 0
 
 		# Progress
-		progressIndicator = null
-		opts.setProgressIndicator = (_progressIndicator) ->
-			progressIndicator = _progressIndicator
-		showProgress = ->
-			progress = progressIndicator?()
-			if progress
-				[stage,completed,total] = progress
-				percent = Math.floor((completed/total)*100)+'%'
-				docpad.log 'info', util.format(locale.renderProgress, stage, percent)
-		progressInterval = setInterval(showProgress,10*1000)
+		opts.progress ?= new (class extends require('events').EventEmitter
+			_tick: 0
+			_total: 1
+			_bar: null
+			_step: null
 
-		# Finish
+			constructor: ->
+				@_multi = require('multimeter')(process)
+				@on 'step', =>
+					before = "Currently on #{@_step} at"
+					#@destroy()
+					@_multi.drop {before}, (b) => @_bar = b
+				@on 'total', => @_bar?.ratio(@_tick, @_total)
+				@on 'tick', => @_bar?.ratio(@_tick, @_total)
+
+			step: (s) -> if s? then @setStep(s) else @getStep()
+			getStep: -> @_step
+			setStep: (s) -> @_step = s; @emit('step', @_step); @setTick(0); @setTotal(1); @
+
+			total: (t) -> if t? then @addTotal(t) else @addTotal()
+			getTotal: -> @_total
+			addTotal: (t=1) -> @_total += t; @emit('total', @_total); @
+			setTotal: (t) -> @_total = t; @emit('total', @_total); @
+
+			tick: (t) -> if t? then @addTick(t) else @addTick()
+			getTick: -> @_tick
+			addTick: (t=1) -> @_tick += t; @emit('tick', @_tick); @
+			setTick: (t) -> @_tick = t; @emit('tick', @_tick); @
+
+			destroy: ->
+				@_multi?.charm.cursor(false)
+				@_multi?.destroy()
+				@_multi = @_bar = null
+				@
+
+			finish: ->
+				@destroy()
+				@emit('finish')
+				@
+		)
 		finish = (err) ->
-			clearInterval(progressInterval)
-			progressInterval = null
+			opts.progress?.finish()
 			return next(err)
 
 		# Re-load and re-render only what is necessary
