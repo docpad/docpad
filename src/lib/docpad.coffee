@@ -223,6 +223,11 @@ class DocPad extends EventEmitterEnhanced
 	# Used to speed up fetching
 	filesBySelector: null
 
+	# Files by Relative Path
+	# Used to speed up conflict detection
+	# Do not use for anything else
+	filesByRelativePath: null
+
 	# Blocks
 	blocks: null
 	### {
@@ -981,18 +986,24 @@ class DocPad extends EventEmitterEnhanced
 		@exchange = {}
 		@pluginsTemplateData = {}
 		@instanceConfig = {}
-		@filesByUrl = {}
-		@filesBySelector = {}
 		@collections = {}
 		@blocks = {}
-		@database = new FilesCollection().on 'add', (model,collection,options) => process.nextTick =>
-			conflicts = @database.where({
-				write: true
-				relativePath: model.get('relativePath')
-			})
-			if conflicts.length >= 2
-				conflictPaths = (item.get('fullPath') for item in conflicts)
-				docpad.warn("The following files have conflicting relative paths, this can cause problems:\n  "+conflictPaths.join('\n  '))
+		@database = new FilesCollection()
+			.on('add', (model,collection,options) => process.nextTick =>  # nextTick to ensure properties are set
+				relativePath = model.get('relativePath')
+				existingModel = @filesByRelativePath[relativePath] ?= model
+				if existingModel? and existingModel.id isnt model.id
+					modelPath = model.get('fullPath')
+					existingModelPath = existingModel.get('fullPath')
+					message = "You have files that share the same relativePath, this will cause unexpected results, please rename one of these files:\n  #{modelPath}\n  #{existingModelPath}"
+					docpad.warn(message)
+			)
+			.on('reset', =>
+				@filesByUrl = {}
+				@filesBySelector = {}
+				@filesByRelativePath = {}
+			)
+			.trigger('reset')
 		@locales = extendr.dereference(@locales)
 		@userConfig = extendr.dereference(@userConfig)
 		@initialConfig = extendr.dereference(@initialConfig)
@@ -2610,33 +2621,6 @@ class DocPad extends EventEmitterEnhanced
 	# ---------------------------------
 	# Generate
 
-	# Generate Prepare
-	# opts = {reset}
-	# next(err)
-	generatePrepare: (opts,next) =>
-		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
-		docpad = @
-		locale = @getLocale()
-
-		# Update generating flag
-		docpad.generating = true
-		if opts.reset is true
-			docpad.filesByUrl = {}
-			docpad.filesBySelector = {}
-
-		# Log generating
-		docpad.log 'info', locale.renderGenerating
-		docpad.notify (new Date()).toLocaleTimeString(), title: locale.renderGeneratingNotification
-
-		# Fire plugins
-		docpad.emitSync 'generateBefore', {reset:opts.reset, server:docpad.getServer()}, (err) ->
-			# Forward
-			return next(err)
-
-		# Chain
-		@
-
 	# Generate Check
 	# opts = {}
 	# next(err)
@@ -2663,16 +2647,36 @@ class DocPad extends EventEmitterEnhanced
 		# Chain
 		@
 
-	# Generate Clean
-	# opts = {}
+	# Generate Prepare
+	# opts = {reset}
 	# next(err)
-	generateClean: (opts,next) =>
+	generatePrepare: (opts,next) =>
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
+		locale = @getLocale()
 
-		# Perform a complete clean of our collections
-		docpad.resetCollections(next)
+		# Update generating flag
+		docpad.generating = true
+
+		# Log generating
+		docpad.log 'info', locale.renderGenerating
+		docpad.notify (new Date()).toLocaleTimeString(), title: locale.renderGeneratingNotification
+
+		# Tasks
+		tasks = new TaskGroup().once('complete',next)
+
+		# Fire plugins
+		tasks.addTask (complete) ->
+			docpad.emitSync('generateBefore', {reset:opts.reset, server:docpad.getServer()}, complete)
+
+		# Perform a complete clean of our collections if we want to
+		if opts.reset is true
+			tasks.addTask (complete) ->
+				docpad.resetCollections(complete)
+
+		# Run
+		tasks.run()
 
 		# Chain
 		@
@@ -2771,6 +2775,7 @@ class DocPad extends EventEmitterEnhanced
 		collection.each (file) ->
 			for url in file.get('urls')
 				docpad.filesByUrl[url] = file.cid
+		docpad.filesByUrlCache = docpad.filesByUrl
 
 		# Fire plugins
 		docpad.emitSync 'generateAfter', server:docpad.getServer(), (err) ->
@@ -2827,7 +2832,7 @@ class DocPad extends EventEmitterEnhanced
 			return next(err)
 
 		# Re-load and re-render only what is necessary
-		if opts.reset? and opts.reset is false
+		if opts.reset is false
 			# Prepare
 			docpad.generatePrepare opts, (err) ->
 				return finish(err)  if err
@@ -2874,11 +2879,10 @@ class DocPad extends EventEmitterEnhanced
 		# Re-load and re-render everything
 		else
 			# Prepare
-			opts.reset = true
 			docpad.lastGenerate = new Date()
 			balUtil.flow(
 				object: docpad
-				action: 'generatePrepare generateParse generateRender generatePostpare'
+				action: 'generateCheck generatePrepare generateParse generateRender generatePostpare'
 				args: [opts]
 				next: (err) ->
 					return finish(err)
