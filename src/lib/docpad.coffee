@@ -225,10 +225,10 @@ class DocPad extends EventEmitterEnhanced
 	# Used to speed up fetching
 	filesBySelector: null
 
-	# Files by Relative Path
+	# Files by Out Path
 	# Used to speed up conflict detection
 	# Do not use for anything else
-	filesByRelativePath: null
+	filesByOutPath: null
 
 	# Blocks
 	blocks: null
@@ -993,15 +993,60 @@ class DocPad extends EventEmitterEnhanced
 		@blocks = {}
 		@filesByUrl = {}
 		@filesBySelector = {}
-		@filesByRelativePath = {}
+		@filesByOutPath = {}
 		@database = new FilesCollection()
-			.on('add', (model,collection,options) => process.nextTick =>  # nextTick to ensure properties are set
-				relativePath = model.get('relativePath')
-				existingModel = @filesByRelativePath[relativePath] ?= model
-				if existingModel? and existingModel.id isnt model.id
+			.on('remove', (model,options) =>
+				# Skip if we are not a writeable file
+				return  if model.get('write') is false
+
+				# Delete the urls
+				for url in model.get('urls') or []
+					delete docpad.filesByUrl[url]
+
+				# Ensure we regenerate anything (on the next regeneration) that was using the same outPath
+				outPath = model.get('outPath')
+				if outPath
+					@database.findAll(outPath:outPath).each (model) ->
+						model.set('mtime': new Date())
+			)
+			.on('change:urls', (model,urls=[],options) =>
+				# Skip if we are not a writeable file
+				return  if model.get('write') is false
+
+				# Delete the old urls
+				for url in model.previous('urls') or []
+					delete docpad.filesByUrl[url]
+
+				# Add the new urls
+				for url in urls
+					docpad.filesByUrl[url] = model.cid
+			)
+			.on('change:outPath', (model,outPath,options) =>
+				# Skip if we are not a writeable file
+				return  if model.get('write') is false
+
+				# Check if we have changed our outPath
+				previousOutPath = model.previous('outPath')
+				if previousOutPath
+					# Ensure we regenerate anything (on the next regeneration) that was using the same outPath
+					previousModels = @database.findAll(outPath:previousOutPath).each (model) ->
+						model.set('mtime': new Date())
+
+					# Update the cache entry with another file that has the same outPath or delete it if there aren't any others
+					previousModelId = @filesByOutPath[previousOutPath]
+					if previousModelId is model.id
+						if previousModels.length
+							@filesByOutPath[previousOutPath] = previousModelId
+						else
+							delete @filesByOutPath[previousOutPath]
+
+				# Update the cache entry and fetch the latest if it was already set
+				existingModelId = @filesByOutPath[outPath] ?= model.id
+				if existingModelId isnt model.id
+					# We have a conflict, let the user know
 					modelPath = model.get('fullPath')
 					existingModelPath = existingModel.get('fullPath')
-					message = "You have files that share the same relativePath, this will cause unexpected results, please rename one of these files:\n  #{modelPath}\n  #{existingModelPath}"
+					message =  util.format(docpad.getLocale().outPathConflict, outPath, modelPath, existingModelPath)
 					docpad.warn(message)
 			)
 		@locales = extendr.dereference(@locales)
@@ -1704,7 +1749,7 @@ class DocPad extends EventEmitterEnhanced
 		# Reset caches
 		@filesByUrl = {}
 		@filesBySelector = {}
-		@filesByRelativePath = {}
+		@filesByOutPath = {}
 
 		# Perform any plugin extensions to what we just cleaned
 		# and forward
@@ -2632,32 +2677,6 @@ class DocPad extends EventEmitterEnhanced
 	# ---------------------------------
 	# Generate
 
-	# Generate Check
-	# opts = {}
-	# next(err)
-	generateCheck: (opts,next) =>
-		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
-		docpad = @
-		config = @getConfig()
-		locale = @getLocale()
-
-		# Check plugin count
-		unless docpad.hasPlugins()
-			docpad.log('warn', locale.renderNoPlugins)
-
-		# Check if the source directory exists
-		safefs.exists config.srcPath, (exists) ->
-			# Check and forward
-			if exists is false
-				err = new Error(locale.renderNonexistant)
-				return next(err)
-			else
-				return next()
-
-		# Chain
-		@
-
 	# Generate Prepare
 	# opts = {reset}
 	# next(err)
@@ -2665,6 +2684,7 @@ class DocPad extends EventEmitterEnhanced
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
+		config = @getConfig()
 		locale = @getLocale()
 
 		# Update generating flag
@@ -2677,14 +2697,29 @@ class DocPad extends EventEmitterEnhanced
 		# Tasks
 		tasks = new TaskGroup().once('complete',next)
 
+		# Perform a complete clean of our collections if we want to
+		if opts.reset is true
+			# Check plugin count
+			unless docpad.hasPlugins()
+				docpad.log('warn', locale.renderNoPlugins)
+
+			# Check if the source directory exists
+			tasks.addTask (complete) ->
+				safefs.exists config.srcPath, (exists) ->
+					# Check and forward
+					if exists is false
+						err = new Error(locale.renderNonexistant)
+						return complete(err)
+					else
+						return complete()
+
+			# Clean our collections
+			tasks.addTask (complete) ->
+				docpad.resetCollections(complete)
+
 		# Fire plugins
 		tasks.addTask (complete) ->
 			docpad.emitSync('generateBefore', {reset:opts.reset, server:docpad.getServer()}, complete)
-
-		# Perform a complete clean of our collections if we want to
-		if opts.reset is true
-			tasks.addTask (complete) ->
-				docpad.resetCollections(complete)
 
 		# Run
 		tasks.run()
@@ -2787,9 +2822,6 @@ class DocPad extends EventEmitterEnhanced
 
 		# Update caches
 		docpad.databaseCache = null
-		collection.each (file) ->
-			for url in file.get('urls')
-				docpad.filesByUrl[url] = file.cid
 
 		# Fire plugins
 		docpad.emitSync 'generateAfter', server:docpad.getServer(), (err) ->
@@ -2827,6 +2859,9 @@ class DocPad extends EventEmitterEnhanced
 		locale = @getLocale()
 		opts.reset ?= true
 
+		# Check
+		return next()  if opts.collection?.length is 0
+
 		# Progress
 		progressIndicator = null
 		opts.setProgressIndicator = (_progressIndicator) ->
@@ -2846,7 +2881,7 @@ class DocPad extends EventEmitterEnhanced
 			return next(err)
 
 		# Re-load and re-render only what is necessary
-		if opts.reset is false
+		if opts.collection? is false and opts.reset is false
 			# Prepare
 			docpad.generatePrepare opts, (err) ->
 				return finish(err)  if err
@@ -2896,7 +2931,7 @@ class DocPad extends EventEmitterEnhanced
 			docpad.generateStarted = new Date()
 			balUtil.flow(
 				object: docpad
-				action: 'generateCheck generatePrepare generateParse generateRender generatePostpare'
+				action: 'generatePrepare generateParse generateRender generatePostpare'
 				args: [opts]
 				next: (err) ->
 					return finish(err)

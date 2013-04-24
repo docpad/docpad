@@ -1,9 +1,15 @@
 ## History
 
-- v6.31.0 April 23, 2013
-	- DocPad will now warn you when you have files of the same relativePath
-	- File and Document IDs are now always their `cid`
-	- Added `DocPad::getFileBySelector(selector,{collection})`
+- v6.31.0 April 24, 2013
+	- DocPad will now warn you when you have files of the same outPath
+	- File and Document IDs will now always be their `cid` (before they use to be their relativePath on occasion)
+	- Fuzzy searching no longer searches for the id
+	- Server is now able to serve cached pages while a non-initial generation is occurring
+	- We no longer replace tabs with 4 spaces for the content of files and documents (we still do it for YAML meta data headers on documents)
+		- This means if you're a plugin developer, you may need to update your plugin's test's `out-expected` folder accordingly
+			- If this is too difficult, we've added a `removeWhitespace` config option for your plugin tester, set it to `true`, [see here for usage](https://github.com/docpad/docpad-plugin-paged/blob/master/src/paged.tester.coffee)
+	- Change events will now fire when adding a url to a file
+	- URL cache index for serving files is now generated via change events, rather than after generation
 
 - v6.30.5 April 23, 2013
 	- The no skeleton option will now create a `node_modules` directory, and `package.json` and `docpad.coffee` files

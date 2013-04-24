@@ -261,6 +261,8 @@ class FileModel extends Model
 					found = true
 					break
 			urls.push(url)  if not found
+			@trigger('change:urls', @, urls, {})
+			@trigger('change', @, {})
 
 		# Chain
 		@

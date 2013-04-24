@@ -16,7 +16,6 @@ class FilesCollection extends QueryCollection
 	fuzzyFindOne: (data,sorting,paging) ->
 		# Prepare
 		queries = [
-			{id: data}
 			{relativePath: data}
 			{relativeBase: data}
 			{url: data}
