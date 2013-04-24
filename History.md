@@ -1,5 +1,9 @@
 ## History
 
+- v6.31.3 April 25, 2013
+	- Moved progress bar code into [bevry/progressbar](http://github.com/bevry/progressbar)
+		- Fixes issues with progress bars on ubuntu and windows
+
 - v6.31.2 April 25, 2013
 	- Do not show progress bars on production environments
 
