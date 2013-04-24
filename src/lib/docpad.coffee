@@ -2853,51 +2853,8 @@ class DocPad extends EventEmitterEnhanced
 		return next()  if opts.collection?.length is 0
 
 		# Progress
-		if @getLogLevel() is 6 and 'development' in @getEnvironments() then \
-		opts.progress ?= new (class extends require('events').EventEmitter
-			_tick: 0
-			_total: 1
-			_bar: null
-			_step: null
-
-			constructor: ->
-				@on 'step', =>
-					@destroy()
-					message = "Currently on #{@_step} at :current/:total :percent :bar"
-					width = 50
-					progress = require('progress')
-					@_bar = new progress(message,{total:@_total,width})
-				@on 'total', => @_bar?.total = @_total
-				@on 'tick', => @_bar?.tick(@_tick-@_bar.curr)
-
-			step: (s) -> if s? then @setStep(s) else @getStep()
-			getStep: -> @_step
-			setStep: (s) -> @_step = s; @emit('step', @_step);  @setTick(0); @setTotal(1); @
-
-			total: (t) -> if t? then @setTotal(t) else @addTotal()
-			getTotal: -> @_total
-			addTotal: (t=1) -> @_total += t; @emit('total', @_total); @
-			setTotal: (t) -> @_total = t; @emit('total', @_total); @
-
-			tick: (t) -> if t? then @setTick(t) else @addTick()
-			getTick: -> @_tick
-			addTick: (t=1) -> @_tick += t; @emit('tick', @_tick); @
-			setTick: (t) -> @_tick = t; @emit('tick', @_tick); @
-
-			destroy: ->
-				return @  unless @_bar?
-				@_bar.rl.write(null, {ctrl:true,name:'u'})
-				@_bar.rl.resume()
-				@_bar.rl.close()
-				@_bar = null
-				@
-
-			finish: ->
-				if @_bar?
-					@destroy()
-					@emit('finish')
-				@
-		)
+		if @getLogLevel() is 6 and 'development' in @getEnvironments()
+			opts.progress ?= require('progressbar').create()
 		finish = (err) ->
 			opts.progress?.finish()
 			opts.progress = null
