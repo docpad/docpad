@@ -1,5 +1,8 @@
 ## History
 
+- v6.31.2 April 25, 2013
+	- Do not show progress bars on production environments
+
 - v6.31.1 April 25, 2013
 	- Fixed cannot get `length` of undefined error
 	- Added progress bar (instead of snores) for during generation when using the default log level (`6`)

@@ -2853,7 +2853,7 @@ class DocPad extends EventEmitterEnhanced
 		return next()  if opts.collection?.length is 0
 
 		# Progress
-		if @getLogLevel() is 6 then \
+		if @getLogLevel() is 6 and 'development' in @getEnvironments() then \
 		opts.progress ?= new (class extends require('events').EventEmitter
 			_tick: 0
 			_total: 1
