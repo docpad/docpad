@@ -26,6 +26,8 @@ delete attrs.fullDirPath
 delete attrs.outPath
 delete attrs.outDirPath
 delete attrs.data
+delete attrs.id
+delete attrs.layoutId
 
 # Sort the attributes
 keys = []

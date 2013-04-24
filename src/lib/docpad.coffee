@@ -991,6 +991,9 @@ class DocPad extends EventEmitterEnhanced
 		@instanceConfig = {}
 		@collections = {}
 		@blocks = {}
+		@filesByUrl = {}
+		@filesBySelector = {}
+		@filesByRelativePath = {}
 		@database = new FilesCollection()
 			.on('add', (model,collection,options) => process.nextTick =>  # nextTick to ensure properties are set
 				relativePath = model.get('relativePath')
