@@ -1,5 +1,9 @@
 ## History
 
+- v6.31.1 April 25, 2013
+	- Fixed cannot get `length` of undefined error
+	- Added progress bar (instead of snores) for during generation when using the default log level (`6`)
+ 
 - v6.31.0 April 24, 2013
 	- DocPad will now warn you when you have files of the same outPath
 	- File and Document IDs will now always be their `cid` (before they use to be their relativePath on occasion)

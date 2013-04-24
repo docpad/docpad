@@ -935,7 +935,7 @@ class DocPad extends EventEmitterEnhanced
 
 		# Setup configuration event wrappers
 		configEventContext = {docpad}  # here to allow the config event context to persist between event calls
-		eachr @getEvents(), (eventName) ->
+		@getEvents().forEach (eventName) ->
 			# Bind to the event
 			docpad.on eventName, (opts,next) ->
 				eventHandler = docpad.getConfig().events?[eventName]
@@ -1590,7 +1590,7 @@ class DocPad extends EventEmitterEnhanced
 
 		# Read our files
 		# On the first file that returns a result, exit
-		eachr configPaths, (configPath) ->
+		configPaths.forEach (configPath) ->
 			tasks.addTask (complete) ->
 				return complete()  if result
 				docpad.loadConfigPath configPath, (err,config) ->
@@ -2128,14 +2128,14 @@ class DocPad extends EventEmitterEnhanced
 			return next(err)
 
 		# Load website plugins
-		eachr @config.pluginsPaths or [], (pluginsPath) =>
+		(@config.pluginsPaths or []).forEach (pluginsPath) =>
 			exists = safefs.existsSync(pluginsPath)
 			if exists
 				tasks.addTask (complete) =>
 					@loadPluginsIn(pluginsPath, complete)
 
 		# Load specific plugins
-		eachr @config.pluginPaths or [], (pluginPath) =>
+		(@config.pluginPaths or []).forEach (pluginPath) =>
 			exists = safefs.existsSync(pluginPath)
 			if exists
 				tasks.addTask (complete) =>
@@ -2518,12 +2518,13 @@ class DocPad extends EventEmitterEnhanced
 			return fileToRender
 
 		# Render Collection
-		renderCollection = (collectionToRender,_opts={},next) ->
+		renderCollection = (collectionToRender,{renderPass},next) ->
 			# Prepare
 			subTasks = new TaskGroup().setConfig(concurrency:0).once('complete',next)
 
 			# Cycle
-			opts.progress?.step('renderFiles').total(collectionToRender.length)
+			step = "renderFiles (pass #{renderPass})"
+			opts.progress?.step(step).total(collectionToRender.length)
 			collectionToRender.forEach (file) -> subTasks.addTask (complete) ->
 				renderFile file, (err) ->
 					opts.progress?.tick()
@@ -2537,14 +2538,14 @@ class DocPad extends EventEmitterEnhanced
 		initialCollection = collection.findAll('referencesOthers':false)
 		subsequentCollection = null
 		tasks.addTask (complete) ->
-			renderCollection initialCollection, null, (err) ->
+			renderCollection initialCollection, {renderPass:1}, (err) ->
 				return complete(err)  if err
 				subsequentCollection = collection.findAll('referencesOthers':true)
-				renderCollection(subsequentCollection, {renderPass:1}, complete)
+				renderCollection(subsequentCollection, {renderPass:2}, complete)
 
 		# Queue the subsequent renders
 		if renderPasses > 1
-			eachr [2..renderPasses], (renderPass) ->  tasks.addTask (complete) ->
+			[3..renderPasses].forEach (renderPass) ->  tasks.addTask (complete) ->
 				renderCollection(subsequentCollection, {renderPass}, complete)
 
 		# Fire the queue
@@ -2633,7 +2634,7 @@ class DocPad extends EventEmitterEnhanced
 		else
 			tasks = new TaskGroup().once 'complete', (err) ->
 				return next(err)
-			eachr actions, (action) -> tasks.addTask (complete) ->
+			actions.forEach (action) -> tasks.addTask (complete) ->
 				docpad.action(action,opts,complete)
 			tasks.run()
 			return docpad
@@ -2746,21 +2747,21 @@ class DocPad extends EventEmitterEnhanced
 					return next(err)
 
 			# Documents
-			eachr config.documentsPaths, (documentsPath) -> tasks.addTask (complete) ->
+			config.documentsPaths.forEach (documentsPath) -> tasks.addTask (complete) ->
 				docpad.parseDocumentDirectory({
 					path: documentsPath
 					collection: database
 				},complete)
 
 			# Files
-			eachr config.filesPaths, (filesPath) -> tasks.addTask (complete) ->
+			config.filesPaths.forEach (filesPath) -> tasks.addTask (complete) ->
 				docpad.parseFileDirectory({
 					path: filesPath
 					collection: database
 				},complete)
 
 			# Layouts
-			eachr config.layoutsPaths, (layoutsPath) -> tasks.addTask (complete) ->
+			config.layoutsPaths.forEach (layoutsPath) -> tasks.addTask (complete) ->
 				docpad.parseDocumentDirectory({
 					path: layoutsPath
 					collection: database
@@ -2824,6 +2825,7 @@ class DocPad extends EventEmitterEnhanced
 					"all #{collection.length}"
 				else
 					collection.length
+			opts.progress?.finish()
 			docpad.log 'info', util.format(locale.renderGenerated, howMany, seconds)
 			docpad.notify (new Date()).toLocaleTimeString(), title: locale.renderGeneratedNotification
 
@@ -2851,6 +2853,7 @@ class DocPad extends EventEmitterEnhanced
 		return next()  if opts.collection?.length is 0
 
 		# Progress
+		if @getLogLevel() is 6 then \
 		opts.progress ?= new (class extends require('events').EventEmitter
 			_tick: 0
 			_total: 1
@@ -2858,41 +2861,46 @@ class DocPad extends EventEmitterEnhanced
 			_step: null
 
 			constructor: ->
-				@_multi = require('multimeter')(process)
 				@on 'step', =>
-					before = "Currently on #{@_step} at"
-					#@destroy()
-					@_multi.drop {before}, (b) => @_bar = b
-				@on 'total', => @_bar?.ratio(@_tick, @_total)
-				@on 'tick', => @_bar?.ratio(@_tick, @_total)
+					@destroy()
+					message = "Currently on #{@_step} at :current/:total :percent :bar"
+					width = 50
+					progress = require('progress')
+					@_bar = new progress(message,{total:@_total,width})
+				@on 'total', => @_bar?.total = @_total
+				@on 'tick', => @_bar?.tick(@_tick-@_bar.curr)
 
 			step: (s) -> if s? then @setStep(s) else @getStep()
 			getStep: -> @_step
-			setStep: (s) -> @_step = s; @emit('step', @_step); @setTick(0); @setTotal(1); @
+			setStep: (s) -> @_step = s; @emit('step', @_step);  @setTick(0); @setTotal(1); @
 
-			total: (t) -> if t? then @addTotal(t) else @addTotal()
+			total: (t) -> if t? then @setTotal(t) else @addTotal()
 			getTotal: -> @_total
 			addTotal: (t=1) -> @_total += t; @emit('total', @_total); @
 			setTotal: (t) -> @_total = t; @emit('total', @_total); @
 
-			tick: (t) -> if t? then @addTick(t) else @addTick()
+			tick: (t) -> if t? then @setTick(t) else @addTick()
 			getTick: -> @_tick
 			addTick: (t=1) -> @_tick += t; @emit('tick', @_tick); @
 			setTick: (t) -> @_tick = t; @emit('tick', @_tick); @
 
 			destroy: ->
-				@_multi?.charm.cursor(false)
-				@_multi?.destroy()
-				@_multi = @_bar = null
+				return @  unless @_bar?
+				@_bar.rl.write(null, {ctrl:true,name:'u'})
+				@_bar.rl.resume()
+				@_bar.rl.close()
+				@_bar = null
 				@
 
 			finish: ->
-				@destroy()
-				@emit('finish')
+				if @_bar?
+					@destroy()
+					@emit('finish')
 				@
 		)
 		finish = (err) ->
 			opts.progress?.finish()
+			opts.progress = null
 			return next(err)
 
 		# Re-load and re-render only what is necessary
