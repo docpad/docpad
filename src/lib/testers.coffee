@@ -17,13 +17,16 @@ testers = {
 # Plugin Tester
 testers.PluginTester =
 class PluginTester
-	# Configuration
+	# Plugin Config
 	config:
 		pluginName: null
 		pluginPath: null
 		autoExit: true
 		testPath: null
 		outExpectedPath: null
+		removeEmptyLines: false
+
+	# DocPad Config
 	docpadConfig:
 		port: null
 		growl: false
@@ -48,7 +51,7 @@ class PluginTester
 	constructor: (config={},docpadConfig={},next) ->
 		# Apply Configuration
 		tester = @
-		@config = extendr.deepExtendPlainObjects({}, PluginTester::config ,@config, config)
+		@config = extendr.deepExtendPlainObjects({}, PluginTester::config, @config, config)
 		@docpadConfig = extendr.deepExtendPlainObjects({}, PluginTester::docpadConfig, @docpadConfig, docpadConfig)
 		@docpadConfig.port ?= ++pluginPort
 		@config.testerName ?= @config.pluginName
@@ -198,8 +201,16 @@ class RendererTester extends PluginTester
 					# Get expected results
 					balUtil.scantree tester.config.outExpectedPath, (err,outExpectedResults) ->
 						return done(err)  if err
+
+						# Remove empty lines
+						if tester.config.removeWhitespace
+							replaceLinesRegex = /(\\r|\\n|\\t|\s)+/g
+							outResults = JSON.parse JSON.stringify(outResults).replace(replaceLinesRegex,'')
+							outExpectedResults = JSON.parse JSON.stringify(outExpectedResults).replace(replaceLinesRegex,'')
+
 						# Test results
 						expect(outResults).to.eql(outExpectedResults)
+
 						# Forward
 						done()
 

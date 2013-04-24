@@ -153,6 +153,12 @@
 	consoleOptionSkeleton: "for new projects, instead of being asked for the skeleton, you can specify it here"
 
 	# Misc
+	outPathConflict: """
+		You have multiple files being written to %s, they are:
+		  - %s
+		  - %s
+		  Rename one of them to avoid an over-write
+		"""
 	renderedEarlyViaInclude: """
 		Your include of %s has failed as that document has not been rendered yet.
 		More information here: http://docpad.org/render-early-via-include
