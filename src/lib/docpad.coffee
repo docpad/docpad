@@ -213,7 +213,9 @@ class DocPad extends EventEmitterEnhanced
 
 	# Database collection
 	database: null  # QueryEngine Collection
+	databaseCache: null
 	getDatabase: -> @database
+	getDatabaseCache: -> @databaseCache or @database
 
 	# Files by URL
 	# Used to speed up fetching
@@ -318,42 +320,43 @@ class DocPad extends EventEmitterEnhanced
 	# Get Files (will use live collections)
 	getFiles: (query,sorting,paging) ->
 		key = JSON.stringify({query,sorting,paging})
-		result = @getCollection(key)
-		unless result
-			result = @getDatabase().findAllLive(query,sorting,paging)
-			@setCollection(key, result)
-		return result
+		files = @getCollection(key)
+		unless files
+			files = @getDatabase().findAllLive(query,sorting,paging)
+			@setCollection(key, files)
+		return files
 
 	# Get another file's model based on a relative path
 	getFile: (query,sorting,paging) ->
-		result = @getDatabase().findOne(query,sorting,paging)
-		return result
+		file = @getDatabase().findOne(query,sorting,paging)
+		return file
 
 	# Get Files At Path
 	getFilesAtPath: (path,sorting,paging) ->
 		query = $or: [{relativePath: $startsWith: path}, {fullPath: $startsWith: path}]
-		result = @getFiles(query,sorting,paging)
-		return result
+		files = @getFiles(query,sorting,paging)
+		return files
 
 	# Get another file's model based on a relative path
 	getFileAtPath: (path,sorting,paging) ->
-		result = @getDatabase().fuzzyFindOne(path,sorting,paging)
-		return result
+		file = @getDatabase().fuzzyFindOne(path,sorting,paging)
+		return file
 
 	# Get a file by its url
-	getFileByUrl: (url) ->
-		result = @getDatabase().get(@filesByUrl[url])
-		return result
+	getFileByUrl: (url,opts={}) ->
+		opts.collection ?= @getDatabase()
+		file = opts.collection.get(@filesByUrl[url])
+		return file
 
 	# Get a file by its selector
-	getFileBySelector: (selector,opts) ->
+	getFileBySelector: (selector,opts={}) ->
 		opts.collection ?= @getDatabase()
-		result = collection.get(@filesBySelector[selector])
-		unless result
-			result = collection.fuzzyFindOne(selector)
-			if result
-				@filesBySelector[selector] = result.id
-		return result
+		file = opts.collection.get(@filesBySelector[selector])
+		unless file
+			file = opts.collection.fuzzyFindOne(selector)
+			if file
+				@filesBySelector[selector] = file.id
+		return file
 
 
 	# ---------------------------------
@@ -998,12 +1001,6 @@ class DocPad extends EventEmitterEnhanced
 					message = "You have files that share the same relativePath, this will cause unexpected results, please rename one of these files:\n  #{modelPath}\n  #{existingModelPath}"
 					docpad.warn(message)
 			)
-			.on('reset', =>
-				@filesByUrl = {}
-				@filesBySelector = {}
-				@filesByRelativePath = {}
-			)
-			.trigger('reset')
 		@locales = extendr.dereference(@locales)
 		@userConfig = extendr.dereference(@userConfig)
 		@initialConfig = extendr.dereference(@initialConfig)
@@ -1687,13 +1684,24 @@ class DocPad extends EventEmitterEnhanced
 	# Reset Collections
 	# next(err)
 	resetCollections: (next) ->
+		# Prepare
+		database = @getDatabase()
+
+		# Update the cached database
+		@databaseCache = new FilesCollection(database.models)
+
 		# Perform a complete clean of our collections
-		@getDatabase().reset([])
+		database.reset([])
 		@getBlock('meta').reset([]).add([
 			'<meta http-equiv="X-Powered-By" content="DocPad"/>'
 		])
 		@getBlock('scripts').reset([])
 		@getBlock('styles').reset([])
+
+		# Reset caches
+		@filesByUrl = {}
+		@filesBySelector = {}
+		@filesByRelativePath = {}
 
 		# Perform any plugin extensions to what we just cleaned
 		# and forward
@@ -2599,7 +2607,7 @@ class DocPad extends EventEmitterEnhanced
 			docpad.fatal(err)  if err
 		forward = (args...) =>
 			@log 'debug', util.format(locale.actionFinished, action)
-			balUtil.wait 0, -> next(args...)
+			process.nextTick -> next(args...)  # not sure why we do this, but we do
 
 		# Wrap
 		runner.addTask (complete) ->
@@ -2772,17 +2780,20 @@ class DocPad extends EventEmitterEnhanced
 
 		# Update generating flag
 		docpad.generating = false
+		docpad.generateEnded = new Date()
+
+		# Update caches
+		docpad.databaseCache = null
 		collection.each (file) ->
 			for url in file.get('urls')
 				docpad.filesByUrl[url] = file.cid
-		docpad.filesByUrlCache = docpad.filesByUrl
 
 		# Fire plugins
 		docpad.emitSync 'generateAfter', server:docpad.getServer(), (err) ->
 			return next(err)  if err
 
 			# Log generated
-			seconds = (new Date() - docpad.lastGenerate) / 1000
+			seconds = (docpad.generateEnded - docpad.generateStarted) / 1000
 			howMany =
 				if collection is database
 					"all #{collection.length}"
@@ -2797,8 +2808,9 @@ class DocPad extends EventEmitterEnhanced
 		# Chain
 		@
 
-	# Date object of the last generate
-	lastGenerate: null
+	# Generate times
+	generateStarted: null
+	generateEnded: null
 
 	# Flag for whether or not we are generating
 	generating: false
@@ -2809,7 +2821,6 @@ class DocPad extends EventEmitterEnhanced
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
-		docpad.lastGenerate ?= new Date('1970')
 		locale = @getLocale()
 		opts.reset ?= true
 
@@ -2841,10 +2852,10 @@ class DocPad extends EventEmitterEnhanced
 				# Create a colelction for the files to reload
 				filesToReload = opts.filesToReload or new FilesCollection()
 				# Add anything which was modified since our last generate
-				filesToReload.add(database.findAll(mtime: $gte: docpad.lastGenerate).models)
+				filesToReload.add(database.findAll(mtime: $gte: docpad.generateStarted).models)
 
 				# Update our generate time
-				docpad.lastGenerate = new Date()
+				docpad.generateStarted = new Date()
 
 				# Perform the reload of the selected files
 				docpad.loadFiles {collection:filesToReload}, (err) ->
@@ -2879,7 +2890,7 @@ class DocPad extends EventEmitterEnhanced
 		# Re-load and re-render everything
 		else
 			# Prepare
-			docpad.lastGenerate = new Date()
+			docpad.generateStarted = new Date()
 			balUtil.flow(
 				object: docpad
 				action: 'generateCheck generatePrepare generateParse generateRender generatePostpare'
@@ -3443,15 +3454,16 @@ class DocPad extends EventEmitterEnhanced
 		# Prepare
 		docpad = @
 
-		# If we are generating then wait until generation is complete before continuing
-		if docpad.lastGenerate is null or docpad.generating is true
+		# If we have not performed a generation yet then wait until the initial generation has completed
+		if docpad.generateEnded is null # or docpad.generating is true
 			docpad.once 'generateAfter', ->
 				return docpad.serverMiddlewareRouter(req,res,next)
 			return @
 
 		# Prepare
+		database = docpad.getDatabaseCache()
 		cleanUrl = req.url.replace(/\?.*/,'')
-		file = docpad.getFileByUrl(req.url) or docpad.getFileByUrl(cleanUrl)
+		file = docpad.getFileByUrl(req.url,{collection:database}) or docpad.getFileByUrl(cleanUrl,{collection:database})
 		return next()  if file? is false
 
 		# Check if we are the desired url
@@ -3470,7 +3482,7 @@ class DocPad extends EventEmitterEnhanced
 	serverMiddleware404: (req,res,next) =>
 		# Prepare
 		docpad = @
-		database = docpad.getDatabase()
+		database = docpad.getDatabaseCache()
 
 		# Check
 		return res.send(500)  unless database
@@ -3486,7 +3498,7 @@ class DocPad extends EventEmitterEnhanced
 	serverMiddleware500: (err,req,res,next) =>
 		# Prepare
 		docpad = @
-		database = docpad.getDatabase()
+		database = docpad.getDatabaseCache()
 
 		# Check
 		return res.send(500)  unless database
