@@ -645,7 +645,6 @@ class DocumentModel extends FileModel
 
 		# Adjust
 		metaData = meta.toJSON()
-		console.log({metaData})
 		header = CSON.stringifySync(metaData)
 		content = body = content.replace(/^\s+/,'')
 		source = "#{seperator} #{parser}\n#{header}\n#{seperator}\n\n#{body}"

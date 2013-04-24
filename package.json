@@ -65,7 +65,7 @@
 		"npm": ">=1.2"
 	},
 	"dependencies": {
-		"bal-util": "~2.0.4",
+		"bal-util": "~2.0.5",
 		"typechecker": "~2.0.1",
 		"ambi": "~2.0.0",
 		"extendr": "~2.0.1",
@@ -75,17 +75,18 @@
 		"caterpillar": "~1.1.4",
 		"commander": "~1.1.1",
 		"cson": "~1.4.1",
-		"express": "~3.1.0",
+		"express": "~3.2.0",
 		"jschardet": "~1.0.2",
 		"mime": "~1.2.9",
 		"query-engine": "~1.5.2",
 		"semver": "~1.1.4",
-		"lodash": "~1.1.1",
+		"lodash": "~1.2.0",
 		"backbone": "1.0.0",
 		"watchr": "~2.4.1",
 		"yamljs": "~0.1.4",
 		"getmac": "~1.0.4",
-		"canihaz": "~1.0.0"
+		"canihaz": "~1.0.0",
+		"multimeter": "~0.1.1"
 	},
 	"optionalDependencies": {
 		"airbrake": "~0.2.9",
@@ -100,7 +101,7 @@
 		"chai": "~1.5.0",
 		"joe": "~1.2.0",
 		"joe-reporter-console": "~1.2.1",
-		"request": "~2.16.6"
+		"request": "~2.20.0"
 	},
 	"directories": {
 		"lib": "./out/lib"
