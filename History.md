@@ -1,5 +1,8 @@
 ## History
 
+- v6.31.4 April 25, 2013
+	- Fixed "ReferenceError: existingModel is not defined" when you have outPath conflicts
+
 - v6.31.3 April 25, 2013
 	- Moved progress bar code into [bevry/progressbar](http://github.com/bevry/progressbar)
 		- Fixes issues with progress bars on ubuntu and windows
