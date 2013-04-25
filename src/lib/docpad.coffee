@@ -1046,6 +1046,7 @@ class DocPad extends EventEmitterEnhanced
 				if existingModelId isnt model.id
 					# We have a conflict, let the user know
 					modelPath = model.get('fullPath')
+					existingModel = @database.get(existingModelId)
 					existingModelPath = existingModel.get('fullPath')
 					message =  util.format(docpad.getLocale().outPathConflict, outPath, modelPath, existingModelPath)
 					docpad.warn(message)
