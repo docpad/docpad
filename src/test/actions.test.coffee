@@ -41,7 +41,6 @@ process.on 'uncaughtException', (err) ->
 
 # Local globals
 docpad = null
-logger = null
 
 
 # -------------------------------------

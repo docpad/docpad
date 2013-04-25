@@ -44,9 +44,6 @@ class PluginTester
 	# DocPad Instance
 	docpad: null
 
-	# Logger Instance
-	logger: null
-
 	# Constructor
 	constructor: (config={},docpadConfig={},next) ->
 		# Apply Configuration
@@ -90,7 +87,6 @@ class PluginTester
 			DocPad.createInstance docpadConfig, (err,docpad) ->
 				return done(err)  if err
 				tester.docpad = docpad
-				tester.logger = docpad.logger
 				tester.docpad.action 'clean', (err) ->
 					return done(err)  if err
 					tester.docpad.action 'install', (err) ->

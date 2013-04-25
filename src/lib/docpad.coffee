@@ -4,7 +4,6 @@
 # Necessary
 pathUtil = require('path')
 _ = require('lodash')
-caterpillar = require('caterpillar')
 CSON = require('cson')
 balUtil = require('bal-util')
 extendr = require('extendr')
@@ -159,11 +158,18 @@ class DocPad extends EventEmitterEnhanced
 		@serverHttp = servers.serverHttp
 
 	# The caterpillar instance bound to docpad
-	loggerInstance: null
-	getLogger: ->
-		@loggerInstance
-	setLogger: (value) ->
-		@loggerInstance = value
+	loggerInstances: null
+	getLogger: (all=false) ->
+		if all
+			@loggerInstances
+		else
+			@loggerInstances?.logger
+	setLogger: (value,all=false) ->
+		if all or value.logger?
+			@loggerInstances = value
+		else
+			@loggerInstances ?= {}
+			@loggerInstances.logger = value
 		@
 
 	# The action runner instance bound to docpad
@@ -963,12 +969,12 @@ class DocPad extends EventEmitterEnhanced
 				locale = docpad.getLocale()
 				docpad.log('warn', locale.trackError+'\n'+locale.errorFollows, err)
 
-		# Initialize a default logger
-		logger = new caterpillar.Logger(
-			transports:
-				formatter: module: module
-		)
-		@setLogger(logger)
+		# Initialize the logger
+		logger = new (require('caterpillar').Logger)()
+		filter = new (require('caterpillar-filter').Filter)
+		last = human = new (require('caterpillar-human').Human)
+		logger.pipe(filter).pipe(human).pipe(process.stdout)
+		@setLogger({logger,filter,human,last})
 		@setLogLevel(6)
 
 		# Log to bubbled events
@@ -1788,7 +1794,7 @@ class DocPad extends EventEmitterEnhanced
 
 	# Set Log Level
 	setLogLevel: (level) ->
-		@getLogger().setLevel(level)
+		@getLogger().setConfig({level})
 		@
 
 	# Are we debugging?
@@ -2856,9 +2862,11 @@ class DocPad extends EventEmitterEnhanced
 		# Progress
 		if @getLogLevel() is 6 and 'development' in @getEnvironments()
 			opts.progress ?= require('progressbar').create()
+			docpad.getLogger(true).last.unpipe(process.stdout)
 		finish = (err) ->
 			opts.progress?.finish()
 			opts.progress = null
+			docpad.getLogger(true).last.pipe(process.stdout)
 			return next(err)
 
 		# Re-load and re-render only what is necessary

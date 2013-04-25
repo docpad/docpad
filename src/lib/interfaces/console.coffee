@@ -1,5 +1,5 @@
 # Requires
-{cliColor} = require('caterpillar')
+cliColor = require('cli-color')
 pathUtil = require('path')
 balUtil = require('bal-util')
 safefs = require('safefs')
