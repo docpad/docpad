@@ -1,5 +1,8 @@
 ## History
 
+- v6.31.5 April 25, 2013
+	- Progress bars now obey the `prompts` configuration option instead of v6.31.2 environment hack
+
 - v6.31.4 April 25, 2013
 	- Fixed "ReferenceError: existingModel is not defined" when you have outPath conflicts
 

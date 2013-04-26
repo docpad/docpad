@@ -2847,15 +2847,20 @@ class DocPad extends EventEmitterEnhanced
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
+		config = @getConfig()
 		locale = @getLocale()
 		opts.reset ?= true
 
 		# Check
 		return next()  if opts.collection?.length is 0
 
-		# Progress
-		if @getLogLevel() is 6 and 'development' in @getEnvironments()
+		# Only show progress if
+		# - prompts are supported (so no servers)
+		# - and we are log level 6 (the default level)
+		if config.prompts and @getLogLevel() is 6
 			opts.progress ?= require('progressbar').create()
+
+		# Ensure progress is always removed correctly
 		finish = (err) ->
 			opts.progress?.finish()
 			opts.progress = null
