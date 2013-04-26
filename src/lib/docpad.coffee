@@ -1743,7 +1743,7 @@ class DocPad extends EventEmitterEnhanced
 		# Perform a complete clean of our collections
 		database.reset([])
 		@getBlock('meta').reset([]).add([
-			'<meta http-equiv="X-Powered-By" content="DocPad"/>'
+			"""<meta http-equiv="X-Powered-By" content="DocPad v#{docpad.version}"/>"""
 		])
 		@getBlock('scripts').reset([])
 		@getBlock('styles').reset([])
@@ -3464,8 +3464,12 @@ class DocPad extends EventEmitterEnhanced
 
 	# Server Middleware: Header
 	serverMiddlewareHeader: (req,res,next) ->
+		# Prepare
+		docpad = @
+
+		# Handle
 		tools = res.get('X-Powered-By').split(/[,\s]+/g)
-		tools.push 'DocPad'
+		tools.push("DocPad v#{docpad.version}")
 		tools = tools.join(',')
 		res.set('X-Powered-By',tools)
 		next()
