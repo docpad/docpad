@@ -157,20 +157,16 @@ class DocPad extends EventEmitterEnhanced
 		@serverExpress = servers.serverExpress
 		@serverHttp = servers.serverHttp
 
-	# The caterpillar instance bound to docpad
+	# The caterpillar instances bound to docpad
 	loggerInstances: null
-	getLogger: (all=false) ->
-		if all
-			@loggerInstances
+	getLogger: -> @loggerInstances?.logger
+	getLoggers: -> @loggerInstances
+	setLoggers: (loggers) ->
+		if @loggerInstances
+			@warn('Loggers have already been set')
 		else
-			@loggerInstances?.logger
-	setLogger: (value,all=false) ->
-		if all or value.logger?
-			@loggerInstances = value
-		else
-			@loggerInstances ?= {}
-			@loggerInstances.logger = value
-		@
+			@loggerInstances = loggers
+		return loggers
 
 	# The action runner instance bound to docpad
 	actionRunnerInstance: null
@@ -969,12 +965,27 @@ class DocPad extends EventEmitterEnhanced
 				locale = docpad.getLocale()
 				docpad.log('warn', locale.trackError+'\n'+locale.errorFollows, err)
 
-		# Initialize the logger
-		logger = new (require('caterpillar').Logger)()
-		filter = new (require('caterpillar-filter').Filter)
-		last = human = new (require('caterpillar-human').Human)
-		logger.pipe(filter).pipe(human).pipe(process.stdout)
-		@setLogger({logger,filter,human,last})
+		# Initialize the loggers
+		if (loggers = instanceConfig.loggers)
+			delete instanceConfig.loggers
+		else
+			# Create
+			logger = new (require('caterpillar').Logger)()
+
+			# console
+			(console = logger
+				.pipe(
+					new (require('caterpillar-filter').Filter)
+				).pipe(
+					new (require('caterpillar-human').Human)
+				)
+			).pipe(process.stdout)
+
+			# Apply
+			loggers = {logger,console}
+
+		# Configure
+		@setLoggers(loggers)
 		@setLogLevel(6)
 
 		# Log to bubbled events
@@ -1279,7 +1290,6 @@ class DocPad extends EventEmitterEnhanced
 		@setServer(@config.server)  if @config.server
 
 		# Extract and apply the logger
-		@setLogger(@config.logger)  if @config.logger
 		@setLogLevel(@config.logLevel)
 
 		# Resolve any paths
@@ -1795,6 +1805,15 @@ class DocPad extends EventEmitterEnhanced
 	# Set Log Level
 	setLogLevel: (level) ->
 		@getLogger().setConfig({level})
+		if level is 7
+			loggers = @getLoggers()
+			loggers.debug ?= loggers.logger
+				.pipe(
+					new (require('caterpillar-human').Human)
+				)
+				.pipe(
+					require('fs').createWriteStream(process.cwd()+'/docpad-debug.log')
+				)
 		@
 
 	# Are we debugging?
@@ -2862,11 +2881,11 @@ class DocPad extends EventEmitterEnhanced
 		# Progress
 		if @getLogLevel() is 6 and 'development' in @getEnvironments()
 			opts.progress ?= require('progressbar').create()
-			docpad.getLogger(true).last.unpipe(process.stdout)
+			docpad.getLoggers().console.unpipe(process.stdout)
 		finish = (err) ->
 			opts.progress?.finish()
 			opts.progress = null
-			docpad.getLogger(true).last.pipe(process.stdout)
+			docpad.getLoggers().console.pipe(process.stdout)
 			return next(err)
 
 		# Re-load and re-render only what is necessary
