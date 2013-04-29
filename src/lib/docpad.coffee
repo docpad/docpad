@@ -1759,7 +1759,7 @@ class DocPad extends EventEmitterEnhanced
 		# Perform a complete clean of our collections
 		database.reset([])
 		@getBlock('meta').reset([]).add([
-			'<meta http-equiv="X-Powered-By" content="DocPad"/>'
+			"""<meta http-equiv="X-Powered-By" content="DocPad v#{docpad.version}"/>"""
 		])
 		@getBlock('scripts').reset([])
 		@getBlock('styles').reset([])
@@ -2872,16 +2872,21 @@ class DocPad extends EventEmitterEnhanced
 		# Prepare
 		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
 		docpad = @
+		config = @getConfig()
 		locale = @getLocale()
 		opts.reset ?= true
 
 		# Check
 		return next()  if opts.collection?.length is 0
 
-		# Progress
-		if @getLogLevel() is 6 and 'development' in @getEnvironments()
+		# Only show progress if
+		# - prompts are supported (so no servers)
+		# - and we are log level 6 (the default level)
+		if config.prompts and @getLogLevel() is 6
 			opts.progress ?= require('progressbar').create()
 			docpad.getLoggers().console.unpipe(process.stdout)
+
+		# Ensure progress is always removed correctly
 		finish = (err) ->
 			opts.progress?.finish()
 			opts.progress = null
@@ -3486,8 +3491,12 @@ class DocPad extends EventEmitterEnhanced
 
 	# Server Middleware: Header
 	serverMiddlewareHeader: (req,res,next) ->
+		# Prepare
+		docpad = @
+
+		# Handle
 		tools = res.get('X-Powered-By').split(/[,\s]+/g)
-		tools.push 'DocPad'
+		tools.push("DocPad v#{docpad.version}")
 		tools = tools.join(',')
 		res.set('X-Powered-By',tools)
 		next()
