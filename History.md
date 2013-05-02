@@ -1,5 +1,16 @@
 ## History
 
+- v6.32.0 May 2, 2013
+	- Now uses [Caterpillar](https://github.com/bevry/caterpillar) v2
+	- We now write a `docpad-debug.log` file when running with the `-d` flag, submit this when you file a bug report :)
+	- Fixed colors not showing on custom Terminal color schemes
+	- Fixed a double progress bar issue when a log message occurs when the progress bar is being written
+	- Removed `setLogger()` instead you should do `getLogger()` and pipe the results to where you need
+	- Added `getLoggers()` to fetch all the different logger streams we are using, generally there are:
+		- `logger` the stream we write log messages to
+		- `console` the stream that is outputted to stdout
+		- `debug` the stream that is outputted to the debug log file
+
 - v6.31.6 April 26, 2013
 	- `X-Powered-By` now also includes the DocPad version number
 
@@ -11,7 +22,7 @@
 
 - v6.31.3 April 25, 2013
 	- Moved progress bar code into [bevry/progressbar](http://github.com/bevry/progressbar)
-		- Fixes issues with progress bars on ubuntu and windows
+		- Fixes issues with progress bars on Ubuntu and Windows
 
 - v6.31.2 April 25, 2013
 	- Do not show progress bars on production environments
