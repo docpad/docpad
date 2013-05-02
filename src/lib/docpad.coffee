@@ -435,6 +435,9 @@ class DocPad extends EventEmitterEnhanced
 	# The DocPad locale path
 	localePath: pathUtil.join(__dirname, '..', '..', 'locale')
 
+	# The DocPad debug log path
+	debugLogPath: pathUtil.join(process.cwd(), 'docpad-debug.log')
+
 	# The User's configuration path
 	userConfigPath: '.docpad.cson'
 
@@ -984,9 +987,10 @@ class DocPad extends EventEmitterEnhanced
 			# Apply
 			loggers = {logger,console}
 
-		# Configure
-		@setLoggers(loggers)
-		@setLogLevel(6)
+		# Apply the loggers
+		safefs.unlink(@debugLogPath, ->)  # Remove the old debug log file
+		@setLoggers(loggers)  # Apply the logger streams
+		@setLogLevel(6)  # Set the default log level
 
 		# Log to bubbled events
 		@on 'log', (args...) ->
@@ -1809,10 +1813,10 @@ class DocPad extends EventEmitterEnhanced
 			loggers = @getLoggers()
 			loggers.debug ?= loggers.logger
 				.pipe(
-					new (require('caterpillar-human').Human)
+					new (require('caterpillar-human').Human)(color:false)
 				)
 				.pipe(
-					require('fs').createWriteStream(process.cwd()+'/docpad-debug.log')
+					require('fs').createWriteStream(@debugLogPath)
 				)
 		@
 
@@ -2888,9 +2892,10 @@ class DocPad extends EventEmitterEnhanced
 
 		# Ensure progress is always removed correctly
 		finish = (err) ->
-			opts.progress?.finish()
-			opts.progress = null
-			docpad.getLoggers().console.pipe(process.stdout)
+			if opts.progress
+				opts.progress.finish()
+				opts.progress = null
+				docpad.getLoggers().console.pipe(process.stdout)
 			return next(err)
 
 		# Re-load and re-render only what is necessary
