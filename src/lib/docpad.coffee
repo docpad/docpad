@@ -2358,7 +2358,8 @@ class DocPad extends EventEmitterEnhanced
 		return next(null,@exchange)  unless typeChecker.isEmptyObject(@exchange)
 
 		# Otherwise fetch it from the exchangeUrl
-		@loadConfigUrl @config.exchangeUrl, (err,parsedData) ->
+		exchangeUrl = @config.exchangeUrl+'?version='+@version
+		@loadConfigUrl exchangeUrl, (err,parsedData) ->
 			return next(err)  if err
 			@exchange = parsedData
 			return next(null,parsedData)
