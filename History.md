@@ -1,5 +1,10 @@
 ## History
 
+- v6.33.0 May 6, 2013
+	- We now load the exchange file based on which DocPad version we are running
+	- Updated dependencies
+		- [Caterpillar Human](https://github.com/bevry/caterpillar-human) v3.1 from v3.0
+
 - v6.32.0 May 2, 2013
 	- Now uses [Caterpillar](https://github.com/bevry/caterpillar) v2
 	- We now write a `docpad-debug.log` file when running with the `-d` flag, submit this when you file a bug report :)
