@@ -1,5 +1,10 @@
 ## History
 
+- v6.34.0 May 8, 2013
+	- Now uses [envfile](https://github.com/bevry/envfile) for `.env` file parsing
+	- Fixed `TypeError: Cannot call method 'get' of undefined -> /lib/docpad.js:972` error when using [minicms plugin](https://github.com/jeremyfa/docpad-plugin-minicms)
+		- Closes [issue #501](https://github.com/bevry/docpad/issues/501) reported by [rleite](https://github.com/rleite)
+
 - v6.33.0 May 6, 2013
 	- We now load the exchange file based on which DocPad version we are running
 	- Updated dependencies

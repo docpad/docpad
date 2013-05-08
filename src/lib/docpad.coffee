@@ -1065,12 +1065,16 @@ class DocPad extends EventEmitterEnhanced
 				# Update the cache entry and fetch the latest if it was already set
 				existingModelId = @filesByOutPath[outPath] ?= model.id
 				if existingModelId isnt model.id
-					# We have a conflict, let the user know
-					modelPath = model.get('fullPath')
 					existingModel = @database.get(existingModelId)
-					existingModelPath = existingModel.get('fullPath')
-					message =  util.format(docpad.getLocale().outPathConflict, outPath, modelPath, existingModelPath)
-					docpad.warn(message)
+					if existingModel
+						# We have a conflict, let the user know
+						modelPath = model.get('fullPath')
+						existingModelPath = existingModel.get('fullPath')
+						message =  util.format(docpad.getLocale().outPathConflict, outPath, modelPath, existingModelPath)
+						docpad.warn(message)
+					else
+						# There reference was old, update it with our new one
+						@filesByOutPath[outPath] = model.id
 			)
 		@locales = extendr.dereference(@locales)
 		@userConfig = extendr.dereference(@userConfig)
@@ -1439,16 +1443,10 @@ class DocPad extends EventEmitterEnhanced
 			envPath = pathUtil.join(rootPath, '.env')
 			safefs.exists envPath, (exists) ->
 				return complete()  unless exists
-				safefs.readFile envPath, (err,data) ->
+				require('envfile').parseFile envPath, (err,data) ->
 					return complete(err)  if err
-					result = data.toString()
-					lines = result.split('\n')
-					for line in lines
-						match = line.match(/^([^=]+?)=(.*)/)
-						if match
-							key = match[1]
-							value = match[2]
-							process.env[key] = value
+					for own key,value of data
+						process.env[key] = value
 					return complete()
 
 		# Load Website's Configuration
