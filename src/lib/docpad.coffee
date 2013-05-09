@@ -1753,6 +1753,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err)
 	resetCollections: (next) ->
 		# Prepare
+		docpad = @
 		database = @getDatabase()
 
 		# Update the cached database
