@@ -68,7 +68,6 @@
 		"bal-util": "~2.0.5",
 		"typechecker": "~2.0.1",
 		"ambi": "~2.0.0",
-		"cli-color": "~0.2.2",
 		"extendr": "~2.0.1",
 		"eachr": "~2.0.2",
 		"safefs": "~3.0.1",

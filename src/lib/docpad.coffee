@@ -383,24 +383,31 @@ class DocPad extends EventEmitterEnhanced
 		@skeletonsCollection = new Collection()
 		@skeletonsCollection.comparator = queryEngine.generateComparator(position:1, name:1)
 		@getExchange (err,exchange) ->
+			# Check
 			return next(err)  if err
-			# Add options
+
+			# Prepare
 			index = 0
-			for own skeletonKey,skeleton of exchange.skeletons
-				skeleton.id ?= skeletonKey
-				skeleton.name ?= skeletonKey
-				skeleton.position ?= index
-				docpad.skeletonsCollection.add(new Model(skeleton))
-				++index
+
+			# If we have the exchange data, then add the skeletons from it
+			if exchange
+				for own skeletonKey,skeleton of exchange.skeletons
+					skeleton.id ?= skeletonKey
+					skeleton.name ?= skeletonKey
+					skeleton.position ?= index
+					docpad.skeletonsCollection.add(new Model(skeleton))
+					++index
+
 			# Add No Skeleton Option
 			docpad.skeletonsCollection.add(new Model(
 				id: 'none'
 				name: locale.skeletonNoneName
 				description: locale.skeletonNoneDescription
-				position: Infinity
+				position: index
 			))
+
 			# Return Collection
-			return next(null,docpad.skeletonsCollection)
+			return next(null, docpad.skeletonsCollection)
 		@
 
 
@@ -2353,13 +2360,22 @@ class DocPad extends EventEmitterEnhanced
 	# Requires internet access
 	# next(err,exchange)
 	getExchange: (next) ->
+		# Prepare
+		docpad = @
+
 		# Check if it is stored locally
 		return next(null,@exchange)  unless typeChecker.isEmptyObject(@exchange)
 
 		# Otherwise fetch it from the exchangeUrl
 		exchangeUrl = @config.exchangeUrl+'?version='+@version
 		@loadConfigUrl exchangeUrl, (err,parsedData) ->
-			return next(err)  if err
+			# Check
+			if err
+				locale = docpad.getLocale()
+				docpad.log('notice', locale.exchangeError+'\n'+locale.errorFollows, err)
+				return next()
+
+			# Success
 			@exchange = parsedData
 			return next(null,parsedData)
 
@@ -2723,7 +2739,7 @@ class DocPad extends EventEmitterEnhanced
 		if opts.reset is true
 			# Check plugin count
 			unless docpad.hasPlugins()
-				docpad.log('warn', locale.renderNoPlugins)
+				docpad.log('notice', locale.renderNoPlugins)
 
 			# Check if the source directory exists
 			tasks.addTask (complete) ->
@@ -2869,6 +2885,37 @@ class DocPad extends EventEmitterEnhanced
 	generateStarted: null
 	generateEnded: null
 	generating: false
+	progress: null
+
+	# Create Progress Bar
+	createProgress: ->
+		# Prepare
+		docpad = @
+		config = docpad.getConfig()
+
+		# Only show progress if
+		# - prompts are supported (so no servers)
+		# - and we are log level 6 (the default level)
+		progress = null
+		if config.prompts and @getLogLevel() is 6
+			progress = require('progressbar').create()
+			@getLoggers().console.unpipe(process.stdout)
+			@getLogger().once 'log', progress.logListener ?= (data) ->
+				if data.levelNumber <= 5  # notice or higher
+					docpad.destroyProgress(progress)
+
+		# Return
+		return progress
+
+	# Destroy Progress Bar
+	destroyProgress: (progress) ->
+		# Fetch
+		if progress
+			progress.finish()
+			@getLoggers().console.unpipe(process.stdout).pipe(process.stdout)
+
+		# Return
+		return progress
 
 	# Generate
 	# next(err)
@@ -2883,19 +2930,14 @@ class DocPad extends EventEmitterEnhanced
 		# Check
 		return next()  if opts.collection?.length is 0
 
-		# Only show progress if
-		# - prompts are supported (so no servers)
-		# - and we are log level 6 (the default level)
-		if config.prompts and @getLogLevel() is 6
-			opts.progress ?= require('progressbar').create()
-			docpad.getLoggers().console.unpipe(process.stdout)
+		# Create the progress bar
+		opts.progress ?= @createProgress()
 
 		# Ensure progress is always removed correctly
 		finish = (err) ->
 			if opts.progress
-				opts.progress.finish()
+				docpad.destroyProgress(opts.progress)
 				opts.progress = null
-				docpad.getLoggers().console.pipe(process.stdout)
 			return next(err)
 
 		# Re-load and re-render only what is necessary
@@ -3430,6 +3472,7 @@ class DocPad extends EventEmitterEnhanced
 				docpad.getSkeletons (err,skeletonsCollection) ->
 					# Check
 					return next(err)  if err
+
 					# Provide selection to the interface
 					selectSkeletonCallback skeletonsCollection, (err,skeletonModel) ->
 						return next(err)  if err
