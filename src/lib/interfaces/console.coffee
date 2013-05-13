@@ -1,5 +1,4 @@
 # Requires
-cliColor = require('cli-color')
 pathUtil = require('path')
 balUtil = require('bal-util')
 safefs = require('safefs')
@@ -274,19 +273,19 @@ class ConsoleInterface
 		skeletonNames = []
 
 		# Show
-		console.log cliColor.bold locale.skeletonSelectionIntroduction+'\n'
+		docpad.log 'info', locale.skeletonSelectionIntroduction+'\n'
 		skeletonsCollection.forEach (skeletonModel) ->
 			skeletonName = skeletonModel.get('name')
 			skeletonDescription = skeletonModel.get('description').replace(/\n/g,'\n\t')
 			skeletonNames.push(skeletonName)
 			console.log """
-				\t#{cliColor.bold(skeletonName)}
-				\t#{skeletonDescription}
+				#{skeletonModel.get('position')+1}. #{skeletonName}
+				   #{skeletonDescription}
 
 				"""
 
 		# Select
-		console.log cliColor.bold locale.skeletonSelectionPrompt
+		docpad.log 'info', locale.skeletonSelectionPrompt
 		commander.choose skeletonNames, (i) ->
 			process.stdin.destroy()
 			return next(null, skeletonsCollection.at(i))

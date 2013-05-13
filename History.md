@@ -1,5 +1,11 @@
 ## History
 
+- v6.34.2 May 13, 2013
+	- We now support `docpad run` on empty directories when offline
+		- Before it would crash because it could not load the exchange data, now it will continue anyway
+	- Removed `cli-color` dependency
+	- Progress bar will now be destroyed when a notice or higher importance message is logged
+
 - v6.34.1 May 9, 2013
 	- Fixed `ReferenceError: docpad is not defined`
 
