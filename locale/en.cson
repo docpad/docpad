@@ -173,6 +173,7 @@
 	errorFollows: "The error follows:"
 	reportError: "An error occured reporting the error"
 	trackError: "An error occured sending statistics"
+	exchangeError: "An error occured fetching the exchange data, this is okay, but not all skeletons will be available to you"
 	unknownModelInCollection: "Unknown model structure inside the collection"
 	upgradeNotification: "There's a new version of DocPad available"
 	upgradeDetails: """
