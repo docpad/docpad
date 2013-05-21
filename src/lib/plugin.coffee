@@ -43,9 +43,6 @@ class BasePlugin
 		# Return early if we are disabled
 		return @  if @isEnabled() is false
 
-		# Bind Events
-		@bindEvents()
-
 		# Chain
 		@
 
