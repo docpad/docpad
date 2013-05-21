@@ -1351,9 +1351,20 @@ class DocPad extends EventEmitterEnhanced
 			return complete()  unless @config.detectEncoding
 			return canihaz('iconv',complete)
 
-		# Plugins
-		postTasks.addTask (complete) =>
-			@loadPlugins(complete)
+		#Load Plugins
+		postTasks.addTask (complete) ->
+			docpad.loadPlugins ->
+				plugins = []
+				for own key, plugin of docpad.loadedPlugins
+					plugins.push plugin
+
+				plugins.sort (a, b) ->
+					b.priority - a.priority
+
+				plugins.forEach (plugin) ->
+					plugin.bindEvents()
+
+				complete()
 
 		# Extend collections
 		postTasks.addTask (complete) =>
