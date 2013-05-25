@@ -1,5 +1,12 @@
 ## History
 
+- v6.35.0 May 25, 2013
+	- We now respect plugin priorities again
+		- Thanks to [Neil Taylor](https://github.com/neilbaylorrulez) for [pull request #511](https://github.com/bevry/docpad/pull/511)
+		- Set plugin priorities by `priority: 500` or whatever in your plugin class
+		- Set event specific priorities by `eventNamePriority: 500` or whatever in your plugin class
+	- Updated dependencies
+
 - v6.34.2 May 13, 2013
 	- We now support `docpad run` on empty directories when offline
 		- Before it would crash because it could not load the exchange data, now it will continue anyway

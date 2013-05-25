@@ -34,6 +34,9 @@ class BasePlugin
 		{docpad,config} = opts
 		@docpad = docpad
 
+		# Bind listeners
+		@bindListeners()
+
 		# Swap out our configuration
 		@config = extendr.deepClone(@config)
 		@instanceConfig = extendr.deepClone(@instanceConfig)
@@ -42,6 +45,9 @@ class BasePlugin
 
 		# Return early if we are disabled
 		return @  if @isEnabled() is false
+
+		# Listen to events
+		@addListeners()
 
 		# Chain
 		@
@@ -69,6 +75,9 @@ class BasePlugin
 		configsToMerge = [@config]
 		docpad.mergeConfigurations(configPackages, configsToMerge)
 
+		# Unbind if we are disabled
+		@unbindEvents()  unless @isEnabled()
+
 		# Chain
 		@
 
@@ -76,8 +85,11 @@ class BasePlugin
 	getConfig: =>
 		return @config
 
-	# Bind Events
-	bindEvents: ->
+	# Alias for b/c
+	bindEvents: -> @addListeners()
+
+	# Bind Listeners
+	bindListeners: ->
 		# Prepare
 		pluginInstance = @
 		docpad = @docpad
@@ -85,15 +97,59 @@ class BasePlugin
 
 		# Bind events
 		eachr events, (eventName) ->
-			if typeChecker.isFunction(pluginInstance[eventName])
-				# Fetch the event handler
-				eventHandler = pluginInstance[eventName]
+			# Fetch the event handler
+			eventHandler = pluginInstance[eventName]
+
+			# Check it exists and is a function
+			if typeChecker.isFunction(eventHandler)
+				# Bind the listener to the plugin
+				pluginInstance[eventName] = eventHandler.bind(pluginInstance)
+
+		# Chain
+		@
+
+	# Add Listeners
+	addListeners: ->
+		# Prepare
+		pluginInstance = @
+		docpad = @docpad
+		events = docpad.getEvents()
+
+		# Bind events
+		eachr events, (eventName) ->
+			# Fetch the event handler
+			eventHandler = pluginInstance[eventName]
+
+			# Check it exists and is a function
+			if typeChecker.isFunction(eventHandler)
+				# Apply the priority
+				eventHandlerPriority = pluginInstance[eventName+'Priority'] or pluginInstance.priority or null
+				eventHandler.priority = eventHandlerPriority
+
 				# Wrap the event handler, and bind it to docpad
-				docpad.on eventName, (opts,next) ->
-					# Finish right away if we are disabled
-					return next()  if pluginInstance.isEnabled() is false
-					# Fire the function, treating the callback as optional
-					ambi(eventHandler.bind(pluginInstance), opts, next)
+				docpad
+					.off(eventName, eventHandler)
+					.on(eventName, eventHandler)
+
+		# Chain
+		@
+
+	# Remove Listeners
+	removeListeners: ->
+		# Prepare
+		pluginInstance = @
+		docpad = @docpad
+		events = docpad.getEvents()
+
+		# Bind events
+		eachr events, (eventName) ->
+			# Fetch the event handler
+			eventHandler = pluginInstance[eventName]
+
+			# Check it exists and is a function
+			if typeChecker.isFunction(eventHandler)
+				# Wrap the event handler, and unbind it from docpad
+				docpad.off(eventName, eventHandler)
 
 		# Chain
 		@
@@ -101,6 +157,7 @@ class BasePlugin
 	# Is Enabled?
 	isEnabled: ->
 		return @config.enabled isnt false
+
 
 # Export Plugin
 module.exports = BasePlugin
