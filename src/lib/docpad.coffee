@@ -93,27 +93,6 @@ class DocPad extends EventEmitterEnhanced
 		# Return
 		return @growlInstance
 
-	# MixPanel
-	mixpanelInstance: null
-	getMixpanelInstance: ->
-		# Create
-		if @mixpanelInstance? is false
-			config = @getConfig()
-			{reportStatistics,mixpanelToken} = config
-			if reportStatistics? and mixpanelToken?
-				if reportStatistics and mixpanelToken
-					try
-						@mixpanelInstance = require('mixpanel').init(mixpanelToken)
-					catch err
-						@mixpanelInstance = false
-				else
-					@mixpanelInstance = false
-			else
-				@mixpanelInstance = null
-
-		# Return
-		return @mixpanelInstance
-
 	# Airbrake
 	airbrakeInstance: null
 	getAirbrakeInstance: ->
@@ -835,9 +814,6 @@ class DocPad extends EventEmitterEnhanced
 		# Airbrake Token
 		airbrakeToken: 'e7374dd1c5a346efe3895b9b0c1c0325'
 
-		# MixPanel Token
-		mixpanelToken: 'd0f9b33c0ec921350b5419352028577e'
-
 
 		# -----------------------------
 		# Other
@@ -1150,7 +1126,6 @@ class DocPad extends EventEmitterEnhanced
 		docpad = @
 		config = @getConfig()
 		locale = @getLocale()
-		mixpanelInstance = @getMixpanelInstance()
 
 		# Render Single Extensions
 		@DocumentModel::defaults.renderSingleExtensions = config.renderSingleExtensions
@@ -1188,8 +1163,8 @@ class DocPad extends EventEmitterEnhanced
 		# Anyomous
 		# Ignore errors
 		tasks.addTask (complete) =>
-			# No statistics or username is already identified
-			return complete()  if !mixpanelInstance or @userConfig.username
+			# Ignore if username is already identified
+			return complete()  if @userConfig.username
 
 			# User is anonymous, set their username to the hashed and salted mac address
 			require('getmac').getMac (err,macAddress) =>
@@ -1210,37 +1185,9 @@ class DocPad extends EventEmitterEnhanced
 				return complete()
 
 		# Track
-		tasks.addTask =>
-			# No stats or no username
-			return  if !mixpanelInstance or !@userConfig.username
-
-			# Prepare the latest user data
-			lastLogin = new Date()
-			userData =
-				$email: @userConfig.email
-				$name: @userConfig.name
-				$last_login: lastLogin
-				$country_code: balUtil.getCountryCode()
-				languageCode: balUtil.getLanguageCode()
-				version: @getVersion()
-				platform: @getProcessPlatform()
-				nodeVersion: @getProcessVersion()
-
-			# Is this a new user?
-			if @userConfig.identified isnt true
-				# Identify the new user with mixpanel
-				mixpanelInstance.people.set @userConfig.username, extendr.extend(userData, {
-					$created: lastLogin
-					$username: @userConfig.username
-				})
-
-				# Save the changes with these
-				@updateUserConfig(identified:true)
-
-			# Or an existing user?
-			else
-				# Update the existing user's information witht he latest
-				mixpanelInstance.people.set(@userConfig.username, userData)
+		tasks.addTask (complete) =>
+			# Identify
+			return @idenfity(complete)
 
 		# DocPad Ready
 		tasks.addTask (complete) =>
@@ -1925,8 +1872,7 @@ class DocPad extends EventEmitterEnhanced
 	# Track
 	track: (name,data={},next) ->
 		# Check
-		mixpanelInstance = @getMixpanelInstance()
-		if mixpanelInstance
+		if @config.reportStatistics
 			# Prepare
 			if @userConfig?.username
 				data.distinct_id = @userConfig.username
@@ -1945,6 +1891,45 @@ class DocPad extends EventEmitterEnhanced
 				mixpanelInstance.track name, data, (err) ->
 					next?()
 					complete(err)
+
+		# Chain
+		next()
+		@
+
+	# Identify
+	identify: (next) ->
+		# Check
+		if @config.reportStatistics and @userConfig.username
+			# Prepare the latest user data
+			lastLogin = new Date()
+			userData =
+				$email: @userConfig.email
+				$name: @userConfig.name
+				$last_login: lastLogin
+				$country_code: balUtil.getCountryCode()
+				languageCode: balUtil.getLanguageCode()
+				version: @getVersion()
+				platform: @getProcessPlatform()
+				nodeVersion: @getProcessVersion()
+
+			# Is this a new user?
+			if @userConfig.identified isnt true
+				# Identify the new user with mixpanel
+				mixpanelInstance.people.set @userConfig.username, extendr.extend(userData, {
+					$created: lastLogin
+					$username: @userConfig.username
+				})
+
+				# Save the changes with these
+				@updateUserConfig(identified:true)
+
+			# Or an existing user?
+			else
+				# Update the existing user's information witht he latest
+				mixpanelInstance.people.set(@userConfig.username, userData)
+
+		# Chain
+		next()
 		@
 
 
