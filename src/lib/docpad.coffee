@@ -1351,20 +1351,9 @@ class DocPad extends EventEmitterEnhanced
 			return complete()  unless @config.detectEncoding
 			return canihaz('iconv',complete)
 
-		#Load Plugins
+		# Load Plugins
 		postTasks.addTask (complete) ->
-			docpad.loadPlugins ->
-				plugins = []
-				for own key, plugin of docpad.loadedPlugins
-					plugins.push plugin
-
-				plugins.sort (a, b) ->
-					b.priority - a.priority
-
-				plugins.forEach (plugin) ->
-					plugin.bindEvents()
-
-				complete()
+			docpad.loadPlugins(complete)
 
 		# Extend collections
 		postTasks.addTask (complete) =>
@@ -2158,6 +2147,7 @@ class DocPad extends EventEmitterEnhanced
 		return typeChecker.isEmptyObject(@loadedPlugins) is false
 
 	# Load Plugins
+	# next(err)
 	loadPlugins: (next) ->
 		# Prepare
 		docpad = @
@@ -2298,6 +2288,7 @@ class DocPad extends EventEmitterEnhanced
 		@
 
 	# Load Plugins
+	# next(err)
 	loadPluginsIn: (pluginsPath, next) ->
 		# Prepare
 		docpad = @
