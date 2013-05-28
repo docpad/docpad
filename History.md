@@ -1,5 +1,8 @@
 ## History
 
+- v6.36.1 May 28, 2013
+	- Fixed `TypeError: Object has no method 'unbindEvents'`
+
 - v6.36.0 May 28, 2013
 	- Rewrote the error-reporting, analytics, newsletter, and identification handling
 	- Fixed a bug with the plugin version not being set on the plugin instance correctly
