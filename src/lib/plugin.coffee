@@ -75,8 +75,8 @@ class BasePlugin
 		configsToMerge = [@config]
 		docpad.mergeConfigurations(configPackages, configsToMerge)
 
-		# Unbind if we are disabled
-		@unbindEvents()  unless @isEnabled()
+		# Remove listeners if we are disabled
+		@removeListeners()  unless @isEnabled()
 
 		# Chain
 		@
