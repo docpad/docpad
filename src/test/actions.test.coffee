@@ -1,5 +1,5 @@
 # RequirestestServer
-request = require('request')
+superAgent = require('superagent')
 balUtil = require('bal-util')
 safefs = require('safefs')
 DocPad = require(__dirname+'/../lib/docpad')
@@ -127,31 +127,35 @@ joe.suite 'docpad-actions', (suite,test) ->
 				done(err)
 
 		test 'served generated documents', (done) ->
-			request "#{baseUrl}/html.html", (err,response,actual) ->
+			superAgent.get "#{baseUrl}/html.html", (err,res) ->
 				return done(err)  if err
+				actual = res.text
 				safefs.readFile "#{outExpectedPath}/html.html", (err,expected) ->
 					return done(err)  if err
 					expect(actual.toString().trim()).to.be.equal(expected.toString().trim())
 					done()
 
 		test 'served custom urls', (done) ->
-			request "#{baseUrl}/my-custom-url", (err,response,actual) ->
+			superAgent.get "#{baseUrl}/my-custom-url", (err,res) ->
 				return done(err)  if err
+				actual = res.text
 				safefs.readFile "#{outExpectedPath}/custom-url.html", (err,expected) ->
 					return done(err)  if err
 					expect(actual.toString().trim()).to.be.equal(expected.toString().trim())
 					done()
 
 		test 'served dynamic documents - part 1/2', (done) ->
-			request "#{baseUrl}/dynamic.html?name=ben", (err,response,actual) ->
+			superAgent.get "#{baseUrl}/dynamic.html?name=ben", (err,res) ->
 				return done(err)  if err
+				actual = res.text
 				expected = 'hi ben'
 				expect(actual.toString().trim()).to.be.equal(expected)
 				done()
 
 		test 'served dynamic documents - part 2/2', (done) ->
-			request "#{baseUrl}/dynamic.html?name=joe", (err,response,actual) ->
+			superAgent.get "#{baseUrl}/dynamic.html?name=joe", (err,res) ->
 				return done(err)  if err
+				actual = res.text
 				expected = 'hi joe'
 				expect(actual.toString().trim()).to.be.equal(expected)
 				done()

@@ -364,6 +364,7 @@ class ConsoleInterface
 						if err
 							# Inform the user
 							console.log locale.subscribeError
+
 							# Save a time when we should try to subscribe again
 							userConfig.subscribeTryAgain = new Date().getTime() + 1000*60*60*24  # tomorrow
 
@@ -371,6 +372,7 @@ class ConsoleInterface
 						else
 							# Inform the user
 							console.log locale.subscribeSuccess
+
 							# Save the updated subscription status, and continue to what is next
 							userConfig.subscribed = true
 							userConfig.subscribeTryAgain = null
@@ -382,56 +384,39 @@ class ConsoleInterface
 					subscribeTasks.addTask (complete) ->
 						consoleInterface.prompt locale.subscribeNamePrompt, userConfig.name, (result) ->
 							userConfig.name = result
-							complete()
+							return complete()
 
 					# Email Fallback
 					subscribeTasks.addTask (complete) ->
 						consoleInterface.prompt locale.subscribeEmailPrompt, userConfig.email, (result) ->
 							userConfig.email = result
-							complete()
+							return complete()
 
 					# Username Fallback
 					subscribeTasks.addTask (complete) ->
 						consoleInterface.prompt locale.subscribeUsernamePrompt, userConfig.username, (result) ->
 							userConfig.username = result
-							complete()
+							return complete()
 
 					# Save the details
 					subscribeTasks.addTask (complete) ->
-						docpad.updateUserConfig(complete)
+						return docpad.updateUserConfig(complete)
 
 					# Perform the subscribe
 					subscribeTasks.addTask (complete) ->
 						# Inform the user
 						console.log locale.subscribeProgress
 
-						# Prepare our connection
-						requestUrl = docpad.config.helperUrl+'?'+require('querystring').stringify(
-							method: 'add-subscriber'
-							name: userConfig.name
-							email: userConfig.email
-							username: userConfig.username
-						)
-
-						# Innitialize our request
-						balUtil.readPath requestUrl, (err,body) ->
+						# Forward
+						docpad.subscribe (err,res) ->
 							# Check
 							if err
 								docpad.log 'debug', locale.subscribeRequestError, err.message
 								return complete(err)
 
-							# Log it to debug console
-							docpad.log 'debug', locale.subscribeRequestData, body
-
-							# Inform the user know of the success or not
-							try
-								data = JSON.parse(body)
-								if data.success is false
-									complete(new Error(data.error or 'unknown error'))
-								else
-									complete()
-							catch err
-								complete(err)
+							# Success
+							docpad.log 'debug', locale.subscribeRequestData, res.text
+							return complete()
 
 					# Run
 					subscribeTasks.run()

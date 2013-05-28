@@ -98,7 +98,7 @@ class PluginLoader
 				return failure()  unless pluginPath
 
 				# Success
-				@pluginPath = pluginVersion
+				@pluginVersion = pluginVersion
 				@pluginPath = pluginPath
 				return success()
 
