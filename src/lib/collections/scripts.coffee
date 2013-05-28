@@ -6,7 +6,6 @@ ElementsCollection = require(__dirname+'/elements')
 
 # Scripts Collection
 class ScriptsCollection extends ElementsCollection
-
 	# Add an element to the collection
 	# Right now we just support strings
 	add: (values,opts) ->

@@ -37,6 +37,8 @@ class Collection extends Backbone.Collection
 		@emit('destroy')
 		@off().stopListening()
 		@
+Collection::model = Model
+Collection::collection = Collection
 
 # View
 class View extends Backbone.View
@@ -47,7 +49,6 @@ class View extends Backbone.View
 class QueryCollection extends queryEngine.QueryCollection
 	log: log
 	emit: emit
-	Collection: QueryCollection
 
 	setParentCollection: ->
 		super
@@ -59,6 +60,8 @@ class QueryCollection extends queryEngine.QueryCollection
 		@emit('destroy')
 		@off().stopListening()
 		@
+QueryCollection::model = Model
+QueryCollection::collection = QueryCollection
 
 # Export our base models
 module.exports = {queryEngine,Backbone,Events,Model,Collection,View,QueryCollection}

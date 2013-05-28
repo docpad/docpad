@@ -4,7 +4,6 @@ FileModel = require(__dirname+'/../models/file')
 
 # Files Collection
 class FilesCollection extends QueryCollection
-
 	# Base Model for all items in this collection
 	model: FileModel
 

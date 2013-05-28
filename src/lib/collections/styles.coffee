@@ -6,7 +6,6 @@ ElementsCollection = require(__dirname+'/elements')
 
 # Styles Collection
 class StylesCollection extends ElementsCollection
-
 	# Add an element to the collection
 	# Right now we just support strings
 	add: (values,opts) ->

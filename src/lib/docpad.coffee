@@ -1665,21 +1665,24 @@ class DocPad extends EventEmitterEnhanced
 		# Cycle through Custom Collections
 		eachr @config.collections or {}, (fn,name) ->
 			tasks.addTask (complete) ->
-				if fn.length is 2 # callback
-					fn.call docpad, database, (err,collection) ->
-						docpad.error(err)  if err
-						# make it a live collection
-						collection.live(true)  if collection
-						# apply the collection
-						docpad.setCollection(name,collection)
-						complete()
-				else
-					collection = fn.call(docpad,database)
-					# make it a live collection
+				# Init
+				ambi [fn.bind(docpad), fn], database, (err, collection) ->
+					# Check for error
+					if err
+						docpad.error(err)
+						return complete()
+
+					# Check the type of the collection
+					else unless collection instanceof QueryCollection
+						docpad.log 'warn', util.format(locale.errorInvalidCollection, name)
+						return complete()
+
+					# Make it a live collection
 					collection.live(true)  if collection
-					# apply the collection
+
+					# Apply the collection
 					docpad.setCollection(name,collection)
-					complete()
+					return complete()
 
 		# Run Custom collections
 		tasks.run()

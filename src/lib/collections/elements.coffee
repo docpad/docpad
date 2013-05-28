@@ -6,7 +6,6 @@ typeChecker = require('typechecker')
 
 # Elements Collection
 class ElementsCollection extends Collection
-
 	# Base Model for all items in this collection
 	model: Model
 

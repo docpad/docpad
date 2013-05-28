@@ -1,5 +1,9 @@
 ## History
 
+- v6.36.2 May 28, 2013
+	- You will now be warned if your custom collection is invalid
+	- Child collections will now be of the correct class type
+
 - v6.36.1 May 28, 2013
 	- Fixed `TypeError: Object has no method 'unbindEvents'`
 
