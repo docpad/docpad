@@ -13,6 +13,7 @@ ambi = require('ambi')
 {TaskGroup} = require('taskgroup')
 safefs = require('safefs')
 util = require('util')
+superAgent = require('superagent')
 canihaz = null
 {EventEmitterEnhanced} = balUtil
 
@@ -92,24 +93,6 @@ class DocPad extends EventEmitterEnhanced
 
 		# Return
 		return @growlInstance
-
-	# Airbrake
-	airbrakeInstance: null
-	getAirbrakeInstance: ->
-		# Create
-		if @airbrakeInstance? is false
-			config = @getConfig()
-			{airbrakeToken,reportErrors} = config
-			if reportErrors is true and /win/.test(process.platform) is false
-				try
-					@airbrakeInstance = require('airbrake').createClientairbrakeToken()
-				catch err
-					@airbrakeInstance = false
-			else
-				@airbrakeInstance = false
-
-		# Return
-		return @airbrakeInstance
 
 
 	# ---------------------------------
@@ -811,9 +794,6 @@ class DocPad extends EventEmitterEnhanced
 		# The key that we use to hash some data before sending it to our statistic server
 		hashKey: '7>9}$3hP86o,4=@T'  # const
 
-		# Airbrake Token
-		airbrakeToken: 'e7374dd1c5a346efe3895b9b0c1c0325'
-
 
 		# -----------------------------
 		# Other
@@ -846,7 +826,8 @@ class DocPad extends EventEmitterEnhanced
 
 		# Helper Url
 		# Used for subscribing to newsletter, account information, and statistics etc
-		helperUrl: 'https://docpad.org/helper/'
+		# Helper's source-code can be found at: https://github.com/bevry/docpad-helper
+		helperUrl: if true then 'http://docpad-helper.herokuapp.com/' else 'http://localhost:8000/'
 
 		# Safe Mode
 		# If enabled, we will try our best to sandbox our template rendering so that they cannot modify things outside of them
@@ -890,9 +871,9 @@ class DocPad extends EventEmitterEnhanced
 				maxAge: false
 
 				# Only do these if we are running standalone (aka not included in a module)
-				checkVersion: process.argv.length >= 2 and /docpad$/.test(process.argv[1])
-				welcome: process.argv.length >= 2 and /docpad$/.test(process.argv[1])
-				prompts: process.argv.length >= 2 and /docpad$/.test(process.argv[1])
+				checkVersion: /docpad$/.test(process.argv[1] or '')
+				welcome: /docpad$/.test(process.argv[1] or '')
+				prompts: /docpad$/.test(process.argv[1] or '')
 
 
 	# Regenerate Timer
@@ -943,13 +924,13 @@ class DocPad extends EventEmitterEnhanced
 		@errorRunnerInstance = new TaskGroup().run().on 'complete', (err) ->
 			if err and docpad.getDebugging()
 				locale = docpad.getLocale()
-				docpad.log('warn', locale.reportError+'\n'+locale.errorFollows, err)
+				docpad.log('warn', locale.reportError+'\n'+locale.errorFollows, (err.stack ? err.message).toString())
 
 		# Create our track runner
 		@trackRunnerInstance = new TaskGroup().run().on 'complete', (err) ->
 			if err and docpad.getDebugging()
 				locale = docpad.getLocale()
-				docpad.log('warn', locale.trackError+'\n'+locale.errorFollows, err)
+				docpad.log('warn', locale.trackError+'\n'+locale.errorFollows, (err.stack ? err.message).toString())
 
 		# Initialize the loggers
 		if (loggers = instanceConfig.loggers)
@@ -959,7 +940,7 @@ class DocPad extends EventEmitterEnhanced
 			logger = new (require('caterpillar').Logger)()
 
 			# console
-			(console = logger
+			(loggerConsole = logger
 				.pipe(
 					new (require('caterpillar-filter').Filter)
 				).pipe(
@@ -968,7 +949,7 @@ class DocPad extends EventEmitterEnhanced
 			).pipe(process.stdout)
 
 			# Apply
-			loggers = {logger,console}
+			loggers = {logger,console:loggerConsole}
 
 		# Apply the loggers
 		safefs.unlink(@debugLogPath, ->)  # Remove the old debug log file
@@ -1187,7 +1168,7 @@ class DocPad extends EventEmitterEnhanced
 		# Track
 		tasks.addTask (complete) =>
 			# Identify
-			return @idenfity(complete)
+			return @identify(complete)
 
 		# DocPad Ready
 		tasks.addTask (complete) =>
@@ -1372,7 +1353,6 @@ class DocPad extends EventEmitterEnhanced
 
 				# Version
 				@version = data.version
-				@getAirbrakeInstance()?.appVersion = data.version
 
 				# Done loading
 				return complete()
@@ -1519,12 +1499,15 @@ class DocPad extends EventEmitterEnhanced
 		@log 'debug', util.format(locale.loadingConfigUrl, configUrl)
 
 		# Read the URL
-		balUtil.readPath configUrl, (err,body) ->
-			# Check
-			return next(err)  if err
+		superAgent
+			.get(configUrl)
+			.timeout(30*1000)
+			.end (err,res) ->
+				# Check
+				return next(err)  if err
 
-			# Read the string using CSON
-			CSON.parse(body,next)
+				# Read the string using CSON
+				CSON.parse(res.text, next)
 
 		# Chain
 		@
@@ -1541,6 +1524,7 @@ class DocPad extends EventEmitterEnhanced
 		# Check that it exists
 		safefs.exists configPath, (exists) ->
 			return next(null,null)  unless exists
+
 			# Read the path using CSON
 			CSON.parseFile(configPath, next)
 
@@ -1803,6 +1787,7 @@ class DocPad extends EventEmitterEnhanced
 	error: (err,type='err',next) =>
 		# Prepare
 		docpad = @
+		config = @getConfig()
 		locale = @getLocale()
 
 		# Check
@@ -1814,26 +1799,18 @@ class DocPad extends EventEmitterEnhanced
 		err.logged = true
 		err = new Error(err)  unless err.message?
 		err.logged = true
-		docpad.log(type, locale.errorOccured, '\n'+(err.stack ? err.message))
+		message = (err.stack ? err.message).toString()
+		docpad.log(type, locale.errorOccured, '\n'+message)
 		docpad.notify(err.message, title:locale.errorOccured)
 
-		# Check
-		airbrake = @getAirbrakeInstance()
-		if airbrake
-			# Prepare
-			err.params =
-				docpadVersion: @version
-				docpadConfig: @config
-			# Apply
-			@getErrorRunner().addTask (complete) ->
-				airbrake.notify err, (airbrakeErr,airbrakeUrl) ->
-					if airbrakeErr
-						complete(airbrakeErr)
-					else
-						console.log(util.format(locale.errorLoggedTo, airbrakeUrl))
-						complete()
-		else
-			next?()
+		# Track
+		if config.reportErrors
+			data = {}
+			data.message = err.message
+			data.stack = err.stack.toString()  if err.stack
+			data.config = config
+			data.env = process.env
+			docpad.track('error', data, next)
 
 		# Chain
 		@
@@ -1869,67 +1846,154 @@ class DocPad extends EventEmitterEnhanced
 		# Chain
 		@
 
-	# Track
-	track: (name,data={},next) ->
-		# Check
-		if @config.reportStatistics
-			# Prepare
-			if @userConfig?.username
-				data.distinct_id = @userConfig.username
-				data.username = @userConfig.username
-			if @websitePackageConfig?.name
-				data.websiteName = @websitePackageConfig.name
-			data.version = @getVersion()
-			data.platform = @getProcessPlatform()
-			data.nodeVersion = @getProcessVersion()
-			data.environment = @getEnvironment()
-			eachr @loadedPlugins, (value,key) ->
-				data['plugin-'+key] = value.version or true
+	# Check Request
+	checkRequest: (next) ->
+		return (err,res) ->
+			# Check
+			return next(err,res)  if err
 
-			# Apply
-			@getTrackRunner().addTask (complete) ->
-				mixpanelInstance.track name, data, (err) ->
-					next?()
-					complete(err)
+			# Check
+			if res.body?.success is false or res.body?.error
+				err = new Error(res.body.error or 'unknown request error')
+				return next(err,res)
+
+			# Success
+			return next(null,res)
+
+	# Subscribe
+	# next(err)
+	subscribe: (next) ->
+		# Prepare
+		{helperUrl} = @getConfig()
+
+		# Data
+		data = {}
+		data.name = @userConfig.name
+		data.email = @userConfig.email
+		data.username = @userConfig.username
+
+		# Apply
+		superAgent
+			.post(helperUrl)
+			.type('json').set('Accept', 'application/json')
+			.query(
+				method: 'add-subscriber'
+			)
+			.send(data)
+			.timeout(30*1000)
+			.end @checkRequest next
 
 		# Chain
-		next()
+		@
+
+	# Track
+	# next(err)
+	track: (name,things={},next) ->
+		# Prepare
+		{reportStatistics, helperUrl} = @getConfig()
+
+		# Check
+		if reportStatistics and @userConfig?.username
+			# Data
+			data = {}
+			data.userId = @userConfig.username
+			data.event = name
+			data.properties = things
+
+			# Things
+			things.websiteName = @websitePackageConfig.name  if @websitePackageConfig?.name
+			things.platform = @getProcessPlatform()
+			things.environment = @getEnvironment()
+			things.version = @getVersion()
+			things.nodeVersion = @getProcessVersion()
+
+			# Plugins
+			eachr @loadedPlugins, (value,key) ->
+				things['plugin-'+key] = value.version or true
+
+			# Apply
+			@getTrackRunner().addTask (complete) =>
+				superAgent
+					.post(helperUrl)
+					.type('json').set('Accept', 'application/json')
+					.query(
+						method: 'analytics'
+						action: 'track'
+					)
+					.send(data)
+					.timeout(30*1000)
+					.end @checkRequest complete
+
+		# Chain
+		next?()
 		@
 
 	# Identify
+	# next(err)
 	identify: (next) ->
+		# Prepare
+		{reportStatistics, helperUrl} = @getConfig()
+
 		# Check
-		if @config.reportStatistics and @userConfig.username
-			# Prepare the latest user data
-			lastLogin = new Date()
-			userData =
-				$email: @userConfig.email
-				$name: @userConfig.name
-				$last_login: lastLogin
-				$country_code: balUtil.getCountryCode()
-				languageCode: balUtil.getLanguageCode()
-				version: @getVersion()
-				platform: @getProcessPlatform()
-				nodeVersion: @getProcessVersion()
+		if reportStatistics and @userConfig?.username
+			# Data
+			data = {}
+			data.userId = @userConfig.username
+			data.traits = things = {}
+
+			# Things
+			now = new Date()
+			things.username = @userConfig.username
+			things.email = @userConfig.email
+			things.name = @userConfig.name
+			things.lastLogin = now.toISOString()
+			things.lastSeen = now.toISOString()
+			things.countryCode = balUtil.getCountryCode()
+			things.languageCode = balUtil.getLanguageCode()
+			things.platform = @getProcessPlatform()
+			things.version = @getVersion()
+			things.nodeVersion = @getProcessVersion()
 
 			# Is this a new user?
 			if @userConfig.identified isnt true
-				# Identify the new user with mixpanel
-				mixpanelInstance.people.set @userConfig.username, extendr.extend(userData, {
-					$created: lastLogin
-					$username: @userConfig.username
-				})
+				# Update
+				things.created = now.toISOString()
 
-				# Save the changes with these
-				@updateUserConfig(identified:true)
+				# Create the new user
+				@getTrackRunner().addTask (complete) =>
+					superAgent
+						.post(helperUrl)
+						.type('json').set('Accept', 'application/json')
+						.query(
+							method: 'analytics'
+							action: 'identify'
+						)
+						.send(data)
+						.timeout(30*1000)
+						.end @checkRequest (err) =>
+							# Save the changes with these
+							@updateUserConfig(identified:true)
+
+							# Complete
+							return complete(err)
 
 			# Or an existing user?
 			else
 				# Update the existing user's information witht he latest
-				mixpanelInstance.people.set(@userConfig.username, userData)
+				@getTrackRunner().addTask (complete) =>
+					superAgent
+						.post(helperUrl)
+						.type('json').set('Accept', 'application/json')
+						.query(
+							method: 'analytics'
+							action: 'identify'
+						)
+						.send(data)
+						.timeout(30*1000)
+						.end @checkRequest complete
 
 		# Chain
-		next()
+		next?()
 		@
 
 
@@ -2686,10 +2750,13 @@ class DocPad extends EventEmitterEnhanced
 		runner.addTask (complete) ->
 			# Fetch
 			fn = docpad[action]
+
 			# Check
 			return complete(new Error(util.format(locale.actionNonexistant, action)))  unless fn
+
 			# Track
 			docpad.track(action)
+
 			# Forward
 			fn opts, (args...) ->
 				forward(args...)
@@ -3357,7 +3424,7 @@ class DocPad extends EventEmitterEnhanced
 		# Use a Skeleton
 		useSkeleton = (skeletonModel) ->
 			# Track
-			docpad.track('skeleton-use',{skeletonId:skeletonModel.id})
+			docpad.track('skeleton-use', {skeletonId:skeletonModel.id})
 
 			# Log
 			docpad.log 'info', util.format(locale.skeletonInstall, skeletonModel.get('name'), destinationPath)
@@ -3381,7 +3448,7 @@ class DocPad extends EventEmitterEnhanced
 		# Use No Skeleton
 		useNoSkeleton = ->
 			# Track
-			docpad.track('skeleton-use',{skeletonId:'none'})
+			docpad.track('skeleton-use', {skeletonId:'none'})
 
 			# Create the paths
 			safefs.ensurePath srcPath, (err) ->

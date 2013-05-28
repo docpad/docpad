@@ -1,5 +1,9 @@
 ## History
 
+- v6.36.0 May 28, 2013
+	- Rewrote the error-reporting, analytics, newsletter, and identification handling
+	- Fixed a bug with the plugin version not being set on the plugin instance correctly
+
 - v6.35.0 May 25, 2013
 	- We now respect plugin priorities again
 		- Thanks to [Neil Taylor](https://github.com/neilbaylorrulez) for [pull request #511](https://github.com/bevry/docpad/pull/511)
