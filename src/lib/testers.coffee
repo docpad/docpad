@@ -1,5 +1,6 @@
 # Requires
 pathUtil = require('path')
+safefs = require('safefs')
 balUtil = require('bal-util')
 extendr = require('extendr')
 joe = require('joe')
@@ -35,7 +36,7 @@ class PluginTester
 		outPath: null
 		srcPath: null
 		pluginPaths: null
-		enableUnlistedPlugins: false
+		enableUnlistedPlugins: true
 		enabledPlugins: null
 		skipUnsupportedPlugins: false
 		catchExceptions: false
@@ -218,16 +219,33 @@ class RendererTester extends PluginTester
 testers.test =
 test = (testerConfig, docpadConfig) ->
 	# Configure
+	testerConfig.testerClass ?= PluginTester
 	testerConfig.pluginPath = pathUtil.resolve(testerConfig.pluginPath)
 	testerConfig.pluginName ?= pathUtil.basename(testerConfig.pluginPath).replace('docpad-plugin-','')
 	testerConfig.testerPath ?= pathUtil.join('out', "#{testerConfig.pluginName}.tester.js")
-	testerConfig.testerPath = pathUtil.resolve(testerConfig.pluginPath, testerConfig.testerPath)
+	testerConfig.testerPath = pathUtil.resolve(testerConfig.pluginPath, testerConfig.testerPath)  if testerConfig.testerPath
 
-	# Test the plugin's tester
-	testerClass = require(testerConfig.testerPath)(testers)
-	new testerClass testerConfig, docpadConfig, (err,testerInstance) ->
-		throw err  if err
-		testerInstance.testEverything()
+	# Create tester
+	complete = ->
+		# Accept string inputs for testerClass
+		testerConfig.testerClass = testers[testerConfig.testerClass]  if typeof testerConfig.testerClass is 'string'
+
+		# Create our tester
+		new testerConfig.testerClass testerConfig, docpadConfig, (err,testerInstance) ->
+			throw err  if err
+
+			# Run the tests
+			testerInstance.testEverything()
+
+	# Load the tester file
+	if testerConfig.testerPath
+		safefs.exists testerConfig.testerPath, (exists) ->
+			testerConfig.testerClass = require(testerConfig.testerPath)(testers)  if exists
+			complete()
+
+	# User the default tester
+	else
+		complete()
 
 	# Chain
 	return testers
