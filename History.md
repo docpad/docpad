@@ -1,5 +1,11 @@
 ## History
 
+- v6.37.0 May 29, 2013
+	- Plugin tester file is now optional when specifying something like `testerClass: 'RendererTester'` inside your plugin test file
+		- Closes [issue #487](https://github.com/bevry/docpad/issues/487)
+	- `enableUnlistedPlugins` is now set to `true` when running plugin tests (it was `false` before)
+		- This allows us to remove the need for the plugin tester file for most situations
+
 - v6.36.2 May 28, 2013
 	- You will now be warned if your custom collection is invalid
 	- Child collections will now be of the correct class type
