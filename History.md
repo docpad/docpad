@@ -1,5 +1,8 @@
 ## History
 
+- v6.38.0 May 30, 2013
+	- Added `docpad init` action to initialize your directory with an empty docpad project
+
 - v6.37.1 May 30, 2013
 	- Added scripts.start property to no-skeleton's package.json file
 

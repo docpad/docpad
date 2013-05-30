@@ -3412,6 +3412,81 @@ class DocPad extends EventEmitterEnhanced
 	# ---------------------------------
 	# Skeleton
 
+	# Init
+	init: (opts,next) =>
+		# Prepare
+		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		docpad = @
+		config = @getConfig()
+		srcPath = config.srcPath
+		locale = @getLocale()
+
+		# Check
+		safefs.exists srcPath, (exists) ->
+			# Error?
+			if exists
+				err = new Error(locale.skeletonExists)
+				return next(err)
+
+			# Group
+			tasks = new TaskGroup().setConfig(concurrency:0).once('complete',next)
+
+			# Node Modules
+			tasks.addTask (complete) ->
+				safefs.ensurePath(pathUtil.join(config.rootPath,'node_modules'), complete)
+
+			# Package
+			tasks.addTask (complete) ->
+				data = JSON.stringify({
+					name: 'no-skeleton.docpad'
+					version: '0.1.0'
+					description: 'New DocPad project without using a skeleton'
+					engines:
+						node: '0.10'
+						npm: '1.2'
+					dependencies:
+						docpad: '6.x'
+					main: 'node_modules/docpad/bin/docpad-server'
+					scripts:
+						start: 'node_modules/docpad/bin/docpad-server'
+				},null,'\t')
+				safefs.writeFile(pathUtil.join(config.rootPath,'package.json'), data, complete)
+
+			# Config
+			tasks.addTask (complete) ->
+				data = """
+					# DocPad Configuration File
+					# http://docpad.org/docs/config
+
+					# Define the DocPad Configuration
+					docpadConfig = {
+						# ...
+					}
+
+					# Export the DocPad Configuration
+					module.exports = docpadConfig
+					"""
+				safefs.writeFile(pathUtil.join(config.rootPath,'docpad.coffee'), data, complete)
+
+			# Documents
+			tasks.addTask (complete) ->
+				safefs.ensurePath(config.documentsPaths[0], complete)
+
+			# Layouts
+			tasks.addTask (complete) ->
+				safefs.ensurePath(config.layoutsPaths[0], complete)
+
+			# Files
+			tasks.addTask (complete) ->
+				safefs.ensurePath(config.filesPaths[0], complete)
+
+			# Run
+			tasks.run()
+
+		# Chain
+		@
+
+
 	# Skeleton
 	skeleton: (opts,next) =>
 		# Prepare
@@ -3453,65 +3528,8 @@ class DocPad extends EventEmitterEnhanced
 			# Track
 			docpad.track('skeleton-use', {skeletonId:'none'})
 
-			# Create the paths
-			safefs.ensurePath srcPath, (err) ->
-				# Error?
-				return next(err)  if err
-
-				# Group
-				tasks = new TaskGroup().setConfig(concurrency:0).once('complete',next)
-
-				# Node Modules
-				tasks.addTask (complete) ->
-					safefs.ensurePath(pathUtil.join(config.rootPath,'node_modules'), complete)
-
-				# Package
-				tasks.addTask (complete) ->
-					data = JSON.stringify({
-						name: 'no-skeleton.docpad'
-						version: '0.1.0'
-						description: 'New DocPad project without using a skeleton'
-						engines:
-							node: '0.10'
-							npm: '1.2'
-						dependencies:
-							docpad: '6.x'
-						main: 'node_modules/docpad/bin/docpad-server'
-						scripts:
-							start: 'node_modules/docpad/bin/docpad-server'
-					},null,'\t')
-					safefs.writeFile(pathUtil.join(config.rootPath,'package.json'), data, complete)
-
-				# Config
-				tasks.addTask (complete) ->
-					data = """
-						# DocPad Configuration File
-						# http://docpad.org/docs/config
-
-						# Define the DocPad Configuration
-						docpadConfig = {
-							# ...
-						}
-
-						# Export the DocPad Configuration
-						module.exports = docpadConfig
-						"""
-					safefs.writeFile(pathUtil.join(config.rootPath,'docpad.coffee'), data, complete)
-
-				# Documents
-				tasks.addTask (complete) ->
-					safefs.ensurePath(config.documentsPaths[0], complete)
-
-				# Layouts
-				tasks.addTask (complete) ->
-					safefs.ensurePath(config.layoutsPaths[0], complete)
-
-				# Files
-				tasks.addTask (complete) ->
-					safefs.ensurePath(config.filesPaths[0], complete)
-
-				# Run
-				tasks.run()
+			# Initialize
+			return docpad.init(null, next)
 
 		# Check if already exists
 		safefs.exists srcPath, (exists) ->

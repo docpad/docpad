@@ -65,6 +65,12 @@ class ConsoleInterface
 			.description(locale.consoleDescriptionRun)
 			.action(consoleInterface.wrapAction(consoleInterface.action))
 
+		# init
+		commander
+			.command('init')
+			.description(locale.consoleDescriptionInit)
+			.action(consoleInterface.wrapAction(consoleInterface.init))
+
 		# run
 		commander
 			.command('run')
@@ -487,11 +493,15 @@ class ConsoleInterface
 	action: (next,opts) =>
 		actions = opts.args[0]
 		@docpad.log 'info', 'Performing the actions:', actions
-		@docpad.action(actions,next)
+		@docpad.action(actions, next)
+		@
+
+	init: (next) =>
+		@docpad.action('init', next)
 		@
 
 	generate: (next) =>
-		@docpad.action('generate',next)
+		@docpad.action('generate', next)
 		@
 
 	help: (next) =>
@@ -579,11 +589,11 @@ class ConsoleInterface
 		@
 
 	server: (next) =>
-		@docpad.action('server generate',next)
+		@docpad.action('server generate', next)
 		@
 
 	clean: (next) =>
-		@docpad.action('clean',next)
+		@docpad.action('clean', next)
 		@
 
 	skeleton: (next) =>
@@ -595,7 +605,7 @@ class ConsoleInterface
 		@
 
 	watch: (next) =>
-		@docpad.action('generate watch',next)
+		@docpad.action('generate watch', next)
 		@
 
 
