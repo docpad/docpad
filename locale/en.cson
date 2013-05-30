@@ -132,7 +132,8 @@
 	consoleError: "Something went wrong with the action"
 	consoleSuccess: "The action completed successfully"
 
-	consoleDescriptionRun: "does everyting: skeleton, generate, watch, server"
+	consoleDescriptionInit: "initialize your directory with an empty docpad project"
+	consoleDescriptionRun: "does everything: skeleton, generate, watch, server"
 	consoleDescriptionServer: "creates a server for your generated project"
 	consoleDescriptionSkeleton: "will create a new project in your cwd based off an existing skeleton"
 	consoleDescriptionRender: "render the file at <path> and output its results to stdout"
