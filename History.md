@@ -1,5 +1,8 @@
 ## History
 
+- v6.37.1 May 30, 2013
+	- Added scripts.start property to no-skeleton's package.json file
+
 - v6.37.0 May 29, 2013
 	- Plugin tester file is now optional when specifying something like `testerClass: 'RendererTester'` inside your plugin test file
 		- Closes [issue #487](https://github.com/bevry/docpad/issues/487)

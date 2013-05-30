@@ -3477,6 +3477,8 @@ class DocPad extends EventEmitterEnhanced
 						dependencies:
 							docpad: '6.x'
 						main: 'node_modules/docpad/bin/docpad-server'
+						scripts:
+							start: 'node_modules/docpad/bin/docpad-server'
 					},null,'\t')
 					safefs.writeFile(pathUtil.join(config.rootPath,'package.json'), data, complete)
 
