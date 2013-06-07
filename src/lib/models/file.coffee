@@ -256,7 +256,7 @@ class FileModel extends Model
 		else if url
 			found = false
 			urls = @get('urls')
-			for own existingUrl in urls
+			for existingUrl in urls
 				if existingUrl is url
 					found = true
 					break
