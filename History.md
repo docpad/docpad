@@ -1,5 +1,9 @@
 ## History
 
+- v6.38.1 June 7, 2013
+	- Fix compilation issue with CoffeeScript v1.6.3
+	- Updated dependencies
+
 - v6.38.0 May 30, 2013
 	- Added `docpad init` action to initialize your directory with an empty docpad project
 
