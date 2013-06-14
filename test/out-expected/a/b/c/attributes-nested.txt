@@ -1,0 +1,53 @@
+{
+	"basename": "attributes-nested",
+	"body": "# Fetch data\nattrs = @getDocument().getAttributes()\n\n# Delete environment specific variables\n# timezone makes the dates impossible\n# path differences make them impossible\n# data is too much output\ndelete attrs.ctime\ndelete attrs.mtime\ndelete attrs.date\ndelete attrs.fullPath\ndelete attrs.fullDirPath\ndelete attrs.outPath\ndelete attrs.outDirPath\ndelete attrs.data\ndelete attrs.id\ndelete attrs.layoutId\n\n# Sort the attributes\nkeys = []\nkeys.push(key)  for own key,value of attrs\nkeys.sort()\nsortedAttrs = {}\nfor key in keys\n\tsortedAttrs[key] = attrs[key]\n\n# Output data\ntext JSON.stringify(sortedAttrs,null,'\\t')",
+	"content": "# Fetch data\nattrs = @getDocument().getAttributes()\n\n# Delete environment specific variables\n# timezone makes the dates impossible\n# path differences make them impossible\n# data is too much output\ndelete attrs.ctime\ndelete attrs.mtime\ndelete attrs.date\ndelete attrs.fullPath\ndelete attrs.fullDirPath\ndelete attrs.outPath\ndelete attrs.outDirPath\ndelete attrs.data\ndelete attrs.id\ndelete attrs.layoutId\n\n# Sort the attributes\nkeys = []\nkeys.push(key)  for own key,value of attrs\nkeys.sort()\nsortedAttrs = {}\nfor key in keys\n\tsortedAttrs[key] = attrs[key]\n\n# Output data\ntext JSON.stringify(sortedAttrs,null,'\\t')",
+	"contentRendered": null,
+	"contentRenderedWithoutLayouts": null,
+	"contentType": "application/octet-stream",
+	"dynamic": false,
+	"encoding": "ascii",
+	"exists": true,
+	"extension": "coffee",
+	"extensions": [
+		"txt",
+		"coffee"
+	],
+	"filename": "attributes-nested.txt.coffee",
+	"header": "title: 'Attributes No Layout'\ntags: ['attributes','with-layout']\nreferencesOthers: true",
+	"isDocument": true,
+	"meta": {
+		"title": "Attributes No Layout",
+		"tags": [
+			"attributes",
+			"with-layout"
+		],
+		"referencesOthers": true
+	},
+	"name": "attributes-nested.txt",
+	"outContentType": "text/plain",
+	"outExtension": "txt",
+	"outFilename": "attributes-nested.txt",
+	"parser": "yaml",
+	"referencesOthers": true,
+	"relativeBase": "a/b/c/attributes-nested",
+	"relativeDirPath": "a/b/c",
+	"relativeOutDirPath": "a/b/c",
+	"relativeOutPath": "a/b/c/attributes-nested.txt",
+	"relativePath": "a/b/c/attributes-nested.txt.coffee",
+	"render": true,
+	"renderSingleExtensions": false,
+	"rendered": false,
+	"slug": "a-b-c-attributes-nested",
+	"source": "---\ntitle: 'Attributes No Layout'\ntags: ['attributes','with-layout']\nreferencesOthers: true\n---\n\n# Fetch data\nattrs = @getDocument().getAttributes()\n\n# Delete environment specific variables\n# timezone makes the dates impossible\n# path differences make them impossible\n# data is too much output\ndelete attrs.ctime\ndelete attrs.mtime\ndelete attrs.date\ndelete attrs.fullPath\ndelete attrs.fullDirPath\ndelete attrs.outPath\ndelete attrs.outDirPath\ndelete attrs.data\ndelete attrs.id\ndelete attrs.layoutId\n\n# Sort the attributes\nkeys = []\nkeys.push(key)  for own key,value of attrs\nkeys.sort()\nsortedAttrs = {}\nfor key in keys\n\tsortedAttrs[key] = attrs[key]\n\n# Output data\ntext JSON.stringify(sortedAttrs,null,'\\t')",
+	"tags": [
+		"attributes",
+		"with-layout"
+	],
+	"title": "Attributes No Layout",
+	"url": "/a/b/c/attributes-nested.txt",
+	"urls": [
+		"/a/b/c/attributes-nested.txt"
+	],
+	"write": true
+}
