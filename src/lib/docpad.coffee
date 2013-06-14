@@ -18,22 +18,22 @@ canihaz = null
 {EventEmitterEnhanced} = balUtil
 
 # Base
-{queryEngine,Backbone,Events,Model,Collection,View,QueryCollection} = require(__dirname+'/base')
+{queryEngine,Backbone,Events,Model,Collection,View,QueryCollection} = require('./base')
 
 # Models
-FileModel = require(__dirname+'/models/file')
-DocumentModel = require(__dirname+'/models/document')
+FileModel = require('./models/file')
+DocumentModel = require('./models/document')
 
 # Collections
-FilesCollection = require(__dirname+'/collections/files')
-ElementsCollection = require(__dirname+'/collections/elements')
-MetaCollection = require(__dirname+'/collections/meta')
-ScriptsCollection = require(__dirname+'/collections/scripts')
-StylesCollection = require(__dirname+'/collections/styles')
+FilesCollection = require('./collections/files')
+ElementsCollection = require('./collections/elements')
+MetaCollection = require('./collections/meta')
+ScriptsCollection = require('./collections/scripts')
+StylesCollection = require('./collections/styles')
 
 # Plugins
-PluginLoader = require(__dirname+'/plugin-loader')
-BasePlugin = require(__dirname+'/plugin')
+PluginLoader = require('./plugin-loader')
+BasePlugin = require('./plugin')
 
 
 # =====================================

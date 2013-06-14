@@ -10,7 +10,7 @@ CSON = null
 YAML = null
 
 # Local
-FileModel = require(__dirname+'/file')
+FileModel = require('./file')
 
 
 # ---------------------------------

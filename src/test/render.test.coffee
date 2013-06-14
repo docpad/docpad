@@ -9,14 +9,14 @@ pathUtil = require('path')
 # -------------------------------------
 # Configuration
 
-# Vars
-docpadPath = pathUtil.join(__dirname,'..','..')
-rootPath = pathUtil.join(docpadPath,'test')
-renderPath = pathUtil.join(rootPath,'render')
-outPath = pathUtil.join(rootPath,'render-out')
-expectPath = pathUtil.join(rootPath,'render-expected')
-cliPath = pathUtil.join(docpadPath,'bin','docpad')
-nodePath = null
+# Paths
+docpadPath = pathUtil.join(__dirname, '..', '..')
+rootPath   = pathUtil.join(docpadPath, 'test')
+renderPath = pathUtil.join(rootPath, 'render')
+outPath    = pathUtil.join(rootPath, 'render-out')
+expectPath = pathUtil.join(rootPath, 'render-expected')
+cliPath    = pathUtil.join(docpadPath, 'bin', 'docpad')
+nodePath   = null
 
 # -------------------------------------
 # Tests

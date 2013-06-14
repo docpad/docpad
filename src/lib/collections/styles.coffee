@@ -2,7 +2,7 @@
 typeChecker = require('typechecker')
 
 # Local
-ElementsCollection = require(__dirname+'/elements')
+ElementsCollection = require('./elements')
 
 # Styles Collection
 class StylesCollection extends ElementsCollection
