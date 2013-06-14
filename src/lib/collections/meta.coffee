@@ -1,5 +1,5 @@
 # Local
-ElementsCollection = require(__dirname+'/elements')
+ElementsCollection = require('./elements')
 
 # Meta Collection
 class MetaCollection extends ElementsCollection

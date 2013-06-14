@@ -17,7 +17,7 @@ class ConsoleInterface
 		locale = docpad.getLocale()
 
 		# Version information
-		version = require(__dirname+'/../../../package.json').version
+		version = require('../../../package.json').version
 
 		# -----------------------------
 		# Global config

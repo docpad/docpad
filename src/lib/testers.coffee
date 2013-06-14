@@ -6,7 +6,7 @@ extendr = require('extendr')
 joe = require('joe')
 {expect} = require('chai')
 CSON = require('cson')
-DocPad = require(__dirname+'/docpad')
+DocPad = require('./docpad')
 
 # Prepare
 pluginPort = 2000+String((new Date()).getTime()).substr(-6,4)
