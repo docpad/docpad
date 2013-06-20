@@ -312,6 +312,39 @@ class DocPad extends EventEmitterEnhanced
 		file = opts.collection.get(@filesByUrl[url])
 		return file
 
+	# Remove the query string from a url
+	# Pathname convention taken from document.location.pathname
+	getUrlPathname: (url) ->
+		 return url.replace(/\?.*/,'')
+
+	# Get a file by its route
+	# next(err,file)
+	getFileByRoute: (url,next) ->
+		# Prepare
+		docpad = @
+
+		# If we have not performed a generation yet then wait until the initial generation has completed
+		if docpad.generateEnded is null # or docpad.generating is true
+			# Wait until generation has completed and recall ourselves
+			docpad.once 'generateAfter', ->
+				return docpad.getFileByRoute(url, next)
+
+			# hain
+			return @
+
+		# Prepare
+		database = docpad.getDatabaseCache()
+
+		# Fetch
+		cleanUrl = docpad.getUrlPathname(url)
+		file = docpad.getFileByUrl(url, {collection:database}) or docpad.getFileByUrl(cleanUrl, {collection:database})
+
+		# Forward
+		next(null, file)
+
+		# Chain
+		return @
+
 	# Get a file by its selector
 	getFileBySelector: (selector,opts={}) ->
 		opts.collection ?= @getDatabase()
@@ -3634,26 +3667,20 @@ class DocPad extends EventEmitterEnhanced
 		# Prepare
 		docpad = @
 
-		# If we have not performed a generation yet then wait until the initial generation has completed
-		if docpad.generateEnded is null # or docpad.generating is true
-			docpad.once 'generateAfter', ->
-				return docpad.serverMiddlewareRouter(req,res,next)
-			return @
+		# Get the file
+		docpad.getFileByRoute req.url, (err,file) ->
+			# Check
+			return next(err)  if err or file? is false
 
-		# Prepare
-		database = docpad.getDatabaseCache()
-		cleanUrl = req.url.replace(/\?.*/,'')
-		file = docpad.getFileByUrl(req.url,{collection:database}) or docpad.getFileByUrl(cleanUrl,{collection:database})
-		return next()  if file? is false
+			# Check if we are the desired url
+			# if we aren't do a permanent redirect
+			url = file.get('url')
+			cleanUrl = docpad.getUrlPathname(url)
+			if (url isnt cleanUrl) and (url isnt req.url)
+				return res.redirect(301, url)
 
-		# Check if we are the desired url
-		# if we aren't do a permanent redirect
-		url = file.get('url')
-		if (url isnt cleanUrl) and (url isnt req.url)
-			return res.redirect(301,url)
-
-		# Serve the file to the user
-		docpad.serveDocument({document:file,req,res,next})
+			# Serve the file to the user
+			docpad.serveDocument({document:file, req, res, next})
 
 		# Chain
 		return @
@@ -3669,7 +3696,7 @@ class DocPad extends EventEmitterEnhanced
 
 		# Serve the document to the user
 		document = database.findOne({relativeOutPath: '404.html'})
-		docpad.serveDocument({document,req,res,next,statusCode:404})
+		docpad.serveDocument({document, req, res, next, statusCode:404})
 
 		# Chain
 		return @
