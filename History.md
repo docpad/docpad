@@ -1,5 +1,9 @@
 ## History
 
+- v6.42.0 June 25, 2013
+	- Better lazy loading of modules
+	- Updated dependencies
+
 - v6.41.0 June 25, 2013
 	- Made debugging, tracing, and profiling easier
 		- Added `docpad-debug` for easy debugging
