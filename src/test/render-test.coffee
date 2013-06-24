@@ -44,7 +44,7 @@ joe.suite 'docpad-render', (suite,test) ->
 				safeps.spawnCommand 'node', command, {cwd:rootPath}, (err,stdout,stderr,code,signal) ->
 					return done(err)  if err
 					expect(stdout.trim()).to.equal(input.stdout)
-					done()
+					return done()
 
 	suite 'stdin', (suite,test) ->
 		# Check rendering stdin inputs

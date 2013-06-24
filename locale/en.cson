@@ -169,6 +169,7 @@
 	welcomePlugins: "Plugins: %s"
 	welcomeEnvironment: "Environment: %s"
 	includeFailed: "Could not include the file at path %s as we could not find it"
+	encodingLoadFailed: "Could not load the libraries required for encoding detection"
 	warnOccured: "A warning occured:"
 	errorOccured: "An error occured:"
 	errorLoggedTo: "Error has been logged to: %s"
