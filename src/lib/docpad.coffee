@@ -1,6 +1,11 @@
 # =====================================
 # Requires
 
+# Essential
+pathUtil = require('path')
+{lazyRequire} = require('lazy-require')
+corePath = pathUtil.join(__dirname, '..', '..')
+
 # Profile
 if ('--profile' in process.argv)
 	# Debug
@@ -8,24 +13,20 @@ if ('--profile' in process.argv)
 
 	# Nodetime
 	if process.env.NODETIME_KEY
-		try
-			require('nodetime').profile({
+		lazyRequire 'nodetime', {cwd:corePath}, (err,nodetime) ->
+			return  if err
+			nodetime.profile({
 				accountKey: process.env.NODETIME_KEY
 				appName: 'DocPad'
 			})
 			console.log('Profiling with nodetime')
-		catch err
-			# ignore
 
 	# Webkit Devtools
-	try
-		agent = require('webkit-devtools-agent')
+	lazyRequire 'webkit-devtools-agent', {cwd:corePath}, (err) ->
+		return  if err
 		console.log("Profiling with process id:", process.pid)
-	catch err
-		# ignore
 
 # Necessary
-pathUtil = require('path')
 _ = require('lodash')
 CSON = require('cson')
 balUtil = require('bal-util')
@@ -39,7 +40,6 @@ safeps = require('safeps')
 util = require('util')
 superAgent = require('superagent')
 {extractOptsAndCallback} = require('extract-opts')
-canihaz = null
 {EventEmitterEnhanced} = balUtil
 
 # Base
@@ -448,7 +448,7 @@ class DocPad extends EventEmitterEnhanced
 	# Paths
 
 	# The DocPad directory
-	corePath: pathUtil.join(__dirname, '..', '..')
+	corePath: corePath
 
 	# The DocPad library directory
 	libPath: __dirname
@@ -1018,13 +1018,6 @@ class DocPad extends EventEmitterEnhanced
 		@on 'log', (args...) ->
 			docpad.log.apply(@,args)
 
-		# Require canihaz
-		canihaz ?= require('canihaz')(
-			installation: docpad.corePath
-			location: docpad.packagePath
-			key: 'lazyDependencies'
-		)
-
 		# Dereference and initialise advanced variables
 		# we deliberately ommit initialTemplateData here, as it is setup in getTemplateData
 		@slowPlugins = {}
@@ -1271,6 +1264,7 @@ class DocPad extends EventEmitterEnhanced
 		# Prepare
 		[instanceConfig,next] = extractOptsAndCallback(instanceConfig,next)
 		docpad = @
+		locale = @getLocale()
 
 		# Apply the instance configuration, generally we won't have it at this level
 		# as it would have been applied earlier the load step
@@ -1335,7 +1329,9 @@ class DocPad extends EventEmitterEnhanced
 		# Lazy Dependencies: Iconv
 		postTasks.addTask (complete) =>
 			return complete()  unless @config.detectEncoding
-			return canihaz('iconv', complete)
+			return lazyRequire 'iconv', {cwd:corePath}, (err) ->
+				docpad.warn(locale.encodingLoadFailed)  if err
+				return complete()
 
 		# Load Plugins
 		postTasks.addTask (complete) ->
