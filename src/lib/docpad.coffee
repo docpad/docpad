@@ -1,6 +1,29 @@
 # =====================================
 # Requires
 
+# Profile
+if ('--profile' in process.argv)
+	# Debug
+	debugger
+
+	# Nodetime
+	if process.env.NODETIME_KEY
+		try
+			require('nodetime').profile({
+				accountKey: process.env.NODETIME_KEY
+				appName: 'DocPad'
+			})
+			console.log('Profiling with nodetime')
+		catch err
+			# ignore
+
+	# Webkit Devtools
+	try
+		agent = require('webkit-devtools-agent')
+		console.log("Profiling with process id:", process.pid)
+	catch err
+		# ignore
+
 # Necessary
 pathUtil = require('path')
 _ = require('lodash')

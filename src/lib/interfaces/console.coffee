@@ -54,6 +54,10 @@ class ConsoleInterface
 				'-s, --skeleton <skeleton>'
 				locale.consoleOptionSkeleton
 			)
+			.option(
+				'--profile'
+				locale.consoleOptionProfile
+			)
 
 
 		# -----------------------------
