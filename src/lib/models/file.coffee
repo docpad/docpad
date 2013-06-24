@@ -11,7 +11,7 @@ jschardet = null
 Iconv = null
 
 # Local
-{Backbone,Model} = require(__dirname+'/../base')
+{Backbone,Model} = require('../base')
 
 
 # ---------------------------------

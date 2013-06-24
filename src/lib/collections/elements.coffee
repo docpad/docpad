@@ -2,7 +2,7 @@
 typeChecker = require('typechecker')
 
 # Local
-{Collection,Model} = require(__dirname+'/../base')
+{Collection,Model} = require('../base')
 
 # Elements Collection
 class ElementsCollection extends Collection

@@ -3,9 +3,8 @@
 // Prefix our docpad executable with the node debug and profile flags
 // and suffix docpad with it's profile flag
 var command = [
-	process.argv[0],
-	'--debug-brk',
-	'--prof',
+	'tracegl',
+	'-no:coffee-script',
 	__dirname+'/docpad',
 ].concat(process.argv.slice(2));
 
