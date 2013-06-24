@@ -10,13 +10,13 @@ getArgument = (name,value=null,defaultValue=null) ->
 	return result
 
 # DocPad Action
-action = (getArgument('action',null,'generate')+' '+getArgument('watch','watch','')).trim()
+action = (getArgument('action', null, 'generate')+' '+getArgument('watch', 'watch', '')).trim()
 
 # DocPad Configuration
 docpadConfig = {}
-docpadConfig.rootPath = getArgument('rootPath',null,process.cwd())
-docpadConfig.outPath = getArgument('outPath',null,docpadConfig.rootPath+'/out')
-docpadConfig.srcPath = getArgument('srcPath',null,docpadConfig.rootPath+'/src')
+docpadConfig.rootPath = getArgument('rootPath', null, process.cwd())
+docpadConfig.outPath = getArgument('outPath', null, docpadConfig.rootPath+'/out')
+docpadConfig.srcPath = getArgument('srcPath', null, docpadConfig.rootPath+'/src')
 docpadConfig.documentsPaths = (->
 	documentsPath = getArgument('documentsPath')
 	if documentsPath?
@@ -31,7 +31,7 @@ docpadConfig.port = (->
 	return port
 )()
 docpadConfig.renderSingleExtensions = (->
-	renderSingleExtensions = getArgument('renderSingleExtensions',null,'auto')
+	renderSingleExtensions = getArgument('renderSingleExtensions', null, 'auto')
 	if renderSingleExtensions in ['true','yes']
 		renderSingleExtensions = true
 	else if renderSingleExtensions in ['false','no']
