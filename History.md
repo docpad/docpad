@@ -1,5 +1,9 @@
 ## History
 
+- v6.40.0 June 24, 2013
+	- Removed excessive dirname usage
+	- Updated dependencies
+
 - v6.39.0 June 20, 2013
 	- Abstracted out the file fetching in `DocPad::serverMiddlewareRouter` into `DocPad::getFileByRoute(url, next)` for others to use in their custom routes
 	- Updated dependencies
