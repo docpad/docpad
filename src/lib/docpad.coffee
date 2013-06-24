@@ -1,6 +1,29 @@
 # =====================================
 # Requires
 
+# Profile
+if ('--profile' in process.argv)
+	# Debug
+	debugger
+
+	# Nodetime
+	if process.env.NODETIME_KEY
+		try
+			require('nodetime').profile({
+				accountKey: process.env.NODETIME_KEY
+				appName: 'DocPad'
+			})
+			console.log('Profiling with nodetime')
+		catch err
+			# ignore
+
+	# Webkit Devtools
+	try
+		agent = require('webkit-devtools-agent')
+		console.log("Profiling with process id:", process.pid)
+	catch err
+		# ignore
+
 # Necessary
 pathUtil = require('path')
 _ = require('lodash')
@@ -12,28 +35,30 @@ typeChecker = require('typechecker')
 ambi = require('ambi')
 {TaskGroup} = require('taskgroup')
 safefs = require('safefs')
+safeps = require('safeps')
 util = require('util')
 superAgent = require('superagent')
+{extractOptsAndCallback} = require('extract-opts')
 canihaz = null
 {EventEmitterEnhanced} = balUtil
 
 # Base
-{queryEngine,Backbone,Events,Model,Collection,View,QueryCollection} = require(__dirname+'/base')
+{queryEngine,Backbone,Events,Model,Collection,View,QueryCollection} = require('./base')
 
 # Models
-FileModel = require(__dirname+'/models/file')
-DocumentModel = require(__dirname+'/models/document')
+FileModel = require('./models/file')
+DocumentModel = require('./models/document')
 
 # Collections
-FilesCollection = require(__dirname+'/collections/files')
-ElementsCollection = require(__dirname+'/collections/elements')
-MetaCollection = require(__dirname+'/collections/meta')
-ScriptsCollection = require(__dirname+'/collections/scripts')
-StylesCollection = require(__dirname+'/collections/styles')
+FilesCollection = require('./collections/files')
+ElementsCollection = require('./collections/elements')
+MetaCollection = require('./collections/meta')
+ScriptsCollection = require('./collections/scripts')
+StylesCollection = require('./collections/styles')
 
 # Plugins
-PluginLoader = require(__dirname+'/plugin-loader')
-BasePlugin = require(__dirname+'/plugin')
+PluginLoader = require('./plugin-loader')
+BasePlugin = require('./plugin')
 
 
 # =====================================
@@ -312,6 +337,39 @@ class DocPad extends EventEmitterEnhanced
 		file = opts.collection.get(@filesByUrl[url])
 		return file
 
+	# Remove the query string from a url
+	# Pathname convention taken from document.location.pathname
+	getUrlPathname: (url) ->
+		 return url.replace(/\?.*/,'')
+
+	# Get a file by its route
+	# next(err,file)
+	getFileByRoute: (url,next) ->
+		# Prepare
+		docpad = @
+
+		# If we have not performed a generation yet then wait until the initial generation has completed
+		if docpad.generateEnded is null # or docpad.generating is true
+			# Wait until generation has completed and recall ourselves
+			docpad.once 'generateAfter', ->
+				return docpad.getFileByRoute(url, next)
+
+			# hain
+			return @
+
+		# Prepare
+		database = docpad.getDatabaseCache()
+
+		# Fetch
+		cleanUrl = docpad.getUrlPathname(url)
+		file = docpad.getFileByUrl(url, {collection:database}) or docpad.getFileByUrl(cleanUrl, {collection:database})
+
+		# Forward
+		next(null, file)
+
+		# Chain
+		return @
+
 	# Get a file by its selector
 	getFileBySelector: (selector,opts={}) ->
 		opts.collection ?= @getDatabase()
@@ -540,7 +598,7 @@ class DocPad extends EventEmitterEnhanced
 	getLocaleCode: ->
 		if @localeCode? is false
 			localeCode = null
-			localeCodes = [@getConfig().localeCode, balUtil.getLocaleCode(), 'en_AU']
+			localeCodes = [@getConfig().localeCode, safeps.getLocaleCode(), 'en_AU']
 			for localeCode in localeCodes
 				if localeCode and @locales[localeCode]?
 					break
@@ -550,14 +608,14 @@ class DocPad extends EventEmitterEnhanced
 	# Get Language Code
 	getLanguageCode: ->
 		if @languageCode? is false
-			languageCode = balUtil.getLanguageCode(@getLocaleCode())
+			languageCode = safeps.getLanguageCode(@getLocaleCode())
 			@languageCode = languageCode.toLowerCase()
 		return @languageCode
 
 	# Get Country Code
 	getCountryCode: ->
 		if @countryCode? is false
-			countryCode = balUtil.getCountryCode(@getLocaleCode())
+			countryCode = safeps.getCountryCode(@getLocaleCode())
 			@countryCode = countryCode.toLowerCase()
 		return @countryCode
 
@@ -896,7 +954,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err)
 	constructor: (instanceConfig,next) ->
 		# Prepare
-		[instanceConfig,next] = balUtil.extractOptsAndCallback(instanceConfig,next)
+		[instanceConfig,next] = extractOptsAndCallback(instanceConfig, next)
 		docpad = @
 
 		# Allow DocPad to have unlimited event listeners
@@ -1103,7 +1161,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err,docpadInstance)
 	ready: (opts,next) =>
 		# Prepare
-		[instanceConfig,next] = balUtil.extractOptsAndCallback(instanceConfig,next)
+		[instanceConfig,next] = extractOptsAndCallback(instanceConfig,next)
 		docpad = @
 		config = @getConfig()
 		locale = @getLocale()
@@ -1211,7 +1269,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err,config)
 	setConfig: (instanceConfig,next) =>
 		# Prepare
-		[instanceConfig,next] = balUtil.extractOptsAndCallback(instanceConfig,next)
+		[instanceConfig,next] = extractOptsAndCallback(instanceConfig,next)
 		docpad = @
 
 		# Apply the instance configuration, generally we won't have it at this level
@@ -1272,12 +1330,12 @@ class DocPad extends EventEmitterEnhanced
 
 		# Prepare the Post Tasks
 		postTasks = new TaskGroup().once 'complete', (err) =>
-			return next(err,@config)
+			return next(err, @config)
 
 		# Lazy Dependencies: Iconv
 		postTasks.addTask (complete) =>
 			return complete()  unless @config.detectEncoding
-			return canihaz('iconv',complete)
+			return canihaz('iconv', complete)
 
 		# Load Plugins
 		postTasks.addTask (complete) ->
@@ -1306,7 +1364,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err,config)
 	load: (instanceConfig,next) =>
 		# Prepare
-		[instanceConfig,next] = balUtil.extractOptsAndCallback(instanceConfig,next)
+		[instanceConfig,next] = extractOptsAndCallback(instanceConfig,next)
 		docpad = @
 		locale = @getLocale()
 		instanceConfig or= {}
@@ -1326,7 +1384,7 @@ class DocPad extends EventEmitterEnhanced
 
 		# Normalize the userConfigPath
 		preTasks.addTask (complete) =>
-			balUtil.getHomePath (err,homePath) =>
+			safeps.getHomePath (err,homePath) =>
 				return complete(err)  if err
 				dropboxPath = pathUtil.join(homePath,'Dropbox')
 				safefs.exists dropboxPath, (dropboxPathExists) =>
@@ -1409,7 +1467,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err)
 	install: (opts,next) =>
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
 
 		# Re-Initialise the Website's modules
@@ -1433,7 +1491,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err)
 	clean: (opts,next) =>
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
 		locale = @getLocale()
 		{rootPath,outPath} = @config
@@ -1467,7 +1525,7 @@ class DocPad extends EventEmitterEnhanced
 	# Update User Configuration
 	updateUserConfig: (data={},next) ->
 		# Prepare
-		[data,next] = balUtil.extractOptsAndCallback(data,next)
+		[data,next] = extractOptsAndCallback(data,next)
 		docpad = @
 		userConfigPath = @userConfigPath
 
@@ -1724,7 +1782,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err,results)
 	initGitRepo: (opts) ->
 		# Forward
-		balUtil.initGitRepo(opts)
+		safeps.initGitRepo(opts)
 
 		# Chain
 		@
@@ -1737,7 +1795,7 @@ class DocPad extends EventEmitterEnhanced
 		opts.output ?= @getDebugging()
 
 		# Forward
-		balUtil.initNodeModules(opts)
+		safeps.initNodeModules(opts)
 
 		# Chain
 		@
@@ -1951,8 +2009,8 @@ class DocPad extends EventEmitterEnhanced
 			things.name = @userConfig.name
 			things.lastLogin = now.toISOString()
 			things.lastSeen = now.toISOString()
-			things.countryCode = balUtil.getCountryCode()
-			things.languageCode = balUtil.getLanguageCode()
+			things.countryCode = safeps.getCountryCode()
+			things.languageCode = safeps.getLanguageCode()
 			things.platform = @getProcessPlatform()
 			things.version = @getVersion()
 			things.nodeVersion = @getProcessVersion()
@@ -2714,7 +2772,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err,...), ... = any special arguments from the action
 	action: (action,opts,next) =>
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
 		runner = @getActionRunner()
 		locale = @getLocale()
@@ -2777,7 +2835,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err)
 	generatePrepare: (opts,next) =>
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
 		config = @getConfig()
 		locale = @getLocale()
@@ -2827,7 +2885,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err)
 	generateParse: (opts,next) =>
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
 		database = @getDatabase()
 		config = @getConfig()
@@ -2881,7 +2939,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err)
 	generateRender: (opts,next) =>
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
 		opts.templateData or= @getTemplateData()
 		opts.collection or= @getDatabase()
@@ -2904,7 +2962,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err)
 	generatePostpare: (opts,next) =>
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
 		locale = @getLocale()
 		database = @getDatabase()
@@ -2978,7 +3036,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err)
 	generate: (opts,next) =>
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
 		config = @getConfig()
 		locale = @getLocale()
@@ -3065,7 +3123,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err,document)
 	flowDocument: (document,opts,next) ->
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 
 		# Flow
 		balUtil.flow(
@@ -3083,7 +3141,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err,document)
 	loadDocument: (document,opts,next) ->
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		opts.action or= 'load contextualize'
 
 		# Flow
@@ -3096,7 +3154,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err,document)
 	loadAndRenderDocument: (document,opts,next) ->
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		opts.action or= 'load contextualize render'
 
 		# Flow
@@ -3111,7 +3169,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err,result)
 	renderDocument: (document,opts,next) ->
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 
 		# Render
 		document.render(opts,next)
@@ -3123,7 +3181,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err,result)
 	renderPath: (path,opts,next) ->
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		attributes = extendr.extend({
 			fullPath: path
 		},opts.attributes)
@@ -3139,7 +3197,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err,result)
 	renderData: (content,opts,next) ->
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		attributes = extendr.extend({
 			filename: opts.filename
 			data: content
@@ -3157,7 +3215,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err,result)
 	renderText: (text,opts,next) ->
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		opts.actions ?= ['renderExtensions','renderDocument']
 		attributes = extendr.extend({
 			filename: opts.filename
@@ -3186,7 +3244,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err,document,result)
 	render: (opts,next) =>
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		locale = @getLocale()
 
 		# Extract document
@@ -3215,7 +3273,7 @@ class DocPad extends EventEmitterEnhanced
 	# Watch
 	watch: (opts,next) =>
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
 		config = @getConfig()
 		locale = @getLocale()
@@ -3369,7 +3427,7 @@ class DocPad extends EventEmitterEnhanced
 
 	run: (opts,next) =>
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
 		srcPath = @config.srcPath
 		destinationPath = @config.rootPath
@@ -3415,7 +3473,7 @@ class DocPad extends EventEmitterEnhanced
 	# Init
 	init: (opts,next) =>
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
 		config = @getConfig()
 		srcPath = config.srcPath
@@ -3490,7 +3548,7 @@ class DocPad extends EventEmitterEnhanced
 	# Skeleton
 	skeleton: (opts,next) =>
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
 		config = @getConfig()
 		skeletonId = config.skeleton
@@ -3568,7 +3626,7 @@ class DocPad extends EventEmitterEnhanced
 	# Serve Document
 	serveDocument: (opts,next) =>
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		{document,err,req,res} = opts
 		docpad = @
 
@@ -3634,26 +3692,20 @@ class DocPad extends EventEmitterEnhanced
 		# Prepare
 		docpad = @
 
-		# If we have not performed a generation yet then wait until the initial generation has completed
-		if docpad.generateEnded is null # or docpad.generating is true
-			docpad.once 'generateAfter', ->
-				return docpad.serverMiddlewareRouter(req,res,next)
-			return @
+		# Get the file
+		docpad.getFileByRoute req.url, (err,file) ->
+			# Check
+			return next(err)  if err or file? is false
 
-		# Prepare
-		database = docpad.getDatabaseCache()
-		cleanUrl = req.url.replace(/\?.*/,'')
-		file = docpad.getFileByUrl(req.url,{collection:database}) or docpad.getFileByUrl(cleanUrl,{collection:database})
-		return next()  if file? is false
+			# Check if we are the desired url
+			# if we aren't do a permanent redirect
+			url = file.get('url')
+			cleanUrl = docpad.getUrlPathname(url)
+			if (url isnt cleanUrl) and (url isnt req.url)
+				return res.redirect(301, url)
 
-		# Check if we are the desired url
-		# if we aren't do a permanent redirect
-		url = file.get('url')
-		if (url isnt cleanUrl) and (url isnt req.url)
-			return res.redirect(301,url)
-
-		# Serve the file to the user
-		docpad.serveDocument({document:file,req,res,next})
+			# Serve the file to the user
+			docpad.serveDocument({document:file, req, res, next})
 
 		# Chain
 		return @
@@ -3669,7 +3721,7 @@ class DocPad extends EventEmitterEnhanced
 
 		# Serve the document to the user
 		document = database.findOne({relativeOutPath: '404.html'})
-		docpad.serveDocument({document,req,res,next,statusCode:404})
+		docpad.serveDocument({document, req, res, next, statusCode:404})
 
 		# Chain
 		return @
@@ -3697,7 +3749,7 @@ class DocPad extends EventEmitterEnhanced
 		express = null
 
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
 		config = @config
 		locale = @getLocale()

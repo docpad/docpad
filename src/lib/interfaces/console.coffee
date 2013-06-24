@@ -17,7 +17,7 @@ class ConsoleInterface
 		locale = docpad.getLocale()
 
 		# Version information
-		version = require(__dirname+'/../../../package.json').version
+		version = require('../../../package.json').version
 
 		# -----------------------------
 		# Global config
@@ -53,6 +53,10 @@ class ConsoleInterface
 			.option(
 				'-s, --skeleton <skeleton>'
 				locale.consoleOptionSkeleton
+			)
+			.option(
+				'--profile'
+				locale.consoleOptionProfile
 			)
 
 
@@ -350,7 +354,7 @@ class ConsoleInterface
 					['config','--get','user.email']
 					['config','--get','github.user']
 				]
-				balUtil.spawnCommands 'git', commands, (err,results) ->
+				safeps.spawnCommands 'git', commands, (err,results) ->
 					# Ignore error as it just means a config value wasn't defined
 					# return next(err)  if err
 

@@ -1,6 +1,6 @@
 # Local
-{QueryCollection,Model} = require(__dirname+'/../base')
-FileModel = require(__dirname+'/../models/file')
+{QueryCollection,Model} = require('../base')
+FileModel = require('../models/file')
 
 # Files Collection
 class FilesCollection extends QueryCollection

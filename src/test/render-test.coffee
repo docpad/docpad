@@ -1,6 +1,7 @@
 # RequirestestServer
 balUtil = require('bal-util')
 safefs = require('safefs')
+safeps = require('safeps')
 chai = require('chai')
 expect = chai.expect
 joe = require('joe')
@@ -9,14 +10,14 @@ pathUtil = require('path')
 # -------------------------------------
 # Configuration
 
-# Vars
-docpadPath = pathUtil.join(__dirname,'..','..')
-rootPath = pathUtil.join(docpadPath,'test')
-renderPath = pathUtil.join(rootPath,'render')
-outPath = pathUtil.join(rootPath,'render-out')
-expectPath = pathUtil.join(rootPath,'render-expected')
-cliPath = pathUtil.join(docpadPath,'bin','docpad')
-nodePath = null
+# Paths
+docpadPath = pathUtil.join(__dirname, '..', '..')
+rootPath   = pathUtil.join(docpadPath, 'test')
+renderPath = pathUtil.join(rootPath, 'render')
+outPath    = pathUtil.join(rootPath, 'render-out')
+expectPath = pathUtil.join(rootPath, 'render-expected')
+cliPath    = pathUtil.join(docpadPath, 'bin', 'docpad')
+nodePath   = null
 
 # -------------------------------------
 # Tests
@@ -40,7 +41,7 @@ joe.suite 'docpad-render', (suite,test) ->
 				# IMPORTANT THAT ANY OPTIONS GO AFTER THE RENDER CALL, SERIOUSLY
 				# OTHERWISE the sky falls down on scoping, seriously, it is wierd
 				command = [cliPath, 'render', pathUtil.join(renderPath,input.filename)]
-				balUtil.spawnCommand 'node', command, {cwd:rootPath}, (err,stdout,stderr,code,signal) ->
+				safeps.spawnCommand 'node', command, {cwd:rootPath}, (err,stdout,stderr,code,signal) ->
 					return done(err)  if err
 					expect(stdout.trim()).to.equal(input.stdout)
 					done()
@@ -83,7 +84,7 @@ joe.suite 'docpad-render', (suite,test) ->
 			test input.testname, (done) ->
 				command = [cliPath, 'render']
 				command.push(input.filename)  if input.filename
-				balUtil.spawnCommand 'node', command, {stdin:input.stdin,cwd:rootPath}, (err,stdout,stderr,code,signal) ->
+				safeps.spawnCommand 'node', command, {stdin:input.stdin,cwd:rootPath}, (err,stdout,stderr,code,signal) ->
 					return done(err)  if err
 					expect(stdout.trim()).to.equal(input.stdout)
 					done()
@@ -95,7 +96,7 @@ joe.suite 'docpad-render', (suite,test) ->
 				out: '<p><em>awesome</em></p>'
 				outPath: pathUtil.join(outPath,'outpath-render.html')
 			}
-			balUtil.spawnCommand 'node', [cliPath, 'render', 'markdown', '-o', input.outPath], {stdin:input.in, cwd:rootPath}, (err,stdout,stderr,code,signal) ->
+			safeps.spawnCommand 'node', [cliPath, 'render', 'markdown', '-o', input.outPath], {stdin:input.in, cwd:rootPath}, (err,stdout,stderr,code,signal) ->
 				return done(err)  if err
 				expect(stdout).to.equal('')
 				safefs.readFile input.outPath, (err,data) ->

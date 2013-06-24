@@ -1,6 +1,6 @@
 # Require
-DocPad = require(__dirname+'/../lib/docpad')
-ConsoleInterface = require(__dirname+'/../lib/interfaces/console')
+DocPad = require('../lib/docpad')
+ConsoleInterface = require('../lib/interfaces/console')
 
 # Fetch action
 action =
