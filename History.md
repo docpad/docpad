@@ -1,5 +1,12 @@
 ## History
 
+- v6.41.0 June 25, 2013
+	- Made debugging, tracing, and profiling easier
+		- Added `docpad-debug` for easy debugging
+		- Added `docpad-trace` for easy tracing
+		- Added `--profile` for easy profiling
+		- See our [debug guide](http://docpad.org/docs/debug) for details
+
 - v6.40.0 June 24, 2013
 	- Removed excessive dirname usage
 	- Updated dependencies
