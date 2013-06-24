@@ -30,11 +30,11 @@
 	"outFilename": "attributes-nested.txt",
 	"parser": "yaml",
 	"referencesOthers": true,
-	"relativeBase": "a/b/c/attributes-nested",
-	"relativeDirPath": "a/b/c",
-	"relativeOutDirPath": "a/b/c",
-	"relativeOutPath": "a/b/c/attributes-nested.txt",
-	"relativePath": "a/b/c/attributes-nested.txt.coffee",
+	"relativeBase": "a\\b\\c\\attributes-nested",
+	"relativeDirPath": "a\\b\\c",
+	"relativeOutDirPath": "a\\b\\c",
+	"relativeOutPath": "a\\b\\c/attributes-nested.txt",
+	"relativePath": "a\\b\\c\\attributes-nested.txt.coffee",
 	"render": true,
 	"renderSingleExtensions": false,
 	"rendered": false,
@@ -45,9 +45,9 @@
 		"with-layout"
 	],
 	"title": "Attributes No Layout",
-	"url": "/a/b/c/attributes-nested.txt",
+	"url": "/a\\b\\c/attributes-nested.txt",
 	"urls": [
-		"/a/b/c/attributes-nested.txt"
+		"/a\\b\\c/attributes-nested.txt"
 	],
 	"write": true
 }
