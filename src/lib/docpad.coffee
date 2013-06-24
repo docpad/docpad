@@ -12,8 +12,10 @@ typeChecker = require('typechecker')
 ambi = require('ambi')
 {TaskGroup} = require('taskgroup')
 safefs = require('safefs')
+safeps = require('safeps')
 util = require('util')
 superAgent = require('superagent')
+{extractOptsAndCallback} = require('extract-opts')
 canihaz = null
 {EventEmitterEnhanced} = balUtil
 
@@ -573,7 +575,7 @@ class DocPad extends EventEmitterEnhanced
 	getLocaleCode: ->
 		if @localeCode? is false
 			localeCode = null
-			localeCodes = [@getConfig().localeCode, balUtil.getLocaleCode(), 'en_AU']
+			localeCodes = [@getConfig().localeCode, safeps.getLocaleCode(), 'en_AU']
 			for localeCode in localeCodes
 				if localeCode and @locales[localeCode]?
 					break
@@ -583,14 +585,14 @@ class DocPad extends EventEmitterEnhanced
 	# Get Language Code
 	getLanguageCode: ->
 		if @languageCode? is false
-			languageCode = balUtil.getLanguageCode(@getLocaleCode())
+			languageCode = safeps.getLanguageCode(@getLocaleCode())
 			@languageCode = languageCode.toLowerCase()
 		return @languageCode
 
 	# Get Country Code
 	getCountryCode: ->
 		if @countryCode? is false
-			countryCode = balUtil.getCountryCode(@getLocaleCode())
+			countryCode = safeps.getCountryCode(@getLocaleCode())
 			@countryCode = countryCode.toLowerCase()
 		return @countryCode
 
@@ -929,7 +931,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err)
 	constructor: (instanceConfig,next) ->
 		# Prepare
-		[instanceConfig,next] = balUtil.extractOptsAndCallback(instanceConfig,next)
+		[instanceConfig,next] = extractOptsAndCallback(instanceConfig,next)
 		docpad = @
 
 		# Allow DocPad to have unlimited event listeners
@@ -1136,7 +1138,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err,docpadInstance)
 	ready: (opts,next) =>
 		# Prepare
-		[instanceConfig,next] = balUtil.extractOptsAndCallback(instanceConfig,next)
+		[instanceConfig,next] = extractOptsAndCallback(instanceConfig,next)
 		docpad = @
 		config = @getConfig()
 		locale = @getLocale()
@@ -1244,7 +1246,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err,config)
 	setConfig: (instanceConfig,next) =>
 		# Prepare
-		[instanceConfig,next] = balUtil.extractOptsAndCallback(instanceConfig,next)
+		[instanceConfig,next] = extractOptsAndCallback(instanceConfig,next)
 		docpad = @
 
 		# Apply the instance configuration, generally we won't have it at this level
@@ -1339,7 +1341,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err,config)
 	load: (instanceConfig,next) =>
 		# Prepare
-		[instanceConfig,next] = balUtil.extractOptsAndCallback(instanceConfig,next)
+		[instanceConfig,next] = extractOptsAndCallback(instanceConfig,next)
 		docpad = @
 		locale = @getLocale()
 		instanceConfig or= {}
@@ -1359,7 +1361,7 @@ class DocPad extends EventEmitterEnhanced
 
 		# Normalize the userConfigPath
 		preTasks.addTask (complete) =>
-			balUtil.getHomePath (err,homePath) =>
+			safeps.getHomePath (err,homePath) =>
 				return complete(err)  if err
 				dropboxPath = pathUtil.join(homePath,'Dropbox')
 				safefs.exists dropboxPath, (dropboxPathExists) =>
@@ -1442,7 +1444,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err)
 	install: (opts,next) =>
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
 
 		# Re-Initialise the Website's modules
@@ -1466,7 +1468,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err)
 	clean: (opts,next) =>
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
 		locale = @getLocale()
 		{rootPath,outPath} = @config
@@ -1500,7 +1502,7 @@ class DocPad extends EventEmitterEnhanced
 	# Update User Configuration
 	updateUserConfig: (data={},next) ->
 		# Prepare
-		[data,next] = balUtil.extractOptsAndCallback(data,next)
+		[data,next] = extractOptsAndCallback(data,next)
 		docpad = @
 		userConfigPath = @userConfigPath
 
@@ -1984,8 +1986,8 @@ class DocPad extends EventEmitterEnhanced
 			things.name = @userConfig.name
 			things.lastLogin = now.toISOString()
 			things.lastSeen = now.toISOString()
-			things.countryCode = balUtil.getCountryCode()
-			things.languageCode = balUtil.getLanguageCode()
+			things.countryCode = safeps.getCountryCode()
+			things.languageCode = safeps.getLanguageCode()
 			things.platform = @getProcessPlatform()
 			things.version = @getVersion()
 			things.nodeVersion = @getProcessVersion()
@@ -2747,7 +2749,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err,...), ... = any special arguments from the action
 	action: (action,opts,next) =>
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
 		runner = @getActionRunner()
 		locale = @getLocale()
@@ -2810,7 +2812,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err)
 	generatePrepare: (opts,next) =>
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
 		config = @getConfig()
 		locale = @getLocale()
@@ -2860,7 +2862,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err)
 	generateParse: (opts,next) =>
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
 		database = @getDatabase()
 		config = @getConfig()
@@ -2914,7 +2916,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err)
 	generateRender: (opts,next) =>
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
 		opts.templateData or= @getTemplateData()
 		opts.collection or= @getDatabase()
@@ -2937,7 +2939,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err)
 	generatePostpare: (opts,next) =>
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
 		locale = @getLocale()
 		database = @getDatabase()
@@ -3011,7 +3013,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err)
 	generate: (opts,next) =>
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
 		config = @getConfig()
 		locale = @getLocale()
@@ -3098,7 +3100,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err,document)
 	flowDocument: (document,opts,next) ->
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 
 		# Flow
 		balUtil.flow(
@@ -3116,7 +3118,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err,document)
 	loadDocument: (document,opts,next) ->
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		opts.action or= 'load contextualize'
 
 		# Flow
@@ -3129,7 +3131,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err,document)
 	loadAndRenderDocument: (document,opts,next) ->
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		opts.action or= 'load contextualize render'
 
 		# Flow
@@ -3144,7 +3146,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err,result)
 	renderDocument: (document,opts,next) ->
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 
 		# Render
 		document.render(opts,next)
@@ -3156,7 +3158,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err,result)
 	renderPath: (path,opts,next) ->
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		attributes = extendr.extend({
 			fullPath: path
 		},opts.attributes)
@@ -3172,7 +3174,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err,result)
 	renderData: (content,opts,next) ->
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		attributes = extendr.extend({
 			filename: opts.filename
 			data: content
@@ -3190,7 +3192,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err,result)
 	renderText: (text,opts,next) ->
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		opts.actions ?= ['renderExtensions','renderDocument']
 		attributes = extendr.extend({
 			filename: opts.filename
@@ -3219,7 +3221,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err,document,result)
 	render: (opts,next) =>
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		locale = @getLocale()
 
 		# Extract document
@@ -3248,7 +3250,7 @@ class DocPad extends EventEmitterEnhanced
 	# Watch
 	watch: (opts,next) =>
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
 		config = @getConfig()
 		locale = @getLocale()
@@ -3402,7 +3404,7 @@ class DocPad extends EventEmitterEnhanced
 
 	run: (opts,next) =>
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
 		srcPath = @config.srcPath
 		destinationPath = @config.rootPath
@@ -3448,7 +3450,7 @@ class DocPad extends EventEmitterEnhanced
 	# Init
 	init: (opts,next) =>
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
 		config = @getConfig()
 		srcPath = config.srcPath
@@ -3523,7 +3525,7 @@ class DocPad extends EventEmitterEnhanced
 	# Skeleton
 	skeleton: (opts,next) =>
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
 		config = @getConfig()
 		skeletonId = config.skeleton
@@ -3601,7 +3603,7 @@ class DocPad extends EventEmitterEnhanced
 	# Serve Document
 	serveDocument: (opts,next) =>
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		{document,err,req,res} = opts
 		docpad = @
 
@@ -3724,7 +3726,7 @@ class DocPad extends EventEmitterEnhanced
 		express = null
 
 		# Prepare
-		[opts,next] = balUtil.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
 		config = @config
 		locale = @getLocale()

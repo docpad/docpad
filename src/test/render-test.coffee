@@ -40,7 +40,7 @@ joe.suite 'docpad-render', (suite,test) ->
 				# IMPORTANT THAT ANY OPTIONS GO AFTER THE RENDER CALL, SERIOUSLY
 				# OTHERWISE the sky falls down on scoping, seriously, it is wierd
 				command = [cliPath, 'render', pathUtil.join(renderPath,input.filename)]
-				balUtil.spawnCommand 'node', command, {cwd:rootPath}, (err,stdout,stderr,code,signal) ->
+				safefs.spawnCommand 'node', command, {cwd:rootPath}, (err,stdout,stderr,code,signal) ->
 					return done(err)  if err
 					expect(stdout.trim()).to.equal(input.stdout)
 					done()
@@ -83,7 +83,7 @@ joe.suite 'docpad-render', (suite,test) ->
 			test input.testname, (done) ->
 				command = [cliPath, 'render']
 				command.push(input.filename)  if input.filename
-				balUtil.spawnCommand 'node', command, {stdin:input.stdin,cwd:rootPath}, (err,stdout,stderr,code,signal) ->
+				safefs.spawnCommand 'node', command, {stdin:input.stdin,cwd:rootPath}, (err,stdout,stderr,code,signal) ->
 					return done(err)  if err
 					expect(stdout.trim()).to.equal(input.stdout)
 					done()
@@ -95,7 +95,7 @@ joe.suite 'docpad-render', (suite,test) ->
 				out: '<p><em>awesome</em></p>'
 				outPath: pathUtil.join(outPath,'outpath-render.html')
 			}
-			balUtil.spawnCommand 'node', [cliPath, 'render', 'markdown', '-o', input.outPath], {stdin:input.in, cwd:rootPath}, (err,stdout,stderr,code,signal) ->
+			safefs.spawnCommand 'node', [cliPath, 'render', 'markdown', '-o', input.outPath], {stdin:input.in, cwd:rootPath}, (err,stdout,stderr,code,signal) ->
 				return done(err)  if err
 				expect(stdout).to.equal('')
 				safefs.readFile input.outPath, (err,data) ->
