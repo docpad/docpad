@@ -931,7 +931,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err)
 	constructor: (instanceConfig,next) ->
 		# Prepare
-		[instanceConfig,next] = extractOptsAndCallback(instanceConfig,next)
+		[instanceConfig,next] = extractOptsAndCallback(instanceConfig, next)
 		docpad = @
 
 		# Allow DocPad to have unlimited event listeners
@@ -1307,12 +1307,12 @@ class DocPad extends EventEmitterEnhanced
 
 		# Prepare the Post Tasks
 		postTasks = new TaskGroup().once 'complete', (err) =>
-			return next(err,@config)
+			return next(err, @config)
 
 		# Lazy Dependencies: Iconv
 		postTasks.addTask (complete) =>
 			return complete()  unless @config.detectEncoding
-			return canihaz('iconv',complete)
+			return canihaz('iconv', complete)
 
 		# Load Plugins
 		postTasks.addTask (complete) ->
@@ -1759,7 +1759,7 @@ class DocPad extends EventEmitterEnhanced
 	# next(err,results)
 	initGitRepo: (opts) ->
 		# Forward
-		balUtil.initGitRepo(opts)
+		safeps.initGitRepo(opts)
 
 		# Chain
 		@
@@ -1772,7 +1772,7 @@ class DocPad extends EventEmitterEnhanced
 		opts.output ?= @getDebugging()
 
 		# Forward
-		balUtil.initNodeModules(opts)
+		safeps.initNodeModules(opts)
 
 		# Chain
 		@

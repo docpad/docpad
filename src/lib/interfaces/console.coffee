@@ -350,7 +350,7 @@ class ConsoleInterface
 					['config','--get','user.email']
 					['config','--get','github.user']
 				]
-				safefs.spawnCommands 'git', commands, (err,results) ->
+				safeps.spawnCommands 'git', commands, (err,results) ->
 					# Ignore error as it just means a config value wasn't defined
 					# return next(err)  if err
 

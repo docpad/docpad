@@ -18,7 +18,7 @@ docpadConfig =
 	growl: false
 	port: 9780
 	rootPath: rootPath
-	logLevel: 7 # if process.env.TRAVIS_NODE_VERSION? then 7 else 5
+	logLevel: if process.env.TRAVIS_NODE_VERSION? then 7 else 5
 	skipUnsupportedPlugins: false
 	catchExceptions: false
 	environments:
@@ -44,7 +44,7 @@ joe.suite 'docpad-api', (suite,test) ->
 
 	# Create a DocPad Instance
 	test 'createInstance', (done) ->
-		docpad = require('../main').createInstance(docpadConfig,done)
+		docpad = require('../main').createInstance(docpadConfig, done)
 
 	# Render some input
 	suite 'render', (suite,test) ->
