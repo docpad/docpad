@@ -102,7 +102,7 @@ class ConsoleInterface
 			.command('render [path]')
 			.description(locale.consoleDescriptionRender)
 			.action(consoleInterface.wrapAction(consoleInterface.render,{
-				# Disable anything uncessary or that could cause extra output we don't want
+				# Disable anything unnecessary or that could cause extra output we don't want
 				logLevel: 5
 				checkVersion: false
 				welcome: false
