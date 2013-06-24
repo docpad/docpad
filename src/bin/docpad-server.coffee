@@ -1,5 +1,5 @@
 # Require
-DocPad = require(__dirname+'/../lib/docpad')
+DocPad = require('../lib/docpad')
 
 # Prepare
 getArgument = (name,value=null,defaultValue=null) ->
@@ -10,7 +10,7 @@ getArgument = (name,value=null,defaultValue=null) ->
 	return result
 
 # DocPad Action
-action = getArgument('action',null,'server generate')
+action = getArgument('action', null, 'server generate')
 
 # DocPad Configuration
 docpadConfig = {}

@@ -1,6 +1,6 @@
 # Requires
 pathUtil = require('path')
-{DocPad,queryEngine,Backbone,createInstance,createMiddlewareInstance} = require(__dirname+'/lib/docpad')
+{DocPad,queryEngine,Backbone,createInstance,createMiddlewareInstance} = require('./lib/docpad')
 
 # Export
 module.exports =

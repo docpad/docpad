@@ -1,16 +1,17 @@
 # RequirestestServer
 {expect} = require('chai')
 joe = require('joe')
+pathUtil = require('path')
 
 # -------------------------------------
 # Configuration
 
-# Vars
-docpadPath = __dirname+'/../..'
-rootPath = docpadPath+'/test'
-renderPath = rootPath+'/render'
-expectPath = rootPath+'/render-expected'
-cliPath = docpadPath+'/bin/docpad'
+# Paths
+docpadPath = pathUtil.join(__dirname, '..', '..')
+rootPath   = pathUtil.join(docpadPath, 'test')
+renderPath = pathUtil.join(rootPath, 'render')
+expectPath = pathUtil.join(rootPath, 'render-expected')
+cliPath    = pathUtil.join(docpadPath, 'bin', 'docpad')
 
 # Configure DocPad
 docpadConfig =
@@ -43,7 +44,7 @@ joe.suite 'docpad-api', (suite,test) ->
 
 	# Create a DocPad Instance
 	test 'createInstance', (done) ->
-		docpad = require(__dirname+'/../main').createInstance(docpadConfig, done)
+		docpad = require('../main').createInstance(docpadConfig,done)
 
 	# Render some input
 	suite 'render', (suite,test) ->

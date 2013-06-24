@@ -2,20 +2,25 @@
 superAgent = require('superagent')
 balUtil = require('bal-util')
 safefs = require('safefs')
-DocPad = require(__dirname+'/../lib/docpad')
+DocPad = require('../lib/docpad')
 {expect} = require('chai')
 joe = require('joe')
 _ = require('lodash')
+pathUtil = require('path')
 
 # -------------------------------------
 # Configuration
 
-# Vars
+# Paths
+docpadPath = pathUtil.join(__dirname, '..', '..')
+rootPath   = pathUtil.join(docpadPath, 'test')
+srcPath    = pathUtil.join(rootPath, 'src')
+outPath    = pathUtil.join(rootPath, 'out')
+expectPath = pathUtil.join(rootPath, 'out-expected')
+cliPath    = pathUtil.join(docpadPath, 'bin', 'docpad')
+
+# Params
 port = 9779
-rootPath = __dirname+'/../../test'
-srcPath = rootPath+'/src'
-outPath = rootPath+'/out'
-outExpectedPath = rootPath+'/out-expected'
 baseUrl = "http://localhost:#{port}"
 testWait = 1000*60*5  # five minutes
 
@@ -94,15 +99,15 @@ joe.suite 'docpad-actions', (suite,test) ->
 					ignoreHiddenFiles: false
 					next: (err,outList) ->
 						balUtil.scandir(
-							path: outExpectedPath
+							path: expectPath
 							readFiles: true
 							ignoreHiddenFiles: false
-							next: (err,outExpectedList) ->
+							next: (err,expectList) ->
 								# check we have the same files
-								expect(_.difference(Object.keys(outList),Object.keys(outExpectedList))).to.be.empty
+								expect(_.difference(Object.keys(outList),Object.keys(expectList))).to.be.empty
 								# check the contents of those files match
 								for own key,actual of outList
-									expected = outExpectedList[key]
+									expected = expectList[key]
 									testMarkup(key,actual,expected)
 								# done with same file check
 								# start the markup tests
@@ -130,7 +135,7 @@ joe.suite 'docpad-actions', (suite,test) ->
 			superAgent.get "#{baseUrl}/html.html", (err,res) ->
 				return done(err)  if err
 				actual = res.text
-				safefs.readFile "#{outExpectedPath}/html.html", (err,expected) ->
+				safefs.readFile "#{expectPath}/html.html", (err,expected) ->
 					return done(err)  if err
 					expect(actual.toString().trim()).to.be.equal(expected.toString().trim())
 					done()
@@ -139,7 +144,7 @@ joe.suite 'docpad-actions', (suite,test) ->
 			superAgent.get "#{baseUrl}/my-custom-url", (err,res) ->
 				return done(err)  if err
 				actual = res.text
-				safefs.readFile "#{outExpectedPath}/custom-url.html", (err,expected) ->
+				safefs.readFile "#{expectPath}/custom-url.html", (err,expected) ->
 					return done(err)  if err
 					expect(actual.toString().trim()).to.be.equal(expected.toString().trim())
 					done()
