@@ -103,7 +103,7 @@ class ConsoleInterface
 			.description(locale.consoleDescriptionRender)
 			.action(consoleInterface.wrapAction(consoleInterface.render,{
 				# Disable anything unnecessary or that could cause extra output we don't want
-				logLevel: 5
+				logLevel: 3  # errors and above
 				checkVersion: false
 				welcome: false
 				prompts: false
