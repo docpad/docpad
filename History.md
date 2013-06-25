@@ -1,7 +1,11 @@
 ## History
 
+- v6.42.2 June 25, 2013
+	- Fixed backslash and slash inconsistencies on windows in regards to searching
+		- Thanks to [Hamish](https://github.com/HammyNZ) for [issue #533](https://github.com/bevry/docpad/issues/533)
+
 - v6.42.1 June 25, 2013
-	- Fixed backslash and slash inconsistencies on windows
+	- Fixed backslash and slash inconsistencies on windows in regards to urls
 		- Thanks to [jhuntdog](https://github.com/jhuntdog) for [issue #518](https://github.com/bevry/docpad/issues/518)
 	- `docpad render` will no longer output warning levels
 
