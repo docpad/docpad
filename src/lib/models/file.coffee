@@ -514,18 +514,33 @@ class FileModel extends Model
 		changes = {}
 
 		# Fetch
+		meta = @getMeta()
 		basename = @get('basename')
 		filename = @get('filename')
 		fullPath = @get('fullPath')
 		extensions = @get('extensions')
 		relativePath = @get('relativePath')
 		mtime = @get('mtime')
-		date = @getMeta('date') or null
+		date = meta.get('date') or null
+		name = meta.get('name') or null
+		slug = meta.get('slug') or null
+		url = meta.get('url') or null
+		extension = null
+		outExtension = null
+		relativeDirPath = null
+		relativeBase = null
+		outDirPath = null
+		contentType = null
+		fullDirPath = null
+		outFilename = null
+		outPath = null
+		relativeOutDirPath = null
+		relativeOutPath = null
 
 		# Filename
 		if fullPath
 			changes.filename = filename = pathUtil.basename(fullPath)
-			changes.outFilename = filename
+			changes.outFilename = outFilename = filename
 
 		# Basename, extensions, extension
 		if filename
@@ -547,13 +562,13 @@ class FileModel extends Model
 			else
 				extension = null
 			changes.extension = extension
-			changes.outExtension = extension
+			changes.outExtension = outExtension = extension
 
 		# fullDirPath, contentType
 		if fullPath
 			changes.fullDirPath = fullDirPath = pathUtil.dirname(fullPath) or ''
 			changes.contentType = contentType = mime.lookup(fullPath)
-			changes.outContentType = contentType
+			changes.outContentType = outContentType = contentType
 
 		# relativeDirPath, relativeBase
 		if relativePath
@@ -567,33 +582,6 @@ class FileModel extends Model
 		# Date
 		if !date and mtime
 			changes.date = date = mtime
-
-		# Apply
-		@set(changes)
-
-		# Next
-		next()
-		@
-
-	# Contextualize data
-	# Put our data into perspective of the bigger picture. For instance, generate the url for it's rendered equivalant.
-	# next(err)
-	contextualize: (opts={},next) ->
-		# Prepare
-		{opts,next} = @getActionArgs(opts,next)
-		changes = {}
-
-		# Fetch
-		meta = @getMeta()
-		relativePath = @get('relativePath')
-		relativeDirPath = @get('relativeDirPath')
-		relativeBase = @get('relativeBase')
-		filename = @get('filename')
-		outPath = @get('outPath')
-		outDirPath = @get('outDirPath')
-		name = meta.get('name') or null
-		slug = meta.get('slug') or null
-		url = meta.get('url') or null
 
 		# Create the URL for the file
 		if !url and relativePath
@@ -609,16 +597,27 @@ class FileModel extends Model
 		if !name and filename
 			changes.name = name = filename
 
-		# Create the outPath if we have a outpute directory
-		if @outDirPath and relativePath
+		# Create the outPath if we have a output directory
+		if @outDirPath and relativePath and relativeDirPath?
 			changes.relativeOutDirPath = relativeOutDirPath = relativeDirPath  if  relativeDirPath?
 			changes.relativeOutPath = relativeOutPath = relativePath
-			changes.outPath = outPath = pathUtil.join(@outDirPath,relativePath)
+			changes.outPath = outPath = pathUtil.join(@outDirPath, relativePath)
 			if outPath
 				changes.outDirPath = outDirPath = pathUtil.dirname(outPath)
 
 		# Apply
 		@set(changes)
+
+		# Next
+		next()
+		@
+
+	# Contextualize data
+	# Put our data into perspective of the bigger picture. For instance, generate the url for it's rendered equivalant.
+	# next(err)
+	contextualize: (opts={},next) ->
+		# Prepare
+		{opts,next} = @getActionArgs(opts,next)
 
 		# Forward
 		next()
