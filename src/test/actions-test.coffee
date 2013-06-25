@@ -88,8 +88,8 @@ joe.suite 'docpad-actions', (suite,test) ->
 				test key, ->
 					# trim whitespace, to avoid util conflicts between node versions and other oddities
 					# also address the slash backslash issue with windows and unix
-					actualString = actual.trim().replace(/\s+/g,'').replace(/[\\]/g, '/')
-					expectedString = expected.trim().replace(/\s+/g,'').replace(/[\\]/g, '/')
+					actualString = actual.trim().replace(/\s+/g,'').replace(/([abc])[\\]+/g, '$1/')
+					expectedString = expected.trim().replace(/\s+/g,'').replace(/([abc])[\\]+/g, '$1/')
 					# check equality
 					expect(actualString).to.be.equal(expectedString)
 

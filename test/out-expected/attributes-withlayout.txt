@@ -156,7 +156,6 @@ text JSON.stringify(sortedAttrs,null,'\\t')",
 	"contentRenderedWithoutLayouts": null,
 	"contentType": "application/octet-stream",
 	"dynamic": false,
-	"encoding": "utf8",
 	"exists": true,
 	"extension": "coffee",
 	"extensions": [
