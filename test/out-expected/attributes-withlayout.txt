@@ -8,6 +8,7 @@ attrs = @getDocument().getAttributes()
 # timezone makes the dates impossible
 # path differences make them impossible
 # data is too much output
+delete attrs.encoding
 delete attrs.ctime
 delete attrs.mtime
 delete attrs.date
@@ -36,6 +37,7 @@ attrs = @getDocument().getAttributes()
 # timezone makes the dates impossible
 # path differences make them impossible
 # data is too much output
+delete attrs.encoding
 delete attrs.ctime
 delete attrs.mtime
 delete attrs.date
@@ -61,7 +63,6 @@ text JSON.stringify(sortedAttrs,null,'\\t')",
 	"contentRenderedWithoutLayouts": null,
 	"contentType": "application/octet-stream",
 	"dynamic": false,
-	"encoding": "ascii",
 	"exists": true,
 	"extension": "coffee",
 	"extensions": [
@@ -113,6 +114,7 @@ attrs = @getDocument().getAttributes()
 # timezone makes the dates impossible
 # path differences make them impossible
 # data is too much output
+delete attrs.encoding
 delete attrs.ctime
 delete attrs.mtime
 delete attrs.date
@@ -148,13 +150,13 @@ text JSON.stringify(sortedAttrs,null,'\\t')",
 =====================================================
 {
 	"basename": "attributes-withlayout",
-	"body": "# Fetch data\nattrs = @getDocument().getAttributes()\n\n# Delete environment specific variables\n# timezone makes the dates impossible\n# path differences make them impossible\n# data is too much output\ndelete attrs.ctime\ndelete attrs.mtime\ndelete attrs.date\ndelete attrs.fullPath\ndelete attrs.fullDirPath\ndelete attrs.outPath\ndelete attrs.outDirPath\ndelete attrs.data\ndelete attrs.id\ndelete attrs.layoutId\n\n# Sort the attributes\nkeys = []\nkeys.push(key)  for own key,value of attrs\nkeys.sort()\nsortedAttrs = {}\nfor key in keys\n\tsortedAttrs[key] = attrs[key]\n\n# Output data\ntext JSON.stringify(sortedAttrs,null,'\\t')",
-	"content": "# Fetch data\nattrs = @getDocument().getAttributes()\n\n# Delete environment specific variables\n# timezone makes the dates impossible\n# path differences make them impossible\n# data is too much output\ndelete attrs.ctime\ndelete attrs.mtime\ndelete attrs.date\ndelete attrs.fullPath\ndelete attrs.fullDirPath\ndelete attrs.outPath\ndelete attrs.outDirPath\ndelete attrs.data\ndelete attrs.id\ndelete attrs.layoutId\n\n# Sort the attributes\nkeys = []\nkeys.push(key)  for own key,value of attrs\nkeys.sort()\nsortedAttrs = {}\nfor key in keys\n\tsortedAttrs[key] = attrs[key]\n\n# Output data\ntext JSON.stringify(sortedAttrs,null,'\\t')",
+	"body": "# Fetch data\nattrs = @getDocument().getAttributes()\n\n# Delete environment specific variables\n# timezone makes the dates impossible\n# path differences make them impossible\n# data is too much output\ndelete attrs.encoding\ndelete attrs.ctime\ndelete attrs.mtime\ndelete attrs.date\ndelete attrs.fullPath\ndelete attrs.fullDirPath\ndelete attrs.outPath\ndelete attrs.outDirPath\ndelete attrs.data\ndelete attrs.id\ndelete attrs.layoutId\n\n# Sort the attributes\nkeys = []\nkeys.push(key)  for own key,value of attrs\nkeys.sort()\nsortedAttrs = {}\nfor key in keys\n\tsortedAttrs[key] = attrs[key]\n\n# Output data\ntext JSON.stringify(sortedAttrs,null,'\\t')",
+	"content": "# Fetch data\nattrs = @getDocument().getAttributes()\n\n# Delete environment specific variables\n# timezone makes the dates impossible\n# path differences make them impossible\n# data is too much output\ndelete attrs.encoding\ndelete attrs.ctime\ndelete attrs.mtime\ndelete attrs.date\ndelete attrs.fullPath\ndelete attrs.fullDirPath\ndelete attrs.outPath\ndelete attrs.outDirPath\ndelete attrs.data\ndelete attrs.id\ndelete attrs.layoutId\n\n# Sort the attributes\nkeys = []\nkeys.push(key)  for own key,value of attrs\nkeys.sort()\nsortedAttrs = {}\nfor key in keys\n\tsortedAttrs[key] = attrs[key]\n\n# Output data\ntext JSON.stringify(sortedAttrs,null,'\\t')",
 	"contentRendered": null,
 	"contentRenderedWithoutLayouts": null,
 	"contentType": "application/octet-stream",
 	"dynamic": false,
-	"encoding": "ascii",
+	"encoding": "utf8",
 	"exists": true,
 	"extension": "coffee",
 	"extensions": [
@@ -189,7 +191,7 @@ text JSON.stringify(sortedAttrs,null,'\\t')",
 	"renderSingleExtensions": false,
 	"rendered": false,
 	"slug": "attributes-withlayout",
-	"source": "---\ntitle: 'Attributes With Layout'\nlayout: 'attributes'\ntags: ['attributes','with-layout']\nreferencesOthers: true\n---\n\n# Fetch data\nattrs = @getDocument().getAttributes()\n\n# Delete environment specific variables\n# timezone makes the dates impossible\n# path differences make them impossible\n# data is too much output\ndelete attrs.ctime\ndelete attrs.mtime\ndelete attrs.date\ndelete attrs.fullPath\ndelete attrs.fullDirPath\ndelete attrs.outPath\ndelete attrs.outDirPath\ndelete attrs.data\ndelete attrs.id\ndelete attrs.layoutId\n\n# Sort the attributes\nkeys = []\nkeys.push(key)  for own key,value of attrs\nkeys.sort()\nsortedAttrs = {}\nfor key in keys\n\tsortedAttrs[key] = attrs[key]\n\n# Output data\ntext JSON.stringify(sortedAttrs,null,'\\t')",
+	"source": "---\ntitle: 'Attributes With Layout'\nlayout: 'attributes'\ntags: ['attributes','with-layout']\nreferencesOthers: true\n---\n\n# Fetch data\nattrs = @getDocument().getAttributes()\n\n# Delete environment specific variables\n# timezone makes the dates impossible\n# path differences make them impossible\n# data is too much output\ndelete attrs.encoding\ndelete attrs.ctime\ndelete attrs.mtime\ndelete attrs.date\ndelete attrs.fullPath\ndelete attrs.fullDirPath\ndelete attrs.outPath\ndelete attrs.outDirPath\ndelete attrs.data\ndelete attrs.id\ndelete attrs.layoutId\n\n# Sort the attributes\nkeys = []\nkeys.push(key)  for own key,value of attrs\nkeys.sort()\nsortedAttrs = {}\nfor key in keys\n\tsortedAttrs[key] = attrs[key]\n\n# Output data\ntext JSON.stringify(sortedAttrs,null,'\\t')",
 	"tags": [
 		"attributes",
 		"with-layout"
