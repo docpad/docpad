@@ -1,0 +1,7 @@
+---
+layout: 'a/b/c/layout-nested'
+title: 'Layout Nested Test'
+---
+
+<div class="title"><%=@document.title or 'Untitled'%></div>
+<div class="content">THE Layout Single Test</div>
