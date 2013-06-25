@@ -1200,7 +1200,7 @@ class DocPad extends EventEmitterEnhanced
 			return complete()  unless config.welcome
 
 			# Welcome
-			@emitSync('welcome', {docpad}, complete)
+			@emitSerial('welcome', {docpad}, complete)
 
 		# Anyomous
 		# Ignore errors
@@ -1233,7 +1233,7 @@ class DocPad extends EventEmitterEnhanced
 
 		# DocPad Ready
 		tasks.addTask (complete) =>
-			@emitSync('docpadReady', {docpad}, complete)
+			@emitSerial('docpadReady', {docpad}, complete)
 
 		# Run tasks
 		tasks.run()
@@ -1353,11 +1353,11 @@ class DocPad extends EventEmitterEnhanced
 
 		# Fetch plugins templateData
 		postTasks.addTask (complete) =>
-			@emitSync('extendTemplateData', {templateData:@pluginsTemplateData}, complete)
+			@emitSerial('extendTemplateData', {templateData:@pluginsTemplateData}, complete)
 
 		# Fire the docpadLoaded event
 		postTasks.addTask (complete) =>
-			@emitSync('docpadLoaded', {}, complete)
+			@emitSerial('docpadLoaded', {}, complete)
 
 		# Fire post tasks
 		postTasks.run()
@@ -1724,7 +1724,7 @@ class DocPad extends EventEmitterEnhanced
 		# Custom Collections Group
 		tasks = new TaskGroup().setConfig(concurrency:0).once 'complete', (err) ->
 			docpad.error(err)  if err
-			docpad.emitSync('extendCollections',{},next)
+			docpad.emitSerial('extendCollections',{},next)
 
 		# Cycle through Custom Collections
 		eachr @config.collections or {}, (fn,name) ->
@@ -1779,7 +1779,7 @@ class DocPad extends EventEmitterEnhanced
 
 		# Perform any plugin extensions to what we just cleaned
 		# and forward
-		@emitSync('populateCollections',{},next)
+		@emitSerial('populateCollections',{},next)
 
 		# Chain
 		@
@@ -2085,7 +2085,7 @@ class DocPad extends EventEmitterEnhanced
 
 		# Render
 		file.on 'render', (args...) ->
-			docpad.emitSync('render', args...)
+			docpad.emitSerial('render', args...)
 
 		# Return
 		file
@@ -2114,11 +2114,11 @@ class DocPad extends EventEmitterEnhanced
 
 		# Render
 		document.on 'render', (args...) ->
-			docpad.emitSync('render', args...)
+			docpad.emitSerial('render', args...)
 
 		# Render document
 		document.on 'renderDocument', (args...) ->
-			docpad.emitSync('renderDocument', args...)
+			docpad.emitSerial('renderDocument', args...)
 
 		# Return
 		document
@@ -2567,7 +2567,7 @@ class DocPad extends EventEmitterEnhanced
 		tasks = new TaskGroup().setConfig(concurrency:0).once 'complete', (err) ->
 			return next(err)  if err
 			# After
-			docpad.emitSync 'loadAfter', {collection}, (err) ->
+			docpad.emitSerial 'loadAfter', {collection}, (err) ->
 				docpad.log 'debug', util.format(locale.loadedFiles, collection.length)
 				next()
 
@@ -2605,7 +2605,7 @@ class DocPad extends EventEmitterEnhanced
 				return complete()
 
 		# Start contextualizing
-		docpad.emitSync 'loadBefore', {collection}, (err) ->
+		docpad.emitSerial 'loadBefore', {collection}, (err) ->
 			return next(err)  if err
 			tasks.run()
 
@@ -2627,7 +2627,7 @@ class DocPad extends EventEmitterEnhanced
 		tasks = new TaskGroup().setConfig(concurrency:0).once 'complete', (err) ->
 			return next(err)  if err
 			# After
-			docpad.emitSync 'contextualizeAfter', {collection}, (err) ->
+			docpad.emitSerial 'contextualizeAfter', {collection}, (err) ->
 				return next(err)  if err
 				docpad.log 'debug', util.format(locale.contextualizedFiles, collection.length)
 				return next()
@@ -2640,7 +2640,7 @@ class DocPad extends EventEmitterEnhanced
 				return complete(err)
 
 		# Start contextualizing
-		docpad.emitSync 'contextualizeBefore', {collection,templateData}, (err) ->
+		docpad.emitSerial 'contextualizeBefore', {collection,templateData}, (err) ->
 			return next(err)  if err
 			tasks.run()
 
@@ -2662,7 +2662,7 @@ class DocPad extends EventEmitterEnhanced
 		tasks = new TaskGroup().once 'complete', (err) ->
 			return next(err)  if err
 			# After
-			docpad.emitSync 'renderAfter', {collection}, (err) ->
+			docpad.emitSerial 'renderAfter', {collection}, (err) ->
 				return next(err)  if err
 				docpad.log 'debug', util.format(locale.renderedFiles, collection.length)
 				return next()
@@ -2713,7 +2713,7 @@ class DocPad extends EventEmitterEnhanced
 				renderCollection(subsequentCollection, {renderPass}, complete)
 
 		# Fire the queue
-		docpad.emitSync 'renderBefore', {collection,templateData}, (err) =>
+		docpad.emitSerial 'renderBefore', {collection,templateData}, (err) =>
 			return next(err)  if err
 			tasks.run()
 
@@ -2735,7 +2735,7 @@ class DocPad extends EventEmitterEnhanced
 		tasks = new TaskGroup().setConfig(concurrency:0).once 'complete', (err) ->
 			return next(err)  if err
 			# After
-			docpad.emitSync 'writeAfter', {collection}, (err) ->
+			docpad.emitSerial 'writeAfter', {collection}, (err) ->
 				return next(err)  if err
 				docpad.log 'debug', util.format(locale.wroteFiles, collection.length)
 				return next()
@@ -2763,7 +2763,7 @@ class DocPad extends EventEmitterEnhanced
 				finish(err)
 
 		#  Start writing
-		docpad.emitSync 'writeBefore', {collection,templateData}, (err) =>
+		docpad.emitSerial 'writeBefore', {collection,templateData}, (err) =>
 			return next(err)  if err
 			tasks.run()
 
@@ -2878,7 +2878,7 @@ class DocPad extends EventEmitterEnhanced
 
 		# Fire plugins
 		tasks.addTask (complete) ->
-			docpad.emitSync('generateBefore', {reset:opts.reset, server:docpad.getServer()}, complete)
+			docpad.emitSerial('generateBefore', {reset:opts.reset, server:docpad.getServer()}, complete)
 
 		# Run
 		tasks.run()
@@ -2898,7 +2898,7 @@ class DocPad extends EventEmitterEnhanced
 		locale = @getLocale()
 
 		# Before
-		@emitSync 'parseBefore', {}, (err) ->
+		@emitSerial 'parseBefore', {}, (err) ->
 			return next(err)  if err
 
 			# Log
@@ -2908,7 +2908,7 @@ class DocPad extends EventEmitterEnhanced
 			tasks = new TaskGroup().setConfig(concurrency:0).once 'complete', (err) ->
 				return next(err)  if err
 				# After
-				docpad.emitSync 'parseAfter', {}, (err) ->
+				docpad.emitSerial 'parseAfter', {}, (err) ->
 					return next(err)  if err
 					docpad.log 'debug', locale.renderParsed
 					return next(err)
@@ -2983,7 +2983,7 @@ class DocPad extends EventEmitterEnhanced
 		docpad.databaseCache = null
 
 		# Fire plugins
-		docpad.emitSync 'generateAfter', server:docpad.getServer(), (err) ->
+		docpad.emitSerial 'generateAfter', server:docpad.getServer(), (err) ->
 			return next(err)  if err
 
 			# Log generated
@@ -3776,7 +3776,7 @@ class DocPad extends EventEmitterEnhanced
 			return next(err)  if err
 
 			# Plugins
-			docpad.emitSync 'serverAfter', {server:serverExpress,serverExpress,serverHttp,express}, (err) ->
+			docpad.emitSerial 'serverAfter', {server:serverExpress,serverExpress,serverHttp,express}, (err) ->
 				return next(err)  if err
 
 				# Done
@@ -3807,7 +3807,7 @@ class DocPad extends EventEmitterEnhanced
 				return next()
 
 		# Start
-		docpad.emitSync 'serverBefore', {}, (err) ->
+		docpad.emitSerial 'serverBefore', {}, (err) ->
 			return finish(err)  if err
 
 			# Server
@@ -3836,7 +3836,7 @@ class DocPad extends EventEmitterEnhanced
 
 				# Emit the serverExtend event
 				# So plugins can define their routes earlier than the DocPad routes
-				docpad.emitSync 'serverExtend', {server:serverExpress,serverExpress,serverHttp,express}, (err) ->
+				docpad.emitSerial 'serverExtend', {server:serverExpress,serverExpress,serverHttp,express}, (err) ->
 					return next(err)  if err
 
 					# DocPad Header Middleware
