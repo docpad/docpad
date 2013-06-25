@@ -1204,7 +1204,7 @@ class DocPad extends EventEmitterEnhanced
 
 				# Hash with salt
 				try
-					macAddressHash = require('crypto').createHmac('sha1',config.hashKey).update(macAddress).digest('hex')
+					macAddressHash = require('crypto').createHmac('sha1', config.hashKey).update(macAddress).digest('hex')
 				catch err
 					return complete()  if err
 
@@ -2090,7 +2090,7 @@ class DocPad extends EventEmitterEnhanced
 		},options)
 
 		# Create and return
-		document = new DocumentModel(data,options)
+		document = new DocumentModel(data, options)
 
 		# Log
 		document.on 'log', (args...) ->
@@ -2099,8 +2099,8 @@ class DocPad extends EventEmitterEnhanced
 		# Fetch a layout
 		document.on 'getLayout', (opts={},next) ->
 			opts.collection = docpad.getCollection('layouts')
-			layout = docpad.getFileBySelector(opts.selector,opts)
-			next(null,{layout})
+			layout = docpad.getFileBySelector(opts.selector, opts)
+			next(null, {layout})
 
 		# Render
 		document.on 'render', (args...) ->
@@ -2118,7 +2118,7 @@ class DocPad extends EventEmitterEnhanced
 		database = @getDatabase()
 		result = database.findOne(fullPath: data.fullPath)
 		unless result
-			result = @createFile(data,options)
+			result = @createFile(data, options)
 			database.add(result)
 		result
 
@@ -2127,7 +2127,7 @@ class DocPad extends EventEmitterEnhanced
 		database = @getDatabase()
 		result = database.findOne(fullPath: data.fullPath)
 		unless result
-			result = @createDocument(data,options)
+			result = @createDocument(data, options)
 			database.add(result)
 		result
 
@@ -2146,21 +2146,21 @@ class DocPad extends EventEmitterEnhanced
 				# Check if we have a document or layout
 				for dirPath in config.documentsPaths.concat(config.layoutsPaths)
 					if fileFullPath.indexOf(dirPath) is 0
-						data.relativePath or= fileFullPath.replace(dirPath,'').replace(/^[\/\\]/,'')
-						result = @createDocument(data,options)
+						data.relativePath or= fileFullPath.replace(dirPath, '').replace(/^[\/\\]/,'')
+						result = @createDocument(data, options)
 						break
 
 				# Check if we have a file
 				unless result
 					for dirPath in config.filesPaths
 						if fileFullPath.indexOf(dirPath) is 0
-							data.relativePath or= fileFullPath.replace(dirPath,'').replace(/^[\/\\]/,'')
-							result = @createFile(data,options)
+							data.relativePath or= fileFullPath.replace(dirPath, '').replace(/^[\/\\]/,'')
+							result = @createFile(data, options)
 							break
 
 			# Otherwise, create a file anyway
 			unless result
-				result = @createDocument(data,options)
+				result = @createDocument(data, options)
 
 			# Add result to database
 			database.add(result)
@@ -2172,13 +2172,13 @@ class DocPad extends EventEmitterEnhanced
 	# next(err)
 	parseFileDirectory: (opts={},next) ->
 		opts.createFunction ?= @createFile
-		return @parseDirectory(opts,next)
+		return @parseDirectory(opts, next)
 
 	# Parse a document directory
 	# next(err)
 	parseDocumentDirectory: (opts={},next) ->
 		opts.createFunction ?= @createDocument
-		return @parseDirectory(opts,next)
+		return @parseDirectory(opts, next)
 
 	# Parse a directory
 	# next(err)
@@ -2217,7 +2217,7 @@ class DocPad extends EventEmitterEnhanced
 					stat: fileStat
 
 				# Create file
-				file = createFunction(data,options)
+				file = createFunction(data, options)
 				filesToLoad.add(file)
 
 				# Next
