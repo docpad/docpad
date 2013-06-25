@@ -1,5 +1,10 @@
 ## History
 
+- v6.42.1 June 25, 2013
+	- Fixed backslash and slash inconsistencies on windows
+		- Thanks to [jhuntdog](https://github.com/jhuntdog) for [issue #518](https://github.com/bevry/docpad/issues/518)
+	- `docpad render` will no longer output warning levels
+
 - v6.42.0 June 25, 2013
 	- Better lazy loading of modules
 	- Updated dependencies
