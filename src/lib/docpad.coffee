@@ -263,6 +263,11 @@ class DocPad extends EventEmitterEnhanced
 			@setBlock(name,value)
 		@
 
+	# Each block
+	eachBlock: (fn) ->
+		eachr @blocks, fn
+		@
+
 	# Collections
 	collections: null
 	### {
@@ -299,7 +304,12 @@ class DocPad extends EventEmitterEnhanced
 	# Set collections
 	setCollections: (collections) ->
 		for own name,value of collections
-			@setCollection(name,value)
+			@setCollection(name, value)
+		@
+
+	# Each collection
+	eachCollection: (fn) ->
+		eachr @collections, fn
 		@
 
 
@@ -1735,7 +1745,7 @@ class DocPad extends EventEmitterEnhanced
 					collection.live(true)  if collection
 
 					# Apply the collection
-					docpad.setCollection(name,collection)
+					docpad.setCollection(name, collection)
 					return complete()
 
 		# Run Custom collections
@@ -2947,6 +2957,7 @@ class DocPad extends EventEmitterEnhanced
 			action: 'contextualizeFiles renderFiles writeFiles'
 			args: [opts]
 			next: (err) ->
+				# Forward
 				return next(err)
 		)
 
