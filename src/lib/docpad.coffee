@@ -2202,50 +2202,52 @@ class DocPad extends EventEmitterEnhanced
 		filesToLoad = new FilesCollection()
 
 		# Check if the directory exists
-		unless safefs.existsSync(path)
+		safefs.exists path, (exists) ->
+			# Check
+			unless exists
+				# Log
+				docpad.log 'debug', util.format(locale.renderDirectoryNonexistant, path)
+
+				# Forward
+				return next()
+
 			# Log
-			docpad.log 'debug', util.format(locale.renderDirectoryNonexistant, path)
+			docpad.log 'debug', util.format(locale.renderDirectoryParsing, path)
 
-			# Forward
-			return next()
+			# Files
+			docpad.scandir(
+				# Path
+				path: path
 
-		# Log
-		docpad.log 'debug', util.format(locale.renderDirectoryParsing, path)
+				# File Action
+				fileAction: (fileFullPath,fileRelativePath,nextFile,fileStat) ->
+					# Prepare
+					data =
+						fullPath: fileFullPath
+						relativePath: fileRelativePath
+					options =
+						stat: fileStat
 
-		# Files
-		@scandir(
-			# Path
-			path: path
+					# Create file
+					file = createFunction(data, options)
+					filesToLoad.add(file)
 
-			# File Action
-			fileAction: (fileFullPath,fileRelativePath,nextFile,fileStat) ->
-				# Prepare
-				data =
-					fullPath: fileFullPath
-					relativePath: fileRelativePath
-				options =
-					stat: fileStat
-
-				# Create file
-				file = createFunction(data, options)
-				filesToLoad.add(file)
+					# Next
+					nextFile()
 
 				# Next
-				nextFile()
+				next: (err) ->
+					# Check
+					return next(err)  if err
 
-			# Next
-			next: (err) ->
-				# Check
-				return next(err)  if err
+					# Log
+					docpad.log 'debug', util.format(locale.renderDirectoryParsed, path)
 
-				# Log
-				docpad.log 'debug', util.format(locale.renderDirectoryParsed, path)
-
-				# Load the files
-				docpad.loadFiles {collection:filesToLoad}, (err) ->
-					# Forward
-					return next(err)
-		)
+					# Load the files
+					docpad.loadFiles {collection:filesToLoad}, (err) ->
+						# Forward
+						return next(err)
+			)
 
 		# Chain
 		@
@@ -2281,18 +2283,18 @@ class DocPad extends EventEmitterEnhanced
 			return next(err)
 
 		# Load website plugins
-		(@config.pluginsPaths or []).forEach (pluginsPath) =>
-			exists = safefs.existsSync(pluginsPath)
-			if exists
-				tasks.addTask (complete) =>
-					@loadPluginsIn(pluginsPath, complete)
+		(@config.pluginsPaths or []).forEach (pluginsPath) ->
+			tasks.addTask (complete) ->
+				safefs.exists pluginsPath, (exists) ->
+					return complete()  unless exists
+					docpad.loadPluginsIn(pluginsPath, complete)
 
 		# Load specific plugins
-		(@config.pluginPaths or []).forEach (pluginPath) =>
-			exists = safefs.existsSync(pluginPath)
-			if exists
-				tasks.addTask (complete) =>
-					@loadPlugin(pluginPath, complete)
+		(@config.pluginPaths or []).forEach (pluginPath) ->
+			tasks.addTask (complete) ->
+				safefs.exists pluginsPath, (exists) ->
+					return complete()  unless exists
+					docpad.loadPlugin(pluginPath, complete)
 
 		# Execute the loading asynchronously
 		tasks.run()
@@ -2865,12 +2867,13 @@ class DocPad extends EventEmitterEnhanced
 			# Check if the source directory exists
 			tasks.addTask (complete) ->
 				safefs.exists config.srcPath, (exists) ->
-					# Check and forward
-					if exists is false
+					# Check
+					unless exists
 						err = new Error(locale.renderNonexistant)
 						return complete(err)
-					else
-						return complete()
+
+					# Forward
+					return complete()
 
 			# Clean our collections
 			tasks.addTask (complete) ->
@@ -3451,10 +3454,10 @@ class DocPad extends EventEmitterEnhanced
 			)
 
 		# Check if we have the docpad structure
-		if safefs.existsSync(srcPath)
-			# We have the correct structure, so let's proceed with DocPad
-			runDocpad()
-		else
+		safefs.exists srcPath, (exists) ->
+			# Check if have the correct structure, if so let's proceed with DocPad
+			return runDocpad()  if exists
+
 			# We don't have the correct structure
 			# Check if we are running on an empty directory
 			safefs.readdir destinationPath, (err,files) ->
@@ -3468,7 +3471,7 @@ class DocPad extends EventEmitterEnhanced
 				else
 					docpad.skeleton opts, (err) ->
 						return next(err)  if err
-						runDocpad()
+						return runDocpad()
 
 		# Chain
 		@
