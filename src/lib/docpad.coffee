@@ -2904,9 +2904,14 @@ class DocPad extends EventEmitterEnhanced
 			# Log
 			docpad.log 'debug', locale.renderParsing
 
+			# Disable live collections
+			docpad.eachCollection (collection) ->
+				collection.live(false).query()
+
 			# Async
 			tasks = new TaskGroup().setConfig(concurrency:0).once 'complete', (err) ->
 				return next(err)  if err
+
 				# After
 				docpad.emitSync 'parseAfter', {}, (err) ->
 					return next(err)  if err
@@ -2974,6 +2979,10 @@ class DocPad extends EventEmitterEnhanced
 		locale = @getLocale()
 		database = @getDatabase()
 		collection = opts.collection or database
+
+		# Enable live collections
+		docpad.eachCollection (collection) ->
+			collection.live(true)
 
 		# Update generating flag
 		docpad.generating = false
