@@ -2292,7 +2292,7 @@ class DocPad extends EventEmitterEnhanced
 		# Load specific plugins
 		(@config.pluginPaths or []).forEach (pluginPath) ->
 			tasks.addTask (complete) ->
-				safefs.exists pluginsPath, (exists) ->
+				safefs.exists pluginPath, (exists) ->
 					return complete()  unless exists
 					docpad.loadPlugin(pluginPath, complete)
 
