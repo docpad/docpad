@@ -18,6 +18,7 @@ attrs = @documentModel.getAttributes()
 # timezone makes the dates impossible
 # path differences make them impossible
 # data is too much output
+delete attrs.encoding
 delete attrs.ctime
 delete attrs.mtime
 delete attrs.date
