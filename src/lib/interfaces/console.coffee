@@ -164,7 +164,7 @@ class ConsoleInterface
 		# Finish Up
 
 		# Plugins
-		docpad.emitSync 'consoleSetup', {consoleInterface,commander}, (err) ->
+		docpad.emitSerial 'consoleSetup', {consoleInterface,commander}, (err) ->
 			return consoleInterface.handleError(err)  if err
 			next(null,consoleInterface)
 
