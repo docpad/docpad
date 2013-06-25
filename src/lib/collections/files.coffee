@@ -1,3 +1,6 @@
+# Global
+pathUtil = require('path')
+
 # Local
 {QueryCollection,Model} = require('../base')
 FileModel = require('../models/file')
@@ -14,18 +17,19 @@ class FilesCollection extends QueryCollection
 	# Useful for layout searching
 	fuzzyFindOne: (data,sorting,paging) ->
 		# Prepare
+		escapedData = data?.replace(/[\/]/g, pathUtil.sep)
 		queries = [
-			{relativePath: data}
-			{relativeBase: data}
+			{relativePath: escapedData}
+			{relativeBase: escapedData}
 			{url: data}
-			{relativePath: $startsWith: data}
-			{fullPath: $startsWith: data}
+			{relativePath: $startsWith: escapedData}
+			{fullPath: $startsWith: escapedData}
 			{url: $startsWith: data}
 		]
 
 		# Try the queries
 		for query in queries
-			file = @findOne(query,sorting,paging)
+			file = @findOne(query, sorting, paging)
 			return file  if file
 
 		# Didn't find a file
