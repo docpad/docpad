@@ -597,7 +597,8 @@ class FileModel extends Model
 
 		# Create the URL for the file
 		if !url and relativePath
-			url = "/#{relativePath}"
+			escapedRelativePath = relativePath.replace(/[\\]/g, '/')
+			url = "/#{escapedRelativePath}"
 			@setUrl(url)
 
 		# Create a slug for the file

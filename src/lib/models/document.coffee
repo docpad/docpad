@@ -295,12 +295,13 @@ class DocumentModel extends FileModel
 				# Figure out the rendered url
 				if outFilename
 					if relativeDirPath
-						relativeOutPath = "#{relativeDirPath}/#{outFilename}"
+						relativeOutPath = pathUtil.join(relativeDirPath, outFilename)
 					else
 						relativeOutPath = "#{outFilename}"
 					changes.relativeOutPath = relativeOutPath
 					unless url
-						changes.url = url = "/#{relativeOutPath}"
+						escapedRelativeOutPath = relativeOutPath.replace(/[\\]/g, '/')
+						changes.url = url = "/#{escapedRelativeOutPath}"
 
 				# Set name if it doesn't exist already
 				if !name and outFilename?

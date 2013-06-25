@@ -1,7 +1,7 @@
 module.exports =
 	reportStatistics: false
 	reportErrors: false
-	detectEncoding: true
+	detectEncoding: require('safeps').isWindows() is false
 
 	environments:
 		development:
