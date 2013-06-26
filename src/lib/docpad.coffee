@@ -892,6 +892,11 @@ class DocPad extends EventEmitterEnhanced
 		# Whether or not we should display any prompts
 		prompts: false
 
+		# Powered By DocPad
+		# Whether or not we should include DocPad in the Powered-By meta header
+		# Please leave this enabled as it is a standard practice and promotes DocPad in the web eco-system
+		poweredByDocPad: true
+
 		# Helper Url
 		# Used for subscribing to newsletter, account information, and statistics etc
 		# Helper's source-code can be found at: https://github.com/bevry/docpad-helper
@@ -1766,9 +1771,8 @@ class DocPad extends EventEmitterEnhanced
 
 		# Perform a complete clean of our collections
 		database.reset([])
-		@getBlock('meta').reset([]).add([
-			"""<meta http-equiv="X-Powered-By" content="DocPad v#{docpad.version}"/>"""
-		])
+		meta = @getBlock('meta').reset([])
+		meta.add("""<meta http-equiv="X-Powered-By" content="DocPad v#{docpad.version}"/>""")  if docpad.getConfig().poweredByDocPad isnt false
 		@getBlock('scripts').reset([])
 		@getBlock('styles').reset([])
 
@@ -3683,15 +3687,19 @@ class DocPad extends EventEmitterEnhanced
 		@
 
 	# Server Middleware: Header
-	serverMiddlewareHeader: (req,res,next) ->
+	serverMiddlewareHeader: (req,res,next) =>
 		# Prepare
 		docpad = @
 
 		# Handle
+		# Always enable this until we get a complaint about not having it
+		# For instance, Express.js also forces this
 		tools = res.get('X-Powered-By').split(/[,\s]+/g)
 		tools.push("DocPad v#{docpad.version}")
-		tools = tools.join(',')
-		res.set('X-Powered-By',tools)
+		tools = tools.join(', ')
+		res.set('X-Powered-By', tools)
+
+		# Forward
 		next()
 
 		# Chain
