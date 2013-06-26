@@ -1,5 +1,11 @@
 ## History
 
+- v6.42.3 June 26, 2013
+	- Swapped out synchronous file system calls for asynchronous ones
+		- Closes [issue #538](https://github.com/bevry/docpad/issues/538)
+	- Fixed DocPad version number undefined in X-Powered-By response header
+	- Added the ability to turn off the X-Powered-By meta header by setting the `poweredByDocPad` to `false` in your configuration
+
 - v6.42.2 June 25, 2013
 	- Fixed backslash and slash inconsistencies on windows in regards to searching
 		- Thanks to [Hamish](https://github.com/HammyNZ) for [issue #533](https://github.com/bevry/docpad/issues/533)
