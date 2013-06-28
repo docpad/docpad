@@ -101,7 +101,7 @@ class ConsoleInterface
 		commander
 			.command('render [path]')
 			.description(locale.consoleDescriptionRender)
-			.action(consoleInterface.wrapAction(consoleInterface.render,{
+			.action(consoleInterface.wrapAction(consoleInterface.render, {
 				# Disable anything unnecessary or that could cause extra output we don't want
 				logLevel: 3  # errors and above
 				checkVersion: false
@@ -123,7 +123,7 @@ class ConsoleInterface
 
 		# install
 		commander
-			.command('install')
+			.command('install [pluginName]')
 			.description(locale.consoleDescriptionInstall)
 			.action(consoleInterface.wrapAction(consoleInterface.install))
 
@@ -520,8 +520,14 @@ class ConsoleInterface
 		next()
 		@
 
-	install: (next) =>
-		@docpad.action('install',next)
+	install: (next,opts) =>
+		# Extract
+		plugin = opts.args[0] or null
+
+		# Act
+		@docpad.action('install', {plugin}, next)
+
+		# Chain
 		@
 
 	render: (next,opts) =>
@@ -530,7 +536,7 @@ class ConsoleInterface
 		commander = @commander
 		renderOpts = {}
 
-		# Prepare filename
+		# Extract
 		filename = opts.args[0] or null
 		basename = pathUtil.basename(filename)
 		renderOpts.filename = filename
