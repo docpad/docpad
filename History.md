@@ -1,5 +1,19 @@
 ## History
 
+- v6.43.0 Unreleased
+	- Huge improvements to the skeleton install process
+		- Install process is much more reliable
+		- Skeleton dependencies will now install correctly if `node_modules` already exists
+		- Missing module errors when doing an initial clone of a skeleton should now be fixed
+		- Removed the unused and non-working `-s, --skeleton` option
+	- Activities that wait on remote activity will now output a please wait message
+	- You can now install plugins via the `docpad install [pluginName]` command
+		- Thanks to [Jarvis Ao Ieong](https://github.com/kinua) for [issue #539](https://github.com/bevry/docpad/issues/539)
+	- Installing dependencies via the `docpad install` command now works again
+	- The  `-f, --force` flag now works as expected (enabling the npm `--force` flag)
+	- Added `DocPad::initNodeModule(name,opts?,next)` and `DocPad::initSkeleton(skeletonModel, destinationPath, next)`
+	- Dependency upgrades
+
 - v6.42.3 June 26, 2013
 	- Swapped out synchronous file system calls for asynchronous ones
 		- Closes [issue #538](https://github.com/bevry/docpad/issues/538)

@@ -24,6 +24,9 @@
 	subscribeRequestError: "Subsction request error:"
 
 	# Skeleton
+	pleaseWait: "\nThis can take a moment..."
+	exchangeUpdate: "Updating the exchange..."
+	exchangeUpdated: "Updated the exchange"
 	skeletonSelectionIntroduction: "You are about to create your new project inside your current directory. Below is a list of skeletons to bootstrap your new project:"
 	skeletonSelectionPrompt: "Which skeleton will you use?"
 	skeletonInstall: "Installing the %s skeleton into %s"
@@ -151,7 +154,6 @@
 	consoleOptionDebug: "the level of debug messages you would like to display, if specified defaults to 7, otherwise 6"
 	consoleOptionForce: "force a re-install of all modules"
 	consoleOptionPort: "a custom port to use for the server <port>"
-	consoleOptionSkeleton: "for new projects, instead of being asked for the skeleton, you can specify it here"
 	consoleOptionProfile: "enable profiling"
 
 	# Misc
@@ -173,7 +175,7 @@
 	warnOccured: "A warning occured:"
 	errorOccured: "An error occured:"
 	errorLoggedTo: "Error has been logged to: %s"
-	errorFollows: "The error follows:"
+	errorFollows: "\nThe error follows:"
 	errorInvalidCollection: "The custom collection %s is not a valid collection instance"
 	reportError: "An error occured reporting the error"
 	trackError: "An error occured sending statistics"
