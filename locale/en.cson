@@ -77,6 +77,7 @@
 	renderCleaning: "Cleaning files"
 	renderCleaned: "Cleaned files"
 	renderInterval: "Performing interval regeneration"
+	slowFiles: "Waiting on the following files on %s:"
 
 	# Contextualize
 	contextualizingFiles: "Contextualizing %s files"
