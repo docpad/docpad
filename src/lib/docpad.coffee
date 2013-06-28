@@ -3894,6 +3894,7 @@ class DocPad extends EventEmitterEnhanced
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
+		config = @getConfig()
 
 		# Don't do anything if the src path exists
 		safefs.exists config.srcPath, (exists) ->

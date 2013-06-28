@@ -1,5 +1,8 @@
 ## History
 
+- v6.43.1 June 29, 2013
+	- Fixed `docpad init` config error
+
 - v6.43.0 June 29, 2013
 	- Huge improvements to the skeleton install process
 		- Install process is much more reliable
