@@ -77,7 +77,7 @@
 		"eachr": "~2.0.2",
 		"envfile": "~1.0.0",
 		"express": "~3.3.1",
-		"extendr": "~2.0.1",
+		"extendr": "~2.1.0",
 		"extract-opts": "~2.2.0",
 		"getmac": "~1.0.4",
 		"jschardet": "~1.0.2",

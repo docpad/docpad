@@ -58,6 +58,10 @@ class ConsoleInterface
 				'--profile'
 				locale.consoleOptionProfile
 			)
+			.option(
+				'--offline'
+				locale.consoleOptionOffline
+			)
 
 
 		# -----------------------------

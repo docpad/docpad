@@ -130,6 +130,16 @@
 	loadingFileFailed: "Failed to load the file: %s"
 	loadingFileIgnored: "Skipped ignored file: %s"
 	loadedFile: "Loaded file: %s"
+	loadingUserConfig: "Loading user's configuration: %s"
+	loadedUserConfig: "Loaded user's configuration: %s"
+	loadingDocPadPackageConfig: "Loading DocPad's package.json configuration: %s"
+	loadedDocPadPackageConfig: "Loaded DocPad's package.json configuration: %s"
+	loadingWebsitePackageConfig: "Loading website package.json configuration: %s"
+	loadedWebsitePackageConfig: "Loaded website package.json configuration: %s"
+	loadingEnvConfig: "Loading .env file configuration: %s"
+	loadedEnvConfig: "Loaded .env file configuration: %s"
+	loadingWebsiteConfig: "Loading website configuration"
+	loadedWebsiteConfig: "Loaded website configuration"
 
 	# Console
 	consoleError: "Something went wrong with the action"
@@ -155,6 +165,7 @@
 	consoleOptionForce: "force a re-install of all modules"
 	consoleOptionPort: "a custom port to use for the server <port>"
 	consoleOptionProfile: "enable profiling"
+	consoleOptionOffline: "don't do any remote requests"
 
 	# Misc
 	outPathConflict: """
