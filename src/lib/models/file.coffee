@@ -565,11 +565,7 @@ class FileModel extends Model
 		fullDirPath = null
 
 		# filename
-		#console.log '----'
-		#console.log new Error().stack
-		#console.log {filename, relativePath, fullPath}, @attributes
 		changes.filename = filename = @getFilename({filename, relativePath, fullPath})
-		#console.log {filename}
 
 		# check
 		if !filename
@@ -612,12 +608,10 @@ class FileModel extends Model
 			changes.date = date = mtime or @get('date') or new Date()
 
 		# force outFilename
-		#console.log {outPath, outFilename, outExtension, extensions}
 		if !outFilename and !outPath
 			changes.outFilename = outFilename = docpadUtil.getOutFilename(basename, outExtension or extensions.join('.'))
 
 		# force outPath
-		#console.log {outPath, relativeDirPath, outFilename}
 		if !outPath
 			changes.outPath = outPath = pathUtil.resolve(@outDirPath, relativeDirPath, outFilename)
 
@@ -663,7 +657,6 @@ class FileModel extends Model
 			changes.slug = slug = docpadUtil.getSlug(relativeOutBase)
 
 		# Apply
-		#console.log changes
 		@set(changes)
 
 		# Next
