@@ -18,7 +18,7 @@ docpadConfig =
 	growl: false
 	port: 9780
 	rootPath: rootPath
-	logLevel: if process.env.TRAVIS_NODE_VERSION? then 7 else 5
+	logLevel: 7 # if process.env.TRAVIS_NODE_VERSION? then 7 else 5
 	skipUnsupportedPlugins: false
 	catchExceptions: false
 	environments:
@@ -52,7 +52,7 @@ joe.suite 'docpad-api', (suite,test) ->
 		inputs = [
 			{
 				testname: 'markdown without extension'
-				filename: ''
+				filename: 'file'
 				stdin: '*awesome*'
 				stdout: '*awesome*'
 			}
