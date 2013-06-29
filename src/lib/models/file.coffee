@@ -145,7 +145,7 @@ class FileModel extends Model
 		# Useful for page headings
 		title: null
 
-		# The name for this document, defaults to the filename
+		# The name for this document, defaults to the outFilename
 		# Useful for navigation listings
 		name: null
 
@@ -611,10 +611,6 @@ class FileModel extends Model
 		if !date
 			changes.date = date = mtime or @get('date') or new Date()
 
-		# force name
-		if !name
-			changes.name = name = filename
-
 		# force outFilename
 		#console.log {outPath, outFilename, outExtension, extensions}
 		if !outFilename and !outPath
@@ -645,6 +641,10 @@ class FileModel extends Model
 
 		# force relativeOutBase
 		changes.relativeOutBase = relativeOutBase = pathUtil.join(relativeOutDirPath, outBasename)
+
+		# force name
+		if !name
+			changes.name = name = outFilename
 
 		# force url
 		_defaultUrl = docpadUtil.getUrl(relativeOutPath)
