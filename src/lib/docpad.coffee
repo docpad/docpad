@@ -1068,7 +1068,7 @@ class DocPad extends EventEmitterEnhanced
 				# Ensure we regenerate anything (on the next regeneration) that was using the same outPath
 				outPath = model.get('outPath')
 				if outPath
-					@database.findAll(outPath:outPath).each (model) ->
+					@database.findAll({outPath}).each (model) ->
 						model.set('mtime': new Date())
 			)
 			.on('change:urls', (model,urls=[],options) =>
@@ -2136,7 +2136,7 @@ class DocPad extends EventEmitterEnhanced
 		options = extendr.extend({
 			detectEncoding: @config.detectEncoding
 			outDirPath: @config.outPath
-		},options)
+		}, options)
 
 		# Create and return
 		document = new DocumentModel(data, options)

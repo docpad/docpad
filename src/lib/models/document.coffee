@@ -234,19 +234,20 @@ class DocumentModel extends FileModel
 	normalize: (opts={},next) ->
 		# Prepare
 		{opts,next} = @getActionArgs(opts,next)
+		changes = {}
+		meta = @getMeta()
 
-		# Super
-		super opts, =>
-			# Extract
-			extensions = @get('extensions')
+		# Extract
+		outExtension = opts.outExtension or meta.get('outExtension') or null
+		filename = opts.filename or @get('filename') or null
+		extensions = @getExtensions({filename}) or null
 
-			# Extension Rendered
-			if extensions? and extensions.length
-				outExtension = extensions[0]
-				@set({outExtension})
+		# Extension Rendered
+		if !outExtension
+			changes.outExtension = outExtension = extensions[0] or null
 
-			# Next
-			next()
+		# Forward
+		super(extendr.extend(opts, changes), next)
 
 		# Chain
 		@
@@ -258,73 +259,29 @@ class DocumentModel extends FileModel
 		# Prepare
 		{opts,next} = @getActionArgs(opts,next)
 
-		# Super
-		super opts, =>
-			# Get our highest ancestor
-			@getEve (err,eve) =>
-				# Check
-				return next(err)  if err
+		# Get our highest ancestor
+		@getEve (err,eve) =>
+			# Prepare
+			return next(err)  if err
+			changes = {}
+			meta = @getMeta()
 
-				# Prepare
-				changes = {}
+			# User specified
+			outFilename = opts.outFilename or meta.get('outFilename') or null
+			outPath = opts.outPath or meta.get('outPath') or null
+			outExtension = opts.outExtension or meta.get('outExtension') or null
+			extensions = @getExtensions({filename:outFilename}) or null
 
-				# Fetch
-				meta = @getMeta()
-				fullPath = @get('fullPath')
-				basename = @get('basename')
-				relativeDirPath = @get('relativeDirPath')
-				extensions = @get('extensions')
-				outExtension = @get('outExtension')
-				url = meta.get('url') or null
-				name = meta.get('name') or null
-				outPath = meta.get('outPath') or null
-				outFilename = null
-
-				# Use our eve's rendered extension if it exists
-				if eve?
-					outExtension = eve.get('outExtension')
-
-				# Figure out the rendered filename
-				if basename and outExtension
-					if basename[0] is '.' and outExtension is extensions[0]
-						outFilename = basename
+			# outExtension
+			if !outExtension
+				if !outFilename and !outPath
+					if eve?
+						changes.outExtension = outExtension = eve.get('outExtension') or extensions[0] or null
 					else
-						outFilename = "#{basename}.#{outExtension}"
-					changes.outFilename = outFilename
+						changes.outExtension = extensions[0] or null
 
-				# Figure out the rendered url
-				if outFilename
-					if relativeDirPath
-						relativeOutPath = pathUtil.join(relativeDirPath, outFilename)
-					else
-						relativeOutPath = "#{outFilename}"
-					changes.relativeOutPath = relativeOutPath
-					unless url
-						escapedRelativeOutPath = relativeOutPath.replace(/[\\]/g, '/')
-						changes.url = url = "/#{escapedRelativeOutPath}"
-
-				# Set name if it doesn't exist already
-				if !name and outFilename?
-					changes.name = name = outFilename
-
-				# Create the outPath if we have a output directory
-				if @outDirPath and relativeOutPath
-					changes.outPath = outPath = pathUtil.join(@outDirPath,relativeOutPath)
-
-				# Update the URL
-				if url
-					@removeUrl(@get('url'))
-					@setUrl(url)
-
-				# Content Types
-				if outPath or fullPath
-					changes.outContentType = outContentType = mime.lookup(outPath or fullPath)
-
-				# Apply
-				@set(changes)
-
-				# Forward
-				next()
+			# Forward onto normalize to adjust for the outExtension change
+			return @normalize(extendr.extend(opts, changes), next)
 
 		# Chain
 		@

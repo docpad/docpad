@@ -12,6 +12,7 @@ Iconv = null
 
 # Local
 {Backbone,Model} = require('../base')
+docpadUtil = require('../util')
 
 
 # ---------------------------------
@@ -58,6 +59,9 @@ class FileModel extends Model
 		# The file's name without the extension
 		basename: null
 
+		# The out file's name without the extension
+		outBasename: null
+
 		# The file's last extension
 		# "hello.md.eco" -> "eco"
 		extension: null
@@ -73,15 +77,13 @@ class FileModel extends Model
 		filename: null
 
 		# The full path of our source file, only necessary if called by @load
-		# @TODO: rename to `path` in next major breaking version
-		path: null
+		fullPath: null
+
+		# The full directory path of our source file
+		fullDirPath: null
 
 		# The output path of our file
 		outPath: null
-
-		# The full directory path of our source file
-		# @TODO: rename to `dirPath` in next major breaking version
-		dirPath: null
 
 		# The output path of our file's directory
 		outDirPath: null
@@ -103,6 +105,9 @@ class FileModel extends Model
 
 		# The relative base of our source file (no extension)
 		relativeBase: null
+
+		# The relative base of our out file (no extension)
+		releativeOutBase: null
 
 		# The MIME content-type for the source file
 		contentType: null
@@ -221,6 +226,24 @@ class FileModel extends Model
 		@getMeta().setDefaults(defaults)
 		@setDefaults(defaults)
 		return @
+
+	# Get Filename
+	getFilename: ({filename,fullPath,relativePath}) ->
+		filename or= @get('filename')
+		if !filename
+			filePath = @get('fullPath') or @get('relativePath')
+			if filePath
+				filename = pathUtil.basename(filePath)
+		return filename or null
+
+	# Get Extensions
+	getExtensions: ({extensions,filename}) ->
+		extensions or= @get('extensions') or null
+		if (extensions or []).length is 0
+			filename = @getFilename({filename})
+			if filename
+				extensions = docpadUtil.getExtensions(filename)
+		return extensions or null
 
 	# Get Content
 	getContent: ->
@@ -358,25 +381,22 @@ class FileModel extends Model
 		file = @
 		exists = opts.exists ? false
 
-		# Normalize
+		# Fetch
 		fullPath = @get('fullPath')
-		unless fullPath
-			filePath = @get('relativePath') or @get('fullPath') or @get('filename')
-			fullPath = @get('fullPath') or filePath or null
-			file.set({fullPath})
+		filePath = fullPath or @get('relativePath') or @get('filename')
 
 		# Log
-		file.log('debug', "Loading the file: #{fullPath}")
+		file.log('debug', "Loading the file: #{filePath}")
 
 		# Async
 		tasks = new TaskGroup().setConfig(concurrency:0).once 'complete', (err) =>
 			return next(err)  if err
-			file.log('debug', "Loaded the file: #{fullPath}")
+			file.log('debug', "Loaded the file: #{filePath}")
 			file.parse (err) ->
 				return next(err)  if err
 				file.normalize (err) ->
 					return next(err)  if err
-					return next(null,file.buffer)
+					return next(null, file.buffer)
 
 		# If data is set, use that as the buffer
 		data = file.getData()
@@ -512,100 +532,138 @@ class FileModel extends Model
 		# Prepare
 		{opts,next} = @getActionArgs(opts,next)
 		changes = {}
-
-		# Fetch
 		meta = @getMeta()
-		basename = @get('basename')
-		filename = @get('filename')
-		fullPath = @get('fullPath')
-		extensions = @get('extensions')
-		relativePath = @get('relativePath')
-		mtime = @get('mtime')
-		date = meta.get('date') or null
-		name = meta.get('name') or null
-		slug = meta.get('slug') or null
-		url = meta.get('url') or null
+
+		# App specified
+		filename = opts.filename or @get('filename') or null
+		relativePath = opts.relativePath or @get('relativePath') or null
+		fullPath = opts.fullPath or @get('fullPath') or null
+		mtime = opts.mtime or @get('mtime') or null
+
+		# User specified
+		date = opts.date or meta.get('date') or null
+		name = opts.name or meta.get('name') or null
+		slug = opts.slug or meta.get('slug') or null
+		url = opts.url or meta.get('url') or null
+		contentType = opts.contentType or meta.get('contentType') or null
+		outContentType = opts.outContentType or meta.get('outContentType') or null
+		outFilename = opts.outFilename or meta.get('outFilename') or null
+		outExtension = opts.outExtension or meta.get('outExtension') or null
+		outPath = opts.outPath or meta.get('outPath') or null
+
+		# Force specifeid
+		extensions = null
 		extension = null
-		outExtension = null
-		relativeDirPath = null
-		relativeBase = null
-		outDirPath = null
-		contentType = null
-		fullDirPath = null
-		outFilename = null
-		outPath = null
-		relativeOutDirPath = null
+		basename = null
+		outBasename = null
 		relativeOutPath = null
+		relativeDirPath = null
+		relativeOutDirPath = null
+		relativeBase = null
+		relativeOutBase = null
+		outDirPath = null
+		fullDirPath = null
 
-		# Filename
+		# filename
+		#console.log '----'
+		#console.log new Error().stack
+		#console.log {filename, relativePath, fullPath}, @attributes
+		changes.filename = filename = @getFilename({filename, relativePath, fullPath})
+		#console.log {filename}
+
+		# check
+		if !filename
+			err = new Error('filename is required, it can be specified via filename, fullPath, or relativePath')
+			return next(err)
+
+		# relativePath
+		if !relativePath and filename
+			changes.relativePath = relativePath = filename
+
+		# force basename
+		changes.basename = basename = docpadUtil.getBasename(filename)
+
+		# force extensions
+		changes.extensions = extensions = @getExtensions({filename})
+
+		# force extension
+		changes.extension = extension = docpadUtil.getExtension(extensions)
+
+		# force fullDirPath
 		if fullPath
-			changes.filename = filename = pathUtil.basename(fullPath)
-			changes.outFilename = outFilename = filename
+			changes.fullDirPath = fullDirPath = docpadUtil.getDirPath(fullPath)
 
-		# Basename, extensions, extension
-		if filename
-			if filename[0] is '.'
-				basename = filename.replace(/^(\.[^\.]+)\..*$/, '$1')
+		# force relativeDirPath
+		changes.relativeDirPath = relativeDirPath = docpadUtil.getDirPath(relativePath)
+
+		# force relativeBase
+		changes.relativeBase = relativeBase =
+			if relativeDirPath
+				pathUtil.join(relativeDirPath, basename)
 			else
-				basename = filename.replace(/\..*$/, '')
-			changes.basename = basename
+				basename
 
-			# Extensions
-			if extensions? is false or extensions.length is 0
-				extensions = filename.split(/\./g)
-				extensions.shift() # ignore the first result, as that is our filename
-			changes.extensions = extensions
+		# force contentType
+		if !contentType
+			changes.contentType = contentType = mime.lookup(fullPath or relativePath)
 
-			# determine the single extension that determine this file
-			if extensions.length
-				extension = extensions[extensions.length-1]
-			else
-				extension = null
-			changes.extension = extension
-			changes.outExtension = outExtension = extension
+		# force date
+		if !date
+			changes.date = date = mtime or @get('date') or new Date()
 
-		# fullDirPath, contentType
-		if fullPath
-			changes.fullDirPath = fullDirPath = pathUtil.dirname(fullPath) or ''
-			changes.contentType = contentType = mime.lookup(fullPath)
-			changes.outContentType = outContentType = contentType
-
-		# relativeDirPath, relativeBase
-		if relativePath
-			changes.relativeDirPath = relativeDirPath = pathUtil.dirname(relativePath).replace(/^\.$/,'') or ''
-			changes.relativeBase = relativeBase =
-				if relativeDirPath
-					pathUtil.join(relativeDirPath, basename)
-				else
-					basename
-
-		# Date
-		if !date and mtime
-			changes.date = date = mtime
-
-		# Create the URL for the file
-		if !url and relativePath
-			escapedRelativePath = relativePath.replace(/[\\]/g, '/')
-			url = "/#{escapedRelativePath}"
-			@setUrl(url)
-
-		# Create a slug for the file
-		if !slug and relativeBase
-			changes.slug = slug = balUtil.generateSlugSync(relativeBase)
-
-		# Set name if it doesn't exist already
-		if !name and filename
+		# force name
+		if !name
 			changes.name = name = filename
 
-		# Create the outPath if we have a output directory
-		if @outDirPath and relativePath and relativeDirPath?
-			changes.relativeOutDirPath = relativeOutDirPath = relativeDirPath  if  relativeDirPath?
-			changes.relativeOutPath = relativeOutPath = relativePath
-			changes.outPath = outPath = pathUtil.join(@outDirPath, relativePath)
-			if outPath
-				changes.outDirPath = outDirPath = pathUtil.dirname(outPath)
+		# force outFilename
+		#console.log {outPath, outFilename, outExtension, extensions}
+		if !outFilename and !outPath
+			changes.outFilename = outFilename = docpadUtil.getOutFilename(basename, outExtension or extensions.join('.'))
+
+		# force outPath
+		#console.log {outPath, relativeDirPath, outFilename}
+		if !outPath
+			changes.outPath = outPath = pathUtil.resolve(@outDirPath, relativeDirPath, outFilename)
+
+		# force outDirPath
+		changes.outDirPath = outDirPath = docpadUtil.getDirPath(outPath)
+
+		# force outFilename
+		changes.outFilename = outFilename = docpadUtil.getFilename(outPath)
+
+		# force outBasename
+		changes.outBasename = outBasename = docpadUtil.getBasename(outFilename)
+
+		# force outExtension
+		changes.outExtension = outExtension = docpadUtil.getExtension(outFilename)
+
+		# force relativeOutPath
+		changes.relativeOutPath = relativeOutPath = outPath.replace(@outDirPath, '').replace(/^[\/\\]/, '')
+
+		# force relativeOutDirPath
+		changes.relativeOutDirPath = relativeOutDirPath = docpadUtil.getDirPath(relativeOutPath)
+
+		# force relativeOutBase
+		changes.relativeOutBase = relativeOutBase = pathUtil.join(relativeOutDirPath, outBasename)
+
+		# force url
+		_defaultUrl = docpadUtil.getUrl(relativeOutPath)
+		if url
+			@setUrl(url)
+			@addUrl(_defaultUrl)
+		else
+			@setUrl(_defaultUrl)
+
+		# force outContentType
+		if !outContentType and contentType
+			changes.outContentType = outContentType = mime.lookup(outPath or relativeOutPath) or contentType
+
+		# force slug
+		if !slug
+			changes.slug = slug = docpadUtil.getSlug(relativeOutBase)
 
 		# Apply
+		#console.log changes
 		@set(changes)
 
 		# Next
