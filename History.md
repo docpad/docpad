@@ -1,5 +1,8 @@
 ## History
 
+- v6.43.2 June 30, 2013
+	- Fixed `locale is not defined` error when running `docpad init` on an existing website
+
 - v6.43.1 June 29, 2013
 	- Fixed `docpad init` config error
 
