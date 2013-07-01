@@ -5,6 +5,8 @@ typeChecker = require('typechecker')
 {TaskGroup} = require('taskgroup')
 safefs = require('safefs')
 mime = require('mime')
+extendr = require('extendr')
+{extractOptsAndCallback} = require('extract-opts')
 
 # Import: Optional
 jschardet = null
@@ -23,11 +25,17 @@ class FileModel extends Model
 	# ---------------------------------
 	# Properties
 
-	# The out directory path to put the file
-	outDirPath: null
+	# Model Class
+	klass: FileModel
 
 	# Model Type
 	type: 'file'
+
+	# The out directory path to put the file
+	outDirPath: null
+
+	# Whether or not we should detect encoding
+	detectEncoding: false
 
 	# Stat Object
 	stat: null
@@ -43,6 +51,18 @@ class FileModel extends Model
 	# The parsed file meta data (header)
 	# Is a Backbone.Model instance
 	meta: null
+
+	# Get Opts
+	getOpts: ->
+		return {@outDirPath, @detectEncoding, @stat, @data, @buffer, @meta}
+
+	# Clone
+	clone: ->
+		opts = @getOpts()
+		attrs = @getAttributes()
+		instance = new @klass(attrs, opts)
+		instance._events = extendr.deepExtend(@_events)
+		return instance
 
 
 	# ---------------------------------
@@ -205,7 +225,15 @@ class FileModel extends Model
 
 	# Get Attributes
 	getAttributes: ->
-		return @toJSON()
+		attrs = @toJSON()
+		attrs = extendr.dereference(attrs)
+		return attrs
+
+	# To JSON
+	toJSON: ->
+		data = super
+		data.meta = @getMeta().toJSON()
+		return data
 
 	# Get Meta
 	getMeta: (args...) ->
@@ -217,6 +245,7 @@ class FileModel extends Model
 
 	# Set Meta
 	setMeta: (attrs) ->
+		attrs = attrs.toJSON?() ? attrs
 		@getMeta().set(attrs)
 		@set(attrs)
 		return @
@@ -321,7 +350,7 @@ class FileModel extends Model
 	# Initialize
 	initialize: (attrs,opts) ->
 		# Prepare
-		{detectEncoding,outDirPath,stat,data,meta} = opts
+		{outDirPath, detectEncoding, stat, data, buffer, meta} = opts
 
 		# Special
 		@detectEncoding = detectEncoding  if detectEncoding?
@@ -351,6 +380,14 @@ class FileModel extends Model
 		if data?
 			@setData(data)
 
+		# Buffer
+		if attrs.buffer?
+			buffer = attrs.buffer
+			delete attrs.buffer
+			delete @attributes.buffer
+		if buffer?
+			@setBuffer(buffer)
+
 		# Meta
 		if attrs.meta?
 			@setMeta(attrs.meta)
@@ -361,23 +398,12 @@ class FileModel extends Model
 		# Super
 		super
 
-	# Get the arguments for the action
-	# Using this contains the transparency with using opts, and not using opts
-	getActionArgs: (opts,next) ->
-		if typeChecker.isFunction(opts) and next? is false
-			next = opts
-			opts = {}
-		else
-			opts or= {}
-		next or= opts.next or null
-		return {next,opts}
-
 	# Load
 	# If the fullPath exists, load the file
 	# If it doesn't, then parse and normalize the file
 	load: (opts={},next) ->
 		# Prepare
-		{opts,next} = @getActionArgs(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		file = @
 		exists = opts.exists ? false
 
@@ -451,7 +477,7 @@ class FileModel extends Model
 	# next(err)
 	parse: (opts={},next) ->
 		# Prepare
-		{opts,next} = @getActionArgs(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		buffer = @getBuffer()
 		fullPath = @get('fullPath')
 		encoding = @get('encoding') or null
@@ -530,7 +556,7 @@ class FileModel extends Model
 	# next(err)
 	normalize: (opts={},next) ->
 		# Prepare
-		{opts,next} = @getActionArgs(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		changes = {}
 		meta = @getMeta()
 
@@ -668,7 +694,7 @@ class FileModel extends Model
 	# next(err)
 	contextualize: (opts={},next) ->
 		# Prepare
-		{opts,next} = @getActionArgs(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 
 		# Forward
 		next()
@@ -682,7 +708,7 @@ class FileModel extends Model
 	# next(err)
 	write: (opts,next) ->
 		# Prepare
-		{opts,next} = @getActionArgs(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		file = @
 
 		# Fetch

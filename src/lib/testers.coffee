@@ -6,6 +6,7 @@ extendr = require('extendr')
 joe = require('joe')
 {expect} = require('chai')
 CSON = require('cson')
+_ = require('lodash')
 DocPad = require('./docpad')
 
 # Prepare
@@ -20,6 +21,7 @@ testers.PluginTester =
 class PluginTester
 	# Plugin Config
 	config:
+		testerName: null
 		pluginName: null
 		pluginPath: null
 		autoExit: true
@@ -72,7 +74,7 @@ class PluginTester
 			tester.describe = tester.suite = suite
 			tester.it = tester.test = task
 			tester.done = tester.exit = -> # b/c
-			next?(null,tester)
+			next?(null, tester)
 
 		# Chain
 		@
@@ -167,6 +169,7 @@ class PluginTester
 				tester.exit()
 				if tester.config.autoExit isnt 'safe'
 					process.exit()
+					# ^ perhaps we can redo this with the new docpad.destroy() function
 
 		# Chain
 		@
@@ -191,10 +194,11 @@ class RendererTester extends PluginTester
 				tester.docpad.action 'generate', (err) ->
 					return done(err)
 
-			test 'results', (done) ->
+			suite 'results', (suite,test,done) ->
 				# Get actual results
 				balUtil.scantree tester.docpadConfig.outPath, (err,outResults) ->
 					return done(err)  if err
+
 					# Get expected results
 					balUtil.scantree tester.config.outExpectedPath, (err,outExpectedResults) ->
 						return done(err)  if err
@@ -205,8 +209,23 @@ class RendererTester extends PluginTester
 							outResults = JSON.parse JSON.stringify(outResults).replace(replaceLinesRegex,'')
 							outExpectedResults = JSON.parse JSON.stringify(outExpectedResults).replace(replaceLinesRegex,'')
 
-						# Test results
-						expect(outResults).to.eql(outExpectedResults)
+						# Prepare
+						outResultsKeys = Object.keys(outResults)
+						outExpectedResultsKeys = Object.keys(outExpectedResults)
+
+						# Check we have the same files
+						test 'same files', ->
+							outDifferenceKeys = _.difference(outResultsKeys, outExpectedResultsKeys)
+							try
+								expect(outDifferenceKeys).to.be.empty
+							catch err
+								console.log outDifferenceKeys
+								throw err
+
+						# Check the contents of those files match
+						outResultsKeys.forEach (key) ->
+							test "same file content for: #{key}", ->
+								expect(outResults[key]).to.eql(outExpectedResults[key])
 
 						# Forward
 						done()

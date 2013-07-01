@@ -347,6 +347,12 @@ class DocPad extends EventEmitterEnhanced
 		file = opts.collection.get(@filesByUrl[url])
 		return file
 
+	# Get a file by its id
+	getFileById: (id,opts={}) ->
+		opts.collection ?= @getDatabase()
+		file = opts.collection.get(id)
+		return file
+
 	# Remove the query string from a url
 	# Pathname convention taken from document.location.pathname
 	getUrlPathname: (url) ->
@@ -549,6 +555,12 @@ class DocPad extends EventEmitterEnhanced
 				@referencesOthers()
 				path = @getPath(relativePath)
 				result = docpad.getFileAtPath(path)
+				return result
+
+			# Get a specific file by its id
+			getFileById: (id) ->
+				@referencesOthers()
+				result = docpad.getFileById(id)
 				return result
 
 			# Get the entire database
@@ -1138,6 +1150,20 @@ class DocPad extends EventEmitterEnhanced
 		# Chain
 		@
 
+	# Destroy
+	destroy: ->
+		# Destroy Plugins
+
+		# Close Server
+		@getServer(true).serverHttp.close()
+
+		# Close Watchers
+
+		# Destroy Database
+
+		# Chain
+		@
+
 
 	# =================================
 	# Helpers
@@ -1636,7 +1662,7 @@ class DocPad extends EventEmitterEnhanced
 						fullPath: $startsWith: config.documentsPaths
 				})
 				.on('add', (model) ->
-					docpad.log('debug', util.format(locale.addingDocument, model.attributes.fullPath))
+					docpad.log('debug', util.format(locale.addingDocument, model.attributes.relativePath))
 					model.setDefaults({
 						isDocument: true
 						render: true
@@ -1650,7 +1676,7 @@ class DocPad extends EventEmitterEnhanced
 						fullPath: $startsWith: config.filesPaths
 				})
 				.on('add', (model) ->
-					docpad.log('debug', util.format(locale.addingFile, model.attributes.fullPath))
+					docpad.log('debug', util.format(locale.addingFile, model.attributes.relativePath))
 					model.setDefaults({
 						isFile: true
 						render: false
@@ -1664,7 +1690,7 @@ class DocPad extends EventEmitterEnhanced
 						fullPath: $startsWith: config.layoutsPaths
 				})
 				.on('add', (model) ->
-					docpad.log('debug', util.format(locale.addingLayout, model.attributes.fullPath))
+					docpad.log('debug', util.format(locale.addingLayout, model.attributes.relativePath))
 					model.setDefaults({
 						isLayout: true
 						render: false
@@ -1681,7 +1707,7 @@ class DocPad extends EventEmitterEnhanced
 					outExtension: 'html'
 				})
 				.on('add', (model) ->
-					docpad.log('debug', util.format(locale.addingHtml, model.attributes.fullPath))
+					docpad.log('debug', util.format(locale.addingHtml, model.attributes.relativePath))
 				)
 			stylesheet: database.createLiveChildCollection()
 				.setQuery('isStylesheet', {
@@ -1696,7 +1722,7 @@ class DocPad extends EventEmitterEnhanced
 					]
 				})
 				.on('add', (model) ->
-					docpad.log('debug', util.format(locale.addingStylesheet, model.attributes.fullPath))
+					docpad.log('debug', util.format(locale.addingStylesheet, model.attributes.relativePath))
 					model.setDefaults({
 						referencesOthers: true
 					})
@@ -2572,70 +2598,69 @@ class DocPad extends EventEmitterEnhanced
 		locale = @getLocale()
 		database = @getDatabase()
 		{collection} = opts
-
-		# Define the timer
 		slowFilesObject = {}
 		slowFilesTimer = null
 
 		# Log
 		docpad.log 'debug', util.format(locale.loadingFiles, collection.length)
 
-		# Async
-		tasks = new TaskGroup().setConfig(concurrency:0).once 'complete', (err) ->
-			# Kill the timer
-			clearInterval(slowFilesTimer)
-			slowFilesTimer = null
-
-			# Check
-			return next(err)  if err
-
-			# After
-			docpad.emitSerial 'loadAfter', {collection}, (err) ->
-				docpad.log 'debug', util.format(locale.loadedFiles, collection.length)
-				next()
-
-		# Fetch
-		opts.progress?.step('loadFiles').total(collection.length)
-		collection.forEach (file) ->
-			slowFilesObject[file.id] = file.get('relativePath') or file.id
-			tasks.addTask (complete) ->
-				# Prepare
-				fileRelativePath = file.get('relativePath')
-
-				# Log
-				docpad.log 'debug', util.format(locale.loadingFile, fileRelativePath)
-
-				# Load the file
-				file.load (err) ->
-					delete slowFilesObject[file.id]
-					opts.progress?.tick()
-
-					# Check
-					if err
-						docpad.warn(util.format(locale.loadingFileFailed, fileRelativePath)+' '+locale.errorFollows, err)
-						return complete()
-
-					# Prepare
-					fileIgnored = file.get('ignored')
-					fileParse = file.get('parse')
-
-					# Ignored?
-					if fileIgnored or (fileParse? and !fileParse)
-						docpad.log 'info', util.format(locale.loadingFileIgnored, fileRelativePath)
-						collection.remove(file)
-						return complete()
-					else
-						docpad.log 'debug', util.format(locale.loadedFile, fileRelativePath)
-
-					# Store Document
-					database.add(file)
-
-					# Forward
-					return complete()
-
 		# Start contextualizing
 		docpad.emitSerial 'loadBefore', {collection}, (err) ->
+			# Prepare
 			return next(err)  if err
+
+			# Completion callback
+			tasks = new TaskGroup().setConfig(concurrency:0).once 'complete', (err) ->
+				# Kill the timer
+				clearInterval(slowFilesTimer)
+				slowFilesTimer = null
+
+				# Check
+				return next(err)  if err
+
+				# After
+				docpad.emitSerial 'loadAfter', {collection}, (err) ->
+					docpad.log 'debug', util.format(locale.loadedFiles, collection.length)
+					return next()
+
+			# Add load tasks
+			opts.progress?.step('loadFiles').total(collection.length)
+			collection.forEach (file) ->
+				slowFilesObject[file.id] = file.get('relativePath') or file.id
+				tasks.addTask (complete) ->
+					# Prepare
+					fileRelativePath = file.get('relativePath')
+
+					# Log
+					docpad.log 'debug', util.format(locale.loadingFile, fileRelativePath)
+
+					# Load the file
+					file.load (err) ->
+						delete slowFilesObject[file.id]
+						opts.progress?.tick()
+
+						# Check
+						if err
+							docpad.warn(util.format(locale.loadingFileFailed, fileRelativePath)+' '+locale.errorFollows, err)
+							return complete()
+
+						# Prepare
+						fileIgnored = file.get('ignored')
+						fileParse = file.get('parse')
+
+						# Ignored?
+						if fileIgnored or (fileParse? and !fileParse)
+							docpad.log 'info', util.format(locale.loadingFileIgnored, fileRelativePath)
+							collection.remove(file)
+							return complete()
+						else
+							docpad.log 'debug', util.format(locale.loadedFile, fileRelativePath)
+
+						# Store Document
+						database.add(file)
+
+						# Forward
+						return complete()
 
 			# Setup the timer
 			slowFilesTimer = setInterval(
@@ -2645,7 +2670,7 @@ class DocPad extends EventEmitterEnhanced
 				config.slowFilesDelay
 			)
 
-			# Run
+			# Run tasks
 			tasks.run()
 
 		# Chain
@@ -2659,42 +2684,41 @@ class DocPad extends EventEmitterEnhanced
 		config = @getConfig()
 		locale = @getLocale()
 		{collection,templateData} = opts
-
-		# Define the timer
 		slowFilesObject = {}
 		slowFilesTimer = null
 
 		# Log
 		docpad.log 'debug', util.format(locale.contextualizingFiles, collection.length)
 
-		# Async
-		tasks = new TaskGroup().setConfig(concurrency:0).once 'complete', (err) ->
-			# Kill the timer
-			clearInterval(slowFilesTimer)
-			slowFilesTimer = null
-
-			# Check
-			return next(err)  if err
-
-			# After
-			docpad.emitSerial 'contextualizeAfter', {collection}, (err) ->
-				return next(err)  if err
-				docpad.log 'debug', util.format(locale.contextualizedFiles, collection.length)
-				return next()
-
-		# Fetch
-		opts.progress?.step('contextualizeFiles').total(collection.length)
-		collection.forEach (file,index) ->
-			slowFilesObject[file.id] = file.get('relativePath') or file.id
-			tasks.addTask (complete) ->
-				file.contextualize (err) ->
-					delete slowFilesObject[file.id]
-					opts.progress?.tick()
-					return complete(err)
-
 		# Start contextualizing
 		docpad.emitSerial 'contextualizeBefore', {collection,templateData}, (err) ->
+			# Prepare
 			return next(err)  if err
+
+			# Completion callback
+			tasks = new TaskGroup().setConfig(concurrency:0).once 'complete', (err) ->
+				# Kill the timer
+				clearInterval(slowFilesTimer)
+				slowFilesTimer = null
+
+				# Check
+				return next(err)  if err
+
+				# After
+				docpad.emitSerial 'contextualizeAfter', {collection}, (err) ->
+					return next(err)  if err
+					docpad.log 'debug', util.format(locale.contextualizedFiles, collection.length)
+					return next()
+
+			# Add contextualize tasks
+			opts.progress?.step('contextualizeFiles').total(collection.length)
+			collection.forEach (file,index) ->
+				slowFilesObject[file.id] = file.get('relativePath') or file.id
+				tasks.addTask (complete) ->
+					file.contextualize (err) ->
+						delete slowFilesObject[file.id]
+						opts.progress?.tick()
+						return complete(err)
 
 			# Setup the timer
 			slowFilesTimer = setInterval(
@@ -2704,7 +2728,7 @@ class DocPad extends EventEmitterEnhanced
 				config.slowFilesDelay
 			)
 
-			# Run
+			# Run tasks
 			tasks.run()
 
 		# Chain
@@ -2718,28 +2742,11 @@ class DocPad extends EventEmitterEnhanced
 		config = @getConfig()
 		locale = @getLocale()
 		{collection,templateData,renderPasses} = opts
-
-		# Define the timer
 		slowFilesObject = {}
 		slowFilesTimer = null
 
 		# Log
 		docpad.log 'debug', util.format(locale.renderingFiles, collection.length)
-
-		# Async
-		tasks = new TaskGroup().once 'complete', (err) ->
-			# Kill the timer
-			clearInterval(slowFilesTimer)
-			slowFilesTimer = null
-
-			# Check
-			return next(err)  if err
-
-			# After
-			docpad.emitSerial 'renderAfter', {collection}, (err) ->
-				return next(err)  if err
-				docpad.log 'debug', util.format(locale.renderedFiles, collection.length)
-				return next()
 
 		# Render File
 		renderFile = (fileToRender,next) ->
@@ -2752,7 +2759,9 @@ class DocPad extends EventEmitterEnhanced
 			if dynamic or (render? and !render) or !relativePath or fileToRender.render? is false
 				next()
 			else
-				fileToRender.render({templateData},next)
+				fileToRender.render({templateData}, next)
+
+			# Return
 			return fileToRender
 
 		# Render Collection
@@ -2771,27 +2780,43 @@ class DocPad extends EventEmitterEnhanced
 						opts.progress?.tick()
 						return complete(err)
 
-			# Fire
+			# Return
 			subTasks.run()
 			return collectionToRender
 
-		# Queue the initial render
-		initialCollection = collection.findAll('referencesOthers':false)
-		subsequentCollection = null
-		tasks.addTask (complete) ->
-			renderCollection initialCollection, {renderPass:1}, (err) ->
-				return complete(err)  if err
-				subsequentCollection = collection.findAll('referencesOthers':true)
-				renderCollection(subsequentCollection, {renderPass:2}, complete)
-
-		# Queue the subsequent renders
-		if renderPasses > 1
-			[3..renderPasses].forEach (renderPass) ->  tasks.addTask (complete) ->
-				renderCollection(subsequentCollection, {renderPass}, complete)
-
-		# Fire the queue
+		# Plugin Event
 		docpad.emitSerial 'renderBefore', {collection,templateData}, (err) =>
+			# Prepare
 			return next(err)  if err
+
+			# Async
+			tasks = new TaskGroup().once 'complete', (err) ->
+				# Kill the timer
+				clearInterval(slowFilesTimer)
+				slowFilesTimer = null
+
+				# Check
+				return next(err)  if err
+
+				# After
+				docpad.emitSerial 'renderAfter', {collection}, (err) ->
+					return next(err)  if err
+					docpad.log 'debug', util.format(locale.renderedFiles, collection.length)
+					return next()
+
+			# Queue the initial render
+			initialCollection = collection.findAll('referencesOthers':false)
+			subsequentCollection = null
+			tasks.addTask (complete) ->
+				renderCollection initialCollection, {renderPass:1}, (err) ->
+					return complete(err)  if err
+					subsequentCollection = collection.findAll('referencesOthers':true)
+					renderCollection(subsequentCollection, {renderPass:2}, complete)
+
+			# Queue the subsequent renders
+			if renderPasses > 1
+				[3..renderPasses].forEach (renderPass) ->  tasks.addTask (complete) ->
+					renderCollection(subsequentCollection, {renderPass}, complete)
 
 			# Setup the timer
 			slowFilesTimer = setInterval(
@@ -2801,7 +2826,7 @@ class DocPad extends EventEmitterEnhanced
 				config.slowFilesDelay
 			)
 
-			# Run
+			# Run tasks
 			tasks.run()
 
 		# Chain
@@ -2815,57 +2840,59 @@ class DocPad extends EventEmitterEnhanced
 		config = @getConfig()
 		locale = @getLocale()
 		{collection,templateData} = opts
-
-		# Define the timer
 		slowFilesObject = {}
 		slowFilesTimer = null
 
 		# Log
 		docpad.log 'debug', util.format(locale.writingFiles, collection.length)
 
-		# Async
-		tasks = new TaskGroup().setConfig(concurrency:0).once 'complete', (err) ->
-			# Kill the timer
-			clearInterval(slowFilesTimer)
-			slowFilesTimer = null
-
-			# Check
-			return next(err)  if err
-
-			# After
-			docpad.emitSerial 'writeAfter', {collection}, (err) ->
-				return next(err)  if err
-				docpad.log 'debug', util.format(locale.wroteFiles, collection.length)
-				return next()
-
-		# Cycle
-		opts.progress?.step('writeFiles').total(collection.length)
-		collection.forEach (file,index) ->
-			slowFilesObject[file.id] = file.get('relativePath')
-			tasks.addTask (complete) ->
-				# Skip
-				dynamic = file.get('dynamic')
-				write = file.get('write')
-				relativePath = file.get('relativePath')
-				finish = (err) ->
-					delete slowFilesObject[file.id] or file.id
-					opts.progress?.tick()
-					return complete(err)
-
-				# Write
-				if dynamic or (write? and !write) or !relativePath
-					finish()
-				else if file.writeRendered?
-					file.writeRendered(finish)
-				else if file.write?
-					file.write(finish)
-				else
-					err = new Error(locale.unknownModelInCollection)
-					finish(err)
-
-		#  Start writing
+		# Plugin Event
 		docpad.emitSerial 'writeBefore', {collection,templateData}, (err) =>
+			# Prepare
 			return next(err)  if err
+
+			# Completion callback
+			tasks = new TaskGroup().setConfig(concurrency:0).once 'complete', (err) ->
+				# Kill the timer
+				clearInterval(slowFilesTimer)
+				slowFilesTimer = null
+
+				# Check
+				return next(err)  if err
+
+				# After
+				docpad.emitSerial 'writeAfter', {collection}, (err) ->
+					return next(err)  if err
+					docpad.log 'debug', util.format(locale.wroteFiles, collection.length)
+					return next()
+
+			# Add write tasks
+			opts.progress?.step('writeFiles').total(collection.length)
+			collection.forEach (file,index) ->
+				slowFilesObject[file.id] = file.get('relativePath')
+				tasks.addTask (complete) ->
+					# Skip
+					dynamic = file.get('dynamic')
+					write = file.get('write')
+					relativePath = file.get('relativePath')
+					finish = (err) ->
+						delete slowFilesObject[file.id] or file.id
+						opts.progress?.tick()
+						return complete(err)
+
+					# Write
+					if dynamic or (write? and !write) or !relativePath
+						finish()
+					else if file.writeRendered?
+						file.writeRendered(finish)
+					else if file.write?
+						file.write(finish)
+					else
+						err = new Error(locale.unknownModelInCollection)
+						finish(err)
+
+					# Done
+					return true
 
 			# Setup the timer
 			slowFilesTimer = setInterval(
@@ -2875,7 +2902,7 @@ class DocPad extends EventEmitterEnhanced
 				config.slowFilesDelay
 			)
 
-			# Run
+			# Run tasks
 			tasks.run()
 
 		# Chain
@@ -3181,7 +3208,7 @@ class DocPad extends EventEmitterEnhanced
 				return finish(err)  if err
 				database = docpad.getDatabase()
 
-				# Create a colelction for the files to reload
+				# Create a collection for the files to reload
 				filesToReload = opts.filesToReload or new FilesCollection()
 				# Add anything which was modified since our last generate
 				filesToReload.add(database.findAll(mtime: $gte: docpad.generateStarted).models)
@@ -3191,6 +3218,7 @@ class DocPad extends EventEmitterEnhanced
 
 				# Perform the reload of the selected files
 				docpad.loadFiles {collection:filesToReload}, (err) ->
+					# Check
 					return finish(err)  if err
 
 					# Create a collection for the files to render

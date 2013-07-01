@@ -4,6 +4,7 @@ extendr = require('extendr')
 eachr = require('eachr')
 {TaskGroup} = require('taskgroup')
 mime = require('mime')
+{extractOptsAndCallback} = require('extract-opts')
 
 # Optional
 CSON = null
@@ -17,6 +18,12 @@ FileModel = require('./file')
 # Document Model
 
 class DocumentModel extends FileModel
+
+	# ---------------------------------
+	# Properties
+
+	# Model Class
+	klass: DocumentModel
 
 	# Model Type
 	type: 'document'
@@ -80,14 +87,8 @@ class DocumentModel extends FileModel
 
 	# Get Out Content
 	getOutContent: ->
-		content = @get('contentRendered') or @get('content') or @getBuffer()
+		content = @get('contentRendered') or @getContent()
 		return content
-
-	# To JSON
-	toJSON: ->
-		data = super
-		data.meta = @getMeta().toJSON()
-		return data
 
 	# References Others
 	referencesOthers: (flag) ->
@@ -104,7 +105,7 @@ class DocumentModel extends FileModel
 	# next(err)
 	parse: (opts={},next) ->
 		# Prepare
-		{opts,next} = @getActionArgs(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		buffer = @getBuffer()
 		meta = @getMeta()
 
@@ -233,7 +234,7 @@ class DocumentModel extends FileModel
 	# next(err)
 	normalize: (opts={},next) ->
 		# Prepare
-		{opts,next} = @getActionArgs(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		changes = {}
 		meta = @getMeta()
 
@@ -257,7 +258,7 @@ class DocumentModel extends FileModel
 	# next(err)
 	contextualize: (opts={},next) ->
 		# Prepare
-		{opts,next} = @getActionArgs(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 
 		# Get our highest ancestor
 		@getEve (err,eve) =>
@@ -355,9 +356,10 @@ class DocumentModel extends FileModel
 	renderExtensions: (opts,next) ->
 		# Prepare
 		file = @
+		[opts,next] = extractOptsAndCallback(opts, next)
+		{content,templateData,renderSingleExtensions} = opts
 		extensions = @get('extensions')
 		filename = @get('filename')
-		{content,templateData,renderSingleExtensions} = opts
 		content ?= @get('body')
 		templateData ?= {}
 		renderSingleExtensions ?= @get('renderSingleExtensions')
@@ -404,7 +406,7 @@ class DocumentModel extends FileModel
 				# and only check if we actually have content to render!
 				# if this check fails, error with a suggestion
 				if result and result is eventData.content
-					message = "\n  Rendering the extension \"#{eventData.inExtension}\" to \"#{eventData.outExtension}\" on \"#{file.attributes.relativePath or file.attributes.fullPath}\" didn't do anything.\n  Explanation here: http://docpad.org/extension-not-rendering"
+					message = "\n  Rendering the extension \"#{eventData.inExtension}\" to \"#{eventData.outExtension}\" on \"#{file.attributes.relativePath}\" didn't do anything.\n  Explanation here: http://docpad.org/extension-not-rendering"
 					file.log('warn', message)
 					return complete()
 
@@ -424,9 +426,9 @@ class DocumentModel extends FileModel
 	renderDocument: (opts,next) ->
 		# Prepare
 		file = @
-		extension = @get('extensions')[0]
-		{opts,next} = @getActionArgs(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		{content,templateData} = opts
+		extension = @get('extensions')[0]
 		content ?= @get('body')
 		templateData ?= {}
 
@@ -447,7 +449,7 @@ class DocumentModel extends FileModel
 	renderLayouts: (opts,next) ->
 		# Prepare
 		file = @
-		{opts,next} = @getActionArgs(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		{content,templateData} = opts
 		content ?= @get('body')
 		templateData ?= {}
@@ -481,13 +483,11 @@ class DocumentModel extends FileModel
 	render: (opts={},next) ->
 		# Prepare
 		file = @
-		contentRenderedWithoutLayouts = null
-		fullPath = @get('fullPath')
-
-		# Prepare options
-		{opts,next} = @getActionArgs(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		opts = extendr.clone(opts or {})
 		opts.actions ?= ['renderExtensions','renderDocument','renderLayouts']
+		contentRenderedWithoutLayouts = null
+		relativePath = @get('relativePath')
 
 		# Prepare content
 		opts.content ?= @get('body')
@@ -501,13 +501,13 @@ class DocumentModel extends FileModel
 		# file.set({contentRendered:null, contentRenderedWithoutLayouts:null, rendered:false})
 
 		# Log
-		file.log 'debug', "Rendering the file: #{fullPath}"
+		file.log 'debug', "Rendering the file: #{relativePath}"
 
 		# Prepare the tasks
 		tasks = new TaskGroup().once 'complete', (err) ->
 			# Error?
 			if err
-				file.log 'warn', "Something went wrong while rendering: #{fullPath}"
+				file.log 'warn', "Something went wrong while rendering: #{relativePath}"
 				return next(err, opts.content, file)
 
 			# Apply
@@ -517,7 +517,7 @@ class DocumentModel extends FileModel
 			file.set({contentRendered, contentRenderedWithoutLayouts, rendered})
 
 			# Log
-			file.log 'debug', "Rendering completed for: #{fullPath}"
+			file.log 'debug', "Rendering completed for: #{relativePath}"
 
 			# Success
 			return next(null, opts.content, file)
@@ -570,7 +570,7 @@ class DocumentModel extends FileModel
 	# next(err)
 	writeRendered: (opts,next) ->
 		# Prepare
-		{opts,next} = @getActionArgs(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 		file = @
 
 		# Fetch
@@ -587,8 +587,8 @@ class DocumentModel extends FileModel
 	# next(err)
 	writeSource: (opts,next) ->
 		# Prepare
-		{opts,next} = @getActionArgs(opts,next)
 		file = @
+		[opts,next] = extractOptsAndCallback(opts,next)
 		meta = @getMeta()
 		CSON = require('cson')  unless CSON
 
@@ -616,7 +616,7 @@ class DocumentModel extends FileModel
 		opts.type    or= 'source document'
 
 		# Write data
-		@write(opts,next)
+		@write(opts, next)
 
 		# Chain
 		@
