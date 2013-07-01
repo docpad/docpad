@@ -166,6 +166,5 @@ joe.suite 'docpad-actions', (suite,test) ->
 				expect(actual.toString().trim()).to.be.equal(expected)
 				done()
 
-	test 'completed', (done) ->
-		done()
-		process.exit(0)
+	test 'close the close', ->
+		docpad.getServer(true).serverHttp.close()

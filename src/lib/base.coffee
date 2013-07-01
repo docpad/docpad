@@ -6,10 +6,10 @@ Backbone = queryEngine.Backbone
 # Log a message
 log = (args...) ->
 	args.unshift('log')
-	@emit.apply(@,args)
+	@emit.apply(@, args)
 	@
 emit = (args...) ->
-	@trigger.apply(@,args)
+	@trigger.apply(@, args)
 
 # Events
 class Events
@@ -22,6 +22,7 @@ extendr.extend(Events::, Backbone.Events)
 class Model extends Backbone.Model
 	log: log
 	emit: emit
+
 	setDefaults: (defaults) ->
 		set = {}
 		for own key,value of defaults
