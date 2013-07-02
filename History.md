@@ -1,5 +1,33 @@
 ## History
 
+- v6.44.0 July 2, 2013
+	- Model Improvements
+		- Way better support for virtual documents (files that do not have a physical path)
+		- Cleaned up and fortified the normalization and contextualize prodecures
+		- At least one of these file attributes must be specified: `filename`, `relativePath`, `fullPath`
+			- `relativePath` if not set will default to `fullPath` or `filename`
+			- `filename` if not set will default to the filename of `fullPath` or `relativePath`
+			- `fullPath` will not default to anything, as it is now optional (providing better support for virtual documents)
+		- The following file attributes are auto set but can be over-ridden by custom meta data: `date`, `name`, `slug`, `url`, `contentType`, `outContentType`, `outFilename`, `outExtension`, `outPath`
+		- The following file attributes are forcefully auto set: `extensions`, `extension`, `basename`, `outBasename`, `relativeOutPath`, `relativeDirPath`, `relativeOutDirPath`, `relativeBase`, `relativeOutBase`, `outDirPath`
+		- Added these new file attributes: `outBasename`, `relativeOutBase`, `fullDirPath`
+		- Updated a lot of log messages to support virtual documents
+		- `buffer` is now correctly set as a File option
+		- `File::setMeta(attrs)` can now accept meta backbone models instead of just javascript objects
+		- File and Document methods now use [extract-opts](https://github.com/bevry/extract-opts) for their arguments just like DocPad already does
+		- Removed the incorrect dangling file attributes: `path` and `dirPath`
+		- Added new `FileModel::clone` method for making a clone of the file, attributes, opts, events and all will be cloned
+	- Core Improvements
+		- Added `getFileById(id, opts={})` template helper and docpad class method
+		- Plugins can now alter the load, contextualize, render, and write collections
+		- Added a new `lib/util` file for containing misc functions
+		- Added `DocPad::destroy()` method for shutting down the server and whatnot
+			- Currently only shutdowns the server, we still need to add the rest of the things
+	- Testing Improvements
+		- RendererTester is now more helpful when comparing differences between outputs
+		- DocPad tests now use the new docpad destroy method that allows graceful shutdown rather than the previous ungraceful `process.exit(0)`
+			- Still needs to be applied to plugin tests
+
 - v6.43.2 June 30, 2013
 	- Fixed `locale is not defined` error when running `docpad init` on an existing website
 
