@@ -348,7 +348,7 @@ class FileModel extends Model
 	# Actions
 
 	# Initialize
-	initialize: (attrs,opts) ->
+	initialize: (attrs,opts={}) ->
 		# Prepare
 		{outDirPath, detectEncoding, stat, data, buffer, meta} = opts
 
