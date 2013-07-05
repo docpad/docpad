@@ -11,8 +11,17 @@ if ('--profile' in process.argv)
 	# Debug
 	debugger
 
+	# Nodefly
+	if process.env.NODEFLY_KEY
+		console.log 'Loading profiling tool: nodefly'
+		lazyRequire 'nodefly', {cwd:corePath}, (err,nodefly) ->
+			return  if err
+			nodefly.profile(process.env.NODEFLY_KEY, 'docpad')
+			console.log('Profiling with nodefly')
+
 	# Nodetime
 	if process.env.NODETIME_KEY
+		console.log 'Loading profiling tool: nodetime'
 		lazyRequire 'nodetime', {cwd:corePath}, (err,nodetime) ->
 			return  if err
 			nodetime.profile({
@@ -22,9 +31,10 @@ if ('--profile' in process.argv)
 			console.log('Profiling with nodetime')
 
 	# Webkit Devtools
+	console.log 'Loading profiling tool: webkit-devtools-agent'
 	lazyRequire 'webkit-devtools-agent', {cwd:corePath}, (err) ->
 		return  if err
-		console.log("Profiling with process id:", process.pid)
+		console.log("Profiling with webkit-devtools-agent on process id:", process.pid)
 
 # Necessary
 _ = require('lodash')
