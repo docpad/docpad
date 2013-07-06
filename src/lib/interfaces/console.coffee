@@ -125,6 +125,12 @@ class ConsoleInterface
 			.description(locale.consoleDescriptionWatch)
 			.action(consoleInterface.wrapAction(consoleInterface.watch))
 
+		# update
+		commander
+			.command('update')
+			.description(locale.consoleDescriptionUpdate)
+			.action(consoleInterface.wrapAction(consoleInterface.update))
+
 		# install
 		commander
 			.command('install [pluginName]')
@@ -522,6 +528,13 @@ class ConsoleInterface
 		info = require('util').inspect(@docpad.config)
 		console.log(info)
 		next()
+		@
+
+	update: (next,opts) =>
+		# Act
+		@docpad.action('update', next)
+
+		# Chain
 		@
 
 	install: (next,opts) =>

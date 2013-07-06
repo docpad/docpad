@@ -1853,7 +1853,7 @@ class DocPad extends EventEmitterEnhanced
 
 	# Init Node Module
 	# next(err,result)
-	initNodeModule: (name, opts) ->
+	initNodeModule: (names,opts) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
 		docpad = @
@@ -1862,12 +1862,26 @@ class DocPad extends EventEmitterEnhanced
 		# Extract
 		opts.cwd ?= config.rootPath
 		opts.output ?= docpad.getDebugging()
+		opts.args ?= []
+		opts.save ?= true
+		opts.save = '--save'  if opts.save is true
 
 		# Command
 		command = ['npm', 'install']
+
+		# Names
+		names = names.split(/\s/)  unless typeChecker.isArray(names)
+		names.forEach (name) ->
+			# Ensure latest if version isn't specfied
+			name += '@latest'  if name.indexOf('@') is -1
+			# Push the name to the commands
+			command.push(name)
+
+		# Arguments
+		command.push(opts.args...)
 		command.push('--force')  if config.force
 		command.push('--no-registry')  if config.offline
-		command.push('--save', name)
+		command.push(opts.save)  if opts.save
 
 		# Log
 		docpad.log('info', command.join(' '))  if opts.output
@@ -3627,6 +3641,52 @@ class DocPad extends EventEmitterEnhanced
 	# ---------------------------------
 	# Skeleton
 
+	# Init Install
+	# next(err)
+	initInstall: (opts,next) ->
+		# Prepare
+		[opts,next] = extractOptsAndCallback(opts,next)
+		docpad = @
+		config = @getConfig()
+
+		# Tasks
+		tasks = new TaskGroup().setConfig(concurrency:0).once('complete', next)
+
+		# Node Modules
+		tasks.addTask (complete) ->
+			path = pathUtil.join(config.rootPath, 'node_modules')
+			safefs.ensurePath(path, complete)
+
+		# Package
+		tasks.addTask (complete) ->
+			# Exists?
+			path = pathUtil.join(config.rootPath, 'package.json')
+			safefs.exists path, (exists) ->
+				# Check
+				return complete()  if exists
+
+				# Write
+				data = JSON.stringify({
+					name: 'no-skeleton.docpad'
+					version: '0.1.0'
+					description: 'New DocPad project without using a skeleton'
+					engines:
+						node: '0.10'
+						npm: '1.2'
+					dependencies:
+						docpad: '6.x'
+					main: 'node_modules/docpad/bin/docpad-server'
+					scripts:
+						start: 'node_modules/docpad/bin/docpad-server'
+				}, null, '  ')
+				safefs.writeFile(path, data, complete)
+
+		# Run
+		tasks.run()
+
+		# Chain
+		@
+
 	# Install
 	# next(err)
 	install: (opts,next) =>
@@ -3638,38 +3698,18 @@ class DocPad extends EventEmitterEnhanced
 		# Tasks
 		tasks = new TaskGroup().once('complete', next)
 
-		# Init the website directory
-		tasks.addGroup ->
-			@setConfig(concurrency:0)
+		# Init the install
+		tasks.addTask (complete) ->
+			docpad.initInstall(opts, complete)
 
-			# Node Modules
-			@addTask (complete) ->
-				path = pathUtil.join(config.rootPath, 'node_modules')
-				safefs.ensurePath(path, complete)
-
-			# Package
-			@addTask (complete) ->
-				# Exists?
-				path = pathUtil.join(config.rootPath, 'package.json')
-				safefs.exists path, (exists) ->
-					# Check
-					return complete()  if exists
-
-					# Write
-					data = JSON.stringify({
-						name: 'no-skeleton.docpad'
-						version: '0.1.0'
-						description: 'New DocPad project without using a skeleton'
-						engines:
-							node: '0.10'
-							npm: '1.2'
-						dependencies:
-							docpad: '6.x'
-						main: 'node_modules/docpad/bin/docpad-server'
-						scripts:
-							start: 'node_modules/docpad/bin/docpad-server'
-					}, null, '  ')
-					safefs.writeFile(path, data, complete)
+		# Install a plugin
+		if opts.plugin then tasks.addTask (complete) ->
+			opts.plugin = "docpad-plugin-#{opts.plugin}"  if /^docpad-plugin-/.test(opts.plugin) is false
+			opts.plugin += '@2'  if opts.plugin.indexOf('@') is -1
+			docpad.initNodeModule(opts.plugin, {
+				output: true
+				next: complete
+			})
 
 		# Re-Initialise the Website's modules
 		tasks.addTask (complete) ->
@@ -3678,17 +3718,67 @@ class DocPad extends EventEmitterEnhanced
 				next: complete
 			})
 
-		# Install a plugin
-		if opts.plugin then tasks.addTask (complete) ->
-			opts.plugin = "docpad-plugin-#{opts.plugin}"  if /^docpad-plugin-/.test(opts.plugin) is false
-			docpad.initNodeModule(opts.plugin, {
+		# Re-load configuration
+		tasks.addTask (complete) ->
+			docpad.load(complete)
+
+		# Run
+		tasks.run()
+
+		# Chain
+		@
+
+	# Update
+	# next(err)
+	update: (opts,next) =>
+		# Prepare
+		[opts,next] = extractOptsAndCallback(opts,next)
+		docpad = @
+		config = @getConfig()
+
+		# Tasks
+		tasks = new TaskGroup().once('complete', next)
+
+		# Init the install
+		tasks.addTask (complete) ->
+			docpad.initInstall(opts, complete)
+
+		# Update DocPad
+		tasks.addTask (complete) ->
+			docpad.initNodeModule('docpad@6', {
 				output: true
 				next: complete
 			})
 
-		# Re-load configuration
+		# Update the plugin dependencies
+		dependencies = []
+		eachr docpad.websitePackageConfig.dependencies, (version,name) ->
+			return  if /^docpad-plugin-/.test(name) is false
+			dependencies.push(name+'@2')
 		tasks.addTask (complete) ->
-			docpad.load(complete)
+			docpad.initNodeModule(dependencies, {
+				output: true
+				next: complete
+			})
+
+		# Update the plugin dev dependencies
+		devDependencies = []
+		eachr docpad.websitePackageConfig.devDependencies, (version,name) ->
+			return  if /^docpad-plugin-/.test(name) is false
+			devDependencies.push(name+'@2')
+		tasks.addTask (complete) ->
+			docpad.initNodeModule(devDependencies, {
+				save: '--save-dev'
+				output: true
+				next: complete
+			})
+
+		# Re-Initialise the rest of the website's modules
+		tasks.addTask (complete) ->
+			docpad.initNodeModules({
+				output: true
+				next: complete
+			})
 
 		# Run
 		tasks.run()

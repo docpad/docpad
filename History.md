@@ -1,5 +1,10 @@
 ## History
 
+- v6.45.0 July 6, 2013
+	- New `docpad update` command to ensure that your local installations of DocPad and its plugins are up to date with their latest compatible version
+	- `docpad install [plugin]` command now installs the latest compatible version
+	- Added [NodeFly](http://nodefly.com/) support when using the `--profile` flag
+
 - v6.44.0 July 2, 2013
 	- Model Improvements
 		- Way better support for virtual documents (files that do not have a physical path)
