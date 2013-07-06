@@ -154,6 +154,7 @@
 	consoleDescriptionGenerate: "(re)generates your project"
 	consoleDescriptionWatch: "watches your project for changes, and (re)generates whenever a change is made"
 	consoleDescriptionInstall: "ensure everything is installed correctly"
+	consoleDescriptionUpdate: "ensure your local DocPad and plugin installations are up to date with their latest compatible version"
 	consoleDescriptionClean: "ensure everything is cleaned correctly (will remove your out directory)"
 	consoleDescriptionInfo: "display the information about your docpad instance"
 	consoleDescriptionHelp: "output the help"
