@@ -50,7 +50,7 @@ safeps = require('safeps')
 util = require('util')
 superAgent = require('superagent')
 {extractOptsAndCallback} = require('extract-opts')
-{EventEmitterEnhanced} = balUtil
+{EventEmitterGrouped} = require('event-emitter-grouped')
 
 # Base
 {queryEngine,Backbone,Events,Model,Collection,View,QueryCollection} = require('./base')
@@ -74,12 +74,9 @@ BasePlugin = require('./plugin')
 # =====================================
 # DocPad
 
-###
-The DocPad Class
-It extends the EventSystem from bal-util to provide system events
-It allows us to support multiple instances of docpad at the same time
-###
-class DocPad extends EventEmitterEnhanced
+# The DocPad Class
+# Extends https://github.com/bevry/event-emitter-grouped
+class DocPad extends EventEmitterGrouped
 
 	# =================================
 	# Variables
