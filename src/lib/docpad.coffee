@@ -1800,7 +1800,7 @@ class DocPad extends EventEmitterGrouped
 
 		# Perform any plugin extensions to what we just cleaned
 		# and forward
-		@emitSerial('populateCollections',{},next)
+		@emitSerial('populateCollections', {}, next)
 
 		# Chain
 		@
@@ -1834,7 +1834,7 @@ class DocPad extends EventEmitterGrouped
 		# Extract
 		opts.cwd ?= config.rootPath
 		opts.output ?= docpad.getDebugging()
-		opts.force ?= true
+		opts.force ?= if config.offline then false else true
 		opts.args ?= []
 		opts.args.push('--force')  if config.force
 		opts.args.push('--no-registry')  if config.offline
@@ -2264,22 +2264,11 @@ class DocPad extends EventEmitterGrouped
 		# Return
 		result
 
-	# Parse a file directory
-	# next(err)
-	parseFileDirectory: (opts={},next) ->
-		opts.createFunction ?= @createFile
-		return @parseDirectory(opts, next)
-
-	# Parse a document directory
-	# next(err)
-	parseDocumentDirectory: (opts={},next) ->
-		opts.createFunction ?= @createDocument
-		return @parseDirectory(opts, next)
-
 	# Parse a directory
-	# next(err)
+	# next(err, filesToLoad)
 	parseDirectory: (opts={},next) ->
 		# Prepare
+		[opts,next] = extractOptsAndCallback(opts, next)
 		docpad = @
 		locale = @getLocale()
 
@@ -2329,10 +2318,8 @@ class DocPad extends EventEmitterGrouped
 					# Log
 					docpad.log 'debug', util.format(locale.renderDirectoryParsed, path)
 
-					# Load the files
-					docpad.loadFiles {collection:filesToLoad}, (err) ->
-						# Forward
-						return next(err)
+					# Forward
+					return next(null, filesToLoad)
 			)
 
 		# Chain
@@ -2511,16 +2498,16 @@ class DocPad extends EventEmitterGrouped
 			dirAction: (fileFullPath,fileRelativePath,_nextFile) ->
 				# Prepare
 				pluginName = pathUtil.basename(fileFullPath)
-				return _nextFile(null,false)  if fileFullPath is pluginsPath
+				return _nextFile(null, false)  if fileFullPath is pluginsPath
 				nextFile = (err,skip) ->
 					if err
 						message = util.format(locale.pluginFailedToLoad, pluginName, fileFullPath)+' '+locale.errorFollows
 						docpad.warn(message, err)
-					return _nextFile(null,skip)
+					return _nextFile(null, skip)
 
 				# Forward
 				docpad.loadPlugin fileFullPath, (err) ->
-					return nextFile(err,true)
+					return nextFile(err, true)
 
 			# Next
 			next: (err) ->
@@ -2621,6 +2608,7 @@ class DocPad extends EventEmitterGrouped
 		{collection} = opts
 		slowFilesObject = {}
 		slowFilesTimer = null
+		collection ?= @getDatabase()
 
 		# Log
 		docpad.log 'debug', util.format(locale.loadingFiles, collection.length)
@@ -2656,6 +2644,7 @@ class DocPad extends EventEmitterGrouped
 					docpad.log 'debug', util.format(locale.loadingFile, fileRelativePath)
 
 					# Load the file
+					# Also normalizes
 					file.load (err) ->
 						delete slowFilesObject[file.id]
 						opts.progress?.tick()
@@ -2986,7 +2975,7 @@ class DocPad extends EventEmitterGrouped
 			# Forward
 			fn opts, (args...) ->
 				forward(args...)
-				complete()
+				return complete()
 
 		# Chain
 		@
@@ -2994,174 +2983,6 @@ class DocPad extends EventEmitterGrouped
 
 	# ---------------------------------
 	# Generate
-
-	# Generate Prepare
-	# opts = {reset}
-	# next(err)
-	generatePrepare: (opts,next) =>
-		# Prepare
-		[opts,next] = extractOptsAndCallback(opts,next)
-		docpad = @
-		config = @getConfig()
-		locale = @getLocale()
-
-		# Update generating flag
-		docpad.generating = true
-
-		# Log generating
-		docpad.log 'info', locale.renderGenerating
-		docpad.notify (new Date()).toLocaleTimeString(), title: locale.renderGeneratingNotification
-
-		# Tasks
-		tasks = new TaskGroup().once('complete',next)
-
-		# Perform a complete clean of our collections if we want to
-		if opts.reset is true
-			# Check plugin count
-			unless docpad.hasPlugins()
-				docpad.log('notice', locale.renderNoPlugins)
-
-			# Check if the source directory exists
-			tasks.addTask (complete) ->
-				safefs.exists config.srcPath, (exists) ->
-					# Check
-					unless exists
-						err = new Error(locale.renderNonexistant)
-						return complete(err)
-
-					# Forward
-					return complete()
-
-			# Clean our collections
-			tasks.addTask (complete) ->
-				docpad.resetCollections(complete)
-
-		# Fire plugins
-		tasks.addTask (complete) ->
-			docpad.emitSerial('generateBefore', {reset:opts.reset, server:docpad.getServer()}, complete)
-
-		# Run
-		tasks.run()
-
-		# Chain
-		@
-
-	# Parse the files
-	# opts = {}
-	# next(err)
-	generateParse: (opts,next) =>
-		# Prepare
-		[opts,next] = extractOptsAndCallback(opts,next)
-		docpad = @
-		database = @getDatabase()
-		config = @getConfig()
-		locale = @getLocale()
-
-		# Before
-		@emitSerial 'parseBefore', {}, (err) ->
-			return next(err)  if err
-
-			# Log
-			docpad.log 'debug', locale.renderParsing
-
-			# Async
-			tasks = new TaskGroup().setConfig(concurrency:0).once 'complete', (err) ->
-				return next(err)  if err
-				# After
-				docpad.emitSerial 'parseAfter', {}, (err) ->
-					return next(err)  if err
-					docpad.log 'debug', locale.renderParsed
-					return next(err)
-
-			# Documents
-			config.documentsPaths.forEach (documentsPath) -> tasks.addTask (complete) ->
-				docpad.parseDocumentDirectory({
-					path: documentsPath
-					collection: database
-				},complete)
-
-			# Files
-			config.filesPaths.forEach (filesPath) -> tasks.addTask (complete) ->
-				docpad.parseFileDirectory({
-					path: filesPath
-					collection: database
-				},complete)
-
-			# Layouts
-			config.layoutsPaths.forEach (layoutsPath) -> tasks.addTask (complete) ->
-				docpad.parseDocumentDirectory({
-					path: layoutsPath
-					collection: database
-				},complete)
-
-			# Async
-			tasks.run()
-
-		# Chain
-		@
-
-	# Generate Render
-	# opts = {templateData,collection,setProgressIndicator}
-	# next(err)
-	generateRender: (opts,next) =>
-		# Prepare
-		[opts,next] = extractOptsAndCallback(opts,next)
-		docpad = @
-		opts.templateData or= @getTemplateData()
-		opts.collection or= @getDatabase()
-		opts.renderPasses or= @getConfig().renderPasses
-
-		# Contextualize the datbaase, perform two render passes, and perform a write
-		balUtil.flow(
-			object: docpad
-			action: 'contextualizeFiles renderFiles writeFiles'
-			args: [opts]
-			next: (err) ->
-				# Forward
-				return next(err)
-		)
-
-		# Chain
-		@
-
-	# Generate Postpare
-	# opts = {collection}
-	# next(err)
-	generatePostpare: (opts,next) =>
-		# Prepare
-		[opts,next] = extractOptsAndCallback(opts,next)
-		docpad = @
-		locale = @getLocale()
-		database = @getDatabase()
-		collection = opts.collection or database
-
-		# Update generating flag
-		docpad.generating = false
-		docpad.generateEnded = new Date()
-
-		# Update caches
-		docpad.databaseCache = null
-
-		# Fire plugins
-		docpad.emitSerial 'generateAfter', server:docpad.getServer(), (err) ->
-			return next(err)  if err
-
-			# Log generated
-			seconds = (docpad.generateEnded - docpad.generateStarted) / 1000
-			howMany =
-				if collection is database
-					"all #{collection.length}"
-				else
-					collection.length
-			opts.progress?.finish()
-			docpad.log 'info', util.format(locale.renderGenerated, howMany, seconds)
-			docpad.notify (new Date()).toLocaleTimeString(), title: locale.renderGeneratedNotification
-
-			# Completed
-			return next()
-
-		# Chain
-		@
 
 	# Generate Helpers
 	generateStarted: null
@@ -3199,6 +3020,205 @@ class DocPad extends EventEmitterGrouped
 		# Return
 		return progress
 
+	# Generate Prepare
+	# opts = {reset}
+	# next(err)
+	generatePrepare: (opts,next) =>
+		# Prepare
+		[opts,next] = extractOptsAndCallback(opts,next)
+		docpad = @
+		config = @getConfig()
+		locale = @getLocale()
+
+		# Update generating flag
+		docpad.generating = true
+
+		# Log generating
+		docpad.log('info', locale.renderGenerating)
+		docpad.notify (new Date()).toLocaleTimeString(), title: locale.renderGeneratingNotification
+
+		# Tasks
+		tasks = new TaskGroup().once('complete',next)
+
+		# Perform a complete clean of our collections if we want to
+		if opts.reset is true
+			# Check plugin count
+			unless docpad.hasPlugins()
+				docpad.log('notice', locale.renderNoPlugins)
+
+			# Check if the source directory exists
+			tasks.addTask (complete) ->
+				safefs.exists config.srcPath, (exists) ->
+					# Check
+					unless exists
+						err = new Error(locale.renderNonexistant)
+						return complete(err)
+
+					# Forward
+					return complete()
+
+			# Clean our collections
+			tasks.addTask (complete) ->
+				docpad.resetCollections(complete)
+
+		# Fire plugins
+		tasks.addTask (complete) ->
+			docpad.emitSerial('generateBefore', {reset:opts.reset, server:docpad.getServer()}, complete)
+
+		# Run
+		tasks.run()
+
+		# Chain
+		@
+
+	# Parse the files / Scan the directories
+	# opts = {}
+	# next(err)
+	generateParse: (opts,next) =>
+		# Prepare
+		[opts,next] = extractOptsAndCallback(opts,next)
+		docpad = @
+		database = @getDatabase()
+		config = @getConfig()
+		locale = @getLocale()
+
+		# Before
+		@emitSerial 'parseBefore', {}, (err) ->
+			return next(err)  if err
+
+			# Log
+			docpad.log('debug', locale.renderParsing)
+
+			# Async
+			tasks = new TaskGroup().setConfig(concurrency:0).once 'complete', (err) ->
+				return next(err)  if err
+
+				# After
+				docpad.emitSerial 'parseAfter', {}, (err) ->
+					return next(err)  if err
+					docpad.log('debug', locale.renderParsed)
+					return next(err)
+
+			# Documents
+			config.documentsPaths.forEach (documentsPath) -> tasks.addTask (complete) ->
+				docpad.parseDirectory({
+					createFunction: docpad.createDocument
+					path: documentsPath
+					collection: database
+					next: complete
+				})
+
+			# Files
+			config.filesPaths.forEach (filesPath) -> tasks.addTask (complete) ->
+				docpad.parseDirectory({
+					createFunction: docpad.createFile
+					path: filesPath
+					collection: database
+					next: complete
+				})
+
+			# Layouts
+			config.layoutsPaths.forEach (layoutsPath) -> tasks.addTask (complete) ->
+				docpad.parseDirectory({
+					createFunction: docpad.createDocument
+					path: layoutsPath
+					collection: database
+					next: complete
+				})
+
+			# Async
+			tasks.run()
+
+		# Chain
+		@
+
+	# Generate Load / Read the files
+	# next(err)
+	generateLoad: (opts,next) =>
+		# Prepare
+		[opts,next] = extractOptsAndCallback(opts,next)
+		docpad = @
+		locale = @getLocale()
+		database = @getDatabase()
+
+		# Perform the reload of the selected files
+		docpad.loadFiles {collection:opts.collection}, (err) ->
+			# Check
+			return next(err)  if err
+
+			# Add anything that references other documents (e.g. partials, listing, etc)
+			allStandalone = (false not in standalone.pluck('standalone'))
+			if allStandalone is false
+				opts.collection.add(database.findAll(referencesOthers: true).models)
+
+			# For anything that gets added, if it is a layout, then add that layouts children too
+			opts.collection.forEach (fileToRender) ->
+				if fileToRender.get('isLayout')
+					opts.collection.add(database.findAll(layoutId: fileToRender.id).models)
+
+			# Forward
+			return next()
+
+		# Chain
+		@
+
+	# Generate Render / Render the files
+	# opts = {templateData,collection,setProgressIndicator}
+	# next(err)
+	generateRender: (opts,next) =>
+		# Prepare
+		[opts,next] = extractOptsAndCallback(opts,next)
+		docpad = @
+		opts.templateData or= @getTemplateData()
+		opts.renderPasses or= @getConfig().renderPasses
+
+		# Contextualize the datbaase, perform two render passes, and perform a write
+		balUtil.flow(
+			object: docpad
+			action: 'contextualizeFiles renderFiles writeFiles'
+			args: [opts]
+			next: (err) ->
+				# Forward
+				return next(err)
+		)
+
+		# Chain
+		@
+
+	# Generate Postpare
+	# opts = {collection}
+	# next(err)
+	generatePostpare: (opts,next) =>
+		# Prepare
+		[opts,next] = extractOptsAndCallback(opts,next)
+		docpad = @
+		locale = @getLocale()
+		database = @getDatabase()
+
+		# Update generating flag
+		docpad.generating = false
+		docpad.generateEnded = new Date()
+
+		# Update caches
+		docpad.databaseCache = null
+
+		# Fire plugins
+		docpad.emitSerial 'generateAfter', server:docpad.getServer(), (err) ->
+			return next(err)  if err
+
+			# Log generated
+			seconds = (docpad.generateEnded - docpad.generateStarted) / 1000
+			howMany = "#{collection.length}/#{database.length}"
+			opts.progress?.finish()
+			docpad.log 'info', util.format(locale.renderGenerated, howMany, seconds)
+			docpad.notify (new Date()).toLocaleTimeString(), title: locale.renderGeneratedNotification
+
+			# Completed
+			return next()
+
+		# Chain
+		@
+
 	# Generate
 	# next(err)
 	generate: (opts,next) =>
@@ -3224,57 +3244,33 @@ class DocPad extends EventEmitterGrouped
 
 		# Re-load and re-render only what is necessary
 		if opts.collection? is false and opts.reset is false
+			# Generate only that which has changed
+			opts.collection ?= database.findAll(mtime: $gte: docpad.generateStarted)
+
+			# Update our generate time
+			docpad.generateStarted = new Date()
+
 			# Prepare
-			docpad.generatePrepare opts, (err) ->
-				return finish(err)  if err
-				database = docpad.getDatabase()
-
-				# Create a collection for the files to reload
-				filesToReload = opts.filesToReload or new FilesCollection()
-				# Add anything which was modified since our last generate
-				filesToReload.add(database.findAll(mtime: $gte: docpad.generateStarted).models)
-
-				# Update our generate time
-				docpad.generateStarted = new Date()
-
-				# Perform the reload of the selected files
-				docpad.loadFiles {collection:filesToReload}, (err) ->
-					# Check
-					return finish(err)  if err
-
-					# Create a collection for the files to render
-					filesToRender = opts.filesToRender or new FilesCollection()
-					# For anything that gets added, if it is a layout, then add that layouts children too
-					filesToRender.on 'add', (fileToRender) ->
-						if fileToRender.get('isLayout')
-							filesToRender.add(database.findAll(layoutId: fileToRender.id).models)
-					# Add anything that references other documents (e.g. partials, listing, etc)
-					# if our files to reload aren't all standalone files
-					allStandalone = true
-					filesToReload.forEach (fileToReload) ->
-						if fileToReload.get('standalone') isnt true
-							allStandalone = false
-							return false
-					if allStandalone is false
-						filesToRender.add(database.findAll(referencesOthers: true).models)
-					# Add anything that was re-loaded
-					filesToRender.add(filesToReload.models)
-
-					# Perform the re-render of the selected files
-					docpad.generateRender {collection:filesToRender}, (err) ->
-						return finish(err)  if err
-
-						# Finish up
-						docpad.generatePostpare {collection:filesToRender}, (err) ->
-							return finish(err)
+			balUtil.flow(
+				object: docpad
+				action: 'generatePrepare generateLoad generateRender generatePostpare'
+				args: [opts]
+				next: (err) ->
+					return finish(err)
+			)
 
 		# Re-load and re-render everything
 		else
-			# Prepare
+			# Generate everything
+			opts.collection ?= docpad.getDatabase().createChildCollection()
+
+			# Update our generate time
 			docpad.generateStarted = new Date()
+
+			# Prepare
 			balUtil.flow(
 				object: docpad
-				action: 'generatePrepare generateParse generateRender generatePostpare'
+				action: 'generatePrepare generateParse generateLoad generateRender generatePostpare'
 				args: [opts]
 				next: (err) ->
 					return finish(err)
@@ -3527,15 +3523,22 @@ class DocPad extends EventEmitterGrouped
 			if regenerateTimer
 				clearTimeout(regenerateTimer)
 				regenerateTimer = null
+
 			# Regenerat after a while
 			regenerateTimer = setTimeout(performGenerate, config.regenerateDelay)
+
 		performGenerate = (opts) ->
 			# Prepare
 			opts or= {}
+
 			# Do not reset when we do this generate
 			opts.reset ?= false
+
+			# TODO: Should we also pass over the collection?
+
 			# Log
 			docpad.log util.format(locale.watchRegenerating, new Date().toLocaleTimeString())
+
 			# Afterwards, re-render anything that should always re-render
 			docpad.action 'generate', opts, (err) ->
 				docpad.error(err)  if err
@@ -3565,7 +3568,7 @@ class DocPad extends EventEmitterGrouped
 			fileCurrentStat?.mtime = new Date()
 
 			# Create the file object
-			file = docpad.ensureFileOrDocument({fullPath:filePath},{stat:fileCurrentStat})
+			file = docpad.ensureFileOrDocument({fullPath:filePath}, {stat:fileCurrentStat})  # adds to database if not existant
 			file.setStat(fileCurrentStat)  if changeType is 'update'
 
 			# File was deleted, delete the rendered file, and remove it from the database
@@ -3595,11 +3598,11 @@ class DocPad extends EventEmitterGrouped
 
 	run: (opts,next) =>
 		# Prepare
-		[opts,next] = extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts, next)
 		docpad = @
-		srcPath = @config.srcPath
-		destinationPath = @config.rootPath
 		locale = @getLocale()
+		config = @getConfig()
+		{srcPath, destinationPath} = config
 
 		# Run docpad
 		runDocpad = ->
@@ -3790,7 +3793,7 @@ class DocPad extends EventEmitterGrouped
 		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
 		locale = @getLocale()
-		{rootPath,outPath} = @config
+		{rootPath, outPath} = @config
 
 		# Log
 		docpad.log 'debug', locale.renderCleaning
