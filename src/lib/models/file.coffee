@@ -477,15 +477,15 @@ class FileModel extends Model
 	# next(err)
 	parse: (opts={},next) ->
 		# Prepare
-		[opts,next] = extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts, next)
 		buffer = @getBuffer()
-		fullPath = @get('fullPath')
+		relativePath = @get('relativePath')
 		encoding = @get('encoding') or null
 		changes = {}
 
 		# Detect Encoding
-		if encoding? is false or opts.reencode is true
-			isText = balUtil.isTextSync(fullPath,buffer)
+		if encoding? is false and opts.reencode is true
+			isText = balUtil.isTextSync(relativePath, buffer)
 
 			# Text
 			if isText is true
@@ -520,10 +520,7 @@ class FileModel extends Model
 			# Binary
 			else
 				# Set
-				encoding = 'binary'
-
-				# Apply
-				changes.encoding = encoding
+				encoding = changes.encoding = 'binary'
 
 		# Binary
 		if encoding is 'binary'
@@ -536,6 +533,9 @@ class FileModel extends Model
 
 		# Text
 		else
+			# Default
+			encoding = changes.encoding = 'utf8'  if encoding? is false
+
 			# Set
 			source = buffer.toString('utf8')
 			content = source
@@ -713,7 +713,7 @@ class FileModel extends Model
 
 		# Fetch
 		opts.path      or= @get('outPath')
-		opts.encoding  or= @get('encoding')
+		opts.encoding  or= @get('encoding') or 'utf8'
 		opts.content   or= @getContent()
 		opts.type      or= 'file'
 

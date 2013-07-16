@@ -90,6 +90,7 @@ joe.suite 'docpad-actions', (suite,test) ->
 					# also address the slash backslash issue with windows and unix
 					actualString = actual.trim().replace(/\s+/g,'').replace(/([abc])[\\]+/g, '$1/')
 					expectedString = expected.trim().replace(/\s+/g,'').replace(/([abc])[\\]+/g, '$1/')
+
 					# check equality
 					expect(actualString).to.be.equal(expectedString)
 
@@ -106,10 +107,12 @@ joe.suite 'docpad-actions', (suite,test) ->
 							next: (err,expectList) ->
 								# check we have the same files
 								expect(_.difference(Object.keys(outList),Object.keys(expectList))).to.be.empty
+
 								# check the contents of those files match
 								for own key,actual of outList
 									expected = expectList[key]
 									testMarkup(key,actual,expected)
+
 								# done with same file check
 								# start the markup tests
 								done()
