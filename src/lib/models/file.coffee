@@ -40,11 +40,6 @@ class FileModel extends Model
 	# Stat Object
 	stat: null
 
-	# File data
-	# When we do not have a path to scan
-	# we can just pass over some data instead
-	data: null
-
 	# File buffer
 	buffer: null
 
@@ -54,7 +49,7 @@ class FileModel extends Model
 
 	# Get Opts
 	getOpts: ->
-		return {@outDirPath, @detectEncoding, @stat, @data, @buffer, @meta}
+		return {@outDirPath, @detectEncoding, @stat, @buffer, @meta}
 
 	# Clone
 	clone: ->
@@ -192,17 +187,9 @@ class FileModel extends Model
 	# ---------------------------------
 	# Helpers
 
-	# Set Data
-	setData: (data) ->
-		@data = data
-		@
-
-	# Get Data
-	getData: ->
-		return @data
-
 	# Set Buffer
 	setBuffer: (buffer) ->
+		buffer = new Buffer(buffer)  unless Buffer.isBuffer(buffer)
 		@buffer = buffer
 		@
 
@@ -378,7 +365,7 @@ class FileModel extends Model
 			delete attrs.data
 			delete @attributes.data
 		if data?
-			@setData(data)
+			@setBuffer(data)
 
 		# Buffer
 		if attrs.buffer?
@@ -414,6 +401,14 @@ class FileModel extends Model
 		# Log
 		file.log('debug', "Loading the file: #{filePath}")
 
+		# If stat is set, use that
+		if opts.stat
+			file.setStat(opts.stat)
+
+		# If buffer is set, use that
+		if opts.buffer
+			file.setBuffer(opts.buffer)
+
 		# Async
 		tasks = new TaskGroup().setConfig(concurrency:0).once 'complete', (err) =>
 			return next(err)  if err
@@ -423,20 +418,6 @@ class FileModel extends Model
 				file.normalize (err) ->
 					return next(err)  if err
 					return next(null, file.buffer)
-
-		# If data is set, use that as the buffer
-		data = file.getData()
-		if data?
-			buffer = new Buffer(data)
-			file.setBuffer(buffer)
-
-		# If stat is set, use that
-		if opts.stat
-			file.setStat(opts.stat)
-
-		# If buffer is set, use that
-		if opts.buffer
-			file.setBuffer(opts.buffer)
 
 		# Stat the file and cache the result
 		tasks.addTask (complete) ->
