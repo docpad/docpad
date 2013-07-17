@@ -118,6 +118,10 @@ class PluginLoader
 		unless 'docpad-plugin' in keywords
 			unsupported = 'type'
 
+		# Check version
+		unless semver.satisfies(packageData.version, docpad.pluginVersion)
+			unsupported = 'version-plugin'
+
 		# Check platform
 		if @packageData.platforms
 			platforms = @packageData.platforms or []
@@ -131,12 +135,12 @@ class PluginLoader
 			# Node engine
 			if engines.node?
 				unless semver.satisfies(process.version, engines.node)
-					unsupported = 'engine'
+					unsupported = 'engine-node'
 
 			# DocPad engine
 			if engines.docpad?
 				unless semver.satisfies(docpad.version, engines.docpad)
-					unsupported = 'version'
+					unsupported = 'version-docpad'
 
 		# Check peerDependencies
 		if @packageData.peerDependencies
@@ -145,7 +149,7 @@ class PluginLoader
 			# DocPad engine
 			if peerDependencies.docpad?
 				unless semver.satisfies(docpad.version, peerDependencies.docpad)
-					unsupported = 'version'
+					unsupported = 'version-docpad'
 
 		# Supported
 		next(null, unsupported)
