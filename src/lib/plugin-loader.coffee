@@ -138,8 +138,17 @@ class PluginLoader
 				unless semver.satisfies(docpad.version, engines.docpad)
 					unsupported = 'version'
 
+		# Check peerDependencies
+		if @packageData.peerDependencies
+			peerDependencies = @packageData.peerDependencies or {}
+
+			# DocPad engine
+			if peerDependencies.docpad?
+				unless semver.satisfies(docpad.version, peerDependencies.docpad)
+					unsupported = 'version'
+
 		# Supported
-		next(null,unsupported)
+		next(null, unsupported)
 
 		# Chain
 		@
@@ -195,7 +204,7 @@ class PluginLoader
 				docpad.log('warn', util.format(locale.pluginPrototypeNameDifferent, @pluginName, pluginPrototypeName))
 		catch err
 			# An error occured, return it
-			return next(err,null)
+			return next(err, null)
 
 		# Return our plugin
 		next(null,@pluginClass)
@@ -213,10 +222,10 @@ class PluginLoader
 			pluginInstance = new @pluginClass({docpad,config})
 		catch err
 			# An error occured, return it
-			return next(err,null)
+			return next(err, null)
 
 		# Return our instance
-		return next(null,pluginInstance)
+		return next(null, pluginInstance)
 
 		# Chain
 		@
