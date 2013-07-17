@@ -465,7 +465,7 @@ class FileModel extends Model
 		changes = {}
 
 		# Detect Encoding
-		if encoding? is false and opts.reencode is true
+		if encoding? is false or opts.reencode is true
 			isText = balUtil.isTextSync(relativePath, buffer)
 
 			# Text
