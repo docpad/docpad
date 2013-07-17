@@ -229,7 +229,7 @@ class ConsoleInterface
 				return @completeAction(err)
 
 			# Action
-			return action(@completeAction,opts)  # this order for b/c
+			return action(@completeAction, opts)  # this order for b/c
 
 		# Chain
 		@

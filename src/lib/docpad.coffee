@@ -2718,6 +2718,7 @@ class DocPad extends EventEmitterGrouped
 						if fileIgnored or (fileParse? and !fileParse)
 							docpad.log 'info', util.format(locale.loadingFileIgnored, fileRelativePath)
 							collection.remove(file)
+							database.remove(file)
 							return complete()
 						else
 							docpad.log 'debug', util.format(locale.loadedFile, fileRelativePath)
@@ -3081,12 +3082,14 @@ class DocPad extends EventEmitterGrouped
 	# next(err)
 	generatePrepare: (opts,next) =>
 		# Prepare
-		[opts,next] = extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts, next)
 		docpad = @
 		config = docpad.getConfig()
 		locale = docpad.getLocale()
 
 		# Update generating flag
+		generateStarted = docpad.generateStarted
+		docpad.generateStarted = new Date()
 		docpad.generating = true
 
 		# Log generating
@@ -3096,7 +3099,7 @@ class DocPad extends EventEmitterGrouped
 		# Tasks
 		tasks = new TaskGroup().once('complete', next)
 
-		# Perform a complete clean of our collections if we want to
+		# Reset
 		if opts.reset is true
 			# Check plugin count
 			unless docpad.hasPlugins()
@@ -3121,9 +3124,15 @@ class DocPad extends EventEmitterGrouped
 			tasks.addTask (complete) ->
 				docpad.populateCollections(complete)
 
-			# Adjust our collections
+			# Generate everything
 			tasks.addTask ->
-				opts.collection ?= docpad.getDatabase().createChildCollection().query()
+				opts.collection ?= new FilesCollection().add(docpad.getDatabase().models)
+
+		# Don't reset
+		else
+			# Generate only that which has changed
+			tasks.addTask ->
+				opts.collection ?= new FilesCollection().add(docpad.getDatabase().findAll(mtime: $gte: generateStarted).models)
 
 		# Fire plugins
 		tasks.addTask (complete) ->
@@ -3153,7 +3162,8 @@ class DocPad extends EventEmitterGrouped
 			# This could eventually be way better
 			allStandalone = (false not in opts.collection.pluck('standalone'))
 			if allStandalone is false
-				opts.collection.add(database.findAll(referencesOthers: true).models)
+				referencesOthersCollection = database.findAll(referencesOthers: true)
+				opts.collection.add(referencesOthersCollection.models)
 
 			# Deeply/recursively add the layout children
 			addLayoutChildren = (collection) ->
@@ -3175,12 +3185,12 @@ class DocPad extends EventEmitterGrouped
 	# next(err)
 	generateRender: (opts,next) =>
 		# Prepare
-		[opts,next] = extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts, next)
 		docpad = @
 		opts.templateData or= @getTemplateData()
 		opts.renderPasses or= @getConfig().renderPasses
 
-		# Contextualize the datbaase, perform two render passes, and perform a write
+		# Contextualize the databaase, perform two render passes, and perform a write
 		balUtil.flow(
 			object: docpad
 			action: 'contextualizeFiles renderFiles writeFiles'
@@ -3216,9 +3226,11 @@ class DocPad extends EventEmitterGrouped
 		docpad.emitSerial 'generateAfter', {server}, (err) ->
 			return next(err)  if err
 
-			# Log generated
+			# Prepare
 			seconds = (docpad.generateEnded - docpad.generateStarted) / 1000
 			howMany = "#{collection.length}/#{database.length}"
+
+			# Log
 			opts.progress?.finish()
 			docpad.log 'info', util.format(locale.renderGenerated, howMany, seconds)
 			docpad.notify (new Date()).toLocaleTimeString(), title: locale.renderGeneratedNotification
@@ -3235,8 +3247,8 @@ class DocPad extends EventEmitterGrouped
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
-		config = @getConfig()
-		locale = @getLocale()
+		config = docpad.getConfig()
+		locale = docpad.getLocale()
 		opts.reset ?= true
 
 		# Check
@@ -3252,36 +3264,14 @@ class DocPad extends EventEmitterGrouped
 				opts.progress = null
 			return next(err)
 
-		# Re-load and re-render only what is necessary
-		if opts.collection? is false and opts.reset is false
-			# Generate only that which has changed
-			opts.collection ?= database.findAll(mtime: $gte: docpad.generateStarted)
-
-			# Update our generate time
-			docpad.generateStarted = new Date()
-
-			# Prepare
-			balUtil.flow(
-				object: docpad
-				action: 'generatePrepare generateLoad generateRender generatePostpare'
-				args: [opts]
-				next: (err) ->
-					return finish(err)
-			)
-
-		# Re-load and re-render everything
-		else
-			# Update our generate time
-			docpad.generateStarted = new Date()
-
-			# Prepare
-			balUtil.flow(
-				object: docpad
-				action: 'generatePrepare generateLoad generateRender generatePostpare'
-				args: [opts]
-				next: (err) ->
-					return finish(err)
-			)
+		# Generate
+		balUtil.flow(
+			object: docpad
+			action: 'generatePrepare generateLoad generateRender generatePostpare'
+			args: [opts]
+			next: (err) ->
+				return finish(err)
+		)
 
 		# Chain
 		@
