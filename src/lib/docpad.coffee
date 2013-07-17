@@ -3531,7 +3531,8 @@ class DocPad extends EventEmitterGrouped
 			# Do not reset when we do this generate
 			opts.reset ?= false
 
-			# TODO: Should we also pass over the collection?
+			# Q: Should we also pass over the collection?
+			# A: No, doing the mtime thing in generatePrepare is more robust
 
 			# Log
 			docpad.log util.format(locale.watchRegenerating, new Date().toLocaleTimeString())
