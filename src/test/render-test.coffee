@@ -2,8 +2,7 @@
 balUtil = require('bal-util')
 safefs = require('safefs')
 safeps = require('safeps')
-chai = require('chai')
-expect = chai.expect
+{expect} = require('chai')
 joe = require('joe')
 pathUtil = require('path')
 
