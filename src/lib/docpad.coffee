@@ -3524,10 +3524,7 @@ class DocPad extends EventEmitterGrouped
 			# Regenerat after a while
 			regenerateTimer = setTimeout(performGenerate, config.regenerateDelay)
 
-		performGenerate = (opts) ->
-			# Prepare
-			opts or= {}
-
+		performGenerate = (opts={}) ->
 			# Do not reset when we do this generate
 			opts.reset ?= false
 
