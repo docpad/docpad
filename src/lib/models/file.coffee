@@ -485,15 +485,21 @@ class FileModel extends Model
 					encoding ?= 'utf8'
 
 				# Convert into utf8
-				unless encoding.toLowerCase() in ['ascii','utf8','utf-8']
+				if encoding.toLowerCase() not in ['ascii','utf8','utf-8']
+					# Can convert?
 					if Iconv?
-						@log('info', "Converting encoding #{encoding} to UTF-8 on #{fullPath}")
-						try
-							buffer = new Iconv(encoding,'utf8').convert(buffer)
-						catch err
-							@log('warn', "Encoding conversion failed, therefore we cannot convert the encoding #{encoding} to UTF-8 on #{fullPath}")
+						@log('info', "Converting encoding #{encoding} to UTF-8 on #{relativePath}")
+
+						# Convert
+						d = require('domain').create()
+						d.on 'error', =>
+							@log('warn', "Encoding conversion failed, therefore we cannot convert the encoding #{encoding} to UTF-8 on #{relativePath}")
+						d.run ->
+							buffer = new Iconv(encoding, 'utf8').convert(buffer)
+
+					# Can't convert
 					else
-						@log('warn', "Iconv did not load, therefore we cannot convert the encoding #{encoding} to UTF-8 on #{fullPath}")
+						@log('warn', "Iconv did not load, therefore we cannot convert the encoding #{encoding} to UTF-8 on #{relativePath}")
 
 				# Apply
 				changes.encoding = encoding
