@@ -111,45 +111,43 @@ class PluginLoader
 	unsupported: (next) ->
 		# Prepare
 		docpad = @docpad
-		unsupported = false
 
-		# Check type
+		# Extract
+		version = @packageData.version
 		keywords = @packageData.keywords or []
-		unless 'docpad-plugin' in keywords
-			unsupported = 'type'
+		platforms = @packageData.platforms or []
+		engines = @packageData.engines or {}
+		peerDependencies = @packageData.peerDependencies or {}
 
-		# Check version
-		unless semver.satisfies(packageData.version, docpad.pluginVersion)
-			unsupported = 'version-plugin'
+		# Check
+		unsupported =
+			# Check type
+			if 'docpad-plugin' not in keywords
+				'type'
 
-		# Check platform
-		if @packageData.platforms
-			platforms = @packageData.platforms or []
-			unless process.platform in platforms
-				unsupported = 'platform'
+			# Check version
+			else if version and not semver.satisfies(version, docpad.pluginVersion)
+				'version-plugin'
 
-		# Check engines
-		if @packageData.engines
-			engines = @packageData.engines or {}
+			# Check platform
+			else if platforms.length and process.platform not in platforms
+				'platform'
 
-			# Node engine
-			if engines.node?
-				unless semver.satisfies(process.version, engines.node)
-					unsupported = 'engine-node'
+			# Check node engine
+			else if engines.node? and not semver.satisfies(process.version, engines.node)
+				'engine-node'
 
-			# DocPad engine
-			if engines.docpad?
-				unless semver.satisfies(docpad.version, engines.docpad)
-					unsupported = 'version-docpad'
+			# Check docpad engine
+			else if engines.docpad? and not semver.satisfies(docpad.version, engines.docpad)
+				'version-docpad'
 
-		# Check peerDependencies
-		if @packageData.peerDependencies
-			peerDependencies = @packageData.peerDependencies or {}
+			# Check docpad peerDependencies
+			else if peerDependencies.docpad? and not semver.satisfies(docpad.version, peerDependencies.docpad)
+				'version-docpad'
 
-			# DocPad engine
-			if peerDependencies.docpad?
-				unless semver.satisfies(docpad.version, peerDependencies.docpad)
-					unsupported = 'version-docpad'
+			# Supported
+			else
+				false
 
 		# Supported
 		next(null, unsupported)
