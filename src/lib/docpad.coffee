@@ -3708,9 +3708,12 @@ class DocPad extends EventEmitterGrouped
 
 		# Install a plugin
 		if opts.plugin then tasks.addTask (complete) ->
-			opts.plugin = "docpad-plugin-#{opts.plugin}"  if /^docpad-plugin-/.test(opts.plugin) is false
-			opts.plugin += '@2'  if opts.plugin.indexOf('@') is -1
-			docpad.initNodeModule(opts.plugin, {
+			plugins =
+				for plugin in opts.plugin.split(/[,\s]+/)
+					plugin = "docpad-plugin-#{plugin}"  if plugin.indexOf('docpad-plugin-') isnt 0
+					plugin += '@2'  if plugin.indexOf('@') is -1
+					plugin
+			docpad.initNodeModule(plugins, {
 				output: true
 				next: complete
 			})
