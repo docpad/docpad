@@ -134,6 +134,9 @@ class DocPad extends EventEmitterGrouped
 	version: null
 	getVersion: -> @version
 
+	# Plugin version requirements
+	pluginVersion: '2'
+
 	# Process getters
 	getProcessPlatform: -> process.platform
 	getProcessVersion: -> process.version.replace(/^v/,'')
@@ -2499,7 +2502,7 @@ class DocPad extends EventEmitterGrouped
 					# Unsupported?
 					if unsupported
 						# Version?
-						if unsupported is 'version' and config.skipUnsupportedPlugins is false
+						if unsupported in ['version-docpad','version-pugin'] and config.skipUnsupportedPlugins is false
 							docpad.log 'warn', util.format(locale.pluginContinued, pluginName)
 						else
 							# Type?
@@ -3676,9 +3679,9 @@ class DocPad extends EventEmitterGrouped
 					description: 'New DocPad project without using a skeleton'
 					engines:
 						node: '0.10'
-						npm: '1.2'
+						npm: '1.3'
 					dependencies:
-						docpad: '6.x'
+						docpad: '~'+docpad.version
 					main: 'node_modules/docpad/bin/docpad-server'
 					scripts:
 						start: 'node_modules/docpad/bin/docpad-server'
@@ -3711,7 +3714,7 @@ class DocPad extends EventEmitterGrouped
 			plugins =
 				for plugin in opts.plugin.split(/[,\s]+/)
 					plugin = "docpad-plugin-#{plugin}"  if plugin.indexOf('docpad-plugin-') isnt 0
-					plugin += '@2'  if plugin.indexOf('@') is -1
+					plugin += '@'+docpad.pluginVersion  if plugin.indexOf('@') is -1
 					plugin
 			docpad.initNodeModule(plugins, {
 				output: true
@@ -3761,7 +3764,7 @@ class DocPad extends EventEmitterGrouped
 		dependencies = []
 		eachr docpad.websitePackageConfig.dependencies, (version,name) ->
 			return  if /^docpad-plugin-/.test(name) is false
-			dependencies.push(name+'@2')
+			dependencies.push(name+'@'+docpad.pluginVersion)
 		tasks.addTask (complete) ->
 			docpad.initNodeModule(dependencies, {
 				output: true
@@ -3772,7 +3775,7 @@ class DocPad extends EventEmitterGrouped
 		devDependencies = []
 		eachr docpad.websitePackageConfig.devDependencies, (version,name) ->
 			return  if /^docpad-plugin-/.test(name) is false
-			devDependencies.push(name+'@2')
+			devDependencies.push(name+'@'+docpad.pluginVersion)
 		tasks.addTask (complete) ->
 			docpad.initNodeModule(devDependencies, {
 				save: '--save-dev'
