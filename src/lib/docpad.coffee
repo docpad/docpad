@@ -2664,7 +2664,6 @@ class DocPad extends EventEmitterGrouped
 		{collection} = opts
 		slowFilesObject = {}
 		slowFilesTimer = null
-		collection ?= @getDatabase()
 
 		# Log
 		docpad.log 'debug', util.format(locale.loadingFiles, collection.length)
@@ -2935,31 +2934,26 @@ class DocPad extends EventEmitterGrouped
 
 			# Add write tasks
 			opts.progress?.step('writeFiles').total(collection.length)
-			collection.forEach (file,index) ->
+			collection.forEach (file,index) ->  tasks.addTask (complete) ->
+				# Prepare
 				slowFilesObject[file.id] = file.get('relativePath')
-				tasks.addTask (complete) ->
-					# Skip
-					dynamic = file.get('dynamic')
-					write = file.get('write')
-					relativePath = file.get('relativePath')
-					finish = (err) ->
-						delete slowFilesObject[file.id] or file.id
-						opts.progress?.tick()
-						return complete(err)
 
-					# Write
-					if dynamic or (write? and !write) or !relativePath
-						finish()
-					else if file.writeRendered?
-						file.writeRendered(finish)
-					else if file.write?
-						file.write(finish)
-					else
-						err = new Error(locale.unknownModelInCollection)
-						finish(err)
+				# Create sub tasks
+				fileTasks = new TaskGroup().setConfig(concurrency:0).once 'complete', (err) ->
+					delete slowFilesObject[file.id]
+					opts.progress?.tick()
+					return complete(err)
 
-					# Done
-					return true
+				# Write out
+				if file.get('write') isnt false and file.get('dynamic') isnt true and file.get('outPath')
+					fileTasks.addTask (complete) -> file.write(complete)
+
+				# Write source
+				if file.get('writeSource') is true and file.get('fullPath')
+					fileTasks.addTask (complete) -> file.writeSource(complete)
+
+				# Run sub tasks
+				fileTasks.run()
 
 			# Setup the timer
 			slowFilesTimer = setInterval(

@@ -1,0 +1,8 @@
+### cson
+{
+  title: "Write source test"
+  writeSource: true
+}
+###
+
+some content: <%- @document.title %>

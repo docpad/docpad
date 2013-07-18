@@ -107,26 +107,18 @@ class DocumentModel extends FileModel
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 		buffer = @getBuffer()
-		meta = @getMeta()
-
-		# Wipe any meta attributes that we've copied over to our file
-		reset = {}
-		for own key,value of meta.attributes
-			reset[key] = @defaults[key]
-		reset = extendr.dereference(reset)
-		@set(reset)
-
-		# Then clear the meta attributes from the meta model
-		meta.clear()
 
 		# Reparse the data and extract the content
 		# With the content, fetch the new meta data, header, and body
 		super opts, =>
-			# Content
-			content = @get('content')
-				.replace(/\r\n?/gm,'\n')  # normalise line endings for the web, just for convience, if it causes problems we can remove
+			# Prepare
+			meta = @getMeta()
+			metaDataChanges = {}
 
-			# Meta Data
+			# Content
+			content = @get('content').replace(/\r\n?/gm,'\n')  # normalise line endings for the web, just for convience, if it causes problems we can remove
+
+			# Header
 			regex = ///
 				# allow some space
 				^\s*
@@ -155,8 +147,9 @@ class DocumentModel extends FileModel
 
 			# Extract Meta Data
 			match = regex.exec(content)
-			metaData = {}
 			if match
+				# TODO: Wipe the old meta data
+
 				# Prepare
 				seperator = match[1]
 				parser = match[3] or 'yaml'
@@ -166,17 +159,15 @@ class DocumentModel extends FileModel
 				# Parse
 				try
 					switch parser
-						when 'cson', 'coffee', 'coffeescript', 'coffee-script'
+						when 'cson', 'coffee', 'coffeescript', 'coffee-script', 'json'
 							CSON = require('cson')  unless CSON
-							metaData = CSON.parseSync(header)
-							meta.set(metaData)
+							metaDataChanges = CSON.parseSync(header)
 
 						when 'yaml'
 							YAML = require('yamljs')  unless YAML
-							metaData = YAML.parse(
+							metaDataChanges = YAML.parse(
 								header.replace(/\t/g,'    ')  # YAML doesn't support tabs that well
 							)
-							meta.set(metaData)
 
 						else
 							err = new Error("Unknown meta parser: #{parser}")
@@ -188,8 +179,8 @@ class DocumentModel extends FileModel
 
 			# Incorrect encoding detection?
 			# If so, re-parse with the correct encoding conversion
-			if metaData.encoding and metaData.encoding isnt @get('encoding')
-				@setMeta({encoding:metaData.encoding})
+			if metaDataChanges.encoding and metaDataChanges.encoding isnt @get('encoding')
+				@set({encoding:metaDataChanges.encoding})
 				opts.reencode = true
 				return @parse(opts, next)
 
@@ -205,26 +196,27 @@ class DocumentModel extends FileModel
 			)
 
 			# Correct data format
-			metaDate = meta.get('date')
-			if metaDate
-				metaDate = new Date(metaDate)
-				meta.set({date:metaDate})
+			metaDataChanges.date = new Date(metaDataChanges.date)   if metaDataChanges.date
 
 			# Correct ignore
-			ignored = meta.get('ignored') or meta.get('ignore') or meta.get('skip') or meta.get('draft') or (meta.get('published') is false)
-			meta.set({ignored:true})  if ignored
+			for key in ['ignore','skip','draft']
+				if metaDataChanges[key]?
+					metaDataChanges.ignored = (metaDataChanges[key] ? false)
+					delete metaDataChanges[key]
+			for key in ['published']
+				if metaDataChanges[key]?
+					metaDataChanges.ignored = !(metaDataChanges[key] ? false)
+					delete metaDataChanges[key]
 
 			# Handle urls
-			metaUrls = meta.get('urls')
-			metaUrl = meta.get('url')
-			@addUrl(metaUrls)  if metaUrls
-			@addUrl(metaUrl)   if metaUrl
+			@addUrl(metaDataChanges.urls)  if metaDataChanges.urls
+			@setUrl(metaDataChanges.url)   if metaDataChanges.url
 
-			# Apply meta to us
-			@set(meta.toJSON())
+			# Apply meta data
+			@setMeta(metaDataChanges)
 
 			# Next
-			next()
+			return next()
 
 		# Chain
 		@
@@ -566,60 +558,36 @@ class DocumentModel extends FileModel
 	# ---------------------------------
 	# CRUD
 
-	# Write the rendered file
-	# next(err)
-	writeRendered: (opts,next) ->
-		# Prepare
-		[opts,next] = extractOptsAndCallback(opts,next)
-		file = @
-
-		# Fetch
-		opts.content or= @getOutContent()
-		opts.type    or= 'rendered document'
-
-		# Write data
-		@write(opts,next)
-
-		# Chain
-		@
-
 	# Write the file
 	# next(err)
 	writeSource: (opts,next) ->
 		# Prepare
+		[opts,next] = extractOptsAndCallback(opts, next)
 		file = @
-		[opts,next] = extractOptsAndCallback(opts,next)
-		meta = @getMeta()
-		CSON = require('cson')  unless CSON
 
 		# Fetch
-		fullPath = @get('fullPath')
-		content = (@getContent() or '').toString()
-		parser = 'cson'
-		seperator = '---'
-
-		# Log
-		file.log 'debug', "Writing the source file: #{fullPath}"
+		opts.content   or= (@getContent() or '').toString('')
 
 		# Adjust
-		metaData = meta.toJSON()
-		header = CSON.stringifySync(metaData)
-		content = body = content.replace(/^\s+/,'')
-		source = "#{seperator} #{parser}\n#{header}\n#{seperator}\n\n#{body}"
+		CSON      = require('cson')  unless CSON
+		metaData  = @getMeta().toJSON()
+		header    = CSON.stringifySync(metaData)
+		content   = body = opts.content.replace(/^\s+/,'')
+		parser    = 'cson'
+		seperator = '###'
+		source    = "#{seperator} #{parser}\n#{header}\n#{seperator}\n\n#{body}"
 
 		# Apply
-		@set({parser,header,body,content,source})
-
-		# Fetch
-		opts.path    or= fullPath
-		opts.content or= content
-		opts.type    or= 'source document'
+		# @set({parser,header,body,content,source})
+		# ^ commented out as we probably don't need to do this, it could be handled on the next load
+		opts.content = source
 
 		# Write data
-		@write(opts, next)
+		super(opts, next)
 
 		# Chain
 		@
+
 
 # Export
 module.exports = DocumentModel
