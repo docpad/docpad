@@ -156,6 +156,12 @@ class FileModel extends Model
 		# ---------------------------------
 		# User set variables
 
+		# Write this file to the output directory
+		write: true
+
+		# Write this file to the source directory
+		writeSource: false
+
 		# The title for this document
 		# Useful for page headings
 		title: null
@@ -232,15 +238,23 @@ class FileModel extends Model
 
 	# Set Meta
 	setMeta: (attrs) ->
+		# Prepare
 		attrs = attrs.toJSON?() ? attrs
+
+		# Apply
 		@getMeta().set(attrs)
 		@set(attrs)
+
+		# Chain
 		return @
 
 	# Set Meta Defaults
 	setMetaDefaults: (defaults) ->
+		# Apply
 		@getMeta().setDefaults(defaults)
 		@setDefaults(defaults)
+
+		# Chain
 		return @
 
 	# Get Filename
@@ -377,7 +391,7 @@ class FileModel extends Model
 
 		# Meta
 		if attrs.meta?
-			@setMeta(attrs.meta)
+			meta = attrs.meta
 			delete attrs.meta
 		if meta
 			@setMeta(meta)
@@ -461,7 +475,7 @@ class FileModel extends Model
 		[opts,next] = extractOptsAndCallback(opts, next)
 		buffer = @getBuffer()
 		relativePath = @get('relativePath')
-		encoding = @get('encoding') or null
+		encoding = opts.encoding or @get('encoding') or null
 		changes = {}
 
 		# Detect Encoding
@@ -554,6 +568,7 @@ class FileModel extends Model
 		mtime = opts.mtime or @get('mtime') or null
 
 		# User specified
+		tags = opts.tags or meta.get('tags') or null
 		date = opts.date or meta.get('date') or null
 		name = opts.name or meta.get('name') or null
 		slug = opts.slug or meta.get('slug') or null
@@ -615,6 +630,10 @@ class FileModel extends Model
 		# force contentType
 		if !contentType
 			changes.contentType = contentType = mime.lookup(fullPath or relativePath)
+
+		# adjust tags
+		if tags and typeChecker.isArray(tags) is false
+			changes.tags = tags = tags.split(/[\s,]+/)
 
 		# force date
 		if !date
@@ -695,14 +714,14 @@ class FileModel extends Model
 	# next(err)
 	write: (opts,next) ->
 		# Prepare
-		[opts,next] = extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts, next)
 		file = @
 
 		# Fetch
 		opts.path      or= @get('outPath')
 		opts.encoding  or= @get('encoding') or 'utf8'
-		opts.content   or= @getContent()
-		opts.type      or= 'file'
+		opts.content   or= @getOutContent()
+		opts.type      or= 'out file'
 
 		# Check
 		# Sometimes the out path could not be set if we are early on in the process
@@ -733,7 +752,25 @@ class FileModel extends Model
 			file.log 'debug', "Wrote the #{opts.type}: #{opts.path} #{opts.encoding}"
 
 			# Next
-			next()
+			return next()
+
+		# Chain
+		@
+
+	# Write the file
+	# next(err)
+	writeSource: (opts,next) ->
+		# Prepare
+		[opts,next] = extractOptsAndCallback(opts, next)
+		file = @
+
+		# Fetch
+		opts.path      or= @get('fullPath')
+		opts.content   or= (@getContent() or '').toString('')
+		opts.type      or= 'source file'
+
+		# Write data
+		@write(opts, next)
 
 		# Chain
 		@
