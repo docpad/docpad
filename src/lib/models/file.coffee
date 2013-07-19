@@ -412,9 +412,6 @@ class FileModel extends Model
 		fullPath = @get('fullPath')
 		filePath = fullPath or @get('relativePath') or @get('filename')
 
-		# Log
-		file.log('debug', "Loading the file: #{filePath}")
-
 		# If stat is set, use that
 		if opts.stat
 			file.setStat(opts.stat)
@@ -424,14 +421,17 @@ class FileModel extends Model
 			file.setBuffer(opts.buffer)
 
 		# Async
+		file.log('debug', "Load: #{filePath}")
 		tasks = new TaskGroup().setConfig(concurrency:0).once 'complete', (err) =>
 			return next(err)  if err
-			file.log('debug', "Loaded the file: #{filePath}")
+			file.log('debug', "Load -> Parse: #{filePath}")
 			file.parse (err) ->
+				file.log('debug', "Parse -> Normalize: #{filePath}")
 				return next(err)  if err
 				file.normalize (err) ->
+					file.log('debug', "Normalize -> Done: #{filePath}")
 					return next(err)  if err
-					return next(null, file.buffer)
+					return next()
 
 		# Stat the file and cache the result
 		tasks.addTask (complete) ->
@@ -633,7 +633,7 @@ class FileModel extends Model
 
 		# adjust tags
 		if tags and typeChecker.isArray(tags) is false
-			changes.tags = tags = tags.split(/[\s,]+/)
+			changes.tags = tags = String(tags).split(/[\s,]+/)
 
 		# force date
 		if !date
