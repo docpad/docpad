@@ -418,7 +418,7 @@ class DocumentModel extends FileModel
 	renderDocument: (opts,next) ->
 		# Prepare
 		file = @
-		[opts,next] = extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts, next)
 		{content,templateData} = opts
 		extension = @get('extensions')[0]
 		content ?= @get('body')
@@ -441,7 +441,7 @@ class DocumentModel extends FileModel
 	renderLayouts: (opts,next) ->
 		# Prepare
 		file = @
-		[opts,next] = extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts, next)
 		{content,templateData} = opts
 		content ?= @get('body')
 		templateData ?= {}
@@ -461,12 +461,12 @@ class DocumentModel extends FileModel
 				# templateData.document.metaMerged = extendr.extend({}, layout.getMeta().toJSON(), file.getMeta().toJSON())
 
 				# Render the layout with the templateData
-				layout.render {templateData}, (err,result) ->
-					return next(err,result)
+				layout.render {templateData,apply:false}, (err,result) ->
+					return next(err, result)
 
 			# We don't have a layout, nothing to do here
 			else
-				return next(null,content)
+				return next(null, content)
 
 
 	# Render
@@ -475,9 +475,10 @@ class DocumentModel extends FileModel
 	render: (opts={},next) ->
 		# Prepare
 		file = @
-		[opts,next] = extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts, next)
 		opts = extendr.clone(opts or {})
 		opts.actions ?= ['renderExtensions','renderDocument','renderLayouts']
+		opts.apply ?= true
 		contentRenderedWithoutLayouts = null
 		relativePath = @get('relativePath')
 
@@ -503,10 +504,15 @@ class DocumentModel extends FileModel
 				return next(err, opts.content, file)
 
 			# Apply
-			contentRendered = opts.content
-			contentRenderedWithoutLayouts ?= contentRendered
-			rendered = true
-			file.set({contentRendered, contentRenderedWithoutLayouts, rendered})
+			if opts.apply is true
+				# Attributes
+				contentRendered = opts.content
+				contentRenderedWithoutLayouts ?= contentRendered
+				rendered = true
+				file.set({contentRendered, contentRenderedWithoutLayouts, rendered})
+
+				# Log
+				file.log 'debug', "Rendering applied to: #{relativePath}"
 
 			# Log
 			file.log 'debug', "Rendering completed for: #{relativePath}"
@@ -520,8 +526,10 @@ class DocumentModel extends FileModel
 				file.renderExtensions opts, (err,result) ->
 					# Check
 					return complete(err)  if err
+
 					# Apply the result
 					opts.content = result
+
 					# Done
 					return complete()
 
@@ -531,9 +539,11 @@ class DocumentModel extends FileModel
 				file.renderDocument opts, (err,result) ->
 					# Check
 					return complete(err)  if err
+
 					# Apply the result
 					opts.content = result
 					contentRenderedWithoutLayouts = result
+
 					# Done
 					return complete()
 
@@ -543,8 +553,10 @@ class DocumentModel extends FileModel
 				file.renderLayouts opts, (err,result) ->
 					# Check
 					return complete(err)  if err
+
 					# Apply the result
 					opts.content = result
+
 					# Done
 					return complete()
 
@@ -566,7 +578,7 @@ class DocumentModel extends FileModel
 		file = @
 
 		# Fetch
-		opts.content   or= (@getContent() or '').toString('')
+		opts.content ?= (@getContent() or '').toString('')
 
 		# Adjust
 		CSON      = require('cson')  unless CSON
