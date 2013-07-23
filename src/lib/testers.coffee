@@ -57,13 +57,13 @@ class PluginTester
 		@config.testerName ?= @config.pluginName
 
 		# Extend Configuration
-		@config.testPath or= pathUtil.join(@config.pluginPath,'test')
-		@config.outExpectedPath or= pathUtil.join(@config.testPath,'out-expected')
+		@config.testPath or= pathUtil.join(@config.pluginPath, 'test')
+		@config.outExpectedPath or= pathUtil.join(@config.testPath, 'out-expected')
 
 		# Extend DocPad Configuration
 		@docpadConfig.rootPath or= @config.testPath
-		@docpadConfig.outPath or= pathUtil.join(@docpadConfig.rootPath,'out')
-		@docpadConfig.srcPath or= pathUtil.join(@docpadConfig.rootPath,'src')
+		@docpadConfig.outPath or= pathUtil.join(@docpadConfig.rootPath, 'out')
+		@docpadConfig.srcPath or= pathUtil.join(@docpadConfig.rootPath, 'src')
 		@docpadConfig.pluginPaths ?= [@config.pluginPath]
 		defaultEnabledPlugins = {}
 		defaultEnabledPlugins[@config.pluginName] = true
@@ -79,8 +79,16 @@ class PluginTester
 		# Chain
 		@
 
+	# Get Tester Configuration
+	getConfig: ->
+		return @config
+
+	# Get Plugin Instance
+	getPlugin: ->
+		return @docpad.getPlugin(@getConfig().pluginName)
+
 	# Create DocPad Instance
-	testCreate: ->
+	testCreate: =>
 		# Prepare
 		tester = @
 		docpadConfig = @docpadConfig
@@ -99,7 +107,7 @@ class PluginTester
 		@
 
 	# Test Loaded
-	testLoad: ->
+	testLoad: =>
 		# Prepare
 		tester = @
 
@@ -114,7 +122,7 @@ class PluginTester
 		@
 
 	# Perform Server
-	testServer: (next) ->
+	testServer: (next) =>
 		# Prepare
 		tester = @
 
@@ -127,7 +135,7 @@ class PluginTester
 		@
 
 	# Test Generate
-	testGenerate: ->
+	testGenerate: =>
 		# Prepare
 		tester = @
 
@@ -140,7 +148,7 @@ class PluginTester
 		@
 
 	# Test everything
-	testEverything: ->
+	testEverything: =>
 		# Prepare
 		tester = @
 
