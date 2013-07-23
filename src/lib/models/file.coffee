@@ -31,8 +31,8 @@ class FileModel extends Model
 	# Model Type
 	type: 'file'
 
-	# The out directory path to put the file
-	outDirPath: null
+	# The out directory path to put the relative path
+	rootOutDirPath: null
 
 	# Whether or not we should detect encoding
 	detectEncoding: false
@@ -47,14 +47,55 @@ class FileModel extends Model
 	# Is a Backbone.Model instance
 	meta: null
 
-	# Get Opts
-	getOpts: ->
-		return {@outDirPath, @detectEncoding, @stat, @buffer, @meta}
+	# Get Options
+	getOptions: ->
+		return {@rootOutDirPath, @detectEncoding, @stat, @buffer, @meta}
+
+	# Set Options
+	setOptions: (opts={}) ->
+		# Root Out Path
+		if opts.detectEncoding?
+			@rootOutDirPath = opts.detectEncoding
+			delete opts.detectEncoding
+			delete @attributes.detectEncoding
+
+		# Root Out Path
+		if opts.rootOutDirPath?
+			@rootOutDirPath = opts.rootOutDirPath
+			delete opts.rootOutDirPath
+			delete @attributes.rootOutDirPath
+
+		# Stat
+		if opts.stat?
+			@setStat(opts.stat)
+			delete opts.stat
+			delete @attributes.stat
+
+		# Data
+		if opts.data?
+			@setBuffer(opts.data)
+			delete opts.data
+			delete @attributes.data
+
+		# Buffer
+		if opts.buffer?
+			@setBuffer(opts.buffer)
+			delete opts.buffer
+			delete @attributes.buffer
+
+		# Meta
+		if opts.meta?
+			@setMeta(opts.meta)
+			delete opts.meta
+			delete @attributes.meta
+
+		# Chain
+		@
 
 	# Clone
 	clone: ->
-		opts = @getOpts()
 		attrs = @getAttributes()
+		opts = @getOptions()
 		instance = new @klass(attrs, opts)
 		instance._events = extendr.deepExtend(@_events)
 		return instance
@@ -236,12 +277,27 @@ class FileModel extends Model
 		else
 			return @meta
 
+	# Set
+	set: (attrs={},opts={}) ->
+		# Check
+		if typeChecker.isString(attrs)
+			newAttrs = {}
+			newAttrs[attrs] = opts
+			return @set(newAttrs, opts)
+
+		# Prepare
+		@setOptions(attrs)
+
+		# Super
+		return super(attrs, opts)
+
 	# Set Meta
 	setMeta: (attrs) ->
 		# Prepare
 		attrs = attrs.toJSON?() ? attrs
 
 		# Apply
+		@setOptions(attrs)
 		@getMeta().set(attrs)
 		@set(attrs)
 
@@ -249,13 +305,26 @@ class FileModel extends Model
 		return @
 
 	# Set Meta Defaults
-	setMetaDefaults: (defaults) ->
+	setMetaDefaults: (attrs) ->
+		# Prepare
+		attrs = attrs.toJSON?() ? attrs
+
 		# Apply
-		@getMeta().setDefaults(defaults)
-		@setDefaults(defaults)
+		@setOptions(attrs)
+		@getMeta().setDefaults(attrs)
+		@setDefaults(attrs)
 
 		# Chain
 		return @
+
+	# Set Defaults
+	setDefaults: (attrs) ->
+		# Prepare
+		attrs = attrs.toJSON?() ? attrs
+		@setOptions(attrs)
+
+		# Forward
+		return super
 
 	# Get Filename
 	getFilename: ({filename,fullPath,relativePath}) ->
@@ -349,55 +418,21 @@ class FileModel extends Model
 	# Actions
 
 	# Initialize
-	initialize: (attrs,opts={}) ->
-		# Prepare
-		{outDirPath, detectEncoding, stat, data, buffer, meta} = opts
-
-		# Special
-		@detectEncoding = detectEncoding  if detectEncoding?
-		@outDirPath     = outDirPath      if outDirPath
+	initialize: (attrs={},opts={}) ->
+		# Other options
+		@setOptions(opts)
 
 		# Defaults
-		defaults =
-			extensions: []
-			urls: []
-			id: @cid
-
-		# Stat
-		if stat
-			@setStat(stat)
-		else
-			defaults.ctime = new Date()
-			defaults.mtime = new Date()
-
-		# Defaults
-		@set(defaults)
-
-		# Data
-		if attrs.data?
-			data = attrs.data
-			delete attrs.data
-			delete @attributes.data
-		if data?
-			@setBuffer(data)
-
-		# Buffer
-		if attrs.buffer?
-			buffer = attrs.buffer
-			delete attrs.buffer
-			delete @attributes.buffer
-		if buffer?
-			@setBuffer(buffer)
-
-		# Meta
-		if attrs.meta?
-			meta = attrs.meta
-			delete attrs.meta
-		if meta
-			@setMeta(meta)
+		# Apply directly as attributes have already been set
+		now = new Date()
+		@attributes.extensions ?= []
+		@attributes.urls ?= []
+		@attributes.ctime ?= now
+		@attributes.mtime ?= now
+		@id ?= @attributes.id ?= @cid
 
 		# Super
-		super
+		return super(attrs, opts)
 
 	# Load
 	# If the fullPath exists, load the file
@@ -645,7 +680,7 @@ class FileModel extends Model
 
 		# force outPath
 		if !outPath
-			changes.outPath = outPath = pathUtil.resolve(@outDirPath, relativeDirPath, outFilename)
+			changes.outPath = outPath = pathUtil.resolve(@rootOutDirPath, relativeDirPath, outFilename)
 
 		# force outDirPath
 		changes.outDirPath = outDirPath = docpadUtil.getDirPath(outPath)
@@ -660,7 +695,7 @@ class FileModel extends Model
 		changes.outExtension = outExtension = docpadUtil.getExtension(outFilename)
 
 		# force relativeOutPath
-		changes.relativeOutPath = relativeOutPath = outPath.replace(@outDirPath, '').replace(/^[\/\\]/, '')
+		changes.relativeOutPath = relativeOutPath = outPath.replace(@rootOutDirPath, '').replace(/^[\/\\]/, '')
 
 		# force relativeOutDirPath
 		changes.relativeOutDirPath = relativeOutDirPath = docpadUtil.getDirPath(relativeOutPath)
