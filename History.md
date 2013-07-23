@@ -1,5 +1,26 @@
 ## History
 
+- v6.46.0 Unreleased
+	- General awesomeness
+		- Added support for creating brand new virtual documents
+		- File `data` will now just set the `buffer`
+			- Removed `getData` and `setData` on models
+		- Can now `docpad install` multiple plugins at once
+		- Plugin loading will now validate the `peerDependencies` requirements along with the old `engines`
+		- `docpad init` will now initialise to the complete docpad version and npm v1.3
+		- You can now tell a file to update it's source file by setting `writeSource: true` in it's meta data
+	- Breaking changes for developers
+		- We now _require_ all plugins to conform to the v2 for DocPad v6 standard, otherwise they will be skipped
+			- This is to ensure compatibility with `docpad update` and `docpad install <plugin>` which are the new standards for installing plugins
+		- `parseDirectory` will no longer:
+			- load files, this is now handled by the generate process instead
+			- add files to the database, this can be done via the completion callback or via passing over the collection the files should be added to: `parseDirectory({collection:docpad.getDatabase()})`
+		- Removed `parseDocumentDirectory` use `parseDirectory({createFunction:docpad.createDocument})` instead
+		- Removed `parseFileDirectory` use `parseDirectory({createFunction:docpad.createFile})` instead
+		- `Document::writeRendered` removed as `File::write` will now write the output content
+		- Added `File::writesource`
+	- Updated dependencies
+
 - v6.45.0 July 6, 2013
 	- New `docpad update` command to ensure that your local installations of DocPad and its plugins are up to date with their latest compatible version
 	- `docpad install [plugin]` command now installs the latest compatible version
