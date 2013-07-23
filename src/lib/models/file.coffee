@@ -514,7 +514,7 @@ class FileModel extends Model
 		changes = {}
 
 		# Detect Encoding
-		if encoding? is false or opts.reencode is true
+		if buffer and encoding? is false or opts.reencode is true
 			isText = balUtil.isTextSync(relativePath, buffer)
 
 			# Text
@@ -573,7 +573,7 @@ class FileModel extends Model
 			encoding = changes.encoding = 'utf8'  if encoding? is false
 
 			# Set
-			source = buffer.toString('utf8')
+			source = buffer?.toString('utf8') or ''
 			content = source
 
 			# Apply
