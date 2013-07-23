@@ -1,5 +1,8 @@
 ## History
 
+- v6.46.1 July 23, 2013
+	- Added `populateCollectionsBefore` event
+
 - v6.46.0 July 23, 2013
 	- Awesomeness for everyone
 		- Added support for creating brand new virtual documents
