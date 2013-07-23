@@ -399,7 +399,7 @@ class ConsoleInterface
 							userConfig.subscribeTryAgain = null
 
 						# Save the new user configuration changes, and forward to the next task
-						docpad.updateUserConfig(userConfig,complete)
+						docpad.updateUserConfig(userConfig, complete)
 
 					# Name Fallback
 					subscribeTasks.addTask (complete) ->
