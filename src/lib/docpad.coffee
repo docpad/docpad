@@ -189,6 +189,7 @@ class DocPad extends EventEmitterGrouped
 		'docpadReady'
 		'consoleSetup'
 		'generateBefore'
+		'populateCollectionsBefore'
 		'populateCollections'
 		'generateAfter'
 		'parseBefore'
@@ -1854,8 +1855,13 @@ class DocPad extends EventEmitterGrouped
 				next: complete
 			})
 
-		# Async
-		tasks.run()
+		# Before
+		docpad.emitSerial 'populateCollectionsBefore', {}, (err) ->
+			# Check
+			return next(err)  if err
+
+			# Async
+			return tasks.run()
 
 		# Chain
 		@
