@@ -2,6 +2,7 @@
 pathUtil = require('path')
 balUtil = require('bal-util')
 safefs = require('safefs')
+safeps = require('safeps')
 {TaskGroup} = require('taskgroup')
 extendr = require('extendr')
 

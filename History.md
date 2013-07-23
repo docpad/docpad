@@ -21,6 +21,10 @@
 		- Added `File::writesource`
 	- Updated dependencies
 
+- v6.45.1 July 23, 2013
+	- Fix `safeps is not defined` error
+		- Thanks to [Carlos Rodriguez](https://github.com/carlosrodriguez) for [issue #558](https://github.com/bevry/docpad/issues/558)
+
 - v6.45.0 July 6, 2013
 	- New `docpad update` command to ensure that your local installations of DocPad and its plugins are up to date with their latest compatible version
 	- `docpad install [plugin]` command now installs the latest compatible version
