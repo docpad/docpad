@@ -3591,7 +3591,7 @@ class DocPad extends EventEmitterGrouped
 		docpad = @
 		locale = @getLocale()
 		config = @getConfig()
-		{srcPath, destinationPath} = config
+		{srcPath, rootPath} = config
 
 		# Run docpad
 		runDocpad = ->
@@ -3610,13 +3610,13 @@ class DocPad extends EventEmitterGrouped
 
 			# We don't have the correct structure
 			# Check if we are running on an empty directory
-			safefs.readdir destinationPath, (err,files) ->
+			safefs.readdir rootPath, (err,files) ->
 				return next(err)  if err
 
 				# Check if our directory is empty
 				if files.length
 					# It isn't empty, display a warning
-					docpad.log('warn', "\n"+util.format(locale.skeletonNonexistant, destinationPath))
+					docpad.log('warn', "\n"+util.format(locale.skeletonNonexistant, rootPath))
 					return next()
 				else
 					docpad.skeleton opts, (err) ->
