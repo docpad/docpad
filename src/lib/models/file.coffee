@@ -94,10 +94,18 @@ class FileModel extends Model
 
 	# Clone
 	clone: ->
+		# Fetch
 		attrs = @getAttributes()
 		opts = @getOptions()
+
+		# Clean up
+		delete attrs.id
+
+		# Clone
 		instance = new @klass(attrs, opts)
 		instance._events = extendr.deepExtend(@_events)
+
+		# Return
 		return instance
 
 
