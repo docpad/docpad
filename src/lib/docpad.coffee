@@ -2209,16 +2209,16 @@ class DocPad extends EventEmitterGrouped
 	# Models and Collections
 
 	# Instantiate a File
-	createFile: (data={},options={}) =>
+	createFile: (data={},opts={}) =>
 		# Prepare
 		docpad = @
-		options = extendr.extend({
+		opts = extendr.extend({
 			detectEncoding: @config.detectEncoding
-			outDirPath: @config.outPath
-		},options)
+			rootOutDirPath: @config.outPath
+		}, opts)
 
 		# Create and return
-		file = new FileModel(data,options)
+		file = new FileModel(data, opts)
 
 		# Log
 		file.on 'log', (args...) ->
@@ -2232,16 +2232,16 @@ class DocPad extends EventEmitterGrouped
 		file
 
 	# Instantiate a Document
-	createDocument: (data={},options={}) =>
+	createDocument: (data={},opts={}) =>
 		# Prepare
 		docpad = @
-		options = extendr.extend({
+		opts = extendr.extend({
 			detectEncoding: @config.detectEncoding
-			outDirPath: @config.outPath
-		}, options)
+			rootOutDirPath: @config.outPath
+		}, opts)
 
 		# Create and return
-		document = new DocumentModel(data, options)
+		document = new DocumentModel(data, opts)
 
 		# Log
 		document.on 'log', (args...) ->
@@ -2265,26 +2265,26 @@ class DocPad extends EventEmitterGrouped
 		document
 
 	# Ensure File
-	ensureFile: (data={},options={}) =>
+	ensureFile: (data={},opts={}) =>
 		database = @getDatabase()
 		result = database.findOne(fullPath: data.fullPath)
 		unless result
-			result = @createFile(data, options)
+			result = @createFile(data, opts)
 			database.add(result)
 		result
 
 	# Ensure Document
-	ensureDocument: (data={},options={}) =>
+	ensureDocument: (data={},opts={}) =>
 		database = @getDatabase()
 		result = database.findOne(fullPath: data.fullPath)
 		unless result
-			result = @createDocument(data, options)
+			result = @createDocument(data, opts)
 			database.add(result)
 		result
 
 	# Ensure File or Document
 	# Used for watching
-	ensureFileOrDocument: (data={},options={}) =>
+	ensureFileOrDocument: (data={},opts={}) =>
 		docpad = @
 		config = @getConfig()
 		database = @getDatabase()
@@ -2299,7 +2299,7 @@ class DocPad extends EventEmitterGrouped
 				for dirPath in config.documentsPaths.concat(config.layoutsPaths)
 					if fileFullPath.indexOf(dirPath) is 0
 						data.relativePath or= fileFullPath.replace(dirPath, '').replace(/^[\/\\]/,'')
-						result = @createDocument(data, options)
+						result = @createDocument(data, opts)
 						break
 
 				# Check if we have a file
@@ -2307,12 +2307,12 @@ class DocPad extends EventEmitterGrouped
 					for dirPath in config.filesPaths
 						if fileFullPath.indexOf(dirPath) is 0
 							data.relativePath or= fileFullPath.replace(dirPath, '').replace(/^[\/\\]/,'')
-							result = @createFile(data, options)
+							result = @createFile(data, opts)
 							break
 
 			# Otherwise, create a file anyway
 			unless result
-				result = @createDocument(data, options)
+				result = @createDocument(data, opts)
 
 			# Add result to database
 			database.add(result)
@@ -2356,11 +2356,10 @@ class DocPad extends EventEmitterGrouped
 					data =
 						fullPath: fileFullPath
 						relativePath: fileRelativePath
-					options =
 						stat: fileStat
 
 					# Create file
-					file = createFunction(data, options)
+					file = createFunction(data)
 					files.add(file)
 
 					# Next
@@ -3343,7 +3342,7 @@ class DocPad extends EventEmitterGrouped
 
 		# Handle
 		document = @ensureDocument(attributes)
-		@loadAndRenderDocument(document,opts,next)
+		@loadAndRenderDocument(document, opts, next)
 
 		# Chain
 		@
@@ -3356,17 +3355,18 @@ class DocPad extends EventEmitterGrouped
 		attributes = extendr.extend({
 			filename: opts.filename
 			data: content
-		},opts.attributes)
+		}, opts.attributes)
 
 		# Handle
 		document = @createDocument(attributes)
-		@loadAndRenderDocument(document,opts,next)
+		@loadAndRenderDocument(document, opts, next)
 
 		# Chain
 		@
 
 	# Render Text
 	# Doesn't extract meta information, or render layouts
+	# TODO: Why not? Why not just have renderData?
 	# next(err,result)
 	renderText: (text,opts,next) ->
 		# Prepare
@@ -3377,7 +3377,7 @@ class DocPad extends EventEmitterGrouped
 			data: text
 			body: text
 			content: text
-		},opts.attributes)
+		}, opts.attributes)
 
 		# Handle
 		document = @createDocument(attributes)
@@ -3389,7 +3389,7 @@ class DocPad extends EventEmitterGrouped
 			args: [opts]
 			next: (err) ->
 				result = document.getOutContent()
-				return next(err,result,document)
+				return next(err, result, document)
 		)
 
 		# Chain
