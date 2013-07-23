@@ -266,15 +266,15 @@ class FileModel extends Model
 		return @stat
 
 	# Get Attributes
-	getAttributes: ->
-		attrs = @toJSON()
-		attrs = extendr.dereference(attrs)
+	getAttributes: (dereference=true) ->
+		attrs = @toJSON(dereference)
 		return attrs
 
 	# To JSON
-	toJSON: ->
+	toJSON: (dereference=false) ->
 		data = super
 		data.meta = @getMeta().toJSON()
+		data = extendr.dereference(data)  if dereference is true
 		return data
 
 	# Get Meta
