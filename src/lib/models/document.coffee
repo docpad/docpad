@@ -32,7 +32,7 @@ class DocumentModel extends FileModel
 	# ---------------------------------
 	# Attributes
 
-	defaults:
+	defaults: extendr.extend({}, FileModel::defaults, {
 
 		# ---------------------------------
 		# Special variables
@@ -80,6 +80,7 @@ class DocumentModel extends FileModel
 
 		# Whether or not we want to render single extensions
 		renderSingleExtensions: false
+	})
 
 
 	# ---------------------------------
