@@ -1,5 +1,11 @@
 ## History
 
+- v6.46.2 July 24, 2013
+	- Fixed regenerations not regenerating referencing documents (bug since v6.46.0)
+		- Closes [issue #559](https://github.com/bevry/docpad/issues/559)
+	- Fixed documents not including the default attributes of files (bug since always)
+	- Corrected naming of `releativeOutBase` to `relativeOutBase` on file model defaults (introduced in v6.45.0)
+
 - v6.46.1 July 23, 2013
 	- Added `populateCollectionsBefore` event
 

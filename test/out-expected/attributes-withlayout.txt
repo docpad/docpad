@@ -74,6 +74,7 @@ text JSON.stringify(sortedAttrs,null,'\\t')",
 layout: 'attributes'
 tags: ['attributes','with-layout']
 referencesOthers: true",
+	"ignored": false,
 	"isDocument": true,
 	"layout": "attributes",
 	"meta": {
@@ -138,6 +139,7 @@ for key in keys
 
 # Output data
 text JSON.stringify(sortedAttrs,null,'\\t')",
+	"standalone": false,
 	"tags": [
 		"attributes",
 		"with-layout"
@@ -147,7 +149,8 @@ text JSON.stringify(sortedAttrs,null,'\\t')",
 	"urls": [
 		"/attributes-withlayout.txt"
 	],
-	"write": true
+	"write": true,
+	"writeSource": false
 }=====================================================
 =====================================================
 {
@@ -166,6 +169,7 @@ text JSON.stringify(sortedAttrs,null,'\\t')",
 	],
 	"filename": "attributes-withlayout.txt.coffee",
 	"header": "title: 'Attributes With Layout'\nlayout: 'attributes'\ntags: ['attributes','with-layout']\nreferencesOthers: true",
+	"ignored": false,
 	"isDocument": true,
 	"layout": "attributes",
 	"meta": {
@@ -195,6 +199,7 @@ text JSON.stringify(sortedAttrs,null,'\\t')",
 	"rendered": false,
 	"slug": "attributes-withlayout",
 	"source": "---\ntitle: 'Attributes With Layout'\nlayout: 'attributes'\ntags: ['attributes','with-layout']\nreferencesOthers: true\n---\n\n# Fetch data\nattrs = @getDocument().getAttributes()\n\n# Delete environment specific variables\n# timezone makes the dates impossible\n# path differences make them impossible\n# data is too much output\ndelete attrs.encoding\ndelete attrs.ctime\ndelete attrs.mtime\ndelete attrs.date\ndelete attrs.fullPath\ndelete attrs.fullDirPath\ndelete attrs.outPath\ndelete attrs.outDirPath\ndelete attrs.data\ndelete attrs.id\ndelete attrs.layoutId\n\n# Sort the attributes\nkeys = []\nkeys.push(key)  for own key,value of attrs\nkeys.sort()\nsortedAttrs = {}\nfor key in keys\n\tsortedAttrs[key] = attrs[key]\n\n# Output data\ntext JSON.stringify(sortedAttrs,null,'\\t')",
+	"standalone": false,
 	"tags": [
 		"attributes",
 		"with-layout"
@@ -204,5 +209,6 @@ text JSON.stringify(sortedAttrs,null,'\\t')",
 	"urls": [
 		"/attributes-withlayout.txt"
 	],
-	"write": true
+	"write": true,
+	"writeSource": false
 }=====================================================
