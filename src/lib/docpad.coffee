@@ -3159,7 +3159,8 @@ class DocPad extends EventEmitterGrouped
 
 			# Add anything that references other documents (e.g. partials, listing, etc)
 			# This could eventually be way better
-			allStandalone = (false not in opts.collection.pluck('standalone'))
+			standalones = opts.collection.pluck('standalone')
+			allStandalone = standalones.indexOf(false) is -1
 			if allStandalone is false
 				referencesOthersCollection = database.findAll(referencesOthers: true)
 				opts.collection.add(referencesOthersCollection.models)

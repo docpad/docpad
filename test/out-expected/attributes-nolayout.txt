@@ -14,6 +14,7 @@
 	],
 	"filename": "attributes-nolayout.txt.coffee",
 	"header": "title: 'Attributes No Layout'\ntags: ['attributes','with-layout']\nreferencesOthers: true",
+	"ignored": false,
 	"isDocument": true,
 	"meta": {
 		"title": "Attributes No Layout",
@@ -41,6 +42,7 @@
 	"rendered": false,
 	"slug": "attributes-nolayout",
 	"source": "---\ntitle: 'Attributes No Layout'\ntags: ['attributes','with-layout']\nreferencesOthers: true\n---\n\n# Fetch data\nattrs = @getDocument().getAttributes()\n\n# Delete environment specific variables\n# timezone makes the dates impossible\n# path differences make them impossible\n# data is too much output\ndelete attrs.encoding\ndelete attrs.ctime\ndelete attrs.mtime\ndelete attrs.date\ndelete attrs.fullPath\ndelete attrs.fullDirPath\ndelete attrs.outPath\ndelete attrs.outDirPath\ndelete attrs.data\ndelete attrs.id\ndelete attrs.layoutId\n\n# Sort the attributes\nkeys = []\nkeys.push(key)  for own key,value of attrs\nkeys.sort()\nsortedAttrs = {}\nfor key in keys\n\tsortedAttrs[key] = attrs[key]\n\n# Output data\ntext JSON.stringify(sortedAttrs,null,'\\t')",
+	"standalone": false,
 	"tags": [
 		"attributes",
 		"with-layout"
@@ -50,5 +52,6 @@
 	"urls": [
 		"/attributes-nolayout.txt"
 	],
-	"write": true
+	"write": true,
+	"writeSource": false
 }

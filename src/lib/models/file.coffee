@@ -171,7 +171,7 @@ class FileModel extends Model
 		relativeBase: null
 
 		# The relative base of our out file (no extension)
-		releativeOutBase: null
+		relativeOutBase: null
 
 		# The MIME content-type for the source file
 		contentType: null
