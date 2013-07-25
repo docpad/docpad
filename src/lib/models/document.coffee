@@ -75,9 +75,6 @@ class DocumentModel extends FileModel
 		# Whether or not this file should be re-rendered on each request
 		dynamic: false
 
-		# The tags for this document
-		tags: null  # Array
-
 		# Whether or not we want to render single extensions
 		renderSingleExtensions: false
 	})
@@ -115,6 +112,7 @@ class DocumentModel extends FileModel
 			# Prepare
 			meta = @getMeta()
 			metaDataChanges = {}
+			parser = header = body = content = null
 
 			# Content
 			content = @get('content').replace(/\r\n?/gm,'\n')  # normalise line endings for the web, just for convience, if it causes problems we can remove

@@ -1,5 +1,17 @@
 ## History
 
+- v6.46.3 July 25, 2013
+	- Moved `Base::setDefaults` to `FileMode::setDefaults`
+	- Removed superfluous loading logging messages
+		- Thanks to [Bruno Heridet](https://github.com/Delapouite) for [issue #316](https://github.com/bevry/docpad/issues/316)
+	- The attributes `parser`, `header`, `body`, and `content` are now set correctly to `null` instead of `undefined` if there is no data
+	- Correctly set meta attributes when also setting default attributes (bug since v6.42.2)
+	- Added support for `outPath`, `outDirPath` and `rootOutDirPath` to be null
+	- Added unit tests for virtual document loading
+	- Fixed `removeWhitespace` tester option default
+	- Added `contentRemoveRegex` tester option
+	- Fixed debug log lines always being `DocPad.log` (bug since always)
+
 - v6.46.2 July 24, 2013
 	- Fixed regenerations not regenerating referencing documents (bug since v6.46.0)
 		- Closes [issue #559](https://github.com/bevry/docpad/issues/559)

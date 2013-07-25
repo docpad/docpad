@@ -1046,7 +1046,7 @@ class DocPad extends EventEmitterGrouped
 			delete instanceConfig.loggers
 		else
 			# Create
-			logger = new (require('caterpillar').Logger)()
+			logger = new (require('caterpillar').Logger)(lineOffset: 2)
 
 			# console
 			loggerConsole = logger
@@ -2698,10 +2698,7 @@ class DocPad extends EventEmitterGrouped
 				slowFilesObject[file.id] = file.get('relativePath') or file.id
 				tasks.addTask (complete) ->
 					# Prepare
-					fileRelativePath = file.get('relativePath')
-
-					# Log
-					docpad.log 'debug', util.format(locale.loadingFile, fileRelativePath)
+					filePath = file.getFilePath()
 
 					# Load the file
 					# Also normalizes
@@ -2711,7 +2708,7 @@ class DocPad extends EventEmitterGrouped
 
 						# Check
 						if err
-							docpad.warn(util.format(locale.loadingFileFailed, fileRelativePath)+' '+locale.errorFollows, err)
+							docpad.warn(util.format(locale.loadingFileFailed, filePath)+' '+locale.errorFollows, err)
 							return complete()
 
 						# Prepare
@@ -2720,12 +2717,10 @@ class DocPad extends EventEmitterGrouped
 
 						# Ignored?
 						if fileIgnored or (fileParse? and !fileParse)
-							docpad.log 'info', util.format(locale.loadingFileIgnored, fileRelativePath)
+							docpad.log 'info', util.format(locale.loadingFileIgnored, filePath)
 							collection.remove(file)
 							database.remove(file)
 							return complete()
-						else
-							docpad.log 'debug', util.format(locale.loadedFile, fileRelativePath)
 
 						# Store Document
 						database.add(file)
