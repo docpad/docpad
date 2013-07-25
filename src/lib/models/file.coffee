@@ -117,7 +117,11 @@ class FileModel extends Model
 
 		# Clone
 		instance = new @klass(attrs, opts)
-		instance._events = extendr.deepExtend(@_events)
+		#instance._events = extendr.deepExtend(@_events)
+		instance._events = {}
+		eventNames = ['log','getLayout','render','renderDocument']
+		for eventName in eventNames
+			instance._events[eventName] = @_events[eventName]
 
 		# Return
 		return instance
