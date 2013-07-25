@@ -27,7 +27,8 @@ class PluginTester
 		autoExit: true
 		testPath: null
 		outExpectedPath: null
-		removeEmptyLines: false
+		removeWhitespace: false
+		contentRemoveRegex: null
 
 	# DocPad Config
 	docpadConfig:
@@ -204,18 +205,23 @@ class RendererTester extends PluginTester
 
 			suite 'results', (suite,test,done) ->
 				# Get actual results
-				balUtil.scantree tester.docpadConfig.outPath, (err,outResults) ->
+				balUtil.scanlist tester.docpadConfig.outPath, (err,outResults) ->
 					return done(err)  if err
 
 					# Get expected results
-					balUtil.scantree tester.config.outExpectedPath, (err,outExpectedResults) ->
+					balUtil.scanlist tester.config.outExpectedPath, (err,outExpectedResults) ->
 						return done(err)  if err
 
 						# Remove empty lines
-						if tester.config.removeWhitespace
+						if tester.config.removeWhitespace is true
 							replaceLinesRegex = /(\\r|\\n|\\t|\s)+/g
-							outResults = JSON.parse JSON.stringify(outResults).replace(replaceLinesRegex,'')
-							outExpectedResults = JSON.parse JSON.stringify(outExpectedResults).replace(replaceLinesRegex,'')
+							outResults = JSON.parse JSON.stringify(outResults).replace(replaceLinesRegex, '')
+							outExpectedResults = JSON.parse JSON.stringify(outExpectedResults).replace(replaceLinesRegex, '')
+
+						# Content regex
+						if tester.config.contentRemoveRegex
+							outResults = JSON.parse JSON.stringify(outResults).replace(tester.config.contentRemoveRegex, '')
+							outExpectedResults = JSON.parse JSON.stringify(outExpectedResults).replace(tester.config.contentRemoveRegex, '')
 
 						# Prepare
 						outResultsKeys = Object.keys(outResults)
@@ -233,7 +239,9 @@ class RendererTester extends PluginTester
 						# Check the contents of those files match
 						outResultsKeys.forEach (key) ->
 							test "same file content for: #{key}", ->
-								expect(outResults[key]).to.eql(outExpectedResults[key])
+								actual = outResults[key]
+								expected = outExpectedResults[key]
+								expect(actual).to.eql(expected)
 
 						# Forward
 						done()

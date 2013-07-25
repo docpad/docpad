@@ -49,44 +49,58 @@ class FileModel extends Model
 
 	# Get Options
 	getOptions: ->
-		return {@rootOutDirPath, @detectEncoding, @stat, @buffer, @meta}
+		return {@detectEncoding, @rootOutDirPath, @stat, @buffer, @meta}
+
+	# Is Option
+	isOption: (key) ->
+		names = ['detectEncoding', 'rootOutDirPath', 'stat', 'data', 'buffer', 'meta']
+		result = key in names
+		return result
+
+	# Extract Options
+	extractOptions: (attrs) ->
+		# Prepare
+		result = {}
+
+		# Extract
+		for own key,value of attrs
+			if @isOption(key)
+				result[key] = value
+				delete attrs[key]
+
+		# Return
+		return result
 
 	# Set Options
-	setOptions: (opts={}) ->
+	setOptions: (attrs={}) ->
 		# Root Out Path
-		if opts.detectEncoding?
-			@rootOutDirPath = opts.detectEncoding
-			delete opts.detectEncoding
+		if attrs.detectEncoding?
+			@rootOutDirPath = attrs.detectEncoding
 			delete @attributes.detectEncoding
 
 		# Root Out Path
-		if opts.rootOutDirPath?
-			@rootOutDirPath = opts.rootOutDirPath
-			delete opts.rootOutDirPath
+		if attrs.rootOutDirPath?
+			@rootOutDirPath = attrs.rootOutDirPath
 			delete @attributes.rootOutDirPath
 
 		# Stat
-		if opts.stat?
-			@setStat(opts.stat)
-			delete opts.stat
+		if attrs.stat?
+			@setStat(attrs.stat)
 			delete @attributes.stat
 
 		# Data
-		if opts.data?
-			@setBuffer(opts.data)
-			delete opts.data
+		if attrs.data?
+			@setBuffer(attrs.data)
 			delete @attributes.data
 
 		# Buffer
-		if opts.buffer?
-			@setBuffer(opts.buffer)
-			delete opts.buffer
+		if attrs.buffer?
+			@setBuffer(attrs.buffer)
 			delete @attributes.buffer
 
 		# Meta
-		if opts.meta?
-			@setMeta(opts.meta)
-			delete opts.meta
+		if attrs.meta?
+			@setMeta(attrs.meta)
 			delete @attributes.meta
 
 		# Chain
@@ -205,6 +219,9 @@ class FileModel extends Model
 		# ---------------------------------
 		# User set variables
 
+		# The tags for this document
+		tags: null  # CSV/Array
+
 		# Write this file to the output directory
 		write: true
 
@@ -286,7 +303,7 @@ class FileModel extends Model
 			return @meta
 
 	# Set
-	set: (attrs={},opts={}) ->
+	set: (attrs,opts) ->
 		# Check
 		if typeChecker.isString(attrs)
 			newAttrs = {}
@@ -294,54 +311,101 @@ class FileModel extends Model
 			return @set(newAttrs, opts)
 
 		# Prepare
-		@setOptions(attrs)
+		attrs = attrs.toJSON?() ? attrs
 
-		# Super
-		return super(attrs, opts)
+		# Extract options
+		options = @extractOptions(attrs)
 
-	# Set Meta
-	setMeta: (attrs) ->
+		# Perform the set
+		super(attrs, opts)
+
+		# Apply the options
+		@setOptions(options, opts)
+
+		# Chain
+		@
+
+	# Set Defaults
+	setDefaults: (attrs,opts) ->
 		# Prepare
 		attrs = attrs.toJSON?() ? attrs
 
+		# Extract options
+		options = @extractOptions(attrs)
+
 		# Apply
-		@setOptions(attrs)
-		@getMeta().set(attrs)
-		@set(attrs)
+		set = {}
+		for own key,value of attrs
+			set[key] = value  if @get(key) is @defaults?[key]
+		@set(set, opts)
+
+		# Apply the options
+		@setOptions(options, opts)
+
+		# Chain
+		return @
+
+	# Set Meta
+	setMeta: (attrs,opts) ->
+		# Prepare
+		attrs = attrs.toJSON?() ? attrs
+
+		# Extract options
+		options = @extractOptions(attrs)
+
+		# Apply
+		@getMeta().set(attrs, opts)
+		@set(attrs, opts)
+
+		# Apply the options
+		@setOptions(options, opts)
 
 		# Chain
 		return @
 
 	# Set Meta Defaults
-	setMetaDefaults: (attrs) ->
+	setMetaDefaults: (attrs,opts) ->
 		# Prepare
 		attrs = attrs.toJSON?() ? attrs
 
+		# Extract options
+		options = @extractOptions(attrs)
+
 		# Apply
-		@setOptions(attrs)
-		@getMeta().setDefaults(attrs)
-		@setDefaults(attrs)
+		@getMeta().setDefaults(attrs, opts)
+		@setDefaults(attrs, opts)
+
+		# Apply the options
+		@setOptions(options, opts)
 
 		# Chain
 		return @
 
-	# Set Defaults
-	setDefaults: (attrs) ->
-		# Prepare
-		attrs = attrs.toJSON?() ? attrs
-		@setOptions(attrs)
-
-		# Forward
-		return super
-
 	# Get Filename
-	getFilename: ({filename,fullPath,relativePath}) ->
-		filename or= @get('filename')
-		if !filename
-			filePath = @get('fullPath') or @get('relativePath')
-			if filePath
-				filename = pathUtil.basename(filePath)
-		return filename or null
+	getFilename: (opts={}) ->
+		# Prepare
+		{fullPath,relativePath,filename} = opts
+
+		# Determine
+		result = (filename ? @get('filename'))
+		if !result
+			result = (fullPath ? @get('fullPath')) or (relativePath ? @get('relativePath'))
+			result = pathUtil.basename(result)  if result
+		result or= null
+
+		# REturn
+		return result
+
+	# Get File Path
+	getFilePath: (opts={}) ->
+		# Prepare
+		{fullPath,relativePath,filename} = opts
+
+		# Determine
+		result = (fullPath ? @get('fullPath')) or (relativePath ? @get('relativePath')) or (filename ? @get('filename')) or null
+
+		# Return
+		return result
 
 	# Get Extensions
 	getExtensions: ({extensions,filename}) ->
@@ -426,21 +490,26 @@ class FileModel extends Model
 	# Actions
 
 	# Initialize
-	initialize: (attrs={},opts={}) ->
-		# Other options
-		@setOptions(opts)
-
+	initialize: (attrs,opts) ->
 		# Defaults
-		# Apply directly as attributes have already been set
-		now = new Date()
+		@attributes ?= {}
 		@attributes.extensions ?= []
 		@attributes.urls ?= []
-		@attributes.ctime ?= now
-		@attributes.mtime ?= now
+		now = new Date()
+		@attributes.ctime = now
+		@attributes.mtime = now
+
+		# Id
 		@id ?= @attributes.id ?= @cid
 
+		# Options
+		@setOptions(opts)
+
 		# Super
-		return super(attrs, opts)
+		super
+
+		# Chain
+		@
 
 	# Load
 	# If the fullPath exists, load the file
@@ -453,7 +522,7 @@ class FileModel extends Model
 
 		# Fetch
 		fullPath = @get('fullPath')
-		filePath = fullPath or @get('relativePath') or @get('filename')
+		filePath = @getFilePath({fullPath})
 
 		# If stat is set, use that
 		if opts.stat
@@ -464,7 +533,7 @@ class FileModel extends Model
 			file.setBuffer(opts.buffer)
 
 		# Async
-		file.log('debug', "Load: #{filePath}")
+		file.log('debug', "Load #{@type}: #{filePath}")
 		tasks = new TaskGroup().setConfig(concurrency:0).once 'complete', (err) =>
 			return next(err)  if err
 			file.log('debug', "Load -> Parse: #{filePath}")
@@ -688,13 +757,23 @@ class FileModel extends Model
 
 		# force outPath
 		if !outPath
-			changes.outPath = outPath = pathUtil.resolve(@rootOutDirPath, relativeDirPath, outFilename)
+			changes.outPath = outPath =
+				if @rootOutDirPath
+					pathUtil.resolve(@rootOutDirPath, relativeDirPath, outFilename)
+				else
+					null
+			# ^ we still do this set as outPath is a meta, and it may still be set as an attribute
+
+		# refresh outFilename
+		if outPath
+			changes.outFilename = outFilename = docpadUtil.getFilename(outPath)
 
 		# force outDirPath
-		changes.outDirPath = outDirPath = docpadUtil.getDirPath(outPath)
-
-		# force outFilename
-		changes.outFilename = outFilename = docpadUtil.getFilename(outPath)
+		changes.outDirPath = outDirPath =
+			if outPath
+				docpadUtil.getDirPath(outPath)
+			else
+				null
 
 		# force outBasename
 		changes.outBasename = outBasename = docpadUtil.getBasename(outFilename)
@@ -703,7 +782,11 @@ class FileModel extends Model
 		changes.outExtension = outExtension = docpadUtil.getExtension(outFilename)
 
 		# force relativeOutPath
-		changes.relativeOutPath = relativeOutPath = outPath.replace(@rootOutDirPath, '').replace(/^[\/\\]/, '')
+		changes.relativeOutPath = relativeOutPath =
+			if outPath
+				outPath.replace(@rootOutDirPath, '').replace(/^[\/\\]/, '')
+			else
+				pathUtil.join(relativeDirPath, outFilename)
 
 		# force relativeOutDirPath
 		changes.relativeOutDirPath = relativeOutDirPath = docpadUtil.getDirPath(relativeOutPath)

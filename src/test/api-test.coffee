@@ -42,6 +42,44 @@ docpad = null
 
 joe.suite 'docpad-api', (suite,test) ->
 
+	# Instantiate Files
+	suite 'models', (suite,test) ->
+		# Prepare
+		FileModel = require('../lib/models/file')
+		DocumentModel = require('../lib/models/document')
+
+		# Document
+		suite 'document', (suite,tet) ->
+			# Prepare
+			document = null
+			documentAttributes =
+				meta:
+					relativePath: "some/relative/path.txt"
+
+			# Test
+			test 'instantiation', ->
+				# Create
+				document = new DocumentModel(documentAttributes)
+
+				# Add logging
+				document.on('log', console.log.bind(console))
+
+				# Checks
+				expect(document.getMeta('relativePath'), 'meta relativePath').to.eql(documentAttributes.meta.relativePath)
+				expect(document.get('relativePath'), 'attr relativePath').to.eql(documentAttributes.meta.relativePath)
+
+			# Load
+			test 'load', (complete) ->
+				document.load (err) ->
+					# Check
+					return complete(err)  if err
+
+					# Check
+					expect(document.getMeta('relativePath'), 'relativePath').to.eql(documentAttributes.meta.relativePath)
+
+					# Complete
+					return complete()
+
 	# Create a DocPad Instance
 	test 'createInstance', (done) ->
 		docpad = require('../main').createInstance(docpadConfig, done)

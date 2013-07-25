@@ -96,7 +96,7 @@ joe.suite 'docpad-actions', (suite,test) ->
 
 			test 'same files', (done) ->
 				balUtil.scandir(
-					path:outPath
+					path: outPath
 					readFiles: true
 					ignoreHiddenFiles: false
 					next: (err,outList) ->
