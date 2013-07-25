@@ -35,6 +35,16 @@ class DocumentModel extends FileModel
 	defaults: extendr.extend({}, FileModel::defaults, {
 
 		# ---------------------------------
+		# Automaticly set variables
+
+		# Specify we are a document
+		isDocument: true
+
+		# Specify we are NOT a file
+		isFile: false
+
+
+		# ---------------------------------
 		# Special variables
 
 		# outExtension

@@ -300,14 +300,17 @@ class DocPad extends EventEmitterGrouped
 
 	# Set a collection
 	setCollection: (name,value) ->
-		if @collections[name]?
-			@collections[name].destroy()
-			if value
-				@collections[name] = value
-			else
-				delete @collections[name]
-		else
+		# Destroy old
+		@collections[name]?.destroy()
+
+		# Apply new
+		if value
+			value.options.name ?= name
 			@collections[name] = value
+		else
+			delete @collections[name]
+
+		# Chain
 		@
 
 	# Get collections
@@ -1081,7 +1084,7 @@ class DocPad extends EventEmitterGrouped
 		@filesByUrl = {}
 		@filesBySelector = {}
 		@filesByOutPath = {}
-		@database = new FilesCollection()
+		@database = new FilesCollection(null, {name:'database'})
 			.on('remove', (model,options) =>
 				# Skip if we are not a writeable file
 				return  if model.get('write') is false
@@ -1173,6 +1176,54 @@ class DocPad extends EventEmitterGrouped
 		# Close Watchers
 
 		# Destroy Database
+
+		# Chain
+		@
+
+	# Emit Serial
+	emitSerial: (eventName, opts, next) ->
+		# Prepare
+		[opts,next] = extractOptsAndCallback(opts, next)
+		docpad = @
+		locale = docpad.getLocale()
+
+		# Log
+		docpad.log 'debug', util.format(locale.emittingEvent, eventName)
+
+		# Emit
+		super eventName, opts, (err) ->
+			# Check
+			return next(err)  if err
+
+			# Log
+			docpad.log 'debug', util.format(locale.emittedEvent, eventName)
+
+			# Forward
+			return next(err)
+
+		# Chain
+		@
+
+	# Emit Parallel
+	emitParallel: (eventName, opts, next) ->
+		# Prepare
+		[opts,next] = extractOptsAndCallback(opts, next)
+		docpad = @
+		locale = docpad.getLocale()
+
+		# Log
+		docpad.log 'debug', util.format(locale.emittingEvent, eventName)
+
+		# Emit
+		super eventName, opts, (err) ->
+			# Check
+			return next(err)  if err
+
+			# Log
+			docpad.log 'debug', util.format(locale.emittedEvent, eventName)
+
+			# Forward
+			return next(err)
 
 		# Chain
 		@
@@ -1661,7 +1712,7 @@ class DocPad extends EventEmitterGrouped
 	extendCollections: (next) ->
 		# Prepare
 		docpad = @
-		config = @config
+		docpadConfig = @getConfig()
 		locale = @getLocale()
 		database = @getDatabase()
 
@@ -1672,10 +1723,11 @@ class DocPad extends EventEmitterGrouped
 				.setQuery('isDocument', {
 					$or:
 						isDocument: true
-						fullPath: $startsWith: config.documentsPaths
+						fullPath: $startsWith: docpadConfig.documentsPaths
 				})
 				.on('add', (model) ->
-					docpad.log('debug', util.format(locale.addingDocument, model.attributes.relativePath))
+					debugger
+					docpad.log('debug', util.format(locale.addingDocument, model.getFilePath()))
 					model.setDefaults({
 						isDocument: true
 						render: true
@@ -1686,10 +1738,10 @@ class DocPad extends EventEmitterGrouped
 				.setQuery('isFile', {
 					$or:
 						isFile: true
-						fullPath: $startsWith: config.filesPaths
+						fullPath: $startsWith: docpadConfig.filesPaths
 				})
 				.on('add', (model) ->
-					docpad.log('debug', util.format(locale.addingFile, model.attributes.relativePath))
+					docpad.log('debug', util.format(locale.addingFile, model.getFilePath()))
 					model.setDefaults({
 						isFile: true
 						render: false
@@ -1700,10 +1752,10 @@ class DocPad extends EventEmitterGrouped
 				.setQuery('isLayout', {
 					$or:
 						isLayout: true
-						fullPath: $startsWith: config.layoutsPaths
+						fullPath: $startsWith: docpadConfig.layoutsPaths
 				})
 				.on('add', (model) ->
-					docpad.log('debug', util.format(locale.addingLayout, model.attributes.relativePath))
+					docpad.log('debug', util.format(locale.addingLayout, model.getFilePath()))
 					model.setDefaults({
 						isLayout: true
 						render: false
@@ -1714,13 +1766,11 @@ class DocPad extends EventEmitterGrouped
 			# Special Collections
 			html: database.createLiveChildCollection()
 				.setQuery('isHTML', {
-					$or:
-						isDocument: true
-						isFile: true
+					write: true
 					outExtension: 'html'
 				})
 				.on('add', (model) ->
-					docpad.log('debug', util.format(locale.addingHtml, model.attributes.relativePath))
+					docpad.log('debug', util.format(locale.addingHtml, model.getFilePath()))
 				)
 			stylesheet: database.createLiveChildCollection()
 				.setQuery('isStylesheet', {
@@ -1735,7 +1785,7 @@ class DocPad extends EventEmitterGrouped
 					]
 				})
 				.on('add', (model) ->
-					docpad.log('debug', util.format(locale.addingStylesheet, model.attributes.relativePath))
+					docpad.log('debug', util.format(locale.addingStylesheet, model.getFilePath()))
 					model.setDefaults({
 						referencesOthers: true
 					})
@@ -1755,7 +1805,7 @@ class DocPad extends EventEmitterGrouped
 			docpad.emitSerial('extendCollections',{},next)
 
 		# Cycle through Custom Collections
-		eachr @config.collections or {}, (fn,name) ->
+		eachr docpadConfig.collections or {}, (fn,name) ->
 			tasks.addTask (complete) ->
 				# Init
 				ambi [fn.bind(docpad), fn], database, (err, collection) ->
@@ -1991,7 +2041,7 @@ class DocPad extends EventEmitterGrouped
 
 	# Log
 	log: (args...) =>
-		logger = @getLogger()
+		logger = console or @getLogger()
 		logger.log.apply(logger, args)
 		@
 
@@ -2214,6 +2264,49 @@ class DocPad extends EventEmitterGrouped
 	# =================================
 	# Models and Collections
 
+	# Attach file events
+	attachFileEvents: (model) ->
+		# Prepare
+		docpad = @
+
+		# Log
+		model.on 'log', (args...) ->
+			docpad.log(args...)
+
+		# Render
+		model.on 'render', (args...) ->
+			docpad.emitSerial('render', args...)
+		# TODO: ^ why do we need this? as files are not rendered
+
+		# Chain
+		@
+
+	# Attach document events
+	attachDocumentEvents: (model) ->
+		# Prepare
+		docpad = @
+
+		# Log
+		model.on 'log', (args...) ->
+			docpad.log(args...)
+
+		# Fetch a layout
+		model.on 'getLayout', (opts={},next) ->
+			opts.collection = docpad.getCollection('layouts')
+			layout = docpad.getFileBySelector(opts.selector, opts)
+			next(null, {layout})
+
+		# Render
+		model.on 'render', (args...) ->
+			docpad.emitSerial('render', args...)
+
+		# Render document
+		model.on 'renderDocument', (args...) ->
+			docpad.emitSerial('renderDocument', args...)
+
+		# Chain
+		@
+
 	# Instantiate a File
 	createFile: (data={},opts={}) =>
 		# Prepare
@@ -2226,16 +2319,11 @@ class DocPad extends EventEmitterGrouped
 		# Create and return
 		file = new FileModel(data, opts)
 
-		# Log
-		file.on 'log', (args...) ->
-			docpad.log(args...)
-
-		# Render
-		file.on 'render', (args...) ->
-			docpad.emitSerial('render', args...)
+		# Attach events
+		@attachFileEvents(file)
 
 		# Return
-		file
+		return file
 
 	# Instantiate a Document
 	createDocument: (data={},opts={}) =>
@@ -2249,26 +2337,11 @@ class DocPad extends EventEmitterGrouped
 		# Create and return
 		document = new DocumentModel(data, opts)
 
-		# Log
-		document.on 'log', (args...) ->
-			docpad.log(args...)
-
-		# Fetch a layout
-		document.on 'getLayout', (opts={},next) ->
-			opts.collection = docpad.getCollection('layouts')
-			layout = docpad.getFileBySelector(opts.selector, opts)
-			next(null, {layout})
-
-		# Render
-		document.on 'render', (args...) ->
-			docpad.emitSerial('render', args...)
-
-		# Render document
-		document.on 'renderDocument', (args...) ->
-			docpad.emitSerial('renderDocument', args...)
+		# Attach document events
+		@attachDocumentEvents(document)
 
 		# Return
-		document
+		return document
 
 	# Ensure File
 	ensureFile: (data={},opts={}) =>
@@ -2689,7 +2762,13 @@ class DocPad extends EventEmitterGrouped
 
 				# After
 				docpad.emitSerial 'parseAfter', {collection}, (err) ->
+					# Check
+					return next(err)  if err
+
+					# Log
 					docpad.log 'debug', util.format(locale.loadedFiles, collection.length)
+
+					# Forward
 					return next()
 
 			# Add load tasks
@@ -2772,8 +2851,13 @@ class DocPad extends EventEmitterGrouped
 
 				# After
 				docpad.emitSerial 'contextualizeAfter', {collection}, (err) ->
+					# Check
 					return next(err)  if err
+
+					# Log
 					docpad.log 'debug', util.format(locale.contextualizedFiles, collection.length)
+
+					# Forward
 					return next()
 
 			# Add contextualize tasks
@@ -2866,8 +2950,13 @@ class DocPad extends EventEmitterGrouped
 
 				# After
 				docpad.emitSerial 'renderAfter', {collection}, (err) ->
+					# Check
 					return next(err)  if err
+
+					# Log
 					docpad.log 'debug', util.format(locale.renderedFiles, collection.length)
+
+					# Forward
 					return next()
 
 			# Queue the initial render
@@ -2928,8 +3017,10 @@ class DocPad extends EventEmitterGrouped
 
 				# After
 				docpad.emitSerial 'writeAfter', {collection}, (err) ->
+					# Check
 					return next(err)  if err
-					docpad.log 'debug', util.format(locale.wroteFiles, collection.length)
+
+					# docpad.log 'debug', util.format(locale.wroteFiles, collection.length)
 					return next()
 
 			# Add write tasks

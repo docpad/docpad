@@ -168,6 +168,8 @@
 	consoleOptionOffline: "don't do any remote requests"
 
 	# Misc
+	emittingEvent: "Emitting the event: %s"
+	emittedEvent: "Emitted the event: %s"
 	outPathConflict: """
 		You have multiple files being written to %s, they are:
 		  - %s
