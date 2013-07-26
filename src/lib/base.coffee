@@ -23,6 +23,16 @@ class Model extends Backbone.Model
 	log: log
 	emit: emit
 
+	# Set Defaults
+	setDefaults: (attrs={},opts) ->
+		# Extract
+		set = {}
+		for own key,value of attrs
+			set[key] = value  if @get(key) is @defaults?[key]
+
+		# Forward
+		return @set(set, opts)
+
 # Collection
 class Collection extends Backbone.Collection
 	log: log
