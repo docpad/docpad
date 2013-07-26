@@ -1,7 +1,7 @@
 ## History
 
 - v6.46.3 July 25, 2013
-	- Moved `Base::setDefaults` to `FileMode::setDefaults`
+	- Moved `Base::setDefaults` to `FileModel::setDefaults`
 	- Removed superfluous loading logging messages
 		- Thanks to [Bruno Heridet](https://github.com/Delapouite) for [issue #316](https://github.com/bevry/docpad/issues/316)
 	- The attributes `parser`, `header`, `body`, and `content` are now set correctly to `null` instead of `undefined` if there is no data
