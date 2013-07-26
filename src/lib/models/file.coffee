@@ -117,11 +117,6 @@ class FileModel extends Model
 
 		# Clone
 		instance = new @klass(attrs, opts)
-		#instance._events = extendr.deepExtend(@_events)
-		instance._events = {}
-		eventNames = ['log','getLayout','render','renderDocument']
-		for eventName in eventNames
-			instance._events[eventName] = @_events[eventName]
 
 		# Return
 		return instance
@@ -226,10 +221,13 @@ class FileModel extends Model
 		# The tags for this document
 		tags: null  # CSV/Array
 
-		# Write this file to the output directory
+		# Whether or not we should render this file
+		render: false
+
+		# Whether or not we should write this file to the output directory
 		write: true
 
-		# Write this file to the source directory
+		# Whether or not we should write this file to the source directory
 		writeSource: false
 
 		# The title for this document
@@ -252,7 +250,7 @@ class FileModel extends Model
 		# Alternative urls for this document
 		urls: null  # Array
 
-		# Whether or not we ignore this document (do not render it)
+		# Whether or not we ignore this file
 		ignored: false
 
 		# Whether or not we should treat this file as standalone (that nothing depends on it)
@@ -338,10 +336,7 @@ class FileModel extends Model
 		options = @extractOptions(attrs)
 
 		# Apply
-		set = {}
-		for own key,value of attrs
-			set[key] = value  if @get(key) is @defaults?[key]
-		@set(set, opts)
+		super(attrs, opts)
 
 		# Apply the options
 		@setOptions(options, opts)
@@ -925,6 +920,7 @@ class FileModel extends Model
 		safefs.exists fileOutPath, (exists) ->
 			# Exit if it doesn't exist
 			return next()  unless exists
+
 			# If it does exist delete it
 			safefs.unlink fileOutPath, (err) ->
 				# Check

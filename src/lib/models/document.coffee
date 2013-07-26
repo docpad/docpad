@@ -35,16 +35,6 @@ class DocumentModel extends FileModel
 	defaults: extendr.extend({}, FileModel::defaults, {
 
 		# ---------------------------------
-		# Automaticly set variables
-
-		# Specify we are a document
-		isDocument: true
-
-		# Specify we are NOT a file
-		isFile: false
-
-
-		# ---------------------------------
 		# Special variables
 
 		# outExtension
@@ -81,6 +71,9 @@ class DocumentModel extends FileModel
 
 		# ---------------------------------
 		# User set variables
+
+		# Whether or not we should render this file
+		render: true
 
 		# Whether or not this file should be re-rendered on each request
 		dynamic: false
