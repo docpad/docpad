@@ -1,5 +1,24 @@
 ## History
 
+- v6.46.4 Unreleased
+	- Fixed virtual documents firing duplicated events
+		- Added `cloneModel(model)` to properly handle events when cloning (`model.clone()` will no longer clone events)
+	- Fixed `Object #<Model> has no method 'setDefaults'` error (bug since v6.46.3)
+		- Moved `FileModel::setDefaults` back into `Base::setDefaults`
+		- Thanks to [Jeff Barczewski](https://github.com/jeffbski) for [bevry/docpad-documentation#40](https://github.com/bevry/docpad-documentation/pull/40)
+	- Fixed the 500 middleware not working
+	- Added ability to do `getCollection('database')` to get the global database
+	- Added `render` alias for documents directory
+	- Added `static` alias for files directory
+	- The `documents` collection is now defiend by `render:true, write:true` rather than being paths and `isDocument:true` based
+	- The `files` collection is now defiend by `render:false, write:true` rather than being paths and `isFile:true` based
+	- The `html` collection is now checks for `write:true` instead of `isDocument:true` or `isFile:true`
+	- The `stylesheet` collection is now checks for `write:true` instead of `isDocument:true` or `isFile:true`
+	- Re-added `DocPad::parseDocumentDirectory` and `parseFileDirectory` (removed from v6.46.0) which wraps around the new ways of doing things
+	- Added `DocPad::createModel(attrs,opts)` and updated `DocPad::createDocument` and `DocPad::createFile` to use it
+	- Added `DocPad::ensureModel(attrs,opts)` and updated `DocPad::ensureDocument`, `DocPad::ensurefile`, and `DocPad::ensureFileOrDocument` to use it
+	- Added `DocPad::attachModelEvents(model)` to attach the required docpad events to a model
+
 - v6.46.3 July 25, 2013
 	- Moved `Base::setDefaults` to `FileModel::setDefaults`
 	- Removed superfluous loading logging messages
