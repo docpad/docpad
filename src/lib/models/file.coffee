@@ -236,7 +236,7 @@ class FileModel extends Model
 		# Useful for navigation listings
 		name: null
 
-		# The date object for this document, defaults to mtime
+		# The date object for this document, defaults to mtime. Used as publish date, if scheduled below
 		date: null
 
 		# The generated slug (url safe seo title) for this document
@@ -253,6 +253,9 @@ class FileModel extends Model
 
 		# Whether or not we should treat this file as standalone (that nothing depends on it)
 		standalone: false
+
+		# Whether this file should nbe scheduled (do not publish before file date - above)
+		scheduled: false
 
 
 

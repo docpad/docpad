@@ -207,6 +207,12 @@ class DocumentModel extends FileModel
 					metaDataChanges.ignored = !(metaDataChanges[key] ? false)
 					delete metaDataChanges[key]
 
+			# Correct schedule
+			for key in ['schedule']
+				if metaDataChanges[key]?
+					metaDataChanges.scheduled = (metaDataChanges[key] ? false)
+					delete metaDataChanges[key]
+
 			# Handle urls
 			@addUrl(metaDataChanges.urls)  if metaDataChanges.urls
 			@setUrl(metaDataChanges.url)   if metaDataChanges.url

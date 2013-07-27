@@ -129,6 +129,7 @@
 	loadedFiles: "Loaded %s files"
 	loadingFileFailed: "Failed to load the file: %s"
 	loadingFileIgnored: "Skipped ignored file: %s"
+	loadingFileScheduled: "Skipped scheduled file %s"
 	loadingUserConfig: "Loading user's configuration: %s"
 	loadedUserConfig: "Loaded user's configuration: %s"
 	loadingDocPadPackageConfig: "Loading DocPad's package.json configuration: %s"

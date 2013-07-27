@@ -128,6 +128,21 @@ joe.suite 'docpad-actions', (suite,test) ->
 			safefs.exists "#{outPath}/.svn", (exists) ->
 				expect(exists).to.be.false
 				done()
+				
+		test 'scheduled file without date', (done) ->
+			safefs.exists "#{outPath}/scheduled.html", (exists) ->
+				expect(exists).to.be.true
+				done()
+
+		test 'scheduled file in future', (done) ->
+			safefs.exists "#{outPath}/scheduled-future.html", (exists) ->
+				expect(exists).to.be.false
+				done()
+
+		test 'scheduled file in past', (done) ->
+			safefs.exists "#{outPath}/scheduled-past.html", (exists) ->
+				expect(exists).to.be.true
+				done()
 
 	suite 'server', (suite,test) ->
 

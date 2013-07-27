@@ -2713,11 +2713,21 @@ class DocPad extends EventEmitterGrouped
 
 						# Prepare
 						fileIgnored = file.get('ignored')
+						fileScheduled = file.get('scheduled')
+						fileDate = file.get('date')
 						fileParse = file.get('parse')
+						now = new Date()
 
 						# Ignored?
 						if fileIgnored or (fileParse? and !fileParse)
 							docpad.log 'info', util.format(locale.loadingFileIgnored, filePath)
+							collection.remove(file)
+							database.remove(file)
+							return complete()
+
+						# Scheduled?
+						if fileScheduled and fileDate > now
+							docpad.log 'info', util.format(locale.loadingFileScheduled, filePath)
 							collection.remove(file)
 							database.remove(file)
 							return complete()
