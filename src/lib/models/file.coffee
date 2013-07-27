@@ -256,7 +256,7 @@ class FileModel extends Model
 		# Whether or not we should treat this file as standalone (that nothing depends on it)
 		standalone: false
 
-		# Whether this file should nbe scheduled (do not publish before file date - above)
+		# Whether this file should be scheduled (do not publish before file date - above)
 		scheduled: false
 
 
