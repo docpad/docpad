@@ -13,6 +13,12 @@ class FilesCollection extends QueryCollection
 	# Base Collection for all child collections
 	collection: FilesCollection
 
+	# Prepare
+	initialize: (attrs,opts={}) ->
+		@options ?= {}
+		@options.name ?= opts.name or null
+		super
+
 	# Fuzzy Find One
 	# Useful for layout searching
 	fuzzyFindOne: (data,sorting,paging) ->

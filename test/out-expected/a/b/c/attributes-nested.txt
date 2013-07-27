@@ -15,7 +15,6 @@
 	"filename": "attributes-nested.txt.coffee",
 	"header": "title: 'Attributes No Layout'\ntags: ['attributes','with-layout']\nreferencesOthers: true",
 	"ignored": false,
-	"isDocument": true,
 	"meta": {
 		"title": "Attributes No Layout",
 		"tags": [

@@ -169,6 +169,8 @@
 	consoleOptionOffline: "don't do any remote requests"
 
 	# Misc
+	emittingEvent: "Emitting the event: %s"
+	emittedEvent: "Emitted the event: %s"
 	outPathConflict: """
 		You have multiple files being written to %s, they are:
 		  - %s
@@ -180,6 +182,7 @@
 		More information here: http://docpad.org/render-early-via-include
 		"""
 	welcome: "Welcome to DocPad %s"
+	welcomeContribute: "Contribute: http://docpad.org/docs/contribute"
 	welcomePlugins: "Plugins: %s"
 	welcomeEnvironment: "Environment: %s"
 	includeFailed: "Could not include the file at path %s as we could not find it"

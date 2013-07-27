@@ -75,7 +75,6 @@ layout: 'attributes'
 tags: ['attributes','with-layout']
 referencesOthers: true",
 	"ignored": false,
-	"isDocument": true,
 	"layout": "attributes",
 	"meta": {
 		"title": "Attributes With Layout",
@@ -171,7 +170,6 @@ text JSON.stringify(sortedAttrs,null,'\\t')",
 	"filename": "attributes-withlayout.txt.coffee",
 	"header": "title: 'Attributes With Layout'\nlayout: 'attributes'\ntags: ['attributes','with-layout']\nreferencesOthers: true",
 	"ignored": false,
-	"isDocument": true,
 	"layout": "attributes",
 	"meta": {
 		"title": "Attributes With Layout",
