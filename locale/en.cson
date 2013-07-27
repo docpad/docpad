@@ -181,6 +181,7 @@
 		More information here: http://docpad.org/render-early-via-include
 		"""
 	welcome: "Welcome to DocPad %s"
+	welcomeContribute: "Contribute: http://docpad.org/docs/contribute"
 	welcomePlugins: "Plugins: %s"
 	welcomeEnvironment: "Environment: %s"
 	includeFailed: "Could not include the file at path %s as we could not find it"

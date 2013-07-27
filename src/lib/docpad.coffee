@@ -1284,6 +1284,7 @@ class DocPad extends EventEmitterGrouped
 
 		# Welcome Output
 		docpad.log 'info', util.format(locale.welcome, "v#{@getVersion()}")
+		docpad.log 'info', locale.welcomeContribute
 		docpad.log 'info', util.format(locale.welcomePlugins, pluginsList)
 		docpad.log 'info', util.format(locale.welcomeEnvironment, @getEnvironment())
 
