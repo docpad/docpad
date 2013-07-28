@@ -2358,16 +2358,17 @@ class DocPad extends EventEmitterGrouped
 		# Try and determine the model type
 
 		# If the type hasn't been specified try and detemrine it based on the full path
-		if opts.modelType? is false and fileFullPath
+		if fileFullPath
 			# Check if we have a document or layout
-			for dirPath in config.documentsPaths.concat(config.layoutsPaths)
-				if fileFullPath.indexOf(dirPath) is 0
-					attrs.relativePath or= fileFullPath.replace(dirPath, '').replace(/^[\/\\]/,'')
-					opts.modelType = 'document'
-					break
+			unless opts.modelType
+				for dirPath in config.documentsPaths.concat(config.layoutsPaths)
+					if fileFullPath.indexOf(dirPath) is 0
+						attrs.relativePath or= fileFullPath.replace(dirPath, '').replace(/^[\/\\]/,'')
+						opts.modelType = 'document'
+						break
 
 			# Check if we have a file
-			unless result
+			unless opts.modelType
 				for dirPath in config.filesPaths
 					if fileFullPath.indexOf(dirPath) is 0
 						attrs.relativePath or= fileFullPath.replace(dirPath, '').replace(/^[\/\\]/,'')
