@@ -1,5 +1,9 @@
 ## History
 
+- v6.46.5 July 28, 2013
+	- Fixed `ReferenceError: result is not defined` (bug since v6.46.4)
+		- Thanks to [Anup Shinde](https://github.com/anupshinde) for [issue #573](https://github.com/bevry/docpad/issues/573)
+
 - v6.46.4 July 27, 2013
 	- Fixes
 		- Fixed virtual documents firing duplicated events
