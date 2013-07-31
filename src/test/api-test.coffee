@@ -57,7 +57,7 @@ joe.suite 'docpad-api', (suite,test) ->
 					relativePath: "some/relative/path.txt"
 
 			# Test
-			test 'instantiation', ->
+			test 'create', ->
 				# Create
 				document = new DocumentModel(documentAttributes)
 

@@ -230,11 +230,7 @@ class RendererTester extends PluginTester
 						# Check we have the same files
 						test 'same files', ->
 							outDifferenceKeys = _.difference(outResultsKeys, outExpectedResultsKeys)
-							try
-								expect(outDifferenceKeys).to.be.empty
-							catch err
-								console.log outDifferenceKeys
-								throw err
+							expect(outDifferenceKeys).to.be.empty
 
 						# Check the contents of those files match
 						outResultsKeys.forEach (key) ->
