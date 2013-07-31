@@ -27,14 +27,14 @@ class ScriptsCollection extends ElementsCollection
 		for value,key in values
 			if typeChecker.isString(value)
 				if value[0] is '<'
-					# we are a script element already, don't bother doing anything
+					# we are an element already, don't bother doing anything
 				else if value.indexOf(' ') is -1
 					# we are a url
 					values[key] = """
 						<script #{opts.attrs} src="#{value}"></script>
 						"""
 				else
-					# we are javascript not in a script element
+					# we are inline
 					values[key] = """
 						<script #{opts.attrs}>#{value}</script>
 						"""

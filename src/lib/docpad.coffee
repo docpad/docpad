@@ -2278,7 +2278,7 @@ class DocPad extends EventEmitterGrouped
 		return @ensureModel(attrs, opts)
 
 	# Parse File Directory
-	parseDocumentDirectory: (opts={},next) ->
+	parseFileDirectory: (opts={},next) ->
 		opts.modelType ?= 'file'
 		opts.collection ?= @getDatabase()
 		return @parseDirectory(opts, next)

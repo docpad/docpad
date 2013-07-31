@@ -1,5 +1,10 @@
 ## History
 
+- v6.47.0 July 31, 2013
+	- Added `FileModel::deleteSource`
+	- Added support for specifying inline content within the styles block
+	- Fixed `DocPad::parseFileDirectory`
+
 - v6.46.5 July 28, 2013
 	- Fixed `ReferenceError: result is not defined` (bug since v6.46.4)
 		- Thanks to [Anup Shinde](https://github.com/anupshinde) for [issue #573](https://github.com/bevry/docpad/issues/573)

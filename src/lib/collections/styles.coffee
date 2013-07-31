@@ -21,11 +21,19 @@ class StylesCollection extends ElementsCollection
 
 		# Convert urls into script element html
 		for value,key in values
-			if typeChecker.isString(value) and /^\</.test(value) is false
-				# convert url to script tag
-				values[key] = """
-					<link #{opts.attrs} rel="stylesheet" href="#{value}" />
-					"""
+			if typeChecker.isString(value)
+				if value[0] is '<'
+					# we are an element already, don't bother doing anything
+				else if value.indexOf(' ') is -1
+					# we are a url
+					values[key] = """
+						<link #{opts.attrs} rel="stylesheet" href="#{value}" />
+						"""
+				else
+					# we are inline
+					values[key] = """
+						<style #{opts.attrs}>#{value}</style>
+						"""
 
 		# Call the super with our values
 		super(values,opts)

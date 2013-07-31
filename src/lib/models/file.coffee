@@ -902,35 +902,56 @@ class FileModel extends Model
 
 	# Delete the file
 	# next(err)
-	delete: (next) ->
+	delete: (opts,next) ->
 		# Prepare
+		[opts,next] = extractOptsAndCallback(opts, next)
 		file = @
-		fileOutPath = @get('outPath')
+
+		# Fetch
+		opts.path      or= @get('outPath')
+		opts.type      or= 'out file'
 
 		# Check
 		# Sometimes the out path could not be set if we are early on in the process
-		unless fileOutPath
+		unless opts.path
 			next()
 			return @
 
 		# Log
-		file.log 'debug', "Delete the file: #{fileOutPath}"
+		file.log 'debug', "Delete the #{opts.type}: #{opts.path}"
 
 		# Check existance
-		safefs.exists fileOutPath, (exists) ->
+		safefs.exists opts.path, (exists) ->
 			# Exit if it doesn't exist
 			return next()  unless exists
 
 			# If it does exist delete it
-			safefs.unlink fileOutPath, (err) ->
+			safefs.unlink opts.path, (err) ->
 				# Check
 				return next(err)  if err
 
 				# Log
-				file.log 'debug', "Deleted the file: #{fileOutPath}"
+				file.log 'debug', "Deleted the #{opts.type}: #{opts.path}"
 
 				# Next
 				next()
+
+		# Chain
+		@
+
+	# Delete the file
+	# next(err)
+	deleteSource: (opts,next) ->
+		# Prepare
+		[opts,next] = extractOptsAndCallback(opts, next)
+		file = @
+
+		# Fetch
+		opts.path      or= @get('fullPath')
+		opts.type      or= 'source file'
+
+		# Write data
+		@write(opts, next)
 
 		# Chain
 		@
