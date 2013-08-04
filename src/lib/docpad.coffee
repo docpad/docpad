@@ -1422,18 +1422,6 @@ class DocPad extends EventEmitterGrouped
 			process.setMaxListeners(0)
 			process.on('uncaughtException', @error)
 
-		# Regenerate Timer
-		if @regenerateTimer
-			clearInterval(@regenerateTimer)
-			@regenerateTimer = null
-		if @config.regenerateEvery
-			@regenerateTimer = setInterval(
-				->
-					docpad.log('info', locale.renderInterval)
-					docpad.action('generate')
-				@config.regenerateEvery
-			)
-
 		# Prepare the Post Tasks
 		postTasks = new TaskGroup().once 'complete', (err) =>
 			return next(err, @config)
@@ -3342,14 +3330,31 @@ class DocPad extends EventEmitterGrouped
 		# Check
 		return next()  if opts.collection?.length is 0
 
-		# Create the progress bar
-		opts.progress ?= @createProgress()
+		# Clear Regenerate Timer
+		if docpad.regenerateTimer
+			clearInterval(docpad.regenerateTimer)
+			docpad.regenerateTimer = null
 
-		# Ensure progress is always removed correctly
+		# Create Progress
+		opts.progress ?= docpad.createProgress()
+
+		# Clean up properly
 		finish = (err) ->
+			# Create Regenerate Timer
+			if config.regenerateEvery
+				docpad.regenerateTimer = setTimeout(
+					->
+						docpad.log('info', locale.renderInterval)
+						docpad.action('generate')
+					config.regenerateEvery
+				)
+
+			# Clear Progress
 			if opts.progress
 				docpad.destroyProgress(opts.progress)
 				opts.progress = null
+
+			# Forward
 			return next(err)
 
 		# Generate
@@ -3357,8 +3362,7 @@ class DocPad extends EventEmitterGrouped
 			object: docpad
 			action: 'generatePrepare generateLoad generateRender generatePostpare'
 			args: [opts]
-			next: (err) ->
-				return finish(err)
+			next: finish
 		)
 
 		# Chain
