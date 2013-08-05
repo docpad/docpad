@@ -180,6 +180,7 @@
 		Your include of %s has failed as that document has not been rendered yet.
 		More information here: http://docpad.org/render-early-via-include
 		"""
+	versionOutdated: "Your project's local DocPad version is %s instead of %s, you may experience problems. Run `docpad update` to fix this."
 	welcome: "Welcome to DocPad %s"
 	welcomeContribute: "Contribute: http://docpad.org/docs/contribute"
 	welcomePlugins: "Plugins: %s"
