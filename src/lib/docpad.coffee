@@ -3692,20 +3692,29 @@ class DocPad extends EventEmitterGrouped
 		config = @getConfig()
 		{srcPath, rootPath} = config
 
-		# Run docpad
-		runDocpad = ->
+		# Prepare
+		run = (complete) ->
 			balUtil.flow(
 				object: docpad
 				action: 'server generate watch'
 				args: [opts]
-				next: (err) ->
-					return next(err)
+				next: complete
 			)
+		check = (complete) ->
+			desiredDocPadVersion = String(docpad.websitePackageConfig?.dependencies?.docpad or '').replace('~', '')
+			return complete()  if !desiredDocPadVersion or desiredDocPadVersion is docpad.version
+			docpad.warn util.format(locale.versionOutdated, desiredDocPadVersion, docpad.version)
+			return complete()
+		finish = (complete) ->
+			check (err) ->
+				return complete(err)  if err
+				run(complete)
+
 
 		# Check if we have the docpad structure
 		safefs.exists srcPath, (exists) ->
 			# Check if have the correct structure, if so let's proceed with DocPad
-			return runDocpad()  if exists
+			return finish(next)  if exists
 
 			# We don't have the correct structure
 			# Check if we are running on an empty directory
@@ -3720,7 +3729,7 @@ class DocPad extends EventEmitterGrouped
 				else
 					docpad.skeleton opts, (err) ->
 						return next(err)  if err
-						return runDocpad()
+						return finish(next)
 
 		# Chain
 		@
