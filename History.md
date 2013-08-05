@@ -1,5 +1,9 @@
 ## History
 
+- v6.48.0 August 5, 2013
+	- Moved `regenerateEvery` timer into `generate` rather than `setConfig` to avoid action stacking
+	- DocPad will now warn you when your project's local DocPad version does not match the global version
+
 - v6.47.0 July 31, 2013
 	- Added `FileModel::deleteSource`
 	- Added support for specifying inline content within the styles block
