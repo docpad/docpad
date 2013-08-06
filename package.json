@@ -1,6 +1,6 @@
 {
 	"name": "docpad",
-	"version": "6.48.0",
+	"version": "6.48.1",
 	"description": "DocPad is a language agnostic document management system. This means you write your website as documents, in whatever language you wish, and DocPad will handle the compiling, templates and layouts for you. For static documents it will generate static files, for dynamic documents it'll re-render them on each request. You can utilise DocPad by itself, or use it as a module your own custom system. It's pretty cool, and well worth checking out. We love it.",
 	"homepage": "https://github.com/bevry/docpad",
 	"installUrl": "http://docpad.org/install",
@@ -52,7 +52,8 @@
 		"Adrian Olaru <agolaru@gmail.com> (https://github.com/adrianolaru)",
 		"Richard A <richard@antecki.id.au> (https://github.com/rantecki)",
 		"Neil Taylor <neil.t@myplanetdigital.com> (https://github.com/neilbaylorrulez)",
-		"Sven Vetsch (https://github.com/disenchant)"
+		"Sven Vetsch (https://github.com/disenchant)",
+		"Chase Colman <chase@infinityatlas.com> (https://github.com/chase)"
 	],
 	"bugs": {
 		"url": "https://github.com/bevry/docpad/issues"
