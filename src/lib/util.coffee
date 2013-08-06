@@ -43,8 +43,8 @@ module.exports = docpadUtil =
 		if basename is '.'+extension  # prevent: .htaccess.htaccess
 			return basename
 		else
-			return basename+(if extension then '.'+extension or '')
-
+			return basename+(if extension then '.'+extension else '')
+			
 	# get url
 	getUrl: (relativePath) ->
 		return '/'+relativePath.replace(/[\\]/g, '/')

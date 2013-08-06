@@ -1,5 +1,10 @@
 ## History
 
+- v6.48.1 August 9, 2013
+	- Fixed [issue #584](https://github.com/bevry/docpad/issues/584)
+		- Now the output filename of a file without an extension will remain unchanged
+	- Added a test for the aforementioned issue
+
 - v6.48.0 August 5, 2013
 	- Moved `regenerateEvery` timer into `generate` rather than `setConfig` to avoid action stacking
 	- DocPad will now warn you when your project's local DocPad version does not match the global version
