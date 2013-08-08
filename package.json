@@ -1,7 +1,7 @@
 {
 	"name": "docpad",
 	"version": "6.48.0",
-	"description": "DocPad is a language agnostic document management system. This means you write your website as documents, in whatever language you wish, and DocPad will handle the compiling, templates and layouts for you. For static documents it will generate static files, for dynamic documents it'll re-render them on each request. You can utilise DocPad by itself, or use it as a module your own custom system. It's pretty cool, and well worth checking out. We love it.",
+	"description": "DocPad is a next generation web architecture that lets you create fast static websites with dynamic abilities and powerful abstractions. Write your website as files on your computer, entries in a database, or even RSS feeds and DocPad will import it, generate & render it, then output a static website for deployment anywhere or a dynamic node website for advanced server-side functionality. Use it as a module or standalone. It's purely awesome. Check it out.",
 	"homepage": "https://github.com/bevry/docpad",
 	"installUrl": "http://docpad.org/install",
 	"upgradeUrl": "http://docpad.org/upgrade",
@@ -25,7 +25,9 @@
 	],
 	"author": "Bevry Pty Ltd <us@bevry.me> (http://bevry.me)",
 	"maintainers": [
-		"Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)"
+		"Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)",
+		"Helen Lupton <b@lupton.cc> (https://github.com/hele)",
+		"Chase Colman <chase@infinityatlas.com> (https://github.com/chase)"
 	],
 	"contributors": [
 		"Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)",
