@@ -84,13 +84,17 @@ class ConsoleInterface
 		commander
 			.command('run')
 			.description(locale.consoleDescriptionRun)
-			.action(consoleInterface.wrapAction(consoleInterface.run))
+			.action(consoleInterface.wrapAction(consoleInterface.run, {
+				_stayAlive: true
+			}))
 
 		# server
 		commander
 			.command('server')
 			.description(locale.consoleDescriptionServer)
-			.action(consoleInterface.wrapAction(consoleInterface.server))
+			.action(consoleInterface.wrapAction(consoleInterface.server, {
+				_stayAlive: true
+			}))
 
 		# skeleton
 		commander
@@ -124,7 +128,9 @@ class ConsoleInterface
 		commander
 			.command('watch')
 			.description(locale.consoleDescriptionWatch)
-			.action(consoleInterface.wrapAction(consoleInterface.watch))
+			.action(consoleInterface.wrapAction(consoleInterface.watch, {
+				_stayAlive: true
+			}))
 
 		# update
 		commander
@@ -176,8 +182,8 @@ class ConsoleInterface
 
 		# Plugins
 		docpad.emitSerial 'consoleSetup', {consoleInterface,commander}, (err) ->
-			return consoleInterface.handleError(err)  if err
-			next(null,consoleInterface)
+			return consoleInterface.destroyWithError(err)  if err
+			return next(null, consoleInterface)
 
 		# Chain
 		@
@@ -195,16 +201,38 @@ class ConsoleInterface
 	getCommander: =>
 		@commander
 
-	# Handle Error
-	handleError: (err) =>
+	# Destroy with Error
+	destroyWithError: (err) =>
 		# Prepare
 		docpad = @docpad
 		locale = docpad.getLocale()
 
 		# Handle
 		docpad.log('error', locale.consoleError)
-		docpad.error(err)
-		process.exit(1)
+		docpad.error(err, 'err', @destroy)
+
+		# Chain
+		@
+
+	# Destroy
+	destroy: (err) ->
+		# Prepare
+		docpad = @docpad
+		locale = docpad.getLocale()
+
+		# Log Error
+		console.log(err)  if err
+
+		# Log Shutdown
+		docpad.log('info', locale.consoleShutdown)
+
+		# Destroy docpad
+		docpad.destroy (_err) ->
+			# Check for error
+			console.log(_err)  if _err
+
+			# Force shutdown now
+			process.exit(if err or _err then 1 else 0)
 
 		# Chain
 		@
@@ -216,39 +244,48 @@ class ConsoleInterface
 			consoleInterface.performAction(action,args,config)
 
 	# Perform Action
-	performAction: (action,args,config) =>
+	performAction: (action,args,config={}) =>
+		# Prepare
+		consoleInterface = @
+		docpad = @docpad
+
+		# Special Opts
+		stayAlive = false
+		if config._stayAlive
+			stayAlive = config._stayAlive
+			delete config._stayAlive
+
 		# Create
 		opts = {}
 		opts.commander = args[-1...][0]
 		opts.args = args[...-1]
 		opts.instanceConfig = extendr.safeDeepExtendPlainObjects({}, @extractConfig(opts.commander), config)
 
-		# Load
-		@docpad.action 'load ready', opts.instanceConfig, (err) =>
-			# Error
-			if err
-				return @completeAction(err)
+		# Complete Action
+		completeAction = (err) ->
+			# Prepare
+			locale = docpad.getLocale()
 
-			# Action
-			return action(@completeAction, opts)  # this order for b/c
+			# Handle the error
+			return consoleInterface.destroyWithError(err)  if err
 
-		# Chain
-		@
-
-	# Complete Action
-	completeAction: (err) =>
-		# Prepare
-		docpad = @docpad
-		locale = docpad.getLocale()
-
-		# Handle the error
-		if err
-			@handleError(err)
-		else
+			# Success
 			docpad.log('info', locale.consoleSuccess)
 
+			# Shutdown
+			return consoleInterface.destroy()  if stayAlive is false
+
+		# Load
+		docpad.action 'load ready', opts.instanceConfig, (err) =>
+			# Check
+			return completeAction(err)  if err
+
+			# Action
+			return action(completeAction, opts)  # this order for b/c
+
 		# Chain
 		@
+
 
 	# Extract Configuration
 	extractConfig: (customConfig={}) =>
@@ -575,22 +612,20 @@ class ConsoleInterface
 				# Stdout
 				else
 					process.stdout.write(result)
-					next()
+					return next()
 
 		# Timeout if we don't have stdin
-		timeout = setTimeout(
-			->
-				# Clear timeout
-				timeout = null
-				# Skip if we are using stdin
-				return  if data.replace(/\s+/,'')
-				# Close stdin as we are not using it
-				useStdin = false
-				stdin.pause()
-				# Render the document
-				renderDocument()
-			,1000
-		)
+		timeoutFunction = ->
+			# Clear timeout
+			timeout = null
+			# Skip if we are using stdin
+			return  if data.replace(/\s+/,'')
+			# Close stdin as we are not using it
+			useStdin = false
+			stdin.pause()
+			# Render the document
+			renderDocument()
+		timeout = setTimeout(timeoutFunction, 1000)
 
 		# Read stdin
 		stdin = process.stdin
@@ -609,11 +644,10 @@ class ConsoleInterface
 		@
 
 	run: (next) =>
-		@docpad.action(
-			'run'
-			{selectSkeletonCallback: @selectSkeletonCallback}
-			next
-		)
+		@docpad.action('run', {
+			selectSkeletonCallback: @selectSkeletonCallback
+			next: next
+		})
 		@
 
 	server: (next) =>
@@ -625,11 +659,10 @@ class ConsoleInterface
 		@
 
 	skeleton: (next) =>
-		@docpad.action(
-			'skeleton'
-			{selectSkeletonCallback: @selectSkeletonCallback}
-			next
-		)
+		@docpad.action('skeleton', {
+			selectSkeletonCallback: @selectSkeletonCallback
+			next: next
+		})
 		@
 
 	watch: (next) =>

@@ -154,6 +154,11 @@ class BasePlugin
 		# Chain
 		@
 
+	# Destroy
+	destroy: ->
+		@removeListeners()
+		@
+
 	# Is Enabled?
 	isEnabled: ->
 		return @config.enabled isnt false
