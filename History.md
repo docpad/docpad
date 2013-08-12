@@ -1,9 +1,13 @@
 ## History
 
+- v6.49.0 August 9, 2013
+	- DocPad will now shutdown and destroy itself more thoroughly
+		- Thanks to [Ashton Williams](https://github.com/Ashton-W) for [issue #595](https://github.com/bevry/docpad/issues/595)
+	- Added the event `docpadDestroy` for plugins that are doing anything long-running so they can destroy themselves thoroughly too
+
 - v6.48.1 August 9, 2013
-	- Fixed [issue #584](https://github.com/bevry/docpad/issues/584)
-		- Now the output filename of a file without an extension will remain unchanged
-	- Added a test for the aforementioned issue
+	- Fixed outputting filenames without an extension
+		- Thanks to [Geert-Jan Brits](https://github.com/gebrits) for [issue #584](https://github.com/bevry/docpad/issues/584)
 
 - v6.48.0 August 5, 2013
 	- Moved `regenerateEvery` timer into `generate` rather than `setConfig` to avoid action stacking

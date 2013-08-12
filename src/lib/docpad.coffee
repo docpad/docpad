@@ -153,6 +153,8 @@ class DocPad extends EventEmitterGrouped
 	setServer: (servers) ->
 		@serverExpress = servers.serverExpress
 		@serverHttp = servers.serverHttp
+	destroyServer: ->
+		@serverHttp?.close()
 
 	# The caterpillar instances bound to docpad
 	loggerInstances: null
@@ -166,6 +168,11 @@ class DocPad extends EventEmitterGrouped
 			@loggerInstances.logger.setConfig(dry:true)
 			@loggerInstances.console.setConfig(dry:false).pipe(process.stdout)
 		return loggers
+	destroyLoggers: ->
+		if @loggerInstances
+			for own key,value of @loggerInstances
+				value.end()
+		@
 
 	# The action runner instance bound to docpad
 	actionRunnerInstance: null
@@ -187,6 +194,7 @@ class DocPad extends EventEmitterGrouped
 		'extendCollections'
 		'docpadLoaded'
 		'docpadReady'
+		'docpadDestroy'
 		'consoleSetup'
 		'generateBefore'
 		'populateCollectionsBefore'
@@ -218,6 +226,14 @@ class DocPad extends EventEmitterGrouped
 	databaseCache: null
 	getDatabase: -> @database
 	getDatabaseCache: -> @databaseCache or @database
+	destroyDatabase: ->
+		if @database?
+			@database.destroy()
+			@database = null
+		if @databaseCache?
+			@databaseCache.destroy()
+			@databaseCache = null
+		@
 
 	# Files by URL
 	# Used to speed up fetching
@@ -278,7 +294,15 @@ class DocPad extends EventEmitterGrouped
 
 	# Each block
 	eachBlock: (fn) ->
-		eachr @blocks, fn
+		eachr(@blocks, fn)
+		@
+
+	# Destroy Blocks
+	destroyBlocks: ->
+		if @blocks
+			for own name,block of @blocks
+				block.destroy()
+				@blocks[name] = null
 		@
 
 	# Collections
@@ -319,6 +343,14 @@ class DocPad extends EventEmitterGrouped
 	# Each collection
 	eachCollection: (fn) ->
 		eachr @collections, fn
+		@
+
+	# Destroy Collections
+	destroyCollections: ->
+		if @collections
+			for own name,collection of @collections
+				collection.destroy()
+				@collections[name] = null
 		@
 
 
@@ -1162,15 +1194,48 @@ class DocPad extends EventEmitterGrouped
 		@
 
 	# Destroy
-	destroy: ->
+	destroy: (opts, next) =>
+		# Prepare
+		[opts,next] = extractOptsAndCallback(opts, next)
+		docpad = @
+
+		# Destroy Regenerate Timer
+		docpad.destroyRegenerateTimer()
+
 		# Destroy Plugins
+		docpad.emitSerial 'docpadDestroy', (err) ->
+			# Check
+			return next?(err)  if err
 
-		# Close Server
-		@getServer(true).serverHttp.close()
+			# Destroy Plugins
+			docpad.destroyPlugins()
 
-		# Close Watchers
+			# Destroy Server
+			docpad.destroyServer()
 
-		# Destroy Database
+			# Destroy Watchers
+			docpad.destroyWatchers()
+
+			# Destroy Blocks
+			docpad.destroyBlocks()
+
+			# Destroy Collections
+			docpad.destroyCollections()
+
+			# Destroy Database
+			docpad.destroyDatabase()
+
+			# Destroy Logging
+			docpad.destroyLoggers()
+
+			# Destroy Process Listners
+			process.removeListener('uncaughtException', docpad.error)
+
+			# Destroy DocPad Listeners
+			docpad.removeAllListeners()
+
+			# Forward
+			return next?()
 
 		# Chain
 		@
@@ -1417,7 +1482,7 @@ class DocPad extends EventEmitterGrouped
 				typePaths[key] = pathUtil.resolve(@config.rootPath, typePath)
 
 		# Bind the error handler, so we don't crash on errors
-		process.removeListener('uncaughtException', @error)
+		process.removeListener('uncaughtException', docpad.error)
 		if @config.catchExceptions
 			process.setMaxListeners(0)
 			process.on('uncaughtException', @error)
@@ -1447,7 +1512,7 @@ class DocPad extends EventEmitterGrouped
 
 		# Fire the docpadLoaded event
 		postTasks.addTask (complete) =>
-			@emitSerial('docpadLoaded', {}, complete)
+			@emitSerial('docpadLoaded', complete)
 
 		# Fire post tasks
 		postTasks.run()
@@ -1771,7 +1836,7 @@ class DocPad extends EventEmitterGrouped
 		# Custom Collections Group
 		tasks = new TaskGroup().setConfig(concurrency:0).once 'complete', (err) ->
 			docpad.error(err)  if err
-			docpad.emitSerial('extendCollections',{},next)
+			docpad.emitSerial('extendCollections', next)
 
 		# Cycle through Custom Collections
 		eachr docpadConfig.collections or {}, (fn,name) ->
@@ -1845,7 +1910,7 @@ class DocPad extends EventEmitterGrouped
 
 			# Perform any plugin extensions to what we just cleaned
 			# and forward
-			return docpad.emitSerial('populateCollections', {}, next)
+			return docpad.emitSerial('populateCollections', next)
 
 		# Documents
 		docpadConfig.documentsPaths.forEach (documentsPath) -> tasks.addTask (complete) ->
@@ -1875,7 +1940,7 @@ class DocPad extends EventEmitterGrouped
 			})
 
 		# Before
-		docpad.emitSerial 'populateCollectionsBefore', {}, (err) ->
+		docpad.emitSerial 'populateCollectionsBefore', (err) ->
 			# Check
 			return next(err)  if err
 
@@ -2010,7 +2075,7 @@ class DocPad extends EventEmitterGrouped
 
 	# Log
 	log: (args...) =>
-		logger = @getLogger()
+		logger = @getLogger() or console
 		logger.log.apply(logger, args)
 		@
 
@@ -2460,6 +2525,13 @@ class DocPad extends EventEmitterGrouped
 	# Check if we have any plugins
 	hasPlugins: ->
 		return typeChecker.isEmptyObject(@loadedPlugins) is false
+
+	# Destroy plugins
+	destroyPlugins: ->
+		for own name,plugin of @loadedPlugins
+			plugin.destroy()
+			@loadedPlugins[name] = null
+		@
 
 	# Load Plugins
 	# next(err)
@@ -3120,7 +3192,6 @@ class DocPad extends EventEmitterGrouped
 	generateStarted: null
 	generateEnded: null
 	generating: false
-	progress: null
 
 	# Create Progress Bar
 	createProgress: ->
@@ -3317,6 +3388,19 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
+	# Destroy Regenerate Timer
+	destroyRegenerateTimer: ->
+		# Prepare
+		docpad =@
+
+		# Clear Regenerate Timer
+		if docpad.regenerateTimer
+			clearInterval(docpad.regenerateTimer)
+			docpad.regenerateTimer = null
+
+		# Chain
+		@
+
 	# Generate
 	# next(err)
 	generate: (opts,next) =>
@@ -3330,10 +3414,8 @@ class DocPad extends EventEmitterGrouped
 		# Check
 		return next()  if opts.collection?.length is 0
 
-		# Clear Regenerate Timer
-		if docpad.regenerateTimer
-			clearInterval(docpad.regenerateTimer)
-			docpad.regenerateTimer = null
+		# Destroy Regenerate Timer
+		docpad.destroyRegenerateTimer()
 
 		# Create Progress
 		opts.progress ?= docpad.createProgress()
@@ -3524,6 +3606,26 @@ class DocPad extends EventEmitterGrouped
 	# ---------------------------------
 	# Watch
 
+	# Watchers
+	watchers: null
+
+	# Destroy Watchers
+	destroyWatchers: =>
+		# Prepare
+		docpad = @
+
+		# Check
+		if docpad.watchers
+			# Close each of them
+			for watcher in docpad.watchers
+				watcher.close()
+
+			# Reset the array
+			docpad.watchers = []
+
+		# Chain
+		@
+
 	# Watch
 	watch: (opts,next) =>
 		# Prepare
@@ -3532,22 +3634,15 @@ class DocPad extends EventEmitterGrouped
 		config = @getConfig()
 		locale = @getLocale()
 		database = @getDatabase()
-		watchers = []
-
-		# Close our watchers
-		closeWatchers = ->
-			for watcher in watchers
-				watcher.close()
-				watcher = null
-			watchers = []
+		@watchers ?= []
 
 		# Restart our watchers
-		resetWatchers = (next) ->
+		restartWatchers = (next) ->
 			# Close our watchers
-			closeWatchers()
+			docpad.destroyWatchers()
 
 			# Start a group
-			tasks = new TaskGroup().setConfig(concurrency:0).once('complete',next)
+			tasks = new TaskGroup().setConfig(concurrency: 0).once('complete', next)
 
 			# Watch reload paths
 			reloadPaths = _.union(config.reloadPaths, config.configPaths)
@@ -3566,7 +3661,7 @@ class DocPad extends EventEmitterGrouped
 						docpad.log('warn', "Watching the reload paths has failed:", reloadPaths, err)
 						return complete()
 					for watcher in _watchers
-						watchers.push(watcher)
+						docpad.watchers.push(watcher)
 					return complete()
 			)
 
@@ -3583,7 +3678,7 @@ class DocPad extends EventEmitterGrouped
 						docpad.log('warn', "Watching the regenerate paths has failed:", regeneratePaths, err)
 						return complete()
 					for watcher in _watchers
-						watchers.push(watcher)
+						docpad.watchers.push(watcher)
 					return complete()
 			)
 
@@ -3599,12 +3694,15 @@ class DocPad extends EventEmitterGrouped
 					if err
 						docpad.log('warn', "Watching the src path has failed:", srcPath, err)
 						return complete()
-					watchers.push(watcher)
+					docpad.watchers.push(watcher)
 					return complete()
 			)
 
 			# Run
 			tasks.run()
+
+			# Chain
+			@
 
 		# Timer
 		regenerateTimer = null
@@ -3672,7 +3770,7 @@ class DocPad extends EventEmitterGrouped
 
 		# Watch
 		docpad.log(locale.watchStart)
-		resetWatchers (err) ->
+		restartWatchers (err) ->
 			return next(err)  if err
 			docpad.log(locale.watchStarted)
 			return next()
@@ -4323,7 +4421,7 @@ class DocPad extends EventEmitterGrouped
 				return next()
 
 		# Start
-		docpad.emitSerial 'serverBefore', {}, (err) ->
+		docpad.emitSerial 'serverBefore', (err) ->
 			return finish(err)  if err
 
 			# Server

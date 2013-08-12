@@ -143,6 +143,7 @@
 	# Console
 	consoleError: "Something went wrong with the action"
 	consoleSuccess: "The action completed successfully"
+	consoleShutdown: "Shutting down... cya next time!"
 
 	consoleDescriptionInit: "initialize your directory with an empty docpad project"
 	consoleDescriptionRun: "does everything: skeleton, generate, watch, server"
