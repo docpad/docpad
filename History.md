@@ -1,6 +1,6 @@
 ## History
 
-- v6.49.0 August 9, 2013
+- v6.49.0 August 12, 2013
 	- DocPad will now shutdown and destroy itself more thoroughly
 		- Thanks to [Ashton Williams](https://github.com/Ashton-W) for [issue #595](https://github.com/bevry/docpad/issues/595)
 	- Added the event `docpadDestroy` for plugins that are doing anything long-running so they can destroy themselves thoroughly too
