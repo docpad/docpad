@@ -3300,7 +3300,7 @@ class DocPad extends EventEmitterGrouped
 		database = docpad.getDatabase()
 
 		# Perform the reload of the selected files
-		docpad.loadFiles {collection:opts.collection}, (err) ->
+		docpad.loadFiles {collection:opts.collection, progress:opts.progress}, (err) ->
 			# Check
 			return next(err)  if err
 
