@@ -1,5 +1,9 @@
 ## History
 
+- v6.49.1 August 14, 2013
+	- `loadFiles` step is now properly reported in the progress bar
+		- Thanks to [Bruno Heridet](https://github.com/Delapouite) for [pull request #498](https://github.com/bevry/docpad/pull/598)
+
 - v6.49.0 August 12, 2013
 	- DocPad will now shutdown and destroy itself more thoroughly
 		- Thanks to [Ashton Williams](https://github.com/Ashton-W) for [issue #595](https://github.com/bevry/docpad/issues/595)
