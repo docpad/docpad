@@ -15,7 +15,6 @@ cliPath    = pathUtil.join(docpadPath, 'bin', 'docpad')
 
 # Configure DocPad
 docpadConfig =
-	growl: false
 	port: 9780
 	rootPath: rootPath
 	logLevel: if (process.env.TRAVIS_NODE_VERSION? or '-d' in process.argv) then 7 else 5

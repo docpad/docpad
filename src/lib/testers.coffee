@@ -34,7 +34,6 @@ class PluginTester
 	docpadConfig:
 		global: true
 		port: null
-		growl: false
 		logLevel: (if ('-d' in process.argv) then 7 else 5)
 		rootPath: null
 		outPath: null
