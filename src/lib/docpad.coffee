@@ -108,26 +108,6 @@ class DocPad extends EventEmitterGrouped
 
 
 	# ---------------------------------
-	# Instances
-
-	# Growl
-	growlInstance: null
-	getGrowlInstance: ->
-		# Create
-		if @growlInstance? is false
-			if @getConfig().growl
-				try
-					@growlInstance = require('growl')
-				catch err
-					@growlInstance = false
-			else
-				@growlInstance = false
-
-		# Return
-		return @growlInstance
-
-
-	# ---------------------------------
 	# DocPad
 
 	# DocPad's version number
@@ -213,6 +193,7 @@ class DocPad extends EventEmitterGrouped
 		'serverBefore'
 		'serverExtend'
 		'serverAfter'
+		'notify'
 	]
 	getEvents: ->
 		@events
@@ -894,14 +875,6 @@ class DocPad extends EventEmitterGrouped
 		# Log Level
 		# Which level of logging should we actually output
 		logLevel: (if ('-d' in process.argv) then 7 else 6)
-
-		# Logger
-		# A caterpillar instance if we already have one
-		logger: null
-
-		# Growl
-		# Whether or not to send notifications to growl when we have them
-		growl: true
 
 		# Catch uncaught exceptions
 		catchExceptions: true
@@ -2035,7 +2008,6 @@ class DocPad extends EventEmitterGrouped
 		@
 
 
-
 	# =================================
 	# Logging
 
@@ -2125,19 +2097,14 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Perform a growl notification
-	notify: (message,opts) =>
+	# Send a notify event to plugins (like growl)
+	notify: (message,options={}) =>
 		# Prepare
 		docpad = @
 
-		# Check
-		growl = @getGrowlInstance()
-		if growl
-			# Apply
-			try
-				growl(message,opts)
-			catch err
-				# ignore
+		# Emit
+		docpad.emitSerial 'notify', {message,options}, (err) ->
+			docpad.error(err)  if err
 
 		# Chain
 		@

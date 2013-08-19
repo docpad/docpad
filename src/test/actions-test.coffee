@@ -26,7 +26,6 @@ testWait = 1000*60*5  # five minutes
 
 # Configure DocPad
 docpadConfig =
-	growl: false
 	port: port
 	rootPath: rootPath
 	logLevel: if (process.env.TRAVIS_NODE_VERSION? or '-d' in process.argv) then 7 else 5
