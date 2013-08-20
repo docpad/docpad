@@ -1,124 +1,140 @@
 {
-	"name": "docpad",
-	"version": "6.49.2",
-	"description": "DocPad is a next generation web architecture that lets you create fast static websites with dynamic abilities and powerful abstractions. Write your website as files on your computer, entries in a database, or even RSS feeds and DocPad will import it, generate & render it, then output a static website for deployment anywhere or a dynamic node website for advanced server-side functionality. Use it as a module or standalone. It's purely awesome. Check it out.",
-	"homepage": "https://github.com/bevry/docpad",
-	"installUrl": "http://docpad.org/install",
-	"upgradeUrl": "http://docpad.org/upgrade",
-	"keywords": [
-		"document management system", "dms",
-		"content management system", "cms",
-		"static site generator", "generator",
-		"static file server", "server",
-		"web",
-		"web framework", "framework",
-		"web development", "development", "dev",
-		"build and deployment", "builder", "build",
-		"compiler", "compile",
-		"parser", "parse",
-		"renderer", "render",
-		"templating", "templates",
-		"language agnostic",
-		"website", "blog",
-		"cli", "tool", "utility",
-		"scaffold"
-	],
-	"author": "Bevry Pty Ltd <us@bevry.me> (http://bevry.me)",
-	"maintainers": [
-		"Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)",
-		"Chase Colman <chase@infinityatlas.com> (https://github.com/chase)"
-	],
-	"contributors": [
-		"Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)",
-		"Chase Colman <chase@infinityatlas.com> (https://github.com/chase)",
-		"Nick Crohn <ncrohn@me.com> (https://github.com/ncrohn)",
-		"eldios <lele@amicofigo.com> (https://github.com/eldios)",
-		"Changwoo Park <pismute@gmail.com> (https://github.com/pismute)",
-		"Bruno Héridet (https://github.com/Delapouite)",
-		"Todd Anglin (https://github.com/toddanglin)",
-		"Olivier Bazoud (https://github.com/obazoud)",
-		"Zhao Lei <aicoylei@gmail.com> (https://github.com/firede)",
-		"Aaron Powell <me@aaron-powell.com> (https://github.com/aaronpowell)",
-		"Andrew Patton <andrew@acusti.ca> (https://github.com/acusti)",
-		"Paul Armstrong <paul@paularmstrongdesigns.com> (https://github.com/paularmstrong)",
-		"Sorin Ionescu <sorin.ionescu@gmail.com> (https://github.com/sorin-ionescu)",
-		"Ferrari Lee <shiyung@gmail.com> (https://github.com/Ferrari)",
-		"Ben Barber (https://github.com/barberboy)",
-		"Luke Hagan (https://github.com/lhagan)",
-		"Vladislav Botvin <darkvlados@me.com> (https://github.com/darrrk)",
-		"Ashnur (https://github.com/ashnur)",
-		"Stefan (https://github.com/stegrams)",
-		"Alex (https://github.com/amesarosh)",
-		"Richard A <richard@antecki.id.au> (https://github.com/rantecki)",
-		"Homme Zwaagstra <hrz@geodata.soton.ac.uk> (https://github.com/homme)",
-		"Adrian Olaru <agolaru@gmail.com> (https://github.com/adrianolaru)",
-		"Richard A <richard@antecki.id.au> (https://github.com/rantecki)",
-		"Neil Taylor <neil.t@myplanetdigital.com> (https://github.com/neilbaylorrulez)",
-		"Sven Vetsch (https://github.com/disenchant)"
-	],
-	"bugs": {
-		"url": "https://github.com/bevry/docpad/issues"
-	},
-	"repository" : {
-		"type": "git",
-		"url": "http://github.com/bevry/docpad.git"
-	},
-	"engines" : {
-		"node": ">=0.8",
-		"npm": ">=1.2"
-	},
-	"dependencies": {
-		"ambi": "~2.1.0",
-		"backbone": "1.0.0",
-		"bal-util": "~2.3.0",
-		"caterpillar": "~2.0.4",
-		"caterpillar-filter": "~2.0.1",
-		"caterpillar-human": "~2.1.0",
-		"commander": "~1.3.0",
-		"cson": "~1.4.2",
-		"eachr": "~2.0.2",
-		"envfile": "~1.0.0",
-		"event-emitter-grouped": "~2.3.0",
-		"express": "~3.3.1",
-		"extendr": "~2.1.0",
-		"extract-opts": "~2.2.0",
-		"getmac": "~1.0.4",
-		"jschardet": "~1.0.2",
-		"lazy-require": "~1.0.0",
-		"lodash": "~1.3.1",
-		"mime": "~1.2.9",
-		"progressbar": "~1.0.1",
-		"query-engine": "~1.5.2",
-		"safefs": "~3.0.1",
-		"safeps": "~2.2.6",
-		"semver": "~2.1.0",
-		"superagent": "~0.15.1",
-		"taskgroup": "~3.2.0",
-		"typechecker": "~2.0.1",
-		"watchr": "~2.4.1",
-		"yamljs": "~0.1.4"
-	},
-	"optionalDependencies": {
-		"growl": "~1.7.0"
-	},
-	"devDependencies": {
-		"coffee-script": "~1.6.2",
-		"chai": "~1.7.0",
-		"joe": "~1.3.0",
-		"joe-reporter-console": "~1.2.1"
-	},
-	"directories": {
-		"lib": "./out/lib"
-	},
-	"bin": {
-		"docpad": "./bin/docpad",
-		"docpad-compile": "./bin/docpad-compile",
-		"docpad-debug": "./bin/docpad-debug",
-		"docpad-server": "./bin/docpad-server",
-		"docpad-trace": "./bin/docpad-trace"
-	},
-	"scripts": {
-		"test": "./node_modules/.bin/cake test"
-	},
-	"main": "./out/main.js"
+  "name": "docpad",
+  "version": "6.49.2",
+  "description": "DocPad is a next generation web architecture that lets you create fast static websites with dynamic abilities and powerful abstractions. Write your website as files on your computer, entries in a database, or even RSS feeds and DocPad will import it, generate & render it, then output a static website for deployment anywhere or a dynamic node website for advanced server-side functionality. Use it as a module or standalone. It's purely awesome. Check it out.",
+  "homepage": "https://github.com/bevry/docpad",
+  "installUrl": "http://docpad.org/install",
+  "upgradeUrl": "http://docpad.org/upgrade",
+  "keywords": [
+    "document management system",
+    "dms",
+    "content management system",
+    "cms",
+    "static site generator",
+    "generator",
+    "static file server",
+    "server",
+    "web",
+    "web framework",
+    "framework",
+    "web development",
+    "development",
+    "dev",
+    "build and deployment",
+    "builder",
+    "build",
+    "compiler",
+    "compile",
+    "parser",
+    "parse",
+    "renderer",
+    "render",
+    "templating",
+    "templates",
+    "language agnostic",
+    "website",
+    "blog",
+    "cli",
+    "tool",
+    "utility",
+    "scaffold"
+  ],
+  "author": "Bevry Pty Ltd <us@bevry.me> (http://bevry.me)",
+  "maintainers": [
+    "Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)",
+    "Chase Colman <chase@infinityatlas.com> (https://github.com/chase)"
+  ],
+  "contributors": [
+    "Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)",
+    "Chase Colman <chase@infinityatlas.com> (https://github.com/chase)",
+    "Nick Crohn <ncrohn@me.com> (https://github.com/ncrohn)",
+    "eldios <lele@amicofigo.com> (https://github.com/eldios)",
+    "Changwoo Park <pismute@gmail.com> (https://github.com/pismute)",
+    "Bruno Héridet (https://github.com/Delapouite)",
+    "Todd Anglin (https://github.com/toddanglin)",
+    "Olivier Bazoud (https://github.com/obazoud)",
+    "Zhao Lei <aicoylei@gmail.com> (https://github.com/firede)",
+    "Aaron Powell <me@aaron-powell.com> (https://github.com/aaronpowell)",
+    "Andrew Patton <andrew@acusti.ca> (https://github.com/acusti)",
+    "Paul Armstrong <paul@paularmstrongdesigns.com> (https://github.com/paularmstrong)",
+    "Sorin Ionescu <sorin.ionescu@gmail.com> (https://github.com/sorin-ionescu)",
+    "Ferrari Lee <shiyung@gmail.com> (https://github.com/Ferrari)",
+    "Ben Barber (https://github.com/barberboy)",
+    "Luke Hagan (https://github.com/lhagan)",
+    "Vladislav Botvin <darkvlados@me.com> (https://github.com/darrrk)",
+    "Ashnur (https://github.com/ashnur)",
+    "Stefan (https://github.com/stegrams)",
+    "Alex (https://github.com/amesarosh)",
+    "Richard A <richard@antecki.id.au> (https://github.com/rantecki)",
+    "Homme Zwaagstra <hrz@geodata.soton.ac.uk> (https://github.com/homme)",
+    "Adrian Olaru <agolaru@gmail.com> (https://github.com/adrianolaru)",
+    "Richard A <richard@antecki.id.au> (https://github.com/rantecki)",
+    "Neil Taylor <neil.t@myplanetdigital.com> (https://github.com/neilbaylorrulez)",
+    "Sven Vetsch (https://github.com/disenchant)"
+  ],
+  "bugs": {
+    "url": "https://github.com/bevry/docpad/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/bevry/docpad.git"
+  },
+  "engines": {
+    "node": ">=0.8",
+    "npm": ">=1.2"
+  },
+  "dependencies": {
+    "ambi": "~2.1.0",
+    "backbone": "1.0.0",
+    "bal-util": "~2.3.0",
+    "caterpillar": "~2.0.4",
+    "caterpillar-filter": "~2.0.1",
+    "caterpillar-human": "~2.1.0",
+    "commander": "~1.3.0",
+    "cson": "~1.4.2",
+    "eachr": "~2.0.2",
+    "envfile": "~1.0.0",
+    "event-emitter-grouped": "~2.3.0",
+    "express": "~3.3.1",
+    "extendr": "~2.1.0",
+    "extract-opts": "~2.2.0",
+    "getmac": "~1.0.4",
+    "jschardet": "~1.0.2",
+    "lazy-require": "~1.0.0",
+    "lodash": "~1.3.1",
+    "mime": "~1.2.9",
+    "progressbar": "~1.0.1",
+    "query-engine": "~1.5.2",
+    "safefs": "~3.0.1",
+    "safeps": "~2.2.6",
+    "semver": "~2.1.0",
+    "superagent": "~0.15.1",
+    "taskgroup": "~3.2.0",
+    "typechecker": "~2.0.1",
+    "watchr": "~2.4.1",
+    "yamljs": "~0.1.4"
+  },
+  "optionalDependencies": {
+    "growl": "~1.7.0"
+  },
+  "devDependencies": {
+    "coffee-script": "~1.6.2",
+    "chai": "~1.7.0",
+    "joe": "~1.3.0",
+    "joe-reporter-console": "~1.2.1"
+  },
+  "directories": {
+    "lib": "./out/lib"
+  },
+  "bin": {
+    "docpad": "./bin/docpad",
+    "docpad-compile": "./bin/docpad-compile",
+    "docpad-debug": "./bin/docpad-debug",
+    "docpad-server": "./bin/docpad-server",
+    "docpad-trace": "./bin/docpad-trace"
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/cake test"
+  },
+  "main": "./out/main.js"
 }
