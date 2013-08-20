@@ -99,10 +99,17 @@ class PluginTester
 			DocPad.createInstance docpadConfig, (err,docpad) ->
 				return done(err)  if err
 				tester.docpad = docpad
-				tester.docpad.action 'clean', (err) ->
-					return done(err)  if err
-					tester.docpad.action 'install', (err) ->
-						return done(err)
+
+				# init docpad in case the plugin is starting from scratch
+				tester.docpad.action 'init', (err) ->
+					# ignore error as it is probably just related to there already being something
+
+					# clean up the docpad out directory
+					tester.docpad.action 'clean', (err) ->
+						return done(err)  if err
+
+						# install anything that needs to be installed
+						tester.docpad.action('install', done)
 
 		# Chain
 		@

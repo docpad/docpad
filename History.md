@@ -1,5 +1,10 @@
 ## History
 
+- v6.49.2 August 20, 2013
+	- Fixed `File::deleteSource`
+	- Plugin tester will now try to init the plugin test directory if there are tests defined (useful for plugins which tests start from scratch)
+	- Updated dependencies
+
 - v6.49.1 August 14, 2013
 	- `loadFiles` step is now properly reported in the progress bar
 		- Thanks to [Bruno Heridet](https://github.com/Delapouite) for [pull request #498](https://github.com/bevry/docpad/pull/598)
