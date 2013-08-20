@@ -205,8 +205,10 @@ class DocPad extends EventEmitterGrouped
 		'contextualizeBefore'
 		'contextualizeAfter'
 		'renderBefore'
+		'renderCollectionBefore'
 		'render'
 		'renderDocument'
+		'renderCollectionAfter'
 		'renderAfter'
 		'writeBefore'
 		'writeAfter'
@@ -2978,23 +2980,34 @@ class DocPad extends EventEmitterGrouped
 
 		# Render Collection
 		renderCollection = (collectionToRender,{renderPass},next) ->
-			# Prepare
-			subTasks = new TaskGroup().setConfig(concurrency:0).once('complete',next)
+			# Plugin Event
+			docpad.emitSerial 'renderCollectionBefore', {collection:collectionToRender,renderPass}, (err) =>
+				# Prepare
+				return next(err)  if err
 
-			# Cycle
-			step = "renderFiles (pass #{renderPass})"
-			opts.progress?.step(step).total(collectionToRender.length)
-			collectionToRender.forEach (file) ->
-				slowFilesObject[file.id] = file.get('relativePath')
-				subTasks.addTask (complete) ->
-					renderFile file, (err) ->
-						delete slowFilesObject[file.id] or file.id
-						opts.progress?.tick()
-						return complete(err)
+				subTasks = new TaskGroup().setConfig(concurrency:0).once 'complete', (err) ->
+					# Plugin Event
+					docpad.emitSerial 'renderCollectionAfter', {collection:collectionToRender,renderPass}, (err) ->
+						# Prepare
+						return next(err)  if err
 
-			# Return
-			subTasks.run()
-			return collectionToRender
+						# Done
+						return next()
+
+				# Cycle
+				step = "renderFiles (pass #{renderPass})"
+				opts.progress?.step(step).total(collectionToRender.length)
+				collectionToRender.forEach (file) ->
+					slowFilesObject[file.id] = file.get('relativePath')
+					subTasks.addTask (complete) ->
+						renderFile file, (err) ->
+							delete slowFilesObject[file.id] or file.id
+							opts.progress?.tick()
+							return complete(err)
+
+				# Return
+				subTasks.run()
+				return collectionToRender
 
 		# Plugin Event
 		docpad.emitSerial 'renderBefore', {collection,templateData}, (err) =>
