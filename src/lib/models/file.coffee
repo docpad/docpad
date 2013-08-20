@@ -835,7 +835,7 @@ class FileModel extends Model
 	# ---------------------------------
 	# CRUD
 
-	# Write the rendered file
+	# Write the out file
 	# next(err)
 	write: (opts,next) ->
 		# Prepare
@@ -882,7 +882,7 @@ class FileModel extends Model
 		# Chain
 		@
 
-	# Write the file
+	# Write the source file
 	# next(err)
 	writeSource: (opts,next) ->
 		# Prepare
@@ -900,9 +900,9 @@ class FileModel extends Model
 		# Chain
 		@
 
-	# Delete the file
+	# Delete the out file
 	# next(err)
-	delete: (opts,next) ->
+	'delete': (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
 		file = @
@@ -939,7 +939,7 @@ class FileModel extends Model
 		# Chain
 		@
 
-	# Delete the file
+	# Delete the source file
 	# next(err)
 	deleteSource: (opts,next) ->
 		# Prepare
@@ -951,7 +951,7 @@ class FileModel extends Model
 		opts.type      or= 'source file'
 
 		# Write data
-		@write(opts, next)
+		@delete(opts, next)
 
 		# Chain
 		@

@@ -1,6 +1,6 @@
 {
 	"name": "docpad",
-	"version": "6.49.1",
+	"version": "6.49.2",
 	"description": "DocPad is a next generation web architecture that lets you create fast static websites with dynamic abilities and powerful abstractions. Write your website as files on your computer, entries in a database, or even RSS feeds and DocPad will import it, generate & render it, then output a static website for deployment anywhere or a dynamic node website for advanced server-side functionality. Use it as a module or standalone. It's purely awesome. Check it out.",
 	"homepage": "https://github.com/bevry/docpad",
 	"installUrl": "http://docpad.org/install",
@@ -68,7 +68,7 @@
 		"npm": ">=1.2"
 	},
 	"dependencies": {
-		"ambi": "~2.0.0",
+		"ambi": "~2.1.0",
 		"backbone": "1.0.0",
 		"bal-util": "~2.3.0",
 		"caterpillar": "~2.0.4",
@@ -93,7 +93,7 @@
 		"safeps": "~2.2.6",
 		"semver": "~2.1.0",
 		"superagent": "~0.15.1",
-		"taskgroup": "~3.1.2",
+		"taskgroup": "~3.2.0",
 		"typechecker": "~2.0.1",
 		"watchr": "~2.4.1",
 		"yamljs": "~0.1.4"
@@ -104,7 +104,7 @@
 	"devDependencies": {
 		"coffee-script": "~1.6.2",
 		"chai": "~1.7.0",
-		"joe": "~1.2.0",
+		"joe": "~1.3.0",
 		"joe-reporter-console": "~1.2.1"
 	},
 	"directories": {

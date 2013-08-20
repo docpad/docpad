@@ -3754,7 +3754,7 @@ class DocPad extends EventEmitterGrouped
 			fileCurrentStat?.mtime = new Date()
 
 			# Create the file object
-			file = docpad.ensureFileOrDocument({fullPath:filePath}, {stat:fileCurrentStat})  # adds to database if not existant
+			file = docpad.ensureModel({fullPath:filePath}, {stat:fileCurrentStat})  # adds to database if not existant
 			file.setStat(fileCurrentStat)  if changeType is 'update'
 
 			# File was deleted, delete the rendered file, and remove it from the database
