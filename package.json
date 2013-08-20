@@ -1,6 +1,6 @@
 {
   "name": "docpad",
-  "version": "6.49.2",
+  "version": "6.50.0",
   "description": "DocPad is a next generation web architecture that lets you create fast static websites with dynamic abilities and powerful abstractions. Write your website as files on your computer, entries in a database, or even RSS feeds and DocPad will import it, generate & render it, then output a static website for deployment anywhere or a dynamic node website for advanced server-side functionality. Use it as a module or standalone. It's purely awesome. Check it out.",
   "homepage": "https://github.com/bevry/docpad",
   "installUrl": "http://docpad.org/install",
@@ -79,6 +79,10 @@
     "type": "git",
     "url": "http://github.com/bevry/docpad.git"
   },
+  "license": {
+	"type": "MIT",
+	"url": "http://docpad.org/license"
+  },
   "engines": {
     "node": ">=0.8",
     "npm": ">=1.2"
@@ -90,7 +94,7 @@
     "caterpillar": "~2.0.4",
     "caterpillar-filter": "~2.0.1",
     "caterpillar-human": "~2.1.0",
-    "commander": "~1.3.0",
+    "commander": "~2.0.0",
     "cson": "~1.4.2",
     "eachr": "~2.0.2",
     "envfile": "~1.0.0",
@@ -112,7 +116,8 @@
     "taskgroup": "~3.2.0",
     "typechecker": "~2.0.1",
     "watchr": "~2.4.1",
-    "yamljs": "~0.1.4"
+    "yamljs": "~0.1.4",
+    "promptly": "~0.2.0"
   },
   "optionalDependencies": {
     "growl": "~1.7.0"

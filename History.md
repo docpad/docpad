@@ -1,5 +1,10 @@
 ## History
 
+- v6.50.0 August 20, 2013
+	- Upgraded from commander v1.3 to v2 (removes commander prompts)
+	- We now use promptly for prompts
+	- Updated dependencies
+
 - v6.49.2 August 20, 2013
 	- Fixed `File::deleteSource`
 	- Plugin tester will now try to init the plugin test directory if there are tests defined (useful for plugins which tests start from scratch)

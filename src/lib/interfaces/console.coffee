@@ -5,6 +5,7 @@ safefs = require('safefs')
 safeps = require('safeps')
 {TaskGroup} = require('taskgroup')
 extendr = require('extendr')
+promptly = require('promptly')
 
 # Console Interface
 class ConsoleInterface
@@ -325,6 +326,7 @@ class ConsoleInterface
 	# Select a skeleton
 	selectSkeletonCallback: (skeletonsCollection,next) =>
 		# Prepare
+		consoleInterface = @
 		commander = @commander
 		docpad = @docpad
 		locale = docpad.getLocale()
@@ -336,17 +338,13 @@ class ConsoleInterface
 			skeletonName = skeletonModel.get('name')
 			skeletonDescription = skeletonModel.get('description').replace(/\n/g,'\n\t')
 			skeletonNames.push(skeletonName)
-			console.log """
-				#{skeletonModel.get('position')+1}. #{skeletonName}
-				   #{skeletonDescription}
-
-				"""
+			console.log "  #{skeletonModel.get('position')+1}.\t#{skeletonName}\n  \t#{skeletonDescription}\n"
 
 		# Select
-		docpad.log 'info', locale.skeletonSelectionPrompt
-		commander.choose skeletonNames, (i) ->
-			process.stdin.destroy()
-			return next(null, skeletonsCollection.at(i))
+		consoleInterface.choose locale.skeletonSelectionPrompt, skeletonNames, null, (err, choice) ->
+			return next(err)  if err
+			index = skeletonNames.indexOf(choice)
+			return next(null, skeletonsCollection.at(index))
 
 		# Chain
 		@
@@ -366,118 +364,131 @@ class ConsoleInterface
 			return complete()  if docpad.config.prompts is false or userConfig.tos is true
 
 			# Ask the user if they agree to the TOS
-			consoleInterface.confirm locale.tosPrompt, true, (ok) ->  docpad.track 'tos', {ok}, (err) ->
+			consoleInterface.confirm locale.tosPrompt, {default:true}, (err, ok) ->
 				# Check
-				if ok
-					userConfig.tos = true
-					console.log locale.tosAgree
-					docpad.updateUserConfig(complete)
-					return
-				else
-					console.log locale.tosDisagree
-					process.exit()
-					return
+				return complete(err)  if err
+
+				# Track
+				docpad.track 'tos', {ok}, (err) ->
+					# Check
+					if ok
+						userConfig.tos = true
+						console.log locale.tosAgree
+						docpad.updateUserConfig(complete)
+						return
+					else
+						console.log locale.tosDisagree
+						process.exit()
+						return
 
 		# Newsletter
 		welcomeTasks.addTask (complete) ->
 			return complete()  if docpad.config.prompts is false or userConfig.subscribed? or (userConfig.subscribeTryAgain? and (new Date()) > (new Date(userConfig.subscribeTryAgain)))
 
 			# Ask the user if they want to subscribe to the newsletter
-			consoleInterface.confirm locale.subscribePrompt, true, (ok) ->  docpad.track 'subscribe', {ok}, (err) ->
-				# If they don't want to, that's okay
-				unless ok
-					# Inform the user that we received their preference
-					console.log locale.subscribeIgnore
+			consoleInterface.confirm locale.subscribePrompt, {default:true}, (err, ok) ->
+				# Check
+				return complete(err)  if err
 
-					# Save their preference in the user configuration
-					userConfig.subscribed = false
-					docpad.updateUserConfig (err) ->
-						return complete(err)  if err
-						balUtil.wait(2000,complete)
-					return
+				# Track
+				docpad.track 'subscribe', {ok}, (err) ->
+					# If they don't want to, that's okay
+					unless ok
+						# Inform the user that we received their preference
+						console.log locale.subscribeIgnore
 
-				# Scan configuration to speed up the process
-				commands = [
-					['config','--get','user.name']
-					['config','--get','user.email']
-					['config','--get','github.user']
-				]
-				safeps.spawnCommands 'git', commands, (err,results) ->
-					# Ignore error as it just means a config value wasn't defined
-					# return next(err)  if err
+						# Save their preference in the user configuration
+						userConfig.subscribed = false
+						docpad.updateUserConfig (err) ->
+							return complete(err)  if err
+							balUtil.wait(2000,complete)
+						return
 
-					# Fetch
-					# The or to '' is there because otherwise we will get "undefined" as a string if the value doesn't exist
-					userConfig.name or= String(results?[0]?[1] or '').trim() or null
-					userConfig.email or= String(results?[1]?[1] or '').trim() or null
-					userConfig.username or= String(results?[2]?[1] or '').trim() or null
+					# Scan configuration to speed up the process
+					commands = [
+						['config','--get','user.name']
+						['config','--get','user.email']
+						['config','--get','github.user']
+					]
+					safeps.spawnCommands 'git', commands, (err,results) ->
+						# Ignore error as it just means a config value wasn't defined
+						# return next(err)  if err
 
-					# Let the user know we scanned their configuration if we got anything useful
-					if userConfig.name or userConfig.email or userConfig.username
-						console.log locale.subscribeConfigNotify
+						# Fetch
+						# The or to '' is there because otherwise we will get "undefined" as a string if the value doesn't exist
+						userConfig.name or= String(results?[0]?[1] or '').trim() or null
+						userConfig.email or= String(results?[1]?[1] or '').trim() or null
+						userConfig.username or= String(results?[2]?[1] or '').trim() or null
 
-					# Tasks
-					subscribeTasks = new TaskGroup().once 'complete', (err) ->
-						# Error?
-						if err
-							# Inform the user
-							console.log locale.subscribeError
+						# Let the user know we scanned their configuration if we got anything useful
+						if userConfig.name or userConfig.email or userConfig.username
+							console.log locale.subscribeConfigNotify
 
-							# Save a time when we should try to subscribe again
-							userConfig.subscribeTryAgain = new Date().getTime() + 1000*60*60*24  # tomorrow
-
-						# Success
-						else
-							# Inform the user
-							console.log locale.subscribeSuccess
-
-							# Save the updated subscription status, and continue to what is next
-							userConfig.subscribed = true
-							userConfig.subscribeTryAgain = null
-
-						# Save the new user configuration changes, and forward to the next task
-						docpad.updateUserConfig(userConfig, complete)
-
-					# Name Fallback
-					subscribeTasks.addTask (complete) ->
-						consoleInterface.prompt locale.subscribeNamePrompt, userConfig.name, (result) ->
-							userConfig.name = result
-							return complete()
-
-					# Email Fallback
-					subscribeTasks.addTask (complete) ->
-						consoleInterface.prompt locale.subscribeEmailPrompt, userConfig.email, (result) ->
-							userConfig.email = result
-							return complete()
-
-					# Username Fallback
-					subscribeTasks.addTask (complete) ->
-						consoleInterface.prompt locale.subscribeUsernamePrompt, userConfig.username, (result) ->
-							userConfig.username = result
-							return complete()
-
-					# Save the details
-					subscribeTasks.addTask (complete) ->
-						return docpad.updateUserConfig(complete)
-
-					# Perform the subscribe
-					subscribeTasks.addTask (complete) ->
-						# Inform the user
-						console.log locale.subscribeProgress
-
-						# Forward
-						docpad.subscribe (err,res) ->
-							# Check
+						# Tasks
+						subscribeTasks = new TaskGroup().once 'complete', (err) ->
+							# Error?
 							if err
-								docpad.log 'debug', locale.subscribeRequestError, err.message
-								return complete(err)
+								# Inform the user
+								console.log locale.subscribeError
+
+								# Save a time when we should try to subscribe again
+								userConfig.subscribeTryAgain = new Date().getTime() + 1000*60*60*24  # tomorrow
 
 							# Success
-							docpad.log 'debug', locale.subscribeRequestData, res.text
-							return complete()
+							else
+								# Inform the user
+								console.log locale.subscribeSuccess
 
-					# Run
-					subscribeTasks.run()
+								# Save the updated subscription status, and continue to what is next
+								userConfig.subscribed = true
+								userConfig.subscribeTryAgain = null
+
+							# Save the new user configuration changes, and forward to the next task
+							docpad.updateUserConfig(userConfig, complete)
+
+						# Name Fallback
+						subscribeTasks.addTask (complete) ->
+							consoleInterface.prompt locale.subscribeNamePrompt, {default: userConfig.name}, (err, result) ->
+								return complete(err)  if err
+								userConfig.name = result
+								return complete()
+
+						# Email Fallback
+						subscribeTasks.addTask (complete) ->
+							consoleInterface.prompt locale.subscribeEmailPrompt, {default: userConfig.email}, (err, result) ->
+								return complete(err)  if err
+								userConfig.email = result
+								return complete()
+
+						# Username Fallback
+						subscribeTasks.addTask (complete) ->
+							consoleInterface.prompt locale.subscribeUsernamePrompt, {default: userConfig.username}, (err, result) ->
+								return complete(err)  if err
+								userConfig.username = result
+								return complete()
+
+						# Save the details
+						subscribeTasks.addTask (complete) ->
+							return docpad.updateUserConfig(complete)
+
+						# Perform the subscribe
+						subscribeTasks.addTask (complete) ->
+							# Inform the user
+							console.log locale.subscribeProgress
+
+							# Forward
+							docpad.subscribe (err,res) ->
+								# Check
+								if err
+									docpad.log 'debug', locale.subscribeRequestError, err.message
+									return complete(err)
+
+								# Success
+								docpad.log 'debug', locale.subscribeRequestData, res.text
+								return complete()
+
+						# Run
+						subscribeTasks.run()
 
 		# Run
 		welcomeTasks.run()
@@ -486,54 +497,71 @@ class ConsoleInterface
 		@
 
 	# Prompt for input
-	prompt: (message,fallback,next) ->
-		# Prepare
-		consoleInterface = @
-		commander = @commander
+	prompt: (message, opts={}, next) ->
+		# Default
+		message += " [#{opts.default}]"  if opts.default
 
-		# Fallback
-		message += " [#{fallback}]"  if fallback
+		# Options
+		opts = extendr.extend({
+			trim: true
+			retry: true
+			silent: false
+		}, opts)
 
 		# Log
-		commander.prompt message+' ', (result) ->
-			# Parse
-			unless result.trim() # no value
-				if fallback? # has default value
-					result = fallback # set to default value
-				else # otherwise try again
-					return consoleInterface.prompt(message,fallback,next)
-
-			# Forward
-			return next(result)
+		promptly.prompt(message, opts, next)
 
 		# Chain
 		@
 
 	# Confirm an option
-	confirm: (message,fallback,next) ->
-		# Prepare
-		consoleInterface = @
-		commander = @commander
-
-		# Fallback
-		if fallback is true
+	confirm: (message, opts={}, next) ->
+		# Default
+		if opts.default is true
 			message += " [Y/n]"
-		else if fallback is false
+		else if opts.default is false
 			message += " [y/N]"
 
-		# Log
-		commander.prompt message+' ', (ok) ->
-			# Parse
-			unless ok.trim() # no value
-				if fallback? # has default value
-					ok = fallback # set to default value
-				else # otherwise try again
-					return consoleInterface.confirm(message,fallback,next)
-			else # parse the value
-				ok = /^y|yes|ok|true$/i.test(ok)
+		# Options
+		opts = extendr.extend({
+			trim: true
+			retry: true
+			silent: false
+		}, opts)
 
-			# Forward
-			return next(ok)
+		# Log
+		promptly.confirm(message, opts, next)
+
+		# Chain
+		@
+
+	# Choose an option
+	choose: (message, choices, opts={}, next) ->
+		# Default
+		message += " [1-#{choices.length}]"
+		indexes = []
+		for choice,i in choices
+			index = i+1
+			indexes.push(index)
+			message += "\n  #{index}.\t#{choice}"
+
+		# Options
+		opts = extendr.extend({
+			trim: true
+			retry: true
+			silent: false
+		}, opts)
+
+		# Prompt
+		prompt = '> '
+		prompt += " [#{opts.default}]"  if opts.default
+
+		# Log
+		console.log(message)
+		promptly.choose prompt, indexes, opts, (err, index) ->
+			return next(err)  if err
+			choice = choices[index-1]
+			return next(null, choice)
 
 		# Chain
 		@
