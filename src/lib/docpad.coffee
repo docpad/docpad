@@ -210,7 +210,7 @@ class DocPad extends EventEmitterGrouped
 		'consoleSetup'                 # fired once
 		'generateBefore'
 		'populateCollectionsBefore'
-		'populateCollections'
+		'populateCollectionsAfter'
 		'generateAfter'
 		'parseBefore'
 		'parseAfter'
@@ -1893,7 +1893,7 @@ class DocPad extends EventEmitterGrouped
 
 			# Perform any plugin extensions to what we just cleaned
 			# and forward
-			return docpad.emitSerial('populateCollections', next)
+			return docpad.emitSerial('populateCollectionsAfter', next)
 
 		# Documents
 		docpadConfig.documentsPaths.forEach (documentsPath) -> tasks.addTask (complete) ->
