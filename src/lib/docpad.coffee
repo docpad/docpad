@@ -282,9 +282,7 @@ class DocPad extends EventEmitterGrouped
 		@
 
 	#  Get blocks
-	getBlocks: (blocks) ->
-		@blocks
-		@
+	getBlocks: -> @blocks
 
 	#  Set blocks
 	setBlocks: (blocks) ->
@@ -425,7 +423,7 @@ class DocPad extends EventEmitterGrouped
 		next(null, file)
 
 		# Chain
-		return @
+		@
 
 	# Get a file by its selector
 	getFileBySelector: (selector,opts={}) ->
@@ -1425,7 +1423,7 @@ class DocPad extends EventEmitterGrouped
 		extendr.safeDeepExtendPlainObjects(configsToMerge...)
 
 		# Chain
-		return @
+		@
 
 	# Set Instance Configuration
 	setInstanceConfig: (instanceConfig) ->
@@ -3391,7 +3389,7 @@ class DocPad extends EventEmitterGrouped
 	# Destroy Regenerate Timer
 	destroyRegenerateTimer: ->
 		# Prepare
-		docpad =@
+		docpad = @
 
 		# Clear Regenerate Timer
 		if docpad.regenerateTimer
@@ -4306,7 +4304,7 @@ class DocPad extends EventEmitterGrouped
 		next()
 
 		# Chain
-		return @
+		@
 
 	# Server Middleware: Router
 	serverMiddlewareRouter: (req,res,next) =>
@@ -4329,7 +4327,7 @@ class DocPad extends EventEmitterGrouped
 			docpad.serveDocument({document:file, req, res, next})
 
 		# Chain
-		return @
+		@
 
 	# Server Middleware: 404
 	serverMiddleware404: (req,res,next) =>
@@ -4345,7 +4343,7 @@ class DocPad extends EventEmitterGrouped
 		docpad.serveDocument({document, req, res, next, statusCode:404})
 
 		# Chain
-		return @
+		@
 
 	# Server Middleware: 500
 	serverMiddleware500: (err,req,res,next) =>
@@ -4361,7 +4359,7 @@ class DocPad extends EventEmitterGrouped
 		docpad.serveDocument({document,err,req,res,next,statusCode:500})
 
 		# Chain
-		return @
+		@
 
 	# Server
 	server: (opts,next) =>
