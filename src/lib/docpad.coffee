@@ -1880,7 +1880,7 @@ class DocPad extends EventEmitterGrouped
 		# Perform a complete clean of our collections
 		database.reset([])
 		meta = @getBlock('meta').reset([])
-		meta.add("""<meta http-equiv="X-Powered-By" content="DocPad v#{docpad.version}"/>""")  if docpad.getConfig().poweredByDocPad isnt false
+		meta.add("""<meta name="generator" content="DocPad v#{docpad.version}" />""")  if docpad.getConfig().poweredByDocPad isnt false
 		@getBlock('scripts').reset([])
 		@getBlock('styles').reset([])
 

@@ -1,6 +1,6 @@
 {
   "name": "docpad",
-  "version": "6.50.0",
+  "version": "6.50.1",
   "description": "DocPad is a next generation web architecture that lets you create fast static websites with dynamic abilities and powerful abstractions. Write your website as files on your computer, entries in a database, or even RSS feeds and DocPad will import it, generate & render it, then output a static website for deployment anywhere or a dynamic node website for advanced server-side functionality. Use it as a module or standalone. It's purely awesome. Check it out.",
   "homepage": "https://github.com/bevry/docpad",
   "installUrl": "http://docpad.org/install",
@@ -80,8 +80,8 @@
     "url": "http://github.com/bevry/docpad.git"
   },
   "license": {
-	"type": "MIT",
-	"url": "http://docpad.org/license"
+    "type": "MIT",
+    "url": "http://docpad.org/license"
   },
   "engines": {
     "node": ">=0.8",
