@@ -1,5 +1,9 @@
 ## History
 
+- v6.50.1 August 28, 2013
+	- Fixed validation of DocPad sites containing the powered by header
+		- Thanks to [drguildo](https://github.com/drguildo) and [Eduan Lavaque](https://github.com/Greduan) for [issue #618](https://github.com/bevry/docpad/issues/618)
+
 - v6.50.0 August 20, 2013
 	- Upgraded from commander v1.3 to v2 (removes commander prompts)
 	- We now use promptly for prompts
