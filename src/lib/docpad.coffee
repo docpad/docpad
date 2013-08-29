@@ -2027,6 +2027,7 @@ class DocPad extends EventEmitterGrouped
 		names.forEach (name) ->
 			# Ensure latest if version isn't specfied
 			name += '@latest'  if name.indexOf('@') is -1
+
 			# Push the name to the commands
 			command.push(name)
 
@@ -2068,6 +2069,7 @@ class DocPad extends EventEmitterGrouped
 
 		# Names
 		names = names.split(/[,\s]+/)  unless typeChecker.isArray(names)
+		command.push(names...)
 
 		# Arguments
 		command.push(opts.args...)

@@ -1,5 +1,8 @@
 ## History
 
+- v6.51.3 August 29, 2013
+	- Fixed `docpad uninstall <pluginName>` (feature introduced in v6.51.0)
+
 - v6.51.2 August 29, 2013
 	- Fixed certain pugin tests that require skeleton initialisation (regression from v6.52.0)
 	- When using `--global` flag we won't kill the global instance when starting a skeleton
