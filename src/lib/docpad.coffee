@@ -4001,7 +4001,7 @@ class DocPad extends EventEmitterGrouped
 	# next(err)
 	upgrade: (opts,next) =>
 		# Update Global NPM and DocPad
-		@installNodeModule('npm docpad-test@6', {
+		@installNodeModule('npm docpad@6', {
 			global: true
 			output: true
 			next: next
