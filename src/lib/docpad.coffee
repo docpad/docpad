@@ -755,6 +755,9 @@ class DocPad extends EventEmitterGrouped
 		# Force re-install of all plugin dependencies
 		force: false
 
+		# Whether or not we should use the global docpad instance
+		global: false
+
 		# Whether or not we should enable plugins that have not been listed or not
 		enableUnlistedPlugins: true
 
@@ -4208,6 +4211,9 @@ class DocPad extends EventEmitterGrouped
 			docpad.install next, (err) ->
 				# Check
 				return next(err)  if err
+
+				# Keep in global?
+				return next()  if docpad.getConfig().global is true
 
 				# Log
 				docpad.log('notice', docpad.getLocale().startLocal)
