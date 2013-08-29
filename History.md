@@ -1,5 +1,8 @@
 ## History
 
+- v6.51.1 August 29, 2013
+	- Fixed `docpad upgrade`
+
 - v6.51.0 August 29, 2013
 	- Better upgrade `docpad upgrade` and update `docpad update` experience
 		- Thanks to [drguildo](https://github.com/drguildo) and [Eduan Lavaque](https://github.com/Greduan) for [issue #619](https://github.com/bevry/docpad/issues/619)
