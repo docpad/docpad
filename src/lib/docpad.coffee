@@ -55,6 +55,9 @@ superAgent = require('superagent')
 # Base
 {queryEngine,Backbone,Events,Model,Collection,View,QueryCollection} = require('./base')
 
+# Utils
+docpadUtil = require('./util')
+
 # Models
 FileModel = require('./models/file')
 DocumentModel = require('./models/document')
@@ -1348,7 +1351,10 @@ class DocPad extends EventEmitterGrouped
 			pluginsList = Object.keys(@loadedPlugins).sort().join(', ')
 
 		# Welcome Output
-		docpad.log 'info', util.format(locale.welcome, "v#{@getVersion()}")
+		if docpadUtil.isLocalDocPadExecutable()
+			docpad.log 'info', util.format(locale.welcomeLocal, "v#{@getVersion()}")
+		else
+			docpad.log 'info', util.format(locale.welcome, "v#{@getVersion()}")
 		docpad.log 'info', locale.welcomeContribute
 		docpad.log 'info', util.format(locale.welcomePlugins, pluginsList)
 		docpad.log 'info', util.format(locale.welcomeEnvironment, @getEnvironment())
@@ -1993,9 +1999,9 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Init Node Module
+	# Install Node Module
 	# next(err,result)
-	initNodeModule: (names,opts) ->
+	installNodeModule: (names,opts) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
 		docpad = @
@@ -2005,14 +2011,16 @@ class DocPad extends EventEmitterGrouped
 		opts.cwd ?= config.rootPath
 		opts.output ?= docpad.getDebugging()
 		opts.args ?= []
-		opts.save ?= true
+		opts.global ?= false
+		opts.global = '--global'  if opts.global is true
+		opts.save ?= !opts.global
 		opts.save = '--save'  if opts.save is true
 
 		# Command
 		command = ['npm', 'install']
 
 		# Names
-		names = names.split(/\s/)  unless typeChecker.isArray(names)
+		names = names.split(/[,\s]+/)  unless typeChecker.isArray(names)
 		names.forEach (name) ->
 			# Ensure latest if version isn't specfied
 			name += '@latest'  if name.indexOf('@') is -1
@@ -2021,9 +2029,47 @@ class DocPad extends EventEmitterGrouped
 
 		# Arguments
 		command.push(opts.args...)
-		command.push('--force')  if config.force
+		command.push('--force')        if config.force
 		command.push('--no-registry')  if config.offline
-		command.push(opts.save)  if opts.save
+		command.push(opts.save)        if opts.save
+		command.push(opts.global)      if opts.global
+
+		# Log
+		docpad.log('info', command.join(' '))  if opts.output
+
+		# Forward
+		safeps.spawn(command, opts, next)
+
+		# Chain
+		@
+
+	# Uninstall Node Module
+	# next(err,result)
+	uninstallNodeModule: (names,opts) ->
+		# Prepare
+		[opts,next] = extractOptsAndCallback(opts, next)
+		docpad = @
+		config = @getConfig()
+
+		# Extract
+		opts.cwd ?= config.rootPath
+		opts.output ?= docpad.getDebugging()
+		opts.args ?= []
+		opts.global ?= false
+		opts.global = '--global'  if opts.global is true
+		opts.save ?= !opts.global
+		opts.save = '--save'  if opts.save is true
+
+		# Command
+		command = ['npm', 'uninstall']
+
+		# Names
+		names = names.split(/[,\s]+/)  unless typeChecker.isArray(names)
+
+		# Arguments
+		command.push(opts.args...)
+		command.push(opts.save)        if opts.save
+		command.push(opts.global)      if opts.global
 
 		# Log
 		docpad.log('info', command.join(' '))  if opts.output
@@ -2726,21 +2772,24 @@ class DocPad extends EventEmitterGrouped
 		# Prepare
 		docpad = @
 		config = @getConfig()
+		locale = @getLocale()
 
 		# Check
 		return @  if config.offline or !config.checkVersion
-
-		# Prepare
-		docpad = @
-		locale = @getLocale()
 
 		# Check
 		balUtil.packageCompare(
 			local: @packagePath
 			remote: config.latestPackageUrl
 			newVersionCallback: (details) ->
-				docpad.notify locale.upgradeNotification
-				docpad.log 'notice', util.format(locale.upgradeDetails, details.local.version, details.remote.version, details.local.upgradeUrl or details.remote.installUrl or details.remote.homepage)
+				isLocalInstallation = docpadUtil.isLocalDocPadExecutable()
+				message = (if isLocalInstallation then locale.versionOutdatedLocal else locale.versionOutdatedGlobal)
+				currentVersion = 'v'+details.local.version
+				latestVersion = 'v'+details.remote.version
+				upgradeUrl = details.local.upgradeUrl or details.remote.installUrl or details.remote.homepage
+				messageFilled = util.format(message, currentVersion, latestVersion, upgradeUrl)
+				docpad.notify(latestVersion, title:locale.versionOutdatedNotification)
+				docpad.log('notice', messageFilled)
 		)
 
 		# Chain
@@ -3798,21 +3847,11 @@ class DocPad extends EventEmitterGrouped
 				args: [opts]
 				next: complete
 			)
-		check = (complete) ->
-			desiredDocPadVersion = String(docpad.websitePackageConfig?.dependencies?.docpad or '').replace('~', '')
-			return complete()  if !desiredDocPadVersion or desiredDocPadVersion is docpad.version
-			docpad.warn util.format(locale.versionOutdated, desiredDocPadVersion, docpad.version)
-			return complete()
-		finish = (complete) ->
-			check (err) ->
-				return complete(err)  if err
-				run(complete)
-
 
 		# Check if we have the docpad structure
 		safefs.exists srcPath, (exists) ->
 			# Check if have the correct structure, if so let's proceed with DocPad
-			return finish(next)  if exists
+			return run(next)  if exists
 
 			# We don't have the correct structure
 			# Check if we are running on an empty directory
@@ -3827,7 +3866,7 @@ class DocPad extends EventEmitterGrouped
 				else
 					docpad.skeleton opts, (err) ->
 						return next(err)  if err
-						return finish(next)
+						return run(next)
 
 		# Chain
 		@
@@ -3882,6 +3921,38 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
+	# Uninstall
+	# next(err)
+	uninstall: (opts,next) =>
+		# Prepare
+		[opts,next] = extractOptsAndCallback(opts,next)
+		docpad = @
+		config = @getConfig()
+
+		# Tasks
+		tasks = new TaskGroup().once('complete', next)
+
+		# Uninstall a plugin
+		if opts.plugin then tasks.addTask (complete) ->
+			plugins =
+				for plugin in opts.plugin.split(/[,\s]+/)
+					plugin = "docpad-plugin-#{plugin}"  if plugin.indexOf('docpad-plugin-') isnt 0
+					plugin
+			docpad.uninstallNodeModule(plugins, {
+				output: true
+				next: complete
+			})
+
+		# Re-load configuration
+		tasks.addTask (complete) ->
+			docpad.load(complete)
+
+		# Run
+		tasks.run()
+
+		# Chain
+		@
+
 	# Install
 	# next(err)
 	install: (opts,next) =>
@@ -3904,7 +3975,7 @@ class DocPad extends EventEmitterGrouped
 					plugin = "docpad-plugin-#{plugin}"  if plugin.indexOf('docpad-plugin-') isnt 0
 					plugin += '@'+docpad.pluginVersion  if plugin.indexOf('@') is -1
 					plugin
-			docpad.initNodeModule(plugins, {
+			docpad.installNodeModule(plugins, {
 				output: true
 				next: complete
 			})
@@ -3926,6 +3997,19 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
+	# Upgrade
+	# next(err)
+	upgrade: (opts,next) =>
+		# Update Global NPM and DocPad
+		@installNodeModule('npm docpad-test@6', {
+			global: true
+			output: true
+			next: next
+		})
+
+		# Chain
+		@
+
 	# Update
 	# next(err)
 	update: (opts,next) =>
@@ -3941,20 +4025,14 @@ class DocPad extends EventEmitterGrouped
 		tasks.addTask (complete) ->
 			docpad.initInstall(opts, complete)
 
-		# Update DocPad
-		tasks.addTask (complete) ->
-			docpad.initNodeModule('docpad@6', {
-				output: true
-				next: complete
-			})
-
-		# Update the plugin dependencies
+		# Update the local docpad and plugin dependencies
+		# Grouped together to avoid npm dependency shortcuts that can cause missing dependencies
 		dependencies = []
 		eachr docpad.websitePackageConfig.dependencies, (version,name) ->
 			return  if /^docpad-plugin-/.test(name) is false
 			dependencies.push(name+'@'+docpad.pluginVersion)
 		tasks.addTask (complete) ->
-			docpad.initNodeModule(dependencies, {
+			docpad.installNodeModule('docpad@6 '+dependencies, {
 				output: true
 				next: complete
 			})
@@ -3965,7 +4043,7 @@ class DocPad extends EventEmitterGrouped
 			return  if /^docpad-plugin-/.test(name) is false
 			devDependencies.push(name+'@'+docpad.pluginVersion)
 		tasks.addTask (complete) ->
-			docpad.initNodeModule(devDependencies, {
+			docpad.installNodeModule(devDependencies, {
 				save: '--save-dev'
 				output: true
 				next: complete
@@ -4127,7 +4205,22 @@ class DocPad extends EventEmitterGrouped
 			return next(err)  if err
 
 			# Forward
-			return docpad.install(next)
+			docpad.install next, (err) ->
+				# Check
+				return next(err)  if err
+
+				# Log
+				docpad.log('notice', docpad.getLocale().startLocal)
+
+				# Destroy our DocPad instance so we can boot the local one
+				docpad.destroy (err) ->
+					# Check
+					if err
+						console.log(err.stack)
+						return process.exit(1)
+
+					# Forward onto the local DocPad Instance now that it has been installed
+					return docpadUtil.startLocalDocPadExecutable()
 
 		# Chain
 		@

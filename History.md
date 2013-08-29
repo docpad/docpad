@@ -1,5 +1,13 @@
 ## History
 
+- v6.51.0 August 29, 2013
+	- Better upgrade `docpad upgrade` and update `docpad update` experience
+		- Thanks to [drguildo](https://github.com/drguildo) and [Eduan Lavaque](https://github.com/Greduan) for [issue #619](https://github.com/bevry/docpad/issues/619)
+	- DocPad will now run the local installation if it exists (avoid this by using the `--global` flag)
+		- Thanks to [Eduan Lavaque](https://github.com/Greduan) and [flamingm0e](https://github.com/flamingm0e) for [issue #620](https://github.com/bevry/docpad/issues/620)
+	- Added the ability to uninstall plugins via `docpad uninstall <pluginName>`
+	- Updated dependencies
+
 - v6.50.1 August 28, 2013
 	- Fixed validation of DocPad sites containing the powered by info
 		- Thanks to [drguildo](https://github.com/drguildo) and [Eduan Lavaque](https://github.com/Greduan) for [issue #618](https://github.com/bevry/docpad/issues/618)
