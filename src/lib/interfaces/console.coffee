@@ -44,6 +44,10 @@ class ConsoleInterface
 				parseInt
 			)
 			.option(
+				'-g, --global'
+				locale.consoleOptionGlobal
+			)
+			.option(
 				'-f, --force'
 				locale.consoleOptionForce
 			)
@@ -139,11 +143,23 @@ class ConsoleInterface
 			.description(locale.consoleDescriptionUpdate)
 			.action(consoleInterface.wrapAction(consoleInterface.update))
 
+		# upgrade
+		commander
+			.command('upgrade')
+			.description(locale.consoleDescriptionUpgrade)
+			.action(consoleInterface.wrapAction(consoleInterface.upgrade))
+
 		# install
 		commander
 			.command('install [pluginName]')
 			.description(locale.consoleDescriptionInstall)
 			.action(consoleInterface.wrapAction(consoleInterface.install))
+
+		# uninstall
+		commander
+			.command('uninstall <pluginName>')
+			.description(locale.consoleDescriptionUninstall)
+			.action(consoleInterface.wrapAction(consoleInterface.uninstall))
 
 		# clean
 		commander
@@ -603,12 +619,29 @@ class ConsoleInterface
 		# Chain
 		@
 
+	upgrade: (next,opts) =>
+		# Act
+		@docpad.action('upgrade', next)
+
+		# Chain
+		@
+
 	install: (next,opts) =>
 		# Extract
 		plugin = opts.args[0] or null
 
 		# Act
 		@docpad.action('install', {plugin}, next)
+
+		# Chain
+		@
+
+	uninstall: (next,opts) =>
+		# Extract
+		plugin = opts.args[0] or null
+
+		# Act
+		@docpad.action('uninstall', {plugin}, next)
 
 		# Chain
 		@

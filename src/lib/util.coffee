@@ -1,10 +1,31 @@
 # Import
 pathUtil = require('path')
-typeChecker = require('typechecker')
-balUtil = require('bal-util')
 
 # Export
 module.exports = docpadUtil =
+	# Get Local DocPad Installation Executable
+	getLocalDocPadExecutable: ->
+		return pathUtil.join(process.cwd(), 'node_modules', 'docpad', 'bin', 'docpad')
+
+	# Is Local DocPad Installation
+	isLocalDocPadExecutable: ->
+		return docpadUtil.getLocalDocPadExecutable() in process.argv
+
+	# Does Local DocPad Installation Exist?
+	getLocalDocPadExecutableExistance: ->
+		return require('safefs').existsSync(docpadUtil.getLocalDocPadExecutable()) is true
+
+	# Spawn Local DocPad Executable
+	startLocalDocPadExecutable: ->
+		args = process.argv.slice(2)
+		command = ['node', docpadUtil.getLocalDocPadExecutable()].concat(args)
+		return require('safeps').spawn command, {stdio:'inherit'}, (err) ->
+			if err
+				console.log('An error occured in the child DocPad instance:', err.stack)
+				return process.exit(1)
+			else
+				return process.exit(0)
+
 	# get a filename without the extension
 	getBasename: (filename) ->
 		if filename[0] is '.'
@@ -20,7 +41,7 @@ module.exports = docpadUtil =
 
 	# get the extension from a bunch of extensions
 	getExtension: (extensions) ->
-		unless typeChecker.isArray(extensions)
+		unless require('typechecker').isArray(extensions)
 			extensions = docpadUtil.getExtensions(extensions)
 
 		if extensions.length isnt 0
@@ -44,11 +65,11 @@ module.exports = docpadUtil =
 			return basename
 		else
 			return basename+(if extension then '.'+extension else '')
-			
+
 	# get url
 	getUrl: (relativePath) ->
 		return '/'+relativePath.replace(/[\\]/g, '/')
 
 	# get slug
 	getSlug: (relativeBase) ->
-		return balUtil.generateSlugSync(relativeBase)
+		return require('bal-util').generateSlugSync(relativeBase)

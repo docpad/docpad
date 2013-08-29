@@ -36,9 +36,9 @@
 		We couldn't find an existing DocPad project inside your current directory. Looked at: %s
 		If you're wanting to use a pre-made skeleton for the basis of your new project, then run DocPad again inside an empty directory.
 		If you're wanting to start your new project from scratch, then refer to the Getting Started guide here:
-			http://docpad.org/get-started
-		For more information on what this means, visit:
-			http://docpad.org/troubleshoot
+		    http://docpad.org/get-started
+		For more information about what this means, visit:
+		    http://docpad.org/troubleshoot
 		"""
 	skeletonNoneName: "No Skeleton"
 	skeletonNoneDescription: "Prefer to start from scratch? You can get started without any skeleton if you wish"
@@ -104,15 +104,18 @@
 	pluginContinued: "Continuing with the unsupported plugin: %s"
 	pluginNamingConventionInvalid: """
 		The plugin %s uses an invalid naming convention. We only allow alphanumeric characters (no symbols). Perhaps change it to %s
-		More information here: http://docpad.org/plugin-conventions
+		For more information about what this means, visit:
+		    http://docpad.org/plugin-conventions
 		"""
 	pluginPrototypeNameUndefined: """
 		The plugin %s did not have its name defined in its prototype, defaulting it to the directory naming convention.
-		More information here: http://docpad.org/plugin-conventions
+		For more information about what this means, visit:
+		    http://docpad.org/plugin-conventions
 		"""
 	pluginPrototypeNameDifferent: """
 		The plugin %s is using a different name (%s) for its prototype name. This can cause issues.
-		More information here: http://docpad.org/plugin-conventions
+		For more information about what this means, visit:
+		    http://docpad.org/plugin-conventions
 		"""
 
 	# Collections
@@ -152,13 +155,16 @@
 	consoleDescriptionRender: "render the file at <path> and output its results to stdout"
 	consoleDescriptionGenerate: "(re)generates your project"
 	consoleDescriptionWatch: "watches your project for changes, and (re)generates whenever a change is made"
-	consoleDescriptionInstall: "ensure everything is installed correctly"
-	consoleDescriptionUpdate: "ensure your local DocPad and plugin installations are up to date with their latest compatible version"
+	consoleDescriptionInstall: "install plugins"
+	consoleDescriptionUninstall: "uninstall a plugin"
+	consoleDescriptionUpdate: "update your local DocPad and plugin installations to their latest compatible version"
+	consoleDescriptionUpgrade: "upgrade your global DocPad and NPM installations to the latest"
 	consoleDescriptionClean: "ensure everything is cleaned correctly (will remove your out directory)"
 	consoleDescriptionInfo: "display the information about your docpad instance"
 	consoleDescriptionHelp: "output the help"
 	consoleDescriptionUnknown: "anything else ouputs the help"
 
+	consoleOptionGlobal: "whether or not we should just fire the global installation of docpad"
 	consoleOptionOut: "where to output the rendered files (to a directory) or file (to an output file)"
 	consoleOptionConfig: "a custom configuration file to load in"
 	consoleOptionEnv: "the environment name to use for this instance, multiple names can be separated with a comma"
@@ -179,10 +185,11 @@
 		"""
 	renderedEarlyViaInclude: """
 		Your include of %s has failed as that document has not been rendered yet.
-		More information here: http://docpad.org/render-early-via-include
+		For more information about what this means, visit:
+		    http://docpad.org/render-early-via-include
 		"""
-	versionOutdated: "Your project's local DocPad version is %s instead of %s, you may experience problems. Run `docpad update` to fix this."
 	welcome: "Welcome to DocPad %s"
+	welcomeLocal: "Welcome to DocPad %s, local installation"
 	welcomeContribute: "Contribute: http://docpad.org/docs/contribute"
 	welcomePlugins: "Plugins: %s"
 	welcomeEnvironment: "Environment: %s"
@@ -197,11 +204,16 @@
 	trackError: "An error occured sending statistics"
 	exchangeError: "An error occured fetching the exchange data, this is okay, but not all skeletons will be available to you"
 	unknownModelInCollection: "Unknown model structure inside the collection"
-	upgradeNotification: "There's a new version of DocPad available"
-	upgradeDetails: """
-		There's a new version of DocPad available, you should probably upgrade...
-		current version:          %s
-		new version:              %s
-		upgrade instructions:     %s
+	versionOutdatedLocal: """
+		There's a new version of DocPad available!
+		  Run `docpad upgrade; docpad update` to update your local installation: %s to %s
+		  For more information, visit: %s
 		"""
+	versionOutdatedGlobal: """
+		There's a new version of DocPad available!
+		  Run `docpad upgrade` to upgrade your global installation: %s to %s
+		  For more information, visit: %s
+		"""
+	versionOutdatedNotification: "New version of DocPad!"
+	startLocal: "Shutting down the global DocPad instance, and starting the local one"
 }
