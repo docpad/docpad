@@ -1,5 +1,8 @@
 ## History
 
+- v6.51.4 August 29, 2013
+	- Fixed `TypeError: Cannot call method 'getLocale' of undefined` when destroying (regression from v6.49.0)
+
 - v6.51.3 August 29, 2013
 	- Fixed `docpad uninstall <pluginName>` (feature introduced in v6.51.0)
 

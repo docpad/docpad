@@ -232,7 +232,7 @@ class ConsoleInterface
 		@
 
 	# Destroy
-	destroy: (err) ->
+	destroy: (err) =>
 		# Prepare
 		docpad = @docpad
 		locale = docpad.getLocale()
@@ -255,7 +255,7 @@ class ConsoleInterface
 		@
 
 	# Wrap Action
-	wrapAction: (action,config) ->
+	wrapAction: (action,config) =>
 		consoleInterface = @
 		return (args...) ->
 			consoleInterface.performAction(action,args,config)
