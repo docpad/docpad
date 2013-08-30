@@ -128,6 +128,7 @@
 	# Loading
 	loadingConfigUrl: "Loading configuration url: %s"
 	loadingConfigPath: "Loading configuration path: %s"
+	loadingConfigPathFailed: "Failed to load the configuration path: %s"
 	loadingFiles: "Loading %s files"
 	loadedFiles: "Loaded %s files"
 	loadingFileFailed: "Failed to load the file: %s"
