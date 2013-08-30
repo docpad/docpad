@@ -1719,7 +1719,10 @@ class DocPad extends EventEmitterGrouped
 				return next()  unless exists
 
 				# Read the path using CSON
-				CSON.parseFile(configPath, next)
+				CSON.parseFile configPath, (err,result) ->
+					if err
+						docpad.log 'error', util.format(locale.loadingConfigPathFailed, configPath)
+					return next(err, result)
 
 		# Check
 		if opts.configPath

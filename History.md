@@ -1,13 +1,18 @@
 ## History
 
+- v6.51.5 August 30, 2013
+	- Fixed syntax errors in docpad configuration file not being reported correctly (regression since v6.49.0)
+		- Thanks to [drguildo](https://github.com/drguildo) for [issue #623](https://github.com/bevry/docpad/issues/623)
+	- If a configuration file fails to load we will now tell you which one it was
+
 - v6.51.4 August 29, 2013
-	- Fixed `TypeError: Cannot call method 'getLocale' of undefined` when destroying (regression from v6.49.0)
+	- Fixed `TypeError: Cannot call method 'getLocale' of undefined` when destroying (regression since v6.49.0)
 
 - v6.51.3 August 29, 2013
 	- Fixed `docpad uninstall <pluginName>` (feature introduced in v6.51.0)
 
 - v6.51.2 August 29, 2013
-	- Fixed certain pugin tests that require skeleton initialisation (regression from v6.52.0)
+	- Fixed certain pugin tests that require skeleton initialisation (regression since v6.52.0)
 	- When using `--global` flag we won't kill the global instance when starting a skeleton
 
 - v6.51.1 August 29, 2013
