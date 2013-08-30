@@ -586,12 +586,17 @@ class DocumentModel extends FileModel
 		# Adjust
 		CSON      = require('cson')  unless CSON
 		metaData  = @getMeta().toJSON(true)
-		delete metaData.writeSource  if opts.cleanAttributes is true
-		header    = CSON.stringifySync(metaData)
+		delete metaData.writeSource  if opts.cleanAttributes is true or metaData.writeSource is 'once'
 		content   = body = opts.content.replace(/^\s+/,'')
-		parser    = 'cson'
-		seperator = '###'
-		source    = "#{seperator} #{parser}\n#{header}\n#{seperator}\n\n#{body}"
+		header    = CSON.stringifySync(metaData)
+		if !header or header is '{}'
+			# No meta data
+			source    = body
+		else
+			# Has meta data
+			parser    = 'cson'
+			seperator = '###'
+			source    = "#{seperator} #{parser}\n#{header}\n#{seperator}\n\n#{body}"
 
 		# Apply
 		# @set({parser,header,body,content,source})
