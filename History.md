@@ -1,5 +1,9 @@
 ## History
 
+- v6.51.6 August 30, 2013
+	- When using writeSource don't write the header if there is no meta data
+	- Added support for `writeSource: "once"`
+
 - v6.51.5 August 30, 2013
 	- Fixed syntax errors in docpad configuration file not being reported correctly (regression since v6.49.0)
 		- Thanks to [drguildo](https://github.com/drguildo) for [issue #623](https://github.com/bevry/docpad/issues/623)
