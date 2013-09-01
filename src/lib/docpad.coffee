@@ -4239,8 +4239,9 @@ class DocPad extends EventEmitterGrouped
 				docpad.destroy (err) ->
 					# Check
 					if err
-						console.log(err.stack)
-						return process.exit(1)
+						process.stderr.write(err.stack or err.toString())  if err
+						# don't force exit, it should occur naturally
+						return
 
 					# Forward onto the local DocPad Instance now that it has been installed
 					return docpadUtil.startLocalDocPadExecutable()

@@ -246,10 +246,8 @@ class ConsoleInterface
 		# Destroy docpad
 		docpad.destroy (_err) ->
 			# Check for error
-			console.log(_err)  if _err
-
-			# Force shutdown now
-			process.exit(if err or _err then 1 else 0)
+			process.stderr.write(_err.stack or _err.toString())  if _err
+			# don't force exit, it should occur naturally
 
 		# Chain
 		@

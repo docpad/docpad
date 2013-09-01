@@ -21,10 +21,9 @@ module.exports = docpadUtil =
 		command = ['node', docpadUtil.getLocalDocPadExecutable()].concat(args)
 		return require('safeps').spawn command, {stdio:'inherit'}, (err) ->
 			if err
-				console.log('An error occured in the child DocPad instance:', err.stack)
-				return process.exit(1)
-			else
-				return process.exit(0)
+				process.stderr.write('An error occured in the child DocPad instance:\n'+(err.stack or err.toString()))
+				# don't force exit, it should occur naturally
+			return
 
 	# get a filename without the extension
 	getBasename: (filename) ->
