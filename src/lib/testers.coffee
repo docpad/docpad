@@ -24,7 +24,6 @@ class PluginTester
 		testerName: null
 		pluginName: null
 		pluginPath: null
-		autoExit: true
 		testPath: null
 		outExpectedPath: null
 		removeWhitespace: false
@@ -75,7 +74,8 @@ class PluginTester
 		joe.describe @config.testerName, (suite,task) ->
 			tester.describe = tester.suite = suite
 			tester.it = tester.test = task
-			tester.done = tester.exit = -> # b/c
+			tester.done = tester.exit = ->
+				tester.docpad?.destroy()
 			next?(null, tester)
 
 		# Chain
@@ -184,9 +184,6 @@ class PluginTester
 			@test 'finish up', (done) ->
 				done()
 				tester.exit()
-				if tester.config.autoExit isnt 'safe'
-					process.exit()
-					# ^ perhaps we can redo this with the new docpad.destroy() function
 
 		# Chain
 		@
