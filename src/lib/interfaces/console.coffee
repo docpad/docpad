@@ -246,7 +246,7 @@ class ConsoleInterface
 		# Destroy docpad
 		docpad.destroy (_err) ->
 			# Check for error
-			process.stderr.write(_err.stack or _err.toString())  if _err
+			process.stderr.write require('util').inspect(_err.stack or _err.message)
 			# don't force exit, it should occur naturally
 
 		# Chain
