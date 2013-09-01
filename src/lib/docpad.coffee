@@ -1386,7 +1386,8 @@ class DocPad extends EventEmitterGrouped
 
 			# User is anonymous, set their username to the hashed and salted mac address
 			require('getmac').getMac (err,macAddress) =>
-				return complete()  if err or !macAddress
+				if err or !macAddress
+					return docpad.trackError(err or new Error('no mac address'), complete)
 
 				# Hash with salt
 				try
@@ -2119,39 +2120,58 @@ class DocPad extends EventEmitterGrouped
 	fatal: (err) =>
 		docpad = @
 		config = @getConfig()
+
+		# Check
 		return @  unless err
+
+		# Handle
 		@error err, 'err', ->
 			if config.catchExceptions
 				process.exit(-1)
 			else
 				throw err
+
+		# Chain
 		@
 
 	# Log
 	log: (args...) =>
+		# Log
 		logger = @getLogger() or console
 		logger.log.apply(logger, args)
+
+		# Chain
 		@
 
 	# Handle an error
 	error: (err,type='err',next) =>
 		# Prepare
 		docpad = @
-		config = @getConfig()
 		locale = @getLocale()
 
 		# Check
 		if !err or err.logged
 			next?()
-			return @
+		else
+			# Log the error only if it hasn't been logged already
+			err.logged = true
+			err = new Error(err)  unless err.message?
+			err.logged = true
+			message = (err.stack ? err.message).toString()
+			docpad.log(type, locale.errorOccured, '\n'+message)
+			docpad.notify(err.message, title:locale.errorOccured)
 
-		# Log the error only if it hasn't been logged already
-		err.logged = true
-		err = new Error(err)  unless err.message?
-		err.logged = true
-		message = (err.stack ? err.message).toString()
-		docpad.log(type, locale.errorOccured, '\n'+message)
-		docpad.notify(err.message, title:locale.errorOccured)
+			# Track
+			@trackError(err, next)
+
+		# Chain
+		@
+
+	# Track error
+	trackError: (err,next) ->
+		# PRepare
+		docpad = @
+		config = @getConfig()
 
 		# Track
 		if config.offline is false and config.reportErrors
@@ -2161,6 +2181,8 @@ class DocPad extends EventEmitterGrouped
 			data.config = config
 			data.env = process.env
 			docpad.track('error', data, next)
+		else
+			next?()
 
 		# Chain
 		@
@@ -2189,7 +2211,7 @@ class DocPad extends EventEmitterGrouped
 		if growl
 			# Apply
 			try
-				growl(message,opts)
+				growl(message, opts)
 			catch err
 				# ignore
 
@@ -2205,10 +2227,10 @@ class DocPad extends EventEmitterGrouped
 			# Check
 			if res.body?.success is false or res.body?.error
 				err = new Error(res.body.error or 'unknown request error')
-				return next(err,res)
+				return next(err, res)
 
 			# Success
-			return next(null,res)
+			return next(null, res)
 
 	# Subscribe
 	# next(err)
@@ -2273,10 +2295,14 @@ class DocPad extends EventEmitterGrouped
 					)
 					.send(data)
 					.timeout(30*1000)
-					.end docpad.checkRequest complete
+					.end docpad.checkRequest (err) ->
+						next?(err)
+						complete(err)
+
+		else
+			next?()
 
 		# Chain
-		next?()
 		@
 
 	# Identify
