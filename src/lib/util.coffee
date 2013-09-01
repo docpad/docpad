@@ -21,7 +21,7 @@ module.exports = docpadUtil =
 		command = ['node', docpadUtil.getLocalDocPadExecutable()].concat(args)
 		return require('safeps').spawn command, {stdio:'inherit'}, (err) ->
 			if err
-				process.stderr.write('An error occured in the child DocPad instance:\n'+(err.stack or err.toString()))
+				process.stderr.write 'An error occured in the child DocPad instance:\n'+require('util').inspect(_err.stack or _err.message)
 				# don't force exit, it should occur naturally
 			return
 

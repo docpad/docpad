@@ -2112,10 +2112,8 @@ class DocPad extends EventEmitterGrouped
 
 		# Handle
 		@error err, 'err', ->
-			if config.catchExceptions
-				process.exit(-1)
-			else
-				throw err
+			process.stderr.write require('util').inspect(err.stack or err.message)
+			docpad.destroy()
 
 		# Chain
 		@
@@ -2135,7 +2133,7 @@ class DocPad extends EventEmitterGrouped
 		docpad = @
 		locale = @getLocale()
 
-		# Check
+		# Check if we have already logged this error
 		if !err or err.logged
 			next?()
 		else
@@ -2154,7 +2152,7 @@ class DocPad extends EventEmitterGrouped
 		@
 
 	# Track error
-	trackError: (err,next) ->
+	trackError: (err,next) =>
 		# PRepare
 		docpad = @
 		config = @getConfig()
@@ -2168,7 +2166,8 @@ class DocPad extends EventEmitterGrouped
 			data.env = process.env
 			docpad.track('error', data, next)
 		else
-			next?()
+			process.nextTick ->  # avoid zalgo
+				next?()
 
 		# Chain
 		@
@@ -2205,10 +2204,11 @@ class DocPad extends EventEmitterGrouped
 		@
 
 	# Check Request
-	checkRequest: (next) ->
+	checkRequest: (next) =>
+		next ?= @error.bind(@)
 		return (err,res) ->
 			# Check
-			return next(err,res)  if err
+			return next(err, res)  if err
 
 			# Check
 			if res.body?.success is false or res.body?.error
@@ -2220,7 +2220,7 @@ class DocPad extends EventEmitterGrouped
 
 	# Subscribe
 	# next(err)
-	subscribe: (next) ->
+	subscribe: (next) =>
 		# Prepare
 		{helperUrl} = @getConfig()
 
@@ -2246,7 +2246,7 @@ class DocPad extends EventEmitterGrouped
 
 	# Track
 	# next(err)
-	track: (name,things={},next) ->
+	track: (name,things={},next) =>
 		# Prepare
 		docpad = @
 		config = @getConfig()
@@ -2283,7 +2283,7 @@ class DocPad extends EventEmitterGrouped
 					.timeout(30*1000)
 					.end docpad.checkRequest (err) ->
 						next?(err)
-						complete(err)
+						complete(err)  # we pass the error here, as if we error, we want to stop all tracking
 
 		else
 			next?()
@@ -2293,7 +2293,7 @@ class DocPad extends EventEmitterGrouped
 
 	# Identify
 	# next(err)
-	identify: (next) ->
+	identify: (next) =>
 		# Prepare
 		docpad = @
 		config = @getConfig()
@@ -4239,7 +4239,7 @@ class DocPad extends EventEmitterGrouped
 				docpad.destroy (err) ->
 					# Check
 					if err
-						process.stderr.write(err.stack or err.toString())  if err
+						process.stderr.write require('util').inspect(err.stack or err.message)
 						# don't force exit, it should occur naturally
 						return
 
