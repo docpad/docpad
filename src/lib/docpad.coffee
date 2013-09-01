@@ -1296,34 +1296,22 @@ class DocPad extends EventEmitterGrouped
 	# =================================
 	# Helpers
 
+	getIgnoreOpts: ->
+		return _.pick(@config, 'ignorePaths', 'ignoreHiddenFiles', 'ignoreCommonPatterns', 'ignoreCustomPatterns')
+
 	# Is Ignored Path
 	isIgnoredPath: (path,opts={}) ->
-		opts = extendr.extend({
-			ignorePaths: @config.ignorePaths
-			ignoreHiddenFiles: @config.ignoreHiddenFiles
-			ignoreCommonPatterns: @config.ignoreCommonPatterns
-			ignoreCustomPatterns: @config.ignoreCustomPatterns
-		},opts)
-		return balUtil.isIgnoredPath(path,opts)
+		opts = extendr.extend(@getIgnoreOpts(), opts)
+		return balUtil.isIgnoredPath(path, opts)
 
 	# Scan Directory
 	scandir: (opts={}) ->
-		opts = extendr.extend({
-			ignorePaths: @config.ignorePaths
-			ignoreHiddenFiles: @config.ignoreHiddenFiles
-			ignoreCommonPatterns: @config.ignoreCommonPatterns
-			ignoreCustomPatterns: @config.ignoreCustomPatterns
-		},opts)
+		opts = extendr.extend(@getIgnoreOpts(), opts)
 		return balUtil.scandir(opts)
 
 	# Watch Directory
 	watchdir: (opts={}) ->
-		opts = extendr.extend({
-			ignorePaths: @config.ignorePaths
-			ignoreHiddenFiles: @config.ignoreHiddenFiles
-			ignoreCommonPatterns: @config.ignoreCommonPatterns
-			ignoreCustomPatterns: @config.ignoreCustomPatterns
-		},opts,@config.watchOptions)
+		opts = extendr.extend(@getIgnoreOpts(), opts, @config.watchOptions)
 		return require('watchr').watch(opts)
 
 
