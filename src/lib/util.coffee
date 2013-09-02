@@ -3,6 +3,10 @@ pathUtil = require('path')
 
 # Export
 module.exports = docpadUtil =
+	# Standard Encodings
+	isStandardEncoding: (encoding) ->
+		return encoding.toLowerCase() in ['ascii', 'utf8', 'utf-8']
+
 	# Get Local DocPad Installation Executable
 	getLocalDocPadExecutable: ->
 		return pathUtil.join(process.cwd(), 'node_modules', 'docpad', 'bin', 'docpad')

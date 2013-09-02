@@ -931,7 +931,6 @@ class DocPad extends EventEmitterGrouped
 		# Detect Encoding
 		# Should we attempt to auto detect the encoding of our files?
 		# Useful when you are using foreign encoding (e.g. GBK) for your files
-		# Only works on unix systems currently (limit of iconv module)
 		detectEncoding: false
 
 		# Render Single Extensions
@@ -1487,12 +1486,14 @@ class DocPad extends EventEmitterGrouped
 		postTasks = new TaskGroup().once 'complete', (err) =>
 			return next(err, @config)
 
-		# Lazy Dependencies: Iconv
+		###
+		# Lazy Dependencies: Encoding
 		postTasks.addTask (complete) =>
 			return complete()  unless @config.detectEncoding
-			return lazyRequire 'iconv', {cwd:corePath}, (err) ->
+			return lazyRequire 'encoding', {cwd:corePath}, (err) ->
 				docpad.warn(locale.encodingLoadFailed)  if err
 				return complete()
+		###
 
 		# Load Plugins
 		postTasks.addTask (complete) ->
