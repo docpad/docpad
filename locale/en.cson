@@ -1,5 +1,7 @@
 {
+	#----------------------------------------------------------------------
 	# Subscription
+	#----------------------------------------------------------------------
 	tosPrompt: """
 		Before we continue, have you read and agree to DocPad's Terms of Service (http://bevry.me/tos) and Privacy Policy (http://bevry.me/privacy)?
 		"""
@@ -7,59 +9,71 @@
 		Fantastic. We like informed people!
 		"""
 	tosDisagree: """
-		Run us again once you've read and agree to them.
+		Run DocPad again once you've read and agree to them.
 		"""
 	subscribePrompt: """
 		Would you like to subscribe to our newsletter and stay up to date with the latest releases and tutorials?
 		"""
-	subscribeConfigNotify: "To speed things up we've fetched your default values, press enter to use the default value or type your own values:"
+	subscribeConfigNotify: "To speed things up, we've fetched your default values. Press enter to use the default value or type your own values:"
 	subscribeNamePrompt: "Your name?"
 	subscribeEmailPrompt: "Your email?"
 	subscribeUsernamePrompt: "Your username?"
-	subscribeError: "Whoops, looks like something went wrong when subscribing you to our list... not to worry, we'll try again another time."
-	subscribeSuccess: "Awesome, you're now subscribed our newsletter. Continuing with the desired action."
+	subscribeError: "Whoops! Looks like something went wrong during the subscription process. Don't worry, we'll try again later."
+	subscribeSuccess: "Awesome! You're now subscribed to our newsletter. Continuing..."
 	subscribeIgnore: "No worries. Continuing with the desired action."
 	subscribeProgress: "Subscribing..."
 	subscribeRequestData: "Subscription request data:"
-	subscribeRequestError: "Subsction request error:"
+	subscribeRequestError: "Subscription request error:"
 
+	#----------------------------------------------------------------------
 	# Skeleton
-	pleaseWait: "\nThis can take a moment..."
-	exchangeUpdate: "Updating the exchange..."
-	exchangeUpdated: "Updated the exchange"
-	skeletonSelectionIntroduction: "You are about to create your new project inside your current directory. Below is a list of skeletons to bootstrap your new project:"
+	#----------------------------------------------------------------------
+	pleaseWait: "\nThis could take a moment..."
+	exchangeUpdate: "Updating the exchange"
+	exchangeUpdated: "Exchange update finished"
+	skeletonSelectionIntroduction: "You're about to create a new project in the current directory. Here's a list of skeletons to bootstrap your new project:"
 	skeletonSelectionPrompt: "Which skeleton will you use?"
-	skeletonInstall: "Installing the %s skeleton into %s"
-	skeletonInstalled: "Installed the skeleton succesfully"
-	skeletonExists: "Didn't place the skeleton as the desired structure already exists"
+	skeletonInstall: "Installing skeleton %s to %s..."
+	skeletonInstalled: "Skeleton installation complete"
+	skeletonExists: "Skeleton installation aborted; the desired structure already exists"
 	skeletonNonexistant: """
-		We couldn't find an existing DocPad project inside your current directory. Looked at: %s
-		If you're wanting to use a pre-made skeleton for the basis of your new project, then run DocPad again inside an empty directory.
-		If you're wanting to start your new project from scratch, then refer to the Getting Started guide here:
+		Couldn't find a DocPad project in the current directory. Looked at: %s
+
+		If you'd like to use a pre-made skeleton to scaffold your new project, then run DocPad again inside an empty directory.
+
+		If you'd like to start your new project from scratch, check out the Getting Started:
 		    http://docpad.org/get-started
-		For more information about what this means, visit:
+
+		For more info about this message, visit:
 		    http://docpad.org/troubleshoot
+		            
 		"""
 	skeletonNoneName: "No Skeleton"
-	skeletonNoneDescription: "Prefer to start from scratch? You can get started without any skeleton if you wish"
+	skeletonNoneDescription: "Prefer to start from scratch? You're free to start without using any skeleton."
 
+	#----------------------------------------------------------------------
 	# Server
-	serverInUse: "Could not start the web server, chances are the desired port %s is already in use"
+	#----------------------------------------------------------------------
+	serverInUse: "Couldn't start the web server. Chances are the desired port %s is already in use."
 	serverStart: "Starting server on port %s and directory %s"
-	serverStarted: "DocPad listening to %s on directory %s"
+	serverStarted: "Listening to %s on directory %s"
 
+	#----------------------------------------------------------------------
 	# Watching
+	#----------------------------------------------------------------------
 	watchStart: 'Watching setup starting...'
-	watchStarted: 'Watching setup'
-	watchRegenerating: "Regenerating at %s"
-	watchRegenerated: "Regenerated at %s"
-	watchChange: "Change detected at %s"
-	watchIgnoredChange: "Ignored change at %s"
-	watchDirectoryChange: "Directory change at %s"
-	watchReloadChange: "Reload change detected at %s"
+	watchStarted: 'Watching setup...'
+	watchRegenerating: "Regenerating at %s..."
+	watchRegenerated: "Regenerated: %s"
+	watchChange: "Change detected: %s"
+	watchIgnoredChange: "Ignored change: %s"
+	watchDirectoryChange: "Directory change: %s"
+	watchReloadChange: "Reload change detected: %s"
 
-	# Render
-	renderingFiles: "Rendering %s files"
+	#----------------------------------------------------------------------
+	# Rendering
+	#----------------------------------------------------------------------
+	renderingFiles: "Rendering %s files..."
 	renderedFiles: "Rendered %s files"
 	renderInvalidOptions: 'Invalid options passed to the render action'
 	renderProgress: "Currently on %s at %s"
@@ -67,154 +81,178 @@
 	renderGeneratingNotification: "Website generating..."
 	renderGenerated: "Generated %s files in %s seconds"
 	renderGeneratedNotification: "Website generated"
-	renderParsing: 'Parsing everything'
+	renderParsing: 'Parsing everything...'
 	renderParsed: 'Parsed everything'
-	renderNonexistant: 'Cannot generate website as the src dir was not found'
-	renderNoPlugins: "DocPad is currently running without any plugins installed. You probably want to install some: http://docpad.org/plugins"
-	renderDirectoryParsing: "Parsing directory: %s"
+	renderNonexistant: "Cannot generate website; the src dir couldn't be found"
+	renderNoPlugins: "DocPad currently doesn't have any plugins installed. You'll probably want some:\n http://docpad.org/plugins"
+	renderDirectoryParsing: "Parsing directory: %s..."
 	renderDirectoryParsed: "Parsed directory: %s"
-	renderDirectoryNonexistant: "Skipped directory: %s (it does not exist)"
-	renderCleaning: "Cleaning files"
+	renderDirectoryNonexistant: "Skipped directory: %s (doesn't exist)"
+	renderCleaning: "Cleaning files..."
 	renderCleaned: "Cleaned files"
-	renderInterval: "Performing interval regeneration"
+	renderInterval: "Performing interval regeneration..."
 	slowFiles: "Waiting on the following files on %s:"
 
+	#----------------------------------------------------------------------
 	# Contextualize
-	contextualizingFiles: "Contextualizing %s files"
+	#----------------------------------------------------------------------
+	contextualizingFiles: "Contextualizing %s files..."
 	contextualizedFiles: "Contextualized %s files"
 
+	#----------------------------------------------------------------------
 	# Write
-	writingFiles: "Writing %s files"
+	#----------------------------------------------------------------------
+	writingFiles: "Writing %s files..."
 	wroteFiles: "Wrote %s files"
 
+	#----------------------------------------------------------------------
 	# Action
-	actionStart: "Performing the action %s"
+	#----------------------------------------------------------------------
+	actionStart: "Performing the action %s..."
 	actionFinished: "Performed the action %s"
 	actionNonexistant: "The action %s does not exist"
 
+	#----------------------------------------------------------------------
 	# Plugins
-	pluginFailedToLoad: "Failed to load the plugin: %s at %s"
-	pluginsLoadingFor: "Plugins loading for: %s"
+	#----------------------------------------------------------------------
+	pluginFailedToLoad: "Failed to load plugin: %s at %s"
+	pluginsLoadingFor: "Plugins loading for: %s..."
 	pluginsLoadedFor: "Plugins loaded for: %s"
-	pluginsSlow: "We're preparing your plugins, this may take a while the first time. Waiting on the plugins: %s"
-	pluginLoading: "Loading plugin: %s"
+	pluginsSlow: "We're preparing your plugins. This may take a while the first time. Waiting on the plugins: %s..."
+	pluginLoading: "Loading plugin: %s..."
 	pluginLoaded: "Loaded plugin: %s"
 	pluginSkipped: "Skipped plugin: %s"
-	pluginSkippedDueTo: "Skipped the unsupported plugin: %s due to %s"
-	pluginContinued: "Continuing with the unsupported plugin: %s"
+	pluginSkippedDueTo: "Skipped the unsupported plugin: %s (due to %s)"
+	pluginContinued: "Continuing with the unsupported plugin: %s..."
 	pluginNamingConventionInvalid: """
 		The plugin %s uses an invalid naming convention. We only allow alphanumeric characters (no symbols). Perhaps change it to %s
-		For more information about what this means, visit:
+		For more information:
 		    http://docpad.org/plugin-conventions
+
 		"""
 	pluginPrototypeNameUndefined: """
-		The plugin %s did not have its name defined in its prototype, defaulting it to the directory naming convention.
-		For more information about what this means, visit:
+		The plugin %s didn't define a name in its prototype. Defaulting to the directory naming convention.
+		For more information:
 		    http://docpad.org/plugin-conventions
+
 		"""
 	pluginPrototypeNameDifferent: """
-		The plugin %s is using a different name (%s) for its prototype name. This can cause issues.
-		For more information about what this means, visit:
+		The plugin %s is using a different prototype name (%s). This can cause issues.
+		For more information:
 		    http://docpad.org/plugin-conventions
+
 		"""
 
+	#----------------------------------------------------------------------
 	# Collections
-	addingDocument: "Adding document: %s"
-	addingFile: "Adding file: %s"
-	addingLayout: "Adding layout: %s"
-	addingHtml: "Adding html file: %s"
-	addingStylesheet: "Adding stylesheet file: %s"
+	#----------------------------------------------------------------------
+	addingDocument: "Adding document: %s..."
+	addingFile: "Adding file: %s..."
+	addingLayout: "Adding layout: %s..."
+	addingHtml: "Adding html file: %s..."
+	addingStylesheet: "Adding stylesheet file: %s..."
 
+	#----------------------------------------------------------------------
 	# Loading
-	loadingConfigUrl: "Loading configuration url: %s"
-	loadingConfigPath: "Loading configuration path: %s"
+	#----------------------------------------------------------------------
+	loadingConfigUrl: "Loading configuration URL: %s..."
+	loadingConfigPath: "Loading configuration path: %s..."
 	loadingConfigPathFailed: "Failed to load the configuration path: %s"
-	loadingFiles: "Loading %s files"
+	loadingFiles: "Loading %s files..."
 	loadedFiles: "Loaded %s files"
 	loadingFileFailed: "Failed to load the file: %s"
 	loadingFileIgnored: "Skipped ignored file: %s"
-	loadingUserConfig: "Loading user's configuration: %s"
+	loadingUserConfig: "Loading user's configuration: %s..."
 	loadedUserConfig: "Loaded user's configuration: %s"
-	loadingDocPadPackageConfig: "Loading DocPad's package.json configuration: %s"
+	loadingDocPadPackageConfig: "Loading DocPad's package.json configuration: %s..."
 	loadedDocPadPackageConfig: "Loaded DocPad's package.json configuration: %s"
-	loadingWebsitePackageConfig: "Loading website package.json configuration: %s"
+	loadingWebsitePackageConfig: "Loading website package.json configuration: %s..."
 	loadedWebsitePackageConfig: "Loaded website package.json configuration: %s"
-	loadingEnvConfig: "Loading .env file configuration: %s"
+	loadingEnvConfig: "Loading .env file configuration: %s..."
 	loadedEnvConfig: "Loaded .env file configuration: %s"
-	loadingWebsiteConfig: "Loading website configuration"
+	loadingWebsiteConfig: "Loading website configuration..."
 	loadedWebsiteConfig: "Loaded website configuration"
 
+	#----------------------------------------------------------------------
 	# Console
+	#----------------------------------------------------------------------
 	consoleError: "Something went wrong with the action"
 	consoleSuccess: "The action completed successfully"
-	consoleShutdown: "Shutting down... cya next time!"
+	consoleShutdown: "Shutting down..."
 
 	consoleDescriptionInit: "initialize your directory with an empty docpad project"
 	consoleDescriptionRun: "does everything: skeleton, generate, watch, server"
 	consoleDescriptionServer: "creates a server for your generated project"
-	consoleDescriptionSkeleton: "will create a new project in your cwd based off an existing skeleton"
-	consoleDescriptionRender: "render the file at <path> and output its results to stdout"
+	consoleDescriptionSkeleton: "will create a new project in the cwd based off an existing skeleton"
+	consoleDescriptionRender: "render file at <path> and output results to stdout"
 	consoleDescriptionGenerate: "(re)generates your project"
-	consoleDescriptionWatch: "watches your project for changes, and (re)generates whenever a change is made"
-	consoleDescriptionInstall: "install plugins"
-	consoleDescriptionUninstall: "uninstall a plugin"
-	consoleDescriptionUpdate: "update your local DocPad and plugin installations to their latest compatible version"
-	consoleDescriptionUpgrade: "upgrade your global DocPad and NPM installations to the latest"
-	consoleDescriptionClean: "ensure everything is cleaned correctly (will remove your out directory)"
-	consoleDescriptionInfo: "display the information about your docpad instance"
-	consoleDescriptionHelp: "output the help"
-	consoleDescriptionUnknown: "anything else ouputs the help"
+	consoleDescriptionWatch: "watches for changes, and (re)generates whenever a change is made"
+	consoleDescriptionInstall: "installs plugins"
+	consoleDescriptionUninstall: "uninstalls plugins"
+	consoleDescriptionUpdate: "updates local DocPad and plugins"
+	consoleDescriptionUpgrade: "updates global DocPad and NPM installations"
+	consoleDescriptionClean: "ensure everything is cleaned correctly (remove your out directory)"
+	consoleDescriptionInfo: "displays info about your DocPad instance"
+	consoleDescriptionHelp: "displays help"
+	consoleDescriptionUnknown: "anything else displays help"
 
-	consoleOptionGlobal: "whether or not we should just fire the global installation of docpad"
-	consoleOptionOut: "where to output the rendered files (to a directory) or file (to an output file)"
-	consoleOptionConfig: "a custom configuration file to load in"
-	consoleOptionEnv: "the environment name to use for this instance, multiple names can be separated with a comma"
-	consoleOptionDebug: "the level of debug messages you would like to display, if specified defaults to 7, otherwise 6"
-	consoleOptionForce: "force a re-install of all modules"
-	consoleOptionPort: "a custom port to use for the server <port>"
+	consoleOptionGlobal: "whether to use the global docpad installation"
+	consoleOptionOut: "where to output rendered files (a directory) or file (an output file)"
+	consoleOptionConfig: "load a custom configuration file"
+	consoleOptionEnv: "comma-delimited environment name(s) to use for this instance"
+	consoleOptionDebug: "debug message level (defaults to 7 if debugging, 6 otherwise)"
+	consoleOptionForce: "force-reinstall all modules"
+	consoleOptionPort: "use custom server port <port>"
 	consoleOptionProfile: "enable profiling"
 	consoleOptionOffline: "don't do any remote requests"
 
+	#----------------------------------------------------------------------
 	# Misc
-	emittingEvent: "Emitting the event: %s"
+	#----------------------------------------------------------------------
+	emittingEvent: "Emitting the event: %s..."
 	emittedEvent: "Emitted the event: %s"
 	outPathConflict: """
-		You have multiple files being written to %s, they are:
+		You have multiple files being written to %s; they are:
 		  - %s
 		  - %s
-		  Rename one of them to avoid an over-write
+		  To prevent overwriting, rename one of them.
+          
 		"""
 	renderedEarlyViaInclude: """
-		Your include of %s has failed as that document has not been rendered yet.
-		For more information about what this means, visit:
+		Your include of %s has failed; the document has not been rendered yet.
+		For more information:
 		    http://docpad.org/render-early-via-include
+
 		"""
 	welcome: "Welcome to DocPad %s"
-	welcomeLocal: "Welcome to DocPad %s, local installation"
+	welcomeLocal: "Welcome to DocPad %s (local installation)"
 	welcomeContribute: "Contribute: http://docpad.org/docs/contribute"
 	welcomePlugins: "Plugins: %s"
 	welcomeEnvironment: "Environment: %s"
-	includeFailed: "Could not include the file at path %s as we could not find it"
-	encodingLoadFailed: "Could not load the libraries required for encoding detection"
-	warnOccured: "A warning occured:"
-	errorOccured: "An error occured:"
+	includeFailed: "Could not include file at %s (couldn't be found)"
+	encodingLoadFailed: "Couldn't load the libraries required for encoding detection"
+	warnOccured: "A warning occurred:"
+	errorOccured: "An error occurred:"
 	errorLoggedTo: "Error has been logged to: %s"
 	errorFollows: "\nThe error follows:"
-	errorInvalidCollection: "The custom collection %s is not a valid collection instance"
-	reportError: "An error occured reporting the error"
-	trackError: "An error occured sending statistics"
-	exchangeError: "An error occured fetching the exchange data, this is okay, but not all skeletons will be available to you"
-	unknownModelInCollection: "Unknown model structure inside the collection"
+	errorInvalidCollection: "The custom collection %s is not a valid collection instance."
+	reportError: "An error occurred reporting the error."
+	trackError: "An error occurred sending statistics."
+	exchangeError: "An error occurred fetching the exchange data. That's okay, but all skeletons might not be available."
+	unknownModelInCollection: "Unknown model structure inside the collection."
 	versionOutdatedLocal: """
 		There's a new version of DocPad available!
 		  Run `docpad upgrade; docpad update` to update your local installation: %s to %s
-		  For more information, visit: %s
+		  For more information, visit: 
+              %s
+
 		"""
 	versionOutdatedGlobal: """
 		There's a new version of DocPad available!
 		  Run `docpad upgrade` to upgrade your global installation: %s to %s
-		  For more information, visit: %s
+		  For more information, visit: 
+              %s
 		"""
 	versionOutdatedNotification: "New version of DocPad!"
-	startLocal: "Shutting down the global DocPad instance, and starting the local one"
+	startLocal: "Shutting down DocPad (global); starting DocPad (local)..."
 }
