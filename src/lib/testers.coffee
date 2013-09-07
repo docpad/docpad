@@ -28,6 +28,7 @@ class PluginTester
 		outExpectedPath: null
 		removeWhitespace: false
 		contentRemoveRegex: null
+		autoExit: 'safe'
 
 	# DocPad Config
 	docpadConfig:
@@ -74,8 +75,8 @@ class PluginTester
 		joe.describe @config.testerName, (suite,task) ->
 			tester.describe = tester.suite = suite
 			tester.it = tester.test = task
-			tester.done = tester.exit = ->
-				tester.docpad?.destroy()
+			tester.done = tester.exit = (next) ->
+				tester.docpad?.destroy(next)
 			next?(null, tester)
 
 		# Chain
@@ -181,9 +182,8 @@ class PluginTester
 
 		# Finish
 		if tester.config.autoExit
-			@test 'finish up', (done) ->
-				done()
-				tester.exit()
+			@test 'finish up', (next) ->
+				tester.exit(next)
 
 		# Chain
 		@

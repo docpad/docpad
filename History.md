@@ -7,6 +7,7 @@
 		- Thanks to [Bruno Heridet](https://github.com/Delapouite) for [pull request #612](https://github.com/bevry/docpad/pull/612)
 	- Added `DocPad::getIgnoreOpts` method to help clean up some code
 		- Thanks to [Bruno Heridet](https://github.com/Delapouite) for [pull request #612](https://github.com/bevry/docpad/pull/611)
+	- Removed all calls to `process.exit` by instead destroying DocPad properly causing an automatic shutdown if that is what is desired
 
 - v6.51.6 August 30, 2013
 	- When using writeSource don't write the header if there is no meta data
