@@ -16,14 +16,18 @@ module.exports = docpadUtil =
 		return require('safefs').existsSync(docpadUtil.getLocalDocPadExecutable()) is true
 
 	# Spawn Local DocPad Executable
-	startLocalDocPadExecutable: ->
+	startLocalDocPadExecutable: (next) ->
 		args = process.argv.slice(2)
 		command = ['node', docpadUtil.getLocalDocPadExecutable()].concat(args)
 		return require('safeps').spawn command, {stdio:'inherit'}, (err) ->
 			if err
-				process.stderr.write 'An error occured in the child DocPad instance:\n'+require('util').inspect(_err.stack or _err.message)
-				# don't force exit, it should occur naturally
-			return
+				if next
+					next(err)
+				else
+					message = 'An error occured within the child DocPad instance: '+err.message+'\n'
+					process.stderr.write(message)
+			else
+				next?()
 
 	# get a filename without the extension
 	getBasename: (filename) ->
