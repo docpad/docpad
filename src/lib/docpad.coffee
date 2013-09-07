@@ -3885,8 +3885,22 @@ class DocPad extends EventEmitterGrouped
 					return next()
 				else
 					docpad.skeleton opts, (err) ->
+						# Check
 						return next(err)  if err
-						return run(next)
+
+						# Keep in global?
+						return run(next)  if opts.global is true or docpad.getConfig().global is true
+
+						# Log
+						docpad.log('notice', locale.startLocal)
+
+						# Destroy our DocPad instance so we can boot the local one
+						docpad.destroy (err) ->
+							# Check
+							return next(err)  if err
+
+							# Forward onto the local DocPad Instance now that it has been installed
+							return docpadUtil.startLocalDocPadExecutable(next)
 
 		# Chain
 		@
@@ -4225,26 +4239,7 @@ class DocPad extends EventEmitterGrouped
 			return next(err)  if err
 
 			# Forward
-			docpad.install next, (err) ->
-				# Check
-				return next(err)  if err
-
-				# Keep in global?
-				return next()  if docpad.getConfig().global is true
-
-				# Log
-				docpad.log('notice', docpad.getLocale().startLocal)
-
-				# Destroy our DocPad instance so we can boot the local one
-				docpad.destroy (err) ->
-					# Check
-					if err
-						process.stderr.write require('util').inspect(err.stack or err.message)
-						# don't force exit, it should occur naturally
-						return
-
-					# Forward onto the local DocPad Instance now that it has been installed
-					return docpadUtil.startLocalDocPadExecutable()
+			docpad.install(opts, next)
 
 		# Chain
 		@

@@ -216,5 +216,5 @@
 		  For more information, visit: %s
 		"""
 	versionOutdatedNotification: "New version of DocPad!"
-	startLocal: "Shutting down the global DocPad instance, and starting the local one"
+	startLocal: "Shutting down the global DocPad, and starting up the local"
 }

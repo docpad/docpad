@@ -1,5 +1,10 @@
 ## History
 
+- v6.52.1 September 8, 2013
+	- Fixed "structure already exists" errors after successful `docpad init` and `docpad skeleton` completion
+		- Thanks to [Eduán Lávaque](https://github.com/Greduan) for [issue #631](https://github.com/bevry/docpad/issues/631)
+	- Better errors when a skeleton fails via the global `docpad run`
+
 - v6.52.0 September 8, 2013
 	- Pay more attention to getmac errors
 	- Ensure completion callback (when specified) is always fired for the `DocPad::error` and `DocPad::track` methods
