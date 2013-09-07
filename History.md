@@ -1,6 +1,6 @@
 ## History
 
-- v6.51.7 September 2, 2013
+- v6.52.0 September 8, 2013
 	- Pay more attention to getmac errors
 	- Ensure completion callback (when specified) is always fired for the `DocPad::error` and `DocPad::track` methods
 	- Fixed `DocPad::getBlocks` returning the DocPad instance instead of the blocks
@@ -8,6 +8,8 @@
 	- Added `DocPad::getIgnoreOpts` method to help clean up some code
 		- Thanks to [Bruno Heridet](https://github.com/Delapouite) for [pull request #612](https://github.com/bevry/docpad/pull/611)
 	- Removed all calls to `process.exit` by instead destroying DocPad properly causing an automatic shutdown if that is what is desired
+	- Fatal errors are now written to stderr instead of stdout
+	- Updated dependencies
 
 - v6.51.6 August 30, 2013
 	- When using writeSource don't write the header if there is no meta data
