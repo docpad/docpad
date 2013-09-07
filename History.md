@@ -6,7 +6,7 @@
 	- Fixed `DocPad::getBlocks` returning the DocPad instance instead of the blocks
 		- Thanks to [Bruno Heridet](https://github.com/Delapouite) for [pull request #612](https://github.com/bevry/docpad/pull/612)
 	- Added `DocPad::getIgnoreOpts` method to help clean up some code
-		- Thanks to [Bruno Heridet](https://github.com/Delapouite) for [pull request #612](https://github.com/bevry/docpad/pull/611)
+		- Thanks to [Bruno Heridet](https://github.com/Delapouite) for [pull request #611](https://github.com/bevry/docpad/pull/611)
 	- Removed all calls to `process.exit` by instead destroying DocPad properly causing an automatic shutdown if that is what is desired
 	- Fatal errors are now written to stderr instead of stdout
 	- Updated dependencies
