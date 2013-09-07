@@ -1,7 +1,7 @@
 ## History
 
 - v6.52.1 September 8, 2013
-	- Fixed "structure already exists" errors after successful `docpad init` and `docpad skeleton` completion
+	- Fixed "structure already exists" errors after successful `docpad init` and `docpad skeleton` completion (regression since v6.51.0)
 		- Thanks to [Eduán Lávaque](https://github.com/Greduan) for [issue #631](https://github.com/bevry/docpad/issues/631)
 	- Better errors when a skeleton fails via the global `docpad run`
 
