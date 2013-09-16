@@ -1,5 +1,12 @@
 ## History
 
+- v6.52.2 September 16, 2013
+	- Possible fix for `Error: A task's completion callback has fired when the task was already in a completed state, this is unexpected` error
+		- Thanks to [Ryan Fitzer](https://github.com/ryanfitzer) for [issue #643](https://github.com/bevry/docpad/issues/643) thanks to
+		- Thanks to [drguildo](https://github.com/drguildo), [Evan Bovie](https://github.com/phaseOne), [Brandon Mason](https://github.com/bitmage), [ashyadav](https://github.com/ashyadav) for [issue #623](https://github.com/bevry/docpad/issues/623)
+	- Will now output the progress of `iconv` install if `detectEncoding` is true and `iconv` isn't installed
+	- Updated dependencies
+
 - v6.52.1 September 8, 2013
 	- Fixed "structure already exists" errors after successful `docpad init` and `docpad skeleton` completion (regression since v6.51.0)
 		- Thanks to [Eduán Lávaque](https://github.com/Greduan) for [issue #631](https://github.com/bevry/docpad/issues/631)
