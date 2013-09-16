@@ -1490,7 +1490,7 @@ class DocPad extends EventEmitterGrouped
 		# Lazy Dependencies: Iconv
 		postTasks.addTask (complete) =>
 			return complete()  unless @config.detectEncoding
-			return lazyRequire 'iconv', {cwd:corePath}, (err) ->
+			return lazyRequire 'iconv', {cwd:corePath, stdio:'inherit'}, (err) ->
 				docpad.warn(locale.encodingLoadFailed)  if err
 				return complete()
 
