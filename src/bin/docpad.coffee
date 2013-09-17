@@ -32,9 +32,9 @@ startDocPad = ->
 	action =
 		# we should eventually do a load always
 		# but as it is a big change of functionality, lets only do it inclusively for now
-		if process.argv[1...].join(' ').indexOf('deploy') isnt -1
+		if process.argv[1...].join(' ').indexOf('deploy') isnt -1  # if we are the deploy command
 			'load'
-		else
+		else  # if we are not the deploy command
 			false
 
 	# Create DocPad Instance

@@ -4,7 +4,7 @@
 # Essential
 pathUtil = require('path')
 {lazyRequire} = require('lazy-require')
-corePath = pathUtil.join(__dirname, '..', '..')
+corePath = pathUtil.resolve(__dirname, '..', '..')
 
 # Profile
 if ('--profile' in process.argv)
@@ -193,12 +193,12 @@ class DocPad extends EventEmitterGrouped
 	# Whenever a event is created, it must be applied here to be available to plugins and configuration files
 	# https://github.com/bevry/docpad/wiki/Events
 	events: [
-		'extendTemplateData'
-		'extendCollections'
-		'docpadLoaded'
-		'docpadReady'
-		'docpadDestroy'
-		'consoleSetup'
+		'extendTemplateData'           # fired each load
+		'extendCollections'            # fired each load
+		'docpadLoaded'                 # fired multiple times, first time command line configuration hasn't been applied yet
+		'docpadReady'                  # fired only once
+		'docpadDestroy'                # fired once on shutdown
+		'consoleSetup'                 # fired once
 		'generateBefore'
 		'populateCollectionsBefore'
 		'populateCollections'
@@ -208,8 +208,8 @@ class DocPad extends EventEmitterGrouped
 		'contextualizeBefore'
 		'contextualizeAfter'
 		'renderBefore'
-		'render'
-		'renderDocument'
+		'render'                       # fired for each extension conversion
+		'renderDocument'               # fired for each document render, including layouts and render passes
 		'renderAfter'
 		'writeBefore'
 		'writeAfter'
@@ -512,13 +512,13 @@ class DocPad extends EventEmitterGrouped
 	libPath: __dirname
 
 	# The main DocPad file
-	mainPath: pathUtil.join(__dirname, 'docpad')
+	mainPath: pathUtil.resolve(__dirname, 'docpad')
 
 	# The DocPad package.json path
-	packagePath: pathUtil.join(__dirname, '..', '..', 'package.json')
+	packagePath: pathUtil.resolve(__dirname, '..', '..', 'package.json')
 
 	# The DocPad locale path
-	localePath: pathUtil.join(__dirname, '..', '..', 'locale')
+	localePath: pathUtil.resolve(__dirname, '..', '..', 'locale')
 
 	# The DocPad debug log path
 	debugLogPath: pathUtil.join(process.cwd(), 'docpad-debug.log')
@@ -648,46 +648,31 @@ class DocPad extends EventEmitterGrouped
 	# -----------------------------
 	# Locales
 
-	# All the locales we have
-	locales:
-		en: CSON.parseFileSync(pathUtil.join(__dirname, '..', '..', 'locale', 'en.cson'))
-
 	# Determined locale
 	locale: null
-
-	# Determined locale code
-	localeCode: null
-
-	# Get Locale Code
-	getLocaleCode: ->
-		if @localeCode? is false
-			localeCode = null
-			localeCodes = [@getConfig().localeCode, safeps.getLocaleCode(), 'en_AU']
-			for localeCode in localeCodes
-				if localeCode and @locales[localeCode]?
-					break
-			@localeCode = localeCode.toLowerCase()
-		return @localeCode
-
-	# Get Language Code
-	getLanguageCode: ->
-		if @languageCode? is false
-			languageCode = safeps.getLanguageCode(@getLocaleCode())
-			@languageCode = languageCode.toLowerCase()
-		return @languageCode
-
-	# Get Country Code
-	getCountryCode: ->
-		if @countryCode? is false
-			countryCode = safeps.getCountryCode(@getLocaleCode())
-			@countryCode = countryCode.toLowerCase()
-		return @countryCode
 
 	# Get Locale
 	getLocale: ->
 		if @locale? is false
-			@locale = @locales[@getLocaleCode()] or @locales[@getLanguageCode()] or @locales['en']
+			config = @getConfig()
+			codes = _.uniq [
+				'en'
+				safeps.getLanguageCode config.localeCode
+				safeps.getLanguageCode safeps.getLocaleCode()
+				safeps.getLocaleCode   config.localeCode
+				safeps.getLocaleCode   safeps.getLocaleCode()
+			]
+			locales = (@loadLocale(code)  for code in codes)
+			@locale = extendr.extend(locales...)
+
 		return @locale
+
+	# Load Locale
+	loadLocale: (code) ->
+		localePath = pathUtil.join(@localePath, "#{code}.cson")
+		return null  unless safefs.existsSync(localePath)
+		locale = CSON.parseFileSync(localePath)
+		return locale
 
 
 	# -----------------------------
@@ -707,6 +692,10 @@ class DocPad extends EventEmitterGrouped
 
 	# -----------------------------
 	# Configuration
+
+	# Hash Key
+	# The key that we use to hash some data before sending it to our statistic server
+	hashKey: '7>9}$3hP86o,4=@T'  # const
 
 	# Website Package Configuration
 	websitePackageConfig: null  # {}
@@ -743,6 +732,12 @@ class DocPad extends EventEmitterGrouped
 		# Subcribe Try Again
 		# If our subscription has failed, when should we try again?
 		subscribeTryAgain: null
+
+		# Terms of Service
+		tos: null
+
+		# Identified
+		identified: null
 
 	# Initial Configuration
 	initialConfig:
@@ -919,10 +914,6 @@ class DocPad extends EventEmitterGrouped
 		# Whether or not we should report statistics back to DocPad
 		# By default it is only enabled if we are not running inside a test
 		reportStatistics: process.argv.join('').indexOf('test') is -1
-
-		# Hash Key
-		# The key that we use to hash some data before sending it to our statistic server
-		hashKey: '7>9}$3hP86o,4=@T'  # const
 
 
 		# -----------------------------
@@ -1176,7 +1167,6 @@ class DocPad extends EventEmitterGrouped
 						# There reference was old, update it with our new one
 						@filesByOutPath[outPath] = model.id
 			)
-		@locales = extendr.dereference(@locales)
 		@userConfig = extendr.dereference(@userConfig)
 		@initialConfig = extendr.dereference(@initialConfig)
 
@@ -1364,31 +1354,6 @@ class DocPad extends EventEmitterGrouped
 			# Welcome
 			docpad.emitSerial('welcome', {docpad}, complete)
 
-		# Anyomous
-		# Ignore errors
-		tasks.addTask (complete) ->
-			# Ignore if username is already identified
-			return complete()  if docpad.userConfig.username
-
-			# User is anonymous, set their username to the hashed and salted mac address
-			require('getmac').getMac (err,macAddress) =>
-				if err or !macAddress
-					return docpad.trackError(err or new Error('no mac address'), complete)
-
-				# Hash with salt
-				try
-					macAddressHash = require('crypto').createHmac('sha1', config.hashKey).update(macAddress).digest('hex')
-				catch err
-					return complete()  if err
-
-				# Apply
-				if macAddressHash
-					docpad.userConfig.name ?= "MAC #{macAddressHash}"
-					docpad.userConfig.username ?= macAddressHash
-
-				# Next
-				return complete()
-
 		# Track
 		tasks.addTask (complete) =>
 			# Identify
@@ -1543,10 +1508,10 @@ class DocPad extends EventEmitterGrouped
 		preTasks.addTask (complete) =>
 			safeps.getHomePath (err,homePath) =>
 				return complete(err)  if err
-				dropboxPath = pathUtil.join(homePath,'Dropbox')
+				dropboxPath = pathUtil.resolve(homePath, 'Dropbox')
 				safefs.exists dropboxPath, (dropboxPathExists) =>
 					userConfigDirPath = if dropboxPathExists then dropboxPath else homePath
-					@userConfigPath = pathUtil.join(userConfigDirPath, @userConfigPath)
+					@userConfigPath = pathUtil.resolve(userConfigDirPath, @userConfigPath)
 					return complete()
 
 		# Load User's Configuration
@@ -1561,6 +1526,30 @@ class DocPad extends EventEmitterGrouped
 
 				# Done
 				docpad.log 'debug', util.format(locale.loadingUserConfig, configPath)
+				return complete()
+
+		# Load Anonymous User's Configuration
+		preTasks.addTask (complete) =>
+			# Ignore if username is already identified
+			return complete()  if @userConfig.username
+
+			# User is anonymous, set their username to the hashed and salted mac address
+			require('getmac').getMac (err,macAddress) =>
+				if err or !macAddress
+					return docpad.trackError(err or new Error('no mac address'), complete)
+
+				# Hash with salt
+				try
+					macAddressHash = require('crypto').createHmac('sha1', docpad.hashKey).update(macAddress).digest('hex')
+				catch err
+					return complete()  if err
+
+				# Apply
+				if macAddressHash
+					@userConfig.name ?= "MAC #{macAddressHash}"
+					@userConfig.username ?= macAddressHash
+
+				# Next
 				return complete()
 
 		# Load DocPad's Package Configuration
@@ -1597,7 +1586,7 @@ class DocPad extends EventEmitterGrouped
 		# Read the .env file if it exists
 		preTasks.addTask (complete) =>
 			rootPath = pathUtil.resolve(@instanceConfig.rootPath or @websitePackageConfig.rootPath or @initialConfig.rootPath)
-			configPath = pathUtil.join(rootPath, '.env')
+			configPath = pathUtil.resolve(rootPath, '.env')
 			docpad.log 'debug', util.format(locale.loadingEnvConfig, configPath)
 			safefs.exists configPath, (exists) ->
 				return complete()  unless exists
@@ -2224,22 +2213,30 @@ class DocPad extends EventEmitterGrouped
 		# Prepare
 		{helperUrl} = @getConfig()
 
-		# Data
-		data = {}
-		data.name = @userConfig.name
-		data.email = @userConfig.email
-		data.username = @userConfig.username
+		# Check
+		if config.offline is false
+			if @userConfig?.email
+				# Data
+				data = {}
+				data.email = @userConfig.email  # required
+				data.name = @userConfig.name or null
+				data.username = @userConfig.username or null
 
-		# Apply
-		superAgent
-			.post(helperUrl)
-			.type('json').set('Accept', 'application/json')
-			.query(
-				method: 'add-subscriber'
-			)
-			.send(data)
-			.timeout(30*1000)
-			.end @checkRequest next
+				# Apply
+				superAgent
+					.post(helperUrl)
+					.type('json').set('Accept', 'application/json')
+					.query(
+						method: 'add-subscriber'
+					)
+					.send(data)
+					.timeout(30*1000)
+					.end @checkRequest next
+			else
+				err = new Error('Email not provided')
+				next?(err)
+		else
+			next?()
 
 		# Chain
 		@
@@ -2252,10 +2249,10 @@ class DocPad extends EventEmitterGrouped
 		config = @getConfig()
 
 		# Check
-		if config.offline is false and config.reportStatistics and @userConfig?.username
+		if config.offline is false and config.reportStatistics
 			# Data
 			data = {}
-			data.userId = @userConfig.username
+			data.userId = @userConfig.username or null
 			data.event = name
 			data.properties = things
 
@@ -2302,14 +2299,14 @@ class DocPad extends EventEmitterGrouped
 		if config.offline is false and config.reportStatistics and @userConfig?.username
 			# Data
 			data = {}
-			data.userId = @userConfig.username
+			data.userId = @userConfig.username  # required
 			data.traits = things = {}
 
 			# Things
 			now = new Date()
-			things.username = @userConfig.username
-			things.email = @userConfig.email
-			things.name = @userConfig.name
+			things.username = @userConfig.username  # required
+			things.email = @userConfig.email or null
+			things.name = @userConfig.name or null
 			things.lastLogin = now.toISOString()
 			things.lastSeen = now.toISOString()
 			things.countryCode = safeps.getCountryCode()
