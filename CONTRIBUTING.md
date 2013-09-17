@@ -1,6 +1,6 @@
 # Contributing
 
-- [Contributing Guide](http://docpad.org/docs/contribute)	
-- [Get Support](http://docpad.org/docs/support)
+## READ THESE BEFORE POSTING ON THE ISSUE TRACKER
 
-## BEFORE YOU POST ON THE ISSUE TRACKER! [READ THIS!](http://docpad.org/docs/support#bug-reports-via-github-s-issue-tracker)
+- [How to Contribute](http://docpad.org/docs/contribute)	
+- [How to Get Support](http://docpad.org/docs/support)
