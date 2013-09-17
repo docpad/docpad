@@ -1,4 +1,6 @@
 # Contributing
 
-- [Check out our Contributing Guide here.](http://docpad.org/docs/contribute)	
-- [Check out our Getting Support Guide here.](http://docpad.org/docs/support)
+## READ THESE BEFORE YOU POST ON THE ISSUE TRACKER!
+
+- [Contributing Guide](http://docpad.org/docs/contribute)	
+- [Support Guide](http://docpad.org/docs/support)
