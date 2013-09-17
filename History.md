@@ -1,5 +1,12 @@
 ## History
 
+- v6.53.0 September 17, 2013
+	- Absolute paths should no longer end up joined when the configuration is reloaded
+	- Improved locale support
+		- Can now merge locales together
+	- We now load the user information within the `load` action, rather than inside the `ready` action
+		- Fixes subscribe and tos metrics [issue #623](https://github.com/bevry/docpad/issues/638)
+
 - v6.52.2 September 16, 2013
 	- Possible fix for `Error: A task's completion callback has fired when the task was already in a completed state, this is unexpected` error
 		- Thanks to [Ryan Fitzer](https://github.com/ryanfitzer) for [issue #643](https://github.com/bevry/docpad/issues/643) thanks to
