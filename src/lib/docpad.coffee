@@ -2211,7 +2211,7 @@ class DocPad extends EventEmitterGrouped
 	# next(err)
 	subscribe: (next) =>
 		# Prepare
-		{helperUrl} = @getConfig()
+		config = @getConfig()
 
 		# Check
 		if config.offline is false
@@ -2224,7 +2224,7 @@ class DocPad extends EventEmitterGrouped
 
 				# Apply
 				superAgent
-					.post(helperUrl)
+					.post(config.helperUrl)
 					.type('json').set('Accept', 'application/json')
 					.query(
 						method: 'add-subscriber'

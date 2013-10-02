@@ -426,13 +426,12 @@ class ConsoleInterface
 					]
 					safeps.spawnCommands 'git', commands, (err,results) ->
 						# Ignore error as it just means a config value wasn't defined
-						# return next(err)  if err
 
 						# Fetch
 						# The or to '' is there because otherwise we will get "undefined" as a string if the value doesn't exist
-						userConfig.name or= String(results?[0]?[1] or '').trim() or null
-						userConfig.email or= String(results?[1]?[1] or '').trim() or null
-						userConfig.username or= String(results?[2]?[1] or '').trim() or null
+						userConfig.name = String(results?[0]?[1] or '').trim() or null
+						userConfig.email = String(results?[1]?[1] or '').trim() or null
+						userConfig.username = String(results?[2]?[1] or '').trim() or null
 
 						# Let the user know we scanned their configuration if we got anything useful
 						if userConfig.name or userConfig.email or userConfig.username

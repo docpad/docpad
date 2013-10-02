@@ -1,11 +1,18 @@
 ## History
 
+- v6.53.1 October 1, 2013
+	- Fixed `ReferenceError: config is not defined` on subscribe (regression since v6.53.0)
+		- Thanks to [Igor](https://github.com/Hohot) and [Alberto Leal](https://github.com/Dashed) for [issue #663](https://github.com/bevry/docpad/issues/663)
+	- Fixed autodetection of name and username (regression since v6.53.0)
+	- Updated dependencies
+
 - v6.53.0 September 17, 2013
 	- Absolute paths should no longer end up joined when the configuration is reloaded
 	- Improved locale support
 		- Can now merge locales together
-	- We now load the user information within the `load` action, rather than inside the `ready` action
-		- Fixes subscribe and tos metrics [issue #623](https://github.com/bevry/docpad/issues/638)
+	- Fixes subscribe and tos metrics
+		- We now load the user information within the `load` action, rather than inside the `ready` action
+		- Closes [issue #623](https://github.com/bevry/docpad/issues/638)
 
 - v6.52.2 September 16, 2013
 	- Possible fix for `Error: A task's completion callback has fired when the task was already in a completed state, this is unexpected` error
