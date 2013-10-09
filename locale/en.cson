@@ -163,7 +163,7 @@
 	consoleDescriptionClean: "ensure everything is cleaned correctly (will remove your out directory)"
 	consoleDescriptionInfo: "display the information about your docpad instance"
 	consoleDescriptionHelp: "output the help"
-	consoleDescriptionUnknown: "anything else ouputs the help"
+	consoleDescriptionUnknown: "anything else outputs the help"
 
 	consoleOptionGlobal: "whether or not we should just fire the global installation of docpad"
 	consoleOptionOut: "where to output the rendered files (to a directory) or file (to an output file)"
