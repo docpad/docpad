@@ -1,5 +1,9 @@
 ## History
 
+- v6.53.2 October 10, 2013
+	- Watching improvements
+	- Updated dependencies
+
 - v6.53.1 October 1, 2013
 	- Fixed `ReferenceError: config is not defined` on subscribe (regression since v6.53.0)
 		- Thanks to [Igor](https://github.com/Hohot) and [Alberto Leal](https://github.com/Dashed) for [issue #663](https://github.com/bevry/docpad/issues/663)
