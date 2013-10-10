@@ -1859,7 +1859,7 @@ class DocPad extends EventEmitterGrouped
 		# Perform a complete clean of our collections
 		database.reset([])
 		meta = @getBlock('meta').reset([])
-		meta.add("""<meta name="generator" content="DocPad v#{docpad.version}" />""")  if docpad.getConfig().poweredByDocPad isnt false
+		meta.add("""<meta name="generator" content="DocPad v#{docpad.getVersion()}" />""")  if docpad.getConfig().poweredByDocPad isnt false
 		@getBlock('scripts').reset([])
 		@getBlock('styles').reset([])
 
@@ -3930,7 +3930,7 @@ class DocPad extends EventEmitterGrouped
 						node: '0.10'
 						npm: '1.3'
 					dependencies:
-						docpad: '~'+docpad.version
+						docpad: '~'+docpad.getVersion()
 					main: 'node_modules/docpad/bin/docpad-server'
 					scripts:
 						start: 'node_modules/docpad/bin/docpad-server'
@@ -4398,7 +4398,7 @@ class DocPad extends EventEmitterGrouped
 		# Always enable this until we get a complaint about not having it
 		# For instance, Express.js also forces this
 		tools = res.get('X-Powered-By').split(/[,\s]+/g)
-		tools.push("DocPad v#{docpad.version}")
+		tools.push("DocPad v#{docpad.getVersion()}")
 		tools = tools.join(', ')
 		res.set('X-Powered-By', tools)
 
