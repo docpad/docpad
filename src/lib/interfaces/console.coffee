@@ -18,14 +18,14 @@ class ConsoleInterface
 		@commander = commander = require('commander')
 		locale = docpad.getLocale()
 
-		# Version information
-		version = require('../../../package.json').version
 
 		# -----------------------------
 		# Global config
 
 		commander
-			.version(version)
+			.version(
+				docpad.getVersionString()
+			)
 			.option(
 				'-o, --out <outPath>'
 				locale.consoleOptionOut

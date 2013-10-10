@@ -135,7 +135,16 @@ class DocPad extends EventEmitterGrouped
 
 	# DocPad's version number
 	version: null
-	getVersion: -> @version
+
+	getVersion: ->
+		@version ?= require(@packagePath).version
+		return @version
+
+	getVersionString: ->
+		if docpadUtil.isLocalDocPadExecutable()
+			return util.format(@getLocale().versionLocal, @getVersion())
+		else
+			return util.format(@getLocale().versionGlobal, @getVersion())
 
 	# Plugin version requirements
 	pluginVersion: '2'
@@ -1330,10 +1339,7 @@ class DocPad extends EventEmitterGrouped
 			pluginsList = Object.keys(@loadedPlugins).sort().join(', ')
 
 		# Welcome Output
-		if docpadUtil.isLocalDocPadExecutable()
-			docpad.log 'info', util.format(locale.welcomeLocal, "v#{@getVersion()}")
-		else
-			docpad.log 'info', util.format(locale.welcome, "v#{@getVersion()}")
+		docpad.log 'info', util.format(locale.welcome, @getVersionString())
 		docpad.log 'info', locale.welcomeContribute
 		docpad.log 'info', util.format(locale.welcomePlugins, pluginsList)
 		docpad.log 'info', util.format(locale.welcomeEnvironment, @getEnvironment())
@@ -1550,21 +1556,6 @@ class DocPad extends EventEmitterGrouped
 					@userConfig.username ?= macAddressHash
 
 				# Next
-				return complete()
-
-		# Load DocPad's Package Configuration
-		preTasks.addTask (complete) =>
-			configPath = @packagePath
-			docpad.log 'debug', util.format(locale.loadingDocPadPackageConfig, configPath)
-			@loadConfigPath {configPath}, (err,data) =>
-				return complete(err)  if err
-				data or= {}
-
-				# Version
-				@version = data.version
-
-				# Done
-				docpad.log 'debug', util.format(locale.loadingDocPadPackageConfig, configPath)
 				return complete()
 
 		# Load Website's Package Configuration
