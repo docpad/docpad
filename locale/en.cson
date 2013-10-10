@@ -189,8 +189,9 @@
 		For more information about what this means, visit:
 		    http://docpad.org/render-early-via-include
 		"""
+	versionGlobal: "v%s (global installation)"
+	versionLocal: "v%s (local installation)"
 	welcome: "Welcome to DocPad %s"
-	welcomeLocal: "Welcome to DocPad %s, local installation"
 	welcomeContribute: "Contribute: http://docpad.org/docs/contribute"
 	welcomePlugins: "Plugins: %s"
 	welcomeEnvironment: "Environment: %s"

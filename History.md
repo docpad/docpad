@@ -1,5 +1,10 @@
 ## History
 
+- v6.53.3 October 10, 2013
+	- No need to load in the DocPad `package.json` file each load
+	- We now output whether or not we are a global or local installation with `docpad --version`
+		- Thanks to [Henrik Cederblad](https://github.com/hced) and [Eduán Lávaque](https://github.com/Greduan) for [issue #672](https://github.com/bevry/docpad/issues/672)
+
 - v6.53.2 October 10, 2013
 	- Watching improvements
 	- Updated dependencies
