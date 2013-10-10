@@ -138,11 +138,11 @@ class PluginLoader
 				'engine-node'
 
 			# Check docpad engine
-			else if engines.docpad? and not semver.satisfies(docpad.version, engines.docpad)
+			else if engines.docpad? and not semver.satisfies(docpad.getVersion(), engines.docpad)
 				'version-docpad'
 
 			# Check docpad peerDependencies
-			else if peerDependencies.docpad? and not semver.satisfies(docpad.version, peerDependencies.docpad)
+			else if peerDependencies.docpad? and not semver.satisfies(docpad.getVersion(), peerDependencies.docpad)
 				'version-docpad'
 
 			# Supported
