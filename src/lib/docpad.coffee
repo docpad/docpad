@@ -367,7 +367,7 @@ class DocPad extends EventEmitterGrouped
 	# ---------------------------------
 	# Collection Helpers
 
-	# Get Files (will use live collections)
+	# Get files (will use live collections)
 	getFiles: (query,sorting,paging) ->
 		key = JSON.stringify({query,sorting,paging})
 		files = @getCollection(key)
@@ -376,23 +376,24 @@ class DocPad extends EventEmitterGrouped
 			@setCollection(key, files)
 		return files
 
-	# Get another file's model based on a relative path
+	# Get a single file based on a query
 	getFile: (query,sorting,paging) ->
 		file = @getDatabase().findOne(query,sorting,paging)
 		return file
 
-	# Get Files At Path
+	# Get files at a path
 	getFilesAtPath: (path,sorting,paging) ->
 		query = $or: [{relativePath: $startsWith: path}, {fullPath: $startsWith: path}]
 		files = @getFiles(query,sorting,paging)
 		return files
 
-	# Get another file's model based on a relative path
+	# Get a file at a relative or absolute path or url
 	getFileAtPath: (path,sorting,paging) ->
 		file = @getDatabase().fuzzyFindOne(path,sorting,paging)
 		return file
 
 	# Get a file by its url
+	# TODO: Does this still work???
 	getFileByUrl: (url,opts={}) ->
 		opts.collection ?= @getDatabase()
 		file = opts.collection.get(@filesByUrl[url])
@@ -438,6 +439,7 @@ class DocPad extends EventEmitterGrouped
 		@
 
 	# Get a file by its selector
+	# TODO: What on earth is a selector?
 	getFileBySelector: (selector,opts={}) ->
 		opts.collection ?= @getDatabase()
 		file = opts.collection.get(@filesBySelector[selector])
