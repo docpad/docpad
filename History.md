@@ -1,5 +1,8 @@
 ## History
 
+- v6.53.4 October 11, 2013
+	- Fixed DocPad version being undefined in some instances causing plugins to skip (regression since v6.53.3)
+
 - v6.53.3 October 10, 2013
 	- No need to load in the DocPad `package.json` file each load
 	- We now output whether or not we are a global or local installation with `docpad --version`
