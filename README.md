@@ -163,6 +163,9 @@ These amazing people have contributed code to this project:
 
 <!-- /BACKERS -->
 
+## Participants
+Also thanks to all the countless others who have continued to raise DocPad even higher by submitting plugins, issues reports, discussion topics, IRC chat messages, and praise on twitter. We love you.
+
 
 <!-- LICENSE/ -->
 
@@ -174,14 +177,3 @@ Licensed under the incredibly [permissive](http://en.wikipedia.org/wiki/Permissi
 - Copyright &copy; 2011 Benjamin Lupton <b@lupton.cc> (http://balupton.com)
 
 <!-- /LICENSE -->
-
-
-## Special Thanks
-
-Special thanks to all our wonderful contributors who have helped shaped the DocPad core of today.
-
-Also thanks to all the countless others who have continued to raise DocPad even higher by submitting plugins, issues reports, discussion topics, IRC chat messages, and praise on twitter. We love you.
-
-Lastly, thank YOU for giving us a go, believing us, and loving us. We love you too.
-
-Sincerely, the DocPad team
