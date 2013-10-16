@@ -69,14 +69,14 @@ All sorts of people love DocPad, from first time web developers to even industry
 
 
 
-## [Installation](http://docpad.org/docs/install)
+## Install
 
-[Click here for our latest Install Instructions](http://docpad.org/docs/install)
+[Click here for our latest Install Instructions.](http://docpad.org/docs/install)
 
 
-## [Quick Start](http://docpad.org/docs/start)
+## Quick Start
 
-[Click here to skip ahead to our latest Quick Start Guide](http://docpad.org/docs/start)
+[Click here to skip ahead to our latest Quick Start Guide.](http://docpad.org/docs/start)
 
 
 ## What next?
@@ -104,6 +104,15 @@ Here are some quick links to help you get started:
 [Discover the change history by heading on over to the `History.md` file.](https://github.com/bevry/docpad/blob/master/History.md#files)
 
 <!-- /HISTORY -->
+
+
+<!-- CONTRIBUTE/ -->
+
+## Contribute
+
+[Discover how you can contribute by heading on over to the `Contributing.md` file.](https://github.com/bevry/docpad/blob/master/Contributing.md#files)
+
+<!-- /CONTRIBUTE -->
 
 
 <!-- BACKERS/ -->
@@ -164,7 +173,7 @@ These amazing people have contributed code to this project:
 <!-- /BACKERS -->
 
 
-## Participants
+### Participants
 Also thanks to all the countless others who have continued to raise DocPad even higher by submitting plugins, issues reports, discussion topics, IRC chat messages, and praise on twitter. We love you.
 
 
