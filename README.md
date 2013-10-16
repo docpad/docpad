@@ -170,7 +170,8 @@ These amazing people have contributed code to this project:
 
 Licensed under the incredibly [permissive](http://en.wikipedia.org/wiki/Permissive_free_software_licence) [MIT license](http://docpad.org/license)
 
-Copyright &copy; Bevry Pty Ltd <us@bevry.me> (http://bevry.me)
+- Copyright &copy; 2012+ Bevry Pty Ltd <us@bevry.me> (http://bevry.me)
+- Copyright &copy; 2011 Benjamin Lupton <b@lupton.cc> (http://balupton.com)
 
 <!-- /LICENSE -->
 
