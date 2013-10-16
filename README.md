@@ -1,12 +1,22 @@
 [![DocPad Logo](http://d.pr/i/cfmt+)](http://docpad.org "Visit the DocPad Website")
 
+<!-- TITLE/ -->
+
 # DocPad. Streamlined web development.
+
+<!-- /TITLE -->
+
+
+<!-- BADGES/ -->
 
 [![Build Status](https://secure.travis-ci.org/bevry/docpad.png?branch=master)](http://travis-ci.org/bevry/docpad "Check this project's build status on TravisCI")
 [![NPM version](https://badge.fury.io/js/docpad.png)](https://npmjs.org/package/docpad "View this project on NPM")
-[![Gittip donate button](http://badgr.co/gittip/docpad.png)](https://www.gittip.com/docpad/ "Donate weekly to this project using Gittip")
+[![Gittip donate button](http://badgr.co/gittip/bevry.png)](https://www.gittip.com/docpad/ "Donate weekly to this project using Gittip")
 [![Flattr donate button](https://raw.github.com/balupton/flattr-buttons/master/badge-89x18.gif)](http://flattr.com/thing/344188/balupton-on-Flattr "Donate monthly to this project using Flattr")
 [![PayPayl donate button](https://www.paypalobjects.com/en_AU/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=QB8GQPZAH84N6 "Donate once-off to this project using Paypal")
+
+<!-- /BADGES -->
+
 
 Hi! I'm DocPad, I streamline the web development process and help close the gap between experts and beginners. I've been used in production by big and small companies for over a year and a half now to create [plenty of amazing and powerful web sites and applications](http://docpad.org/docs/showcase) quicker than ever before. What makes me different is instead of being a box to cram yourself into and hold you back, I'm a freeway to what you want to accomplish, just getting out of your way and allowing you to create stuff quicker than ever before without limits. Leave the redudant stuff up to me, so you can focus on the awesome stuff.
 
@@ -88,44 +98,89 @@ Here are some quick links to help you get started:
 - [Everything else](http://docpad.org/docs/)
 
 
+<!-- HISTORY/ -->
+
 ## History
+[Discover the change history by heading on over to the `History.md` file.](https://github.com/bevry/docpad/blob/master/History.md#files)
 
-[You can discover the version history inside the `History.md` file](https://github.com/bevry/docpad/blob/master/History.md#files)
+<!-- /HISTORY -->
 
 
+<!-- BACKERS/ -->
+
+## Backers
+
+### Maintainers
+
+These amazing people are maintaining this project:
+
+- Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)
+
+### Sponsors
+
+These amazing people have contributed finances to this project:
+
+- Myplanet Digital <hello@myplanetdigital.com> (http://www.myplanetdigital.com)
+- Meeho! <info@meeho.net> (http://www.meeho.net)
+
+Become a sponsor!
+
+[![Gittip donate button](http://badgr.co/gittip/bevry.png)](https://www.gittip.com/docpad/ "Donate weekly to this project using Gittip")
+[![Flattr donate button](https://raw.github.com/balupton/flattr-buttons/master/badge-89x18.gif)](http://flattr.com/thing/344188/balupton-on-Flattr "Donate monthly to this project using Flattr")
+[![PayPayl donate button](https://www.paypalobjects.com/en_AU/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=QB8GQPZAH84N6 "Donate once-off to this project using Paypal")
+
+### Contributors
+
+These amazing people have contributed code to this project:
+
+- Aaron Powell <me@aaron-powell.com> (https://github.com/aaronpowell) - [view contributions](https://github.com/bevry/docpad/commits?author=aaronpowell)
+- Adrian Olaru <agolaru@gmail.com> (https://github.com/adrianolaru) - [view contributions](https://github.com/bevry/docpad/commits?author=adrianolaru)
+- Alex (https://github.com/amesarosh) - [view contributions](https://github.com/bevry/docpad/commits?author=amesarosh)
+- Andrew Patton <andrew@acusti.ca> (https://github.com/acusti) - [view contributions](https://github.com/bevry/docpad/commits?author=acusti)
+- Ashnur (https://github.com/ashnur) - [view contributions](https://github.com/bevry/docpad/commits?author=ashnur)
+- Ben Barber (https://github.com/barberboy) - [view contributions](https://github.com/bevry/docpad/commits?author=barberboy)
+- Benjamin Lupton <b@lupton.cc> (https://github.com/balupton) - [view contributions](https://github.com/bevry/docpad/commits?author=balupton)
+- Bruno Héridet (https://github.com/Delapouite) - [view contributions](https://github.com/bevry/docpad/commits?author=Delapouite)
+- Changwoo Park <pismute@gmail.com> (https://github.com/pismute) - [view contributions](https://github.com/bevry/docpad/commits?author=pismute)
+- Chase Colman <chase@infinityatlas.com> (https://github.com/chase) - [view contributions](https://github.com/bevry/docpad/commits?author=chase)
+- eldios <lele@amicofigo.com> (https://github.com/eldios) - [view contributions](https://github.com/bevry/docpad/commits?author=eldios)
+- Ferrari Lee <shiyung@gmail.com> (https://github.com/Ferrari) - [view contributions](https://github.com/bevry/docpad/commits?author=Ferrari)
+- Homme Zwaagstra <hrz@geodata.soton.ac.uk> (https://github.com/homme) - [view contributions](https://github.com/bevry/docpad/commits?author=homme)
+- Luke Hagan (https://github.com/lhagan) - [view contributions](https://github.com/bevry/docpad/commits?author=lhagan)
+- Neil Taylor <neil.t@myplanetdigital.com> (https://github.com/neilbaylorrulez) - [view contributions](https://github.com/bevry/docpad/commits?author=neilbaylorrulez)
+- Nick Crohn <ncrohn@me.com> (https://github.com/ncrohn) - [view contributions](https://github.com/bevry/docpad/commits?author=ncrohn)
+- Olivier Bazoud (https://github.com/obazoud) - [view contributions](https://github.com/bevry/docpad/commits?author=obazoud)
+- Paul Armstrong <paul@paularmstrongdesigns.com> (https://github.com/paularmstrong) - [view contributions](https://github.com/bevry/docpad/commits?author=paularmstrong)
+- Richard A <richard@antecki.id.au> (https://github.com/rantecki) - [view contributions](https://github.com/bevry/docpad/commits?author=rantecki)
+- Sorin Ionescu <sorin.ionescu@gmail.com> (https://github.com/sorin-ionescu) - [view contributions](https://github.com/bevry/docpad/commits?author=sorin-ionescu)
+- Stefan (https://github.com/stegrams) - [view contributions](https://github.com/bevry/docpad/commits?author=stegrams)
+- Sven Vetsch (https://github.com/disenchant) - [view contributions](https://github.com/bevry/docpad/commits?author=disenchant)
+- Todd Anglin (https://github.com/toddanglin) - [view contributions](https://github.com/bevry/docpad/commits?author=toddanglin)
+- Vladislav Botvin <darkvlados@me.com> (https://github.com/darrrk) - [view contributions](https://github.com/bevry/docpad/commits?author=darrrk)
+- Zhao Lei <aicoylei@gmail.com> (https://github.com/firede) - [view contributions](https://github.com/bevry/docpad/commits?author=firede)
+
+[Become a contributor!](https://github.com/bevry/docpad/blob/master/Contributing.md#files)
+
+<!-- /BACKERS -->
+
+
+<!-- LICENSE/ -->
 
 ## License
 
-Licensed under the incredibly [permissive](http://en.wikipedia.org/wiki/Permissive_free_software_licence) [MIT License](http://creativecommons.org/licenses/MIT/)
-<br/>Copyright &copy; 2012+ [Bevry Pty Ltd](http://bevry.me)
-<br/>Copyright &copy; 2011 [Benjamin Lupton](http://balupton.com)
+Licensed under the incredibly [permissive](http://en.wikipedia.org/wiki/Permissive_free_software_licence) [MIT license](http://docpad.org/license)
 
+Copyright &copy; Bevry Pty Ltd <us@bevry.me> (http://bevry.me)
+
+<!-- /LICENSE -->
 
 
 ## Special Thanks
 
-Special thanks to all our wonderful contributors who have helped shaped the DocPad core of today:
-
-- [Benjamin Lupton](https://github.com/balupton)
-- [Nick Crohn](https://github.com/ncrohn)
-- [eldios](https://github.com/eldios)
-- [Changwoo Park](https://github.com/pismute)
-- [Bruno Héridet](https://github.com/Delapouite)
-- [Todd Anglin](https://github.com/toddanglin)
-- [Olivier Bazoud](https://github.com/obazoud)
-- [Zhao Lei](https://github.com/firede)
-- [Aaron Powell](https://github.com/aaronpowell)
-- [Andrew Patton](https://github.com/acusti)
-- [Paul Armstrong](https://github.com/paularmstrong)
-- [Sorin Ionescu](https://github.com/sorin-ionescu)
-- [Ferrari Lee](https://github.com/Ferrari)
-- [Ben Barber](https://github.com/barberboy)
-- [Sven Vetsch](https://github.com/disenchant)
+Special thanks to all our wonderful contributors who have helped shaped the DocPad core of today.
 
 Also thanks to all the countless others who have continued to raise DocPad even higher by submitting plugins, issues reports, discussion topics, IRC chat messages, and praise on twitter. We love you.
 
 Lastly, thank YOU for giving us a go, believing us, and loving us. We love you too.
 
 Sincerely, the DocPad team
-
-[![Flattr this project](http://api.flattr.com/button/flattr-badge-large.png)](http://flattr.com/thing/344188/balupton-on-Flattr)

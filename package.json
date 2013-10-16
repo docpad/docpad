@@ -1,10 +1,18 @@
 {
+  "title": "DocPad. Streamlined web development.",
   "name": "docpad",
   "version": "6.53.4",
   "description": "DocPad is a next generation web architecture that lets you create fast static websites with dynamic abilities and powerful abstractions. Write your website as files on your computer, entries in a database, or even RSS feeds and DocPad will import it, generate & render it, then output a static website for deployment anywhere or a dynamic node website for advanced server-side functionality. Use it as a module or standalone. It's purely awesome. Check it out.",
-  "homepage": "https://github.com/bevry/docpad",
+  "homepage": "http://docpad.org",
   "installUrl": "http://docpad.org/install",
   "upgradeUrl": "http://docpad.org/upgrade",
+  "badges": {
+    "travis": true,
+    "npm": true,
+    "gittip": "docpad",
+    "flattr": "344188/balupton-on-Flattr",
+    "paypal": "QB8GQPZAH84N6"
+  },
   "keywords": [
     "document management system",
     "dms",
@@ -41,36 +49,38 @@
   ],
   "author": "Bevry Pty Ltd <us@bevry.me> (http://bevry.me)",
   "maintainers": [
-    "Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)",
-    "Chase Colman <chase@infinityatlas.com> (https://github.com/chase)"
+    "Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)"
+  ],
+  "sponsors": [
+    "Myplanet Digital <hello@myplanetdigital.com> (http://www.myplanetdigital.com)",
+    "Meeho! <info@meeho.net> (http://www.meeho.net)"
   ],
   "contributors": [
-    "Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)",
-    "Chase Colman <chase@infinityatlas.com> (https://github.com/chase)",
-    "Nick Crohn <ncrohn@me.com> (https://github.com/ncrohn)",
-    "eldios <lele@amicofigo.com> (https://github.com/eldios)",
-    "Changwoo Park <pismute@gmail.com> (https://github.com/pismute)",
-    "Bruno Héridet (https://github.com/Delapouite)",
-    "Todd Anglin (https://github.com/toddanglin)",
-    "Olivier Bazoud (https://github.com/obazoud)",
-    "Zhao Lei <aicoylei@gmail.com> (https://github.com/firede)",
     "Aaron Powell <me@aaron-powell.com> (https://github.com/aaronpowell)",
-    "Andrew Patton <andrew@acusti.ca> (https://github.com/acusti)",
-    "Paul Armstrong <paul@paularmstrongdesigns.com> (https://github.com/paularmstrong)",
-    "Sorin Ionescu <sorin.ionescu@gmail.com> (https://github.com/sorin-ionescu)",
-    "Ferrari Lee <shiyung@gmail.com> (https://github.com/Ferrari)",
-    "Ben Barber (https://github.com/barberboy)",
-    "Luke Hagan (https://github.com/lhagan)",
-    "Vladislav Botvin <darkvlados@me.com> (https://github.com/darrrk)",
-    "Ashnur (https://github.com/ashnur)",
-    "Stefan (https://github.com/stegrams)",
-    "Alex (https://github.com/amesarosh)",
-    "Richard A <richard@antecki.id.au> (https://github.com/rantecki)",
-    "Homme Zwaagstra <hrz@geodata.soton.ac.uk> (https://github.com/homme)",
     "Adrian Olaru <agolaru@gmail.com> (https://github.com/adrianolaru)",
-    "Richard A <richard@antecki.id.au> (https://github.com/rantecki)",
+    "Alex (https://github.com/amesarosh)",
+    "Andrew Patton <andrew@acusti.ca> (https://github.com/acusti)",
+    "Ashnur (https://github.com/ashnur)",
+    "Ben Barber (https://github.com/barberboy)",
+    "Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)",
+    "Bruno Héridet (https://github.com/Delapouite)",
+    "Changwoo Park <pismute@gmail.com> (https://github.com/pismute)",
+    "Chase Colman <chase@infinityatlas.com> (https://github.com/chase)",
+    "eldios <lele@amicofigo.com> (https://github.com/eldios)",
+    "Ferrari Lee <shiyung@gmail.com> (https://github.com/Ferrari)",
+    "Homme Zwaagstra <hrz@geodata.soton.ac.uk> (https://github.com/homme)",
+    "Luke Hagan (https://github.com/lhagan)",
     "Neil Taylor <neil.t@myplanetdigital.com> (https://github.com/neilbaylorrulez)",
-    "Sven Vetsch (https://github.com/disenchant)"
+    "Nick Crohn <ncrohn@me.com> (https://github.com/ncrohn)",
+    "Olivier Bazoud (https://github.com/obazoud)",
+    "Paul Armstrong <paul@paularmstrongdesigns.com> (https://github.com/paularmstrong)",
+    "Richard A <richard@antecki.id.au> (https://github.com/rantecki)",
+    "Sorin Ionescu <sorin.ionescu@gmail.com> (https://github.com/sorin-ionescu)",
+    "Stefan (https://github.com/stegrams)",
+    "Sven Vetsch (https://github.com/disenchant)",
+    "Todd Anglin (https://github.com/toddanglin)",
+    "Vladislav Botvin <darkvlados@me.com> (https://github.com/darrrk)",
+    "Zhao Lei <aicoylei@gmail.com> (https://github.com/firede)"
   ],
   "bugs": {
     "url": "https://github.com/bevry/docpad/issues"
@@ -78,10 +88,6 @@
   "repository": {
     "type": "git",
     "url": "http://github.com/bevry/docpad.git"
-  },
-  "license": {
-    "type": "MIT",
-    "url": "http://docpad.org/license"
   },
   "engines": {
     "node": ">=0.8",
@@ -141,5 +147,11 @@
   "scripts": {
     "test": "./node_modules/.bin/cake test"
   },
-  "main": "./out/main.js"
+  "main": "./out/main.js",
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://docpad.org/license"
+    }
+  ]
 }
