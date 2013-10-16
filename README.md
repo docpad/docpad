@@ -163,6 +163,7 @@ These amazing people have contributed code to this project:
 
 <!-- /BACKERS -->
 
+
 ## Participants
 Also thanks to all the countless others who have continued to raise DocPad even higher by submitting plugins, issues reports, discussion topics, IRC chat messages, and praise on twitter. We love you.
 
@@ -173,7 +174,9 @@ Also thanks to all the countless others who have continued to raise DocPad even 
 
 Licensed under the incredibly [permissive](http://en.wikipedia.org/wiki/Permissive_free_software_licence) [MIT license](http://docpad.org/license)
 
-- Copyright &copy; 2012+ Bevry Pty Ltd <us@bevry.me> (http://bevry.me)
-- Copyright &copy; 2011 Benjamin Lupton <b@lupton.cc> (http://balupton.com)
+Copyright &copy; 2012+ Bevry Pty Ltd <us@bevry.me> (http://bevry.me)
+<br/>Copyright &copy; 2011 Benjamin Lupton <b@lupton.cc> (http://balupton.com)
 
 <!-- /LICENSE -->
+
+
