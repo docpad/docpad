@@ -1,0 +1,71 @@
+{
+	title: "DocPad. Streamlined web development."
+	name: "docpad"
+	version: "6.53.4"
+	description: "DocPad is a next generation web architecture that lets you create fast static websites with dynamic abilities and powerful abstractions. Write your website as files on your computer, entries in a database, or even RSS feeds and DocPad will import it, generate & render it, then output a static website for deployment anywhere or a dynamic node website for advanced server-side functionality. Use it as a module or standalone. It's purely awesome. Check it out."
+	homepage: "http://docpad.org"
+	repo: "bevry/docpad"
+
+	packages:
+		package:
+			installUrl: "http://docpad.org/install"
+			upgradeUrl: "http://docpad.org/upgrade"
+
+	badges:
+		travis: true
+		npm: true
+		gittip: "docpad"
+		flattr: "344188/balupton-on-Flattr"
+		paypal: "QB8GQPZAH84N6"
+
+	keywords: """
+		document management system
+		dms
+		content management system
+		cms
+		static site generator
+		generator
+		static file server
+		server
+		web
+		web framework
+		framework
+		web development
+		development
+		dev
+		build and deployment
+		builder
+		build
+		compiler
+		compile
+		parser
+		parse
+		renderer
+		render
+		templating
+		templates
+		language agnostic
+		website
+		blog
+		cli
+		tool
+		utility
+		scaffold
+		"""
+
+	authors: """
+		2012+ Bevry Pty Ltd <us@bevry.me> (http://bevry.me)
+		2011 Benjamin Lupton <b@lupton.cc> (http://balupton.com)
+		"""
+
+	maintainers: """
+		Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)
+		"""
+
+	sponsors: """
+		Myplanet Digital <hello@myplanetdigital.com> (http://www.myplanetdigital.com)
+		Meeho! <info@meeho.net> (http://www.meeho.net)
+		"""
+
+	license: "MIT"
+}
