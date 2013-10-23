@@ -41,6 +41,10 @@
     "scaffold"
   ],
   "author": "2012+ Bevry Pty Ltd <us@bevry.me> (http://bevry.me), 2011 Benjamin Lupton <b@lupton.cc> (http://balupton.com)",
+  "sponsors": [
+    "Myplanet Digital <hello@myplanetdigital.com> (http://www.myplanetdigital.com)",
+    "Meeho! <info@meeho.net> (http://www.meeho.net)"
+  ],
   "maintainers": [
     "Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)"
   ],
@@ -68,6 +72,7 @@
     "Stefan (https://github.com/stegrams)",
     "Sven Vetsch (https://github.com/disenchant)",
     "Todd Anglin (https://github.com/toddanglin)",
+    "ttamminen (https://github.com/ttamminen)",
     "Vladislav Botvin <darkvlados@me.com> (https://github.com/darrrk)",
     "Zhao Lei <aicoylei@gmail.com> (https://github.com/firede)"
   ],
@@ -137,10 +142,15 @@
     "test": "./node_modules/.bin/cake test"
   },
   "main": "./out/main.js",
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "http://docpad.org/license"
-    }
-  ]
+  "license": {
+    "type": "MIT",
+    "url": "http://docpad.org/license"
+  },
+  "badges": {
+    "travis": true,
+    "npm": true,
+    "gittip": "docpad",
+    "flattr": "344188/balupton-on-Flattr",
+    "paypal": "QB8GQPZAH84N6"
+  }
 }
