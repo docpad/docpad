@@ -54,7 +54,7 @@ Discover my features below, or skip ahead to the installation instructions to ge
 
 All sorts of people love DocPad, from first time web developers to even industry leaders and experts. In fact, people even migrate to DocPad from other systems as they love it so much. Here are some our [favourite tweets](https://twitter.com/#!/DocPad/favorites) of what people are saying about DocPad :)
 
-[![Some favourite tweets about DocPad](https://raw.github.com/bevry/docpad/dev/docs/favs.gif)](https://twitter.com/#!/DocPad/favorites)
+[![Some favourite tweets about DocPad](http://d.pr/i/s66H+)](https://twitter.com/#!/DocPad/favorites)
 
 
 
