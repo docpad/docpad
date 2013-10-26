@@ -4529,9 +4529,14 @@ class DocPad extends EventEmitterGrouped
 				# Require
 				express ?= require('express')
 
-				# POST Middleware
-				serverExpress.use(express.bodyParser())  if opts.middlewareBodyParser isnt false
-				serverExpress.use(express.methodOverride())  if opts.middlewareMethodOverride isnt false
+				# Parse url-encoded and json encoded form data
+				if opts.middlewareBodyParser isnt false
+					serverExpress.use(express.urlencoded())
+					serverExpress.use(express.json())
+
+				# Allow over-riding of the request type (e.g. GET, POST, PUT, DELETE)
+				if opts.middlewareMethodOverride isnt false
+					serverExpress.use(express.methodOverride())
 
 				# Emit the serverExtend event
 				# So plugins can define their routes earlier than the DocPad routes

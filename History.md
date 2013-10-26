@@ -8,6 +8,8 @@
 	- Notifications are now handled by plugins instead of the core
 		- So if you like notifications, you'll probably want the [growl plugin](https://github.com/Delapouite/docpad-plugin-growl)
 		- Thanks to [Bruno Heridet](https://github.com/Delapouite) for [pull request #605](https://github.com/bevry/docpad/pull/605)
+	- Fixed the `connect.multipart() will be removed in connect 3.0` warning
+		- Replaced the `bodyParser` middleware with the `urlencoded` and `json` middlewares
 	- Updated dependencies
 
 - v6.53.4 October 11, 2013
