@@ -3,6 +3,8 @@
 - v6.54.0 Unreleased
 	- Added `renderCollectionBefore` and `renderCollectionAfter` events
 		- Thanks to [Bruno Heridet](https://github.com/Delapouite) for [pull request #608](https://github.com/bevry/docpad/pull/608)
+	- i18n support is now added by default thanks to dropping `iconv` for `encoding`+`iconvlite` dependencies
+		- Thanks to [Sim Jiason](https://github.com/Snger) and [Eduán Lávaque](https://github.com/Greduan) for [issue #627](https://github.com/bevry/docpad/issues/627)
 	- Updated dependencies
 
 - v6.53.4 October 11, 2013
