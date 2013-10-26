@@ -1,13 +1,15 @@
 # History
 
-- v6.54.0 Unreleased
-	- Added `renderCollectionBefore` and `renderCollectionAfter` events
-		- Thanks to [Bruno Heridet](https://github.com/Delapouite) for [pull request #608](https://github.com/bevry/docpad/pull/608)
-	- i18n support is now added by default thanks to dropping `iconv` for `encoding`+`iconvlite` dependencies
-		- Thanks to [Sim Jiason](https://github.com/Snger) and [Eduán Lávaque](https://github.com/Greduan) for [issue #627](https://github.com/bevry/docpad/issues/627)
-	- Notifications are now handled by plugins instead of the core
+- v6.54.0 October 26, 2013
+	- Backwards compatibility change: Notifications are now handled by plugins instead of the core
 		- So if you like notifications, you'll probably want the [growl plugin](https://github.com/Delapouite/docpad-plugin-growl)
 		- Thanks to [Bruno Heridet](https://github.com/Delapouite) for [pull request #605](https://github.com/bevry/docpad/pull/605)
+	- Backwards compatibility change: i18n support is handled via `encoding`+`iconvlite` instead of `iconv`
+		- This enables windows support
+		- Just like before, you turn on i18n abilities by setting the `detectEncoding` configuration option to `true` (still `false` by default)
+		- Thanks to [Sim Jiason](https://github.com/Snger) and [Eduán Lávaque](https://github.com/Greduan) for [issue #627](https://github.com/bevry/docpad/issues/627)
+	- Added `renderCollectionBefore` and `renderCollectionAfter` events
+		- Thanks to [Bruno Heridet](https://github.com/Delapouite) for [pull request #608](https://github.com/bevry/docpad/pull/608)
 	- Fixed the `connect.multipart() will be removed in connect 3.0` warning
 		- Replaced the `bodyParser` middleware with the `urlencoded` and `json` middlewares
 	- Updated dependencies
