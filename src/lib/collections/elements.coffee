@@ -24,7 +24,15 @@ class ElementsCollection extends Collection
 				values[key] = new Model({html:value})
 
 		# Call the super with our values
-		super(values,opts)
+		super(values, opts)
+
+		# Chain
+		@
+
+	# Chain
+	set: -> super; @
+	remove: -> super; @
+	reset: -> super; @
 
 	# Create a way to output our elements to HTML
 	toHTML: ->
