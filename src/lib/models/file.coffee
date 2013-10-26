@@ -10,7 +10,8 @@ extendr = require('extendr')
 
 # Import: Optional
 jschardet = null
-Iconv = null
+encodingUtil = null
+#Iconv = null
 
 # Local
 {Backbone,Model} = require('../base')
@@ -597,22 +598,25 @@ class FileModel extends Model
 			if isText is true
 				# Detect source encoding if not manually specified
 				if @detectEncoding
-					# Import
 					jschardet ?= require('jschardet')
-					try
-						Iconv ?= require('iconv').Iconv
-					catch err
-						Iconv = null
+					encoding ?= jschardet.detect(buffer)?.encoding
 
-					# Detect
-					encoding ?= jschardet.detect(buffer)?.encoding or 'utf8'
-				else
-					encoding ?= 'utf8'
+				# Default the encoding
+				encoding or= 'utf8'
 
 				# Convert into utf8
-				if encoding.toLowerCase() not in ['ascii','utf8','utf-8']
+				if docpadUtil.isStandardEncoding(encoding) is false
+					# Import optional dependencies
+					try
+						#Iconv ?= require('iconv').Iconv
+						encodingUtil ?= require('encoding')
+						# ^ when we prove encoding/iconv-lite works better than iconv
+						# we can move this out of the try catch and make detectEncoding standard
+					catch err
+						# ignore
+
 					# Can convert?
-					if Iconv?
+					if encodingUtil?
 						@log('info', "Converting encoding #{encoding} to UTF-8 on #{relativePath}")
 
 						# Convert
@@ -620,11 +624,12 @@ class FileModel extends Model
 						d.on 'error', =>
 							@log('warn', "Encoding conversion failed, therefore we cannot convert the encoding #{encoding} to UTF-8 on #{relativePath}")
 						d.run ->
-							buffer = new Iconv(encoding, 'utf8').convert(buffer)
+							#buffer = new Iconv(encoding, 'utf8').convert(buffer)
+							buffer = encodingUtil.convert(buffer, 'utf8', encoding)  # content, to, from
 
 					# Can't convert
 					else
-						@log('warn', "Iconv did not load, therefore we cannot convert the encoding #{encoding} to UTF-8 on #{relativePath}")
+						@log('warn', "Encoding utilities did not load, therefore we cannot convert the encoding #{encoding} to UTF-8 on #{relativePath}")
 
 				# Apply
 				changes.encoding = encoding
@@ -856,14 +861,23 @@ class FileModel extends Model
 
 		# Convert utf8 to original encoding
 		unless opts.encoding.toLowerCase() in ['ascii','utf8','utf-8','binary']
-			if Iconv?
+			# Import optional dependencies
+			try
+				#Iconv ?= require('iconv').Iconv
+				encodingUtil ?= require('encoding')
+			catch err
+				# ignore
+
+			# Convert
+			if encodingUtil?
 				@log('info', "Converting encoding UTF-8 to #{opts.encoding} on #{opts.path}")
 				try
-					opts.content = new Iconv('utf8',opts.encoding).convert(opts.content)
+					#opts.content = new Iconv('utf8',opts.encoding).convert(opts.content)
+					opts.content = encodingUtil.convert(opts.content, opts.encoding, 'utf8')  # content, to, from
 				catch err
 					@log('warn', "Encoding conversion failed, therefore we cannot convert the encoding UTF-8 to #{opts.encoding} on #{opts.path}")
 			else
-				@log('warn', "Iconv did not load, therefore we cannot convert the encoding UTF-8 to #{opts.encoding} on #{opts.path}")
+				@log('warn', "Encoding utilities did not load, therefore we cannot convert the encoding UTF-8 to #{opts.encoding} on #{opts.path}")
 
 		# Log
 		file.log 'debug', "Writing the #{opts.type}: #{opts.path} #{opts.encoding}"
