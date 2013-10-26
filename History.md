@@ -1,6 +1,8 @@
 # History
 
-- v6.53.5 October 26, 2013
+- v6.54.0 Unreleased
+	- Added `renderCollectionBefore` and `renderCollectionAfter` events
+		- Thanks to [Bruno Heridet](https://github.com/Delapouite) for [pull request #608](https://github.com/bevry/docpad/pull/608)
 	- Updated dependencies
 
 - v6.53.4 October 11, 2013
