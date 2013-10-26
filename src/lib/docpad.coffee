@@ -1938,6 +1938,7 @@ class DocPad extends EventEmitterGrouped
 		opts.cwd ?= config.rootPath
 		opts.output ?= docpad.getDebugging()
 		opts.force ?= if config.offline then false else true
+		# ^ @todo this line causes --force to be added, when it shouldn't be
 		opts.args ?= []
 		opts.args.push('--force')  if config.force
 		opts.args.push('--no-registry')  if config.offline
