@@ -111,7 +111,7 @@
     "query-engine": "~1.5.2",
     "safefs": "~3.0.3",
     "safeps": "~2.2.8",
-    "semver": "~2.1.0",
+    "semver": "~2.2.0",
     "superagent": "~0.15.4",
     "taskgroup": "~3.2.0",
     "typechecker": "~2.0.1",
