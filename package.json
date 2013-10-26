@@ -120,9 +120,6 @@
     "yamljs": "~0.1.4",
     "promptly": "~0.2.0"
   },
-  "optionalDependencies": {
-    "growl": "~1.7.0"
-  },
   "devDependencies": {
     "coffee-script": "~1.6.2",
     "chai": "~1.8.0",
