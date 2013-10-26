@@ -90,7 +90,7 @@
   "dependencies": {
     "ambi": "~2.1.1",
     "backbone": "1.1.0",
-    "bal-util": "~2.3.0",
+    "bal-util": "~2.3.1",
     "caterpillar": "~2.0.6",
     "caterpillar-filter": "~2.0.3",
     "caterpillar-human": "~2.1.1",

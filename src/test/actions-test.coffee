@@ -57,15 +57,23 @@ joe.suite 'docpad-actions', (suite,test) ->
 			done(err)
 
 	test 'config', (done) ->
-		expected = {a:'instanceConfig',b:'instanceConfig',c:'websiteConfig'}
+		expected = {a:'instanceConfig', b:'instanceConfig', c:'websiteConfig'}
 
 		config = docpad.getConfig()
 		{a,b,c} = config
-		expect({a,b,c}).to.deep.equal(expected)
+		expect(
+			{a,b,c}
+		).to.deep.equal(
+			expected
+		)
 
 		templateData = docpad.getTemplateData()
 		{a,b,c} = templateData
-		expect({a,b,c}).to.deep.equal(expected)
+		expect(
+			{a,b,c}
+		).to.deep.equal(
+			expected
+		)
 
 		done()
 
@@ -105,12 +113,14 @@ joe.suite 'docpad-actions', (suite,test) ->
 							ignoreHiddenFiles: false
 							next: (err,expectList) ->
 								# check we have the same files
-								expect(_.difference(Object.keys(outList),Object.keys(expectList))).to.be.empty
+								expect(
+									_.difference(Object.keys(outList), Object.keys(expectList))
+								).to.be.empty
 
 								# check the contents of those files match
 								for own key,actual of outList
 									expected = expectList[key]
-									testMarkup(key,actual,expected)
+									testMarkup(key, actual, expected)
 
 								# done with same file check
 								# start the markup tests
@@ -140,7 +150,11 @@ joe.suite 'docpad-actions', (suite,test) ->
 				actual = res.text
 				safefs.readFile "#{expectPath}/html.html", (err,expected) ->
 					return done(err)  if err
-					expect(actual.toString().trim()).to.be.equal(expected.toString().trim())
+					expect(
+						actual.toString().trim()
+					).to.be.equal(
+						expected.toString().trim()
+					)
 					done()
 
 		test 'served custom urls', (done) ->
@@ -149,7 +163,11 @@ joe.suite 'docpad-actions', (suite,test) ->
 				actual = res.text
 				safefs.readFile "#{expectPath}/custom-url.html", (err,expected) ->
 					return done(err)  if err
-					expect(actual.toString().trim()).to.be.equal(expected.toString().trim())
+					expect(
+						actual.toString().trim()
+					).to.be.equal(
+						expected.toString().trim()
+					)
 					done()
 
 		test 'served dynamic documents - part 1/2', (done) ->
@@ -157,7 +175,11 @@ joe.suite 'docpad-actions', (suite,test) ->
 				return done(err)  if err
 				actual = res.text
 				expected = 'hi ben'
-				expect(actual.toString().trim()).to.be.equal(expected)
+				expect(
+					actual.toString().trim()
+				).to.be.equal(
+					expected
+				)
 				done()
 
 		test 'served dynamic documents - part 2/2', (done) ->
@@ -165,7 +187,11 @@ joe.suite 'docpad-actions', (suite,test) ->
 				return done(err)  if err
 				actual = res.text
 				expected = 'hi joe'
-				expect(actual.toString().trim()).to.be.equal(expected)
+				expect(
+					actual.toString().trim()
+				).to.be.equal(
+					expected
+				)
 				done()
 
 	test 'close the close', ->
