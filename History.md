@@ -1,5 +1,8 @@
 # History
 
+- v6.53.5 October 26, 2013
+	- Updated dependencies
+
 - v6.53.4 October 11, 2013
 	- Fixed DocPad version being undefined in some instances causing plugins to skip (regression since v6.53.3)
 
