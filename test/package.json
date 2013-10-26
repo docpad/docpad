@@ -3,9 +3,9 @@
 	"private": true,
 	"version": "0.1.0",
 	"dependencies": {
-		"moment": "1.6.x",
-		"docpad-plugin-marked": "latest",
-		"docpad-plugin-coffeekup": "latest",
-		"docpad-plugin-eco": "latest"
+		"moment": "1.6",
+		"docpad-plugin-marked": "2",
+		"docpad-plugin-coffeekup": "2",
+		"docpad-plugin-eco": "2"
 	}
 }
