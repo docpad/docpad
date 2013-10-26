@@ -1,34 +1,41 @@
-# Bevry's Core Cakefile - v1.1.2 September 25, 2013
-# https://gist.github.com/balupton/6409278
-# This file was originally created by Benjamin Lupton <b@lupton.cc> (http://balupton.com)
-# and is currently licensed under the Creative Commons Zero (http://creativecommons.org/publicdomain/zero/1.0/)
-# making it public domain so you can do whatever you wish with it without worry (you can even remove this notice!)
-#
-# If you change something here, be sure to reflect the changes in:
-# - the scripts section of the package.json file
-# - the .travis.yml file
+# v1.3.1 October 26, 2013
+# https://github.com/bevry/base
 
 
-# -----------------
+# =====================================
+# Imports
+
+fsUtil = require('fs')
+pathUtil = require('path')
+
+
+# =====================================
 # Variables
 
-WINDOWS = process.platform.indexOf('win') is 0
-NODE    = process.execPath
-NPM     = if WINDOWS then process.execPath.replace('node.exe', 'npm.cmd') else 'npm'
-EXT     = (if WINDOWS then '.cmd' else '')
-APP     = process.cwd()
-BIN     = "#{APP}/node_modules/.bin"
-CAKE    = "#{BIN}/cake#{EXT}"
-COFFEE  = "#{BIN}/coffee#{EXT}"
-OUT     = "#{APP}/out"
-SRC     = "#{APP}/src"
-TEST    = "#{APP}/test"
+WINDOWS       = process.platform.indexOf('win') is 0
+NODE          = process.execPath
+NPM           = (if WINDOWS then process.execPath.replace('node.exe', 'npm.cmd') else 'npm')
+EXT           = (if WINDOWS then '.cmd' else '')
+APP_DIR       = process.cwd()
+PACKAGE_PATH  = pathUtil.join(APP_DIR, "package.json")
+PACKAGE_DATA  = require(PACKAGE_PATH)
+DOCS_DIR      = pathUtil.join(APP_DIR, "docs")
+DOCS_INPUT    = pathUtil.join(APP_DIR, "src", "lib", "*")
+SRC_DIR       = pathUtil.join(APP_DIR, "src")
+OUT_DIR       = pathUtil.join(APP_DIR, "out")
+TEST_DIR      = pathUtil.join(APP_DIR, "test")
+MODULES_DIR   = pathUtil.join(APP_DIR, "node_modules")
+BIN_DIR       = pathUtil.join(MODULES_DIR, ".bin")
+GIT           = "git"
+CAKE          = pathUtil.join(BIN_DIR, "cake#{EXT}")
+COFFEE        = pathUtil.join(BIN_DIR, "coffee#{EXT}")
+PROJECTZ      = pathUtil.join(BIN_DIR, "projectz#{EXT}")
+DOCCO         = pathUtil.join(BIN_DIR, "docco#{EXT}")
 
 
-# -----------------
-# Requires
+# =====================================
+# Generic
 
-pathUtil = require('path')
 {exec,spawn} = require('child_process')
 safe = (next,fn) ->
 	fn ?= next  # support only one argument
@@ -47,98 +54,106 @@ safe = (next,fn) ->
 		# Continue
 		return fn()
 
-
-# -----------------
-# Actions
-
-clean = (opts,next) ->
-	(next = opts; opts = {})  unless next?
-	args = [
-		'-Rf'
-		OUT
-		pathUtil.join(APP,  'node_modules')
-		pathUtil.join(APP,  '*out')
-		pathUtil.join(APP,  '*log')
-		pathUtil.join(TEST, 'node_modules')
-		pathUtil.join(TEST, '*out')
-		pathUtil.join(TEST, '*log')
-	]
-	spawn('rm', args, {stdio:'inherit',cwd:APP}).on('close', safe next)
-
-compile = (opts,next) ->
-	(next = opts; opts = {})  unless next?
-	spawn(COFFEE, ['-bco', OUT, SRC], {stdio:'inherit',cwd:APP}).on('close', safe next)
-
-watch = (opts,next) ->
-	(next = opts; opts = {})  unless next?
-	spawn(COFFEE, ['-bwco', OUT, SRC], {stdio:'inherit',cwd:APP}).on('close', safe next)
-
-install = (opts,next) ->
-	(next = opts; opts = {})  unless next?
-	spawn(NPM, ['install'], {stdio:'inherit',cwd:APP}).on 'close', safe next, ->
-		spawn(NPM, ['install'], {stdio:'inherit',cwd:TEST}).on('close', safe next)
-
-reset = (opts,next) ->
-	(next = opts; opts = {})  unless next?
-	clean opts, safe next, ->
-		install opts, safe next, ->
-			compile opts, next
-
-setup = (opts,next) ->
-	(next = opts; opts = {})  unless next?
-	install opts, safe next, ->
-		compile opts, next
-
-test = (opts,next) ->
-	(next = opts; opts = {})  unless next?
-	args = []
-	args.push("--debug-brk")  if opts.debug
-	args.push("#{OUT}/test/everything-test.js")
-	spawn(NODE, args, {stdio:'inherit',cwd:APP}).on('close', safe next)
-
 finish = (err) ->
 	throw err  if err
 	console.log('OK')
 
 
-# -----------------
+# =====================================
+# Actions
+
+actions =
+	clean: (opts,next) ->
+		(next = opts; opts = {})  unless next?
+		args = ['-Rf', OUT_DIR]
+		for path in [APP_DIR, TEST_DIR]
+			args.push(
+				pathUtil.join(path,  'build')
+				pathUtil.join(path,  'components')
+				pathUtil.join(path,  'bower_components')
+				pathUtil.join(path,  'node_modules')
+				pathUtil.join(path,  '*out')
+				pathUtil.join(path,  '*log')
+			)
+		# rm
+		spawn('rm', args, {stdio:'inherit', cwd:APP_DIR}).on('close', safe next)
+
+	install: (opts,next) ->
+		(next = opts; opts = {})  unless next?
+		step1 = ->
+			# npm install (for app)
+			spawn(NPM, ['install'], {stdio:'inherit', cwd:APP_DIR}).on('close', safe next, step2)
+		step2 = ->
+			fsUtil.exists TEST_DIR, (exists) ->
+				return next()  unless exists
+				# npm install (for test)
+				spawn(NPM, ['install'], {stdio:'inherit', cwd:TEST_DIR}).on('close', safe next)
+		step1()
+
+	compile: (opts,next) ->
+		(next = opts; opts = {})  unless next?
+		# cake install
+		actions.install opts, safe next, ->
+			# coffee compile
+			spawn(COFFEE, ['-co', OUT_DIR, SRC_DIR], {stdio:'inherit', cwd:APP_DIR}).on('close', safe next)
+
+	watch: (opts,next) ->
+		(next = opts; opts = {})  unless next?
+		# cake install
+		actions.install opts, safe next, ->
+			# coffee watch
+			spawn(COFFEE, ['-wco', OUT_DIR, SRC_DIR], {stdio:'inherit', cwd:APP_DIR}).on('close', safe next)
+
+	test: (opts,next) ->
+		(next = opts; opts = {})  unless next?
+		# cake compile
+		actions.compile opts, safe next, ->
+			# npm test
+			spawn(NPM, ['test'], {stdio:'inherit', cwd:APP_DIR}).on('close', safe next)
+
+	prepublish: (opts,next) ->
+		(next = opts; opts = {})  unless next?
+		step1 = ->
+			# cake compile
+			actions.compile(opts, safe next, step2)
+		step2 = ->
+			# project compile
+			fsUtil.exists PROJECTZ, (exists) ->
+				return step3()  unless exists
+				spawn(PROJECTZ, ['compile'], {stdio:'inherit', cwd:APP_DIR}).on('close', safe next, step3)
+		step3 = ->
+			# docco compile
+			fsUtil.exists DOCCO, (exists) ->
+				return step4()  unless exists
+				exec("#{DOCCO} -o #{DOCS_DIR} #{DOCS_INPUT}", {stdio:'inherit', cwd:APP_DIR}, safe next, step4)
+		step4 = ->
+			# npm test
+			actions.test(opts, safe next)
+		step1()
+
+	publish: (opts,next) ->
+		(next = opts; opts = {})  unless next?
+		# cake prepublish
+		actions.prepublish opts, safe next, ->
+			# npm publish
+			spawn(NPM, ['publish'], {stdio:'inherit', cwd:APP_DIR}).on 'close', safe next, ->
+				# git tag
+				spawn(GIT, ['tag', 'v'+PACKAGE_DATA.version, '-a'], {stdio:'inherit', cwd:APP_DIR}).on('close', safe next)
+
+
+# =====================================
 # Commands
 
-# clean
-task 'clean', 'clean up instance', ->
-	clean finish
+commands =
+	clean:       'clean up instance'
+	install:     'install dependencies'
+	compile:     'compile our files (runs install)'
+	watch:       'compile our files initially, and again for each change (runs install)'
+	test:        'run our tests (runs compile)'
+	prepublish:  'prepare our package for publishing'
+	publish:     'publish our package (runs prepublish)'
 
-# compile
-task 'compile', 'compile our files', ->
-	compile finish
-
-# dev/watch
-task 'dev', 'watch and recompile our files', ->
-	watch finish
-task 'watch', 'watch and recompile our files', ->
-	watch finish
-
-# install
-task 'install', 'install dependencies', ->
-	install finish
-
-# reset
-task 'reset', 'reset instance', ->
-	reset finish
-
-# setup
-task 'setup', 'setup for development', ->
-	setup finish
-
-# test
-task 'test', 'run our tests', ->
-	test finish
-
-# test-debug
-task 'test-debug', 'run our tests in debug mode', ->
-	test {debug:true}, finish
-
-# test-prepare
-task 'test-prepare', 'prepare out tests', ->
-	setup finish
-
+Object.keys(commands).forEach (key) ->
+	description = commands[key]
+	fn = actions[key]
+	task key, description, (opts) ->  fn(opts, finish)

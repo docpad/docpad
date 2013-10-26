@@ -1,19 +1,17 @@
-lib-cov
-*.seed
-*.log
-*.csv
-*.dat
-*.out
-*.pid
-*.gz
+# v1.3.0 October 26, 2013
+# https://github.com/bevry/base
 
-pids
-logs
-results
+# Temp Files
+**/*.log
 
-node_modules
-npm-debug.log
-
-test/out/
-test/render-out/
+# Build Files
+build/
+components/
+bower_components/
+node_modules/
 out/
+
+# =====================================
+# PROJECT SPECIFIC FILES
+
+test/render-out/

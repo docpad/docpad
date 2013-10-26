@@ -139,7 +139,7 @@
     "docpad-trace": "./bin/docpad-trace"
   },
   "scripts": {
-    "test": "./node_modules/.bin/cake test"
+    "test": "node ./out/test/everything-test.js"
   },
   "main": "./out/main.js",
   "license": {

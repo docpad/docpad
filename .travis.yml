@@ -1,7 +1,9 @@
+# v1.3.2 October 26, 2013
+# https://github.com/bevry/base
 language: node_js
 install: "npm install"
-before_script: "./node_modules/.bin/cake test-prepare"
-script: "./node_modules/.bin/cake test"
+before_script: "./node_modules/.bin/cake compile"
+script: "npm test"
 node_js:
   - "0.8"
   - "0.10"
