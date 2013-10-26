@@ -2400,7 +2400,6 @@ class DocPad extends EventEmitterGrouped
 
 		# Log
 		model.on 'log', (args...) ->
-			#debugger  if args[0] in ['warning', 'warn', 'err', 'error']
 			docpad.log(args...)
 
 		# Chain
@@ -3019,6 +3018,9 @@ class DocPad extends EventEmitterGrouped
 				return next(err)  if err
 
 				subTasks = new TaskGroup().setConfig(concurrency:0).once 'complete', (err) ->
+					# Prepare
+					return next(err)  if err
+
 					# Plugin Event
 					docpad.emitSerial 'renderCollectionAfter', {collection:collectionToRender,renderPass}, (err) ->
 						# Prepare
