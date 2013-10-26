@@ -1,6 +1,6 @@
 # History
 
-- v6.54.0 October 27, 2011
+- v6.54.0 October 27, 2013
 	- Backwards compatibility change: Notifications are now handled by plugins instead of the core
 		- So if you like notifications, you'll probably want to install the [growl plugin](https://github.com/Delapouite/docpad-plugin-growl)
 		- Thanks to [Bruno Heridet](https://github.com/Delapouite) for [pull request #605](https://github.com/bevry/docpad/pull/605)
