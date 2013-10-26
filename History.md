@@ -1,6 +1,6 @@
 # History
 
-- v6.54.0 October 26, 2013
+- v6.54.0 Unreleased
 	- Backwards compatibility change: Notifications are now handled by plugins instead of the core
 		- So if you like notifications, you'll probably want the [growl plugin](https://github.com/Delapouite/docpad-plugin-growl)
 		- Thanks to [Bruno Heridet](https://github.com/Delapouite) for [pull request #605](https://github.com/bevry/docpad/pull/605)
@@ -12,6 +12,8 @@
 		- Thanks to [Bruno Heridet](https://github.com/Delapouite) for [pull request #608](https://github.com/bevry/docpad/pull/608)
 	- Fixed the `connect.multipart() will be removed in connect 3.0` warning
 		- Replaced the `bodyParser` middleware with the `urlencoded` and `json` middlewares
+	- Added `404 Not Found` notices to the console
+		- Thanks to [telekosmos](https://github.com/telekosmos), [Eduán Lávaque](https://github.com/Greduan) and [pflannery](https://github.com/pflannery) for [issue #677](https://github.com/bevry/docpad/issues/677)
 	- Updated dependencies
 
 - v6.53.4 October 11, 2013

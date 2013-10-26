@@ -4423,6 +4423,9 @@ class DocPad extends EventEmitterGrouped
 		docpad = @
 		database = docpad.getDatabaseCache()
 
+		# Notify the user of a 404
+		docpad.log('notice', "404 Not Found:", req.url)
+
 		# Check
 		return res.send(500)  unless database
 
