@@ -122,9 +122,9 @@ class DocPad extends EventEmitterGrouped
 
 	getVersionString: ->
 		if docpadUtil.isLocalDocPadExecutable()
-			return util.format(@getLocale().versionLocal, @getVersion())
+			return util.format(@getLocale().versionLocal, @getVersion(), @corePath)
 		else
-			return util.format(@getLocale().versionGlobal, @getVersion())
+			return util.format(@getLocale().versionGlobal, @getVersion(), @corePath)
 
 	# Plugin version requirements
 	pluginVersion: '2'
