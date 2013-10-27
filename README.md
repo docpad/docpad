@@ -51,11 +51,11 @@ Discover my features below, or skip ahead to the installation instructions to ge
 - Use the [Partials Plugin](http://docpad.org/plugin/partials) to abstract common pieces of code into their own individual file that can be included as much as you want
 - Syntax highlight code blocks automatically with either our [Highlight.js Plugin](http://docpad.org/plugin/highlightjs/) or [Pygments Plugin](http://docpad.org/plugin/pygments/)
 - Get SEO friendly clean URLs with our [Clean URLs Plugin](http://docpad.org/plugin/cleanurls/) (dynamic deployments only)
-- Lint your code automatically with our Lint Plugin - under construction, coming soon
-- Concatenate and minify your JavaScript and CSS assets making page loads faster for your users with our Minify Plugin - under construction, coming soon
+- Lint your code automatically with our Ling Plugins: [jshint](https://github.com/jking90/docpad-plugin-jshint) and [coffeelint](https://github.com/jking90/docpad-plugin-coffeelint)
+- Concatenate and minify your JavaScript and CSS assets making page loads faster for your users with our Minify Plugins: [htmlmin](https://github.com/robloach/docpad-plugin-htmlmin) and [grunt](https://gist.github.com/balupton/3898915)
 - Install common javascript libraries like jQuery, Backbone and Underscore directly from the command line - under construction, coming soon
 - Automatically translate your entire website into other languages with our Translation Plugin - under construction, coming soon
-- Add a admin interface to your website allowing you to edit, save and preview your changes on live websites then push them back to your source repository with the Admin Plugin - under construction, coming soon
+- Add a admin interface to your website allowing you to edit, save and preview your changes on live websites then push them back to your source repository with the [Admin Plugins](http://docpad.org/docs/plugins#admin-interfaces)
 - Pretty much if DocPad doesn't already do something, it is trivial to [write a plugin](http://docpad.org/docs/extend) to do it, seriously DocPad can accomplish anything, it never holds you back, there are no limits, it's like super powered guardian angel
 - There are also [plenty of other plugins](http://docpad.org/docs/plugins) not listed here that are still definitely worth checking out! :)
 
