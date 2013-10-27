@@ -14,9 +14,6 @@
 	<meta name="description" content="<%= @getPreparedDescription() %>" />
 	<meta name="keywords" content="<%= @getPreparedKeywords() %>" />
 
-	<!-- DocPad Meta -->
-	<%- @getBlock('meta').toHTML() %>
-
 	<!-- DocPad Styles + Our Own -->
 	<%- @getBlock('styles').add(@site.styles).toHTML() %>
 

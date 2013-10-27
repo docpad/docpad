@@ -44,6 +44,7 @@ These amazing people have contributed code to this project:
 - Nick Crohn <ncrohn@me.com> (https://github.com/ncrohn) - [view contributions](https://github.com/bevry/docpad/commits?author=ncrohn)
 - Olivier Bazoud (https://github.com/obazoud) - [view contributions](https://github.com/bevry/docpad/commits?author=obazoud)
 - Paul Armstrong <paul@paularmstrongdesigns.com> (https://github.com/paularmstrong) - [view contributions](https://github.com/bevry/docpad/commits?author=paularmstrong)
+- pflannery (https://github.com/pflannery) - [view contributions](https://github.com/bevry/docpad/commits?author=pflannery)
 - Richard A <richard@antecki.id.au> (https://github.com/rantecki) - [view contributions](https://github.com/bevry/docpad/commits?author=rantecki)
 - Sorin Ionescu <sorin.ionescu@gmail.com> (https://github.com/sorin-ionescu) - [view contributions](https://github.com/bevry/docpad/commits?author=sorin-ionescu)
 - Stefan (https://github.com/stegrams) - [view contributions](https://github.com/bevry/docpad/commits?author=stegrams)
