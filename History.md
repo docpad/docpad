@@ -1,6 +1,6 @@
 # History
 
-- v6.54.0 October 28, 2011
+- v6.54.1 October 28, 2011
 	- Fix `TypeError: Cannot read property 'stack' of undefined` error
 		- Thanks to [pflannery](https://github.com/pflannery) and [Moritz Stefaner](https://github.com/MoritzStefaner) for [issue #686](https://github.com/bevry/docpad/issues/686)
 	- DocPad version information will now output the directory path of which DocPad instance is loaded
