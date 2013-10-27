@@ -237,16 +237,19 @@ class ConsoleInterface
 		docpad = @docpad
 		locale = docpad.getLocale()
 
-		# Log Error
-		console.log(err)  if err
+		# Error?
+		process.stderr.write(require('util').inspect(err.stack or err.message or err))  if err
+		# ^ @TODO document we we use process.stderr.write instead of console.log here
 
 		# Log Shutdown
 		docpad.log('info', locale.consoleShutdown)
 
 		# Destroy docpad
-		docpad.destroy (_err) ->
-			# Check for error
-			process.stderr.write require('util').inspect(_err.stack or _err.message)
+		docpad.destroy (err) ->
+			# Error?
+			process.stderr.write(require('util').inspect(err.stack or err.message or err))  if err
+			# ^ @TODO document we we use process.stderr.write instead of console.log here
+
 			# don't force exit, it should occur naturally
 
 		# Chain
@@ -256,7 +259,7 @@ class ConsoleInterface
 	wrapAction: (action,config) =>
 		consoleInterface = @
 		return (args...) ->
-			consoleInterface.performAction(action,args,config)
+			consoleInterface.performAction(action, args, config)
 
 	# Perform Action
 	performAction: (action,args,config={}) =>

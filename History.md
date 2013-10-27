@@ -1,5 +1,9 @@
 # History
 
+- v6.54.0 October 28, 2011
+	- Fix `TypeError: Cannot read property 'stack' of undefined` error
+		- Thanks to [pflannery](https://github.com/pflannery) and [Moritz Stefaner](https://github.com/MoritzStefaner) for [issue #686](https://github.com/bevry/docpad/issues/686)
+
 - v6.54.0 October 27, 2011
 	- Backwards compatibility change: Notifications are now handled by plugins instead of the core
 		- So if you like notifications, you'll probably want to install the [growl plugin](https://github.com/Delapouite/docpad-plugin-growl)
