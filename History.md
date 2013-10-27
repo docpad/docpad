@@ -1,12 +1,12 @@
 # History
 
-- v6.54.1 October 28, 2011
+- v6.54.1 October 28, 2013
 	- Fix `TypeError: Cannot read property 'stack' of undefined` error
 		- Thanks to [pflannery](https://github.com/pflannery) and [Moritz Stefaner](https://github.com/MoritzStefaner) for [issue #686](https://github.com/bevry/docpad/issues/686)
 	- DocPad version information will now output the directory path of which DocPad instance is loaded
 		- Thanks to [pflannery](https://github.com/pflannery) for [pull request #687](https://github.com/bevry/docpad/issues/687)
 
-- v6.54.0 October 27, 2011
+- v6.54.0 October 27, 2013
 	- Backwards compatibility change: Notifications are now handled by plugins instead of the core
 		- So if you like notifications, you'll probably want to install the [growl plugin](https://github.com/Delapouite/docpad-plugin-growl)
 		- Thanks to [Bruno Heridet](https://github.com/Delapouite) for [pull request #605](https://github.com/bevry/docpad/pull/605)
