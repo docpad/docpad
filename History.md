@@ -1,5 +1,9 @@
 # History
 
+- v6.54.2 October 30, 2013
+	- Fix plugin version check
+		- Thanks to [unframework](https://github.com/unframework) for [pull request #690](https://github.com/bevry/docpad/pull/690)
+
 - v6.54.1 October 28, 2013
 	- Fix `TypeError: Cannot read property 'stack' of undefined` error
 		- Thanks to [pflannery](https://github.com/pflannery) and [Moritz Stefaner](https://github.com/MoritzStefaner) for [issue #686](https://github.com/bevry/docpad/issues/686)
