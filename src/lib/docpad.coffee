@@ -2673,7 +2673,7 @@ class DocPad extends EventEmitterGrouped
 					# Unsupported?
 					if unsupported
 						# Version?
-						if unsupported in ['version-docpad','version-pugin'] and config.skipUnsupportedPlugins is false
+						if unsupported in ['version-docpad','version-plugin'] and config.skipUnsupportedPlugins is false
 							docpad.log 'warn', util.format(locale.pluginContinued, pluginName)
 						else
 							# Type?
