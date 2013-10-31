@@ -1977,6 +1977,9 @@ class DocPad extends EventEmitterGrouped
 		# Names
 		names = names.split(/[,\s]+/)  unless typeChecker.isArray(names)
 		names.forEach (name) ->
+			# Check
+			return  unless name
+
 			# Ensure latest if version isn't specfied
 			name += '@latest'  if name.indexOf('@') is -1
 

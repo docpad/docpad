@@ -1,5 +1,9 @@
 # History
 
+- v6.54.3 November 1, 2013
+	- Fix incorrect ` @latest` within `npm install docpad@6 @latest --save` when running `docpad update` and `docpad install`
+		- You'll probably want to run `npm uninstall --save latest` to make sure that the incorrectly installed `latest` dependency is removed
+ 
 - v6.54.2 October 30, 2013
 	- Fix plugin version check
 		- Thanks to [unframework](https://github.com/unframework) for [pull request #690](https://github.com/bevry/docpad/pull/690)
