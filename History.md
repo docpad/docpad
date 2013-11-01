@@ -1,5 +1,9 @@
 # History
 
+- v6.54.4 November 1, 2013
+	- Much more detailed progress bars
+	- Updated dependencies
+
 - v6.54.3 November 1, 2013
 	- Fix incorrect ` @latest` within `npm install docpad@6 @latest --save` when running `docpad update` and `docpad install`
 		- You'll probably want to run `npm uninstall --save latest` to make sure that the incorrectly installed `latest` dependency is removed

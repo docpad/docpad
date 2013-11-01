@@ -2842,6 +2842,9 @@ class DocPad extends EventEmitterGrouped
 		slowFilesObject = {}
 		slowFilesTimer = null
 
+		# Update progress
+		opts.progress?.step("loadFiles (preparing)").total(1).setTick(0)
+
 		# Log
 		docpad.log 'debug', util.format(locale.loadingFiles, collection.length)
 
@@ -2859,6 +2862,9 @@ class DocPad extends EventEmitterGrouped
 				# Check
 				return next(err)  if err
 
+				# Update progress
+				opts.progress?.step("loadFiles (postparing)").total(1).setTick(0)
+
 				# After
 				docpad.emitSerial 'parseAfter', {collection}, (err) ->
 					# Check
@@ -2871,7 +2877,7 @@ class DocPad extends EventEmitterGrouped
 					return next()
 
 			# Add load tasks
-			opts.progress?.step('loadFiles').total(collection.length)
+			opts.progress?.step('loadFiles').total(collection.length).setTick(0)
 			collection.forEach (file) ->
 				slowFilesObject[file.id] = file.get('relativePath') or file.id
 				tasks.addTask (complete) ->
@@ -2931,6 +2937,9 @@ class DocPad extends EventEmitterGrouped
 		slowFilesObject = {}
 		slowFilesTimer = null
 
+		# Update progress
+		opts.progress?.step("contextualizeFiles (preparing)").total(1).setTick(0)
+
 		# Log
 		docpad.log 'debug', util.format(locale.contextualizingFiles, collection.length)
 
@@ -2948,6 +2957,9 @@ class DocPad extends EventEmitterGrouped
 				# Check
 				return next(err)  if err
 
+				# Update progress
+				opts.progress?.step("contextualizeFiles (postparing)").total(1).setTick(0)
+
 				# After
 				docpad.emitSerial 'contextualizeAfter', {collection}, (err) ->
 					# Check
@@ -2960,7 +2972,7 @@ class DocPad extends EventEmitterGrouped
 					return next()
 
 			# Add contextualize tasks
-			opts.progress?.step('contextualizeFiles').total(collection.length)
+			opts.progress?.step('contextualizeFiles').total(collection.length).setTick(0)
 			collection.forEach (file,index) ->
 				slowFilesObject[file.id] = file.get('relativePath') or file.id
 				tasks.addTask (complete) ->
@@ -2993,6 +3005,9 @@ class DocPad extends EventEmitterGrouped
 		{collection,templateData,renderPasses} = opts
 		slowFilesObject = {}
 		slowFilesTimer = null
+
+		# Update progress
+		opts.progress?.step("renderFiles (preparing)").total(1).setTick(0)
 
 		# Log
 		docpad.log 'debug', util.format(locale.renderingFiles, collection.length)
@@ -3033,8 +3048,7 @@ class DocPad extends EventEmitterGrouped
 						return next()
 
 				# Cycle
-				step = "renderFiles (pass #{renderPass})"
-				opts.progress?.step(step).total(collectionToRender.length)
+				opts.progress?.step("renderFiles (pass #{renderPass})").total(collectionToRender.length).setTick(0)
 				collectionToRender.forEach (file) ->
 					slowFilesObject[file.id] = file.get('relativePath')
 					subTasks.addTask (complete) ->
@@ -3060,6 +3074,9 @@ class DocPad extends EventEmitterGrouped
 
 				# Check
 				return next(err)  if err
+
+				# Update progress
+				opts.progress?.step("renderFiles (postparing)").total(1).setTick(0)
 
 				# After
 				docpad.emitSerial 'renderAfter', {collection}, (err) ->
@@ -3111,6 +3128,9 @@ class DocPad extends EventEmitterGrouped
 		slowFilesObject = {}
 		slowFilesTimer = null
 
+		# Update progress
+		opts.progress?.step("writeFiles (preparing)").total(1).setTick(0)
+
 		# Log
 		docpad.log 'debug', util.format(locale.writingFiles, collection.length)
 
@@ -3128,6 +3148,9 @@ class DocPad extends EventEmitterGrouped
 				# Check
 				return next(err)  if err
 
+				# Update progress
+				opts.progress?.step("writeFiles (postparing)").total(1).setTick(0)
+
 				# After
 				docpad.emitSerial 'writeAfter', {collection}, (err) ->
 					# Check
@@ -3137,7 +3160,7 @@ class DocPad extends EventEmitterGrouped
 					return next()
 
 			# Add write tasks
-			opts.progress?.step('writeFiles').total(collection.length)
+			opts.progress?.step('writeFiles').total(collection.length).setTick(0)
 			collection.forEach (file,index) ->  tasks.addTask (complete) ->
 				# Prepare
 				slowFilesObject[file.id] = file.get('relativePath')
@@ -3150,11 +3173,13 @@ class DocPad extends EventEmitterGrouped
 
 				# Write out
 				if file.get('write') isnt false and file.get('dynamic') isnt true and file.get('outPath')
-					fileTasks.addTask (complete) -> file.write(complete)
+					fileTasks.addTask (complete) ->
+						file.write(complete)
 
 				# Write source
 				if file.get('writeSource') is true and file.get('fullPath')
-					fileTasks.addTask (complete) -> file.writeSource(complete)
+					fileTasks.addTask (complete) ->
+						file.writeSource(complete)
 
 				# Run sub tasks
 				fileTasks.run()
@@ -3284,17 +3309,24 @@ class DocPad extends EventEmitterGrouped
 		config = docpad.getConfig()
 		locale = docpad.getLocale()
 
+		# Update progress
+		opts.progress?.step("generate (preparing)").total(1).setTick(0)
+
 		# Update generating flag
 		generateStarted = docpad.generateStarted
 		docpad.generateStarted = new Date()
 		docpad.generating = true
 
-		# Log generating
+		# Log
 		docpad.log('info', locale.renderGenerating)
 		docpad.notify (new Date()).toLocaleTimeString(), title: locale.renderGeneratingNotification
 
 		# Tasks
-		tasks = new TaskGroup().once('complete', next)
+		tasks = new TaskGroup()
+			.on 'item.run', (item) ->
+				totals = tasks.getTotals()
+				opts.progress?.step("generate (preparing: #{item.getConfig().name})").total(totals.total).setTick(totals.completed)
+			.once('complete', next)
 
 		# Reset
 		if opts.reset is true
@@ -3302,8 +3334,7 @@ class DocPad extends EventEmitterGrouped
 			unless docpad.hasPlugins()
 				docpad.log('notice', locale.renderNoPlugins)
 
-			# Check if the source directory exists
-			tasks.addTask (complete) ->
+			tasks.addTask 'Check if the source directory exists', (complete) ->
 				safefs.exists config.srcPath, (exists) ->
 					# Check
 					unless exists
@@ -3313,26 +3344,22 @@ class DocPad extends EventEmitterGrouped
 					# Forward
 					return complete()
 
-			# Clean our collections
-			tasks.addTask (complete) ->
+			tasks.addTask 'Clean our collections', (complete) ->
 				docpad.resetCollections(complete)
 
-			# Populate our collections
-			tasks.addTask (complete) ->
+			tasks.addTask 'Populate our collections', (complete) ->
 				docpad.populateCollections(complete)
 
-			# Generate everything
-			tasks.addTask ->
+			tasks.addTask 'Add all database models to render queue', ->
 				opts.collection ?= new FilesCollection().add(docpad.getDatabase().models)
 
 		# Don't reset
 		else
-			# Generate only that which has changed
-			tasks.addTask ->
+			tasks.addTask 'Add only changed models to render queue', ->
 				opts.collection ?= new FilesCollection().add(docpad.getDatabase().findAll(mtime: $gte: generateStarted).models)
 
 		# Fire plugins
-		tasks.addTask (complete) ->
+		tasks.addTask 'generateBefore event', (complete) ->
 			docpad.emitSerial('generateBefore', {reset:opts.reset, server:docpad.getServer()}, complete)
 
 		# Run
@@ -3412,6 +3439,9 @@ class DocPad extends EventEmitterGrouped
 		database = docpad.getDatabase()
 		server = docpad.getServer()
 		collection = opts.collection
+
+		# Update progress
+		opts.progress?.step("generate (postparing)").total(1).setTick(0)
 
 		# Update generating flag
 		docpad.generating = false
