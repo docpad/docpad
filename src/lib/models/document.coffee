@@ -354,6 +354,7 @@ class DocumentModel extends FileModel
 		{content,templateData,renderSingleExtensions} = opts
 		extensions = @get('extensions')
 		filename = @get('filename')
+		filePath = @getFilePath()
 		content ?= @get('body')
 		templateData ?= {}
 		renderSingleExtensions ?= @get('renderSingleExtensions')
@@ -377,12 +378,15 @@ class DocumentModel extends FileModel
 		return next(null,result)  if extensionsReversed.length <= 1
 
 		# Prepare the tasks
-		tasks = new TaskGroup().once 'complete', (err) ->
-			# Forward with result
-			return next(err,result)
+		tasks = new TaskGroup(
+			name: "renderExtensions: #{filePath}"
+			next: (err) ->
+				# Forward with result
+				return next(err, result)
+		)
 
 		# Cycle through all the extension groups and render them
-		eachr extensionsReversed[1..], (extension,index) -> tasks.addTask (complete) ->
+		eachr extensionsReversed[1..], (extension,index) ->
 			# Prepare
 			eventData =
 				inExtension: extensionsReversed[index]
@@ -391,22 +395,24 @@ class DocumentModel extends FileModel
 				file: file
 				content: result
 
-			# Render
-			file.trigger 'render', eventData, (err) ->
-				# Check
-				return complete(err)  if err
+			# Task
+			tasks.addTask "renderExtension: #{filePath} [#{eventData.inExtension} => #{eventData.outExtension}]", (complete) ->
+				# Render
+				file.trigger 'render', eventData, (err) ->
+					# Check
+					return complete(err)  if err
 
-				# Check if the render did anything
-				# and only check if we actually have content to render!
-				# if this check fails, error with a suggestion
-				if result and result is eventData.content
-					message = "\n  Rendering the extension \"#{eventData.inExtension}\" to \"#{eventData.outExtension}\" on \"#{file.attributes.relativePath}\" didn't do anything.\n  Explanation here: http://docpad.org/extension-not-rendering"
-					file.log('warn', message)
+					# Check if the render did anything
+					# and only check if we actually have content to render!
+					# if this check fails, error with a suggestion
+					if result and result is eventData.content
+						message = "\n  Rendering the extension \"#{eventData.inExtension}\" to \"#{eventData.outExtension}\" on \"#{file.attributes.relativePath}\" didn't do anything.\n  Explanation here: http://docpad.org/extension-not-rendering"
+						file.log('warn', message)
+						return complete()
+
+					# The render did something, so apply and continue
+					result = eventData.content
 					return complete()
-
-				# The render did something, so apply and continue
-				result = eventData.content
-				return complete()
 
 		# Run tasks synchronously
 		tasks.run()
@@ -432,7 +438,7 @@ class DocumentModel extends FileModel
 		# Render via plugins
 		file.trigger 'renderDocument', eventData, (err) ->
 			# Forward
-			return next(err,eventData.content)
+			return next(err, eventData.content)
 
 		# Chain
 		@
@@ -502,7 +508,7 @@ class DocumentModel extends FileModel
 		tasks = new TaskGroup().once 'complete', (err) ->
 			# Error?
 			if err
-				file.log 'warn', "Something went wrong while rendering: #{relativePath}"
+				file.log 'warn', "Something went wrong while rendering: #{relativePath}\n#{err.message or err}"
 				return next(err, opts.content, file)
 
 			# Apply
@@ -524,7 +530,7 @@ class DocumentModel extends FileModel
 
 		# Render Extensions Task
 		if 'renderExtensions' in opts.actions
-			tasks.addTask (complete) ->
+			tasks.addTask "renderExtensions: #{relativePath}", (complete) ->
 				file.renderExtensions opts, (err,result) ->
 					# Check
 					return complete(err)  if err
@@ -537,7 +543,7 @@ class DocumentModel extends FileModel
 
 		# Render Document Task
 		if 'renderDocument' in opts.actions
-			tasks.addTask (complete) ->
+			tasks.addTask "renderDocument: #{relativePath}", (complete) ->
 				file.renderDocument opts, (err,result) ->
 					# Check
 					return complete(err)  if err
@@ -551,7 +557,7 @@ class DocumentModel extends FileModel
 
 		# Render Layouts Task
 		if 'renderLayouts' in opts.actions
-			tasks.addTask (complete) ->
+			tasks.addTask "renderLayouts: #{relativePath}", (complete) ->
 				file.renderLayouts opts, (err,result) ->
 					# Check
 					return complete(err)  if err

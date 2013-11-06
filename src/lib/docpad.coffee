@@ -3035,7 +3035,7 @@ class DocPad extends EventEmitterGrouped
 				# Prepare
 				return next(err)  if err
 
-				subTasks = new TaskGroup().setConfig(concurrency:0).once 'complete', (err) ->
+				subTasks = new TaskGroup "renderCollection: #{collectionToRender.options.name}", concurrency: 0, next: (err) ->
 					# Prepare
 					return next(err)  if err
 
@@ -3588,7 +3588,7 @@ class DocPad extends EventEmitterGrouped
 		[opts,next] = extractOptsAndCallback(opts,next)
 
 		# Render
-		document.render(opts,next)
+		document.render(opts, next)
 
 		# Chain
 		@
