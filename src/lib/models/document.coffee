@@ -384,16 +384,19 @@ class DocumentModel extends FileModel
 
 		# Cycle through all the extension groups and render them
 		eachr extensionsReversed[1..], (extension,index) ->
-			# Prepare
-			eventData =
-				inExtension: extensionsReversed[index]
-				outExtension: extension
-				templateData: templateData
-				file: file
-				content: result
-
 			# Task
-			tasks.addTask "renderExtension: #{filePath} [#{eventData.inExtension} => #{eventData.outExtension}]", (complete) ->
+			tasks.addTask "renderExtension: #{filePath} [#{extensionsReversed[index]} => #{extension}]", (complete) ->
+				# Prepare
+				# eventData must be defined in the task
+				# definining it in the above loop will cause eventData to persist between the tasks... very strange, but it happens
+				# will cause the jade tests to fail
+				eventData =
+					inExtension: extensionsReversed[index]
+					outExtension: extension
+					templateData: templateData
+					file: file
+					content: result
+
 				# Render
 				file.trigger 'render', eventData, (err) ->
 					# Check
@@ -402,7 +405,7 @@ class DocumentModel extends FileModel
 					# Check if the render did anything
 					# and only check if we actually have content to render!
 					# if this check fails, error with a suggestion
-					if result and result is eventData.content
+					if result and (result is eventData.content)
 						message = "\n  Rendering the extension \"#{eventData.inExtension}\" to \"#{eventData.outExtension}\" on \"#{file.attributes.relativePath}\" didn't do anything.\n  Explanation here: http://docpad.org/extension-not-rendering"
 						file.log('warn', message)
 						return complete()
