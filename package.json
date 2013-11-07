@@ -6,6 +6,17 @@
   "homepage": "http://docpad.org",
   "installUrl": "http://docpad.org/install",
   "upgradeUrl": "http://docpad.org/upgrade",
+  "license": {
+    "type": "MIT",
+    "url": "http://docpad.org/license"
+  },
+  "badges": {
+    "travis": true,
+    "npm": true,
+    "gittip": "docpad",
+    "flattr": "344188/balupton-on-Flattr",
+    "paypal": "QB8GQPZAH84N6"
+  },
   "keywords": [
     "document management system",
     "dms",
@@ -141,16 +152,5 @@
   "scripts": {
     "test": "node ./out/test/everything-test.js"
   },
-  "main": "./out/main.js",
-  "license": {
-    "type": "MIT",
-    "url": "http://docpad.org/license"
-  },
-  "badges": {
-    "travis": true,
-    "npm": true,
-    "gittip": "docpad",
-    "flattr": "344188/balupton-on-Flattr",
-    "paypal": "QB8GQPZAH84N6"
-  }
+  "main": "./out/main.js"
 }
