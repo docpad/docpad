@@ -1,5 +1,15 @@
 # History
 
+- v6.54.5 November 7, 2013
+	- Fixed background task error reporting (regression since always???)
+		- Fixes`RangeError: Maximum call stack size exceeded` errors
+		- Fixes error reporting for failed partials
+		- Error reports during renders will now always output the error message
+		- Thanks to [Michael Duane Mooring](https://github.com/mikeumus), [pflannery](https://github.com/pflannery), [Nathan Friedly](https://github.com/nfriedly), [ofShard](https://github.com/ofShard) for [issue #692](https://github.com/bevry/docpad/issues/692)
+	- Fixed template helpers not being able to reference other template helpers
+	- Better debugging support due to name tasks and task groups
+	- Updated dependencies
+
 - v6.54.4 November 1, 2013
 	- Much more detailed progress bars
 	- Updated dependencies
