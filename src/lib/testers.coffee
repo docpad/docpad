@@ -10,7 +10,8 @@ _ = require('lodash')
 DocPad = require('./docpad')
 
 # Prepare
-pluginPort = 2000+String((new Date()).getTime()).substr(-6,4)
+# We want the plugn port to be a semi-random number above 2000
+pluginPort = 2000 + parseInt(String(Date.now()).substr(-6, 4))
 testers = {
 	CSON,
 	DocPad
