@@ -24,8 +24,3 @@ HISTORY.md
 template.js
 component.json
 bower.json
-
-# =====================================
-# PROJECT SPECIFIC FILES
-
-test/render-out/

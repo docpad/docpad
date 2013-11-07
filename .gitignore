@@ -1,4 +1,4 @@
-# v1.3.0 October 26, 2013
+# v1.3.5 October 31, 2013
 # https://github.com/bevry/base
 
 # Temp Files
@@ -10,6 +10,7 @@ components/
 bower_components/
 node_modules/
 out/
+
 
 # =====================================
 # PROJECT SPECIFIC FILES

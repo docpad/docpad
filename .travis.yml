@@ -1,7 +1,7 @@
-# v1.3.2 October 26, 2013
+# v1.3.8 November 7, 2013
 # https://github.com/bevry/base
 language: node_js
-install: "npm install"
+install: "npm install; ./node_modules/.bin/cake install"
 before_script: "./node_modules/.bin/cake compile"
 script: "npm test"
 node_js:
@@ -10,7 +10,6 @@ node_js:
 notifications:
   irc:
     - "irc.freenode.org#bevry-dev"
-    - "irc.freenode.org#docpad-dev"
   email:
     recipients:
       - travisci@bevry.me
