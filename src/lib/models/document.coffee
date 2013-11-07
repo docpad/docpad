@@ -378,12 +378,9 @@ class DocumentModel extends FileModel
 		return next(null,result)  if extensionsReversed.length <= 1
 
 		# Prepare the tasks
-		tasks = new TaskGroup(
-			name: "renderExtensions: #{filePath}"
-			next: (err) ->
-				# Forward with result
-				return next(err, result)
-		)
+		tasks = new TaskGroup "renderExtensions: #{filePath}", next: (err) ->
+			# Forward with result
+			return next(err, result)
 
 		# Cycle through all the extension groups and render them
 		eachr extensionsReversed[1..], (extension,index) ->
@@ -497,6 +494,11 @@ class DocumentModel extends FileModel
 		opts.templateData = extendr.clone(opts.templateData or {})  # deepClone may be more suitable
 		opts.templateData.document ?= file.toJSON()
 		opts.templateData.documentModel ?= file
+
+		# Ensure template helpers are bound correctly
+		for own key, value of opts.templateData
+			if value?.bind is Function::bind  # we do this style of check, as underscore is a function that has it's own bind
+				opts.templateData[key] = value.bind(opts.templateData)
 
 		# Prepare result
 		# file.set({contentRendered:null, contentRenderedWithoutLayouts:null, rendered:false})

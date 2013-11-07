@@ -97,7 +97,7 @@ class PluginTester
 
 		# Create Instance
 		@test "create", (done) ->
-			DocPad.createInstance docpadConfig, (err,docpad) ->
+			DocPad.createInstance docpadConfig, (err, docpad) ->
 				return done(err)  if err
 				tester.docpad = docpad
 
@@ -109,7 +109,7 @@ class PluginTester
 					tester.docpad.action 'clean', (err) ->
 						return done(err)  if err
 
-						# install anything that needs to be installed
+						# install anything on the website that needs to be installed
 						tester.docpad.action('install', done)
 
 		# Chain
