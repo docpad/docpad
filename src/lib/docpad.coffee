@@ -4075,7 +4075,7 @@ class DocPad extends EventEmitterGrouped
 		# Grouped together to avoid npm dependency shortcuts that can cause missing dependencies
 		dependencies = []
 		eachr docpad.websitePackageConfig.dependencies, (version,name) ->
-			return  if /^docpad-plugin-/.test(name) is false
+			return  if /^docpad-plugin-/.test(name) is false || /^git:\/\//i.test(version) is true
 			dependencies.push(name+'@'+docpad.pluginVersion)
 		tasks.addTask (complete) ->
 			docpad.installNodeModule('docpad@6 '+dependencies, {
