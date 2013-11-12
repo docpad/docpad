@@ -1,5 +1,9 @@
 # History
 
+- v6.54.6 November 13, 2013
+	- The `removeWhitespace` and `contentRemoveRegex` tester config options now make sense
+		- They are now executed against the value we are comparing, rather than on all the values in serliased form
+
 - v6.54.5 November 7, 2013
 	- Fixed background task error reporting (regression since always???)
 		- Fixes`RangeError: Maximum call stack size exceeded` errors

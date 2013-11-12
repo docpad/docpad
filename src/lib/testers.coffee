@@ -217,17 +217,6 @@ class RendererTester extends PluginTester
 					balUtil.scanlist tester.config.outExpectedPath, (err,outExpectedResults) ->
 						return done(err)  if err
 
-						# Remove empty lines
-						if tester.config.removeWhitespace is true
-							replaceLinesRegex = /(\\r|\\n|\\t|\s)+/g
-							outResults = JSON.parse JSON.stringify(outResults).replace(replaceLinesRegex, '')
-							outExpectedResults = JSON.parse JSON.stringify(outExpectedResults).replace(replaceLinesRegex, '')
-
-						# Content regex
-						if tester.config.contentRemoveRegex
-							outResults = JSON.parse JSON.stringify(outResults).replace(tester.config.contentRemoveRegex, '')
-							outExpectedResults = JSON.parse JSON.stringify(outExpectedResults).replace(tester.config.contentRemoveRegex, '')
-
 						# Prepare
 						outResultsKeys = Object.keys(outResults)
 						outExpectedResultsKeys = Object.keys(outExpectedResults)
@@ -240,9 +229,31 @@ class RendererTester extends PluginTester
 						# Check the contents of those files match
 						outResultsKeys.forEach (key) ->
 							test "same file content for: #{key}", ->
+								# Fetch file value
 								actual = outResults[key]
 								expected = outExpectedResults[key]
-								expect(actual).to.eql(expected)
+
+								# Remove empty lines
+								if tester.config.removeWhitespace is true
+									replaceLinesRegex = /\s+/g
+									actual = actual.replace(replaceLinesRegex, '')
+									expected = expected.replace(replaceLinesRegex, '')
+
+								# Content regex
+								if tester.config.contentRemoveRegex
+									actual = actual.replace(tester.config.contentRemoveRegex, '')
+									expected = expected.replace(tester.config.contentRemoveRegex, '')
+
+								# Compare
+								try
+									expect(actual).to.eql(expected)
+								catch err
+									console.log '\nactual:'
+									console.log actual
+									console.log '\nexpected:'
+									console.log expected
+									console.log ''
+									throw err
 
 						# Forward
 						done()
