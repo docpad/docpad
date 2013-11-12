@@ -157,6 +157,7 @@ These amazing people have contributed code to this project:
 - Homme Zwaagstra <hrz@geodata.soton.ac.uk> (https://github.com/homme) - [view contributions](https://github.com/bevry/docpad/commits?author=homme)
 - Luke Hagan (https://github.com/lhagan) - [view contributions](https://github.com/bevry/docpad/commits?author=lhagan)
 - Neil Taylor <neil.t@myplanetdigital.com> (https://github.com/neilbaylorrulez) - [view contributions](https://github.com/bevry/docpad/commits?author=neilbaylorrulez)
+- nfriedly (https://github.com/nfriedly) - [view contributions](https://github.com/bevry/docpad/commits?author=nfriedly)
 - Nick Crohn <ncrohn@me.com> (https://github.com/ncrohn) - [view contributions](https://github.com/bevry/docpad/commits?author=ncrohn)
 - Olivier Bazoud (https://github.com/obazoud) - [view contributions](https://github.com/bevry/docpad/commits?author=obazoud)
 - Paul Armstrong <paul@paularmstrongdesigns.com> (https://github.com/paularmstrong) - [view contributions](https://github.com/bevry/docpad/commits?author=paularmstrong)
@@ -167,6 +168,7 @@ These amazing people have contributed code to this project:
 - Sven Vetsch (https://github.com/disenchant) - [view contributions](https://github.com/bevry/docpad/commits?author=disenchant)
 - Todd Anglin (https://github.com/toddanglin) - [view contributions](https://github.com/bevry/docpad/commits?author=toddanglin)
 - ttamminen (https://github.com/ttamminen) - [view contributions](https://github.com/bevry/docpad/commits?author=ttamminen)
+- unframework (https://github.com/unframework) - [view contributions](https://github.com/bevry/docpad/commits?author=unframework)
 - Vladislav Botvin <darkvlados@me.com> (https://github.com/darrrk) - [view contributions](https://github.com/bevry/docpad/commits?author=darrrk)
 - Zhao Lei <aicoylei@gmail.com> (https://github.com/firede) - [view contributions](https://github.com/bevry/docpad/commits?author=firede)
 

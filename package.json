@@ -1,7 +1,7 @@
 {
   "title": "DocPad. Streamlined web development.",
   "name": "docpad",
-  "version": "6.54.5",
+  "version": "6.54.6",
   "description": "DocPad is a next generation web architecture that lets you create fast static websites with dynamic abilities and powerful abstractions. Write your website as files on your computer, entries in a database, or even RSS feeds and DocPad will import it, generate & render it, then output a static website for deployment anywhere or a dynamic node website for advanced server-side functionality. Use it as a module or standalone. It's purely awesome. Check it out.",
   "homepage": "http://docpad.org",
   "installUrl": "http://docpad.org/install",
@@ -75,6 +75,7 @@
     "Homme Zwaagstra <hrz@geodata.soton.ac.uk> (https://github.com/homme)",
     "Luke Hagan (https://github.com/lhagan)",
     "Neil Taylor <neil.t@myplanetdigital.com> (https://github.com/neilbaylorrulez)",
+    "nfriedly (https://github.com/nfriedly)",
     "Nick Crohn <ncrohn@me.com> (https://github.com/ncrohn)",
     "Olivier Bazoud (https://github.com/obazoud)",
     "Paul Armstrong <paul@paularmstrongdesigns.com> (https://github.com/paularmstrong)",
@@ -85,6 +86,7 @@
     "Sven Vetsch (https://github.com/disenchant)",
     "Todd Anglin (https://github.com/toddanglin)",
     "ttamminen (https://github.com/ttamminen)",
+    "unframework (https://github.com/unframework)",
     "Vladislav Botvin <darkvlados@me.com> (https://github.com/darrrk)",
     "Zhao Lei <aicoylei@gmail.com> (https://github.com/firede)"
   ],
