@@ -3,6 +3,8 @@
 - v6.54.6 November 13, 2013
 	- The `removeWhitespace` and `contentRemoveRegex` tester config options now make sense
 		- They are now executed against the value we are comparing, rather than on all the values in serliased form
+	- `docpad install` will no longer update `git`, `http`, `https` and other remote dependencies
+		- Thank to [pflannery](https://github.com/pflannery) for [pull request #701](https://github.com/bevry/docpad/issues/701)
 
 - v6.54.5 November 7, 2013
 	- Fixed background task error reporting (regression since always???)
