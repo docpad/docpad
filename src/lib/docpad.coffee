@@ -4073,9 +4073,11 @@ class DocPad extends EventEmitterGrouped
 
 		# Update the local docpad and plugin dependencies
 		# Grouped together to avoid npm dependency shortcuts that can cause missing dependencies
+		# But don't update git/http/https dependencies, those are special for some reason
+		# > https://github.com/bevry/docpad/pull/701
 		dependencies = []
 		eachr docpad.websitePackageConfig.dependencies, (version,name) ->
-			return  if /^docpad-plugin-/.test(name) is false || /^git:\/\//i.test(version) is true
+			return  if /^docpad-plugin-/.test(name) is false or /// :// ///.test(version) is true
 			dependencies.push(name+'@'+docpad.pluginVersion)
 		tasks.addTask (complete) ->
 			docpad.installNodeModule('docpad@6 '+dependencies, {
