@@ -1836,13 +1836,14 @@ class DocPad extends EventEmitterGrouped
 
 		# Perform a complete clean of our collections
 		database.reset([])
-		meta = @getBlock('meta')
-			.reset([])
-			.add("""<meta name="generator" content="DocPad v#{docpad.getVersion()}" />""")  if docpad.getConfig().poweredByDocPad isnt false
+		meta = @getBlock('meta').reset([])
+		scripts = @getBlock('scripts').reset([])
+		styles = @getBlock('styles').reset([])
 		# ^ Backbone.js v1.1 changes the return values of these, however we change that in our Element class
 		# because if we didn't, all our skeletons would fail
-		@getBlock('scripts').reset([])
-		@getBlock('styles').reset([])
+
+		# Add default block entries
+		meta.add("""<meta name="generator" content="DocPad v#{docpad.getVersion()}" />""")  if docpad.getConfig().poweredByDocPad isnt false
 
 		# Reset caches
 		@filesByUrl = {}
