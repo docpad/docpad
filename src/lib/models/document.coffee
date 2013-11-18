@@ -163,13 +163,15 @@ class DocumentModel extends FileModel
 					switch parser
 						when 'cson', 'coffee', 'coffeescript', 'coffee-script', 'json'
 							CSON = require('cson')  unless CSON
-							metaDataChanges = CSON.parseSync(header)
+							metaParseResult = CSON.parseSync(header)
+							extendr.extend(metaDataChanges, metaParseResult)
 
 						when 'yaml'
 							YAML = require('yamljs')  unless YAML
-							metaDataChanges = YAML.parse(
+							metaParseResult = YAML.parse(
 								header.replace(/\t/g,'    ')  # YAML doesn't support tabs that well
 							)
+							extendr.extend(metaDataChanges, metaParseResult)
 
 						else
 							err = new Error("Unknown meta parser: #{parser}")

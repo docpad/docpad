@@ -1,6 +1,10 @@
 # History
 
-- v6.54.7 November 13, 2013
+- v6.54.8 November 18, 2013
+	- Fixed `TypeError: Cannot read property 'encoding' of null`
+		- Thanks to [Tony](https://github.com/Zearin), [Eduán Lávaque](https://github.com/Greduan) for [issue #711](https://github.com/bevry/docpad/issues/711)
+
+- v6.54.7 November 17, 2013
 	- Fixed meta data not resetting correctly
 		- Thanks to [Māris Krivtežs](https://github.com/marisks), [Eduán Lávaque](https://github.com/Greduan) for [issue #710](https://github.com/bevry/docpad/issues/710)
 	- Updated dependencies
