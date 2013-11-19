@@ -1,5 +1,9 @@
 # History
 
+- v6.54.9 November 19, 2013
+	- Fixed custom server configuration being ignored
+		- Thanks to [andresberrios](https://github.com/andresberrios) for [issue #712](https://github.com/bevry/docpad/issues/712)
+
 - v6.54.8 November 18, 2013
 	- Fixed `TypeError: Cannot read property 'encoding' of null`
 		- Thanks to [Tony](https://github.com/Zearin), [Eduán Lávaque](https://github.com/Greduan) for [issue #711](https://github.com/bevry/docpad/issues/711)

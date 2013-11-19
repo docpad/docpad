@@ -136,17 +136,26 @@ class DocPad extends EventEmitterGrouped
 	# The express and http server instances bound to docpad
 	serverExpress: null
 	serverHttp: null
-	getServer: (both) ->
+	getServer: (both=false) ->
 		{serverExpress,serverHttp} = @
 		if both
-			return {serverExpress,serverHttp}
+			return {serverExpress, serverHttp}
 		else
 			return serverExpress
 	setServer: (servers) ->
-		@serverExpress = servers.serverExpress
-		@serverHttp = servers.serverHttp
+		# Apply
+		if servers.serverExpress and servers.serverHttp
+			@serverExpress = servers.serverExpress
+			@serverHttp = servers.serverHttp
+
+		# Cleanup
+		delete @config.serverHttp
+		delete @config.serverExpress
+		delete @config.server
 	destroyServer: ->
 		@serverHttp?.close()
+		@serverHttp = null
+		# @TODO figure out how to destroy the express server
 
 	# The caterpillar instances bound to docpad
 	loggerInstances: null
@@ -1402,7 +1411,10 @@ class DocPad extends EventEmitterGrouped
 		docpad.mergeConfigurations(configPackages, configsToMerge)
 
 		# Extract and apply the server
-		@setServer(@config.server)  if @config.server
+		@setServer extendr.safeShallowExtendPlainObjects({
+			serverHttp: @config.serverHttp
+			serverExpress: @config.serverExpress
+		},  @config.server)
 
 		# Extract and apply the logger
 		@setLogLevel(@config.logLevel)
@@ -4495,129 +4507,129 @@ class DocPad extends EventEmitterGrouped
 
 	# Server
 	server: (opts,next) =>
-		# Requires
-		http = null
-		express = null
-
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
 		config = @config
 		locale = @getLocale()
 		port = @getPort()
-		serverExpress = null
-		serverHttp = null
+
+		# Require
+		http = require('http')
+		express = require('express')
 
 		# Config
+		servers = @getServer(true)
+		opts.serverExpress ?= servers.serverExpress
+		opts.serverHttp ?= servers.serverHttp
 		opts.middlewareBodyParser ?= config.middlewareBodyParser ? config.middlewareStandard
 		opts.middlewareMethodOverride ?= config.middlewareMethodOverride ? config.middlewareStandard
 		opts.middlewareExpressRouter ?= config.middlewareExpressRouter ? config.middlewareStandard
 		opts.middleware404 ?= config.middleware404
 		opts.middleware500 ?= config.middleware500
+		# @TODO: Why do we do opts here instead of config???
 
-		# Finish
-		finish = (err) ->
-			return next(err)  if err
+		# Tasks
+		tasks = new TaskGroup({next})
 
-			# Plugins
-			docpad.emitSerial 'serverAfter', {server:serverExpress,serverExpress,serverHttp,express}, (err) ->
-				return next(err)  if err
+		# Before Plugin Event
+		tasks.addTask (complete) ->
+			docpad.emitSerial('serverBefore', complete)
 
-				# Done
-				return next()
+		# Create server when none is defined
+		if !opts.serverExpress or !opts.serverHttp
+			tasks.addTask ->
+				opts.serverExpress or= express()
+				opts.serverHttp or= http.createServer(opts.serverExpress)
+				docpad.setServer(opts)
+
+		# Extend the server with our middlewares
+		if config.extendServer is true
+			tasks.addTask (complete) ->
+				# Parse url-encoded and json encoded form data
+				if opts.middlewareBodyParser isnt false
+					opts.serverExpress.use(express.urlencoded())
+					opts.serverExpress.use(express.json())
+
+				# Allow over-riding of the request type (e.g. GET, POST, PUT, DELETE)
+				if opts.middlewareMethodOverride isnt false
+					opts.serverExpress.use(express.methodOverride())
+
+				# Emit the serverExtend event
+				# So plugins can define their routes earlier than the DocPad routes
+				docpad.emitSerial 'serverExtend', {
+					server: opts.serverExpress # b/c
+					express: opts.serverExpress # b/c
+					serverHttp: opts.serverHttp
+					serverExpress: opts.serverExpress
+				}, (err) ->
+					return next(err)  if err
+
+					# DocPad Header Middleware
+					# Keep it after the serverExtend event
+					opts.serverExpress.use(docpad.serverMiddlewareHeader)
+
+					# Router Middleware
+					# Keep it after the serverExtend event
+					opts.serverExpress.use(opts.serverExpress.router)  if opts.middlewareExpressRouter isnt false
+
+					# DocPad Router Middleware
+					# Keep it after the serverExtend event
+					opts.serverExpress.use(docpad.serverMiddlewareRouter)
+
+					# Static
+					# Keep it after the serverExtend event
+					if config.maxAge
+						opts.serverExpress.use(express.static(config.outPath, {maxAge:config.maxAge}))
+					else
+						opts.serverExpress.use(express.static(config.outPath))
+
+					# DocPad 404 Middleware
+					# Keep it after the serverExtend event
+					opts.serverExpress.use(docpad.serverMiddleware404)  if opts.middleware404 isnt false
+
+					# DocPad 500 Middleware
+					# Keep it after the serverExtend event
+					opts.serverExpress.use(docpad.serverMiddleware500)  if opts.middleware500 isnt false
+
+					# Done
+					return complete()
 
 		# Start Server
-		startServer = (next) ->
+		tasks.addTask (complete) ->
 			# Catch
-			serverHttp.once 'error', (err) ->
+			opts.serverHttp.once 'error', (err) ->
 				# Friendlify the error message if it is what we suspect it is
 				if err.message.indexOf('EADDRINUSE') isnt -1
 					err = new Error(util.format(locale.serverInUse, port))
 
 				# Done
-				return next(err)
+				return complete(err)
 
 			# Listen
 			docpad.log 'debug', util.format(locale.serverStart, port, config.outPath)
-			serverHttp.listen port,  ->
+			opts.serverHttp.listen port, ->
 				# Log
-				address = serverHttp.address()
+				address = opts.serverHttp.address()
 				serverHostname = if address.address is '0.0.0.0' then 'localhost' else address.address
 				serverPort = address.port
 				serverLocation = "http://#{serverHostname}:#{serverPort}/"
 				docpad.log 'info', util.format(locale.serverStarted, serverLocation, config.outPath)
 
 				# Done
-				return next()
+				return complete()
 
-		# Start
-		docpad.emitSerial 'serverBefore', (err) ->
-			return finish(err)  if err
+		# After Plugin Event
+		tasks.addTask (complete) ->
+			docpad.emitSerial('serverAfter', {
+				server: opts.serverExpress # b/c
+				express: opts.serverExpress # b/c
+				serverHttp: opts.serverHttp
+				serverExpress: opts.serverExpress
+			}, complete)
 
-			# Server
-			{serverExpress,serverHttp} = docpad.getServer(true)
-			if !serverExpress and !serverHttp
-				# Require
-				http ?= require('http')
-				express ?= require('express')
-
-				# Create
-				serverExpress = opts.serverExpress or express()
-				serverHttp = opts.serverHttp or http.createServer(serverExpress)
-				docpad.setServer({serverExpress,serverHttp})
-
-			# Extend the server
-			unless config.extendServer
-				# Start the Server
-				startServer(finish)
-			else
-				# Require
-				express ?= require('express')
-
-				# Parse url-encoded and json encoded form data
-				if opts.middlewareBodyParser isnt false
-					serverExpress.use(express.urlencoded())
-					serverExpress.use(express.json())
-
-				# Allow over-riding of the request type (e.g. GET, POST, PUT, DELETE)
-				if opts.middlewareMethodOverride isnt false
-					serverExpress.use(express.methodOverride())
-
-				# Emit the serverExtend event
-				# So plugins can define their routes earlier than the DocPad routes
-				docpad.emitSerial 'serverExtend', {server:serverExpress,serverExpress,serverHttp,express}, (err) ->
-					return next(err)  if err
-
-					# DocPad Header Middleware
-					# Keep it after the serverExtend event
-					serverExpress.use(docpad.serverMiddlewareHeader)
-
-					# Router Middleware
-					# Keep it after the serverExtend event
-					serverExpress.use(serverExpress.router)  if opts.middlewareExpressRouter isnt false
-
-					# DocPad Router Middleware
-					# Keep it after the serverExtend event
-					serverExpress.use(docpad.serverMiddlewareRouter)
-
-					# Static
-					# Keep it after the serverExtend event
-					if config.maxAge
-						serverExpress.use(express.static(config.outPath,{maxAge:config.maxAge}))
-					else
-						serverExpress.use(express.static(config.outPath))
-
-					# DocPad 404 Middleware
-					# Keep it after the serverExtend event
-					serverExpress.use(docpad.serverMiddleware404)  if opts.middleware404 isnt false
-
-					# DocPad 500 Middleware
-					# Keep it after the serverExtend event
-					serverExpress.use(docpad.serverMiddleware500)  if opts.middleware500 isnt false
-
-				# Start the Server
-				startServer(finish)
-
+		# Run the tasks
+		tasks.run()
 
 		# Chain
 		@
