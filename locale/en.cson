@@ -36,7 +36,7 @@
 		We couldn't find an existing DocPad project inside your current directory. Looked at: %s
 		If you're wanting to use a pre-made skeleton for the basis of your new project, then run DocPad again inside an empty directory.
 		If you're wanting to start your new project from scratch, then refer to the Getting Started guide here:
-		    http://docpad.org/get-started
+		    http://docpad.org/docs/start
 		For more information about what this means, visit:
 		    http://docpad.org/troubleshoot
 		"""
