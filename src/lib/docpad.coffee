@@ -417,6 +417,11 @@ class DocPad extends EventEmitterGrouped
 			# hain
 			return @
 
+		# @TODO the above causes a signifcant delay when importing external documents (like tumblr data) into the database
+		# we need to figure out a better way of doing this
+		# perhaps it is via `writeSource: once` for imported documents
+		# or providing an option to disable this so it forward onto the static handler instead
+
 		# Prepare
 		database = docpad.getDatabaseCache()
 
