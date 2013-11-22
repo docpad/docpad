@@ -2459,6 +2459,13 @@ class DocPad extends EventEmitterGrouped
 		database = @getDatabase()
 		fileFullPath = attrs.fullPath or null
 
+		# Find or create
+		if attrs.fullPath
+			result = database.findOne(fullPath: attrs.fullPath)
+			if result
+				#console.log result.id, attrs.fullPath
+				return result
+
 		# -----------------------------
 		# Try and determine the model type
 
@@ -3372,8 +3379,12 @@ class DocPad extends EventEmitterGrouped
 			opts.collection ?= new FilesCollection().add(docpad.getDatabase().findAll(
 				$or:
 					mtime: $gte: lastGenerateStarted
-					rtime: null
+					wtime: null
 			).models)
+
+			console.log 'rendering:'
+			for model in opts.collection.models
+				console.log model.id, model.get('mtime'), model.get('wtime'), model.get('relativePath')
 
 		# Fire plugins
 		tasks.addTask 'generateBefore event', (complete) ->
@@ -3399,6 +3410,7 @@ class DocPad extends EventEmitterGrouped
 			# Check
 			return next(err)  if err
 
+			###
 			# Add anything that references other documents (e.g. partials, listing, etc)
 			# This could eventually be way better
 			standalones = opts.collection.pluck('standalone')
@@ -3415,6 +3427,7 @@ class DocPad extends EventEmitterGrouped
 						addLayoutChildren(layoutChildren)
 						opts.collection.add(layoutChildren.models)
 			addLayoutChildren(opts.collection)
+			###
 
 			# Forward
 			return next()

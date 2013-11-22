@@ -505,8 +505,8 @@ class FileModel extends Model
 		@attributes.extensions ?= []
 		@attributes.urls ?= []
 		now = new Date()
-		@attributes.ctime = now
-		@attributes.mtime = now
+		@attributes.ctime ?= now
+		@attributes.mtime ?= now
 
 		# Id
 		@id ?= @attributes.id ?= @cid
