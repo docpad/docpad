@@ -3031,20 +3031,16 @@ class DocPad extends EventEmitterGrouped
 		docpad.log 'debug', util.format(locale.renderingFiles, collection.length)
 
 		# Render File
-		renderFile = (fileToRender,next) ->
-			# Skip?
-			dynamic = fileToRender.get('dynamic')
-			render = fileToRender.get('render')
-			relativePath = fileToRender.get('relativePath')
-
+		# next(null, outContent, file)
+		renderFile = (file,next) ->
 			# Render
-			if dynamic or (render? and !render) or !relativePath or fileToRender.render? is false
-				next()
+			if file.get('dynamic') or !file.get('render') or !file.get('relativePath')
+				next(null, file.getOutContent(), file)
 			else
-				fileToRender.render({templateData}, next)
+				file.render({templateData}, next)
 
 			# Return
-			return fileToRender
+			return file
 
 		# Render Collection
 		renderCollection = (collectionToRender,{renderPass},next) ->
@@ -3058,12 +3054,7 @@ class DocPad extends EventEmitterGrouped
 					return next(err)  if err
 
 					# Plugin Event
-					docpad.emitSerial 'renderCollectionAfter', {collection:collectionToRender,renderPass}, (err) ->
-						# Prepare
-						return next(err)  if err
-
-						# Done
-						return next()
+					docpad.emitSerial('renderCollectionAfter', {collection:collectionToRender,renderPass}, next)
 
 				# Cycle
 				opts.progress?.step("renderFiles (pass #{renderPass})").total(collectionToRender.length).setTick(0)
