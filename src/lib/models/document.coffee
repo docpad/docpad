@@ -75,9 +75,6 @@ class DocumentModel extends FileModel
 		# Whether or not we should render this file
 		render: true
 
-		# Whether or not this file should be re-rendered on each request
-		dynamic: false
-
 		# Whether or not we want to render single extensions
 		renderSingleExtensions: false
 	})

@@ -199,6 +199,12 @@ class FileModel extends Model
 		# The date object for when this document was last modified
 		mtime: null
 
+		# The date object for when this document was last rendered
+		rtime: null
+
+		# The date object for when this document was last written
+		wtime: null
+
 		# Does the file actually exist on the file system
 		exists: null
 
@@ -230,6 +236,9 @@ class FileModel extends Model
 
 		# Whether or not we should write this file to the source directory
 		writeSource: false
+
+		# Whether or not this file should be re-rendered on each request
+		dynamic: false
 
 		# The title for this document
 		# Useful for page headings
@@ -837,6 +846,22 @@ class FileModel extends Model
 		@
 
 
+	# Render
+	# Render this file
+	# next(err,result,document)
+	render: (opts={},next) ->
+		# Prepare
+		[opts,next] = extractOptsAndCallback(opts, next)
+		file = @
+
+		# Apply
+		file.attributes.rtime = new Date()
+
+		# Forward
+		next(null, file.getOutContent(), file)
+		@
+
+
 	# ---------------------------------
 	# CRUD
 
@@ -848,9 +873,9 @@ class FileModel extends Model
 		file = @
 
 		# Fetch
-		opts.path      or= @get('outPath')
-		opts.encoding  or= @get('encoding') or 'utf8'
-		opts.content   or= @getOutContent()
+		opts.path      or= file.get('outPath')
+		opts.encoding  or= file.get('encoding') or 'utf8'
+		opts.content   or= file.getOutContent()
 		opts.type      or= 'out file'
 
 		# Check
@@ -887,6 +912,9 @@ class FileModel extends Model
 			# Check
 			return next(err)  if err
 
+			# Update the wtime
+			file.attributes.wtime = new Date()
+
 			# Log
 			file.log 'debug', "Wrote the #{opts.type}: #{opts.path} #{opts.encoding}"
 
@@ -904,8 +932,8 @@ class FileModel extends Model
 		file = @
 
 		# Fetch
-		opts.path      or= @get('fullPath')
-		opts.content   or= (@getContent() or '').toString('')
+		opts.path      or= file.get('fullPath')
+		opts.content   or= (file.getContent() or '').toString('')
 		opts.type      or= 'source file'
 
 		# Write data
@@ -922,7 +950,7 @@ class FileModel extends Model
 		file = @
 
 		# Fetch
-		opts.path      or= @get('outPath')
+		opts.path      or= file.get('outPath')
 		opts.type      or= 'out file'
 
 		# Check
@@ -961,7 +989,7 @@ class FileModel extends Model
 		file = @
 
 		# Fetch
-		opts.path      or= @get('fullPath')
+		opts.path      or= file.get('fullPath')
 		opts.type      or= 'source file'
 
 		# Write data

@@ -39,6 +39,7 @@
 	"render": true,
 	"renderSingleExtensions": false,
 	"rendered": false,
+	"rtime": null,
 	"slug": "a-b-c-attributes-nested",
 	"source": "---\ntitle: 'Attributes No Layout'\ntags: ['attributes','with-layout']\nreferencesOthers: true\n---\n\n# Fetch data\nattrs = @getDocument().getAttributes()\n\n# Delete environment specific variables\n# timezone makes the dates impossible\n# path differences make them impossible\n# data is too much output\ndelete attrs.encoding\ndelete attrs.ctime\ndelete attrs.mtime\ndelete attrs.date\ndelete attrs.fullPath\ndelete attrs.fullDirPath\ndelete attrs.outPath\ndelete attrs.outDirPath\ndelete attrs.data\ndelete attrs.id\ndelete attrs.layoutId\n\n# Sort the attributes\nkeys = []\nkeys.push(key)  for own key,value of attrs\nkeys.sort()\nsortedAttrs = {}\nfor key in keys\n\tsortedAttrs[key] = attrs[key]\n\n# Output data\ntext JSON.stringify(sortedAttrs,null,'\\t')",
 	"standalone": false,
@@ -52,5 +53,6 @@
 		"/a/b/c/attributes-nested.txt"
 	],
 	"write": true,
-	"writeSource": false
+	"writeSource": false,
+	"wtime": null
 }
