@@ -481,16 +481,18 @@ class DocumentModel extends FileModel
 	# next(err,result,document)
 	render: (opts={},next) ->
 		# Prepare
-		file = @
 		[opts,next] = extractOptsAndCallback(opts, next)
+		file = @
+
+		# Prepare
 		opts = extendr.clone(opts or {})
 		opts.actions ?= ['renderExtensions','renderDocument','renderLayouts']
 		opts.apply ?= true
 		contentRenderedWithoutLayouts = null
-		relativePath = @get('relativePath')
+		relativePath = file.get('relativePath')
 
 		# Prepare content
-		opts.content ?= @get('body')
+		opts.content ?= file.get('body')
 
 		# Prepare templateData
 		opts.templateData = extendr.clone(opts.templateData or {})  # deepClone may be more suitable
@@ -529,8 +531,14 @@ class DocumentModel extends FileModel
 			# Log
 			file.log 'debug', "Rendering completed for: #{relativePath}"
 
+			# Apply
+			file.attributes.rtime = new Date()
+
 			# Success
 			return next(null, opts.content, file)
+			# ^ do not use super here
+			# even with =>
+			# as it causes layout rendering to fail
 
 		# Render Extensions Task
 		if 'renderExtensions' in opts.actions
