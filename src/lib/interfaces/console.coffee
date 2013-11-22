@@ -57,7 +57,11 @@ class ConsoleInterface
 				parseInt
 			)
 			.option(
-				'-s, --skeleton <skeleton>'
+				'-s, --silent'
+				locale.consoleOptionSilent
+			)
+			.option(
+				'--skeleton <skeleton>'
 				locale.consoleOptionSkeleton
 			)
 			.option(
@@ -316,6 +320,10 @@ class ConsoleInterface
 		if commanderConfig.debug
 			commanderConfig.debug = 7  if commanderConfig.debug is true
 			commanderConfig.logLevel = commanderConfig.debug
+
+		# silent -> prompt
+		if commanderConfig.silent?
+			commanderConfig.prompts = !(commanderConfig.silent)
 
 		# config -> configPaths
 		if commanderConfig.config
