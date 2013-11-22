@@ -16,8 +16,10 @@ class StylesCollection extends ElementsCollection
 		# Ensure array
 		if typeChecker.isArray(values)
 			values = values.slice()
-		else
+		else if values
 			values = [values]
+		else
+			values = []
 
 		# Convert urls into script element html
 		for value,key in values
@@ -36,7 +38,7 @@ class StylesCollection extends ElementsCollection
 						"""
 
 		# Call the super with our values
-		super(values,opts)
+		super(values, opts)
 
 
 # Export

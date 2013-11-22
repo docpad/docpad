@@ -155,6 +155,7 @@ These amazing people have contributed code to this project:
 - eldios <lele@amicofigo.com> (https://github.com/eldios) - [view contributions](https://github.com/bevry/docpad/commits?author=eldios)
 - Ferrari Lee <shiyung@gmail.com> (https://github.com/Ferrari) - [view contributions](https://github.com/bevry/docpad/commits?author=Ferrari)
 - Homme Zwaagstra <hrz@geodata.soton.ac.uk> (https://github.com/homme) - [view contributions](https://github.com/bevry/docpad/commits?author=homme)
+- kalkin (https://github.com/kalkin) - [view contributions](https://github.com/bevry/docpad/commits?author=kalkin)
 - Luke Hagan (https://github.com/lhagan) - [view contributions](https://github.com/bevry/docpad/commits?author=lhagan)
 - Neil Taylor <neil.t@myplanetdigital.com> (https://github.com/neilbaylorrulez) - [view contributions](https://github.com/bevry/docpad/commits?author=neilbaylorrulez)
 - nfriedly (https://github.com/nfriedly) - [view contributions](https://github.com/bevry/docpad/commits?author=nfriedly)

@@ -1,5 +1,10 @@
 # History
 
+- v6.54.10 November 21, 2013
+	- Fixed `Cannot read property 'id' of undefined` error when adding nothing to a block
+		- Thanks to [Māris Krivtežs](https://github.com/marisks), [Eduán Lávaque](https://github.com/Greduan), [Bruno Heridet](https://github.com/Delapouite), [pflannery](https://github.com/pflannery) for [issue #710](https://github.com/bevry/docpad/issues/710)
+	- Updated dependencies
+
 - v6.54.9 November 19, 2013
 	- Fixed custom server configuration being ignored
 		- Thanks to [andresberrios](https://github.com/andresberrios) for [issue #712](https://github.com/bevry/docpad/issues/712)

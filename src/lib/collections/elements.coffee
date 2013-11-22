@@ -15,8 +15,10 @@ class ElementsCollection extends Collection
 		# Ensure array
 		if typeChecker.isArray(values)
 			values = values.slice()
-		else
+		else if values
 			values = [values]
+		else
+			values = []
 
 		# Convert string based array properties into html
 		for value,key in values

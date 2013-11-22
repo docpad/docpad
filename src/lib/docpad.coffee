@@ -3438,9 +3438,7 @@ class DocPad extends EventEmitterGrouped
 			object: docpad
 			action: 'contextualizeFiles renderFiles writeFiles'
 			args: [opts]
-			next: (err) ->
-				# Forward
-				return next(err)
+			next: next
 		)
 
 		# Chain
@@ -3500,15 +3498,31 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
+	# Create Regenerate Timer
+	createRegenerateTimer: ->
+		# Prepare
+		docpad = @
+		locale = docpad.getLocale()
+		config = docpad.getConfig()
+
+		# Create Regenerate Timer
+		if config.regenerateEvery
+			docpad.regenerateTimer = setTimeout(
+				->
+					docpad.log('info', locale.renderInterval)
+					docpad.action('generate')
+				config.regenerateEvery
+			)
+
+		# Chain
+		@
+
 	# Generate
 	# next(err)
-	generate: (opts,next) =>
+	generate: (opts, next) =>
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
-		config = docpad.getConfig()
-		locale = docpad.getLocale()
-		opts.reset ?= true
 
 		# Check
 		return next()  if opts.collection?.length is 0
@@ -3519,31 +3533,25 @@ class DocPad extends EventEmitterGrouped
 		# Create Progress
 		opts.progress ?= docpad.createProgress()
 
-		# Clean up properly
-		finish = (err) ->
-			# Create Regenerate Timer
-			if config.regenerateEvery
-				docpad.regenerateTimer = setTimeout(
-					->
-						docpad.log('info', locale.renderInterval)
-						docpad.action('generate')
-					config.regenerateEvery
-				)
-
-			# Clear Progress
-			if opts.progress
-				docpad.destroyProgress(opts.progress)
-				opts.progress = null
-
-			# Forward
-			return next(err)
+		# By default, do a complete regeneration
+		opts.reset ?= true
 
 		# Generate
 		balUtil.flow(
 			object: docpad
 			action: 'generatePrepare generateLoad generateRender generatePostpare'
 			args: [opts]
-			next: finish
+			next: (err) ->
+				# Create Regenerate Timer
+				docpad.createRegenerateTimer()
+
+				# Clear Progress
+				if opts.progress
+					docpad.destroyProgress(opts.progress)
+					opts.progress = null
+
+				# Forward
+				return next(err)
 		)
 
 		# Chain
@@ -3565,7 +3573,7 @@ class DocPad extends EventEmitterGrouped
 			action: opts.action
 			args: [opts]
 			next: (err) ->
-				return next?(err,document)
+				return next?(err, document)
 		)
 
 		# Chain
