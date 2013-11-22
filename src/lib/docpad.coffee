@@ -1888,7 +1888,7 @@ class DocPad extends EventEmitterGrouped
 
 			# Perform any plugin extensions to what we just cleaned
 			# and forward
-			return docpad.emitSerial('populateCollections', next)
+			return docpad.emitSerial('populateCollections', opts, next)
 
 		# Documents
 		docpadConfig.documentsPaths.forEach (documentsPath) -> tasks.addTask (complete) ->
@@ -1918,7 +1918,7 @@ class DocPad extends EventEmitterGrouped
 			})
 
 		# Before
-		docpad.emitSerial 'populateCollectionsBefore', (err) ->
+		docpad.emitSerial 'populateCollectionsBefore', opts, (err) ->
 			# Check
 			return next(err)  if err
 
@@ -3363,10 +3363,10 @@ class DocPad extends EventEmitterGrouped
 					return complete()
 
 			tasks.addTask 'Clean our collections', (complete) ->
-				docpad.resetCollections(complete)
+				docpad.resetCollections(opts, complete)
 
 			tasks.addTask 'Populate our collections', (complete) ->
-				docpad.populateCollections(complete)
+				docpad.populateCollections(opts, complete)
 
 			tasks.addTask 'Add all database models to render queue', ->
 				opts.collection ?= new FilesCollection().add(docpad.getDatabase().models)
@@ -4149,7 +4149,7 @@ class DocPad extends EventEmitterGrouped
 		docpad.log 'debug', locale.renderCleaning
 
 		# Clean collections
-		docpad.resetCollections (err) ->
+		docpad.resetCollections opts, (err) ->
 			# Check
 			return next(err)  if err
 
