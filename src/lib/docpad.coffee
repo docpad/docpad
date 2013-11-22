@@ -3322,7 +3322,7 @@ class DocPad extends EventEmitterGrouped
 		opts.progress?.step("generate (preparing)").total(1).setTick(0)
 
 		# Update generating flag
-		generateStarted = docpad.generateStarted
+		lastGenerateStarted = docpad.generateStarted
 		docpad.generateStarted = new Date()
 		docpad.generating = true
 
@@ -3336,6 +3336,9 @@ class DocPad extends EventEmitterGrouped
 				totals = tasks.getTotals()
 				opts.progress?.step("generate (preparing: #{item.getConfig().name})").total(totals.total).setTick(totals.completed)
 			.once('complete', next)
+
+		# Update the cached database
+		@databaseCache = new FilesCollection(docpad.getDatabase().models)
 
 		# Reset
 		if opts.reset is true
@@ -3353,19 +3356,24 @@ class DocPad extends EventEmitterGrouped
 					# Forward
 					return complete()
 
-			tasks.addTask 'Clean our collections', (complete) ->
-				docpad.resetCollections(opts, complete)
+			#tasks.addTask 'Reset our collections', (complete) ->
+			#	docpad.resetCollections(opts, complete)
 
 			tasks.addTask 'Populate our collections', (complete) ->
 				docpad.populateCollections(opts, complete)
 
-			tasks.addTask 'Add all database models to render queue', ->
-				opts.collection ?= new FilesCollection().add(docpad.getDatabase().models)
+			#tasks.addTask 'Add all database models to render queue', ->
+			#	opts.collection ?= new FilesCollection().add(docpad.getDatabase().models)
 
 		# Don't reset
-		else
-			tasks.addTask 'Add only changed models to render queue', ->
-				opts.collection ?= new FilesCollection().add(docpad.getDatabase().findAll(mtime: $gte: generateStarted).models)
+		# else
+
+		tasks.addTask 'Add only changed models to render queue', ->
+			opts.collection ?= new FilesCollection().add(docpad.getDatabase().findAll(
+				$or:
+					mtime: $gte: lastGenerateStarted
+					rtime: null
+			).models)
 
 		# Fire plugins
 		tasks.addTask 'generateBefore event', (complete) ->
