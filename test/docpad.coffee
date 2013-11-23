@@ -56,4 +56,4 @@ module.exports =
 		renderDocument: (opts) ->
 			src = "testing the docpad configuration renderDocument event"
 			out = src.toUpperCase()
-			opts.content = opts.content.replace(src,out)
+			opts.content = (opts.content or '').replace(src, out)

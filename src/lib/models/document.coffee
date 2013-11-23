@@ -374,7 +374,7 @@ class DocumentModel extends FileModel
 				extensionsReversed.push(null)
 
 		# If we only have one extension, then skip ahead to rendering layouts
-		return next(null,result)  if extensionsReversed.length <= 1
+		return next(null, result)  if extensionsReversed.length <= 1
 
 		# Prepare the tasks
 		tasks = new TaskGroup "renderExtensions: #{filePath}", next: (err) ->
@@ -536,9 +536,11 @@ class DocumentModel extends FileModel
 
 			# Success
 			return next(null, opts.content, file)
-			# ^ do not use super here
-			# even with =>
+			# ^ do not use super here, even with =>
 			# as it causes layout rendering to fail
+			# the reasoning for this is that super uses the document's contentRendered
+			# where, with layouts, opts.apply is false
+			# so that isn't set
 
 		# Render Extensions Task
 		if 'renderExtensions' in opts.actions

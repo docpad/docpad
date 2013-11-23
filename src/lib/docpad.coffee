@@ -3042,6 +3042,7 @@ class DocPad extends EventEmitterGrouped
 		renderFile = (file,next) ->
 			# Render
 			if file.get('dynamic') or !file.get('render') or !file.get('relativePath')
+				file.attributes.rtime = new Date()
 				next(null, file.getOutContent(), file)
 			else
 				file.render({templateData}, next)
@@ -3347,6 +3348,9 @@ class DocPad extends EventEmitterGrouped
 		# Update the cached database
 		@databaseCache = new FilesCollection(docpad.getDatabase().models)
 
+		# Initial
+		opts.initial = lastGenerateStarted? is false
+
 		# Reset
 		if opts.reset is true
 			# Check plugin count
@@ -3363,31 +3367,54 @@ class DocPad extends EventEmitterGrouped
 					# Forward
 					return complete()
 
-			#tasks.addTask 'Reset our collections', (complete) ->
-			#	docpad.resetCollections(opts, complete)
+			###
+			tasks.addTask 'Reset our collections', (complete) ->
+				docpad.resetCollections(opts, complete)
+			###
 
 			tasks.addTask 'Populate our collections', (complete) ->
 				docpad.populateCollections(opts, complete)
 
-			#tasks.addTask 'Add all database models to render queue', ->
-			#	opts.collection ?= new FilesCollection().add(docpad.getDatabase().models)
+			###
+			tasks.addTask 'Add all database models to render queue', ->
+				opts.collection ?= new FilesCollection().add(docpad.getDatabase().models)
+			###
 
 		# Don't reset
-		# else
-
-		tasks.addTask 'Add only changed models to render queue', ->
-			opts.collection ?= new FilesCollection().add(docpad.getDatabase().findAll(
-				$or:
+		else
+			###
+			tasks.addTask 'Add only changed models to render queue', ->
+				opts.collection ?= new FilesCollection().add(docpad.getDatabase().findAll(
 					mtime: $gte: lastGenerateStarted
-					wtime: null
-			).models)
+				).models)
+			###
 
-			console.log 'rendering:'
-			for model in opts.collection.models
-				console.log model.id, model.get('mtime'), model.get('wtime'), model.get('relativePath')
+		if true
+			tasks.addTask 'Add all database models to render queue', ->
+				opts.collection ?= new FilesCollection().add(docpad.getDatabase().models)
+		else
+			tasks.addTask 'Add only changed models to render queue', ->
+				opts.collection ?= new FilesCollection().add(docpad.getDatabase().findAll(
+					$or:
+						mtime: $gte: lastGenerateStarted
+						wtime: null
+					write: true
+				).models)
 
 		# Fire plugins
 		tasks.addTask 'generateBefore event', (complete) ->
+
+			console.log 'rendering:'
+			for model in opts.collection.models
+				console.log
+					id: model.id
+					mtime: model.get('mtime')
+					rtime: model.get('rtime')
+					wtime: model.get('wtime')
+					relativePath: model.get('relativePath')
+			console.log opts.collection.models.length
+			console.log lastGenerateStarted
+
 			docpad.emitSerial('generateBefore', {reset:opts.reset, server:docpad.getServer()}, complete)
 
 		# Run
@@ -3410,7 +3437,6 @@ class DocPad extends EventEmitterGrouped
 			# Check
 			return next(err)  if err
 
-			###
 			# Add anything that references other documents (e.g. partials, listing, etc)
 			# This could eventually be way better
 			standalones = opts.collection.pluck('standalone')
@@ -3427,7 +3453,6 @@ class DocPad extends EventEmitterGrouped
 						addLayoutChildren(layoutChildren)
 						opts.collection.add(layoutChildren.models)
 			addLayoutChildren(opts.collection)
-			###
 
 			# Forward
 			return next()
