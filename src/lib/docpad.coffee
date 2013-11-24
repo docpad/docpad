@@ -3323,13 +3323,17 @@ class DocPad extends EventEmitterGrouped
 		opts.reset ?= true
 
 		# Initial
-		opts.initial = lastGenerateStarted? is false
+		opts.initial ?= lastGenerateStarted? is false
 
 		# Grab the template data we will use for rendering
 		opts.templateData or= docpad.getTemplateData()
 
 		# How many render passes will we require?
 		opts.renderPasses or= config.renderPasses
+
+		# ^ these options are applied using ?= and or=
+		# as they could be over-written pragamatically
+		# by API calls etc for whatever reason
 
 		# Check plugin count
 		docpad.log('notice', locale.renderNoPlugins)  unless docpad.hasPlugins()
