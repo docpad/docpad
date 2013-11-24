@@ -3380,13 +3380,13 @@ class DocPad extends EventEmitterGrouped
 					# Forward
 					return complete()
 
-
-		# Complete generation
-		if opts.reset is true
 			# Erase old data
 			addTask 'Reset our collections', (complete) ->
 				docpad.resetCollections(opts, complete)
 
+
+		# Do we want to pull in new data?
+		if opts.reset is true
 			addTask 'populateCollectionsBefore', (complete) ->
 				docpad.emitSerial('populateCollectionsBefore', opts, complete)
 
