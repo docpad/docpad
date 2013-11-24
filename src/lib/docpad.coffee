@@ -1871,63 +1871,6 @@ class DocPad extends EventEmitterGrouped
 		next()
 		@
 
-	# Parse the files / Scan the directories
-	# opts = {}
-	# next(err)
-	populateCollections: (opts,next) =>
-		# Prepare
-		[opts,next] = extractOptsAndCallback(opts, next)
-		docpad = @
-		database = docpad.getDatabase()
-		docpadConfig = docpad.getConfig()
-
-		# Async
-		tasks = new TaskGroup().setConfig(concurrency:0).once 'complete', (err) ->
-			# Check
-			return next(err)  if err
-
-			# Perform any plugin extensions to what we just cleaned
-			# and forward
-			return docpad.emitSerial('populateCollections', opts, next)
-
-		# Documents
-		docpadConfig.documentsPaths.forEach (documentsPath) -> tasks.addTask (complete) ->
-			docpad.parseDirectory({
-				modelType: 'document'
-				collection: database
-				path: documentsPath
-				next: complete
-			})
-
-		# Files
-		docpadConfig.filesPaths.forEach (filesPath) -> tasks.addTask (complete) ->
-			docpad.parseDirectory({
-				modelType: 'file'
-				collection: database
-				path: filesPath
-				next: complete
-			})
-
-		# Layouts
-		docpadConfig.layoutsPaths.forEach (layoutsPath) -> tasks.addTask (complete) ->
-			docpad.parseDirectory({
-				modelType: 'document'
-				collection: database
-				path: layoutsPath
-				next: complete
-			})
-
-		# Before
-		docpad.emitSerial 'populateCollectionsBefore', opts, (err) ->
-			# Check
-			return next(err)  if err
-
-			# Async
-			return tasks.run()
-
-		# Chain
-		@
-
 	# Init Git Repo
 	# next(err,results)
 	initGitRepo: (opts,next) ->
@@ -3316,212 +3259,6 @@ class DocPad extends EventEmitterGrouped
 		# Return
 		return progress
 
-	# Generate Prepare
-	# opts = {reset}
-	# next(err)
-	generatePrepare: (opts,next) =>
-		# Prepare
-		[opts,next] = extractOptsAndCallback(opts, next)
-		docpad = @
-		config = docpad.getConfig()
-		locale = docpad.getLocale()
-
-		# Update progress
-		opts.progress?.step("generate (preparing)").total(1).setTick(0)
-
-		# Update generating flag
-		lastGenerateStarted = docpad.generateStarted
-		docpad.generateStarted = new Date()
-		docpad.generating = true
-
-		# Log
-		docpad.log('info', locale.renderGenerating)
-		docpad.notify (new Date()).toLocaleTimeString(), title: locale.renderGeneratingNotification
-
-		# Tasks
-		tasks = new TaskGroup()
-			.on 'item.run', (item) ->
-				totals = tasks.getTotals()
-				opts.progress?.step("generate (preparing: #{item.getConfig().name})").total(totals.total).setTick(totals.completed)
-			.once('complete', next)
-
-		# Update the cached database
-		@databaseCache = new FilesCollection(docpad.getDatabase().models)
-
-		# Initial
-		opts.initial = lastGenerateStarted? is false
-
-		# Reset
-		if opts.reset is true
-			# Check plugin count
-			unless docpad.hasPlugins()
-				docpad.log('notice', locale.renderNoPlugins)
-
-			tasks.addTask 'Check if the source directory exists', (complete) ->
-				safefs.exists config.srcPath, (exists) ->
-					# Check
-					unless exists
-						err = new Error(locale.renderNonexistant)
-						return complete(err)
-
-					# Forward
-					return complete()
-
-			###
-			tasks.addTask 'Reset our collections', (complete) ->
-				docpad.resetCollections(opts, complete)
-			###
-
-			tasks.addTask 'Populate our collections', (complete) ->
-				docpad.populateCollections(opts, complete)
-
-			###
-			tasks.addTask 'Add all database models to render queue', ->
-				opts.collection ?= new FilesCollection().add(docpad.getDatabase().models)
-			###
-
-		# Don't reset
-		else
-			###
-			tasks.addTask 'Add only changed models to render queue', ->
-				opts.collection ?= new FilesCollection().add(docpad.getDatabase().findAll(
-					mtime: $gte: lastGenerateStarted
-				).models)
-			###
-
-		if true
-			tasks.addTask 'Add all database models to render queue', ->
-				opts.collection ?= new FilesCollection().add(docpad.getDatabase().models)
-		else
-			tasks.addTask 'Add only changed models to render queue', ->
-				opts.collection ?= new FilesCollection().add(docpad.getDatabase().findAll(
-					$or:
-						mtime: $gte: lastGenerateStarted
-						wtime: null
-					write: true
-				).models)
-
-		# Fire plugins
-		tasks.addTask 'generateBefore event', (complete) ->
-
-			console.log 'rendering:'
-			for model in opts.collection.models
-				console.log
-					id: model.id
-					mtime: model.get('mtime')
-					rtime: model.get('rtime')
-					wtime: model.get('wtime')
-					relativePath: model.get('relativePath')
-			console.log opts.collection.models.length
-			console.log lastGenerateStarted
-
-			docpad.emitSerial('generateBefore', {reset:opts.reset, server:docpad.getServer()}, complete)
-
-		# Run
-		tasks.run()
-
-		# Chain
-		@
-
-	# Generate Load / Read the files
-	# next(err)
-	generateLoad: (opts,next) =>
-		# Prepare
-		[opts,next] = extractOptsAndCallback(opts, next)
-		docpad = @
-		locale = docpad.getLocale()
-		database = docpad.getDatabase()
-
-		# Perform the reload of the selected files
-		docpad.loadFiles {collection:opts.collection, progress:opts.progress}, (err) ->
-			# Check
-			return next(err)  if err
-
-			# Add anything that references other documents (e.g. partials, listing, etc)
-			# This could eventually be way better
-			standalones = opts.collection.pluck('standalone')
-			allStandalone = standalones.indexOf(false) is -1
-			if allStandalone is false
-				referencesOthersCollection = database.findAll(referencesOthers: true)
-				opts.collection.add(referencesOthersCollection.models)
-
-			# Deeply/recursively add the layout children
-			addLayoutChildren = (collection) ->
-				collection.forEach (fileToRender) ->
-					if fileToRender.get('isLayout')
-						layoutChildren = database.findAll(layoutId: fileToRender.id)
-						addLayoutChildren(layoutChildren)
-						opts.collection.add(layoutChildren.models)
-			addLayoutChildren(opts.collection)
-
-			# Forward
-			return next()
-
-		# Chain
-		@
-
-	# Generate Render / Render the files
-	# opts = {templateData,collection,setProgressIndicator}
-	# next(err)
-	generateRender: (opts,next) =>
-		# Prepare
-		[opts,next] = extractOptsAndCallback(opts, next)
-		docpad = @
-		opts.templateData or= @getTemplateData()
-		opts.renderPasses or= @getConfig().renderPasses
-
-		# Contextualize the databaase, perform two render passes, and perform a write
-		balUtil.flow(
-			object: docpad
-			action: 'contextualizeFiles renderFiles writeFiles'
-			args: [opts]
-			next: next
-		)
-
-		# Chain
-		@
-
-	# Generate Postpare
-	# opts = {collection}
-	# next(err)
-	generatePostpare: (opts,next) =>
-		# Prepare
-		[opts,next] = extractOptsAndCallback(opts, next)
-		docpad = @
-		locale = docpad.getLocale()
-		database = docpad.getDatabase()
-		server = docpad.getServer()
-		collection = opts.collection
-
-		# Update progress
-		opts.progress?.step("generate (postparing)").total(1).setTick(0)
-
-		# Update generating flag
-		docpad.generating = false
-		docpad.generateEnded = new Date()
-
-		# Update caches
-		docpad.databaseCache = null
-
-		# Fire plugins
-		docpad.emitSerial 'generateAfter', {server}, (err) ->
-			return next(err)  if err
-
-			# Prepare
-			seconds = (docpad.generateEnded - docpad.generateStarted) / 1000
-			howMany = "#{collection.length}/#{database.length}"
-
-			# Log
-			opts.progress?.finish()
-			docpad.log 'info', util.format(locale.renderGenerated, howMany, seconds)
-			docpad.notify (new Date()).toLocaleTimeString(), title: locale.renderGeneratedNotification
-
-			# Completed
-			return next()
-
-		# Chain
-		@
-
 	# Destroy Regenerate Timer
 	destroyRegenerateTimer: ->
 		# Prepare
@@ -3560,9 +3297,21 @@ class DocPad extends EventEmitterGrouped
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
+		config = docpad.getConfig()
+		locale = docpad.getLocale()
+		lastGenerateStarted = docpad.generateStarted
+		database = docpad.getDatabase()
 
 		# Check
 		return next()  if opts.collection?.length is 0
+
+
+		# Update generating flag
+		docpad.generateStarted = new Date()
+		docpad.generating = true
+
+		# Update the cached database
+		docpad.databaseCache = new FilesCollection(database.models)
 
 		# Destroy Regenerate Timer
 		docpad.destroyRegenerateTimer()
@@ -3573,12 +3322,25 @@ class DocPad extends EventEmitterGrouped
 		# By default, do a complete regeneration
 		opts.reset ?= true
 
-		# Generate
-		balUtil.flow(
-			object: docpad
-			action: 'generatePrepare generateLoad generateRender generatePostpare'
-			args: [opts]
-			next: (err) ->
+		# Initial
+		opts.initial = lastGenerateStarted? is false
+
+
+		# Tasks
+		tasks = new TaskGroup()
+
+			.on 'item.run', (item) ->
+				totals = tasks.getTotals()
+				opts.progress?.step("generate: #{item.getConfig().name}").total(totals.total).setTick(totals.completed)
+
+			.once 'complete', (err) ->
+				# Update generating flag
+				docpad.generating = false
+				docpad.generateEnded = new Date()
+
+				# Update caches
+				docpad.databaseCache = null
+
 				# Create Regenerate Timer
 				docpad.createRegenerateTimer()
 
@@ -3589,7 +3351,158 @@ class DocPad extends EventEmitterGrouped
 
 				# Forward
 				return next(err)
-		)
+
+		# Extract functions from tasks for simplicity
+		# when dealing with nested tasks/groups
+		addGroup = tasks.addGroup.bind(tasks)
+		addTask = tasks.addTask.bind(tasks)
+
+
+		tasks.addTask 'Start Generation', ->
+			# Check plugin count
+			docpad.log('notice', locale.renderNoPlugins)  unless docpad.hasPlugins()
+
+			# Log
+			docpad.log('info', locale.renderGenerating)
+			docpad.notify (new Date()).toLocaleTimeString(), title: locale.renderGeneratingNotification
+
+
+		# Initial generation
+		if opts.initial is true
+			# Check directory structure
+			addTask 'Check source directory exists', (complete) ->
+				safefs.exists config.srcPath, (exists) ->
+					# Check
+					unless exists
+						err = new Error(locale.renderNonexistant)
+						return complete(err)
+
+					# Forward
+					return complete()
+
+
+		# Complete generation
+		if opts.reset is true
+			# Erase old data
+			addTask 'Reset our collections', (complete) ->
+				docpad.resetCollections(opts, complete)
+
+			addTask 'populateCollectionsBefore', (complete) ->
+				docpad.emitSerial('populateCollectionsBefore', opts, complete)
+
+			addGroup 'Parse Directories', (addGroup, addTask) ->
+				# Documents
+				config.documentsPaths.forEach (documentsPath) ->
+					addTask (complete) ->
+						docpad.parseDirectory({
+							modelType: 'document'
+							collection: database
+							path: documentsPath
+							next: complete
+						})
+
+				# Files
+				config.filesPaths.forEach (filesPath) ->
+					addTask (complete) ->
+						docpad.parseDirectory({
+							modelType: 'file'
+							collection: database
+							path: filesPath
+							next: complete
+						})
+
+				# Layouts
+				config.layoutsPaths.forEach (layoutsPath) ->
+					addTask (complete) ->
+						docpad.parseDirectory({
+							modelType: 'document'
+							collection: database
+							path: layoutsPath
+							next: complete
+						})
+
+			addTask 'populateCollections', (complete) ->
+				docpad.emitSerial('populateCollections', opts, complete)
+
+			# Use Entire Collection
+			addTask 'Add all database models to render queue', ->
+				opts.collection ?= new FilesCollection().add(database.models)
+
+		else
+			# Use Partial Collection
+			addTask 'Add only changed models to render queue', ->
+				opts.collection ?= new FilesCollection().add(database.findAll(
+					mtime: $gte: lastGenerateStarted
+				).models)
+
+
+		addTask 'generateBefore', (complete) ->
+			console.log 'rendering:'
+			for model in opts.collection.models
+				console.log
+					id: model.id
+					mtime: model.get('mtime')
+					rtime: model.get('rtime')
+					wtime: model.get('wtime')
+					relativePath: model.get('relativePath')
+			console.log opts.collection.models.length
+			console.log lastGenerateStarted
+
+			docpad.emitSerial('generateBefore', opts, complete)
+
+
+		addTask 'Load Files', (complete) ->
+			# Perform the reload of the selected files
+			docpad.loadFiles opts, (err) ->
+				# Check
+				return complete(err)  if err
+
+				# Add anything that references other documents (e.g. partials, listing, etc)
+				# This could eventually be way better
+				standalones = opts.collection.pluck('standalone')
+				allStandalone = standalones.indexOf(false) is -1
+				if allStandalone is false
+					referencesOthersCollection = database.findAll(referencesOthers: true)
+					opts.collection.add(referencesOthersCollection.models)
+
+				# Deeply/recursively add the layout children
+				addLayoutChildren = (collection) ->
+					collection.forEach (fileToRender) ->
+						if fileToRender.get('isLayout')
+							layoutChildren = database.findAll(layoutId: fileToRender.id)
+							addLayoutChildren(layoutChildren)
+							opts.collection.add(layoutChildren.models)
+				addLayoutChildren(opts.collection)
+
+				# Forward
+				return complete()
+
+
+		addGroup 'Render Files', (addGroup, addTask) ->
+			opts.templateData or= docpad.getTemplateData()
+			opts.renderPasses or= config.renderPasses
+			@addTask 'contextualizeFiles', {args:[opts]}, docpad.contextualizeFiles.bind(docpad)
+			@addTask 'renderFiles', {args:[opts]}, docpad.renderFiles.bind(docpad)
+			@addTask 'writeFiles', {args:[opts]}, docpad.writeFiles.bind(docpad)
+
+
+		addTask 'generateAfter', (complete) ->
+			docpad.emitSerial('generateAfter', opts, complete)
+
+
+		addTask 'Finish Generation', ->
+			# Prepare
+			seconds = (docpad.generateEnded - docpad.generateStarted) / 1000
+			howMany = "#{opts.collection.length}/#{database.length}"
+
+			# Log
+			opts.progress?.finish()
+			docpad.log 'info', util.format(locale.renderGenerated, howMany, seconds)
+			docpad.notify (new Date()).toLocaleTimeString(), title: locale.renderGeneratedNotification
+
+
+		# Run
+		tasks.run()
 
 		# Chain
 		@
