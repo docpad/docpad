@@ -3316,6 +3316,7 @@ class DocPad extends EventEmitterGrouped
 		# Destroy Regenerate Timer
 		docpad.destroyRegenerateTimer()
 
+
 		# Create Progress
 		opts.progress ?= docpad.createProgress()
 
@@ -3334,6 +3335,7 @@ class DocPad extends EventEmitterGrouped
 		# ^ these options are applied using ?= and or=
 		# as they could be over-written pragamatically
 		# by API calls etc for whatever reason
+
 
 		# Check plugin count
 		docpad.log('notice', locale.renderNoPlugins)  unless docpad.hasPlugins()
