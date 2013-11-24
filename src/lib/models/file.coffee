@@ -498,9 +498,15 @@ class FileModel extends Model
 	# ---------------------------------
 	# Actions
 
+	# The action runner instance bound to docpad
+	actionRunnerInstance: null
+	getActionRunner: -> @actionRunnerInstance
+	action: (args...) => docpadUtil.action.apply(@, args)
+
 	# Initialize
 	initialize: (attrs,opts) ->
 		# Defaults
+		file = @
 		@attributes ?= {}
 		@attributes.extensions ?= []
 		@attributes.urls ?= []
@@ -513,6 +519,10 @@ class FileModel extends Model
 
 		# Options
 		@setOptions(opts)
+
+		# Create our action runner
+		@actionRunnerInstance = new TaskGroup().run().on 'complete', (err) ->
+			file.emit('error', err)  if err
 
 		# Super
 		super

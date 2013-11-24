@@ -178,6 +178,7 @@ class DocPad extends EventEmitterGrouped
 	# The action runner instance bound to docpad
 	actionRunnerInstance: null
 	getActionRunner: -> @actionRunnerInstance
+	action: (args...) => docpadUtil.action.apply(@, args)
 
 	# The error runner instance bound to docpad
 	errorRunnerInstance: null
@@ -1442,10 +1443,12 @@ class DocPad extends EventEmitterGrouped
 				typePaths[key] = pathUtil.resolve(@config.rootPath, typePath)
 
 		# Bind the error handler, so we don't crash on errors
-		process.removeListener('uncaughtException', docpad.error)
+		process.removeListener('uncaughtException', @error)
+		@removeListener('error', @error)
 		if @config.catchExceptions
 			process.setMaxListeners(0)
 			process.on('uncaughtException', @error)
+			@on('error', @error)
 
 		# Prepare the Post Tasks
 		postTasks = new TaskGroup().once 'complete', (err) =>
@@ -2361,6 +2364,10 @@ class DocPad extends EventEmitterGrouped
 				layout = docpad.getFileBySelector(opts.selector, opts)
 				next(null, {layout})
 
+		# Error
+		model.on 'error', (args...) ->
+			docpad.error(args...)
+
 		# Log
 		model.on 'log', (args...) ->
 			docpad.log(args...)
@@ -2772,7 +2779,7 @@ class DocPad extends EventEmitterGrouped
 			# Check
 			if err
 				locale = docpad.getLocale()
-				docpad.log('notice', locale.exchangeError+' '+locale.errorFollows, err)
+				docpad.log('notice', locale.exchangeError+' '+locale.errgdorFollows, err)
 				return next()
 
 			# Log
@@ -3146,68 +3153,6 @@ class DocPad extends EventEmitterGrouped
 
 			# Run tasks
 			tasks.run()
-
-		# Chain
-		@
-
-
-	# =================================
-	# Actions
-
-	# Perform an action
-	# next(err,...), ... = any special arguments from the action
-	action: (action,opts,next) =>
-		# Prepare
-		[opts,next] = extractOptsAndCallback(opts,next)
-		docpad = @
-		runner = @getActionRunner()
-		locale = @getLocale()
-
-		# Array?
-		if typeChecker.isArray(action)
-			actions = action
-		else
-			actions = action.split(/[,\s]+/g)
-
-		# Clean actions
-		actions = _.uniq _.compact actions
-
-		# Multiple actions?
-		if actions.length is 1
-			action = actions[0]
-		else
-			tasks = new TaskGroup().once 'complete', (err) ->
-				return next(err)
-			actions.forEach (action) -> tasks.addTask (complete) ->
-				docpad.action(action,opts,complete)
-			tasks.run()
-			return docpad
-
-		# Log
-		docpad.log('debug', util.format(locale.actionStart, action))
-
-		# Next
-		next ?= (err) ->
-			docpad.fatal(err)  if err
-		forward = (args...) ->
-			docpad.log('debug', util.format(locale.actionFinished, action))
-			process.nextTick -> next(args...)  # not sure why we do this, but we do
-
-		# Wrap
-		runner.addTask (complete) ->
-			# Fetch
-			fn = docpad[action]
-
-			# Check
-			return complete(new Error(util.format(locale.actionNonexistant, action)))  unless fn
-
-			# Track
-			docpad.track(action)
-
-			# Forward
-			fn opts, (args...) ->
-				forward(args...)
-				return complete()
 
 		# Chain
 		@

@@ -1,4 +1,7 @@
 # Import
+_ = require('lodash')
+{extractOptsAndCallback} = require('extract-opts')
+{TaskGroup} = require('taskgroup')
 pathUtil = require('path')
 
 # Export
@@ -80,3 +83,66 @@ module.exports = docpadUtil =
 	# get slug
 	getSlug: (relativeBase) ->
 		return require('bal-util').generateSlugSync(relativeBase)
+
+	# Perform an action
+	# next(err,...), ... = any special arguments from the action
+	action: (action,opts,next) ->
+		# Prepare
+		[opts,next] = extractOptsAndCallback(opts,next)
+		me = @
+		runner = me.getActionRunner()
+
+		# Array?
+		if Array.isArray(action)
+			actions = action
+		else
+			actions = action.split(/[,\s]+/g)
+
+		# Clean actions
+		actions = _.uniq _.compact actions
+
+		# Next
+		next or= (err) =>
+			@emit('error', err)  if err
+
+		# Multiple actions?
+		if actions.length is 0
+			err = new Error('No action was given')
+			next(err)
+			return me
+
+		else if actions.length > 1
+			tasks = new TaskGroup({next})
+			actions.forEach (action) ->
+				tasks.addTask (complete) ->
+					me.action(action, opts, complete)
+			tasks.run()
+			return me
+
+		# Fetch the action
+		action = actions[0]
+
+		# Fetch
+		actionMethod = me[action]
+
+		# Check
+		unless actionMethod
+			err = new Error(util.format(locale.actionNonexistant, action))
+			return next(err)
+
+		# Wrap
+		runner.addTask (complete) ->
+			# Forward
+			actionMethod opts, (args...) ->
+				# Prepare
+				err = args[0]
+
+				# Continue to our completion callback
+				next(args...)
+
+				# Continue down the action queue
+				complete()  # ignore the error
+
+		# Chain
+		me
+
