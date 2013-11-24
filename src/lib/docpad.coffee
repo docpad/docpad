@@ -3325,6 +3325,12 @@ class DocPad extends EventEmitterGrouped
 		# Initial
 		opts.initial = lastGenerateStarted? is false
 
+		# Check plugin count
+		docpad.log('notice', locale.renderNoPlugins)  unless docpad.hasPlugins()
+
+		# Log
+		docpad.log('info', locale.renderGenerating)
+		docpad.notify (new Date()).toLocaleTimeString(), title: locale.renderGeneratingNotification
 
 		# Tasks
 		tasks = new TaskGroup()
@@ -3349,6 +3355,15 @@ class DocPad extends EventEmitterGrouped
 					docpad.destroyProgress(opts.progress)
 					opts.progress = null
 
+				# Prepare
+				seconds = (docpad.generateEnded - docpad.generateStarted) / 1000
+				howMany = "#{opts.collection.length}/#{database.length}"
+
+				# Log
+				opts.progress?.finish()
+				docpad.log 'info', util.format(locale.renderGenerated, howMany, seconds)
+				docpad.notify (new Date()).toLocaleTimeString(), title: locale.renderGeneratedNotification
+
 				# Forward
 				return next(err)
 
@@ -3356,15 +3371,6 @@ class DocPad extends EventEmitterGrouped
 		# when dealing with nested tasks/groups
 		addGroup = tasks.addGroup.bind(tasks)
 		addTask = tasks.addTask.bind(tasks)
-
-
-		tasks.addTask 'Start Generation', ->
-			# Check plugin count
-			docpad.log('notice', locale.renderNoPlugins)  unless docpad.hasPlugins()
-
-			# Log
-			docpad.log('info', locale.renderGenerating)
-			docpad.notify (new Date()).toLocaleTimeString(), title: locale.renderGeneratingNotification
 
 
 		# Initial generation
@@ -3424,6 +3430,8 @@ class DocPad extends EventEmitterGrouped
 			addTask 'populateCollections', (complete) ->
 				docpad.emitSerial('populateCollections', opts, complete)
 
+
+		if opts.initial is true
 			# Use Entire Collection
 			addTask 'Add all database models to render queue', ->
 				opts.collection ?= new FilesCollection().add(database.models)
@@ -3448,6 +3456,10 @@ class DocPad extends EventEmitterGrouped
 			console.log opts.collection.models.length
 			console.log lastGenerateStarted
 
+			# Exit if we have nothing to generate
+			return tasks.exit()  if opts.collection.length is 0
+
+			# Otherwise continue down the task loop
 			docpad.emitSerial('generateBefore', opts, complete)
 
 
@@ -3488,17 +3500,6 @@ class DocPad extends EventEmitterGrouped
 
 		addTask 'generateAfter', (complete) ->
 			docpad.emitSerial('generateAfter', opts, complete)
-
-
-		addTask 'Finish Generation', ->
-			# Prepare
-			seconds = (docpad.generateEnded - docpad.generateStarted) / 1000
-			howMany = "#{opts.collection.length}/#{database.length}"
-
-			# Log
-			opts.progress?.finish()
-			docpad.log 'info', util.format(locale.renderGenerated, howMany, seconds)
-			docpad.notify (new Date()).toLocaleTimeString(), title: locale.renderGeneratedNotification
 
 
 		# Run
