@@ -2297,33 +2297,32 @@ class DocPad extends EventEmitterGrouped
 	# b/c compat functions
 
 	# Create File
-	# b/c compat
+	# Here for b/c compat
 	createFile: (attrs={},opts={}) ->
 		opts.modelType = 'file'
 		return @createModel(attrs, opts)
 
 	# Create Document
-	# b/c compat
+	# Here for b/c compat
 	createDocument: (attrs={},opts={}) ->
 		opts.modelType = 'document'
 		return @createModel(attrs, opts)
 
 	# Ensure File
-	# b/c compat
+	# Here for b/c compat
 	ensureFile: (attrs={},opts={}) ->
 		opts.modelType = 'file'
 		return @ensureModel(attrs, opts)
 
 	# Ensure Document
-	# b/c compat
+	# Here for b/c compat
 	ensureDocument: (attrs={},opts={}) ->
 		opts.modelType = 'document'
 		return @ensureModel(attrs, opts)
 
 	# Ensure File or Document
-	# b/c compat
-	ensureFileOrDocument: (attrs={},opts={}) ->
-		return @ensureModel(attrs, opts)
+	# Here for b/c compat
+	ensureFileOrDocument: (args...) -> @ensureModel(args...)
 
 	# Parse File Directory
 	parseFileDirectory: (opts={},next) ->
@@ -2381,18 +2380,8 @@ class DocPad extends EventEmitterGrouped
 		return clone
 
 	# Ensure Model
-	ensureModel: (attrs={},opts={}) ->
-		# Prepare
-		database = @getDatabase()
-
-		# Find or create
-		result = database.findOne(fullPath: attrs.fullPath)
-		unless result
-			result = @createModel(attrs, opts)
-			database.add(result)
-
-		# Return
-		return result
+	# Here for b/c compat
+	ensureModel: (args...) -> @createModel(args...)
 
 	# Create Model
 	createModel: (attrs={},opts={}) ->
@@ -2402,12 +2391,15 @@ class DocPad extends EventEmitterGrouped
 		database = @getDatabase()
 		fileFullPath = attrs.fullPath or null
 
+
 		# Find or create
+		# This functioanlity use to be inside ensureModel
+		# But that caused duplicates in some instances
+		# So now we will always check
 		if attrs.fullPath
 			result = database.findOne(fullPath: attrs.fullPath)
-			if result
-				#console.log result.id, attrs.fullPath
-				return result
+			return result  if result
+
 
 		# -----------------------------
 		# Try and determine the model type
