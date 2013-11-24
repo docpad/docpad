@@ -3452,7 +3452,10 @@ class DocPad extends EventEmitterGrouped
 			# Use Partial Collection
 			addTask 'Add only changed models to render queue', ->
 				opts.collection ?= new FilesCollection().add(database.findAll(
-					mtime: $gte: lastGenerateStarted
+					$or:
+						mtime: $gte: lastGenerateStarted
+						wtime: null
+					write: true
 				).models)
 
 
@@ -3461,6 +3464,7 @@ class DocPad extends EventEmitterGrouped
 			for model in opts.collection.models
 				console.log
 					id: model.id
+					render: model.get('render')
 					mtime: model.get('mtime')
 					rtime: model.get('rtime')
 					wtime: model.get('wtime')
@@ -4373,6 +4377,12 @@ class DocPad extends EventEmitterGrouped
 		# Send
 		dynamic = document.get('dynamic')
 		if dynamic
+			# If you are debugging why a dynamic document isn't rendering
+			# it could be that you don't have cleanurls installed
+			# e.g. if index.html is dynamic, and you are accessing it via /
+			# then this code will not be reached, as we don't register that url
+			# where if we have the cleanurls plugin installed, then do register that url
+			# against the document, so this is reached
 			templateData = extendr.extend({}, req.templateData or {}, {req,err})
 			templateData = docpad.getTemplateData(templateData)
 			document.render {templateData}, (err) ->
