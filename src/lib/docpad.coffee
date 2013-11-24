@@ -3399,6 +3399,13 @@ class DocPad extends EventEmitterGrouped
 					return complete()
 
 			# Erase old data
+			# @TODO Eventually we will want to put this in
+			# the initial database setup stuff
+			# and remove it from here
+			# It is still here for the purpose of it works
+			# and not wanting to do a such a big change in such a big batch
+			# but rather little changes in little batches
+			# for better isolation of errors later on
 			addTask 'Reset our collections', (complete) ->
 				docpad.resetCollections(opts, complete)
 
@@ -3460,6 +3467,7 @@ class DocPad extends EventEmitterGrouped
 
 
 		addTask 'generateBefore', (complete) ->
+			###
 			console.log 'rendering:'
 			for model in opts.collection.models
 				console.log
@@ -3471,6 +3479,7 @@ class DocPad extends EventEmitterGrouped
 					relativePath: model.get('relativePath')
 			console.log opts.collection.models.length
 			console.log lastGenerateStarted
+			###
 
 			# Exit if we have nothing to generate
 			return tasks.exit()  if opts.collection.length is 0
