@@ -3325,6 +3325,12 @@ class DocPad extends EventEmitterGrouped
 		# Initial
 		opts.initial = lastGenerateStarted? is false
 
+		# Grab the template data we will use for rendering
+		opts.templateData or= docpad.getTemplateData()
+
+		# How many render passes will we require?
+		opts.renderPasses or= config.renderPasses
+
 		# Check plugin count
 		docpad.log('notice', locale.renderNoPlugins)  unless docpad.hasPlugins()
 
@@ -3490,12 +3496,9 @@ class DocPad extends EventEmitterGrouped
 				return complete()
 
 
-		addGroup 'Render Files', (addGroup, addTask) ->
-			opts.templateData or= docpad.getTemplateData()
-			opts.renderPasses or= config.renderPasses
-			@addTask 'contextualizeFiles', {args:[opts]}, docpad.contextualizeFiles.bind(docpad)
-			@addTask 'renderFiles', {args:[opts]}, docpad.renderFiles.bind(docpad)
-			@addTask 'writeFiles', {args:[opts]}, docpad.writeFiles.bind(docpad)
+		addTask 'contextualizeFiles', {args:[opts]}, docpad.contextualizeFiles.bind(docpad)
+		addTask 'renderFiles', {args:[opts]}, docpad.renderFiles.bind(docpad)
+		addTask 'writeFiles', {args:[opts]}, docpad.writeFiles.bind(docpad)
 
 
 		addTask 'generateAfter', (complete) ->
