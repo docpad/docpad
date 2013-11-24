@@ -3306,7 +3306,7 @@ class DocPad extends EventEmitterGrouped
 
 				# Prepare
 				seconds = (docpad.generateEnded - docpad.generateStarted) / 1000
-				howMany = "#{opts.collection.length}/#{database.length}"
+				howMany = "#{opts.collection?.length or 0}/#{database.length}"
 
 				# Log
 				opts.progress?.finish()

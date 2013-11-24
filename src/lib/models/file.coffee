@@ -837,6 +837,13 @@ class FileModel extends Model
 		if !slug
 			changes.slug = slug = docpadUtil.getSlug(relativeOutBase)
 
+		# Force date objects
+		changes.wtime = wtime = new Date(wtime)  if typeof wtime is 'string'
+		changes.rtime = rtime = new Date(rtime)  if typeof rtime is 'string'
+		changes.ctime = ctime = new Date(ctime)  if typeof ctime is 'string'
+		changes.mtime = mtime = new Date(mtime)  if typeof mtime is 'string'
+		changes.date  = date  = new Date(date)   if typeof date is 'string'
+
 		# Apply
 		@set(changes)
 
