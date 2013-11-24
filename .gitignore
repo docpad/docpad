@@ -16,3 +16,4 @@ out/
 # PROJECT SPECIFIC FILES
 
 test/render-out/
+test/.docpad.db

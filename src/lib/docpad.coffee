@@ -782,6 +782,9 @@ class DocPad extends EventEmitterGrouped
 		# The project directory
 		rootPath: process.cwd()
 
+		# The project's database path
+		databasePath: '.docpad.db'
+
 		# The project's package.json path
 		packagePath: 'package.json'
 
@@ -1429,6 +1432,8 @@ class DocPad extends EventEmitterGrouped
 		@config.rootPath = pathUtil.resolve(@config.rootPath)
 		@config.outPath = pathUtil.resolve(@config.rootPath, @config.outPath)
 		@config.srcPath = pathUtil.resolve(@config.rootPath, @config.srcPath)
+		@config.databasePath = pathUtil.resolve(@config.rootPath, @config.databasePath)
+		@config.packagePath = pathUtil.resolve(@config.rootPath, @config.packagePath)
 
 		# Resolve Documents, Files, Layouts paths
 		for type in ['documents','files','layouts']
@@ -3236,7 +3241,6 @@ class DocPad extends EventEmitterGrouped
 		docpad = @
 		config = docpad.getConfig()
 		locale = docpad.getLocale()
-		lastGenerateStarted = docpad.generateStarted
 		database = docpad.getDatabase()
 
 		# Check
@@ -3244,11 +3248,13 @@ class DocPad extends EventEmitterGrouped
 
 
 		# Update generating flag
+		lastGenerateStarted = docpad.generateStarted
 		docpad.generateStarted = new Date()
+		docpad.generateEnded = null
 		docpad.generating = true
 
 		# Update the cached database
-		docpad.databaseCache = new FilesCollection(database.models)
+		docpad.databaseCache = new FilesCollection(database.models)  if database.models.length
 
 		# Destroy Regenerate Timer
 		docpad.destroyRegenerateTimer()
@@ -3304,6 +3310,13 @@ class DocPad extends EventEmitterGrouped
 					docpad.destroyProgress(opts.progress)
 					opts.progress = null
 
+				# Dump the database
+				databaseCache =
+					generateStarted: docpad.generateStarted
+					generateEnded: docpad.generateEnded
+					models: docpad.getDatabase().toJSON()
+				require('fs').writeFileSync(config.databasePath, JSON.stringify(databaseCache, null, '  '))
+
 				# Prepare
 				seconds = (docpad.generateEnded - docpad.generateStarted) / 1000
 				howMany = "#{opts.collection?.length or 0}/#{database.length}"
@@ -3311,7 +3324,7 @@ class DocPad extends EventEmitterGrouped
 				# Log
 				opts.progress?.finish()
 				docpad.log 'info', util.format(locale.renderGenerated, howMany, seconds)
-				docpad.notify (new Date()).toLocaleTimeString(), title: locale.renderGeneratedNotification
+				docpad.notify (new Date()).toLocaleTimeString(), {title: locale.renderGeneratedNotification}
 
 				# Forward
 				return next(err)
@@ -3346,6 +3359,12 @@ class DocPad extends EventEmitterGrouped
 			addTask 'Reset our collections', (complete) ->
 				docpad.resetCollections(opts, complete)
 
+				if require('fs').existsSync(config.databasePath)
+					console.log 'Loading cached database'
+					databaseData = JSON.parse require('fs').readFileSync(config.databasePath)
+					lastGenerateStarted = databaseData.generateStarted
+					database.add(databaseData.models)
+					console.log 'Added', databaseData.models.length
 
 		# Do we want to pull in new data?
 		if opts.reset is true
