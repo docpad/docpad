@@ -2395,8 +2395,24 @@ class DocPad extends EventEmitterGrouped
 	# Here for b/c compat
 	ensureModel: (args...) -> @createModel(args...)
 
+	# Add Models
+	addModels: (models, opts) ->
+		models = @createModels(models, opts)
+		docpad.getDatabase().add(models)
+		return models
+
+	# Create Models
+	createModels: (models, opts) ->
+		for model in models
+			@createModel(model, opts)
+		# return the for loop results
+
 	# Create Model
 	createModel: (attrs={},opts={}) ->
+		# Check
+		if attrs instanceof FileModel
+			return attrs
+
 		# Prepare
 		docpad = @
 		config = @getConfig()
@@ -2410,7 +2426,8 @@ class DocPad extends EventEmitterGrouped
 		# So now we will always check
 		if attrs.fullPath
 			result = database.findOne(fullPath: attrs.fullPath)
-			return result  if result
+			if result
+				return result
 
 
 		# -----------------------------
@@ -3310,13 +3327,6 @@ class DocPad extends EventEmitterGrouped
 					docpad.destroyProgress(opts.progress)
 					opts.progress = null
 
-				# Dump the database
-				databaseCache =
-					generateStarted: docpad.generateStarted
-					generateEnded: docpad.generateEnded
-					models: docpad.getDatabase().toJSON()
-				require('fs').writeFileSync(config.databasePath, JSON.stringify(databaseCache, null, '  '))
-
 				# Prepare
 				seconds = (docpad.generateEnded - docpad.generateStarted) / 1000
 				howMany = "#{opts.collection?.length or 0}/#{database.length}"
@@ -3359,84 +3369,80 @@ class DocPad extends EventEmitterGrouped
 			addTask 'Reset our collections', (complete) ->
 				docpad.resetCollections(opts, complete)
 
-				if require('fs').existsSync(config.databasePath)
-					console.log 'Loading cached database'
-					databaseData = JSON.parse require('fs').readFileSync(config.databasePath)
-					lastGenerateStarted = databaseData.generateStarted
-					database.add(databaseData.models)
-					console.log 'Added', databaseData.models.length
-
 		# Do we want to pull in new data?
-		if opts.reset is true
-			addTask 'populateCollectionsBefore', (complete) ->
-				docpad.emitSerial('populateCollectionsBefore', opts, complete)
+		addGroup 'Fetch data to render', (addGroup, addTask) ->
+			if opts.reset is true
+				addTask 'populateCollectionsBefore', (complete) ->
+					docpad.emitSerial('populateCollectionsBefore', opts, complete)
 
-			addGroup 'Parse Directories', (addGroup, addTask) ->
-				# Documents
-				config.documentsPaths.forEach (documentsPath) ->
-					addTask (complete) ->
-						docpad.parseDirectory({
-							modelType: 'document'
-							collection: database
-							path: documentsPath
-							next: complete
-						})
+				addGroup 'Import data from cache or filesystem', (addGroup, addTask, complete) ->
+					safefs.exists config.databasePath, (exists) ->
+						# Do we have the database cache path
+						if exists
+							databaseData = JSON.parse require('fs').readFileSync(config.databasePath)
+							lastGenerateStarted = databaseData.generateStarted
+							addedModels = docpad.addModels(databaseData.models)
+							docpad.log 'debug', util.format(locale.databaseCacheRead, database.length, databaseData.models.length)
+							opts.initial = false
+							lastGenerateStarted = databaseData.generateStarted
 
-				# Files
-				config.filesPaths.forEach (filesPath) ->
-					addTask (complete) ->
-						docpad.parseDirectory({
-							modelType: 'file'
-							collection: database
-							path: filesPath
-							next: complete
-						})
+						# We don't have the database cache path
+						else
+							# Documents
+							config.documentsPaths.forEach (documentsPath) ->
+								addTask (complete) ->
+									docpad.parseDirectory({
+										modelType: 'document'
+										collection: database
+										path: documentsPath
+										next: complete
+									})
 
-				# Layouts
-				config.layoutsPaths.forEach (layoutsPath) ->
-					addTask (complete) ->
-						docpad.parseDirectory({
-							modelType: 'document'
-							collection: database
-							path: layoutsPath
-							next: complete
-						})
+							# Files
+							config.filesPaths.forEach (filesPath) ->
+								addTask (complete) ->
+									docpad.parseDirectory({
+										modelType: 'file'
+										collection: database
+										path: filesPath
+										next: complete
+									})
 
-			addTask 'populateCollections', (complete) ->
-				docpad.emitSerial('populateCollections', opts, complete)
+							# Layouts
+							config.layoutsPaths.forEach (layoutsPath) ->
+								addTask (complete) ->
+									docpad.parseDirectory({
+										modelType: 'document'
+										collection: database
+										path: layoutsPath
+										next: complete
+									})
+
+						# We've finished adding tasks to the group
+						complete()
+
+				addTask 'populateCollections', (complete) ->
+					docpad.emitSerial('populateCollections', opts, complete)
 
 
-		if opts.initial is true
-			# Use Entire Collection
-			addTask 'Add all database models to render queue', ->
-				opts.collection ?= new FilesCollection().add(database.models)
+		addGroup 'Determine files to render', (addGroup, addTask) ->
+			if opts.initial is true
+				# Use Entire Collection
+				addTask 'Add all database models to render queue', ->
+					opts.collection ?= new FilesCollection().add(database.models)
 
-		else
-			# Use Partial Collection
-			addTask 'Add only changed models to render queue', ->
-				opts.collection ?= new FilesCollection().add(database.findAll(
-					$or:
-						mtime: $gte: lastGenerateStarted
-						wtime: null
-					write: true
-				).models)
+			else
+				# Use Partial Collection
+				addTask 'Add only changed models to render queue', ->
+					opts.collection ?= new FilesCollection().add(database.findAll(
+						$or:
+							mtime: $gte: lastGenerateStarted
+							wtime: null
+						write: true
+					).models)
 
 
 		addTask 'generateBefore', (complete) ->
-			###
-			console.log 'rendering:'
-			for model in opts.collection.models
-				console.log
-					id: model.id
-					render: model.get('render')
-					mtime: model.get('mtime')
-					rtime: model.get('rtime')
-					wtime: model.get('wtime')
-					relativePath: model.get('relativePath')
-			console.log opts.collection.models.length
-			console.log lastGenerateStarted
-			###
-
 			# Exit if we have nothing to generate
 			return tasks.exit()  if opts.collection.length is 0
 
@@ -3478,6 +3484,16 @@ class DocPad extends EventEmitterGrouped
 
 		addTask 'generateAfter', (complete) ->
 			docpad.emitSerial('generateAfter', opts, complete)
+
+
+		addTask 'Write the database cache', (complete) ->
+			databaseData =
+				generateStarted: docpad.generateStarted
+				generateEnded: docpad.generateEnded
+				models: (model.getAttributes()  for model in database.models)
+			databaseDataDump = JSON.stringify(databaseData, null, '  ')
+			docpad.log 'debug', util.format(locale.databaseCacheWrite, databaseData.models.length)
+			safefs.writeFile(config.databasePath, databaseDataDump, complete)
 
 
 		# Run
@@ -4071,27 +4087,33 @@ class DocPad extends EventEmitterGrouped
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
+		config = docpad.getConfig()
 		locale = @getLocale()
-		{rootPath, outPath} = @config
 
 		# Log
 		docpad.log 'debug', locale.renderCleaning
 
-		# Clean collections
-		docpad.resetCollections opts, (err) ->
-			# Check
-			return next(err)  if err
+		# Tasks
+		tasks = new TaskGroup(concurrency:0).once('complete', next)
 
-			# Clean files
-			# but only if our outPath is not a parent of our rootPath
-			if rootPath.indexOf(outPath) isnt -1
-				# our outPath is higher than our root path, so do not remove files
-				return next()
-			else
-				# our outPath is not related or lower than our root path, so do remove it
-				balUtil.rmdirDeep outPath, (err,list,tree) ->
-					docpad.log('debug', locale.renderCleaned)  unless err
-					return next()
+		tasks.addTask 'resetCollections', (complete) ->
+			docpad.resetCollections(opts, complete)
+
+		# Delete out path
+		# but only if our outPath is not a parent of our rootPath
+		tasks.addTask 'delete out path', (complete) ->
+			# Check if our outPath is higher than our root path, so do not remove files
+			return complete()  if config.rootPath.indexOf(config.outPath) isnt -1
+
+			# Our outPath is not related or lower than our root path, so do remove it
+			balUtil.rmdirDeep(config.outPath, complete)
+
+		# Delete database cache
+		tasks.addTask 'delete database cache', (complete) ->
+			safefs.unlink(config.databasePath, complete)
+
+		# Run tasks
+		tasks.run()
 
 		# Chain
 		@

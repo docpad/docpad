@@ -125,7 +125,7 @@
     "mime": "~1.2.9",
     "progressbar": "~1.0.3",
     "query-engine": "~1.5.5",
-    "safefs": "~3.0.5",
+    "safefs": "~3.0.6",
     "safeps": "~2.2.9",
     "semver": "~2.2.1",
     "superagent": "~0.15.4",

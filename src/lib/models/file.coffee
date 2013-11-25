@@ -297,6 +297,7 @@ class FileModel extends Model
 	# Get Attributes
 	getAttributes: (dereference=true) ->
 		attrs = @toJSON(dereference)
+		delete attrs.id
 		return attrs
 
 	# To JSON

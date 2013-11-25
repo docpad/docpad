@@ -177,6 +177,8 @@
 	consoleOptionSilent: "don't use any prompts"
 
 	# Misc
+	databaseCacheRead: "Imported %s/%s files from the database cache"
+	databaseCacheWrite: "Dumped %s files to the database cache"
 	emittingEvent: "Emitting the event: %s"
 	emittedEvent: "Emitted the event: %s"
 	outPathConflict: """
