@@ -2397,6 +2397,12 @@ class DocPad extends EventEmitterGrouped
 	# Here for b/c compat
 	ensureModel: (args...) -> @createModel(args...)
 
+	# Add Model
+	addModel: (model, opts) ->
+		model = @createModel(model, opts)
+		docpad.getDatabase().add(model)
+		return model
+
 	# Add Models
 	addModels: (models, opts) ->
 		models = @createModels(models, opts)
@@ -2519,6 +2525,14 @@ class DocPad extends EventEmitterGrouped
 
 					# Create file
 					file = createFunction.call(docpad, data, opts)
+
+					# Add a file.load here
+					# in order to have {writeSource:true} not lead to
+					# duplicates when parsing content
+					# however, as the new database caching removes the need for writesource
+					# we don't do this change, as it is too much changes right away
+
+					# Add the file to the collection
 					files.add(file)
 
 					# Next
