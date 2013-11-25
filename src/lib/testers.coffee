@@ -76,7 +76,7 @@ class PluginTester
 			tester.describe = tester.suite = suite
 			tester.it = tester.test = task
 			tester.done = tester.exit = (next) ->
-				tester.docpad?.destroy(next)
+				tester.docpad?.action('destroy', next)
 			next?(null, tester)
 
 		# Chain

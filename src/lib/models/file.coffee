@@ -931,7 +931,8 @@ class FileModel extends Model
 			return next(err)  if err
 
 			# Update the wtime
-			file.attributes.wtime = new Date()
+			if opts.type is 'out file'
+				file.attributes.wtime = new Date()
 
 			# Log
 			file.log 'debug', "Wrote the #{opts.type}: #{opts.path} #{opts.encoding}"
