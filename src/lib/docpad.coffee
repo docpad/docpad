@@ -1191,6 +1191,8 @@ class DocPad extends EventEmitterGrouped
 		@
 
 	# Destroy
+	# This is an action, and should be called as such
+	# E.g. docpad.action('destroy', next)
 	destroy: (opts, next) =>
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
