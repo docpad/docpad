@@ -57,7 +57,7 @@ class ConsoleInterface
 				parseInt
 			)
 			.option(
-				'-s, --silent'
+				'--silent'
 				locale.consoleOptionSilent
 			)
 			.option(
