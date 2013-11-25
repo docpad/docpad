@@ -1,5 +1,29 @@
 # History
 
+- v6.55.0 Unreleased
+	- DocPad will now cache the database to `.docpad.db` after generation, and load it up upon initial generation
+		- This removes the huge performance burdon of the initial scan, load, parse, render
+		- The `writeSource` attribute can now be considered deprecated
+	- DocPad will now only re-render things that have explicitly changed or not been written yet
+		- This removes a huge performance burdon when pulling in virtual documents
+		- To use this, when importing documents, make sure you set the `mtime` attribute
+	- Added `--silent` option that sets `prompts: false` for disabling all prompts
+		- Removed `-s` option that was an alias for `--skeleton` to avoid confusion
+		- Thanks to [Christo Buschek](https://github.com/crito) for [issue #715](https://github.com/bevry/docpad/issues/715)
+	- The following changes have been made to the `DocPad` prototype
+		- `addModel(model, opts)` was added
+		- `addModels(models, opts)` was added
+		- `createModels(models, opts)` was added
+		- `ensureModel(model, opts)` is now the same as `createModel(model, opts)` 
+		- `generatePrepare`, `generateLoad`, `generateRender`, `generatePostpare`, `populateCollections` were consolidated into `generate(opts, next)`
+	- The following changes have been made to the events:
+		- `generateBefore`, `populateCollectionsBefore`, `populateCollections`, `generateAfter` now receive the options: `initial`, `reset`, and `collection`
+	- The following changes have been made to the models:
+		- `rtime` (render time), `wtime` (write time) attributes have been added
+		- `date`, `mtime`, `ctime`, `rtime`, `wtime` attributes if set will always be Date instances
+		- `action` method has been added
+	- Updated dependencies
+
 - v6.54.10 November 21, 2013
 	- Fixed `Cannot read property 'id' of undefined` error when adding nothing to a block
 		- Thanks to [Māris Krivtežs](https://github.com/marisks), [Eduán Lávaque](https://github.com/Greduan), [Bruno Heridet](https://github.com/Delapouite), [pflannery](https://github.com/pflannery) for [issue #710](https://github.com/bevry/docpad/issues/710)
