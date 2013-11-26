@@ -1,20 +1,20 @@
 # History
 
-- v6.55.0 Unreleased
+- v6.55.0 November 26, 2013
 	- DocPad will now cache the database to `.docpad.db` after generation, and load it up upon initial generation
 		- This removes the huge performance burdon of the initial scan, load, parse, render
 		- The `writeSource` attribute can now be considered under review for deprecation
 		- This can be turned off by setting the configuration option `databaseCache` to `false`
 		- You can customise the path of the database cache file via the `databaseCachePath` configuration option
 		- The database cache will be cleared on `docpad clean`
-		- NOTE: If you remove or modify files when DocPad is shut down, DocPad may not pick it up the changes, to fix this issue, either:
+		- NOTE: If you remove files when DocPad is shut down, DocPad will not pick it up the changes, to fix do one of the following:
 			- Run `docpad clean` to reset the databae cache
 			- Disable the database cache by setting the `databaseCache` configuration option to `false`
 			- Or just make sure when you are working on your DocPad site, you have `docpad run` running
-			- This potentional problem is planned on being fixed in a later version, for now the performance gains far outweigh this disadvantage
+			- This potentional problem is planned on being fixed in a later version, for now an immediate release with these huge performance gains far outweigh a delayed release with the fix
 	- DocPad will now only re-render things that have explicitly changed or not been written yet
 		- This removes a huge performance burdon when pulling in virtual documents
-		- To use this, when importing documents, make sure you set the `mtime` attribute
+		- To use this when importing documents, make sure you set the `mtime` attribute
 	- Added `--silent` option that sets `prompts: false` for disabling all prompts
 		- Removed `-s` option that was an alias for `--skeleton` to avoid confusion
 		- Thanks to [Christo Buschek](https://github.com/crito) for [issue #715](https://github.com/bevry/docpad/issues/715)
