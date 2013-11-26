@@ -123,7 +123,7 @@ module.exports = docpadUtil =
 		action = actions[0]
 
 		# Fetch
-		actionMethod = me[action]
+		actionMethod = me[action].bind(me)
 
 		# Check
 		unless actionMethod

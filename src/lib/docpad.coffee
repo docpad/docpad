@@ -1631,7 +1631,7 @@ class DocPad extends EventEmitterGrouped
 		# Apply back to our loaded configuration
 		# does not apply to @config as we would have to reparse everything
 		# and that appears to be an imaginary problem
-		extendr.extend(@userConfig,data)  if data
+		extendr.extend(@userConfig, data)  if data
 
 		# Write it with CSON
 		CSON.stringify @userConfig, (err,userConfigString) ->
@@ -2894,7 +2894,7 @@ class DocPad extends EventEmitterGrouped
 
 					# Load the file
 					# Also normalizes
-					file.load (err) ->
+					file.action 'load', (err) ->
 						delete slowFilesObject[file.id]
 						opts.progress?.tick()
 
@@ -2984,7 +2984,7 @@ class DocPad extends EventEmitterGrouped
 			collection.forEach (file,index) ->
 				slowFilesObject[file.id] = file.get('relativePath') or file.id
 				tasks.addTask (complete) ->
-					file.contextualize (err) ->
+					file.action 'contextualize', (err) ->
 						delete slowFilesObject[file.id]
 						opts.progress?.tick()
 						return complete(err)
@@ -3028,7 +3028,7 @@ class DocPad extends EventEmitterGrouped
 				file.attributes.rtime = new Date()
 				next(null, file.getOutContent(), file)
 			else
-				file.render({templateData}, next)
+				file.action('render', {templateData}, next)
 
 			# Return
 			return file
@@ -3174,12 +3174,12 @@ class DocPad extends EventEmitterGrouped
 				# Write out
 				if file.get('write') isnt false and file.get('dynamic') isnt true and file.get('outPath')
 					fileTasks.addTask (complete) ->
-						file.write(complete)
+						file.action('write', complete)
 
 				# Write source
 				if file.get('writeSource') is true and file.get('fullPath')
 					fileTasks.addTask (complete) ->
-						file.writeSource(complete)
+						file.action('writeSource', complete)
 
 				# Run sub tasks
 				fileTasks.run()
@@ -3598,7 +3598,7 @@ class DocPad extends EventEmitterGrouped
 		[opts,next] = extractOptsAndCallback(opts,next)
 
 		# Render
-		document.render(opts, next)
+		document.action('render', opts, next)
 
 		# Chain
 		@
@@ -3655,14 +3655,9 @@ class DocPad extends EventEmitterGrouped
 		document = @createDocument(attributes)
 
 		# Flow
-		balUtil.flow(
-			object: document
-			action: 'normalize contextualize render'
-			args: [opts]
-			next: (err) ->
-				result = document.getOutContent()
-				return next(err, result, document)
-		)
+		document.action 'normalize contextualize render', opts, (err) ->
+			result = document.getOutContent()
+			return next(err, result, document)
 
 		# Chain
 		@
@@ -4411,7 +4406,7 @@ class DocPad extends EventEmitterGrouped
 			# against the document, so this is reached
 			templateData = extendr.extend({}, req.templateData or {}, {req,err})
 			templateData = docpad.getTemplateData(templateData)
-			document.render {templateData}, (err) ->
+			document.action 'render', {templateData}, (err) ->
 				content = document.getOutContent()
 				if err
 					docpad.error(err)
