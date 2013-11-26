@@ -1,5 +1,8 @@
 # History
 
+- v6.55.1 November 26, 2013
+	- Fixed `databaseCache` config property
+
 - v6.55.0 November 26, 2013
 	- DocPad will now cache the database to `.docpad.db` after generation, and load it up upon initial generation
 		- This removes the huge performance burdon of the initial scan, load, parse, render

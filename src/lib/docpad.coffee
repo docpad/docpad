@@ -3305,7 +3305,7 @@ class DocPad extends EventEmitterGrouped
 		opts.progress ?= docpad.createProgress()
 
 		# Cache
-		opts.cache = config.cache ? true
+		opts.cache = config.databaseCache ? true
 
 		# By default, do a complete regeneration
 		opts.reset ?= true
