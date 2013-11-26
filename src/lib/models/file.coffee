@@ -286,8 +286,9 @@ class FileModel extends Model
 		return @buffer
 
 	# Is Buffer Outdated
+	# True if there is no buffer OR the buffer time is outdated
 	isBufferOutdated: ->
-		return @bufferTime < (@get('mtime') or new Date())
+		return @buffer? is false or @bufferTime < (@get('mtime') or new Date())
 
 	# Set Stat
 	setStat: (stat) ->
@@ -513,7 +514,7 @@ class FileModel extends Model
 	action: (args...) => docpadUtil.action.apply(@, args)
 
 	# Initialize
-	initialize: (attrs,opts) ->
+	initialize: (attrs,opts={}) ->
 		# Defaults
 		file = @
 		@attributes ?= {}
@@ -558,11 +559,10 @@ class FileModel extends Model
 		file.setStat(opts.stat)        if opts.stat?
 		file.setBuffer(opts.buffer)    if opts.buffer?
 
-		# Log
-		file.log('debug', "Load #{@type}: #{filePath}")
-
 		# Tasks
 		tasks = new TaskGroup({next})
+			.on 'item.run', (item) ->
+				file.log("debug", "#{item.getConfig().name}: #{file.type}: #{filePath}")
 
 		# Detect the file
 		tasks.addTask "Detect the file", (complete) ->
@@ -596,10 +596,10 @@ class FileModel extends Model
 				else
 					return complete()
 
-			tasks.addTask "Load -> Parse: #{filePath}", (complete) ->
+			tasks.addTask "Load -> Parse", (complete) ->
 				file.parse(complete)
 
-			tasks.addTask "Parse -> Normalize: #{filePath}", (complete) ->
+			tasks.addTask "Parse -> Normalize", (complete) ->
 				file.normalize(complete)
 
 		# Run the tasks

@@ -3,7 +3,15 @@
 - v6.55.0 Unreleased
 	- DocPad will now cache the database to `.docpad.db` after generation, and load it up upon initial generation
 		- This removes the huge performance burdon of the initial scan, load, parse, render
-		- The `writeSource` attribute can now be considered deprecated
+		- The `writeSource` attribute can now be considered under review for deprecation
+		- This can be turned off by setting the configuration option `databaseCache` to `false`
+		- You can customise the path of the database cache file via the `databaseCachePath` configuration option
+		- The database cache will be cleared on `docpad clean`
+		- NOTE: If you remove or modify files when DocPad is shut down, DocPad may not pick it up the changes, to fix this issue, either:
+			- Run `docpad clean` to reset the databae cache
+			- Disable the database cache by setting the `databaseCache` configuration option to `false`
+			- Or just make sure when you are working on your DocPad site, you have `docpad run` running
+			- This potentional problem is planned on being fixed in a later version, for now the performance gains far outweigh this disadvantage
 	- DocPad will now only re-render things that have explicitly changed or not been written yet
 		- This removes a huge performance burdon when pulling in virtual documents
 		- To use this, when importing documents, make sure you set the `mtime` attribute
@@ -22,6 +30,7 @@
 		- `rtime` (render time), `wtime` (write time) attributes have been added
 		- `date`, `mtime`, `ctime`, `rtime`, `wtime` attributes if set will always be Date instances
 		- `action` method has been added
+		- `load`, `parse`, `conextualize`, `render`, `write`, `writeSource` should now be called via `file.action('the action name', opts, next)` instead
 	- Updated dependencies
 
 - v6.54.10 November 21, 2013

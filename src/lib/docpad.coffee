@@ -2534,15 +2534,17 @@ class DocPad extends EventEmitterGrouped
 					# Create file
 					file = createFunction.call(docpad, data, opts)
 
-					# @TODO
-					# Add a file.load here in order to have {writeSource:true} not lead to duplicates when parsing content
-					# Not here currently, as it causes GBK test to fail
+					# Update the file's stat
+					# To ensure changes files are handled correctly in generation
+					file.action 'load', {process:false}, (err) ->
+						# Error?
+						return nextFile(err)  if err
 
-					# Add the file to the collection
-					files.add(file)
+						# Add the file to the collection
+						files.add(file)
 
-					# Next
-					nextFile()
+						# Next
+						nextFile()
 
 				# Next
 				next: (err) ->
@@ -3419,6 +3421,7 @@ class DocPad extends EventEmitterGrouped
 								databaseData = JSON.parse data.toString()
 								lastGenerateStarted = databaseData.generateStarted
 								addedModels = docpad.addModels(databaseData.models)
+								# @TODO we need a way of detecting deleted files between generations
 								opts.initial = false
 								lastGenerateStarted = databaseData.generateStarted
 								docpad.log 'debug', util.format(locale.databaseCacheRead, database.length, databaseData.models.length)
@@ -3491,6 +3494,9 @@ class DocPad extends EventEmitterGrouped
 		addTask 'generateBefore', (complete) ->
 			# Exit if we have nothing to generate
 			return tasks.exit()  if opts.collection.length is 0
+
+			# Load the files to generate if we are in debug mode
+			message
 
 			# Otherwise continue down the task loop
 			docpad.emitSerial('generateBefore', opts, complete)
