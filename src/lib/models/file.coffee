@@ -538,19 +538,17 @@ class FileModel extends Model
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 		file = @
-		exists = opts.exists ? false
+		opts.exists ?= null
+		opts.process ?= true
 
 		# Fetch
 		fullPath = @get('fullPath')
 		filePath = @getFilePath({fullPath})
 
-		# If stat is set, use that
-		if opts.stat
-			file.setStat(opts.stat)
-
-		# If buffer is set, use that
-		if opts.buffer
-			file.setBuffer(opts.buffer)
+		# Apply options
+		file.set(exists: opts.exists)  if opts.exists?
+		file.setStat(opts.stat)        if opts.stat?
+		file.setBuffer(opts.buffer)    if opts.buffer?
 
 		# Log
 		file.log('debug', "Load #{@type}: #{filePath}")
@@ -560,47 +558,44 @@ class FileModel extends Model
 
 		# Detect the file
 		tasks.addTask "Detect the file", (complete) ->
-			if fullPath
-				safefs.exists fullPath, (_exists) ->
-					exists = _exists
-					file.set({exists})
+			if fullPath and opts.exists is null
+				safefs.exists fullPath, (exists) ->
+					opts.exists = exists
+					file.set(exists: opts.exists)
 					return complete()
 			else
 				return complete()
 
-		# Load the file
-		tasks.addGroup "Load the file", (addGroup, addTask) ->
-			@setConfig(concurrency:0)
-
-			# @TODO
-			# We could add some detection in here to only update the file
-			# if the stat has changed
-			@addTask "Stat the file and cache the result", (complete) ->
-				# Otherwise fetch new stat
-				if fullPath and exists and opts.stat? is false
-					return safefs.stat fullPath, (err,fileStat) ->
-						return complete(err)  if err
-						file.setStat(fileStat)
-						return complete()
-				else
+		# @TODO
+		# We could add some detection in here to only update the file
+		# if the stat has changed
+		tasks.addTask "Stat the file and cache the result", (complete) ->
+			# Otherwise fetch new stat
+			if fullPath and opts.exists and opts.stat? is false
+				return safefs.stat fullPath, (err,fileStat) ->
+					return complete(err)  if err
+					file.setStat(fileStat)
 					return complete()
-
-			@addTask "Read the file and cache the result", (complete) ->
-				# Otherwise fetch new buffer
-				if fullPath and exists and opts.buffer? is false
-					return safefs.readFile fullPath, (err,buffer) ->
-						return complete(err)  if err
-						file.setBuffer(buffer)
-						return complete()
-				else
-					return complete()
+			else
+				return complete()
 
 		# Process the file
-		tasks.addGroup "Process the file", (addGroup, addTask) ->
-			@addTask "Load -> Parse: #{filePath}", (complete) ->
-				file.parse(complete)
-			@addTask "Parse -> Normalize: #{filePath}", (complete) ->
-				file.normalize(complete)
+		if opts.process is true
+			tasks.addGroup "Process the file", (addGroup, addTask) ->
+				@addTask "Read the file and cache the result", (complete) ->
+					# Otherwise fetch new buffer
+					if fullPath and opts.exists and opts.buffer? is false
+						return safefs.readFile fullPath, (err,buffer) ->
+							return complete(err)  if err
+							file.setBuffer(buffer)
+							return complete()
+					else
+						return complete()
+
+				@addTask "Load -> Parse: #{filePath}", (complete) ->
+					file.parse(complete)
+				@addTask "Parse -> Normalize: #{filePath}", (complete) ->
+					file.normalize(complete)
 
 		# Run the tasks
 		tasks.run()
