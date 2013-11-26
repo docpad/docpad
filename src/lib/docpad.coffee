@@ -3388,55 +3388,75 @@ class DocPad extends EventEmitterGrouped
 		# Do we want to pull in new data?
 		addGroup 'Fetch data to render', (addGroup, addTask) ->
 			if opts.reset is true
+				# This will pull in new data from plugins
 				addTask 'populateCollectionsBefore', (complete) ->
 					docpad.emitSerial('populateCollectionsBefore', opts, complete)
 
-				addGroup 'Import data from cache or filesystem', (addGroup, addTask, complete) ->
+				# This will load the last generated results into our current instance
+				# Which greatly speeds up the initial generate time as all the documents that are loaded in
+				# are already parsed and rendered
+				addTask 'Import data from cache', (complete) ->
+
+					# Check if we do have a databae cache
 					safefs.exists config.databasePath, (exists) ->
-						# Do we have the database cache path
-						if exists
-							databaseData = JSON.parse require('fs').readFileSync(config.databasePath)
+						return complete()  if exists is false
+
+						# Read the database cache if it exists
+						safefs.readFile config.databasePath, (err, data) ->
+							return complete(err)  if err
+
+							# Parse it and apply the data values
+							databaseData = JSON.parse data.toString()
 							lastGenerateStarted = databaseData.generateStarted
 							addedModels = docpad.addModels(databaseData.models)
-							docpad.log 'debug', util.format(locale.databaseCacheRead, database.length, databaseData.models.length)
 							opts.initial = false
 							lastGenerateStarted = databaseData.generateStarted
+							docpad.log 'debug', util.format(locale.databaseCacheRead, database.length, databaseData.models.length)
+							return complete()
 
-						# We don't have the database cache path
-						else
-							# Documents
-							config.documentsPaths.forEach (documentsPath) ->
-								addTask (complete) ->
-									docpad.parseDirectory({
-										modelType: 'document'
-										collection: database
-										path: documentsPath
-										next: complete
-									})
+				# This will load in any new files that we don't already have in our database
+				# Only perform this if we are the initial generation
+				# As afterwards, watching will pick up the changes
+				# It is imported to have the opts.initial check outside of the group method
+				# as if it was inside the group method, then the database cache `opts.initial = false`
+				# would cause this not to load, and we don't want that
+				# As we want to run this always on the initial generation, regardless of cache or not
+				# In order to detect new files that may have been added while docpad was closed
+				# in which case, the database cache, and watching methods, will not have picked up new files
+				# See https://github.com/bevry/docpad/issues/705#issuecomment-29243666 for details
+				if opts.initial is true
+					addGroup 'Import data from file system', (addGroup, addTask) ->
+						# Documents
+						config.documentsPaths.forEach (documentsPath) ->
+							addTask (complete) ->
+								docpad.parseDirectory({
+									modelType: 'document'
+									collection: database
+									path: documentsPath
+									next: complete
+								})
 
-							# Files
-							config.filesPaths.forEach (filesPath) ->
-								addTask (complete) ->
-									docpad.parseDirectory({
-										modelType: 'file'
-										collection: database
-										path: filesPath
-										next: complete
-									})
+						# Files
+						config.filesPaths.forEach (filesPath) ->
+							addTask (complete) ->
+								docpad.parseDirectory({
+									modelType: 'file'
+									collection: database
+									path: filesPath
+									next: complete
+								})
 
-							# Layouts
-							config.layoutsPaths.forEach (layoutsPath) ->
-								addTask (complete) ->
-									docpad.parseDirectory({
-										modelType: 'document'
-										collection: database
-										path: layoutsPath
-										next: complete
-									})
+						# Layouts
+						config.layoutsPaths.forEach (layoutsPath) ->
+							addTask (complete) ->
+								docpad.parseDirectory({
+									modelType: 'document'
+									collection: database
+									path: layoutsPath
+									next: complete
+								})
 
-						# We've finished adding tasks to the group
-						complete()
-
+				# This will pull in new data from plugins
 				addTask 'populateCollections', (complete) ->
 					docpad.emitSerial('populateCollections', opts, complete)
 
