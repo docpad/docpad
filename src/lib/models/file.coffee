@@ -552,49 +552,58 @@ class FileModel extends Model
 		if opts.buffer
 			file.setBuffer(opts.buffer)
 
-		# Async
+		# Log
 		file.log('debug', "Load #{@type}: #{filePath}")
-		tasks = new TaskGroup().setConfig(concurrency:0).once 'complete', (err) =>
-			return next(err)  if err
-			file.log('debug', "Load -> Parse: #{filePath}")
-			file.parse (err) ->
-				file.log('debug', "Parse -> Normalize: #{filePath}")
-				return next(err)  if err
-				file.normalize (err) ->
-					file.log('debug', "Normalize -> Done: #{filePath}")
-					return next(err)  if err
-					return next()
 
-		# Stat the file and cache the result
-		tasks.addTask (complete) ->
-			# Otherwise fetch new stat
-			if fullPath and exists and opts.stat? is false
-				return safefs.stat fullPath, (err,fileStat) ->
-					return complete(err)  if err
-					file.setStat(fileStat)
+		# Tasks
+		tasks = new TaskGroup({next})
+
+		# Detect the file
+		tasks.addTask "Detect the file", (complete) ->
+			if fullPath
+				safefs.exists fullPath, (_exists) ->
+					exists = _exists
+					file.set({exists})
 					return complete()
 			else
 				return complete()
 
-		# Read the file and cache the result
-		tasks.addTask (complete) ->
-			# Otherwise fetch new buffer
-			if fullPath and exists and opts.buffer? is false
-				return safefs.readFile fullPath, (err,buffer) ->
-					return complete(err)  if err
-					file.setBuffer(buffer)
+		# Load the file
+		tasks.addGroup "Load the file", (addGroup, addTask) ->
+			@setConfig(concurrency:0)
+
+			# @TODO
+			# We could add some detection in here to only update the file
+			# if the stat has changed
+			@addTask "Stat the file and cache the result", (complete) ->
+				# Otherwise fetch new stat
+				if fullPath and exists and opts.stat? is false
+					return safefs.stat fullPath, (err,fileStat) ->
+						return complete(err)  if err
+						file.setStat(fileStat)
+						return complete()
+				else
 					return complete()
-			else
-				return complete()
+
+			@addTask "Read the file and cache the result", (complete) ->
+				# Otherwise fetch new buffer
+				if fullPath and exists and opts.buffer? is false
+					return safefs.readFile fullPath, (err,buffer) ->
+						return complete(err)  if err
+						file.setBuffer(buffer)
+						return complete()
+				else
+					return complete()
+
+		# Process the file
+		tasks.addGroup "Process the file", (addGroup, addTask) ->
+			@addTask "Load -> Parse: #{filePath}", (complete) ->
+				file.parse(complete)
+			@addTask "Parse -> Normalize: #{filePath}", (complete) ->
+				file.normalize(complete)
 
 		# Run the tasks
-		if fullPath
-			safefs.exists fullPath, (_exists) ->
-				exists = _exists
-				file.set({exists})
-				tasks.run()
-		else
-			tasks.run()
+		tasks.run()
 
 		# Chain
 		@

@@ -2371,6 +2371,11 @@ class DocPad extends EventEmitterGrouped
 				layout = docpad.getFileBySelector(opts.selector, opts)
 				next(null, {layout})
 
+		# Remove
+		#model.on 'remove', (file) ->
+		#	docpad.getDatabase().remove(file)
+		# ^ Commented out as for some reason this stops layouts from working
+
 		# Error
 		model.on 'error', (args...) ->
 			docpad.error(args...)
@@ -2526,11 +2531,9 @@ class DocPad extends EventEmitterGrouped
 					# Create file
 					file = createFunction.call(docpad, data, opts)
 
-					# Add a file.load here
-					# in order to have {writeSource:true} not lead to
-					# duplicates when parsing content
-					# however, as the new database caching removes the need for writesource
-					# we don't do this change, as it is too much changes right away
+					# @TODO
+					# Add a file.load here in order to have {writeSource:true} not lead to duplicates when parsing content
+					# Not here currently, as it causes GBK test to fail
 
 					# Add the file to the collection
 					files.add(file)
