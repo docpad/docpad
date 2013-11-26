@@ -3291,7 +3291,7 @@ class DocPad extends EventEmitterGrouped
 		# Update generating flag
 		lastGenerateStarted = docpad.generateStarted
 		docpad.generateStarted = new Date()
-		docpad.generateEnded = null
+		docpad.generateEnded = false
 		docpad.generating = true
 
 		# Update the cached database
@@ -3539,9 +3539,11 @@ class DocPad extends EventEmitterGrouped
 				return complete()
 
 
-		addTask 'contextualizeFiles', {args:[opts]}, docpad.contextualizeFiles.bind(docpad)
-		addTask 'renderFiles', {args:[opts]}, docpad.renderFiles.bind(docpad)
-		addTask 'writeFiles', {args:[opts]}, docpad.writeFiles.bind(docpad)
+		addGroup 'Process Files', (addGroup, addTask) ->
+			# Process
+			addTask 'contextualizeFiles', {args:[opts]}, docpad.contextualizeFiles.bind(docpad)
+			addTask 'renderFiles', {args:[opts]}, docpad.renderFiles.bind(docpad)
+			addTask 'writeFiles', {args:[opts]}, docpad.writeFiles.bind(docpad)
 
 
 		addTask 'generateAfter', (complete) ->
