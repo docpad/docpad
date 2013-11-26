@@ -3643,7 +3643,7 @@ class DocPad extends EventEmitterGrouped
 	renderText: (text,opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
-		opts.actions ?= ['renderExtensions','renderDocument']
+		opts.actions ?= ['renderExtensions', 'renderDocument']
 		attributes = extendr.extend({
 			filename: opts.filename
 			data: text
