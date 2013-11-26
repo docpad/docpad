@@ -44,6 +44,9 @@ class FileModel extends Model
 	# File buffer
 	buffer: null
 
+	# Buffer time
+	bufferTime: null
+
 	# The parsed file meta data (header)
 	# Is a Backbone.Model instance
 	meta: null
@@ -274,12 +277,17 @@ class FileModel extends Model
 	# Set Buffer
 	setBuffer: (buffer) ->
 		buffer = new Buffer(buffer)  unless Buffer.isBuffer(buffer)
+		@bufferTime = @get('mtime') or new Date()
 		@buffer = buffer
 		@
 
 	# Get Buffer
 	getBuffer: ->
 		return @buffer
+
+	# Is Buffer Outdated
+	isBufferOutdated: ->
+		return @bufferTime < (@get('mtime') or new Date())
 
 	# Set Stat
 	setStat: (stat) ->
@@ -566,9 +574,6 @@ class FileModel extends Model
 			else
 				return complete()
 
-		# @TODO
-		# We could add some detection in here to only update the file
-		# if the stat has changed
 		tasks.addTask "Stat the file and cache the result", (complete) ->
 			# Otherwise fetch new stat
 			if fullPath and opts.exists and opts.stat? is false
@@ -581,21 +586,21 @@ class FileModel extends Model
 
 		# Process the file
 		if opts.process is true
-			tasks.addGroup "Process the file", (addGroup, addTask) ->
-				@addTask "Read the file and cache the result", (complete) ->
-					# Otherwise fetch new buffer
-					if fullPath and opts.exists and opts.buffer? is false
-						return safefs.readFile fullPath, (err,buffer) ->
-							return complete(err)  if err
-							file.setBuffer(buffer)
-							return complete()
-					else
+			tasks.addTask "Read the file and cache the result", (complete) ->
+				# Otherwise fetch new buffer
+				if fullPath and opts.exists and opts.buffer? is false and file.isBufferOutdated()
+					return safefs.readFile fullPath, (err,buffer) ->
+						return complete(err)  if err
+						file.setBuffer(buffer)
 						return complete()
+				else
+					return complete()
 
-				@addTask "Load -> Parse: #{filePath}", (complete) ->
-					file.parse(complete)
-				@addTask "Parse -> Normalize: #{filePath}", (complete) ->
-					file.normalize(complete)
+			tasks.addTask "Load -> Parse: #{filePath}", (complete) ->
+				file.parse(complete)
+
+			tasks.addTask "Parse -> Normalize: #{filePath}", (complete) ->
+				file.normalize(complete)
 
 		# Run the tasks
 		tasks.run()
