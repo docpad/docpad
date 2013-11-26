@@ -3419,22 +3419,23 @@ class DocPad extends EventEmitterGrouped
 
 								# Parse it and apply the data values
 								databaseData = JSON.parse data.toString()
-								lastGenerateStarted = databaseData.generateStarted
-								addedModels = docpad.addModels(databaseData.models)
-								# @TODO we need a way of detecting deleted files between generations
 								opts.initial = false
-								lastGenerateStarted = databaseData.generateStarted
+								lastGenerateStarted = new Date(databaseData.generateStarted)
+								addedModels = docpad.addModels(databaseData.models)
 								docpad.log 'debug', util.format(locale.databaseCacheRead, database.length, databaseData.models.length)
+
+								# @TODO we need a way of detecting deleted files between generations
+
 								return complete()
 
 				# This will load in any new files that we don't already have in our database
 				# Only perform this if we are the initial generation
 				# As afterwards, watching will pick up the changes
-				# It is imported to have the opts.initial check outside of the group method
+				# It is important to have the opts.initial check outside of the group method
 				# as if it was inside the group method, then the database cache `opts.initial = false`
 				# would cause this not to load, and we don't want that
-				# As we want to run this always on the initial generation, regardless of cache or not
-				# In order to detect new files that may have been added while docpad was closed
+				# We want to run this always on the initial generation, regardless of cache or not
+				# in order to detect new files that may have been added while docpad was closed
 				# in which case, the database cache, and watching methods, will not have picked up new files
 				# See https://github.com/bevry/docpad/issues/705#issuecomment-29243666 for details
 				if opts.initial is true
@@ -3488,6 +3489,7 @@ class DocPad extends EventEmitterGrouped
 							mtime: $gte: lastGenerateStarted
 							wtime: null
 						write: true
+						dynamic: false
 					).models)
 
 
@@ -3495,8 +3497,16 @@ class DocPad extends EventEmitterGrouped
 			# Exit if we have nothing to generate
 			return tasks.exit()  if opts.collection.length is 0
 
-			# Load the files to generate if we are in debug mode
-			message
+			# Log the files to generate if we are in debug mode
+			docpad.log 'debug', 'Files to generate at', (lastGenerateStarted), '\n', (
+				{
+					id: model.id
+					path: model.getFilePath()
+					mtime: model.get('mtime')
+					wtime: model.get('wtime')
+					write: model.get('write')
+				}  for model in opts.collection.models
+			)
 
 			# Otherwise continue down the task loop
 			docpad.emitSerial('generateBefore', opts, complete)
