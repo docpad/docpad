@@ -782,8 +782,8 @@ class DocPad extends EventEmitterGrouped
 		# The project directory
 		rootPath: process.cwd()
 
-		# The project's database path
-		databasePath: '.docpad.db'
+		# The project's database cache path
+		databaseCachePath: '.docpad.db'
 
 		# The project's package.json path
 		packagePath: 'package.json'
@@ -922,6 +922,9 @@ class DocPad extends EventEmitterGrouped
 
 		# -----------------------------
 		# Other
+
+		# Utilise the database cache
+		databaseCache: true
 
 		# Detect Encoding
 		# Should we attempt to auto detect the encoding of our files?
@@ -1434,7 +1437,7 @@ class DocPad extends EventEmitterGrouped
 		@config.rootPath = pathUtil.resolve(@config.rootPath)
 		@config.outPath = pathUtil.resolve(@config.rootPath, @config.outPath)
 		@config.srcPath = pathUtil.resolve(@config.rootPath, @config.srcPath)
-		@config.databasePath = pathUtil.resolve(@config.rootPath, @config.databasePath)
+		@config.databaseCachePath = pathUtil.resolve(@config.rootPath, @config.databaseCachePath)
 		@config.packagePath = pathUtil.resolve(@config.rootPath, @config.packagePath)
 
 		# Resolve Documents, Files, Layouts paths
@@ -3299,6 +3302,9 @@ class DocPad extends EventEmitterGrouped
 		# Create Progress
 		opts.progress ?= docpad.createProgress()
 
+		# Cache
+		opts.cache = config.cache ? true
+
 		# By default, do a complete regeneration
 		opts.reset ?= true
 
@@ -3398,24 +3404,25 @@ class DocPad extends EventEmitterGrouped
 				# This will load the last generated results into our current instance
 				# Which greatly speeds up the initial generate time as all the documents that are loaded in
 				# are already parsed and rendered
-				addTask 'Import data from cache', (complete) ->
+				if opts.cache is true
+					addTask 'Import data from cache', (complete) ->
 
-					# Check if we do have a databae cache
-					safefs.exists config.databasePath, (exists) ->
-						return complete()  if exists is false
+						# Check if we do have a databae cache
+						safefs.exists config.databaseCachePath, (exists) ->
+							return complete()  if exists is false
 
-						# Read the database cache if it exists
-						safefs.readFile config.databasePath, (err, data) ->
-							return complete(err)  if err
+							# Read the database cache if it exists
+							safefs.readFile config.databaseCachePath, (err, data) ->
+								return complete(err)  if err
 
-							# Parse it and apply the data values
-							databaseData = JSON.parse data.toString()
-							lastGenerateStarted = databaseData.generateStarted
-							addedModels = docpad.addModels(databaseData.models)
-							opts.initial = false
-							lastGenerateStarted = databaseData.generateStarted
-							docpad.log 'debug', util.format(locale.databaseCacheRead, database.length, databaseData.models.length)
-							return complete()
+								# Parse it and apply the data values
+								databaseData = JSON.parse data.toString()
+								lastGenerateStarted = databaseData.generateStarted
+								addedModels = docpad.addModels(databaseData.models)
+								opts.initial = false
+								lastGenerateStarted = databaseData.generateStarted
+								docpad.log 'debug', util.format(locale.databaseCacheRead, database.length, databaseData.models.length)
+								return complete()
 
 				# This will load in any new files that we don't already have in our database
 				# Only perform this if we are the initial generation
@@ -3525,14 +3532,15 @@ class DocPad extends EventEmitterGrouped
 			docpad.emitSerial('generateAfter', opts, complete)
 
 
-		addTask 'Write the database cache', (complete) ->
-			databaseData =
-				generateStarted: docpad.generateStarted
-				generateEnded: docpad.generateEnded
-				models: (model.getAttributes()  for model in database.models)
-			databaseDataDump = JSON.stringify(databaseData, null, '  ')
-			docpad.log 'debug', util.format(locale.databaseCacheWrite, databaseData.models.length)
-			safefs.writeFile(config.databasePath, databaseDataDump, complete)
+		if opts.cache is true
+			addTask 'Write the database cache', (complete) ->
+				databaseData =
+					generateStarted: docpad.generateStarted
+					generateEnded: docpad.generateEnded
+					models: (model.getAttributes()  for model in database.models)
+				databaseDataDump = JSON.stringify(databaseData, null, '  ')
+				docpad.log 'debug', util.format(locale.databaseCacheWrite, databaseData.models.length)
+				safefs.writeFile(config.databaseCachePath, databaseDataDump, complete)
 
 
 		# Run
@@ -4143,8 +4151,8 @@ class DocPad extends EventEmitterGrouped
 			balUtil.rmdirDeep(config.outPath, complete)
 
 		# Delete database cache
-		tasks.addTask 'delete database cache', (complete) ->
-			safefs.unlink(config.databasePath, complete)
+		tasks.addTask 'delete database cache file', (complete) ->
+			safefs.unlink(config.databaseCachePath, complete)
 
 		# Run tasks
 		tasks.run()
