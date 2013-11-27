@@ -2105,7 +2105,7 @@ class DocPad extends EventEmitterGrouped
 			data.env = process.env
 			docpad.track('error', data, next)
 		else
-			process.nextTick ->  # avoid zalgo
+			setImmediate ->  # avoid zalgo
 				next?()
 
 		# Chain

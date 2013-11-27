@@ -1,5 +1,9 @@
 # History
 
+- v6.55.3 November 27, 2013
+	- Fixed possible "(node) warning: Recursive process.nextTick detected. This will break in the next version of node. Please use setImmediate for recursive deferral." error under certain circumstances (regression since always?)
+		- Thanks to [Michael Duane Mooring](https://github.com/mikeumus) for [issue #717](https://github.com/bevry/docpad/issues/717)
+
 - v6.55.2 November 27, 2013
 	- Fixed `Changes to layout does not re-render the layout's children` (regression since v6.55.0)
 		- Thanks to [Urs Hunkler](https://github.com/uhunkler) for [issue #716](https://github.com/bevry/docpad/issues/716)
