@@ -290,15 +290,16 @@ class DocumentModel extends FileModel
 		return @get('layout')?
 
 	# Get Layout
-	# The the layout object that this file references (if any)
-	# next(err,layout)
+	# The layout object that this file references (if any)
+	# We update the layoutRelativePath as it is used for finding what documents are used by a layout for when a layout changes
+	# next(err, layout)
 	getLayout: (next) ->
 		# Prepare
 		file = @
 		layoutSelector = @get('layout')
 
 		# Check
-		return next(null,null)  unless layoutSelector
+		return next(null, null)  unless layoutSelector
 
 		# Find parent
 		@emit 'getLayout', {selector:layoutSelector}, (err,opts) ->
@@ -307,21 +308,19 @@ class DocumentModel extends FileModel
 
 			# Error
 			if err
-				file.set('layoutId': null)
+				file.set('layoutRelativePath': null)
 				return next(err)
 
 			# Not Found
 			else unless layout
-				file.set('layoutId': null)
+				file.set('layoutRelativePath': null)
 				err = new Error("Could not find the specified layout: #{layoutSelector}")
 				return next(err)
 
 			# Found
 			else
-				file.set('layoutId': layout.id)
-				return next(null,layout)
-
-			# We update the layoutId as it is used for finding what documents are used by a layout for when a layout changes
+				file.set('layoutRelativePath': layout.get('relativePath'))
+				return next(null, layout)
 
 		# Chain
 		@
@@ -333,7 +332,7 @@ class DocumentModel extends FileModel
 		if @hasLayout()
 			@getLayout (err,layout) ->
 				if err
-					return next(err,null)
+					return next(err, null)
 				else
 					layout.getEve(next)
 		else

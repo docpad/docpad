@@ -1787,6 +1787,13 @@ class DocPad extends EventEmitterGrouped
 				)
 
 			# Special Collections
+			hasLayout: database.createLiveChildCollection()
+				.setQuery('hasLayout', {
+					layout: $exists: true
+				})
+				.on('add', (model) ->
+					docpad.log('debug', util.format(locale.addingHasLayout, model.getFilePath()))
+				)
 			html: database.createLiveChildCollection()
 				.setQuery('isHTML', {
 					write: true
@@ -3508,6 +3515,17 @@ class DocPad extends EventEmitterGrouped
 
 
 		addTask 'Load Files', (complete) ->
+			# Log the files to generate if we are in debug mode
+			docpad.log 'debug', 'Files to load at', (lastGenerateStarted), '\n', (
+				{
+					id: model.id
+					path: model.getFilePath()
+					mtime: model.get('mtime')
+					wtime: model.get('wtime')
+					write: model.get('write')
+				}  for model in opts.collection.models
+			)
+
 			# Perform the reload of the selected files
 			docpad.loadFiles opts, (err) ->
 				# Check
@@ -3524,10 +3542,28 @@ class DocPad extends EventEmitterGrouped
 				# Deeply/recursively add the layout children
 				addLayoutChildren = (collection) ->
 					collection.forEach (file) ->
-						if file.get('isLayout')
-							layoutChildren = database.findAll(layoutId: file.id)
-							addLayoutChildren(layoutChildren)
-							opts.collection.add(layoutChildren.models)
+						if file.get('isLayout') is true
+							# Find
+							layoutChildrenQuery =
+								layoutRelativePath: file.get('relativePath')
+							layoutChildrenCollection = docpad.getCollection('hasLayout').findAll(layoutChildrenQuery)
+
+							# Log the files to generate if we are in debug mode
+							docpad.log 'debug', 'Layout children to generate at', (lastGenerateStarted), '\n', (
+								{
+									id: model.id
+									path: model.getFilePath()
+									mtime: model.get('mtime')
+									wtime: model.get('wtime')
+									write: model.get('write')
+								}  for model in layoutChildrenCollection.models
+							), '\n', layoutChildrenQuery
+
+							# Recurse
+							addLayoutChildren(layoutChildrenCollection)
+
+							# Add
+							opts.collection.add(layoutChildrenCollection.models)
 				addLayoutChildren(opts.collection)
 
 				# Filter out dynamic and non-write files
@@ -4161,11 +4197,20 @@ class DocPad extends EventEmitterGrouped
 		locale = @getLocale()
 
 		# Log
-		docpad.log 'debug', locale.renderCleaning
+		docpad.log('info', locale.renderCleaning)
 
 		# Tasks
-		tasks = new TaskGroup(concurrency:0).once('complete', next)
+		tasks = new TaskGroup(concurrency:0).once 'complete', (err) ->
+			# Error?
+			return next(err)  if err
 
+			# Log
+			docpad.log('info', locale.renderCleaned)
+
+			# Forward
+			return next()
+
+		# Reset the collections
 		tasks.addTask 'resetCollections', (complete) ->
 			docpad.resetCollections(opts, complete)
 

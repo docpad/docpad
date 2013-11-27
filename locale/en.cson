@@ -123,6 +123,7 @@
 	addingFile: "Adding file: %s"
 	addingLayout: "Adding layout: %s"
 	addingHtml: "Adding html file: %s"
+	addingHasLayout: "Adding has layout file: %s"
 	addingStylesheet: "Adding stylesheet file: %s"
 
 	# Loading

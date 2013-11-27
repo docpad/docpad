@@ -622,7 +622,7 @@ class ConsoleInterface
 
 	update: (next,opts) =>
 		# Act
-		@docpad.action('update', next)
+		@docpad.action('clean update', next)
 
 		# Chain
 		@
