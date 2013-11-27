@@ -3311,14 +3311,37 @@ class DocPad extends EventEmitterGrouped
 		# Create Progress
 		opts.progress ?= docpad.createProgress()
 
-		# Cache
-		opts.cache = config.databaseCache ? true
 
-		# By default, do a complete regeneration
-		opts.reset ?= true
+		# Mode: Cache
+		# Shall we write to the database cache?
+		# Set to true if the configuration option says we can, and we are the initial generation
+		opts.cache     ?= config.databaseCache
 
-		# Initial
-		opts.initial ?= lastGenerateStarted? is false
+		# Mode: Initial
+		# Shall we do some basic initial checks
+		# Set to the opts.reset value if specified, or whether are the initial generation
+		opts.initial   ?= lastGenerateStarted? is false
+
+		# Mode: Reset
+		# Shall we reset the database
+		# Set to true if we are the initial generation
+		opts.reset     ?= opts.initial
+
+		# Mode: Populate
+		# Shall we fetch in new data?
+		# Set to the opts.reset value if specified, or the opts.initial value
+		opts.populate  ?= opts.reset
+
+		# Mode: Reload
+		# Shall we rescan the file system for changes?
+		# Set to the opts.reset value if specified, or the opts.initial value
+		opts.reload    ?= opts.reset
+
+		# Mode: Partial
+		# Shall we perform a partial generation (false) or a completion generation (true)?
+		# Set to false if we are the initial generation
+		opts.partial   ?= !(opts.reset)
+
 
 		# Grab the template data we will use for rendering
 		opts.templateData or= docpad.getTemplateData()
@@ -3379,7 +3402,8 @@ class DocPad extends EventEmitterGrouped
 		addTask = tasks.addTask.bind(tasks)
 
 
-		# Initial generation
+		# Do some initial checks
+		# If we are an initial generation
 		if opts.initial is true
 			# Check directory structure
 			addTask 'Check source directory exists', (complete) ->
@@ -3392,28 +3416,25 @@ class DocPad extends EventEmitterGrouped
 					# Forward
 					return complete()
 
-			# Erase old data
-			# @TODO Eventually we will want to put this in
-			# the initial database setup stuff
-			# and remove it from here
-			# It is still here for the purpose of it works
-			# and not wanting to do a such a big change in such a big batch
-			# but rather little changes in little batches
-			# for better isolation of errors later on
+
+		# Erase old data
+		# If we are a reset generation (by default an initial generation)
+		if opts.reset is true
 			addTask 'Reset our collections', (complete) ->
 				docpad.resetCollections(opts, complete)
 
-		# Do we want to pull in new data?
+
 		addGroup 'Fetch data to render', (addGroup, addTask) ->
-			if opts.reset is true
+			# Fetch new data
+			# If we are a populate generation (by default an initial generation)
+			if opts.populate is true
 				# This will pull in new data from plugins
 				addTask 'populateCollectionsBefore', (complete) ->
 					docpad.emitSerial('populateCollectionsBefore', opts, complete)
 
-				# This will load the last generated results into our current instance
-				# Which greatly speeds up the initial generate time as all the documents that are loaded in
-				# are already parsed and rendered
-				if opts.cache is true
+				# Import the cached data
+				# If we are the initial generation, and we have caching enabled
+				if opts.initial is true and opts.cache is true
 					addTask 'Import data from cache', (complete) ->
 
 						# Check if we do have a databae cache
@@ -3426,7 +3447,13 @@ class DocPad extends EventEmitterGrouped
 
 								# Parse it and apply the data values
 								databaseData = JSON.parse data.toString()
-								opts.initial = false
+								opts.cache     = true
+								opts.initial   = true
+								opts.reset     = false
+								opts.populate  = true
+								opts.reload    = true
+								opts.partial   = true
+
 								lastGenerateStarted = new Date(databaseData.generateStarted)
 								addedModels = docpad.addModels(databaseData.models)
 								docpad.log 'debug', util.format(locale.databaseCacheRead, database.length, databaseData.models.length)
@@ -3435,17 +3462,12 @@ class DocPad extends EventEmitterGrouped
 
 								return complete()
 
-				# This will load in any new files that we don't already have in our database
-				# Only perform this if we are the initial generation
-				# As afterwards, watching will pick up the changes
-				# It is important to have the opts.initial check outside of the group method
-				# as if it was inside the group method, then the database cache `opts.initial = false`
-				# would cause this not to load, and we don't want that
-				# We want to run this always on the initial generation, regardless of cache or not
-				# in order to detect new files that may have been added while docpad was closed
-				# in which case, the database cache, and watching methods, will not have picked up new files
+				# Rescan the file system
+				# If we are a reload generation (by default an initial generation)
+				# This is useful when the database is out of sync with the source files
+				# For instance, someone shut down docpad, and made some changes, then ran docpad again
 				# See https://github.com/bevry/docpad/issues/705#issuecomment-29243666 for details
-				if opts.initial is true
+				if opts.reload is true
 					addGroup 'Import data from file system', (addGroup, addTask) ->
 						# Documents
 						config.documentsPaths.forEach (documentsPath) ->
@@ -3483,11 +3505,15 @@ class DocPad extends EventEmitterGrouped
 
 
 		addGroup 'Determine files to render', (addGroup, addTask) ->
-			if opts.initial is true
+			# Perform a complete regeneration
+			# If we are a reset generation (by default an initial non-cached generation)
+			if opts.partial is false
 				# Use Entire Collection
 				addTask 'Add all database models to render queue', ->
 					opts.collection ?= new FilesCollection().add(database.models)
 
+			# Perform a partial regeneration
+			# If we are not a reset generation (by default any non-initial generation)
 			else
 				# Use Partial Collection
 				addTask 'Add only changed models to render queue', ->
@@ -3596,6 +3622,8 @@ class DocPad extends EventEmitterGrouped
 			docpad.emitSerial('generateAfter', opts, complete)
 
 
+		# Write the cache file
+		# If we are a cache regeneration
 		if opts.cache is true
 			addTask 'Write the database cache', (complete) ->
 				databaseData =
@@ -3813,7 +3841,7 @@ class DocPad extends EventEmitterGrouped
 						docpad.log 'info', util.format(locale.watchReloadChange, new Date().toLocaleTimeString())
 						docpad.action 'load', (err) ->
 							return docpad.fatal(err)  if err
-							performGenerate(reset:true)
+							performGenerate(reset: true)
 				next: (err,_watchers) ->
 					if err
 						docpad.log('warn', "Watching the reload paths has failed:", reloadPaths, err)
@@ -3830,7 +3858,7 @@ class DocPad extends EventEmitterGrouped
 				listeners:
 					'log': docpad.log
 					'error': docpad.error
-					'change': -> performGenerate(reset:true)
+					'change': -> performGenerate(reset: true)
 				next: (err,_watchers) ->
 					if err
 						docpad.log('warn', "Watching the regenerate paths has failed:", regeneratePaths, err)
@@ -3874,9 +3902,6 @@ class DocPad extends EventEmitterGrouped
 			regenerateTimer = setTimeout(performGenerate, config.regenerateDelay)
 
 		performGenerate = (opts={}) ->
-			# Do not reset when we do this generate
-			opts.reset ?= false
-
 			# Q: Should we also pass over the collection?
 			# A: No, doing the mtime thing in generatePrepare is more robust
 

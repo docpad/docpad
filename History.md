@@ -1,5 +1,9 @@
 # History
 
+- v6.55.5 November 27, 2013 
+	- Fixed `Configuration changes require a `docpad clean` to regenerate files ` (regression since v6.55.0)
+		- Thanks to [Christo Buschek](https://github.com/crito) for [issue #718](https://github.com/bevry/docpad/issues/718)
+
 - v6.55.4 November 27, 2013
 	- Fixed `Offline changes to layout do not re-render the layout's children` (regression since v6.55.0)
 	- Removed `layoutId` internal file attribute in favour of new `layoutRelativePath` internal file attribute
