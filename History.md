@@ -1,7 +1,11 @@
 # History
 
+- v6.55.2 November 27, 2013
+	- Fixed `Changes to layout does not re-render the layout's children` (regression since v6.55.0)
+		- Thanks to [Urs Hunkler](https://github.com/uhunkler) for [issue #716](https://github.com/bevry/docpad/issues/716)
+
 - v6.55.1 November 26, 2013
-	- Fixed `databaseCache` config property
+	- Fixed `databaseCache` config property (introduced in v6.55.0)
 
 - v6.55.0 November 26, 2013
 	- DocPad will now cache the database to `.docpad.db` after generation, and load it up upon initial generation

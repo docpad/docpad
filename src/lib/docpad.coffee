@@ -3486,9 +3486,15 @@ class DocPad extends EventEmitterGrouped
 				addTask 'Add only changed models to render queue', ->
 					opts.collection ?= new FilesCollection().add(database.findAll(
 						$or:
+							# Get changed files
 							mtime: $gte: lastGenerateStarted
-							wtime: null
-						write: true
+
+							# Get new files
+							$and:
+								wtime: null
+								write: true
+
+						# Always ignore dynamic files as they will always want to regenerate at this stage
 						dynamic: false
 					).models)
 
@@ -3496,17 +3502,6 @@ class DocPad extends EventEmitterGrouped
 		addTask 'generateBefore', (complete) ->
 			# Exit if we have nothing to generate
 			return tasks.exit()  if opts.collection.length is 0
-
-			# Log the files to generate if we are in debug mode
-			docpad.log 'debug', 'Files to generate at', (lastGenerateStarted), '\n', (
-				{
-					id: model.id
-					path: model.getFilePath()
-					mtime: model.get('mtime')
-					wtime: model.get('wtime')
-					write: model.get('write')
-				}  for model in opts.collection.models
-			)
 
 			# Otherwise continue down the task loop
 			docpad.emitSerial('generateBefore', opts, complete)
@@ -3528,12 +3523,27 @@ class DocPad extends EventEmitterGrouped
 
 				# Deeply/recursively add the layout children
 				addLayoutChildren = (collection) ->
-					collection.forEach (fileToRender) ->
-						if fileToRender.get('isLayout')
-							layoutChildren = database.findAll(layoutId: fileToRender.id)
+					collection.forEach (file) ->
+						if file.get('isLayout')
+							layoutChildren = database.findAll(layoutId: file.id)
 							addLayoutChildren(layoutChildren)
 							opts.collection.add(layoutChildren.models)
 				addLayoutChildren(opts.collection)
+
+				# Filter out dynamic and non-write files
+				opts.collection.reset opts.collection.reject (file) ->
+					return file.get('dynamic') or file.get('write') is false
+
+				# Log the files to generate if we are in debug mode
+				docpad.log 'debug', 'Files to generate at', (lastGenerateStarted), '\n', (
+					{
+						id: model.id
+						path: model.getFilePath()
+						mtime: model.get('mtime')
+						wtime: model.get('wtime')
+						write: model.get('write')
+					}  for model in opts.collection.models
+				)
 
 				# Forward
 				return complete()
@@ -3872,7 +3882,7 @@ class DocPad extends EventEmitterGrouped
 			# File was deleted, delete the rendered file, and remove it from the database
 			if changeType is 'delete'
 				database.remove(file)
-				file.delete (err) ->
+				file.action 'delete', (err) ->
 					return docpad.error(err)  if err
 					queueRegeneration()
 
