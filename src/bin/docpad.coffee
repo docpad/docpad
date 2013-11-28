@@ -1,4 +1,21 @@
 # ---------------------------------
+# Check node version right away
+
+if process.versions.node.indexOf('0') is 0 and process.versions.node.split('.')[1] % 2 isnt 0
+	console.log require('util').format(
+		"""
+		== WARNING ==
+		   DocPad is running against an unstable version of Node.js (v%s to be precise).
+		   Unstable versions of Node.js WILL break things! Do not use them with DocPad!
+		   Run DocPad with a stable version of Node.js (e.g. v%s) for a stable experience.
+		   For more information, visit: %s
+		== WARNING ===
+		"""
+		process.versions.node, "0."+(process.versions.node.split('.')[1]-1), "http://docpad.org/unstable-node"
+	)
+
+
+# ---------------------------------
 # Check for Local DocPad Installation
 
 checkDocPad = ->

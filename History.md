@@ -1,5 +1,8 @@
 # History
 
+- v6.55.6 November 28, 2013 
+	- Output a huge warning banner when running DocPad against an unstable version of Node.js
+
 - v6.55.5 November 27, 2013 
 	- Fixed `Configuration changes require a `docpad clean` to regenerate files ` (regression since v6.55.0)
 		- Thanks to [Christo Buschek](https://github.com/crito) for [issue #718](https://github.com/bevry/docpad/issues/718)
