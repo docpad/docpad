@@ -1,7 +1,10 @@
 # History
 
-- v6.55.7 November 28, 2013 
+- v6.55.8 November 28, 2013 
 	- Fixed Node.js v0.8 compatibility (regression since v6.55.3)
+
+- v6.55.7 November 28, 2013 
+	- ??? was already published...
 
 - v6.55.6 November 28, 2013 
 	- Output a huge warning banner when running DocPad against an unstable version of Node.js
