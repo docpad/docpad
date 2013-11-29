@@ -5,7 +5,7 @@
 pathUtil = require('path')
 {lazyRequire} = require('lazy-require')
 corePath = pathUtil.resolve(__dirname, '..', '..')
-setImmediate = setImmediate or process.nextTick  # node 0.8 b/c
+setImmediate = global?.setImmediate or process.nextTick  # node 0.8 b/c
 
 # Profile
 if ('--profile' in process.argv)

@@ -1,5 +1,9 @@
 # History
 
+- v6.55.9 November 29, 2013 
+	- Properly fixed v6.55.3 issue while maintaining node.js v0.8 compatibility
+		- Thanks to [Michael Duane Mooring](https://github.com/mikeumus), (pflannery)[https://github.com/pflannery] for [issue #717](https://github.com/bevry/docpad/issues/717)
+
 - v6.55.8 November 28, 2013 
 	- Fixed Node.js v0.8 compatibility (regression since v6.55.3)
 
