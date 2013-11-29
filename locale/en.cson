@@ -176,6 +176,7 @@
 	consoleOptionProfile: "enable profiling"
 	consoleOptionOffline: "don't do any remote requests"
 	consoleOptionSilent: "don't use any prompts"
+	consoleOptionCache: "use the database cache ability to speed up docpad"
 
 	# Misc
 	databaseCacheRead: "Imported %s/%s files from the database cache"

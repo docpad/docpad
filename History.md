@@ -1,5 +1,9 @@
 # History
 
+- v6.56.0 November 29, 2013 
+	- The database cache introduced in v6.55.0 is set to `write` (write-only) by default now until we fix out the kinks
+		- To enable read mode, use the `--cache` command line option when running DocPad, or set the `databaseCache` configuration option to `true`
+
 - v6.55.9 November 29, 2013 
 	- Properly fixed v6.55.3 issue while maintaining node.js v0.8 compatibility
 		- Thanks to [Michael Duane Mooring](https://github.com/mikeumus), (pflannery)[https://github.com/pflannery] for [issue #717](https://github.com/bevry/docpad/issues/717)

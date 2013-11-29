@@ -925,7 +925,7 @@ class DocPad extends EventEmitterGrouped
 		# Other
 
 		# Utilise the database cache
-		databaseCache: true
+		databaseCache: 'write'
 
 		# Detect Encoding
 		# Should we attempt to auto detect the encoding of our files?
@@ -3435,7 +3435,7 @@ class DocPad extends EventEmitterGrouped
 
 				# Import the cached data
 				# If we are the initial generation, and we have caching enabled
-				if opts.initial is true and opts.cache is true
+				if opts.initial is true and opts.cache in [true, 'read']
 					addTask 'Import data from cache', (complete) ->
 
 						# Check if we do have a databae cache
@@ -3457,7 +3457,7 @@ class DocPad extends EventEmitterGrouped
 
 								lastGenerateStarted = new Date(databaseData.generateStarted)
 								addedModels = docpad.addModels(databaseData.models)
-								docpad.log 'debug', util.format(locale.databaseCacheRead, database.length, databaseData.models.length)
+								docpad.log 'info', util.format(locale.databaseCacheRead, database.length, databaseData.models.length)
 
 								# @TODO we need a way of detecting deleted files between generations
 
@@ -3625,14 +3625,14 @@ class DocPad extends EventEmitterGrouped
 
 		# Write the cache file
 		# If we are a cache regeneration
-		if opts.cache is true
+		if opts.cache in [true, 'write']
 			addTask 'Write the database cache', (complete) ->
 				databaseData =
 					generateStarted: docpad.generateStarted
 					generateEnded: docpad.generateEnded
 					models: (model.getAttributes()  for model in database.models)
 				databaseDataDump = JSON.stringify(databaseData, null, '  ')
-				docpad.log 'debug', util.format(locale.databaseCacheWrite, databaseData.models.length)
+				docpad.log 'info', util.format(locale.databaseCacheWrite, databaseData.models.length)
 				safefs.writeFile(config.databaseCachePath, databaseDataDump, complete)
 
 
