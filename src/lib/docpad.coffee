@@ -313,26 +313,62 @@ class DocPad extends EventEmitterGrouped
 	collections: null
 
 	# Get a collection
-	getCollection: (name) ->
-		if name is 'database'
-			return @getDatabase()
-		else
-			return @collections[name]
+	getCollection: (value) ->
+		if value
+			if typeof value is 'string'
+				if value is 'database'
+					return @getDatabase()
+
+				else
+					for collection in @collections
+						if value in [collection.options.name, collection.options.key]
+							return collection
+
+			else
+				for collection in @collections
+					if value is collection
+						return collection
+
+		return null
+
+	# Get a collection
+	destroyCollection: (value) ->
+		if value
+			if typeof value is 'string' and value isnt 'database'
+				@collections = @collections.filter (collection) ->
+					if value in [collection.options.name, collection.options.key]
+						collection?.destroy()
+						return false
+					else
+						return true
+
+			else if value isnt @getDatabase()
+				@collections = @collections.filter (collection) ->
+					if value is collection
+						collection?.destroy()
+						return false
+					else
+						return true
+
+		return null
+
+	# Add a collection
+	addCollection: (collection) ->
+		if collection and collection not in [@getDatabase(), @getCollection(collection)]
+			@collections.push(collection)
+		@
 
 	# Set a collection
-	setCollection: (name,value) ->
-		# Destroy old
-		@collections[name]?.destroy()
-
-		# Apply new
-		if value
-			value.options.name ?= name
-			@collections[name] = value
+	# A collection can have multiple names
+	setCollection: (name, collection) ->
+		if collection
+			if name
+				collection.options.name = name
+				if @getCollection(name) isnt collection
+					@destroyCollection(name)
+			@addCollection(collection)
 		else
-			delete @collections[name]
-
-		# Chain
-		@
+			@destroyCollection(name)
 
 	# Get collections
 	getCollections: ->
@@ -340,21 +376,27 @@ class DocPad extends EventEmitterGrouped
 
 	# Set collections
 	setCollections: (collections) ->
-		for own name,value of collections
-			@setCollection(name, value)
+		if Array.isArray(collections)
+			for value in collections
+				@addCollection(value)
+		else
+			for own name,value of collections
+				@setCollection(name, value)
 		@
 
 	# Each collection
 	eachCollection: (fn) ->
-		eachr @collections, fn
+		fn(@getDatabase(), 'database')
+		for collection,index in @collections
+			fn(collection, collection.options.name or collection.options.key or index)
 		@
 
 	# Destroy Collections
 	destroyCollections: ->
 		if @collections
-			for own name,collection of @collections
+			for collection in @collections
 				collection.destroy()
-				@collections[name] = null
+			@collections = []
 		@
 
 
@@ -363,27 +405,28 @@ class DocPad extends EventEmitterGrouped
 
 	# Get files (will use live collections)
 	getFiles: (query,sorting,paging) ->
-		key = JSON.stringify({query,sorting,paging})
-		files = @getCollection(key)
-		unless files
-			files = @getDatabase().findAllLive(query,sorting,paging)
-			@setCollection(key, files)
-		return files
+		key = JSON.stringify({query, sorting, paging})
+		collection = @getCollection(key)
+		unless collection
+			collection = @getDatabase().findAllLive(query, sorting, paging)
+			collection.options.key = key
+			@addCollection(collection)
+		return collection
 
 	# Get a single file based on a query
 	getFile: (query,sorting,paging) ->
-		file = @getDatabase().findOne(query,sorting,paging)
+		file = @getDatabase().findOne(query, sorting, paging)
 		return file
 
 	# Get files at a path
 	getFilesAtPath: (path,sorting,paging) ->
 		query = $or: [{relativePath: $startsWith: path}, {fullPath: $startsWith: path}]
-		files = @getFiles(query,sorting,paging)
+		files = @getFiles(query, sorting, paging)
 		return files
 
 	# Get a file at a relative or absolute path or url
 	getFileAtPath: (path,sorting,paging) ->
-		file = @getDatabase().fuzzyFindOne(path,sorting,paging)
+		file = @getDatabase().fuzzyFindOne(path, sorting, paging)
 		return file
 
 	# Get a file by its url
@@ -580,13 +623,13 @@ class DocPad extends EventEmitterGrouped
 			# Get a Path in respect to the current document
 			getPath: (path,parentPath) ->
 				document = @getDocument()
-				path = document.getPath(path,parentPath)
+				path = document.getPath(path, parentPath)
 				return path
 
 			# Get Files
 			getFiles: (query,sorting,paging) ->
 				@referencesOthers()
-				result = docpad.getFiles(query,sorting,paging)
+				result = docpad.getFiles(query, sorting, paging)
 				return result
 
 			# Get another file's URL based on a relative path
@@ -599,7 +642,7 @@ class DocPad extends EventEmitterGrouped
 			getFilesAtPath: (path,sorting,paging) ->
 				@referencesOthers()
 				path = @getPath(path)
-				result = docpad.getFilesAtPath(path,sorting,paging)
+				result = docpad.getFilesAtPath(path, sorting, paging)
 				return result
 
 			# Get another file's model based on a relative path
@@ -1108,7 +1151,7 @@ class DocPad extends EventEmitterGrouped
 		@exchange = {}
 		@pluginsTemplateData = {}
 		@instanceConfig = {}
-		@collections = {}
+		@collections = []
 		@blocks = {}
 		@filesByUrl = {}
 		@filesBySelector = {}

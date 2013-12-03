@@ -1,5 +1,9 @@
 # History
 
+- v6.57.0 December 3, 2013 
+	- Improved the caching of on-the-fly collections and fixed the name setting of collections
+		- Possible b/c break: `DocPad::getCollections()` will now return an `[collection, ...]` array, rather than an `{name: collection}` object. To get the name of a collection, you should now do `collection.options.name`
+
 - v6.56.0 November 29, 2013 
 	- The database cache introduced in v6.55.0 is set to `write` (write-only) by default now until we fix out the kinks
 		- To enable read mode, use the `--cache` command line option when running DocPad, or set the `databaseCache` configuration option to `true`
