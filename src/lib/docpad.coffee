@@ -3342,7 +3342,7 @@ class DocPad extends EventEmitterGrouped
 		# Update generating flag
 		lastGenerateStarted = docpad.generateStarted
 		docpad.generateStarted = new Date()
-		docpad.generateEnded = false
+		docpad.generateEnded = null
 		docpad.generating = true
 
 		# Update the cached database

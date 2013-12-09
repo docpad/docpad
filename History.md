@@ -1,5 +1,8 @@
 # History
 
+- v6.57.1 December 9, 2013 
+	- Fixed delay of requests not working when documents are still performing their initial generation (regression since v6.57.0)
+
 - v6.57.0 December 3, 2013 
 	- Improved the caching of on-the-fly collections and fixed the name setting of collections
 		- Possible b/c break: `DocPad::getCollections()` will now return an `[collection, ...]` array, rather than an `{name: collection}` object. To get the name of a collection, you should now do `collection.options.name`
