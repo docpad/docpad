@@ -110,7 +110,7 @@ Here are some quick links to help you get started:
 
 ## Contribute
 
-[Discover how you can contribute by heading on over to the `Contributing.md` file.](https://github.com/bevry/docpad/blob/master/Contributing.md#files)
+[Discover how you can contribute by heading on over to the `Contributing.md` file.](https://github.com/bevry/docpad/blob/master/CONTRIBUTING.md)
 
 <!-- /CONTRIBUTE -->
 
@@ -173,7 +173,7 @@ These amazing people have contributed code to this project:
 - Vladislav Botvin <darkvlados@me.com> (https://github.com/darrrk) - [view contributions](https://github.com/bevry/docpad/commits?author=darrrk)
 - Zhao Lei <aicoylei@gmail.com> (https://github.com/firede) - [view contributions](https://github.com/bevry/docpad/commits?author=firede)
 
-[Become a contributor!](https://github.com/bevry/docpad/blob/master/Contributing.md#files)
+[Become a contributor!](https://github.com/bevry/docpad/blob/master/CONTRIBUTING.md)
 
 <!-- /BACKERS -->
 
