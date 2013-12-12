@@ -41,6 +41,7 @@ if ('--profile' in process.argv)
 _ = require('lodash')
 CSON = require('cson')
 balUtil = require('bal-util')
+ignorefs = require('ignorefs')
 extendr = require('extendr')
 eachr = require('eachr')
 typeChecker = require('typechecker')
@@ -1344,7 +1345,7 @@ class DocPad extends EventEmitterGrouped
 	# Is Ignored Path
 	isIgnoredPath: (path,opts={}) ->
 		opts = extendr.extend(@getIgnoreOpts(), opts)
-		return balUtil.isIgnoredPath(path, opts)
+		return ignorefs.isIgnoredPath(path, opts)
 
 	# Scan Directory
 	scandir: (opts={}) ->

@@ -1,6 +1,6 @@
 # Import
 pathUtil = require('path')
-balUtil = require('bal-util')
+isTextOrBinary = require('istextorbinary')
 typeChecker = require('typechecker')
 {TaskGroup} = require('taskgroup')
 safefs = require('safefs')
@@ -621,7 +621,7 @@ class FileModel extends Model
 
 		# Detect Encoding
 		if buffer and encoding? is false or opts.reencode is true
-			isText = balUtil.isTextSync(relativePath, buffer)
+			isText = isTextOrBinary.isTextSync(relativePath, buffer)
 
 			# Text
 			if isText is true

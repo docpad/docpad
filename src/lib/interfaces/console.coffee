@@ -1,6 +1,5 @@
 # Requires
 pathUtil = require('path')
-balUtil = require('bal-util')
 safefs = require('safefs')
 safeps = require('safeps')
 {TaskGroup} = require('taskgroup')
@@ -434,7 +433,7 @@ class ConsoleInterface
 						userConfig.subscribed = false
 						docpad.updateUserConfig (err) ->
 							return complete(err)  if err
-							balUtil.wait(2000,complete)
+							setTimeout(complete, 2000)
 						return
 
 					# Scan configuration to speed up the process

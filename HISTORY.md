@@ -1,5 +1,8 @@
 # History
 
+- v6.57.2 December 12, 2013 
+	- Updated dependencies
+
 - v6.57.1 December 9, 2013 
 	- Fixed delay of requests not working when documents are still performing their initial generation (regression since v6.57.0)
 

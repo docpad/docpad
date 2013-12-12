@@ -1,4 +1,4 @@
-# v1.3.8 November 7, 2013
+# v1.3.11 December 11, 2013
 # https://github.com/bevry/base
 
 
@@ -12,32 +12,45 @@ pathUtil = require('path')
 # =====================================
 # Variables
 
-WINDOWS       = process.platform.indexOf('win') is 0
-NODE          = process.execPath
-NPM           = (if WINDOWS then process.execPath.replace('node.exe', 'npm.cmd') else 'npm')
-EXT           = (if WINDOWS then '.cmd' else '')
-APP_DIR       = process.cwd()
-PACKAGE_PATH  = pathUtil.join(APP_DIR, "package.json")
-PACKAGE_DATA  = require(PACKAGE_PATH)
-DOCS_DIR      = pathUtil.join(APP_DIR, "docs")
-DOCS_INPUT    = pathUtil.join(APP_DIR, "src", "lib", "*")
-SRC_DIR       = pathUtil.join(APP_DIR, "src")
-OUT_DIR       = pathUtil.join(APP_DIR, "out")
-TEST_DIR      = pathUtil.join(APP_DIR, "test")
-MODULES_DIR   = pathUtil.join(APP_DIR, "node_modules")
-DOCPAD_DIR    = pathUtil.join(MODULES_DIR, "docpad")
-BIN_DIR       = pathUtil.join(MODULES_DIR, ".bin")
-GIT           = "git"
-CAKE          = pathUtil.join(BIN_DIR, "cake#{EXT}")
-COFFEE        = pathUtil.join(BIN_DIR, "coffee#{EXT}")
-PROJECTZ      = pathUtil.join(BIN_DIR, "projectz#{EXT}")
-DOCCO         = pathUtil.join(BIN_DIR, "docco#{EXT}")
+WINDOWS          = process.platform.indexOf('win') is 0
+NODE             = process.execPath
+NPM              = (if WINDOWS then process.execPath.replace('node.exe', 'npm.cmd') else 'npm')
+EXT              = (if WINDOWS then '.cmd' else '')
+GIT              = "git"
+
+APP_PATH        = process.cwd()
+PACKAGE_PATH     = pathUtil.join(APP_PATH, "package.json")
+PACKAGE_DATA     = require(PACKAGE_PATH)
+
+MODULES_PATH     = pathUtil.join(APP_PATH, "node_modules")
+DOCPAD_PATH      = pathUtil.join(MODULES_PATH, "docpad")
+BIN_PATH         = pathUtil.join(MODULES_PATH, ".bin")
+CAKE             = pathUtil.join(BIN_PATH, "cake" + EXT)
+COFFEE           = pathUtil.join(BIN_PATH, "coffee" + EXT)
+PROJECTZ         = pathUtil.join(BIN_PATH, "projectz" + EXT)
+DOCCO            = pathUtil.join(BIN_PATH, "docco" + EXT)
+DOCPAD           = pathUtil.join(BIN_PATH, "docpad" + EXT)
+
+config = {}
+config.TEST_PATH = "test"
+config.DOCCO_SRC_PATH   = null
+config.DOCCO_OUT_PATH   = "docs"
+config.COFFEE_SRC_PATH  = "src"  # eventually we'll set this to null, right now it isn't for b/c compat
+config.COFFEE_OUT_PATH  = "out"
+config.DOCPAD_SRC_PATH  = null
+config.DOCPAD_OUT_PATH  = "out"
+
+for own key,value of (PACKAGE_DATA.cakeConfiguration or {})
+	config[key] = value
+
+for own key,value of config
+	config[key] = pathUtil.resolve(APP_PATH, value)  if value
 
 
 # =====================================
 # Generic
 
-{exec,spawn} = require('child_process')
+{spawn, exec} = require('child_process')
 safe = (next,fn) ->
 	fn ?= next  # support only one argument
 	return (err) ->
@@ -65,9 +78,10 @@ finish = (err) ->
 
 actions =
 	clean: (opts,next) ->
+		# Prepare
 		(next = opts; opts = {})  unless next?
-		args = ['-Rf', OUT_DIR]
-		for path in [APP_DIR, TEST_DIR]
+		args = ['-Rf', config.COFFEE_COFFEE_OUT_PATH]
+		for path in [APP_PATH, config.TEST_PATH]
 			args.push(
 				pathUtil.join(path,  'build')
 				pathUtil.join(path,  'components')
@@ -76,79 +90,138 @@ actions =
 				pathUtil.join(path,  '*out')
 				pathUtil.join(path,  '*log')
 			)
+
 		# rm
-		spawn('rm', args, {stdio:'inherit', cwd:APP_DIR}).on('close', safe next)
+		console.log('clean')
+		spawn('rm', args, {stdio:'inherit', cwd:APP_PATH}).on('close', safe next)
 
 	install: (opts,next) ->
+		# Prepare
 		(next = opts; opts = {})  unless next?
+
+		# Steps
 		step1 = ->
-			# npm install (for app)
-			spawn(NPM, ['install'], {stdio:'inherit', cwd:APP_DIR}).on('close', safe next, step2)
+			console.log('npm install (for app)')
+			spawn(NPM, ['install'], {stdio:'inherit', cwd:APP_PATH}).on('close', safe next, step2)
 		step2 = ->
-			fsUtil.exists TEST_DIR, (exists) ->
-				return next()  unless exists
-				# npm install (for test)
-				spawn(NPM, ['install'], {stdio:'inherit', cwd:TEST_DIR}).on('close', safe next, step3)
+			return step3()  if !config.TEST_PATH or !fsUtil.existsSync(config.TEST_PATH)
+			console.log('npm install (for test)')
+			spawn(NPM, ['install'], {stdio:'inherit', cwd:config.TEST_PATH}).on('close', safe next, step3)
 		step3 = ->
-			fsUtil.exists DOCPAD_DIR, (exists) ->
-				return next()  unless exists
-				# npm install (for test)
-				spawn(NPM, ['install'], {stdio:'inherit', cwd:DOCPAD_DIR}).on('close', safe next)
+			return step4()  if !fsUtil.existsSync(DOCPAD_PATH)
+			console.log('npm install (for docpad tests)')
+			spawn(NPM, ['install'], {stdio:'inherit', cwd:DOCPAD_PATH}).on('close', safe next, step4)
+		step4 = next
+
+		# Start
 		step1()
 
 	compile: (opts,next) ->
+		# Prepare
 		(next = opts; opts = {})  unless next?
-		# cake install
-		actions.install opts, safe next, ->
-			# coffee compile
-			spawn(COFFEE, ['-co', OUT_DIR, SRC_DIR], {stdio:'inherit', cwd:APP_DIR}).on('close', safe next)
+
+		# Steps
+		step1 = ->
+			console.log('cake install')
+			actions.install(opts, safe next, step2)
+		step2 = ->
+			return step3()  if !config.COFFEE_SRC_PATH or !fsUtil.existsSync(COFFEE)
+			console.log('coffee compile')
+			spawn(COFFEE, ['-co', config.COFFEE_OUT_PATH, config.COFFEE_SRC_PATH], {stdio:'inherit', cwd:APP_PATH}).on('close', safe next, step3)
+		step3 = ->
+			return step4()  if !config.DOCPAD_SRC_PATH or !fsUtil.existsSync(DOCPAD)
+			console.log('docpad generate')
+			spawn(DOCPAD, ['generate'], {stdio:'inherit', cwd:APP_PATH}).on('close', safe next, step4)
+		step4 = next
+
+		# Start
+		step1()
 
 	watch: (opts,next) ->
+		# Prepare
 		(next = opts; opts = {})  unless next?
-		# cake install
-		actions.install opts, safe next, ->
-			# coffee watch
-			spawn(COFFEE, ['-wco', OUT_DIR, SRC_DIR], {stdio:'inherit', cwd:APP_DIR}).on('close', safe next)
+
+		# Steps
+		step1 = ->
+			console.log('cake install')
+			actions.install(opts, safe next, step2)
+		step2 = ->
+			return step3()  if !config.COFFEE_SRC_PATH or !fsUtil.existsSync(COFFEE)
+			console.log('coffee watch')
+			spawn(COFFEE, ['-wco', config.COFFEE_OUT_PATH, config.COFFEE_SRC_PATH], {stdio:'inherit', cwd:APP_PATH}).on('close', safe next, step3)
+		step3 = ->
+			return step4()  if !config.DOCPAD_SRC_PATH or !fsUtil.existsSync(DOCPAD)
+			console.log('docpad run')
+			spawn(DOCPAD, ['run'], {stdio:'inherit', cwd:APP_PATH}).on('close', safe next, step4)
+		step4 = next
+
+		# Start
+		step1()
 
 	test: (opts,next) ->
+		# Prepare
 		(next = opts; opts = {})  unless next?
-		# cake compile
-		actions.compile opts, safe next, ->
-			# npm test
-			spawn(NPM, ['test'], {stdio:'inherit', cwd:APP_DIR}).on('close', safe next)
 
-	prepublish: (opts,next) ->
-		(next = opts; opts = {})  unless next?
+		# Steps
 		step1 = ->
-			# cake compile
+			console.log('cake compile')
 			actions.compile(opts, safe next, step2)
 		step2 = ->
-			# project compile
-			fsUtil.exists PROJECTZ, (exists) ->
-				return step3()  unless exists
-				spawn(PROJECTZ, ['compile'], {stdio:'inherit', cwd:APP_DIR}).on('close', safe next, step3)
+			console.log('npm test')
+			spawn(NPM, ['test'], {stdio:'inherit', cwd:APP_PATH}).on('close', safe next, step3)
+		step3 = next
+
+		# Start
+		step1()
+
+	prepublish: (opts,next) ->
+		# Prepare
+		(next = opts; opts = {})  unless next?
+
+		# Steps
+		step1 = ->
+			console.log('cake compile')
+			actions.compile(opts, safe next, step2)
+		step2 = ->
+			return step3()  if !fsUtil.existsSync(PROJECTZ)
+			console.log('projectz compile')
+			spawn(PROJECTZ, ['compile'], {stdio:'inherit', cwd:APP_PATH}).on('close', safe next, step3)
 		step3 = ->
-			# docco compile
-			fsUtil.exists DOCCO, (exists) ->
-				return step4()  unless exists
-				exec("#{DOCCO} -o #{DOCS_DIR} #{DOCS_INPUT}", {stdio:'inherit', cwd:APP_DIR}, safe next, step4)
+			return step4()  if !config.DOCCO_SRC_PATH or !fsUtil.existsSync(DOCCO)
+			console.log('docco compile')
+			exec("#{DOCCO} -o #{config.DOCCO_OUT_PATH} #{config.DOCCO_SRC_PATH}", {stdio:'inherit', cwd:APP_PATH}, safe next, step4)
 		step4 = ->
-			# npm test
-			actions.test(opts, safe next)
+			console.log('cake test')
+			actions.test(opts, safe next, step5)
+		step5 = next
+
+		# Start
 		step1()
 
 	publish: (opts,next) ->
+		# Prepare
 		(next = opts; opts = {})  unless next?
-		# cake prepublish
-		actions.prepublish opts, safe next, ->
-			# npm publish
-			spawn(NPM, ['publish'], {stdio:'inherit', cwd:APP_DIR}).on 'close', safe next, ->
-				# git tag
-				spawn(GIT, ['tag', 'v'+PACKAGE_DATA.version, '-a'], {stdio:'inherit', cwd:APP_DIR}).on 'close', safe next, ->
-					# git push origin master
-					spawn(GIT, ['push', 'origin', 'master'], {stdio:'inherit', cwd:APP_DIR}).on 'close', safe next, ->
-						# git push tags
-						spawn(GIT, ['push', 'origin', '--tags'], {stdio:'inherit', cwd:APP_DIR}).on('close', safe next)
+
+		# Steps
+		step1 = ->
+			console.log('cake prepublish')
+			actions.prepublish(opts, safe next, step2)
+		step2 = ->
+			console.log('npm publish')
+			spawn(NPM, ['publish'], {stdio:'inherit', cwd:APP_PATH}).on('close', safe next, step3)
+		step3 = ->
+			console.log('git tag')
+			spawn(GIT, ['tag', 'v'+PACKAGE_DATA.version, '-a'], {stdio:'inherit', cwd:APP_PATH}).on('close', safe next, step4)
+		step4 = ->
+			console.log('git push origin master')
+			spawn(GIT, ['push', 'origin', 'master'], {stdio:'inherit', cwd:APP_PATH}).on('close', safe next, step5)
+		step5 = ->
+			console.log('git push tags')
+			spawn(GIT, ['push', 'origin', '--tags'], {stdio:'inherit', cwd:APP_PATH}).on('close', safe next, step6)
+		step6 = next
+
+		# Start
+		step1()
 
 
 # =====================================
