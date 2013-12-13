@@ -125,6 +125,8 @@
 	addingHtml: "Adding html file: %s"
 	addingHasLayout: "Adding has layout file: %s"
 	addingStylesheet: "Adding stylesheet file: %s"
+	addingReferencesOthers: "Adding file that references others: %s"
+	addingGenerate: "Adding generate file: %s"
 
 	# Loading
 	loadingConfigUrl: "Loading configuration url: %s"

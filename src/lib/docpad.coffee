@@ -204,8 +204,6 @@ class DocPad extends EventEmitterGrouped
 		'populateCollectionsBefore'
 		'populateCollections'
 		'generateAfter'
-		'parseBefore'
-		'parseAfter'
 		'contextualizeBefore'
 		'contextualizeAfter'
 		'renderBefore'
@@ -230,16 +228,16 @@ class DocPad extends EventEmitterGrouped
 
 	# Database collection
 	database: null  # QueryEngine Collection
-	databaseCache: null
+	databaseTempCache: null
 	getDatabase: -> @database
-	getDatabaseCache: -> @databaseCache or @database
+	getDatabaseSafe: -> @databaseTempCache or @database
 	destroyDatabase: ->
 		if @database?
 			@database.destroy()
 			@database = null
-		if @databaseCache?
-			@databaseCache.destroy()
-			@databaseCache = null
+		if @databaseTempCache?
+			@databaseTempCache.destroy()
+			@databaseTempCache = null
 		@
 
 	# Files by URL
@@ -469,7 +467,7 @@ class DocPad extends EventEmitterGrouped
 		# or providing an option to disable this so it forward onto the static handler instead
 
 		# Prepare
-		database = docpad.getDatabaseCache()
+		database = docpad.getDatabaseSafe()
 
 		# Fetch
 		cleanUrl = docpad.getUrlPathname(url)
@@ -1171,8 +1169,11 @@ class DocPad extends EventEmitterGrouped
 				if outPath
 					@database.findAll({outPath}).each (model) ->
 						model.set('mtime': new Date())
+
+				# Return safely
+				return true
 			)
-			.on('change:urls', (model,urls=[],options) =>
+			.on('add change:urls', (model) =>
 				# Skip if we are not a writeable file
 				return  if model.get('write') is false
 
@@ -1181,10 +1182,13 @@ class DocPad extends EventEmitterGrouped
 					delete docpad.filesByUrl[url]
 
 				# Add the new urls
-				for url in urls
+				for url in model.get('urls')
 					docpad.filesByUrl[url] = model.cid
+
+				# Return safely
+				return true
 			)
-			.on('change:outPath', (model,outPath,options) =>
+			.on('add change:outPath', (model) =>
 				# Skip if we are not a writeable file
 				return  if model.get('write') is false
 
@@ -1205,18 +1209,22 @@ class DocPad extends EventEmitterGrouped
 							delete @filesByOutPath[previousOutPath]
 
 				# Update the cache entry and fetch the latest if it was already set
-				existingModelId = @filesByOutPath[outPath] ?= model.id
-				if existingModelId isnt model.id
-					existingModel = @database.get(existingModelId)
-					if existingModel
-						# We have a conflict, let the user know
-						modelPath = model.get('fullPath') or (model.get('relativePath')+':'+model.id)
-						existingModelPath = existingModel.get('fullPath') or (existingModel.get('relativePath')+':'+existingModel.id)
-						message =  util.format(docpad.getLocale().outPathConflict, outPath, modelPath, existingModelPath)
-						docpad.warn(message)
-					else
-						# There reference was old, update it with our new one
-						@filesByOutPath[outPath] = model.id
+				if (outPath = model.get('outPath'))
+					existingModelId = @filesByOutPath[outPath] ?= model.id
+					if existingModelId isnt model.id
+						existingModel = @database.get(existingModelId)
+						if existingModel
+							# We have a conflict, let the user know
+							modelPath = model.get('fullPath') or (model.get('relativePath')+':'+model.id)
+							existingModelPath = existingModel.get('fullPath') or (existingModel.get('relativePath')+':'+existingModel.id)
+							message =  util.format(docpad.getLocale().outPathConflict, outPath, modelPath, existingModelPath)
+							docpad.warn(message)
+						else
+							# There reference was old, update it with our new one
+							@filesByOutPath[outPath] = model.id
+
+				# Return safely
+				return true
 			)
 		@userConfig = extendr.dereference(@userConfig)
 		@initialConfig = extendr.dereference(@initialConfig)
@@ -1832,8 +1840,27 @@ class DocPad extends EventEmitterGrouped
 				)
 
 			# Special Collections
+			generate: database.createLiveChildCollection()
+				.setQuery('generate', {
+					dynamic: false
+					ignored: false
+				})
+				.on('add', (model) ->
+					docpad.log('debug', util.format(locale.addingGenerate, model.getFilePath()))
+				)
+			referencesOthers: database.createLiveChildCollection()
+				.setQuery('referencesOthers', {
+					dynamic: false
+					ignored: false
+					referencesOthers: true
+				})
+				.on('add', (model) ->
+					docpad.log('debug', util.format(locale.addingReferencesOthers, model.getFilePath()))
+				)
 			hasLayout: database.createLiveChildCollection()
 				.setQuery('hasLayout', {
+					dynamic: false
+					ignored: false
 					layout: $exists: true
 				})
 				.on('add', (model) ->
@@ -1912,9 +1939,6 @@ class DocPad extends EventEmitterGrouped
 		[opts,next] = extractOptsAndCallback(opts, next)
 		docpad = @
 		database = docpad.getDatabase()
-
-		# Update the cached database
-		@databaseCache = new FilesCollection(database.models)
 
 		# Perform a complete clean of our collections
 		database.reset([])
@@ -2588,7 +2612,7 @@ class DocPad extends EventEmitterGrouped
 
 					# Update the file's stat
 					# To ensure changes files are handled correctly in generation
-					file.action 'load', {process:false}, (err) ->
+					file.action 'load', (err) ->
 						# Error?
 						return nextFile(err)  if err
 
@@ -2894,103 +2918,6 @@ class DocPad extends EventEmitterGrouped
 	# ---------------------------------
 	# Utilities: Files
 
-
-	# Loading files
-	# next(err)
-	loadFiles: (opts={},next) ->
-		# Prepare
-		docpad = @
-		config = @getConfig()
-		locale = @getLocale()
-		database = @getDatabase()
-		{collection} = opts
-		slowFilesObject = {}
-		slowFilesTimer = null
-
-		# Update progress
-		opts.progress?.step("loadFiles (preparing)").total(1).setTick(0)
-
-		# Log
-		docpad.log 'debug', util.format(locale.loadingFiles, collection.length)
-
-		# Start contextualizing
-		docpad.emitSerial 'parseBefore', {collection}, (err) ->
-			# Prepare
-			return next(err)  if err
-
-			# Completion callback
-			tasks = new TaskGroup().setConfig(concurrency:0).once 'complete', (err) ->
-				# Kill the timer
-				clearInterval(slowFilesTimer)
-				slowFilesTimer = null
-
-				# Check
-				return next(err)  if err
-
-				# Update progress
-				opts.progress?.step("loadFiles (postparing)").total(1).setTick(0)
-
-				# After
-				docpad.emitSerial 'parseAfter', {collection}, (err) ->
-					# Check
-					return next(err)  if err
-
-					# Log
-					docpad.log 'debug', util.format(locale.loadedFiles, collection.length)
-
-					# Forward
-					return next()
-
-			# Add load tasks
-			opts.progress?.step('loadFiles').total(collection.length).setTick(0)
-			collection.forEach (file) ->
-				slowFilesObject[file.id] = file.get('relativePath') or file.id
-				tasks.addTask (complete) ->
-					# Prepare
-					filePath = file.getFilePath()
-
-					# Load the file
-					# Also normalizes
-					file.action 'load', (err) ->
-						delete slowFilesObject[file.id]
-						opts.progress?.tick()
-
-						# Check
-						if err
-							docpad.warn(util.format(locale.loadingFileFailed, filePath)+' '+locale.errorFollows, err)
-							return complete()
-
-						# Prepare
-						fileIgnored = file.get('ignored')
-						fileParse = file.get('parse')
-
-						# Ignored?
-						if fileIgnored or (fileParse? and !fileParse)
-							docpad.log 'info', util.format(locale.loadingFileIgnored, filePath)
-							collection.remove(file)
-							database.remove(file)
-							return complete()
-
-						# Store Document
-						database.add(file)
-
-						# Forward
-						return complete()
-
-			# Setup the timer
-			slowFilesTimer = setInterval(
-				->
-					slowFilesArray = (value or key  for own key,value of slowFilesObject)
-					docpad.log('info', util.format(locale.slowFiles, 'loadFiles')+' \n'+slowFilesArray.join('\n'))
-				config.slowFilesDelay
-			)
-
-			# Run tasks
-			tasks.run()
-
-		# Chain
-		@
-
 	# Contextualize files
 	# next(err)
 	contextualizeFiles: (opts={},next) ->
@@ -3081,7 +3008,7 @@ class DocPad extends EventEmitterGrouped
 		# next(null, outContent, file)
 		renderFile = (file,next) ->
 			# Render
-			if file.get('dynamic') or !file.get('render') or !file.get('relativePath')
+			if file.get('render') is false or !file.get('relativePath')
 				file.attributes.rtime = new Date()
 				next(null, file.getOutContent(), file)
 			else
@@ -3347,7 +3274,7 @@ class DocPad extends EventEmitterGrouped
 		docpad.generating = true
 
 		# Update the cached database
-		docpad.databaseCache = new FilesCollection(database.models)  if database.models.length
+		docpad.databaseTempCache = new FilesCollection(database.models)  if database.models.length
 
 		# Destroy Regenerate Timer
 		docpad.destroyRegenerateTimer()
@@ -3389,7 +3316,7 @@ class DocPad extends EventEmitterGrouped
 
 
 		# Grab the template data we will use for rendering
-		opts.templateData or= docpad.getTemplateData()
+		opts.templateData = docpad.getTemplateData(opts.templateData or {})
 
 		# How many render passes will we require?
 		opts.renderPasses or= config.renderPasses
@@ -3419,7 +3346,7 @@ class DocPad extends EventEmitterGrouped
 				docpad.generateEnded = new Date()
 
 				# Update caches
-				docpad.databaseCache = null
+				docpad.databaseTempCache = null
 
 				# Create Regenerate Timer
 				docpad.createRegenerateTimer()
@@ -3555,14 +3482,14 @@ class DocPad extends EventEmitterGrouped
 			if opts.partial is false
 				# Use Entire Collection
 				addTask 'Add all database models to render queue', ->
-					opts.collection ?= new FilesCollection().add(database.models)
+					opts.collection ?= new FilesCollection().add(docpad.getCollection('generate').models)
 
 			# Perform a partial regeneration
 			# If we are not a reset generation (by default any non-initial generation)
 			else
 				# Use Partial Collection
 				addTask 'Add only changed models to render queue', ->
-					opts.collection ?= new FilesCollection().add(database.findAll(
+					opts.collection ?= new FilesCollection().add(docpad.getCollection('generate').findAll(
 						$or:
 							# Get changed files
 							mtime: $gte: lastGenerateStarted
@@ -3571,9 +3498,6 @@ class DocPad extends EventEmitterGrouped
 							$and:
 								wtime: null
 								write: true
-
-						# Always ignore dynamic files as they will always want to regenerate at this stage
-						dynamic: false
 					).models)
 
 
@@ -3585,75 +3509,73 @@ class DocPad extends EventEmitterGrouped
 			docpad.emitSerial('generateBefore', opts, complete)
 
 
-		addTask 'Load Files', (complete) ->
+		addTask 'Prepare Files', (complete) ->
 			# Log the files to generate if we are in debug mode
-			docpad.log 'debug', 'Files to load at', (lastGenerateStarted), '\n', (
+			docpad.log 'debug', 'Files to generate at', (lastGenerateStarted), '\n', (
 				{
 					id: model.id
 					path: model.getFilePath()
 					mtime: model.get('mtime')
 					wtime: model.get('wtime')
+					dynamic: model.get('dynamic')
+					ignored: model.get('ignored')
 					write: model.get('write')
 				}  for model in opts.collection.models
 			)
 
-			# Perform the reload of the selected files
-			docpad.loadFiles opts, (err) ->
-				# Check
-				return complete(err)  if err
+			# Add anything that references other documents (e.g. partials, listing, etc)
+			# This could eventually be way better
+			standalones = opts.collection.pluck('standalone')
+			allStandalone = standalones.indexOf(false) is -1
+			if allStandalone is false
+				opts.collection.add(docpad.getCollection('referencesOthers').models)
 
-				# Add anything that references other documents (e.g. partials, listing, etc)
-				# This could eventually be way better
-				standalones = opts.collection.pluck('standalone')
-				allStandalone = standalones.indexOf(false) is -1
-				if allStandalone is false
-					referencesOthersCollection = database.findAll(referencesOthers: true)
-					opts.collection.add(referencesOthersCollection.models)
+			# Deeply/recursively add the layout children
+			addLayoutChildren = (collection) ->
+				collection.forEach (file) ->
+					if file.get('isLayout') is true
+						# Find
+						layoutChildrenQuery =
+							layoutRelativePath: file.get('relativePath')
+						layoutChildrenCollection = docpad.getCollection('hasLayout').findAll(layoutChildrenQuery)
 
-				# Deeply/recursively add the layout children
-				addLayoutChildren = (collection) ->
-					collection.forEach (file) ->
-						if file.get('isLayout') is true
-							# Find
-							layoutChildrenQuery =
-								layoutRelativePath: file.get('relativePath')
-							layoutChildrenCollection = docpad.getCollection('hasLayout').findAll(layoutChildrenQuery)
+						# Log the files to generate if we are in debug mode
+						docpad.log 'debug', 'Layout children to generate at', (lastGenerateStarted), '\n', (
+							{
+								id: model.id
+								path: model.getFilePath()
+								mtime: model.get('mtime')
+								wtime: model.get('wtime')
+								write: model.get('write')
+							}  for model in layoutChildrenCollection.models
+						), '\n', layoutChildrenQuery
 
-							# Log the files to generate if we are in debug mode
-							docpad.log 'debug', 'Layout children to generate at', (lastGenerateStarted), '\n', (
-								{
-									id: model.id
-									path: model.getFilePath()
-									mtime: model.get('mtime')
-									wtime: model.get('wtime')
-									write: model.get('write')
-								}  for model in layoutChildrenCollection.models
-							), '\n', layoutChildrenQuery
+						# Recurse
+						addLayoutChildren(layoutChildrenCollection)
 
-							# Recurse
-							addLayoutChildren(layoutChildrenCollection)
+						# Add
+						opts.collection.add(layoutChildrenCollection.models)
+			addLayoutChildren(opts.collection)
 
-							# Add
-							opts.collection.add(layoutChildrenCollection.models)
-				addLayoutChildren(opts.collection)
+			# Filter out ignored, and no-render no-write files
+			opts.collection.reset opts.collection.reject (file) ->
+				return (file.get('render') is false and file.get('write') is false)
 
-				# Filter out dynamic and non-write files
-				opts.collection.reset opts.collection.reject (file) ->
-					return file.get('dynamic') or file.get('write') is false
+			# Log the files to generate if we are in debug mode
+			docpad.log 'debug', 'Files to generate at', (lastGenerateStarted), '\n', (
+				{
+					id: model.id
+					path: model.getFilePath()
+					mtime: model.get('mtime')
+					wtime: model.get('wtime')
+					dynamic: model.get('dynamic')
+					ignored: model.get('ignored')
+					write: model.get('write')
+				}  for model in opts.collection.models
+			)
 
-				# Log the files to generate if we are in debug mode
-				docpad.log 'debug', 'Files to generate at', (lastGenerateStarted), '\n', (
-					{
-						id: model.id
-						path: model.getFilePath()
-						mtime: model.get('mtime')
-						wtime: model.get('wtime')
-						write: model.get('write')
-					}  for model in opts.collection.models
-				)
-
-				# Forward
-				return complete()
+			# Forward
+			return complete()
 
 
 		addGroup 'Process Files', (addGroup, addTask) ->
@@ -3994,7 +3916,9 @@ class DocPad extends EventEmitterGrouped
 
 			# File is new or was changed, update it's mtime by setting the stat
 			else if changeType in ['create','update']
-				queueRegeneration()
+				file.action 'load', (err) ->
+					return docpad.error(err)  ife rr
+					queueRegeneration()
 
 		# Watch
 		docpad.log(locale.watchStart)
@@ -4555,9 +4479,9 @@ class DocPad extends EventEmitterGrouped
 			# then this code will not be reached, as we don't register that url
 			# where if we have the cleanurls plugin installed, then do register that url
 			# against the document, so this is reached
+			collection = new FilesCollection([document], {name:'dynamic collection'})
 			templateData = extendr.extend({}, req.templateData or {}, {req,err})
-			templateData = docpad.getTemplateData(templateData)
-			document.action 'render', {templateData}, (err) ->
+			docpad.action 'generate', {collection, templateData}, (err) ->
 				content = document.getOutContent()
 				if err
 					docpad.error(err)
@@ -4567,6 +4491,7 @@ class DocPad extends EventEmitterGrouped
 						return res.send(opts.statusCode, content)
 					else
 						return res.send(content)
+
 		else
 			content = document.getOutContent()
 			if content
@@ -4629,7 +4554,7 @@ class DocPad extends EventEmitterGrouped
 	serverMiddleware404: (req,res,next) =>
 		# Prepare
 		docpad = @
-		database = docpad.getDatabaseCache()
+		database = docpad.getDatabaseSafe()
 
 		# Notify the user of a 404
 		docpad.log('notice', "404 Not Found:", req.url)
@@ -4648,7 +4573,7 @@ class DocPad extends EventEmitterGrouped
 	serverMiddleware500: (err,req,res,next) =>
 		# Prepare
 		docpad = @
-		database = docpad.getDatabaseCache()
+		database = docpad.getDatabaseSafe()
 
 		# Check
 		return res.send(500)  unless database

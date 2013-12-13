@@ -548,7 +548,6 @@ class FileModel extends Model
 		[opts,next] = extractOptsAndCallback(opts,next)
 		file = @
 		opts.exists ?= null
-		opts.process ?= true
 
 		# Fetch
 		fullPath = @get('fullPath')
@@ -585,22 +584,21 @@ class FileModel extends Model
 				return complete()
 
 		# Process the file
-		if opts.process is true
-			tasks.addTask "Read the file and cache the result", (complete) ->
-				# Otherwise fetch new buffer
-				if fullPath and opts.exists and opts.buffer? is false and file.isBufferOutdated()
-					return safefs.readFile fullPath, (err,buffer) ->
-						return complete(err)  if err
-						file.setBuffer(buffer)
-						return complete()
-				else
+		tasks.addTask "Read the file and cache the result", (complete) ->
+			# Otherwise fetch new buffer
+			if fullPath and opts.exists and opts.buffer? is false and file.isBufferOutdated()
+				return safefs.readFile fullPath, (err,buffer) ->
+					return complete(err)  if err
+					file.setBuffer(buffer)
 					return complete()
+			else
+				return complete()
 
-			tasks.addTask "Load -> Parse", (complete) ->
-				file.parse(complete)
+		tasks.addTask "Load -> Parse", (complete) ->
+			file.parse(complete)
 
-			tasks.addTask "Parse -> Normalize", (complete) ->
-				file.normalize(complete)
+		tasks.addTask "Parse -> Normalize", (complete) ->
+			file.normalize(complete)
 
 		# Run the tasks
 		tasks.run()
