@@ -1,5 +1,8 @@
 # History
 
+- v6.57.3 December 16, 2013 
+	- Contextualize will now also be called during a file's `load` action to help injected files being contextualized
+
 - v6.57.2 December 12, 2013 
 	- Updated dependencies
 
