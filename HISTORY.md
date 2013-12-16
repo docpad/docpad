@@ -1,5 +1,16 @@
 # History
 
+- v6.58.0 December 16, 2013
+	- Deprecated and removed the `parseBefore` and `parseAfter` events
+		- Files are now parsed as they are loaded in, rather than only when they reach the generation cycle
+		- See [issue #736](https://github.com/bevry/docpad/issues/736) for discussion and upgrade options
+	- Dynamic documents now have access to templateData that plugins have extended (regression since always)
+		- Dynamic documents now go through the standard generation process
+		- Thanks to [Steve McArthur](https://github.com/SteveMcArthur), [Marcus Stong](https://github.com/stongo) for [docpad/docpad-plugin-feedr#5](https://github.com/docpad/docpad-plugin-feedr/issues/5)
+	- Documents that want to be rendered, but not written, are now rendered (possible regression since v6.55.0)
+		- Thanks to [pflannery](https://github.com/pflannery) for [issue #734](https://github.com/bevry/docpad/issues/734)
+	- Moved the missing layout error check from contextualize step to render step, as the layout may not be there if we are still loading documents
+
 - v6.57.3 December 16, 2013 
 	- Contextualize will now also be called during a file's `load` action to help injected files being contextualized
 
