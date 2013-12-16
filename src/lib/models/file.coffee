@@ -600,8 +600,8 @@ class FileModel extends Model
 		tasks.addTask "Parse -> Normalize", (complete) ->
 			file.normalize(complete)
 
-			tasks.addTask "Normalize -> Contextualize", (complete) ->
-				file.contextualize(complete)
+		tasks.addTask "Normalize -> Contextualize", (complete) ->
+			file.contextualize(complete)
 
 		# Run the tasks
 		tasks.run()
