@@ -314,8 +314,7 @@ class DocumentModel extends FileModel
 			# Not Found
 			else unless layout
 				file.set('layoutRelativePath': null)
-				err = new Error("Could not find the specified layout: #{layoutSelector}")
-				return next(err)
+				return next()
 
 			# Found
 			else
@@ -333,10 +332,12 @@ class DocumentModel extends FileModel
 			@getLayout (err,layout) ->
 				if err
 					return next(err, null)
-				else
+				else if layout
 					layout.getEve(next)
+				else
+					next(null, null)
 		else
-			next(null,@)
+			next(null, @)
 		@
 
 
@@ -453,11 +454,11 @@ class DocumentModel extends FileModel
 		templateData ?= {}
 
 		# Grab the layout
-		file.getLayout (err,layout) ->
+		file.getLayout (err, layout) ->
 			# Check
-			return next(err,content)  if err
+			return next(err, content)  if err
 
-			# Check if we have a layout
+			# We have a layout to render
 			if layout
 				# Assign the current rendering to the templateData.content
 				templateData.content = content
@@ -470,7 +471,12 @@ class DocumentModel extends FileModel
 				layout.render {templateData,apply:false}, (err,result) ->
 					return next(err, result)
 
-			# We don't have a layout, nothing to do here
+			# We had a layout, but it is missing
+			else if file.hasLayout()
+					err = new Error("Could not find the specified layout: #{layoutSelector}")
+					return next(err, content)
+
+			# We never had a layout
 			else
 				return next(null, content)
 
