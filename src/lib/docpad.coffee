@@ -3883,7 +3883,7 @@ class DocPad extends EventEmitterGrouped
 		# Change event handler
 		changeHandler = (changeType,filePath,fileCurrentStat,filePreviousStat) ->
 			# Fetch the file
-			docpad.log 'debug', util.format(locale.watchChange, new Date().toLocaleTimeString()), changeType, filePath
+			docpad.log 'info', util.format(locale.watchChange, new Date().toLocaleTimeString()), changeType, filePath
 
 			# Check if we are a file we don't care about
 			# This check should not be needed with v2.3.3 of watchr
@@ -3915,9 +3915,9 @@ class DocPad extends EventEmitterGrouped
 					queueRegeneration()
 
 			# File is new or was changed, update it's mtime by setting the stat
-			else if changeType in ['create','update']
+			else if changeType in ['create', 'update']
 				file.action 'load', (err) ->
-					return docpad.error(err)  ife rr
+					return docpad.error(err)  if err
 					queueRegeneration()
 
 		# Watch

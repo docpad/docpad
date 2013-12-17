@@ -1,5 +1,10 @@
 # History
 
+- v6.58.1 December 17, 2013
+	- Output of change detections is now an `info` log level, instead of `debug`, allowing you to see what is going on by default
+	- Fixed regenerations triggered by changed files not working (regression since v6.58.0)
+		- Thanks to [Fryderyk Dziarmagowski](https://github.com/freddix), [Anton Poleshchuk](https://github.com/apoleshchuk), [Eduán Lávaque](https://github.com/Greduan) for [issue #738](https://github.com/bevry/docpad/issues/738)
+
 - v6.58.0 December 16, 2013
 	- Deprecated and removed the `parseBefore` and `parseAfter` events
 		- Files are now parsed as they are loaded in, rather than only when they reach the generation cycle
