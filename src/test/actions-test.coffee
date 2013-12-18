@@ -21,12 +21,14 @@ cliPath    = pathUtil.join(docpadPath, 'bin', 'docpad')
 
 # Params
 port = 9779
-baseUrl = "http://localhost:#{port}"
+hostname = "0.0.0.0"
+baseUrl = "http://#{hostname}:#{port}"
 testWait = 1000*60*5  # five minutes
 
 # Configure DocPad
 docpadConfig =
 	port: port
+	hostname: hostname
 	rootPath: rootPath
 	logLevel: if (process.env.TRAVIS_NODE_VERSION? or '-d' in process.argv) then 7 else 5
 	skipUnsupportedPlugins: false

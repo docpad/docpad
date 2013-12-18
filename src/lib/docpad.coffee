@@ -913,6 +913,12 @@ class DocPad extends EventEmitterGrouped
 		# VMC_APP_PORT - CloudFoundry
 		port: null
 
+		# Hostname
+		# The hostname we want to listen on, which if null
+		# will be localhost, but we could specify 0.0.0.0 if we
+		# want to open up things
+		hostname: null
+
 		# Max Age
 		# The caching time limit that is sent to the client
 		maxAge: 86400000
@@ -1071,6 +1077,9 @@ class DocPad extends EventEmitterGrouped
 	getPort: ->
 		return @getConfig().port ? process.env.PORT ? process.env.VCAP_APP_PORT ? process.env.VMC_APP_PORT ? 9778
 
+	# Get the Hostname
+	getHostname: ->
+		return @getConfig().hostname ? process.env.HOSTNAME ? "localhost"
 
 	# =================================
 	# Initialization Functions
@@ -4593,6 +4602,7 @@ class DocPad extends EventEmitterGrouped
 		config = @config
 		locale = @getLocale()
 		port = @getPort()
+		hostname = @getHostname()
 
 		# Require
 		http = require('http')
@@ -4688,10 +4698,10 @@ class DocPad extends EventEmitterGrouped
 
 			# Listen
 			docpad.log 'debug', util.format(locale.serverStart, port, config.outPath)
-			opts.serverHttp.listen port, ->
+			opts.serverHttp.listen port, hostname,  ->
 				# Log
 				address = opts.serverHttp.address()
-				serverHostname = if address.address is '0.0.0.0' then 'localhost' else address.address
+				serverHostname = address.address #if address.address is '0.0.0.0' then 'localhost' else address.address
 				serverPort = address.port
 				serverLocation = "http://#{serverHostname}:#{serverPort}/"
 				docpad.log 'info', util.format(locale.serverStarted, serverLocation, config.outPath)
