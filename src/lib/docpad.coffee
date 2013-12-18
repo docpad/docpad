@@ -1081,6 +1081,7 @@ class DocPad extends EventEmitterGrouped
 	getHostname: ->
 		return @getConfig().hostname ? process.env.HOSTNAME ? "localhost"
 
+
 	# =================================
 	# Initialization Functions
 
@@ -4701,7 +4702,7 @@ class DocPad extends EventEmitterGrouped
 			opts.serverHttp.listen port, hostname,  ->
 				# Log
 				address = opts.serverHttp.address()
-				serverHostname = address.address #if address.address is '0.0.0.0' then 'localhost' else address.address
+				serverHostname = if address.address is '127.0.0.1' then 'localhost' else address.address
 				serverPort = address.port
 				serverLocation = "http://#{serverHostname}:#{serverPort}/"
 				docpad.log 'info', util.format(locale.serverStarted, serverLocation, config.outPath)

@@ -163,6 +163,7 @@ These amazing people have contributed code to this project:
 - [Olivier Bazoud](https://github.com/obazoud) — [view contributions](https://github.com/bevry/docpad/commits?author=obazoud)
 - [Paul Armstrong](https://github.com/paularmstrong) <paul@paularmstrongdesigns.com> — [view contributions](https://github.com/bevry/docpad/commits?author=paularmstrong)
 - [pflannery](https://github.com/pflannery) — [view contributions](https://github.com/bevry/docpad/commits?author=pflannery)
+- [radiodario](https://github.com/radiodario) — [view contributions](https://github.com/bevry/docpad/commits?author=radiodario)
 - [Richard A](https://github.com/rantecki) <richard@antecki.id.au> — [view contributions](https://github.com/bevry/docpad/commits?author=rantecki)
 - [ruemic](https://github.com/ruemic) — [view contributions](https://github.com/bevry/docpad/commits?author=ruemic)
 - [Sorin Ionescu](https://github.com/sorin-ionescu) <sorin.ionescu@gmail.com> — [view contributions](https://github.com/bevry/docpad/commits?author=sorin-ionescu)

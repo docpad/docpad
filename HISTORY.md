@@ -1,5 +1,10 @@
 # History
 
+- v6.58.2 December 18, 2013
+	- Can now change the hostname that we listen to via the `hostname` configuration option
+		- Thanks to [Dario](https://github.com/radiodario) for [pull request #737](https://github.com/bevry/docpad/pull/737)
+	- Updated dependencies
+
 - v6.58.1 December 17, 2013
 	- Output of change detections is now an `info` log level, instead of `debug`, allowing you to see what is going on by default
 	- Fixed regenerations triggered by changed files not working (regression since v6.58.0)
