@@ -2,5 +2,6 @@
 
 ## READ THESE BEFORE YOU POST ON THE ISSUE TRACKER!
 
-- [Contributing Guide](http://docpad.org/docs/contribute)	
-- [Support Guide](http://docpad.org/docs/support)
+- [CONTRIBUTING GUIDE](http://docpad.org/docs/contribute)	
+- [SUPPORT GUIDE](http://docpad.org/docs/support)
+- [BUG REPORT GUIDE](http://docpad.org/docs/support#bug-reports-via-github-s-issue-tracker)
