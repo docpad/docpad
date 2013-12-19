@@ -1,10 +1,15 @@
 # History
 
+- v6.59.2 December 19, 2013
+	- More reliable delay of requests while the initial generation is still performing
+	- Removed the deprecated `writeSource` meta data header, `writeSource` is now only available via the API usage
+	- Added new `generated` event that will fire once the initial generation has completed
+
 - v6.59.1 December 19, 2013
 	- Fixed listening on heroku (regression since v6.58.2)
 
 - v6.59.0 December 19, 2013
-	- Removed the previously deprecated `ensureFile`, `ensureDocument`, `ensureModel`/`ensureFileOrDocument` methods, use `addFile`, `addDocument`, and `addModel` instead
+	- Removed the deprecated `ensureFile`, `ensureDocument`, `ensureModel`/`ensureFileOrDocument` methods, use `addFile`, `addDocument`, and `addModel` instead
 	- Improved watching, should hopefully fix [#738](https://github.com/bevry/docpad/issues/738), [#742](https://github.com/bevry/docpad/issues/742), [#739](https://github.com/bevry/docpad/issues/739)
 	- Updated dependencies
 

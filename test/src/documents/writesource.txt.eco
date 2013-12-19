@@ -1,7 +1,6 @@
 ### cson
 {
-  title: "Write source test"
-  writeSource: true
+title: "Write source test"
 }
 ###
 

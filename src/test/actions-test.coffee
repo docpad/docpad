@@ -20,7 +20,7 @@ expectPath = pathUtil.join(rootPath, 'out-expected')
 cliPath    = pathUtil.join(docpadPath, 'bin', 'docpad')
 
 # Params
-port = 9779
+port = 9770
 hostname = "0.0.0.0"
 baseUrl = "http://#{hostname}:#{port}"
 testWait = 1000*60*5  # five minutes
@@ -91,6 +91,10 @@ joe.suite 'docpad-actions', (suite,test) ->
 		test 'action', (done) ->
 			docpad.action 'generate', (err) ->
 				done(err)
+
+		test 'writeSource', (done) ->
+			file = docpad.getFileAtPath('writesource.txt.eco')
+			file.writeSource(done)
 
 		suite 'results', (suite,test) ->
 			testMarkup = (key,actual,expected) ->

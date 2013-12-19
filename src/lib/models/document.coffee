@@ -606,12 +606,11 @@ class DocumentModel extends FileModel
 
 		# Fetch
 		opts.content ?= (@getContent() or '').toString('')
-		opts.cleanAttributes ?= false
 
 		# Adjust
 		CSON      = require('cson')  unless CSON
 		metaData  = @getMeta().toJSON(true)
-		delete metaData.writeSource  if opts.cleanAttributes is true or metaData.writeSource is 'once'
+		delete metaData.writeSource
 		content   = body = opts.content.replace(/^\s+/,'')
 		header    = CSON.stringifySync(metaData)
 		if !header or header is '{}'

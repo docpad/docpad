@@ -203,7 +203,6 @@ class DocPad extends EventEmitterGrouped
 		'generateBefore'
 		'populateCollectionsBefore'
 		'populateCollections'
-		'generateAfter'
 		'contextualizeBefore'
 		'contextualizeAfter'
 		'renderBefore'
@@ -214,6 +213,8 @@ class DocPad extends EventEmitterGrouped
 		'renderAfter'
 		'writeBefore'
 		'writeAfter'
+		'generateAfter'
+		'generated'
 		'serverBefore'
 		'serverExtend'
 		'serverAfter'
@@ -453,9 +454,9 @@ class DocPad extends EventEmitterGrouped
 		docpad = @
 
 		# If we have not performed a generation yet then wait until the initial generation has completed
-		if docpad.generateEnded is null # or docpad.generating is true
+		if docpad.generated is false
 			# Wait until generation has completed and recall ourselves
-			docpad.once 'generateAfter', ->
+			docpad.once 'generated', ->
 				return docpad.getFileByRoute(url, next)
 
 			# hain
@@ -1952,6 +1953,9 @@ class DocPad extends EventEmitterGrouped
 		docpad = @
 		database = docpad.getDatabase()
 
+		# Make it as if we have never generated before
+		docpad.generated = false
+
 		# Perform a complete clean of our collections
 		database.reset([])
 		meta = @getBlock('meta').reset([])
@@ -3180,6 +3184,7 @@ class DocPad extends EventEmitterGrouped
 	generateStarted: null
 	generateEnded: null
 	generating: false
+	generated: false  # true once the first generation has occured
 
 	# Create Progress Bar
 	createProgress: ->
@@ -3282,7 +3287,7 @@ class DocPad extends EventEmitterGrouped
 		# Mode: Initial
 		# Shall we do some basic initial checks
 		# Set to the opts.reset value if specified, or whether are the initial generation
-		opts.initial   ?= lastGenerateStarted? is false
+		opts.initial   ?= !(opts.generated)
 
 		# Mode: Reset
 		# Shall we reset the database
@@ -3355,8 +3360,12 @@ class DocPad extends EventEmitterGrouped
 				docpad.log 'info', util.format(locale.renderGenerated, howMany, seconds)
 				docpad.notify (new Date()).toLocaleTimeString(), {title: locale.renderGeneratedNotification}
 
-				# Forward
-				return next(err)
+				# Generated
+				if opts.initial is true
+					docpad.generated = true
+					return docpad.emitSerial('generated', opts, next)
+				else
+					return next(err)
 
 		# Extract functions from tasks for simplicity
 		# when dealing with nested tasks/groups
