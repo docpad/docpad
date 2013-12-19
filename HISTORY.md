@@ -1,5 +1,10 @@
 # History
 
+- v6.59.0 December 19, 2013
+	- Removed the previously deprecated `ensureFile`, `ensureDocument`, `ensureModel`/`ensureFileOrDocument` methods, use `addFile`, `addDocument`, and `addModel` instead
+	- Improved watching, should hopefully fix [#738](https://github.com/bevry/docpad/issues/738), [#742](https://github.com/bevry/docpad/issues/742), [#739](https://github.com/bevry/docpad/issues/739)
+	- Updated dependencies
+
 - v6.58.2 December 18, 2013
 	- Can now change the hostname that we listen to via the `hostname` configuration option
 		- Thanks to [Dario](https://github.com/radiodario) for [pull request #737](https://github.com/bevry/docpad/pull/737)

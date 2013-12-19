@@ -2396,32 +2396,14 @@ class DocPad extends EventEmitterGrouped
 	# b/c compat functions
 
 	# Create File
-	# Here for b/c compat
 	createFile: (attrs={},opts={}) ->
 		opts.modelType = 'file'
 		return @createModel(attrs, opts)
 
 	# Create Document
-	# Here for b/c compat
 	createDocument: (attrs={},opts={}) ->
 		opts.modelType = 'document'
 		return @createModel(attrs, opts)
-
-	# Ensure File
-	# Here for b/c compat
-	ensureFile: (attrs={},opts={}) ->
-		opts.modelType = 'file'
-		return @ensureModel(attrs, opts)
-
-	# Ensure Document
-	# Here for b/c compat
-	ensureDocument: (attrs={},opts={}) ->
-		opts.modelType = 'document'
-		return @ensureModel(attrs, opts)
-
-	# Ensure File or Document
-	# Here for b/c compat
-	ensureFileOrDocument: (args...) -> @ensureModel(args...)
 
 	# Parse File Directory
 	parseFileDirectory: (opts={},next) ->
@@ -2487,10 +2469,6 @@ class DocPad extends EventEmitterGrouped
 		# Return
 		return clone
 
-	# Ensure Model
-	# Here for b/c compat
-	ensureModel: (args...) -> @createModel(args...)
-
 	# Add Model
 	addModel: (model, opts) ->
 		model = @createModel(model, opts)
@@ -2523,7 +2501,7 @@ class DocPad extends EventEmitterGrouped
 
 
 		# Find or create
-		# This functioanlity use to be inside ensureModel
+		# This functionality use to be inside ensureModel
 		# But that caused duplicates in some instances
 		# So now we will always check
 		if attrs.fullPath
@@ -3690,7 +3668,7 @@ class DocPad extends EventEmitterGrouped
 		},opts.attributes)
 
 		# Handle
-		document = @ensureDocument(attributes)
+		document = @createDocument(attributes)
 		@loadAndRenderDocument(document, opts, next)
 
 		# Chain
@@ -3880,7 +3858,7 @@ class DocPad extends EventEmitterGrouped
 
 		performGenerate = (opts={}) ->
 			# Q: Should we also pass over the collection?
-			# A: No, doing the mtime thing in generatePrepare is more robust
+			# A: No, doing the mtime query in generate is more robust
 
 			# Log
 			docpad.log util.format(locale.watchRegenerating, new Date().toLocaleTimeString())
@@ -3914,7 +3892,7 @@ class DocPad extends EventEmitterGrouped
 			fileCurrentStat?.mtime = new Date()
 
 			# Create the file object
-			file = docpad.ensureModel({fullPath:filePath}, {stat:fileCurrentStat})  # adds to database if not existant
+			file = docpad.addModel({fullPath:filePath, stat:fileCurrentStat})
 			file.setStat(fileCurrentStat)  if changeType is 'update'
 
 			# File was deleted, delete the rendered file, and remove it from the database
