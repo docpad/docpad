@@ -2032,10 +2032,14 @@ class DocPad extends EventEmitterGrouped
 		opts.cwd ?= config.rootPath
 		opts.output ?= docpad.getDebugging()
 		opts.args ?= []
+
 		opts.global ?= false
-		opts.global = '--global'  if opts.global is true
+		opts.global = ['--global']             if opts.global is true
+		opts.global = [opts.global]            if opts.global and Array.isArray(opts.global) is false
+
 		opts.save ?= !opts.global
-		opts.save = '--save'  if opts.save is true
+		opts.save = ['--save', '--save-dev']   if opts.save is true
+		opts.save = [opts.save]                if opts.save and Array.isArray(opts.save) is false
 
 		# Command
 		command = ['npm', 'install']
@@ -2054,10 +2058,10 @@ class DocPad extends EventEmitterGrouped
 
 		# Arguments
 		command.push(opts.args...)
-		command.push('--force')        if config.force
-		command.push('--no-registry')  if config.offline
-		command.push(opts.save)        if opts.save
-		command.push(opts.global)      if opts.global
+		command.push('--force')           if config.force
+		command.push('--no-registry')     if config.offline
+		command.push(opts.save...)        if opts.save
+		command.push(opts.global...)      if opts.global
 
 		# Log
 		docpad.log('info', command.join(' '))  if opts.output
@@ -2080,10 +2084,14 @@ class DocPad extends EventEmitterGrouped
 		opts.cwd ?= config.rootPath
 		opts.output ?= docpad.getDebugging()
 		opts.args ?= []
+
 		opts.global ?= false
-		opts.global = '--global'  if opts.global is true
+		opts.global = ['--global']             if opts.global is true
+		opts.global = [opts.global]            if opts.global and Array.isArray(opts.global) is false
+
 		opts.save ?= !opts.global
-		opts.save = '--save'  if opts.save is true
+		opts.save = ['--save', '--save-dev']   if opts.save is true
+		opts.save = [opts.save]                if opts.save and Array.isArray(opts.save) is false
 
 		# Command
 		command = ['npm', 'uninstall']
@@ -2094,8 +2102,8 @@ class DocPad extends EventEmitterGrouped
 
 		# Arguments
 		command.push(opts.args...)
-		command.push(opts.save)        if opts.save
-		command.push(opts.global)      if opts.global
+		command.push(opts.save...)        if opts.save
+		command.push(opts.global...)      if opts.global
 
 		# Log
 		docpad.log('info', command.join(' '))  if opts.output

@@ -1,5 +1,9 @@
 # History
 
+- v6.59.3 December 20, 2013
+	- Fixed uninstalled dev dependency plugins (e.g. livereload), from being reinstalled on the next install
+		- Thanks to [Alan Languirand](https://github.com/alanguir), [Eduán Lávaque](https://github.com/Greduan) for [issue #744](https://github.com/bevry/docpad/issues/744)
+
 - v6.59.2 December 19, 2013
 	- More reliable delay of requests while the initial generation is still performing
 	- Removed the deprecated `writeSource` meta data header, `writeSource` is now only available via the API usage
