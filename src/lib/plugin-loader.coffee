@@ -65,10 +65,10 @@ class PluginLoader
 	exists: (next) ->
 		# Prepare
 		packagePath = @packagePath or pathUtil.resolve(@dirPath, "package.json")
-		failure = (err=null) =>
-			return next(err,false)
+		failure = (err=null) ->
+			return next(err, false)
 		success = =>
-			return next(null,true)
+			return next(null, true)
 
 		# Check the package
 		safefs.exists packagePath, (exists) =>
