@@ -908,15 +908,17 @@ class DocPad extends EventEmitterGrouped
 
 		# Port
 		# The port that the server should use
-		# PORT - Heroku, Nodejitsu, Custom
-		# VCAP_APP_PORT - AppFog
-		# VMC_APP_PORT - CloudFoundry
+		# Defaults to these environment variables:
+		# - PORT — Heroku, Nodejitsu, Custom
+		# - VCAP_APP_PORT — AppFog
+		# - VMC_APP_PORT — CloudFoundry
 		port: null
 
 		# Hostname
-		# The hostname we want to listen on, which if null
-		# will be localhost, but we could specify 0.0.0.0 if we
-		# want to open up things
+		# The hostname we wish to listen to
+		# Defaults to these environment variables:
+		# HOSTNAME — Generic
+		# Do not set to "localhost" it does not work on heroku
 		hostname: null
 
 		# Max Age
@@ -1079,7 +1081,7 @@ class DocPad extends EventEmitterGrouped
 
 	# Get the Hostname
 	getHostname: ->
-		return @getConfig().hostname ? process.env.HOSTNAME ? "localhost"
+		return @getConfig().hostname ? process.env.HOSTNAME ? null
 
 
 	# =================================
@@ -4676,11 +4678,11 @@ class DocPad extends EventEmitterGrouped
 				return complete(err)
 
 			# Listen
-			docpad.log 'debug', util.format(locale.serverStart, port, config.outPath)
+			docpad.log 'debug', util.format(locale.serverStart, hostname, port, config.outPath)
 			opts.serverHttp.listen port, hostname,  ->
 				# Log
 				address = opts.serverHttp.address()
-				serverHostname = if address.address is '127.0.0.1' then 'localhost' else address.address
+				serverHostname = address.address
 				serverPort = address.port
 				serverLocation = "http://#{serverHostname}:#{serverPort}/"
 				docpad.log 'info', util.format(locale.serverStarted, serverLocation, config.outPath)
