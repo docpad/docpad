@@ -1,4 +1,5 @@
 # Requires
+{extendOnClass} = require('extendonclass')
 pathUtil = require('path')
 safefs = require('safefs')
 balUtil = require('bal-util')
@@ -20,6 +21,9 @@ testers = {
 # Plugin Tester
 testers.PluginTester =
 class PluginTester
+	# Add support for PluginTester.extend(proto)
+	@extend: extendOnClass
+
 	# Plugin Config
 	config:
 		testerName: null
