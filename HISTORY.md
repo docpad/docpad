@@ -1,5 +1,9 @@
 # History
 
+- v6.59.4 December 20, 2013
+	- Added a warning when trying to set the `id` attribute manually
+		- Thanks to [Piotr Zduniak](https://github.com/pzduniak) for [issue #742](https://github.com/bevry/docpad/issues/742)
+
 - v6.59.3 December 20, 2013
 	- Fixed uninstalled dev dependency plugins (e.g. livereload), from being reinstalled on the next install
 		- Thanks to [Alan Languirand](https://github.com/alanguir), [Eduán Lávaque](https://github.com/Greduan) for [issue #744](https://github.com/bevry/docpad/issues/744)

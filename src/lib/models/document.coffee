@@ -213,6 +213,16 @@ class DocumentModel extends FileModel
 			@addUrl(metaDataChanges.urls)  if metaDataChanges.urls
 			@setUrl(metaDataChanges.url)   if metaDataChanges.url
 
+			# Check if the id was being over-written
+			if metaDataChanges.id?
+				@log 'warn', """
+					The document #{@getFilePath()} tried to over-write its `id` attribute with its meta-data.
+					This will cause unexpected issues. We have ignored the `id` attribute changes to prevent further errors.
+					We recommend you rename the `id` meta-data attribute on this document to something else.
+					For more information, see: https://github.com/bevry/docpad/issues/742
+					"""
+				delete metaDataChanges.id
+
 			# Apply meta data
 			@setMeta(metaDataChanges)
 
