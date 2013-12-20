@@ -1,4 +1,5 @@
 # Requires
+{extendOnClass} = require('extendonclass')
 extendr = require('extendr')
 typeChecker = require('typechecker')
 ambi = require('ambi')
@@ -6,6 +7,9 @@ eachr = require('eachr')
 
 # Define Plugin
 class BasePlugin
+
+	# Add support for BasePlugin.extend(proto)
+	@extend: extendOnClass
 
 	# ---------------------------------
 	# Inherited

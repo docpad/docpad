@@ -1,5 +1,9 @@
 # History
 
+- v6.59.5 December 20, 2013
+	- Non-CoffeeScript plugin authors can now rejoice, you can now easily exend the `BasePlugin` class by using `var MyPlugin = BasePlugin.extend({})`
+		- Thanks to the [extendonclass](https://github.com/bevry/extendonclass) module
+
 - v6.59.4 December 20, 2013
 	- Added a warning when trying to set the `id` attribute manually
 		- Thanks to [Piotr Zduniak](https://github.com/pzduniak) for [issue #742](https://github.com/bevry/docpad/issues/742)
