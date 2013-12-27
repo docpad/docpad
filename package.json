@@ -129,7 +129,7 @@
     "progressbar": "~1.0.3",
     "query-engine": "~1.5.5",
     "safefs": "~3.1.0",
-    "safeps": "~2.2.9",
+    "safeps": "~2.2.10",
     "semver": "~2.2.1",
     "superagent": "~0.15.4",
     "taskgroup": "~3.3.6",
