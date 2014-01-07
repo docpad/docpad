@@ -4653,6 +4653,14 @@ class DocPad extends EventEmitterGrouped
 				}, (err) ->
 					return next(err)  if err
 
+					# Router Middleware
+					# Keep it after the serverExtend event
+					opts.serverExpress.use(opts.serverExpress.router)  if opts.middlewareExpressRouter isnt false
+
+					# DocPad Router Middleware
+					# Keep it after the serverExtend event
+					opts.serverExpress.use(docpad.serverMiddlewareRouter)
+
 					# Static
 					# Keep it after the serverExtend event
 					if config.maxAge
@@ -4663,14 +4671,6 @@ class DocPad extends EventEmitterGrouped
 					# DocPad Header Middleware
 					# Keep it after the serverExtend event
 					opts.serverExpress.use(docpad.serverMiddlewareHeader)
-
-					# Router Middleware
-					# Keep it after the serverExtend event
-					opts.serverExpress.use(opts.serverExpress.router)  if opts.middlewareExpressRouter isnt false
-
-					# DocPad Router Middleware
-					# Keep it after the serverExtend event
-					opts.serverExpress.use(docpad.serverMiddlewareRouter)
 
 					# DocPad 404 Middleware
 					# Keep it after the serverExtend event
