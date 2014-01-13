@@ -1,4 +1,3 @@
-# =====================================
 # Requires
 
 # Essential
@@ -41,7 +40,6 @@ if ('--profile' in process.argv)
 _ = require('lodash')
 CSON = require('cson')
 balUtil = require('bal-util')
-ignorefs = require('ignorefs')
 extendr = require('extendr')
 eachr = require('eachr')
 typeChecker = require('typechecker')
@@ -49,6 +47,7 @@ ambi = require('ambi')
 {TaskGroup} = require('taskgroup')
 safefs = require('safefs')
 safeps = require('safeps')
+ignorefs = require('ignorefs')
 util = require('util')
 superAgent = require('superagent')
 {extractOptsAndCallback} = require('extract-opts')
@@ -4465,6 +4464,7 @@ class DocPad extends EventEmitterGrouped
 		[opts,next] = extractOptsAndCallback(opts,next)
 		{document,err,req,res} = opts
 		docpad = @
+		config = @getConfig()
 
 		# If no document, then exit early
 		unless document
@@ -4473,9 +4473,17 @@ class DocPad extends EventEmitterGrouped
 			else
 				return next()
 
-		# Content Type
+		# Prepare
+		res.setHeaderIfMissing ?= (name, value) ->
+			res.setHeader(name, value)  if res.getHeader(name)? is false
+
+		# Content Type + Encoding/Charset
+		encoding = document.get('encoding')
 		contentType = document.get('outContentType') or document.get('contentType')
-		res.setHeader('Content-Type', contentType);
+		res.setHeaderIfMissing('Content-Type', contentType + (if encoding isnt 'binary' then "; charset=#{encoding}" else ''))
+
+		# Cache-Control (max-age)
+		res.setHeaderIfMissing('Cache-Control', "public, max-age=#{config.maxAge}")  if config.maxAge
 
 		# Send
 		dynamic = document.get('dynamic')
@@ -4500,6 +4508,17 @@ class DocPad extends EventEmitterGrouped
 						return res.send(content)
 
 		else
+			# ETag: `"<size>-<mtime>"`
+			ctime = document.get('date')    # use the date or mtime
+			mtime = document.get('wtime')   # use the last generate time
+			stat = document.getStat()
+			res.setHeaderIfMissing('ETag', '"' + stat.size + '-' + Number(mtime) + '"')
+
+			# Date
+			res.setHeaderIfMissing('Date', ctime.toUTCString())
+			res.setHeaderIfMissing('Last-Modified', mtime.toUTCString())
+
+			# Send
 			content = document.getOutContent()
 			if content
 				if opts.statusCode?
