@@ -13,6 +13,8 @@
   "badges": {
     "travis": true,
     "npm": true,
+    "david": true,
+    "daviddev": true,
     "gittip": "docpad",
     "flattr": "344188/balupton-on-Flattr",
     "paypal": "QB8GQPZAH84N6"
