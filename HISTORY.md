@@ -1,5 +1,8 @@
 # History
 
+- v6.60.1 January 16, 2014
+	- Updated dependencies
+
 - v6.60.0 January 16, 2014
 	- Added `etag`, `cache-control`, `last-modified`, `date`, and `charset` headers
 		- Thanks to [Marcus Stong](https://github.com/stongo) for [issue #740](https://github.com/bevry/docpad/issues/740)
