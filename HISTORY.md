@@ -1,5 +1,9 @@
 # History
 
+- v6.60.0 January 16, 2014
+	- Added `etag`, `cache-control`, `last-modified`, `date`, and `charset` headers
+		- Thanks to [Marcus Stong](https://github.com/stongo) for [issue #740](https://github.com/bevry/docpad/issues/740)
+
 - v6.59.6 December 20, 2013
 	- Non-CoffeeScript plugin testers can now rejoice, you can now easily exend the tester classes by using `TesterClass.extend({})`
 		- Thanks to the [extendonclass](https://github.com/bevry/extendonclass) module
