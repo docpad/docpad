@@ -1,5 +1,8 @@
 # History
 
+- v6.60.2 January 16, 2014
+	- Don't include `--save-dev` when installing plugins (regresion since v6.59.3)
+
 - v6.60.1 January 16, 2014
 	- Updated dependencies
 

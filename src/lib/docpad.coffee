@@ -2037,7 +2037,7 @@ class DocPad extends EventEmitterGrouped
 		opts.global = [opts.global]            if opts.global and Array.isArray(opts.global) is false
 
 		opts.save ?= !opts.global
-		opts.save = ['--save', '--save-dev']   if opts.save is true
+		opts.save = ['--save']                 if opts.save is true
 		opts.save = [opts.save]                if opts.save and Array.isArray(opts.save) is false
 
 		# Command
