@@ -4509,14 +4509,14 @@ class DocPad extends EventEmitterGrouped
 
 		else
 			# ETag: `"<size>-<mtime>"`
-			ctime = document.get('date')    # use the date or mtime
-			mtime = document.get('wtime')   # use the last generate time
+			ctime = document.get('date')    # use the date or mtime, it should always exist
+			mtime = document.get('wtime')   # use the last generate time, it may not exist though
 			stat = document.getStat()
-			res.setHeaderIfMissing('ETag', '"' + stat.size + '-' + Number(mtime) + '"')
+			res.setHeaderIfMissing('ETag', '"' + stat.size + '-' + Number(mtime) + '"')  if mtime
 
 			# Date
-			res.setHeaderIfMissing('Date', ctime.toUTCString())
-			res.setHeaderIfMissing('Last-Modified', mtime.toUTCString())
+			res.setHeaderIfMissing('Date', ctime.toUTCString())  if ctime
+			res.setHeaderIfMissing('Last-Modified', mtime.toUTCString())  if mtime
 
 			# Send
 			content = document.getOutContent()
