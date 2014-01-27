@@ -171,6 +171,7 @@ These amazing people have contributed code to this project:
 - [Sorin Ionescu](https://github.com/sorin-ionescu) <sorin.ionescu@gmail.com> — [view contributions](https://github.com/bevry/docpad/commits?author=sorin-ionescu)
 - [Stefan](https://github.com/stegrams) — [view contributions](https://github.com/bevry/docpad/commits?author=stegrams)
 - [Sven Vetsch](https://github.com/disenchant) — [view contributions](https://github.com/bevry/docpad/commits?author=disenchant)
+- [timaschew](https://github.com/timaschew) — [view contributions](https://github.com/bevry/docpad/commits?author=timaschew)
 - [Todd Anglin](https://github.com/toddanglin) — [view contributions](https://github.com/bevry/docpad/commits?author=toddanglin)
 - [ttamminen](https://github.com/ttamminen) — [view contributions](https://github.com/bevry/docpad/commits?author=ttamminen)
 - [unframework](https://github.com/unframework) — [view contributions](https://github.com/bevry/docpad/commits?author=unframework)
