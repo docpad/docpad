@@ -2,6 +2,7 @@
 
 - v6.61.0 January 27, 2014
 	- Fixed regeneration always regenerating everything (regression since v6.58.0)
+		- Thanks to [Dimitar Kolev-Dick](https://github.com/dimitarkolev), [Marcus Stong](https://github.com/stongo) for [issue #785](https://github.com/bevry/docpad/issues/785)
 
 - v6.60.4 January 27, 2014
 	- Implemented `304 Not Modified` header
