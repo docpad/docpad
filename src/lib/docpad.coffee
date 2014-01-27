@@ -4512,24 +4512,32 @@ class DocPad extends EventEmitterGrouped
 			ctime = document.get('date')    # use the date or mtime, it should always exist
 			mtime = document.get('wtime')   # use the last generate time, it may not exist though
 			stat = document.getStat()
-			res.setHeaderIfMissing('ETag', '"' + stat.size + '-' + Number(mtime) + '"')  if mtime and stat
+			etag = stat.size + '-' + Number(mtime)   if mtime and stat
+			res.setHeaderIfMissing('ETag', '"' + etag + '"')  if etag
 
 			# Date
-			res.setHeaderIfMissing('Date', ctime.toUTCString())  if ctime
-			res.setHeaderIfMissing('Last-Modified', mtime.toUTCString())  if mtime
+			res.setHeaderIfMissing('Date', ctime.toUTCString())  if ctime?.toUTCString?
+			res.setHeaderIfMissing('Last-Modified', mtime.toUTCString())  if mtime?.toUTCString?
+			# @TODO:
+			# The above .toUTCString? check is a workaround because sometimes the date object
+			# isn't really a date object, this needs to be fixed properly
+			# https://github.com/bevry/docpad/pull/781
 
 			# Send
-			content = document.getOutContent()
-			if content
-				if opts.statusCode?
-					return res.send(opts.statusCode, content)
-				else
-					return res.send(content)
+			if etag and etag is (req.get('If-None-Match') or '').replace(/^"|"$/g, '')
+				res.send(304)  # not modified
 			else
-				if opts.statusCode?
-					return res.send(opts.statusCode)
+				content = document.getOutContent()
+				if content
+					if opts.statusCode?
+						res.send(opts.statusCode, content)
+					else
+						res.send(content)
 				else
-					return next()
+					if opts.statusCode?
+						res.send(opts.statusCode)
+					else
+						next()
 
 		# Chain
 		@

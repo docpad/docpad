@@ -1,5 +1,11 @@
 # History
 
+- v6.60.4 January 27, 2014
+	- Implemented `304 Not Modified` header
+	- Fixed some `date` and `stat` errors (regression since v6.60.0)
+		- Thanks to [Anton Wilhelm](https://github.com/timaschew) for [pull request #787](https://github.com/bevry/docpad/pull/787)
+		- Thanks to [Ivan Klimchuk](https://github.com/Alroniks) for [pull request #781](https://github.com/bevry/docpad/pull/781)
+
 - v6.60.3 January 16, 2014
 	- Fixed `toUTCString` errors (regression since v6.60.0)
 
