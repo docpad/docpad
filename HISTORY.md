@@ -1,5 +1,8 @@
 # History
 
+- v6.61.0 January 27, 2014
+	- Fixed regeneration always regenerating everything (regression since v6.58.0)
+
 - v6.60.4 January 27, 2014
 	- Implemented `304 Not Modified` header
 	- Fixed some `date` and `stat` errors (regression since v6.60.0)

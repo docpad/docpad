@@ -1179,8 +1179,13 @@ class DocPad extends EventEmitterGrouped
 				# Ensure we regenerate anything (on the next regeneration) that was using the same outPath
 				outPath = model.get('outPath')
 				if outPath
-					@database.findAll({outPath}).each (model) ->
+					updatedModels = @database.findAll({outPath})
+					updatedModels.remove(model)
+					updatedModels.each (model) ->
 						model.set('mtime': new Date())
+
+					# Log
+					docpad.log('debug', 'Updated mtime for these models due to remove of a similar one', updatedModels.pluck('relativePath'))
 
 				# Return safely
 				return true
@@ -1209,8 +1214,12 @@ class DocPad extends EventEmitterGrouped
 				if previousOutPath
 					# Ensure we regenerate anything (on the next regeneration) that was using the same outPath
 					previousModels = @database.findAll(outPath:previousOutPath)
+					previousModels.remove(model)
 					previousModels.each (model) ->
 						model.set('mtime': new Date())
+
+					# Log
+					docpad.log('debug', 'Updated mtime for these models due to addition of a similar one', previousModels.pluck('relativePath'))
 
 					# Update the cache entry with another file that has the same outPath or delete it if there aren't any others
 					previousModelId = @filesByOutPath[previousOutPath]
@@ -1902,6 +1911,17 @@ class DocPad extends EventEmitterGrouped
 						referencesOthers: true
 					})
 				)
+				# @TODO
+				# We should not enable referencesOthers for stylesheets
+				# But instead check if there is a stylesheet that has been modified and is to be regenerated
+				# Then add the rest of the stylesheets to the regenerate list
+				# That way, when you modify a html file, it doesn't regenerate stylesheets, unless they are actually referencing others
+				# But it would still mean that if you modify a stylsheet, it does import the others correctly
+				# However, really, this only applies to stylsheets that concantate the contents of their @imports to other stylesheets
+				# So maybe, we could do something like
+				# $contains: '@import'
+				# but $contains doesn't exist yet
+				# though this still only applies to those that bundle other stylesheets inside themselves
 		)
 
 		# Blocks
@@ -3497,7 +3517,7 @@ class DocPad extends EventEmitterGrouped
 			else
 				# Use Partial Collection
 				addTask 'Add only changed models to render queue', ->
-					opts.collection ?= new FilesCollection().add(docpad.getCollection('generate').findAll(
+					changedQuery =
 						$or:
 							# Get changed files
 							mtime: $gte: lastGenerateStarted
@@ -3506,7 +3526,7 @@ class DocPad extends EventEmitterGrouped
 							$and:
 								wtime: null
 								write: true
-					).models)
+					opts.collection ?= new FilesCollection().add(docpad.getCollection('generate').findAll(changedQuery).models)
 
 
 		addTask 'generateBefore', (complete) ->
