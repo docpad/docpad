@@ -4512,7 +4512,7 @@ class DocPad extends EventEmitterGrouped
 			ctime = document.get('date')    # use the date or mtime, it should always exist
 			mtime = document.get('wtime')   # use the last generate time, it may not exist though
 			stat = document.getStat()
-			res.setHeaderIfMissing('ETag', '"' + stat.size + '-' + Number(mtime) + '"')  if mtime
+			res.setHeaderIfMissing('ETag', '"' + stat.size + '-' + Number(mtime) + '"')  if mtime and stat
 
 			# Date
 			res.setHeaderIfMissing('Date', ctime.toUTCString())  if ctime
