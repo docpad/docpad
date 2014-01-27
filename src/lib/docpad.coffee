@@ -3294,7 +3294,7 @@ class DocPad extends EventEmitterGrouped
 		# Mode: Initial
 		# Shall we do some basic initial checks
 		# Set to the opts.reset value if specified, or whether are the initial generation
-		opts.initial   ?= !(opts.generated)
+		opts.initial   ?= !(docpad.generated)
 
 		# Mode: Reset
 		# Shall we reset the database
@@ -3327,6 +3327,8 @@ class DocPad extends EventEmitterGrouped
 		# as they could be over-written pragamatically
 		# by API calls etc for whatever reason
 
+		# Log our opts
+		docpad.log('debug', 'Generate options:', _.pick(opts, 'cache', 'initial', 'reset', 'populate', 'reload', 'partial', 'renderPasses'))
 
 		# Check plugin count
 		docpad.log('notice', locale.renderNoPlugins)  unless docpad.hasPlugins()
