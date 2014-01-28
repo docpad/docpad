@@ -1,5 +1,11 @@
 # History
 
+- v6.62.0 January 28, 2014
+	- Stylesheets are more effeciently generated
+		- Files with the `outExtension: 'css'` are now the only ones included in the `stylesheet` collection
+		- Stylesheets no longer have `referencesOthers` to `true` on them by default, this is now left up to plugin authors to do
+		- Thanks to [Dimitar Kolev-Dick](https://github.com/dimitarkolev) for [issue #789](https://github.com/bevry/docpad/issues/789)
+
 - v6.61.0 January 27, 2014
 	- Fixed regeneration always regenerating everything (regression since v6.58.0)
 		- Thanks to [Dimitar Kolev-Dick](https://github.com/dimitarkolev), [Marcus Stong](https://github.com/stongo) for [issue #785](https://github.com/bevry/docpad/issues/785)

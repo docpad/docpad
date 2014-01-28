@@ -1898,30 +1898,8 @@ class DocPad extends EventEmitterGrouped
 			stylesheet: database.createLiveChildCollection()
 				.setQuery('isStylesheet', {
 					write: true
-					outExtension: $in: [
-						'css',
-						'scss', 'sass',
-						'styl', 'stylus'
-						'less'
-					]
+					outExtension: 'css'
 				})
-				.on('add', (model) ->
-					docpad.log('debug', util.format(locale.addingStylesheet, model.getFilePath()))
-					model.setDefaults({
-						referencesOthers: true
-					})
-				)
-				# @TODO
-				# We should not enable referencesOthers for stylesheets
-				# But instead check if there is a stylesheet that has been modified and is to be regenerated
-				# Then add the rest of the stylesheets to the regenerate list
-				# That way, when you modify a html file, it doesn't regenerate stylesheets, unless they are actually referencing others
-				# But it would still mean that if you modify a stylsheet, it does import the others correctly
-				# However, really, this only applies to stylsheets that concantate the contents of their @imports to other stylesheets
-				# So maybe, we could do something like
-				# $contains: '@import'
-				# but $contains doesn't exist yet
-				# though this still only applies to those that bundle other stylesheets inside themselves
 		)
 
 		# Blocks
