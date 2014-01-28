@@ -975,7 +975,7 @@ class DocPad extends EventEmitterGrouped
 		# Other
 
 		# Utilise the database cache
-		databaseCache: 'write'
+		databaseCache: false  # [false, true, 'write']
 
 		# Detect Encoding
 		# Should we attempt to auto detect the encoding of our files?

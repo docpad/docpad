@@ -1,5 +1,11 @@
 # History
 
+- v6.63.0 January 28, 2014
+	- Disabled database writing by default (set `databaseCache` to `false` instead of `'write"` by default)
+		- We never used it, still many naunces with reading to figure out, so it doesn't make sense incurring the performance penalty of the write while there is no use for it
+		- Enable writing manually by setting `databaseCache` to `"write"`
+		- Enable writing and reading manually by setting `databaseCache` to `true` 
+
 - v6.62.0 January 28, 2014
 	- Stylesheets are more effeciently generated
 		- Files with the `outExtension: 'css'` are now the only ones included in the `stylesheet` collection
