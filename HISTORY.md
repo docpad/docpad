@@ -1,5 +1,10 @@
 # History
 
+- v6.63.3 January 30, 2014
+	- Regenerate every options are now customisable via `regenerateEveryOptions`
+	- Regenerate every options now default to `partial:false, populate:true`
+		- Before there were no defaults, meaning that they always did a non populating, partial, regeneration (regression exposed due to the fix in v6.61.0)
+
 - v6.63.2 January 30, 2014
 	- Don't show generate success message if an error occured
 

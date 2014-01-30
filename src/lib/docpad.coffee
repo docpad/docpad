@@ -1041,6 +1041,12 @@ class DocPad extends EventEmitterGrouped
 		# Performs a regenerate every x milliseconds, useful for always having the latest data
 		regenerateEvery: false
 
+		# Regerenate Every Options
+		# The generate options to use on the regenerate every call
+		regenerateEveryOptions:
+			populate: true
+			partial:  false
+
 
 		# -----------------------------
 		# Environment Configuration
@@ -3238,7 +3244,7 @@ class DocPad extends EventEmitterGrouped
 			docpad.regenerateTimer = setTimeout(
 				->
 					docpad.log('info', locale.renderInterval)
-					docpad.action('generate')
+					docpad.action('generate', config.regenerateEveryOptions)
 				config.regenerateEvery
 			)
 
@@ -3806,7 +3812,7 @@ class DocPad extends EventEmitterGrouped
 						docpad.log 'info', util.format(locale.watchReloadChange, new Date().toLocaleTimeString())
 						docpad.action 'load', (err) ->
 							return docpad.fatal(err)  if err
-							performGenerate(reset: true)
+							performGenerate(reset:true)
 				next: (err,_watchers) ->
 					if err
 						docpad.log('warn', "Watching the reload paths has failed:", reloadPaths, err)
@@ -3823,7 +3829,7 @@ class DocPad extends EventEmitterGrouped
 				listeners:
 					'log': docpad.log
 					'error': docpad.error
-					'change': -> performGenerate(reset: true)
+					'change': -> performGenerate(reset:true)
 				next: (err,_watchers) ->
 					if err
 						docpad.log('warn', "Watching the regenerate paths has failed:", regeneratePaths, err)
