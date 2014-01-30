@@ -3330,11 +3330,12 @@ class DocPad extends EventEmitterGrouped
 		# Tasks
 		tasks = new TaskGroup("generate tasks")
 
-			.on 'item.run', (item) ->
+			.on('item.run', (item) ->
 				totals = tasks.getTotals()
 				opts.progress?.step("generate: #{item.getConfig().name}").total(totals.total).setTick(totals.completed)
+			)
 
-			.once 'complete', (err) ->
+			.once('complete', (err) ->
 				# Update generating flag
 				docpad.generating = false
 				docpad.generateEnded = new Date()
@@ -3350,17 +3351,14 @@ class DocPad extends EventEmitterGrouped
 					docpad.destroyProgress(opts.progress)
 					opts.progress = null
 
-				# Prepare
-				seconds = (docpad.generateEnded - docpad.generateStarted) / 1000
-				howMany = "#{opts.collection?.length or 0}/#{database.length}"
-
-				# Log
-				opts.progress?.finish()
-				docpad.log 'info', util.format(locale.renderGenerated, howMany, seconds)
-				docpad.notify (new Date()).toLocaleTimeString(), {title: locale.renderGeneratedNotification}
-
 				# Error?
 				return next(err)  if err
+
+				# Log success message
+				seconds = (docpad.generateEnded - docpad.generateStarted) / 1000
+				howMany = "#{opts.collection?.length or 0}/#{database.length}"
+				docpad.log 'info', util.format(locale.renderGenerated, howMany, seconds)
+				docpad.notify (new Date()).toLocaleTimeString(), {title: locale.renderGeneratedNotification}
 
 				# Generated
 				if opts.initial is true
@@ -3368,6 +3366,7 @@ class DocPad extends EventEmitterGrouped
 					return docpad.emitSerial('generated', opts, next)
 				else
 					return next()
+			)
 
 		# Extract functions from tasks for simplicity
 		# when dealing with nested tasks/groups

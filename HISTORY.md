@@ -1,5 +1,8 @@
 # History
 
+- v6.63.2 January 30, 2014
+	- Don't show generate success message if an error occured
+
 - v6.63.1 January 30, 2014
 	- Fixed gobbling of error messages during `contextualizeFiles`, `renderFiles` or `writeFiles` (regression since v6.59.2)
 		- Thanks to [Rob Loach](https://github.com/RobLoach), [Nathan Rijksen](https://github.com/Naatan) for [issue #784](https://github.com/bevry/docpad/issues/784)
