@@ -531,7 +531,7 @@ class FileModel extends Model
 		@setOptions(opts)
 
 		# Create our action runner
-		@actionRunnerInstance = new TaskGroup().run().on 'complete', (err) ->
+		@actionRunnerInstance = new TaskGroup("file action runner").run().on 'complete', (err) ->
 			file.emit('error', err)  if err
 
 		# Super
@@ -559,9 +559,10 @@ class FileModel extends Model
 		file.setBuffer(opts.buffer)    if opts.buffer?
 
 		# Tasks
-		tasks = new TaskGroup({next})
-			.on 'item.run', (item) ->
+		tasks = new TaskGroup("load tasks for file: #{filePath}", {next})
+			.on('item.run', (item) ->
 				file.log("debug", "#{item.getConfig().name}: #{file.type}: #{filePath}")
+			)
 
 		# Detect the file
 		tasks.addTask "Detect the file", (complete) ->

@@ -1,4 +1,4 @@
-# v1.3.11 December 11, 2013
+# v1.3.13 December 19, 2013
 # https://github.com/bevry/base
 
 
@@ -51,7 +51,9 @@ for own key,value of config
 # Generic
 
 {spawn, exec} = require('child_process')
+
 safe = (next,fn) ->
+	next ?= (err) -> console.log(err.stack ? err)
 	fn ?= next  # support only one argument
 	return (err) ->
 		# success status code
@@ -80,7 +82,11 @@ actions =
 	clean: (opts,next) ->
 		# Prepare
 		(next = opts; opts = {})  unless next?
-		args = ['-Rf', config.COFFEE_COFFEE_OUT_PATH]
+		
+		# Add compilation paths
+		args = ['-Rf', config.COFFEE_OUT_PATH, config.DOCPAD_OUT_PATH, config.DOCCO_OUT_PATH]
+		
+		# Add common ignore paths
 		for path in [APP_PATH, config.TEST_PATH]
 			args.push(
 				pathUtil.join(path,  'build')
@@ -148,11 +154,13 @@ actions =
 		step2 = ->
 			return step3()  if !config.COFFEE_SRC_PATH or !fsUtil.existsSync(COFFEE)
 			console.log('coffee watch')
-			spawn(COFFEE, ['-wco', config.COFFEE_OUT_PATH, config.COFFEE_SRC_PATH], {stdio:'inherit', cwd:APP_PATH}).on('close', safe next, step3)
+			spawn(COFFEE, ['-wco', config.COFFEE_OUT_PATH, config.COFFEE_SRC_PATH], {stdio:'inherit', cwd:APP_PATH}).on('close', safe)  # background
+			step3()  # continue while coffee runs in background
 		step3 = ->
 			return step4()  if !config.DOCPAD_SRC_PATH or !fsUtil.existsSync(DOCPAD)
 			console.log('docpad run')
-			spawn(DOCPAD, ['run'], {stdio:'inherit', cwd:APP_PATH}).on('close', safe next, step4)
+			spawn(DOCPAD, ['run'], {stdio:'inherit', cwd:APP_PATH}).on('close', safe)  # background
+			step4()  # continue while docpad runs in background
 		step4 = next
 
 		# Start

@@ -128,7 +128,9 @@ class BasePlugin
 			if typeChecker.isFunction(eventHandler)
 				# Apply the priority
 				eventHandlerPriority = pluginInstance[eventName+'Priority'] or pluginInstance.priority or null
-				eventHandler.priority = eventHandlerPriority
+				eventHandler.priority ?= eventHandlerPriority
+				eventHandler.name = "#{pluginInstance.name}: {eventName}"
+				eventHandler.name += "(priority eventHandler.priority})"  if eventHandler.priority?
 
 				# Wrap the event handler, and bind it to docpad
 				docpad

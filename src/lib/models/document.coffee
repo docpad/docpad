@@ -387,7 +387,7 @@ class DocumentModel extends FileModel
 		return next(null, result)  if extensionsReversed.length <= 1
 
 		# Prepare the tasks
-		tasks = new TaskGroup "renderExtensions: #{filePath}", next: (err) ->
+		tasks = new TaskGroup "renderExtensions: #{filePath}", next:(err) ->
 			# Forward with result
 			return next(err, result)
 
@@ -526,7 +526,7 @@ class DocumentModel extends FileModel
 		file.log 'debug', "Rendering the file: #{relativePath}"
 
 		# Prepare the tasks
-		tasks = new TaskGroup().once 'complete', (err) ->
+		tasks = new TaskGroup "render tasks for: #{relativePath}", next:(err) ->
 			# Error?
 			if err
 				file.log 'warn', "Something went wrong while rendering: #{relativePath}\n#{err.message or err}"

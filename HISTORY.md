@@ -1,5 +1,11 @@
 # History
 
+- v6.63.1 January 30, 2014
+	- Fixed gobbling of error messages during `contextualizeFiles`, `renderFiles` or `writeFiles` (regression since v6.59.2)
+		- Thanks to [Rob Loach](https://github.com/RobLoach), [Nathan Rijksen](https://github.com/Naatan) for [issue #784](https://github.com/bevry/docpad/issues/784)
+	- All task groups and tasks we define are now named (makes for easier debugging)
+	- Updated dependencies
+
 - v6.63.0 January 28, 2014
 	- Disabled database writing by default (set `databaseCache` to `false` instead of `'write"` by default)
 		- We never used it, still many naunces with reading to figure out, so it doesn't make sense incurring the performance penalty of the write while there is no use for it
