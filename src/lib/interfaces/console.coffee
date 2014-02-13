@@ -706,7 +706,7 @@ class ConsoleInterface
 		# Read stdin
 		stdin = process.stdin
 		stdin.resume()
-		stdin.setEncoding('utf8')
+		stdin.setEncoding('utf-8')
 		stdin.on 'data', (_data) ->
 			data += _data.toString()
 		process.stdin.on 'end', ->
