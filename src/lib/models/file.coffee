@@ -655,8 +655,8 @@ class FileModel extends Model
 						d.on 'error', =>
 							@log('warn', "Encoding conversion failed, therefore we cannot convert the encoding #{encoding} to UTF-8 on #{relativePath}")
 						d.run ->
-							#buffer = new Iconv(encoding, 'utf-8').convert(buffer)
-							buffer = encodingUtil.convert(buffer, 'utf-8', encoding)  # content, to, from
+							#buffer = new Iconv(encoding, 'utf8').convert(buffer)
+							buffer = encodingUtil.convert(buffer, 'utf8', encoding)  # content, to, from
 
 					# Can't convert
 					else
@@ -685,7 +685,7 @@ class FileModel extends Model
 			encoding = changes.encoding = 'utf-8'  if encoding? is false
 
 			# Set
-			source = buffer?.toString('utf-8') or ''
+			source = buffer?.toString('utf8') or ''
 			content = source
 
 			# Apply
@@ -926,8 +926,8 @@ class FileModel extends Model
 			if encodingUtil?
 				@log('info', "Converting encoding UTF-8 to #{opts.encoding} on #{opts.path}")
 				try
-					#opts.content = new Iconv('utf-8',opts.encoding).convert(opts.content)
-					opts.content = encodingUtil.convert(opts.content, opts.encoding, 'utf-8')  # content, to, from
+					#opts.content = new Iconv('utf8',opts.encoding).convert(opts.content)
+					opts.content = encodingUtil.convert(opts.content, opts.encoding, 'utf8')  # content, to, from
 				catch err
 					@log('warn', "Encoding conversion failed, therefore we cannot convert the encoding UTF-8 to #{opts.encoding} on #{opts.path}")
 			else
