@@ -1,7 +1,7 @@
 {
   "title": "DocPad. Streamlined web development.",
   "name": "docpad",
-  "version": "6.63.4",
+  "version": "6.63.5",
   "description": "DocPad is a next generation web architecture that lets you create fast static websites with dynamic abilities and powerful abstractions. Write your website as files on your computer, entries in a database, or even RSS feeds and DocPad will import it, generate & render it, then output a static website for deployment anywhere or a dynamic node website for advanced server-side functionality. Use it as a module or standalone. It's purely awesome. Check it out.",
   "homepage": "http://docpad.org",
   "installUrl": "http://docpad.org/install",
@@ -136,7 +136,7 @@
     "safeps": "~2.2.10",
     "semver": "~2.2.1",
     "superagent": "~0.16.0",
-    "taskgroup": "~3.3.7n",
+    "taskgroup": "~3.3.8",
     "typechecker": "~2.0.8",
     "watchr": "~2.4.9",
     "yamljs": "~0.1.4",

@@ -1,5 +1,9 @@
 # History
 
+- v6.63.5 February 18, 2014
+	- Fixed invalid TaskGroup `~3.3.7n` dependency version (regression since v6.63.1)
+		- Thanks to [Jens Wilke](https://github.com/cruftex) for [issue #806](https://github.com/bevry/docpad/issues/806)
+
 - v6.63.4 February 18, 2014
 	- Don't use HTTPS URLs for fetching latest version and exchange data (as HTTPS URLs may not always be available)
 	- Updated dependencies
