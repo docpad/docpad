@@ -1,5 +1,8 @@
 # History
 
+- v6.63.6 February 18, 2014
+	- Fixed npm v1.4.3 from using `^` instead of `~` when installing and updating docpad plugins
+
 - v6.63.5 February 18, 2014
 	- Fixed invalid TaskGroup `~3.3.7n` dependency version (regression since v6.63.1)
 		- Thanks to [Jens Wilke](https://github.com/cruftex) for [issue #806](https://github.com/bevry/docpad/issues/806)

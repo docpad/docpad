@@ -2008,6 +2008,28 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
+	# Fix Node Package Versions
+	# Combat to https://github.com/npm/npm/issues/4587#issuecomment-35370453
+	# next(err)
+	fixNodePackageVersions: (opts) ->
+		# Prepare
+		[opts,next] = extractOptsAndCallback(opts, next)
+		docpad = @
+		config = @getConfig()
+
+		# Extract
+		opts.packagePath ?= config.packagePath
+
+		# Read and replace
+		safefs.readFile opts.packagePath, (err,buffer) ->
+			data = buffer.toString()
+			data = data.replace(/("docpad(?:.*?)": ")\^/g, '$1~')
+			safefs.writeFile opts.packagePath, data, (err) ->
+				return next(err)
+
+		# Chain
+		@
+
 	# Install Node Module
 	# next(err,result)
 	installNodeModule: (names,opts) ->
@@ -4106,6 +4128,9 @@ class DocPad extends EventEmitterGrouped
 				next: complete
 			})
 
+		tasks.addTask "fix node package versions", (complete) ->
+			docpad.fixNodePackageVersions(complete)
+
 		tasks.addTask "re-load the configuration", (complete) ->
 			docpad.load(complete)
 
@@ -4169,6 +4194,9 @@ class DocPad extends EventEmitterGrouped
 					output: true
 					next: complete
 				})
+
+		tasks.addTask "fix node package versions", (complete) ->
+			docpad.fixNodePackageVersions(complete)
 
 		tasks.addTask "re-initialize the rest of the website's modules", (complete) ->
 			docpad.initNodeModules({
