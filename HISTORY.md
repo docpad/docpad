@@ -1,5 +1,9 @@
 # History
 
+- v6.63.4 February 18, 2014
+	- Don't use HTTPS URLs for fetching latest version and exchange data (as HTTPS URLs may not always be available)
+	- Updated dependencies
+
 - v6.63.3 January 30, 2014
 	- Regenerate every options are now customisable via `regenerateEveryOptions`
 	- Regenerate every options now default to `partial:false, populate:true`

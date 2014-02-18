@@ -816,7 +816,7 @@ class DocPad extends EventEmitterGrouped
 		plugins: {}
 
 		# Where to fetch the exchange information from
-		exchangeUrl: 'https://docpad.org/exchange.json'
+		exchangeUrl: 'http://docpad.org/exchange.json'
 
 
 		# -----------------------------
@@ -832,7 +832,7 @@ class DocPad extends EventEmitterGrouped
 		packagePath: 'package.json'
 
 		# Where to get the latest package information from
-		latestPackageUrl: 'https://docpad.org/latest.json'
+		latestPackageUrl: 'http://docpad.org/latest.json'
 
 		# The project's configuration paths
 		# Reads only the first one that exists
