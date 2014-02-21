@@ -1,5 +1,14 @@
 # History
 
+- v6.63.7 February 21, 2014
+	- Fixed IE9 and below not understanding the charset we send
+		- Thanks to [Eric Vantillard](https://github.com/evantill) for [issue #801](https://github.com/bevry/docpad/pull/801)
+	- Better debugging for invalid watch states
+		- For more information see [issue #792](https://github.com/bevry/docpad/issues/792)
+	- Fixed DocPad failing to serve files after the initial generation once the docpad configuration file has been modified
+		- Thanks to [Michael Williams](https://github.com/ahdinosaur) for [issue #811](https://github.com/bevry/docpad/issues/811)
+	- Updated dependencies
+
 - v6.63.6 February 18, 2014
 	- Fixed npm v1.4.3 from using `^` instead of `~` when installing and updating docpad plugins
 
