@@ -579,6 +579,8 @@ class DocPad extends EventEmitterGrouped
 	userConfigPath: '.docpad.cson'
 
 
+
+
 	# -----------------------------
 	# Template Data
 
@@ -1595,6 +1597,8 @@ class DocPad extends EventEmitterGrouped
 				return complete(err)  if err
 				dropboxPath = pathUtil.resolve(homePath, 'Dropbox')
 				safefs.exists dropboxPath, (dropboxPathExists) =>
+					# @TODO: Implement checks here for
+					# https://github.com/bevry/docpad/issues/799
 					userConfigDirPath = if dropboxPathExists then dropboxPath else homePath
 					@userConfigPath = pathUtil.resolve(userConfigDirPath, @userConfigPath)
 					return complete()
