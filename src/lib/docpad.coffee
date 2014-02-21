@@ -4523,12 +4523,13 @@ class DocPad extends EventEmitterGrouped
 
 		# Prepare
 		res.setHeaderIfMissing ?= (name, value) ->
-			res.setHeader(name, value)  if res.getHeader(name)? is false
+			res.setHeader(name, value)  unless res.getHeader(name)
 
 		# Content Type + Encoding/Charset
 		encoding = document.get('encoding')
+		charset = 'utf-8'  if encoding in ['utf8', 'utf-8']
 		contentType = document.get('outContentType') or document.get('contentType')
-		res.setHeaderIfMissing('Content-Type', contentType + (if encoding isnt 'binary' then "; charset=#{encoding}" else ''))
+		res.setHeaderIfMissing('Content-Type', contentType + (if charset then "; charset=#{charset}" else ''))
 
 		# Cache-Control (max-age)
 		res.setHeaderIfMissing('Cache-Control', "public, max-age=#{config.maxAge}")  if config.maxAge
