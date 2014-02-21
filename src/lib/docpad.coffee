@@ -3296,57 +3296,20 @@ class DocPad extends EventEmitterGrouped
 		# Update the cached database
 		docpad.databaseTempCache = new FilesCollection(database.models)  if database.models.length
 
-		# Destroy Regenerate Timer
-		docpad.destroyRegenerateTimer()
-
-
 		# Create Progress
+		# Can be over-written by API calls
 		opts.progress ?= docpad.createProgress()
-
-
-		# Mode: Cache
-		# Shall we write to the database cache?
-		# Set to true if the configuration option says we can, and we are the initial generation
-		opts.cache     ?= config.databaseCache
-
-		# Mode: Initial
-		# Shall we do some basic initial checks
-		# Set to the opts.reset value if specified, or whether are the initial generation
-		opts.initial   ?= !(docpad.generated)
-
-		# Mode: Reset
-		# Shall we reset the database
-		# Set to true if we are the initial generation
-		opts.reset     ?= opts.initial
-
-		# Mode: Populate
-		# Shall we fetch in new data?
-		# Set to the opts.reset value if specified, or the opts.initial value
-		opts.populate  ?= opts.reset
-
-		# Mode: Reload
-		# Shall we rescan the file system for changes?
-		# Set to the opts.reset value if specified, or the opts.initial value
-		opts.reload    ?= opts.reset
-
-		# Mode: Partial
-		# Shall we perform a partial generation (false) or a completion generation (true)?
-		# Set to false if we are the initial generation
-		opts.partial   ?= !(opts.reset)
-
 
 		# Grab the template data we will use for rendering
 		opts.templateData = docpad.getTemplateData(opts.templateData or {})
 
 		# How many render passes will we require?
+		# Can be over-written by API calls
 		opts.renderPasses or= config.renderPasses
 
-		# ^ these options are applied using ?= and or=
-		# as they could be over-written pragamatically
-		# by API calls etc for whatever reason
 
-		# Log our opts
-		docpad.log('debug', 'Generate options:', _.pick(opts, 'cache', 'initial', 'reset', 'populate', 'reload', 'partial', 'renderPasses'))
+		# Destroy Regenerate Timer
+		docpad.destroyRegenerateTimer()
 
 		# Check plugin count
 		docpad.log('notice', locale.renderNoPlugins)  unless docpad.hasPlugins()
@@ -3354,6 +3317,7 @@ class DocPad extends EventEmitterGrouped
 		# Log
 		docpad.log('info', locale.renderGenerating)
 		docpad.notify (new Date()).toLocaleTimeString(), title: locale.renderGeneratingNotification
+
 
 		# Tasks
 		tasks = new TaskGroup("generate tasks")
@@ -3392,6 +3356,14 @@ class DocPad extends EventEmitterGrouped
 				if opts.initial is true
 					docpad.generated = true
 					return docpad.emitSerial('generated', opts, next)
+
+				# Safety check if generated is false but initial was false too
+				# https://github.com/bevry/docpad/issues/811
+				else if docpad.generated is false
+					return next(
+						new Error('DocPad is in an invalid state, please report this on the github issue tracker. Reference 3360')
+					)
+
 				else
 					return next()
 			)
@@ -3402,26 +3374,65 @@ class DocPad extends EventEmitterGrouped
 		addTask = tasks.addTask.bind(tasks)
 
 
-		# Do some initial checks
-		# If we are an initial generation
-		if opts.initial is true
-			# Check directory structure
-			addTask 'check source directory exists', (complete) ->
-				safefs.exists config.srcPath, (exists) ->
-					# Check
-					unless exists
-						err = new Error(locale.renderNonexistant)
-						return complete(err)
-
-					# Forward
-					return complete()
+		# Setup a clean database
+		addTask 'Reset our collections', (complete) ->
+			# Skip if we are not a reset generation, or an initial generation (generated is false)
+			return complete()  unless opts.reset is true or docpad.generated is false
+			return docpad.resetCollections(opts, complete)
 
 
-		# Erase old data
-		# If we are a reset generation (by default an initial generation)
-		if opts.reset is true
-			addTask 'Reset our collections', (complete) ->
-				docpad.resetCollections(opts, complete)
+		# Figure out the options
+		# This is here as resetCollections could change our state
+		# https://github.com/bevry/docpad/issues/811
+		addTask 'Figure out options', ->
+			# Mode: Cache
+			# Shall we write to the database cache?
+			# Set to true if the configuration option says we can, and we are the initial generation
+			opts.cache     ?= config.databaseCache
+
+			# Mode: Initial
+			# Shall we do some basic initial checks
+			# Set to the opts.reset value if specified, or whether are the initial generation
+			opts.initial   ?= !(docpad.generated)
+
+			# Mode: Reset
+			# Shall we reset the database
+			# Set to true if we are the initial generation
+			opts.reset     ?= opts.initial
+
+			# Mode: Populate
+			# Shall we fetch in new data?
+			# Set to the opts.reset value if specified, or the opts.initial value
+			opts.populate  ?= opts.reset
+
+			# Mode: Reload
+			# Shall we rescan the file system for changes?
+			# Set to the opts.reset value if specified, or the opts.initial value
+			opts.reload    ?= opts.reset
+
+			# Mode: Partial
+			# Shall we perform a partial generation (false) or a completion generation (true)?
+			# Set to false if we are the initial generation
+			opts.partial   ?= !(opts.reset)
+
+			# Log our opts
+			docpad.log('debug', 'Generate options:', _.pick(opts, 'cache', 'initial', 'reset', 'populate', 'reload', 'partial', 'renderPasses'))
+
+
+		# Check directory structure
+		addTask 'check source directory exists', (complete) ->
+			# Skip if we are not the initial generation
+			return complete()  unless opts.initial is true
+
+			# Continue if we are the initial generation
+			safefs.exists config.srcPath, (exists) ->
+				# Check
+				unless exists
+					err = new Error(locale.renderNonexistant)
+					return complete(err)
+
+				# Forward
+				return complete()
 
 
 		addGroup 'fetch data to render', (addGroup, addTask) ->
@@ -3616,16 +3627,18 @@ class DocPad extends EventEmitterGrouped
 
 
 		# Write the cache file
-		# If we are a cache regeneration
-		if opts.cache in [true, 'write']
-			addTask 'Write the database cache', (complete) ->
-				databaseData =
-					generateStarted: docpad.generateStarted
-					generateEnded: docpad.generateEnded
-					models: (model.getAttributes()  for model in database.models)
-				databaseDataDump = JSON.stringify(databaseData, null, '  ')
-				docpad.log 'info', util.format(locale.databaseCacheWrite, databaseData.models.length)
-				safefs.writeFile(config.databaseCachePath, databaseDataDump, complete)
+		addTask 'Write the database cache', (complete) ->
+			# Skip if we do not care for writing the cache
+			return complete()  unless opts.cache in [true, 'write']
+
+			# Write the cache
+			databaseData =
+				generateStarted: docpad.generateStarted
+				generateEnded: docpad.generateEnded
+				models: (model.getAttributes()  for model in database.models)
+			databaseDataDump = JSON.stringify(databaseData, null, '  ')
+			docpad.log 'info', util.format(locale.databaseCacheWrite, databaseData.models.length)
+			return afefs.writeFile(config.databaseCachePath, databaseDataDump, complete)
 
 
 		# Run
