@@ -3921,7 +3921,23 @@ class DocPad extends EventEmitterGrouped
 
 		# Change event handler
 		changeHandler = (changeType,filePath,fileCurrentStat,filePreviousStat) ->
-			# Fetch the file
+			# Prepare
+			fileEitherStat = (fileCurrentStat or filePreviousStat)
+
+			# For some reason neither of the stats may exist, this will cause errors as this is an invalid state
+			# as we depend on at least one stat existing, otherwise, what on earth is going on?
+			# Whatever the case, this should be fixed within watchr, not docpad
+			# as watchr should not be giving us invalid data
+			# https://github.com/bevry/docpad/issues/792
+			unless fileEitherStat
+				err = new Error("""
+						DocPad has encountered an invalid state while detecting changes for your files.
+						So the DocPad team can fix this right away, please provide any information you can to:
+						https://github.com/bevry/docpad/issues/792
+						""")
+				return docpad.err(err)
+
+			# Log the change
 			docpad.log 'info', util.format(locale.watchChange, new Date().toLocaleTimeString()), changeType, filePath
 
 			# Check if we are a file we don't care about
@@ -3933,7 +3949,7 @@ class DocPad extends EventEmitterGrouped
 				return
 
 			# Don't care if we are a directory
-			isDirectory = (fileCurrentStat or filePreviousStat).isDirectory()
+			isDirectory = fileEitherStat.isDirectory()
 			if isDirectory
 				docpad.log 'debug', util.format(locale.watchDirectoryChange, new Date().toLocaleTimeString()), filePath
 				return
