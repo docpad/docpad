@@ -3939,7 +3939,7 @@ class DocPad extends EventEmitterGrouped
 						So the DocPad team can fix this right away, please provide any information you can to:
 						https://github.com/bevry/docpad/issues/792
 						""")
-				return docpad.err(err)
+				return docpad.error(err)
 
 			# Log the change
 			docpad.log 'info', util.format(locale.watchChange, new Date().toLocaleTimeString()), changeType, filePath

@@ -1,5 +1,8 @@
 # History
 
+- v6.63.8 February 26, 2014
+	- Fixed "Object #<DocPad> has no method err" (regression since v6.37.7)
+
 - v6.63.7 February 21, 2014
 	- Fixed IE9 and below not understanding the charset we send
 		- Thanks to [Eric Vantillard](https://github.com/evantill) for [issue #801](https://github.com/bevry/docpad/pull/801)
