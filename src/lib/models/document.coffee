@@ -122,6 +122,9 @@ class DocumentModel extends FileModel
 				# allow some space
 				^\s*
 
+				# skip any css espaces if present
+				(?:/\*{1,}|) # match opening css espace seq 1 times
+
 				# discover our seperator
 				(
 					([^\s\d\w])\2{2,} # match a symbol character repeated 3 or more times
@@ -142,6 +145,9 @@ class DocumentModel extends FileModel
 
 				# match our seperator (the first group) exactly
 				\1
+
+				# skip closing css espaces
+				(?:\*/|){1,} # match closing css espace seq 1 times
 				///
 
 			# Extract Meta Data
