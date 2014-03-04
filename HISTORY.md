@@ -1,5 +1,10 @@
 # History
 
+- v6.64.0 March 4, 2014
+	- Fixed a possible issue with `@include` template helper not working when the `renderPasses` config option changes
+	- DocPad will now auto-set the `site.url` template data to the calculated site URL (e.g. `http://localhost:9778`) if it is falsey
+		- This allows you do do `environments: development: templateData: site: url: false` inside your DocPad configuration files, to always use the correct site url regardless of environment
+
 - v6.63.8 February 26, 2014
 	- Fixed "Object #<DocPad> has no method err" (regression since v6.37.7)
 

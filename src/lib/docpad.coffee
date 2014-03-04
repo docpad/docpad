@@ -595,7 +595,6 @@ class DocPad extends EventEmitterGrouped
 		# Prepare
 		userTemplateData or= {}
 		docpad = @
-		{renderPasses} = @config
 		locale = @getLocale()
 
 		# Set the initial docpad template data
@@ -678,7 +677,7 @@ class DocPad extends EventEmitterGrouped
 				file = @getFileAtPath(subRelativePath)
 				if file
 					if strict and file.get('rendered') is false
-						if renderPasses is 1
+						if docpad.getConfig().renderPasses is 1
 							docpad.warn util.format(locale.renderedEarlyViaInclude, subRelativePath)
 						return null
 					return file.getOutContent()
@@ -687,9 +686,10 @@ class DocPad extends EventEmitterGrouped
 					throw err
 
 		# Fetch our result template data
-		templateData = extendr.extend({}, @initialTemplateData, @pluginsTemplateData, @config.templateData, userTemplateData)
+		templateData = extendr.extend({}, @initialTemplateData, @pluginsTemplateData, @getConfig().templateData, userTemplateData)
 
 		# Add site data
+		templateData.site.url or= 'http://'+(docpad.getHostname() or 'localhost')+':'+(docpad.getPort())
 		templateData.site.date or= new Date()
 		templateData.site.keywords or= []
 		if typeChecker.isString(templateData.site.keywords)
