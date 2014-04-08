@@ -3642,7 +3642,7 @@ class DocPad extends EventEmitterGrouped
 				models: (model.getAttributes()  for model in database.models)
 			databaseDataDump = JSON.stringify(databaseData, null, '  ')
 			docpad.log 'info', util.format(locale.databaseCacheWrite, databaseData.models.length)
-			return afefs.writeFile(config.databaseCachePath, databaseDataDump, complete)
+			return safefs.writeFile(config.databaseCachePath, databaseDataDump, complete)
 
 
 		# Run
