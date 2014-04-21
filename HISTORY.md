@@ -1,5 +1,9 @@
 # History
 
+- v6.64.1 April 21, 2014
+	- Fixed cache file not being correctly (regression since v6.63.7)
+		- Thanks to [Ivan Klimchuk](https://github.com/Alroniks) for [pull request #825](https://github.com/bevry/docpad/pull/825)
+
 - v6.64.0 March 4, 2014
 	- Fixed a possible issue with `@include` template helper not working when the `renderPasses` config option changes
 	- DocPad will now auto-set the `site.url` template data to the calculated site URL (e.g. `http://localhost:9778`) if it is falsey
@@ -46,7 +50,7 @@
 	- Disabled database writing by default (set `databaseCache` to `false` instead of `'write"` by default)
 		- We never used it, still many naunces with reading to figure out, so it doesn't make sense incurring the performance penalty of the write while there is no use for it
 		- Enable writing manually by setting `databaseCache` to `"write"`
-		- Enable writing and reading manually by setting `databaseCache` to `true` 
+		- Enable writing and reading manually by setting `databaseCache` to `true`
 
 - v6.62.0 January 28, 2014
 	- Stylesheets are more effeciently generated
@@ -127,37 +131,37 @@
 		- Thanks to [pflannery](https://github.com/pflannery) for [issue #734](https://github.com/bevry/docpad/issues/734)
 	- Moved the missing layout error check from contextualize step to render step, as the layout may not be there if we are still loading documents
 
-- v6.57.3 December 16, 2013 
+- v6.57.3 December 16, 2013
 	- Contextualize will now also be called during a file's `load` action to help injected files being contextualized
 
-- v6.57.2 December 12, 2013 
+- v6.57.2 December 12, 2013
 	- Updated dependencies
 
-- v6.57.1 December 9, 2013 
+- v6.57.1 December 9, 2013
 	- Fixed delay of requests not working when documents are still performing their initial generation (regression since v6.57.0)
 
-- v6.57.0 December 3, 2013 
+- v6.57.0 December 3, 2013
 	- Improved the caching of on-the-fly collections and fixed the name setting of collections
 		- Possible b/c break: `DocPad::getCollections()` will now return an `[collection, ...]` array, rather than an `{name: collection}` object. To get the name of a collection, you should now do `collection.options.name`
 
-- v6.56.0 November 29, 2013 
+- v6.56.0 November 29, 2013
 	- The database cache introduced in v6.55.0 is set to `write` (write-only) by default now until we fix out the kinks
 		- To enable read mode, use the `--cache` command line option when running DocPad, or set the `databaseCache` configuration option to `true`
 
-- v6.55.9 November 29, 2013 
+- v6.55.9 November 29, 2013
 	- Properly fixed v6.55.3 issue while maintaining node.js v0.8 compatibility
 		- Thanks to [Michael Duane Mooring](https://github.com/mikeumus), [pflannery](https://github.com/pflannery) for [issue #717](https://github.com/bevry/docpad/issues/717)
 
-- v6.55.8 November 28, 2013 
+- v6.55.8 November 28, 2013
 	- Fixed Node.js v0.8 compatibility (regression since v6.55.3)
 
-- v6.55.7 November 28, 2013 
+- v6.55.7 November 28, 2013
 	- ??? was already published...
 
-- v6.55.6 November 28, 2013 
+- v6.55.6 November 28, 2013
 	- Output a huge warning banner when running DocPad against an unstable version of Node.js
 
-- v6.55.5 November 27, 2013 
+- v6.55.5 November 27, 2013
 	- Fixed `Configuration changes require a `docpad clean` to regenerate files ` (regression since v6.55.0)
 		- Thanks to [Christo Buschek](https://github.com/crito) for [issue #718](https://github.com/bevry/docpad/issues/718)
 
@@ -200,7 +204,7 @@
 		- `addModel(model, opts)` was added
 		- `addModels(models, opts)` was added
 		- `createModels(models, opts)` was added
-		- `ensureModel(model, opts)` is now the same as `createModel(model, opts)` 
+		- `ensureModel(model, opts)` is now the same as `createModel(model, opts)`
 		- `generatePrepare`, `generateLoad`, `generateRender`, `generatePostpare`, `populateCollections` were consolidated into `generate(opts, next)`
 	- The following changes have been made to the events:
 		- `generateBefore`, `populateCollectionsBefore`, `populateCollections`, `generateAfter` now receive the options: `initial`, `reset`, and `collection`
@@ -252,7 +256,7 @@
 - v6.54.3 November 1, 2013
 	- Fix incorrect ` @latest` within `npm install docpad@6 @latest --save` when running `docpad update` and `docpad install`
 		- You'll probably want to run `npm uninstall --save latest` to make sure that the incorrectly installed `latest` dependency is removed
- 
+
 - v6.54.2 October 30, 2013
 	- Fix plugin version check
 		- Thanks to [unframework](https://github.com/unframework) for [pull request #690](https://github.com/bevry/docpad/pull/690)
@@ -642,7 +646,7 @@
 - v6.31.1 April 25, 2013
 	- Fixed cannot get `length` of undefined error
 	- Added progress bar (instead of snores) for during generation when using the default log level (`6`)
- 
+
 - v6.31.0 April 24, 2013
 	- DocPad will now warn you when you have files of the same outPath
 	- File and Document IDs will now always be their `cid` (before they use to be their relativePath on occasion)
@@ -659,7 +663,7 @@
 
 - v6.30.4 April 16, 2013
 	- Testing of plugins now works when the plugin directory is the full plugin name
-		- Thanks to [Mark Groves](https://github.com/mgroves84) for [issue #485](https://github.com/bevry/docpad/issues/485) 
+		- Thanks to [Mark Groves](https://github.com/mgroves84) for [issue #485](https://github.com/bevry/docpad/issues/485)
 
 - v6.30.3 April 10, 2013
 	- Updated dependencies
@@ -819,7 +823,7 @@
 - v6.21.1 January 6, 2013
 	- Added support for running multiple plugin tests for the same plugin
 		- Closes [issue #393](https://github.com/bevry/docpad/issues/393)
- 
+
 - v6.21.0 January 2, 2013
 	- Cleanup focused around loading, parsing, and writing of files and documents
 	- Added
@@ -1754,5 +1758,3 @@
 
 - v0.1 March 16, 2011
 	- Initial discussions with [Henri Bergius](https://github.com/bergie)
-
-
