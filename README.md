@@ -149,6 +149,7 @@ These amazing people have contributed code to this project:
 - [Aaron Powell](https://github.com/aaronpowell) <me@aaron-powell.com> — [view contributions](https://github.com/bevry/docpad/commits?author=aaronpowell)
 - [Adrian Olaru](https://github.com/adrianolaru) <agolaru@gmail.com> — [view contributions](https://github.com/bevry/docpad/commits?author=adrianolaru)
 - [Alex](https://github.com/amesarosh) — [view contributions](https://github.com/bevry/docpad/commits?author=amesarosh)
+- [Alroniks](https://github.com/Alroniks) — [view contributions](https://github.com/bevry/docpad/commits?author=Alroniks)
 - [Andrew Patton](https://github.com/acusti) <andrew@acusti.ca> — [view contributions](https://github.com/bevry/docpad/commits?author=acusti)
 - [Ashnur](https://github.com/ashnur) — [view contributions](https://github.com/bevry/docpad/commits?author=ashnur)
 - [Ben Barber](https://github.com/barberboy) — [view contributions](https://github.com/bevry/docpad/commits?author=barberboy)

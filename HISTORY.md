@@ -1,5 +1,8 @@
 # History
 
+- v6.64.2 April 21, 2014
+	- Updated dependencies
+
 - v6.64.1 April 21, 2014
 	- Fixed cache file not being correctly (regression since v6.63.7)
 		- Thanks to [Ivan Klimchuk](https://github.com/Alroniks) for [pull request #825](https://github.com/bevry/docpad/pull/825)
