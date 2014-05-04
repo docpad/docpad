@@ -200,6 +200,7 @@
 	versionLocal: "v%s (local installation: %s)"
 	welcome: "Welcome to DocPad %s"
 	welcomeContribute: "Contribute: http://docpad.org/docs/contribute"
+	welcomeDonate: "If everyone who saw this message donated $1/week, maintaining DocPad would become sustainable: http://docpad.org/donate"
 	welcomePlugins: "Plugins: %s"
 	welcomeEnvironment: "Environment: %s"
 	includeFailed: "Could not include the file at path %s as we could not find it"

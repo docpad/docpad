@@ -1,5 +1,8 @@
 # History
 
+- v6.64.3 May 4, 2014
+	- Added donation plea for [bevry/meta#3](http://github.com/bevry/meta/issues/3)
+
 - v6.64.2 April 21, 2014
 	- Updated dependencies
 

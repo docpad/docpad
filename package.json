@@ -1,7 +1,7 @@
 {
   "title": "DocPad. Streamlined web development.",
   "name": "docpad",
-  "version": "6.64.2",
+  "version": "6.64.3",
   "description": "DocPad is a next generation web architecture that lets you create fast static websites with dynamic abilities and powerful abstractions. Write your website as files on your computer, entries in a database, or even RSS feeds and DocPad will import it, generate & render it, then output a static website for deployment anywhere or a dynamic node website for advanced server-side functionality. Use it as a module or standalone. It's purely awesome. Check it out.",
   "homepage": "http://docpad.org",
   "installUrl": "http://docpad.org/install",
@@ -18,7 +18,8 @@
     "gittip": "docpad",
     "flattr": "344188/balupton-on-Flattr",
     "paypal": "QB8GQPZAH84N6",
-    "bitcoin": "https://coinbase.com/checkouts/9ef59f5479eec1d97d63382c9ebcb93a"
+    "bitcoin": "https://coinbase.com/checkouts/9ef59f5479eec1d97d63382c9ebcb93a",
+    "wishlist": "http://amzn.com/w/2F8TXKSNAFG4V"
   },
   "keywords": [
     "document management system",
@@ -79,6 +80,7 @@
     "Homme Zwaagstra <hrz@geodata.soton.ac.uk> (https://github.com/homme)",
     "kalkin (https://github.com/kalkin)",
     "Luke Hagan (https://github.com/lhagan)",
+    "mikeumus (https://github.com/mikeumus)",
     "Neil Taylor <neil.t@myplanetdigital.com> (https://github.com/neilbaylorrulez)",
     "nfriedly (https://github.com/nfriedly)",
     "Nick Crohn <ncrohn@me.com> (https://github.com/ncrohn)",
