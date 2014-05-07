@@ -2166,7 +2166,7 @@ class DocPad extends EventEmitterGrouped
 
 		# Handle
 		@error err, 'err', ->
-			process.stderr.write require('util').inspect(err.stack or err.message)
+			process.stderr.write docpadUtil.inspect(err.stack or err.message)
 			docpad.destroy()
 
 		# Chain
