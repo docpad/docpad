@@ -3,9 +3,15 @@ _ = require('lodash')
 {extractOptsAndCallback} = require('extract-opts')
 {TaskGroup} = require('taskgroup')
 pathUtil = require('path')
+util = require('util')
 
 # Export
 module.exports = docpadUtil =
+	
+	# Inspect in color
+	inspect: (obj, opts={colors:true}) ->
+		util.inspect(obj, opts)
+	
 	# Standard Encodings
 	isStandardEncoding: (encoding) ->
 		return encoding.toLowerCase() in ['ascii', 'utf8', 'utf-8']
