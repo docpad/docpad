@@ -61,6 +61,10 @@ class ConsoleInterface
 				locale.consoleOptionCache
 			)
 			.option(
+				'--no-color'
+				locale.consoleOptionNoColor
+			)
+			.option(
 				'--silent'
 				locale.consoleOptionSilent
 			)
