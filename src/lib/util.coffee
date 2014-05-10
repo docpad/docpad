@@ -10,6 +10,9 @@ module.exports = docpadUtil =
 	
 	# Inspect in color
 	inspect: (obj, opts={colors:true}) ->
+		# disable colors for non-terminal output
+		if process.stdout.isTTY is false or process.stderr.isTTY is false
+			opts.colors = false
 		util.inspect(obj, opts)
 	
 	# Standard Encodings
