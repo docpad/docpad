@@ -98,26 +98,26 @@ class DocPad extends EventEmitterGrouped
 	# Modules
 
 	# Base
-	Events: Events
-	Model: Model
-	Collection: Collection
-	View: View
+	Events:          Events
+	Model:           Model
+	Collection:      Collection
+	View:            View
 	QueryCollection: QueryCollection
 
 	# Models
-	FileModel: FileModel
-	DocumentModel: DocumentModel
+	FileModel:       FileModel
+	DocumentModel:   DocumentModel
 
 	# Collections
-	FilesCollection: FilesCollection
+	FilesCollection:    FilesCollection
 	ElementsCollection: ElementsCollection
-	MetaCollection: MetaCollection
-	ScriptsCollection: ScriptsCollection
-	StylesCollection: StylesCollection
+	MetaCollection:     MetaCollection
+	ScriptsCollection:  ScriptsCollection
+	StylesCollection:   StylesCollection
 
 	# Plugins
-	PluginLoader: PluginLoader
-	BasePlugin: BasePlugin
+	PluginLoader:    PluginLoader
+	BasePlugin:      BasePlugin
 
 
 	# ---------------------------------
@@ -141,7 +141,7 @@ class DocPad extends EventEmitterGrouped
 
 	# Process getters
 	getProcessPlatform: -> process.platform
-	getProcessVersion: -> process.version.replace(/^v/,'')
+	getProcessVersion:  -> process.version.replace(/^v/,'')
 
 	# The express and http server instances bound to docpad
 	serverExpress: null
@@ -156,7 +156,7 @@ class DocPad extends EventEmitterGrouped
 		# Apply
 		if servers.serverExpress and servers.serverHttp
 			@serverExpress = servers.serverExpress
-			@serverHttp = servers.serverHttp
+			@serverHttp    = servers.serverHttp
 
 		# Cleanup
 		delete @config.serverHttp
@@ -169,7 +169,7 @@ class DocPad extends EventEmitterGrouped
 
 	# The caterpillar instances bound to docpad
 	loggerInstances: null
-	getLogger: -> @loggerInstances?.logger
+	getLogger:  -> @loggerInstances?.logger
 	getLoggers: -> @loggerInstances
 	setLoggers: (loggers) ->
 		if @loggerInstances
@@ -236,7 +236,7 @@ class DocPad extends EventEmitterGrouped
 	# Collections
 
 	# Database collection
-	database: null  # QueryEngine Collection
+	database:          null  # QueryEngine Collection
 	databaseTempCache: null
 	getDatabase: -> @database
 	getDatabaseSafe: -> @databaseTempCache or @database
@@ -413,10 +413,10 @@ class DocPad extends EventEmitterGrouped
 
 	# Get files (will use live collections)
 	getFiles: (query,sorting,paging) ->
-		key = JSON.stringify({query, sorting, paging})
+		key        = JSON.stringify({query, sorting, paging})
 		collection = @getCollection(key)
 		unless collection
-			collection = @getDatabase().findAllLive(query, sorting, paging)
+			collection             = @getDatabase().findAllLive(query, sorting, paging)
 			collection.options.key = key
 			@addCollection(collection)
 		return collection
@@ -441,13 +441,13 @@ class DocPad extends EventEmitterGrouped
 	# TODO: Does this still work???
 	getFileByUrl: (url,opts={}) ->
 		opts.collection ?= @getDatabase()
-		file = opts.collection.get(@filesByUrl[url])
+		file             = opts.collection.get(@filesByUrl[url])
 		return file
 
 	# Get a file by its id
 	getFileById: (id,opts={}) ->
 		opts.collection ?= @getDatabase()
-		file = opts.collection.get(id)
+		file             = opts.collection.get(id)
 		return file
 
 	# Remove the query string from a url
@@ -480,7 +480,7 @@ class DocPad extends EventEmitterGrouped
 
 		# Fetch
 		cleanUrl = docpad.getUrlPathname(url)
-		file = docpad.getFileByUrl(url, {collection:database}) or docpad.getFileByUrl(cleanUrl, {collection:database})
+		file     = docpad.getFileByUrl(url, {collection:database}) or docpad.getFileByUrl(cleanUrl, {collection:database})
 
 		# Forward
 		next(null, file)
@@ -492,7 +492,7 @@ class DocPad extends EventEmitterGrouped
 	# TODO: What on earth is a selector?
 	getFileBySelector: (selector,opts={}) ->
 		opts.collection ?= @getDatabase()
-		file = opts.collection.get(@filesBySelector[selector])
+		file             = opts.collection.get(@filesBySelector[selector])
 		unless file
 			file = opts.collection.fuzzyFindOne(selector)
 			if file
@@ -519,7 +519,7 @@ class DocPad extends EventEmitterGrouped
 			return next(null,@skeletonsCollection)
 
 		# Fetch the skeletons from the exchange
-		@skeletonsCollection = new Collection()
+		@skeletonsCollection            = new Collection()
 		@skeletonsCollection.comparator = queryEngine.generateComparator(position:1, name:1)
 		@getExchange (err,exchange) ->
 			# Check
@@ -531,18 +531,18 @@ class DocPad extends EventEmitterGrouped
 			# If we have the exchange data, then add the skeletons from it
 			if exchange
 				for own skeletonKey,skeleton of exchange.skeletons
-					skeleton.id ?= skeletonKey
-					skeleton.name ?= skeletonKey
+					skeleton.id       ?= skeletonKey
+					skeleton.name     ?= skeletonKey
 					skeleton.position ?= index
 					docpad.skeletonsCollection.add(new Model(skeleton))
 					++index
 
 			# Add No Skeleton Option
 			docpad.skeletonsCollection.add(new Model(
-				id: 'none'
-				name: locale.skeletonNoneName
+				id:          'none'
+				name:        locale.skeletonNoneName
 				description: locale.skeletonNoneDescription
-				position: index
+				position:    index
 			))
 
 			# Return Collection
@@ -554,35 +554,35 @@ class DocPad extends EventEmitterGrouped
 	# Plugins
 
 	# Plugins that are loading really slow
-	slowPlugins: null  # {}
+	slowPlugins:   null  # {}
 
 	# Loaded plugins indexed by name
 	loadedPlugins: null  # {}
 
 	# A listing of all the available extensions for DocPad
-	exchange: null  # {}
+	exchange:      null  # {}
 
 
 	# -----------------------------
 	# Paths
 
 	# The DocPad directory
-	corePath: corePath
+	corePath:       corePath
 
 	# The DocPad library directory
-	libPath: __dirname
+	libPath:        __dirname
 
 	# The main DocPad file
-	mainPath: pathUtil.resolve(__dirname, 'docpad')
+	mainPath:       pathUtil.resolve(__dirname, 'docpad')
 
 	# The DocPad package.json path
-	packagePath: pathUtil.resolve(__dirname, '..', '..', 'package.json')
+	packagePath:    pathUtil.resolve(__dirname, '..', '..', 'package.json')
 
 	# The DocPad locale path
-	localePath: pathUtil.resolve(__dirname, '..', '..', 'locale')
+	localePath:     pathUtil.resolve(__dirname, '..', '..', 'locale')
 
 	# The DocPad debug log path
-	debugLogPath: pathUtil.join(process.cwd(), 'docpad-debug.log')
+	debugLogPath:   pathUtil.join(process.cwd(), 'docpad-debug.log')
 
 	# The User's configuration path
 	userConfigPath: '.docpad.cson'
@@ -603,8 +603,8 @@ class DocPad extends EventEmitterGrouped
 	getTemplateData: (userTemplateData) ->
 		# Prepare
 		userTemplateData or= {}
-		docpad = @
-		locale = @getLocale()
+		docpad             = @
+		locale             = @getLocale()
 
 		# Set the initial docpad template data
 		@initialTemplateData ?=
@@ -632,7 +632,7 @@ class DocPad extends EventEmitterGrouped
 			# Get a Path in respect to the current document
 			getPath: (path,parentPath) ->
 				document = @getDocument()
-				path = document.getPath(path, parentPath)
+				path     = document.getPath(path, parentPath)
 				return path
 
 			# Get Files
@@ -650,14 +650,14 @@ class DocPad extends EventEmitterGrouped
 			# Get Files At Path
 			getFilesAtPath: (path,sorting,paging) ->
 				@referencesOthers()
-				path = @getPath(path)
+				path   = @getPath(path)
 				result = docpad.getFilesAtPath(path, sorting, paging)
 				return result
 
 			# Get another file's model based on a relative path
 			getFileAtPath: (relativePath) ->
 				@referencesOthers()
-				path = @getPath(relativePath)
+				path   = @getPath(relativePath)
 				result = docpad.getFileAtPath(path)
 				return result
 
@@ -698,8 +698,8 @@ class DocPad extends EventEmitterGrouped
 		templateData = extendr.extend({}, @initialTemplateData, @pluginsTemplateData, @getConfig().templateData, userTemplateData)
 
 		# Add site data
-		templateData.site.url or= 'http://'+(docpad.getHostname() or 'localhost')+':'+(docpad.getPort())
-		templateData.site.date or= new Date()
+		templateData.site.url      or= 'http://'+(docpad.getHostname() or 'localhost')+':'+(docpad.getPort())
+		templateData.site.date     or= new Date()
 		templateData.site.keywords or= []
 		if typeChecker.isString(templateData.site.keywords)
 			templateData.site.keywords = templateData.site.keywords.split(/,\s*/g)
@@ -718,7 +718,7 @@ class DocPad extends EventEmitterGrouped
 	getLocale: ->
 		if @locale? is false
 			config = @getConfig()
-			codes = _.uniq [
+			codes  = _.uniq [
 				'en'
 				safeps.getLanguageCode config.localeCode
 				safeps.getLanguageCode safeps.getLocaleCode()
@@ -734,7 +734,7 @@ class DocPad extends EventEmitterGrouped
 	loadLocale: (code) ->
 		localePath = pathUtil.join(@localePath, "#{code}.cson")
 		return null  unless safefs.existsSync(localePath)
-		locale = CSON.parseFileSync(localePath)
+		locale     = CSON.parseFileSync(localePath)
 		return locale
 
 
@@ -748,7 +748,7 @@ class DocPad extends EventEmitterGrouped
 
 	# Get Environments
 	getEnvironments: ->
-		env = @getEnvironment()
+		env  = @getEnvironment()
 		envs = env.split(/[, ]+/)
 		return envs
 
@@ -770,24 +770,24 @@ class DocPad extends EventEmitterGrouped
 	# - websiteConfig
 	# - instanceConfig
 	# - environmentConfig
-	config: null  # {}
+	config:         null  # {}
 
 	# Instance Configuration
 	instanceConfig: null  # {}
 
 	# Website Configuration
-	websiteConfig: null  # {}
+	websiteConfig:  null  # {}
 
 	# User Configuraiton
 	userConfig:
 		# Name
-		name: null
+		name:       null
 
 		# Email
-		email: null
+		email:      null
 
 		# Username
-		username: null
+		username:   null
 
 		# Subscribed
 		subscribed: null
@@ -797,7 +797,7 @@ class DocPad extends EventEmitterGrouped
 		subscribeTryAgain: null
 
 		# Terms of Service
-		tos: null
+		tos:        null
 
 		# Identified
 		identified: null
@@ -809,13 +809,13 @@ class DocPad extends EventEmitterGrouped
 		# Plugins
 
 		# Force re-install of all plugin dependencies
-		force: false
+		force:  false
 
 		# Whether or not we should use the global docpad instance
 		global: false
 
 		# Whether or not we should enable plugins that have not been listed or not
-		enableUnlistedPlugins: true
+		enableUnlistedPlugins:  true
 
 		# Plugins which should be enabled or not pluginName: pluginEnabled
 		enabledPlugins: {}
@@ -824,10 +824,10 @@ class DocPad extends EventEmitterGrouped
 		skipUnsupportedPlugins: true
 
 		# Configuration to pass to any plugins pluginName: pluginConfiguration
-		plugins: {}
+		plugins:        {}
 
 		# Where to fetch the exchange information from
-		exchangeUrl: 'http://docpad.org/exchange.json'
+		exchangeUrl:    'http://docpad.org/exchange.json'
 
 
 		# -----------------------------
@@ -840,10 +840,10 @@ class DocPad extends EventEmitterGrouped
 		databaseCachePath: '.docpad.db'
 
 		# The project's package.json path
-		packagePath: 'package.json'
+		packagePath:       'package.json'
 
 		# Where to get the latest package information from
-		latestPackageUrl: 'http://docpad.org/latest.json'
+		latestPackageUrl:  'http://docpad.org/latest.json'
 
 		# The project's configuration paths
 		# Reads only the first one that exists
@@ -875,7 +875,7 @@ class DocPad extends EventEmitterGrouped
 		regenerateDelay: 100
 
 		# The time to wait before outputting the files we are waiting on
-		slowFilesDelay: 20*1000
+		slowFilesDelay:  20*1000
 
 		# The project's out directory
 		outPath: 'out'
@@ -905,13 +905,13 @@ class DocPad extends EventEmitterGrouped
 		]
 
 		# Ignored file patterns during directory parsing
-		ignorePaths: false
-		ignoreHiddenFiles: false
+		ignorePaths:          false
+		ignoreHiddenFiles:    false
 		ignoreCommonPatterns: true
 		ignoreCustomPatterns: false
 
 		# Watch options
-		watchOptions: null
+		watchOptions:         null
 
 
 		# -----------------------------
@@ -923,7 +923,7 @@ class DocPad extends EventEmitterGrouped
 		# - PORT — Heroku, Nodejitsu, Custom
 		# - VCAP_APP_PORT — AppFog
 		# - VMC_APP_PORT — CloudFoundry
-		port: null
+		port:     null
 
 		# Hostname
 		# The hostname we wish to listen to
@@ -934,31 +934,31 @@ class DocPad extends EventEmitterGrouped
 
 		# Max Age
 		# The caching time limit that is sent to the client
-		maxAge: 86400000
+		maxAge:   86400000
 
 		# Server
 		# The Express.js server that we want docpad to use
 		serverExpress: null
 		# The HTTP server that we want docpad to use
-		serverHttp: null
+		serverHttp:    null
 
 		# Extend Server
 		# Whether or not we should extend the server with extra middleware and routing
-		extendServer: true
+		extendServer:  true
 
 		# Which middlewares would you like us to activate
 		# The standard middlewares (bodyParser, methodOverride, express router)
-		middlewareStandard: true
+		middlewareStandard:       true
 		# The standard bodyParser middleware
-		middlewareBodyParser: true
+		middlewareBodyParser:     true
 		# The standard methodOverride middleware
 		middlewareMethodOverride: true
 		# The standard express router middleware
-		middlewareExpressRouter: true
+		middlewareExpressRouter:  true
 		# Our own 404 middleware
-		middleware404: true
+		middleware404:            true
 		# Our own 500 middleware
-		middleware500: true
+		middleware500:            true
 
 
 		# -----------------------------
@@ -974,7 +974,7 @@ class DocPad extends EventEmitterGrouped
 		# Report Errors
 		# Whether or not we should report our errors back to DocPad
 		# By default it is only enabled if we are not running inside a test
-		reportErrors: process.argv.join('').indexOf('test') is -1
+		reportErrors:     process.argv.join('').indexOf('test') is -1
 
 		# Report Statistics
 		# Whether or not we should report statistics back to DocPad
@@ -986,12 +986,12 @@ class DocPad extends EventEmitterGrouped
 		# Other
 
 		# Utilise the database cache
-		databaseCache: false  # [false, true, 'write']
+		databaseCache:          false  # [false, true, 'write']
 
 		# Detect Encoding
 		# Should we attempt to auto detect the encoding of our files?
 		# Useful when you are using foreign encoding (e.g. GBK) for your files
-		detectEncoding: false
+		detectEncoding:         false
 
 		# Render Single Extensions
 		# Whether or not we should render single extensions by default
@@ -999,7 +999,7 @@ class DocPad extends EventEmitterGrouped
 
 		# Render Passes
 		# How many times should we render documents that reference other documents?
-		renderPasses: 1
+		renderPasses:           1
 
 		# Offline
 		# Whether or not we should run in offline mode
@@ -1007,19 +1007,19 @@ class DocPad extends EventEmitterGrouped
 		# - checkVersion
 		# - reportErrors
 		# - reportStatistics
-		offline: false
+		offline:         false
 
 		# Check Version
 		# Whether or not to check for newer versions of DocPad
-		checkVersion: false
+		checkVersion:    false
 
 		# Welcome
 		# Whether or not we should display any custom welcome callbacks
-		welcome: false
+		welcome:         false
 
 		# Prompts
 		# Whether or not we should display any prompts
-		prompts: false
+		prompts:         false
 
 		# Powered By DocPad
 		# Whether or not we should include DocPad in the Powered-By meta header
@@ -1029,12 +1029,12 @@ class DocPad extends EventEmitterGrouped
 		# Helper Url
 		# Used for subscribing to newsletter, account information, and statistics etc
 		# Helper's source-code can be found at: https://github.com/bevry/docpad-helper
-		helperUrl: if true then 'http://docpad-helper.herokuapp.com/' else 'http://localhost:8000/'
+		helperUrl:       if true then 'http://docpad-helper.herokuapp.com/' else 'http://localhost:8000/'
 
 		# Safe Mode
 		# If enabled, we will try our best to sandbox our template rendering so that they cannot modify things outside of them
 		# Not yet implemented
-		safeMode: false
+		safeMode:     false
 
 		# Template Data
 		# What data would you like to expose to your templates
@@ -1042,11 +1042,11 @@ class DocPad extends EventEmitterGrouped
 
 		# Collections
 		# A hash of functions that create collections
-		collections: {}
+		collections:  {}
 
 		# Events
 		# A hash of event handlers
-		events: {}
+		events:       {}
 
 		# Regenerate Every
 		# Performs a regenerate every x milliseconds, useful for always having the latest data
@@ -1069,7 +1069,7 @@ class DocPad extends EventEmitterGrouped
 		# Environment
 		# Whether or not we are in production or development
 		# Separate environments using a comma or a space
-		env: null
+		env:        null
 
 		# Environments
 		# Environment specific configuration to over-ride the global configuration
@@ -1080,8 +1080,8 @@ class DocPad extends EventEmitterGrouped
 
 				# Only do these if we are running standalone (aka not included in a module)
 				checkVersion: /docpad$/.test(process.argv[1] or '')
-				welcome: /docpad$/.test(process.argv[1] or '')
-				prompts: /docpad$/.test(process.argv[1] or '')
+				welcome:      /docpad$/.test(process.argv[1] or '')
+				prompts:      /docpad$/.test(process.argv[1] or '')
 
 
 	# Regenerate Timer
@@ -1094,7 +1094,7 @@ class DocPad extends EventEmitterGrouped
 
 	# Get the Port
 	getPort: ->
-		return @getConfig().port ? process.env.PORT ? process.env.VCAP_APP_PORT ? process.env.VMC_APP_PORT ? 9778
+		return @getConfig().port     ? process.env.PORT     ? process.env.VCAP_APP_PORT ? process.env.VMC_APP_PORT ? 9778
 
 	# Get the Hostname
 	getHostname: ->
@@ -1109,7 +1109,7 @@ class DocPad extends EventEmitterGrouped
 	constructor: (instanceConfig,next) ->
 		# Prepare
 		[instanceConfig,next] = extractOptsAndCallback(instanceConfig, next)
-		docpad = @
+		docpad                = @
 
 		# Allow DocPad to have unlimited event listeners
 		@setMaxListeners(0)
@@ -1174,16 +1174,17 @@ class DocPad extends EventEmitterGrouped
 
 		# Dereference and initialise advanced variables
 		# we deliberately ommit initialTemplateData here, as it is setup in getTemplateData
-		@slowPlugins = {}
-		@loadedPlugins = {}
-		@exchange = {}
+		@slowPlugins         = {}
+		@loadedPlugins       = {}
+		@exchange            = {}
 		@pluginsTemplateData = {}
-		@instanceConfig = {}
-		@collections = []
-		@blocks = {}
-		@filesByUrl = {}
-		@filesBySelector = {}
-		@filesByOutPath = {}
+		@instanceConfig      = {}
+		@collections         = []
+		@blocks              = {}
+		@filesByUrl          = {}
+		@filesBySelector     = {}
+		@filesByOutPath      = {}
+		
 		@database = new FilesCollection(null, {name:'database'})
 			.on('remove', (model,options) =>
 				# Skip if we are not a writeable file
@@ -1264,7 +1265,7 @@ class DocPad extends EventEmitterGrouped
 				# Return safely
 				return true
 			)
-		@userConfig = extendr.dereference(@userConfig)
+		@userConfig    = extendr.dereference(@userConfig)
 		@initialConfig = extendr.dereference(@initialConfig)
 
 		# Extract action
@@ -1290,7 +1291,7 @@ class DocPad extends EventEmitterGrouped
 	destroy: (opts, next) =>
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
-		docpad = @
+		docpad      = @
 
 		# Destroy Regenerate Timer
 		docpad.destroyRegenerateTimer()
@@ -1337,8 +1338,8 @@ class DocPad extends EventEmitterGrouped
 	emitSerial: (eventName, opts, next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
-		docpad = @
-		locale = docpad.getLocale()
+		docpad      = @
+		locale      = docpad.getLocale()
 
 		# Log
 		docpad.log 'debug', util.format(locale.emittingEvent, eventName)
@@ -1361,8 +1362,8 @@ class DocPad extends EventEmitterGrouped
 	emitParallel: (eventName, opts, next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
-		docpad = @
-		locale = docpad.getLocale()
+		docpad      = @
+		locale      = docpad.getLocale()
 
 		# Log
 		docpad.log 'debug', util.format(locale.emittingEvent, eventName)
@@ -1429,11 +1430,11 @@ class DocPad extends EventEmitterGrouped
 			pluginsList = Object.keys(@loadedPlugins).sort().join(', ')
 
 		# Welcome Output
-		docpad.log 'info', util.format(locale.welcome, @getVersionString())
+		docpad.log 'info',   util.format(locale.welcome, @getVersionString())
 		docpad.log 'notice', locale.welcomeDonate
-		docpad.log 'info', locale.welcomeContribute
-		docpad.log 'info', util.format(locale.welcomePlugins, pluginsList)
-		docpad.log 'info', util.format(locale.welcomeEnvironment, @getEnvironment())
+		docpad.log 'info',   locale.welcomeContribute
+		docpad.log 'info',   util.format(locale.welcomePlugins, pluginsList)
+		docpad.log 'info',   util.format(locale.welcomeEnvironment, @getEnvironment())
 
 		# Prepare
 		tasks = new TaskGroup 'ready tasks', next:(err) ->
@@ -1487,7 +1488,7 @@ class DocPad extends EventEmitterGrouped
 		# Merge in the instance configurations
 		if instanceConfig
 			extendr.safeDeepExtendPlainObjects(@instanceConfig, instanceConfig)
-			extendr.safeDeepExtendPlainObjects(@config, instanceConfig)  if @config
+			extendr.safeDeepExtendPlainObjects(@config,         instanceConfig)  if @config
 		@
 
 	# Set Configuration
@@ -1495,8 +1496,8 @@ class DocPad extends EventEmitterGrouped
 	setConfig: (instanceConfig,next) =>
 		# Prepare
 		[instanceConfig,next] = extractOptsAndCallback(instanceConfig,next)
-		docpad = @
-		locale = @getLocale()
+		docpad                = @
+		locale                = @getLocale()
 
 		# Apply the instance configuration, generally we won't have it at this level
 		# as it would have been applied earlier the load step
@@ -1515,7 +1516,7 @@ class DocPad extends EventEmitterGrouped
 
 		# Extract and apply the server
 		@setServer extendr.safeShallowExtendPlainObjects({
-			serverHttp: @config.serverHttp
+			serverHttp:    @config.serverHttp
 			serverExpress: @config.serverExpress
 		},  @config.server)
 
@@ -1523,11 +1524,11 @@ class DocPad extends EventEmitterGrouped
 		@setLogLevel(@config.logLevel)
 
 		# Resolve any paths
-		@config.rootPath = pathUtil.resolve(@config.rootPath)
-		@config.outPath = pathUtil.resolve(@config.rootPath, @config.outPath)
-		@config.srcPath = pathUtil.resolve(@config.rootPath, @config.srcPath)
+		@config.rootPath          = pathUtil.resolve(@config.rootPath)
+		@config.outPath           = pathUtil.resolve(@config.rootPath, @config.outPath)
+		@config.srcPath           = pathUtil.resolve(@config.rootPath, @config.srcPath)
 		@config.databaseCachePath = pathUtil.resolve(@config.rootPath, @config.databaseCachePath)
-		@config.packagePath = pathUtil.resolve(@config.rootPath, @config.packagePath)
+		@config.packagePath       = pathUtil.resolve(@config.rootPath, @config.packagePath)
 
 		# Resolve Documents, Files, Layouts paths
 		for type in ['documents','files','layouts']
@@ -1585,14 +1586,14 @@ class DocPad extends EventEmitterGrouped
 	load: (instanceConfig,next) =>
 		# Prepare
 		[instanceConfig,next] = extractOptsAndCallback(instanceConfig,next)
-		docpad = @
-		locale = @getLocale()
-		instanceConfig or= {}
+		docpad                = @
+		locale                = @getLocale()
+		instanceConfig      or= {}
 
 		# Reset non persistant configurations
 		@websitePackageConfig = {}
-		@websiteConfig = {}
-		@config = {}
+		@websiteConfig        = {}
+		@config               = {}
 
 		# Merge in the instance configurations
 		@setInstanceConfig(instanceConfig)
@@ -1650,7 +1651,7 @@ class DocPad extends EventEmitterGrouped
 				return complete()
 
 		preTasks.addTask "load the website's package data", (complete) =>
-			rootPath = pathUtil.resolve(@instanceConfig.rootPath or @initialConfig.rootPath)
+			rootPath   = pathUtil.resolve(          @instanceConfig.rootPath    or @initialConfig.rootPath)
 			configPath = pathUtil.resolve(rootPath, @instanceConfig.packagePath or @initialConfig.packagePath)
 			docpad.log 'debug', util.format(locale.loadingWebsitePackageConfig, configPath)
 			@loadConfigPath {configPath}, (err,data) =>
@@ -1665,7 +1666,7 @@ class DocPad extends EventEmitterGrouped
 				return complete()
 
 		preTasks.addTask "read the .env file if it exists", (complete) =>
-			rootPath = pathUtil.resolve(@instanceConfig.rootPath or @websitePackageConfig.rootPath or @initialConfig.rootPath)
+			rootPath   = pathUtil.resolve(@instanceConfig.rootPath or @websitePackageConfig.rootPath or @initialConfig.rootPath)
 			configPath = pathUtil.resolve(rootPath, '.env')
 			docpad.log 'debug', util.format(locale.loadingEnvConfig, configPath)
 			safefs.exists configPath, (exists) ->
@@ -1679,7 +1680,7 @@ class DocPad extends EventEmitterGrouped
 
 		preTasks.addTask "load the website's configuration", (complete) =>
 			docpad.log 'debug', util.format(locale.loadingWebsiteConfig)
-			rootPath = pathUtil.resolve(@instanceConfig.rootPath or @initialConfig.rootPath)
+			rootPath    = pathUtil.resolve(@instanceConfig.rootPath or @initialConfig.rootPath)
 			configPaths = @instanceConfig.configPaths or @initialConfig.configPaths
 			for configPath, index in configPaths
 				configPaths[index] = pathUtil.resolve(rootPath, configPath)
@@ -1707,8 +1708,8 @@ class DocPad extends EventEmitterGrouped
 	# Update User Configuration
 	updateUserConfig: (data={},next) ->
 		# Prepare
-		[data,next] = extractOptsAndCallback(data,next)
-		docpad = @
+		[data,next]    = extractOptsAndCallback(data,next)
+		docpad         = @
 		userConfigPath = @userConfigPath
 
 		# Apply back to our loaded configuration
@@ -1758,8 +1759,8 @@ class DocPad extends EventEmitterGrouped
 	loadConfigPath: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
-		docpad = @
-		locale = @getLocale()
+		docpad      = @
+		locale      = @getLocale()
 
 		# Prepare
 		load = (configPath) ->
@@ -1794,13 +1795,13 @@ class DocPad extends EventEmitterGrouped
 	getConfigPath: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
-		docpad = @
-		config = @getConfig()
-		result = null
+		docpad      = @
+		config      = @getConfig()
+		result      = null
 
 		# Ensure array
 		opts.configPaths ?= config.configPaths
-		opts.configPaths = [opts.configPaths]  unless typeChecker.isArray(opts.configPaths)
+		opts.configPaths  = [opts.configPaths]  unless typeChecker.isArray(opts.configPaths)
 
 		tasks = new TaskGroup 'getConfigPath tasks', next:(err) ->
 			return next(err, result)
@@ -1826,10 +1827,10 @@ class DocPad extends EventEmitterGrouped
 	# next(err)
 	extendCollections: (next) ->
 		# Prepare
-		docpad = @
+		docpad       = @
 		docpadConfig = @getConfig()
-		locale = @getLocale()
-		database = @getDatabase()
+		locale       = @getLocale()
+		database     = @getDatabase()
 
 		# Standard Collections
 		@setCollections(
@@ -1837,7 +1838,7 @@ class DocPad extends EventEmitterGrouped
 			documents: database.createLiveChildCollection()
 				.setQuery('isDocument', {
 					render: true
-					write: true
+					write:  true
 				})
 				.on('add', (model) ->
 					docpad.log('debug', util.format(locale.addingDocument, model.getFilePath()))
@@ -1845,7 +1846,7 @@ class DocPad extends EventEmitterGrouped
 			files: database.createLiveChildCollection()
 				.setQuery('isFile', {
 					render: false
-					write: true
+					write:  true
 				})
 				.on('add', (model) ->
 					docpad.log('debug', util.format(locale.addingFile, model.getFilePath()))
@@ -1860,8 +1861,8 @@ class DocPad extends EventEmitterGrouped
 					docpad.log('debug', util.format(locale.addingLayout, model.getFilePath()))
 					model.setDefaults({
 						isLayout: true
-						render: false
-						write: false
+						render:   false
+						write:    false
 					})
 				)
 
@@ -1876,8 +1877,8 @@ class DocPad extends EventEmitterGrouped
 				)
 			referencesOthers: database.createLiveChildCollection()
 				.setQuery('referencesOthers', {
-					dynamic: false
-					ignored: false
+					dynamic:          false
+					ignored:          false
 					referencesOthers: true
 				})
 				.on('add', (model) ->
@@ -1887,14 +1888,14 @@ class DocPad extends EventEmitterGrouped
 				.setQuery('hasLayout', {
 					dynamic: false
 					ignored: false
-					layout: $exists: true
+					layout:  $exists: true
 				})
 				.on('add', (model) ->
 					docpad.log('debug', util.format(locale.addingHasLayout, model.getFilePath()))
 				)
 			html: database.createLiveChildCollection()
 				.setQuery('isHTML', {
-					write: true
+					write:        true
 					outExtension: 'html'
 				})
 				.on('add', (model) ->
@@ -1902,16 +1903,16 @@ class DocPad extends EventEmitterGrouped
 				)
 			stylesheet: database.createLiveChildCollection()
 				.setQuery('isStylesheet', {
-					write: true
+					write:        true
 					outExtension: 'css'
 				})
 		)
 
 		# Blocks
 		@setBlocks(
-			meta: new MetaCollection()
+			meta:    new MetaCollection()
 			scripts: new ScriptsCollection()
-			styles: new StylesCollection()
+			styles:  new StylesCollection()
 		)
 
 		# Custom Collections Group
@@ -1952,17 +1953,17 @@ class DocPad extends EventEmitterGrouped
 	resetCollections: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
-		docpad = @
-		database = docpad.getDatabase()
+		docpad      = @
+		database    = docpad.getDatabase()
 
 		# Make it as if we have never generated before
 		docpad.generated = false
 
 		# Perform a complete clean of our collections
 		database.reset([])
-		meta = @getBlock('meta').reset([])
+		meta    = @getBlock('meta').reset([])
 		scripts = @getBlock('scripts').reset([])
-		styles = @getBlock('styles').reset([])
+		styles  = @getBlock('styles').reset([])
 		# ^ Backbone.js v1.1 changes the return values of these, however we change that in our Element class
 		# because if we didn't, all our skeletons would fail
 
@@ -1970,9 +1971,9 @@ class DocPad extends EventEmitterGrouped
 		meta.add("""<meta name="generator" content="DocPad v#{docpad.getVersion()}" />""")  if docpad.getConfig().poweredByDocPad isnt false
 
 		# Reset caches
-		@filesByUrl = {}
+		@filesByUrl      = {}
 		@filesBySelector = {}
-		@filesByOutPath = {}
+		@filesByOutPath  = {}
 
 		# Chain
 		next()
@@ -1983,11 +1984,11 @@ class DocPad extends EventEmitterGrouped
 	initGitRepo: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
-		docpad = @
-		config = @getConfig()
+		docpad      = @
+		config      = @getConfig()
 
 		# Extract
-		opts.cwd ?= config.rootPath
+		opts.cwd    ?= config.rootPath
 		opts.output ?= @getDebugging()
 
 		# Forward
@@ -2001,15 +2002,15 @@ class DocPad extends EventEmitterGrouped
 	initNodeModules: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
-		docpad = @
-		config = @getConfig()
+		docpad      = @
+		config      = @getConfig()
 
 		# Extract
-		opts.cwd ?= config.rootPath
+		opts.cwd    ?= config.rootPath
 		opts.output ?= docpad.getDebugging()
-		opts.force ?= if config.offline then false else true
+		opts.force  ?= if config.offline then false else true
 		# ^ @todo this line causes --force to be added, when it shouldn't be
-		opts.args ?= []
+		opts.args   ?= []
 		opts.args.push('--force')  if config.force
 		opts.args.push('--no-registry')  if config.offline
 
@@ -2028,8 +2029,8 @@ class DocPad extends EventEmitterGrouped
 	fixNodePackageVersions: (opts) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
-		docpad = @
-		config = @getConfig()
+		docpad      = @
+		config      = @getConfig()
 
 		# Extract
 		opts.packagePath ?= config.packagePath
@@ -2048,22 +2049,22 @@ class DocPad extends EventEmitterGrouped
 	# next(err,result)
 	installNodeModule: (names,opts) ->
 		# Prepare
-		[opts,next] = extractOptsAndCallback(opts, next)
-		docpad = @
-		config = @getConfig()
+		[opts,next]  = extractOptsAndCallback(opts, next)
+		docpad       = @
+		config       = @getConfig()
 
 		# Extract
-		opts.cwd ?= config.rootPath
+		opts.cwd    ?= config.rootPath
 		opts.output ?= docpad.getDebugging()
-		opts.args ?= []
+		opts.args   ?= []
 
 		opts.global ?= false
-		opts.global = ['--global']             if opts.global is true
-		opts.global = [opts.global]            if opts.global and Array.isArray(opts.global) is false
+		opts.global  = ['--global']             if opts.global is true
+		opts.global  = [opts.global]            if opts.global and Array.isArray(opts.global) is false
 
-		opts.save ?= !opts.global
-		opts.save = ['--save']                 if opts.save is true
-		opts.save = [opts.save]                if opts.save and Array.isArray(opts.save) is false
+		opts.save   ?= !opts.global
+		opts.save    = ['--save']                 if opts.save is true
+		opts.save    = [opts.save]                if opts.save and Array.isArray(opts.save) is false
 
 		# Command
 		command = ['npm', 'install']
@@ -2101,21 +2102,21 @@ class DocPad extends EventEmitterGrouped
 	uninstallNodeModule: (names,opts) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
-		docpad = @
-		config = @getConfig()
+		docpad      = @
+		config      = @getConfig()
 
 		# Extract
-		opts.cwd ?= config.rootPath
+		opts.cwd    ?= config.rootPath
 		opts.output ?= docpad.getDebugging()
-		opts.args ?= []
+		opts.args   ?= []
 
 		opts.global ?= false
-		opts.global = ['--global']             if opts.global is true
-		opts.global = [opts.global]            if opts.global and Array.isArray(opts.global) is false
+		opts.global  = ['--global']             if opts.global is true
+		opts.global  = [opts.global]            if opts.global and Array.isArray(opts.global) is false
 
-		opts.save ?= !opts.global
-		opts.save = ['--save', '--save-dev']   if opts.save is true
-		opts.save = [opts.save]                if opts.save and Array.isArray(opts.save) is false
+		opts.save   ?= !opts.global
+		opts.save    = ['--save', '--save-dev']   if opts.save is true
+		opts.save    = [opts.save]                if opts.save and Array.isArray(opts.save) is false
 
 		# Command
 		command = ['npm', 'uninstall']
@@ -2202,9 +2203,9 @@ class DocPad extends EventEmitterGrouped
 		else
 			# Log the error only if it hasn't been logged already
 			err.logged = true
-			err = new Error(err)  unless err.message?
+			err        = new Error(err)  unless err.message?
 			err.logged = true
-			message = (err.stack ? err.message).toString()
+			message    = (err.stack ? err.message).toString()
 			docpad.log(type, locale.errorOccured, '\n'+message)
 			docpad.notify(err.message, title:locale.errorOccured)
 
@@ -2222,11 +2223,11 @@ class DocPad extends EventEmitterGrouped
 
 		# Track
 		if config.offline is false and config.reportErrors
-			data = {}
+			data         = {}
 			data.message = err.message
-			data.stack = err.stack.toString()  if err.stack
-			data.config = config
-			data.env = process.env
+			data.stack   = err.stack.toString()  if err.stack
+			data.config  = config
+			data.env     = process.env
 			docpad.track('error', data, next)
 		else
 			setImmediate ->  # avoid zalgo
@@ -2286,9 +2287,9 @@ class DocPad extends EventEmitterGrouped
 		if config.offline is false
 			if @userConfig?.email
 				# Data
-				data = {}
-				data.email = @userConfig.email  # required
-				data.name = @userConfig.name or null
+				data          = {}
+				data.email    = @userConfig.email  # required
+				data.name     = @userConfig.name     or null
 				data.username = @userConfig.username or null
 
 				# Apply
@@ -2320,16 +2321,16 @@ class DocPad extends EventEmitterGrouped
 		# Check
 		if config.offline is false and config.reportStatistics
 			# Data
-			data = {}
-			data.userId = @userConfig.username or null
-			data.event = name
+			data            = {}
+			data.userId     = @userConfig.username or null
+			data.event      = name
 			data.properties = things
 
 			# Things
 			things.websiteName = @websitePackageConfig.name  if @websitePackageConfig?.name
-			things.platform = @getProcessPlatform()
+			things.platform    = @getProcessPlatform()
 			things.environment = @getEnvironment()
-			things.version = @getVersion()
+			things.version     = @getVersion()
 			things.nodeVersion = @getProcessVersion()
 
 			# Plugins
@@ -2367,22 +2368,22 @@ class DocPad extends EventEmitterGrouped
 		# Check
 		if config.offline is false and config.reportStatistics and @userConfig?.username
 			# Data
-			data = {}
+			data        = {}
 			data.userId = @userConfig.username  # required
 			data.traits = things = {}
 
 			# Things
-			now = new Date()
-			things.username = @userConfig.username  # required
-			things.email = @userConfig.email or null
-			things.name = @userConfig.name or null
-			things.lastLogin = now.toISOString()
-			things.lastSeen = now.toISOString()
-			things.countryCode = safeps.getCountryCode()
+			now                 = new Date()
+			things.username     = @userConfig.username  # required
+			things.email        = @userConfig.email or null
+			things.name         = @userConfig.name  or null
+			things.lastLogin    = now.toISOString()
+			things.lastSeen     = now.toISOString()
+			things.countryCode  = safeps.getCountryCode()
 			things.languageCode = safeps.getLanguageCode()
-			things.platform = @getProcessPlatform()
-			things.version = @getVersion()
-			things.nodeVersion = @getProcessVersion()
+			things.platform     = @getProcessPlatform()
+			things.version      = @getVersion()
+			things.nodeVersion  = @getProcessVersion()
 
 			# Is this a new user?
 			if docpad.userConfig.identified isnt true
@@ -2445,13 +2446,13 @@ class DocPad extends EventEmitterGrouped
 
 	# Parse File Directory
 	parseFileDirectory: (opts={},next) ->
-		opts.modelType ?= 'file'
+		opts.modelType  ?= 'file'
 		opts.collection ?= @getDatabase()
 		return @parseDirectory(opts, next)
 
 	# Parse Document Directory
 	parseDocumentDirectory: (opts={},next) ->
-		opts.modelType ?= 'document'
+		opts.modelType  ?= 'document'
 		opts.collection ?= @getDatabase()
 		return @parseDirectory(opts, next)
 
@@ -2599,13 +2600,13 @@ class DocPad extends EventEmitterGrouped
 	parseDirectory: (opts={},next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
-		docpad = @
-		locale = @getLocale()
+		docpad      = @
+		locale      = @getLocale()
 
 		# Extract
 		{path,createFunction} = opts
-		createFunction ?= @createModel
-		files = opts.collection or new FilesCollection()
+		createFunction       ?= @createModel
+		files                 = opts.collection or new FilesCollection()
 
 		# Check if the directory exists
 		safefs.exists path, (exists) ->
@@ -2629,9 +2630,9 @@ class DocPad extends EventEmitterGrouped
 				fileAction: (fileFullPath,fileRelativePath,nextFile,fileStat) ->
 					# Prepare
 					data =
-						fullPath: fileFullPath
+						fullPath:     fileFullPath
 						relativePath: fileRelativePath
-						stat: fileStat
+						stat:         fileStat
 
 					# Create file
 					file = createFunction.call(docpad, data, opts)
@@ -2741,6 +2742,7 @@ class DocPad extends EventEmitterGrouped
 		docpad = @
 		config = @getConfig()
 		locale = @getLocale()
+		
 		next = (err) ->
 			# Remove from slow plugins
 			delete docpad.slowPlugins[pluginName]
@@ -2749,8 +2751,8 @@ class DocPad extends EventEmitterGrouped
 
 		# Prepare variables
 		loader = new PluginLoader(
-			dirPath: fileFullPath
-			docpad: @
+			dirPath:    fileFullPath
+			docpad:     @
 			BasePlugin: BasePlugin
 		)
 		pluginName = loader.pluginName
@@ -2834,7 +2836,7 @@ class DocPad extends EventEmitterGrouped
 		docpad.log 'debug', util.format(locale.pluginsLoadingFor, pluginsPath)
 		@scandir(
 			# Path
-			path: pluginsPath
+			path:       pluginsPath
 
 			# Skip files
 			fileAction: false
@@ -2882,15 +2884,15 @@ class DocPad extends EventEmitterGrouped
 
 		# Check
 		balUtil.packageCompare(
-			local: @packagePath
+			local:  @packagePath
 			remote: config.latestPackageUrl
 			newVersionCallback: (details) ->
 				isLocalInstallation = docpadUtil.isLocalDocPadExecutable()
-				message = (if isLocalInstallation then locale.versionOutdatedLocal else locale.versionOutdatedGlobal)
-				currentVersion = 'v'+details.local.version
-				latestVersion = 'v'+details.remote.version
-				upgradeUrl = details.local.upgradeUrl or details.remote.installUrl or details.remote.homepage
-				messageFilled = util.format(message, currentVersion, latestVersion, upgradeUrl)
+				message             = (if isLocalInstallation then locale.versionOutdatedLocal else locale.versionOutdatedGlobal)
+				currentVersion      = 'v'+details.local.version
+				latestVersion       = 'v'+details.remote.version
+				upgradeUrl          = details.local.upgradeUrl or details.remote.installUrl or details.remote.homepage
+				messageFilled       = util.format(message, currentVersion, latestVersion, upgradeUrl)
 				docpad.notify(latestVersion, title:locale.versionOutdatedNotification)
 				docpad.log('notice', messageFilled)
 		)
@@ -2916,7 +2918,7 @@ class DocPad extends EventEmitterGrouped
 		return next(null, docpad.exchange)  if typeChecker.isEmptyObject(docpad.exchange) is false
 
 		# Offline?
-		return next(null, null)  if config.offline
+		return next(null, null)             if config.offline
 
 		# Log
 		docpad.log('info', locale.exchangeUpdate+' '+locale.pleaseWait)
@@ -2948,13 +2950,13 @@ class DocPad extends EventEmitterGrouped
 	# next(err)
 	contextualizeFiles: (opts={},next) ->
 		# Prepare
-		[opts,next] = extractOptsAndCallback(opts,next)
+		[opts,next]               = extractOptsAndCallback(opts,next)
 		{collection,templateData} = opts
-		docpad = @
-		config = @getConfig()
-		locale = @getLocale()
-		slowFilesObject = {}
-		slowFilesTimer = null
+		docpad                    = @
+		config                    = @getConfig()
+		locale                    = @getLocale()
+		slowFilesObject           = {}
+		slowFilesTimer            = null
 
 		# Update progress
 		opts.progress?.step("contextualizeFiles (preparing)").total(1).setTick(0)
@@ -2993,7 +2995,7 @@ class DocPad extends EventEmitterGrouped
 			# Add contextualize tasks
 			opts.progress?.step('contextualizeFiles').total(collection.length).setTick(0)
 			collection.forEach (file,index) ->
-				filePath = file.getFilePath()
+				filePath                 = file.getFilePath()
 				slowFilesObject[file.id] = file.get('relativePath') or file.id
 				tasks.addTask "conextualizing: #{filePath}", (complete) ->
 					file.action 'contextualize', (err) ->
@@ -3019,13 +3021,13 @@ class DocPad extends EventEmitterGrouped
 	# next(err)
 	renderFiles: (opts={},next) ->
 		# Prepare
-		[opts,next] = extractOptsAndCallback(opts,next)
+		[opts,next]                            = extractOptsAndCallback(opts,next)
 		{collection,templateData,renderPasses} = opts
-		docpad = @
-		config = @getConfig()
-		locale = @getLocale()
-		slowFilesObject = {}
-		slowFilesTimer = null
+		docpad                                 = @
+		config                                 = @getConfig()
+		locale                                 = @getLocale()
+		slowFilesObject                        = {}
+		slowFilesTimer                         = null
 
 		# Update progress
 		opts.progress?.step("renderFiles (preparing)").total(1).setTick(0)
@@ -3104,7 +3106,7 @@ class DocPad extends EventEmitterGrouped
 					return next()
 
 			# Queue the initial render
-			initialCollection = collection.findAll('referencesOthers':false)
+			initialCollection    = collection.findAll('referencesOthers':false)
 			subsequentCollection = null
 			tasks.addTask "rendering the initial collection", (complete) ->
 				renderCollection initialCollection, {renderPass:1}, (err) ->
@@ -3135,13 +3137,13 @@ class DocPad extends EventEmitterGrouped
 	# next(err)
 	writeFiles: (opts={},next) ->
 		# Prepare
-		[opts,next] = extractOptsAndCallback(opts,next)
+		[opts,next]               = extractOptsAndCallback(opts,next)
 		{collection,templateData} = opts
-		docpad = @
-		config = @getConfig()
-		locale = @getLocale()
-		slowFilesObject = {}
-		slowFilesTimer = null
+		docpad                    = @
+		config                    = @getConfig()
+		locale                    = @getLocale()
+		slowFilesObject           = {}
+		slowFilesTimer            = null
 
 		# Update progress
 		opts.progress?.step("writeFiles (preparing)").total(1).setTick(0)
@@ -3221,9 +3223,9 @@ class DocPad extends EventEmitterGrouped
 
 	# Generate Helpers
 	generateStarted: null
-	generateEnded: null
-	generating: false
-	generated: false  # true once the first generation has occured
+	generateEnded:   null
+	generating:      false
+	generated:       false  # true once the first generation has occured
 
 	# Create Progress Bar
 	createProgress: ->
@@ -3292,20 +3294,20 @@ class DocPad extends EventEmitterGrouped
 	generate: (opts, next) =>
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
-		docpad = @
-		config = docpad.getConfig()
-		locale = docpad.getLocale()
-		database = docpad.getDatabase()
+		docpad      = @
+		config      = docpad.getConfig()
+		locale      = docpad.getLocale()
+		database    = docpad.getDatabase()
 
 		# Check
 		return next()  if opts.collection?.length is 0
 
 
 		# Update generating flag
-		lastGenerateStarted = docpad.generateStarted
+		lastGenerateStarted    = docpad.generateStarted
 		docpad.generateStarted = new Date()
-		docpad.generateEnded = null
-		docpad.generating = true
+		docpad.generateEnded   = null
+		docpad.generating      = true
 
 		# Update the cached database
 		docpad.databaseTempCache = new FilesCollection(database.models)  if database.models.length
@@ -3343,7 +3345,7 @@ class DocPad extends EventEmitterGrouped
 
 			.once('complete', (err) ->
 				# Update generating flag
-				docpad.generating = false
+				docpad.generating    = false
 				docpad.generateEnded = new Date()
 
 				# Update caches
@@ -3363,6 +3365,7 @@ class DocPad extends EventEmitterGrouped
 				# Log success message
 				seconds = (docpad.generateEnded - docpad.generateStarted) / 1000
 				howMany = "#{opts.collection?.length or 0}/#{database.length}"
+				
 				docpad.log 'info', util.format(locale.renderGenerated, howMany, seconds)
 				docpad.notify (new Date()).toLocaleTimeString(), {title: locale.renderGeneratedNotification}
 
@@ -3385,7 +3388,7 @@ class DocPad extends EventEmitterGrouped
 		# Extract functions from tasks for simplicity
 		# when dealing with nested tasks/groups
 		addGroup = tasks.addGroup.bind(tasks)
-		addTask = tasks.addTask.bind(tasks)
+		addTask  = tasks.addTask.bind(tasks)
 
 
 		# Setup a clean database
@@ -3430,7 +3433,10 @@ class DocPad extends EventEmitterGrouped
 			opts.partial   ?= !(opts.reset)
 
 			# Log our opts
-			docpad.log('debug', 'Generate options:', _.pick(opts, 'cache', 'initial', 'reset', 'populate', 'reload', 'partial', 'renderPasses'))
+			docpad.log('debug', 
+				'Generate options:', 
+				_.pick(opts, 'cache', 'initial', 'reset', 'populate', 'reload', 'partial', 'renderPasses')
+			)
 
 
 		# Check directory structure
@@ -3470,7 +3476,7 @@ class DocPad extends EventEmitterGrouped
 								return complete(err)  if err
 
 								# Parse it and apply the data values
-								databaseData = JSON.parse data.toString()
+								databaseData   = JSON.parse data.toString()
 								opts.cache     = true
 								opts.initial   = true
 								opts.reset     = false
@@ -3479,7 +3485,7 @@ class DocPad extends EventEmitterGrouped
 								opts.partial   = true
 
 								lastGenerateStarted = new Date(databaseData.generateStarted)
-								addedModels = docpad.addModels(databaseData.models)
+								addedModels         = docpad.addModels(databaseData.models)
 								docpad.log 'info', util.format(locale.databaseCacheRead, database.length, databaseData.models.length)
 
 								# @TODO we need a way of detecting deleted files between generations
@@ -3497,30 +3503,30 @@ class DocPad extends EventEmitterGrouped
 						config.documentsPaths.forEach (documentsPath) ->
 							addTask (complete) ->
 								docpad.parseDirectory({
-									modelType: 'document'
+									modelType:  'document'
 									collection: database
-									path: documentsPath
-									next: complete
+									path:       documentsPath
+									next:       complete
 								})
 
 						# Files
 						config.filesPaths.forEach (filesPath) ->
 							addTask (complete) ->
 								docpad.parseDirectory({
-									modelType: 'file'
+									modelType:  'file'
 									collection: database
-									path: filesPath
-									next: complete
+									path:       filesPath
+									next:       complete
 								})
 
 						# Layouts
 						config.layoutsPaths.forEach (layoutsPath) ->
 							addTask (complete) ->
 								docpad.parseDirectory({
-									modelType: 'document'
+									modelType:  'document'
 									collection: database
-									path: layoutsPath
-									next: complete
+									path:       layoutsPath
+									next:       complete
 								})
 
 				# This will pull in new data from plugins
@@ -3550,7 +3556,9 @@ class DocPad extends EventEmitterGrouped
 							$and:
 								wtime: null
 								write: true
-					opts.collection ?= new FilesCollection().add(docpad.getCollection('generate').findAll(changedQuery).models)
+					opts.collection ?= new FilesCollection().add(
+						docpad.getCollection('generate').findAll(changedQuery).models
+					)
 
 
 		addTask 'generateBefore', (complete) ->
@@ -3565,19 +3573,19 @@ class DocPad extends EventEmitterGrouped
 			# Log the files to generate if we are in debug mode
 			docpad.log 'debug', 'Files to generate at', (lastGenerateStarted), '\n', (
 				{
-					id: model.id
-					path: model.getFilePath()
-					mtime: model.get('mtime')
-					wtime: model.get('wtime')
+					id:      model.id
+					path:    model.getFilePath()
+					mtime:   model.get('mtime')
+					wtime:   model.get('wtime')
 					dynamic: model.get('dynamic')
 					ignored: model.get('ignored')
-					write: model.get('write')
+					write:   model.get('write')
 				}  for model in opts.collection.models
 			)
 
 			# Add anything that references other documents (e.g. partials, listing, etc)
 			# This could eventually be way better
-			standalones = opts.collection.pluck('standalone')
+			standalones   = opts.collection.pluck('standalone')
 			allStandalone = standalones.indexOf(false) is -1
 			if allStandalone is false
 				opts.collection.add(docpad.getCollection('referencesOthers').models)
@@ -3594,8 +3602,8 @@ class DocPad extends EventEmitterGrouped
 						# Log the files to generate if we are in debug mode
 						docpad.log 'debug', 'Layout children to generate at', (lastGenerateStarted), '\n', (
 							{
-								id: model.id
-								path: model.getFilePath()
+								id:    model.id
+								path:  model.getFilePath()
 								mtime: model.get('mtime')
 								wtime: model.get('wtime')
 								write: model.get('write')
@@ -3616,13 +3624,13 @@ class DocPad extends EventEmitterGrouped
 			# Log the files to generate if we are in debug mode
 			docpad.log 'debug', 'Files to generate at', (lastGenerateStarted), '\n', (
 				{
-					id: model.id
-					path: model.getFilePath()
-					mtime: model.get('mtime')
-					wtime: model.get('wtime')
+					id:      model.id
+					path:    model.getFilePath()
+					mtime:   model.get('mtime')
+					wtime:   model.get('wtime')
 					dynamic: model.get('dynamic')
 					ignored: model.get('ignored')
-					write: model.get('write')
+					write:   model.get('write')
 				}  for model in opts.collection.models
 			)
 
@@ -3632,8 +3640,8 @@ class DocPad extends EventEmitterGrouped
 
 		addGroup 'process file', (addGroup, addTask) ->
 			addTask 'contextualizeFiles', {args:[opts]}, docpad.contextualizeFiles.bind(docpad)
-			addTask 'renderFiles', {args:[opts]}, docpad.renderFiles.bind(docpad)
-			addTask 'writeFiles', {args:[opts]}, docpad.writeFiles.bind(docpad)
+			addTask 'renderFiles',        {args:[opts]}, docpad.renderFiles.bind(docpad)
+			addTask 'writeFiles',         {args:[opts]}, docpad.writeFiles.bind(docpad)
 
 
 		addTask 'generateAfter', (complete) ->
@@ -3648,8 +3656,8 @@ class DocPad extends EventEmitterGrouped
 			# Write the cache
 			databaseData =
 				generateStarted: docpad.generateStarted
-				generateEnded: docpad.generateEnded
-				models: (model.getAttributes()  for model in database.models)
+				generateEnded:   docpad.generateEnded
+				models:         (model.getAttributes()  for model in database.models)
 			databaseDataDump = JSON.stringify(databaseData, null, '  ')
 			docpad.log 'info', util.format(locale.databaseCacheWrite, databaseData.models.length)
 			return safefs.writeFile(config.databaseCachePath, databaseDataDump, complete)
@@ -3675,7 +3683,7 @@ class DocPad extends EventEmitterGrouped
 		balUtil.flow(
 			object: document
 			action: opts.action
-			args: [opts]
+			args:   [opts]
 			next: (err) ->
 				return next?(err, document)
 		)
@@ -3687,7 +3695,7 @@ class DocPad extends EventEmitterGrouped
 	# next(err,document)
 	loadDocument: (document,opts,next) ->
 		# Prepare
-		[opts,next] = extractOptsAndCallback(opts,next)
+		[opts,next]   = extractOptsAndCallback(opts,next)
 		opts.action or= 'load contextualize'
 
 		# Flow
@@ -3700,7 +3708,7 @@ class DocPad extends EventEmitterGrouped
 	# next(err,document)
 	loadAndRenderDocument: (document,opts,next) ->
 		# Prepare
-		[opts,next] = extractOptsAndCallback(opts,next)
+		[opts,next]   = extractOptsAndCallback(opts,next)
 		opts.action or= 'load contextualize render'
 
 		# Flow
@@ -3728,7 +3736,7 @@ class DocPad extends EventEmitterGrouped
 	renderPath: (path,opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
-		attributes = extendr.extend({
+		attributes  = extendr.extend({
 			fullPath: path
 		},opts.attributes)
 
@@ -3744,9 +3752,9 @@ class DocPad extends EventEmitterGrouped
 	renderData: (content,opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
-		attributes = extendr.extend({
+		attributes  = extendr.extend({
 			filename: opts.filename
-			data: content
+			data:     content
 		}, opts.attributes)
 
 		# Handle
@@ -3762,13 +3770,13 @@ class DocPad extends EventEmitterGrouped
 	# next(err,result)
 	renderText: (text,opts,next) ->
 		# Prepare
-		[opts,next] = extractOptsAndCallback(opts,next)
+		[opts,next]   = extractOptsAndCallback(opts,next)
 		opts.actions ?= ['renderExtensions', 'renderDocument']
-		attributes = extendr.extend({
+		attributes    = extendr.extend({
 			filename: opts.filename
-			data: text
-			body: text
-			content: text
+			data:     text
+			body:     text
+			content:  text
 		}, opts.attributes)
 
 		# Handle
@@ -3787,7 +3795,7 @@ class DocPad extends EventEmitterGrouped
 	render: (opts,next) =>
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
-		locale = @getLocale()
+		locale      = @getLocale()
 
 		# Extract document
 		if opts.document
@@ -3836,11 +3844,11 @@ class DocPad extends EventEmitterGrouped
 	watch: (opts,next) =>
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
-		docpad = @
-		config = @getConfig()
-		locale = @getLocale()
-		database = @getDatabase()
-		@watchers ?= []
+		docpad      = @
+		config      = @getConfig()
+		locale      = @getLocale()
+		database    = @getDatabase()
+		@watchers  ?= []
 
 		# Restart our watchers
 		restartWatchers = (next) ->
@@ -3855,10 +3863,10 @@ class DocPad extends EventEmitterGrouped
 			tasks.addTask "watch reload paths", (complete) -> docpad.watchdir(
 				paths: reloadPaths
 				listeners:
-					'log': docpad.log
-					'error': docpad.error
+					'log':    docpad.log
+					'error':  docpad.error
 					'change': ->
-						docpad.log 'info', util.format(locale.watchReloadChange, new Date().toLocaleTimeString())
+						docpad.log    'info', util.format(locale.watchReloadChange, new Date().toLocaleTimeString())
 						docpad.action 'load', (err) ->
 							return docpad.fatal(err)  if err
 							performGenerate(reset:true)
@@ -3876,8 +3884,8 @@ class DocPad extends EventEmitterGrouped
 			tasks.addTask "watch regenerate paths", (complete) -> docpad.watchdir(
 				paths: regeneratePaths
 				listeners:
-					'log': docpad.log
-					'error': docpad.error
+					'log':    docpad.log
+					'error':  docpad.error
 					'change': -> performGenerate(reset:true)
 				next: (err,_watchers) ->
 					if err
@@ -3893,8 +3901,8 @@ class DocPad extends EventEmitterGrouped
 			tasks.addTask "watch the source path", (complete) -> docpad.watchdir(
 				path: srcPath
 				listeners:
-					'log': docpad.log
-					'error': docpad.error
+					'log':    docpad.log
+					'error':  docpad.error
 					'change': changeHandler
 				next: (err,watcher) ->
 					if err
@@ -4005,10 +4013,10 @@ class DocPad extends EventEmitterGrouped
 
 	run: (opts,next) =>
 		# Prepare
-		[opts,next] = extractOptsAndCallback(opts, next)
-		docpad = @
-		locale = @getLocale()
-		config = @getConfig()
+		[opts,next]         = extractOptsAndCallback(opts, next)
+		docpad              = @
+		locale              = @getLocale()
+		config              = @getConfig()
 		{srcPath, rootPath} = config
 
 		# Prepare
@@ -4016,8 +4024,8 @@ class DocPad extends EventEmitterGrouped
 			balUtil.flow(
 				object: docpad
 				action: 'server generate watch'
-				args: [opts]
-				next: complete
+				args:   [opts]
+				next:   complete
 			)
 
 		# Check if we have the docpad structure
@@ -4066,8 +4074,8 @@ class DocPad extends EventEmitterGrouped
 	initInstall: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
-		docpad = @
-		config = @getConfig()
+		docpad      = @
+		config      = @getConfig()
 
 		# Tasks
 		tasks = new TaskGroup("initInstall tasks", {concurrency:0, next})
@@ -4085,12 +4093,12 @@ class DocPad extends EventEmitterGrouped
 
 				# Write
 				data = JSON.stringify({
-					name: 'no-skeleton.docpad'
-					version: '0.1.0'
+					name:        'no-skeleton.docpad'
+					version:     '0.1.0'
 					description: 'New DocPad project without using a skeleton'
 					engines:
 						node: '0.10'
-						npm: '1.3'
+						npm:  '1.3'
 					dependencies:
 						docpad: '~'+docpad.getVersion()
 					main: 'node_modules/docpad/bin/docpad-server'
@@ -4110,8 +4118,8 @@ class DocPad extends EventEmitterGrouped
 	uninstall: (opts,next) =>
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
-		docpad = @
-		config = @getConfig()
+		docpad      = @
+		config      = @getConfig()
 
 		# Tasks
 		tasks = new TaskGroup("uninstall tasks", {next})
@@ -4143,8 +4151,8 @@ class DocPad extends EventEmitterGrouped
 	install: (opts,next) =>
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
-		docpad = @
-		config = @getConfig()
+		docpad      = @
+		config      = @getConfig()
 
 		# Tasks
 		tasks = new TaskGroup("install tasks", {next})
@@ -4190,7 +4198,7 @@ class DocPad extends EventEmitterGrouped
 		@installNodeModule('npm docpad@6', {
 			global: true
 			output: true
-			next: next
+			next:   next
 		})
 
 		# Chain
@@ -4201,11 +4209,11 @@ class DocPad extends EventEmitterGrouped
 	update: (opts,next) =>
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
-		docpad = @
-		config = @getConfig()
+		docpad      = @
+		config      = @getConfig()
 
 		# Tasks
-		tasks = new TaskGroup("update tasks", {next})
+		tasks       = new TaskGroup("update tasks", {next})
 
 		tasks.addTask "init the install", (complete) ->
 			docpad.initInstall(opts, complete)
@@ -4233,9 +4241,9 @@ class DocPad extends EventEmitterGrouped
 		if devDependencies.length isnt 0
 			tasks.addTask "update plugins that are dev dependencies", (complete) ->
 				docpad.installNodeModule(devDependencies, {
-					save: '--save-dev'
+					save:   '--save-dev'
 					output: true
-					next: complete
+					next:   complete
 				})
 
 		tasks.addTask "fix node package versions", (complete) ->
@@ -4244,7 +4252,7 @@ class DocPad extends EventEmitterGrouped
 		tasks.addTask "re-initialize the rest of the website's modules", (complete) ->
 			docpad.initNodeModules({
 				output: true
-				next: complete
+				next:   complete
 			})
 
 		# Run
@@ -4258,9 +4266,9 @@ class DocPad extends EventEmitterGrouped
 	clean: (opts,next) =>
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
-		docpad = @
-		config = docpad.getConfig()
-		locale = @getLocale()
+		docpad      = @
+		config      = docpad.getConfig()
+		locale      = @getLocale()
 
 		# Log
 		docpad.log('info', locale.renderCleaning)
@@ -4303,8 +4311,8 @@ class DocPad extends EventEmitterGrouped
 	initSkeleton: (skeletonModel,opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
-		docpad = @
-		config = @getConfig()
+		docpad      = @
+		config      = @getConfig()
 
 		# Defaults
 		opts.destinationPath ?= config.rootPath
@@ -4319,12 +4327,12 @@ class DocPad extends EventEmitterGrouped
 		if skeletonModel? and skeletonModel.id isnt 'none'
 			tasks.addTask "clone out the git repo", (complete) ->
 				docpad.initGitRepo({
-					path: opts.destinationPath
-					url: skeletonModel.get('repo')
+					path:   opts.destinationPath
+					url:    skeletonModel.get('repo')
 					branch: skeletonModel.get('branch')
 					remote: 'skeleton'
 					output: true
-					next: complete
+					next:   complete
 				})
 		else
 			tasks.addTask "ensure src path exists", (complete) ->
@@ -4417,14 +4425,14 @@ class DocPad extends EventEmitterGrouped
 	useSkeleton: (skeletonModel,opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
-		docpad = @
-		locale = @getLocale()
+		docpad      = @
+		locale      = @getLocale()
 
 		# Defaults
 		opts.destinationPath ?= @getConfig().rootPath
 
 		# Extract
-		skeletonId = skeletonModel?.id or 'none'
+		skeletonId   = skeletonModel?.id          or 'none'
 		skeletonName = skeletonModel?.get('name') or locale.skeletonNoneName
 
 		# Track
@@ -4451,8 +4459,8 @@ class DocPad extends EventEmitterGrouped
 	# next(err,skeletonModel)
 	selectSkeleton: (opts,next) ->
 		# Prepare
-		[opts,next] = extractOptsAndCallback(opts,next)
-		docpad = @
+		[opts,next]                  = extractOptsAndCallback(opts,next)
+		docpad                       = @
 		opts.selectSkeletonCallback ?= null
 
 		# Track
@@ -4472,9 +4480,9 @@ class DocPad extends EventEmitterGrouped
 	# Skeleton
 	skeleton: (opts,next) =>
 		# Prepare
-		[opts,next] = extractOptsAndCallback(opts,next)
-		docpad = @
-		config = @getConfig()
+		[opts,next]                  = extractOptsAndCallback(opts,next)
+		docpad                       = @
+		config                       = @getConfig()
 		opts.selectSkeletonCallback ?= null
 
 		# Don't do anything if the src path exists
@@ -4499,9 +4507,9 @@ class DocPad extends EventEmitterGrouped
 	init: (opts,next) =>
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
-		docpad = @
-		locale = @getLocale()
-		config = @getConfig()
+		docpad      = @
+		locale      = @getLocale()
+		config      = @getConfig()
 
 		# Don't do anything if the src path exists
 		safefs.exists config.srcPath, (exists) ->
@@ -4523,10 +4531,10 @@ class DocPad extends EventEmitterGrouped
 	# Serve Document
 	serveDocument: (opts,next) =>
 		# Prepare
-		[opts,next] = extractOptsAndCallback(opts,next)
+		[opts,next]            = extractOptsAndCallback(opts,next)
 		{document,err,req,res} = opts
-		docpad = @
-		config = @getConfig()
+		docpad                 = @
+		config                 = @getConfig()
 
 		# If no document, then exit early
 		unless document
@@ -4540,8 +4548,8 @@ class DocPad extends EventEmitterGrouped
 			res.setHeader(name, value)  unless res.getHeader(name)
 
 		# Content Type + Encoding/Charset
-		encoding = document.get('encoding')
-		charset = 'utf-8'  if encoding in ['utf8', 'utf-8']
+		encoding    = document.get('encoding')
+		charset     = 'utf-8'  if encoding in ['utf8', 'utf-8']
 		contentType = document.get('outContentType') or document.get('contentType')
 		res.setHeaderIfMissing('Content-Type', contentType + (if charset then "; charset=#{charset}" else ''))
 
@@ -4557,7 +4565,7 @@ class DocPad extends EventEmitterGrouped
 			# then this code will not be reached, as we don't register that url
 			# where if we have the cleanurls plugin installed, then do register that url
 			# against the document, so this is reached
-			collection = new FilesCollection([document], {name:'dynamic collection'})
+			collection   = new FilesCollection([document], {name:'dynamic collection'})
 			templateData = extendr.extend({}, req.templateData or {}, {req,err})
 			docpad.action 'generate', {collection, templateData}, (err) ->
 				content = document.getOutContent()
@@ -4574,12 +4582,12 @@ class DocPad extends EventEmitterGrouped
 			# ETag: `"<size>-<mtime>"`
 			ctime = document.get('date')    # use the date or mtime, it should always exist
 			mtime = document.get('wtime')   # use the last generate time, it may not exist though
-			stat = document.getStat()
-			etag = stat.size + '-' + Number(mtime)   if mtime and stat
+			stat  = document.getStat()
+			etag  = stat.size + '-' + Number(mtime)   if mtime and stat
 			res.setHeaderIfMissing('ETag', '"' + etag + '"')  if etag
 
 			# Date
-			res.setHeaderIfMissing('Date', ctime.toUTCString())  if ctime?.toUTCString?
+			res.setHeaderIfMissing('Date',          ctime.toUTCString())  if ctime?.toUTCString?
 			res.setHeaderIfMissing('Last-Modified', mtime.toUTCString())  if mtime?.toUTCString?
 			# @TODO:
 			# The above .toUTCString? check is a workaround because sometimes the date object
@@ -4636,7 +4644,7 @@ class DocPad extends EventEmitterGrouped
 
 			# Check if we are the desired url
 			# if we aren't do a permanent redirect
-			url = file.get('url')
+			url      = file.get('url')
 			cleanUrl = docpad.getUrlPathname(url)
 			if (url isnt cleanUrl) and (url isnt req.url)
 				return res.redirect(301, url)
@@ -4650,7 +4658,7 @@ class DocPad extends EventEmitterGrouped
 	# Server Middleware: 404
 	serverMiddleware404: (req,res,next) =>
 		# Prepare
-		docpad = @
+		docpad   = @
 		database = docpad.getDatabaseSafe()
 
 		# Notify the user of a 404
@@ -4669,7 +4677,7 @@ class DocPad extends EventEmitterGrouped
 	# Server Middleware: 500
 	serverMiddleware500: (err,req,res,next) =>
 		# Prepare
-		docpad = @
+		docpad   = @
 		database = docpad.getDatabaseSafe()
 
 		# Check
@@ -4686,25 +4694,25 @@ class DocPad extends EventEmitterGrouped
 	server: (opts,next) =>
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
-		docpad = @
-		config = @config
-		locale = @getLocale()
-		port = @getPort()
-		hostname = @getHostname()
+		docpad      = @
+		config      = @config
+		locale      = @getLocale()
+		port        = @getPort()
+		hostname    = @getHostname()
 
 		# Require
-		http = require('http')
+		http    = require('http')
 		express = require('express')
 
 		# Config
-		servers = @getServer(true)
-		opts.serverExpress ?= servers.serverExpress
-		opts.serverHttp ?= servers.serverHttp
-		opts.middlewareBodyParser ?= config.middlewareBodyParser ? config.middlewareStandard
+		servers                        = @getServer(true)
+		opts.serverExpress            ?= servers.serverExpress
+		opts.serverHttp               ?= servers.serverHttp
+		opts.middlewareBodyParser     ?= config.middlewareBodyParser     ? config.middlewareStandard
 		opts.middlewareMethodOverride ?= config.middlewareMethodOverride ? config.middlewareStandard
-		opts.middlewareExpressRouter ?= config.middlewareExpressRouter ? config.middlewareStandard
-		opts.middleware404 ?= config.middleware404
-		opts.middleware500 ?= config.middleware500
+		opts.middlewareExpressRouter  ?= config.middlewareExpressRouter  ? config.middlewareStandard
+		opts.middleware404            ?= config.middleware404
+		opts.middleware500            ?= config.middleware500
 		# @TODO: Why do we do opts here instead of config???
 
 		# Tasks
@@ -4718,7 +4726,7 @@ class DocPad extends EventEmitterGrouped
 		if !opts.serverExpress or !opts.serverHttp
 			tasks.addTask "create server", ->
 				opts.serverExpress or= express()
-				opts.serverHttp or= http.createServer(opts.serverExpress)
+				opts.serverHttp    or= http.createServer(opts.serverExpress)
 				docpad.setServer(opts)
 
 		# Extend the server with our middlewares
@@ -4736,9 +4744,9 @@ class DocPad extends EventEmitterGrouped
 				# Emit the serverExtend event
 				# So plugins can define their routes earlier than the DocPad routes
 				docpad.emitSerial 'serverExtend', {
-					server: opts.serverExpress # b/c
-					express: opts.serverExpress # b/c
-					serverHttp: opts.serverHttp
+					server:        opts.serverExpress # b/c
+					express:       opts.serverExpress # b/c
+					serverHttp:    opts.serverHttp
 					serverExpress: opts.serverExpress
 				}, (err) ->
 					return next(err)  if err
@@ -4788,10 +4796,11 @@ class DocPad extends EventEmitterGrouped
 			docpad.log 'debug', util.format(locale.serverStart, hostname, port, config.outPath)
 			opts.serverHttp.listen port, hostname,  ->
 				# Log
-				address = opts.serverHttp.address()
+				address        = opts.serverHttp.address()
 				serverHostname = address.address
-				serverPort = address.port
+				serverPort     = address.port
 				serverLocation = "http://#{serverHostname}:#{serverPort}/"
+				
 				docpad.log 'info', util.format(locale.serverStarted, serverLocation, config.outPath)
 
 				# Done
@@ -4800,9 +4809,9 @@ class DocPad extends EventEmitterGrouped
 		# After Plugin Event
 		tasks.addTask "emit serverAfter", (complete) ->
 			docpad.emitSerial('serverAfter', {
-				server: opts.serverExpress # b/c
-				express: opts.serverExpress # b/c
-				serverHttp: opts.serverHttp
+				server:        opts.serverExpress # b/c
+				express:       opts.serverExpress # b/c
+				serverHttp:    opts.serverHttp
 				serverExpress: opts.serverExpress
 			}, complete)
 
@@ -4817,9 +4826,9 @@ class DocPad extends EventEmitterGrouped
 # Export
 module.exports =
 	# Modules
-	DocPad: DocPad
+	DocPad:      DocPad
 	queryEngine: queryEngine
-	Backbone: Backbone
+	Backbone:    Backbone
 
 	# Create Instance
 	# Wrapper for creating a DocPad instance

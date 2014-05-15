@@ -2,7 +2,7 @@
 # Requires
 
 # Standard Library
-pathUtil = require('path')
+pathUtil   = require('path')
 
 # External
 joe        = require('joe')
@@ -29,24 +29,26 @@ process.on 'uncaughtException', (err) ->
 
 joe.suite 'docpad-custom-server', (suite,test) ->
 	# Local Globals
-	docpadConfig = null
-	docpad = null
+	docpadConfig  = null
+	docpad        = null
 	serverExpress = null
-	serverHttp = null
-	port = null
+	serverHttp    = null
+	port          = null
 
 	# Create a DocPad Instance
 	test 'createInstance', (done) ->
 		docpadConfig =
-			port: port = 9780
-			rootPath: rootPath
-			logLevel: if (process.env.TRAVIS_NODE_VERSION? or '-d' in process.argv) then 7 else 5
+			port:                   port = 9780
+			rootPath:               rootPath
+			logLevel:               if (process.env.TRAVIS_NODE_VERSION? or '-d' in process.argv) then 7 else 5
 			skipUnsupportedPlugins: false
-			catchExceptions: false
-			serverExpress: serverExpress = require('express')()
-			serverHttp: serverHttp = require('http').createServer(serverExpress).listen(port)
+			catchExceptions:        false
+			serverExpress:          serverExpress = require('express')()
+			serverHttp:             serverHttp    = require('http').createServer(serverExpress).listen(port)
+		
 		serverExpress.get '/hello', (req,res) ->
 			res.send(200, 'hello world')
+		
 		docpad = require('../main').createInstance(docpadConfig, done)
 
 	# Run Server Action

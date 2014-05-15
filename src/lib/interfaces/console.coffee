@@ -22,9 +22,9 @@ class ConsoleInterface
 	constructor: (opts,next) ->
 		# Prepare
 		consoleInterface = @
-		@docpad = docpad = opts.docpad
-		@commander = commander = require('commander')
-		locale = docpad.getLocale()
+		@docpad          = docpad             = opts.docpad
+		@commander       = commander          = require('commander')
+		locale           = docpad.getLocale()
 
 
 		# -----------------------------
@@ -291,9 +291,13 @@ class ConsoleInterface
 
 		# Create
 		opts = {}
-		opts.commander = args[-1...][0]
-		opts.args = args[...-1]
-		opts.instanceConfig = extendr.safeDeepExtendPlainObjects({}, @extractConfig(opts.commander), config)
+		opts.commander      = args[-1...][0]
+		opts.args           = args[...-1]
+		opts.instanceConfig = extendr.safeDeepExtendPlainObjects(
+			{}, 
+			@extractConfig(opts.commander), 
+			config
+		)
 
 		# Complete Action
 		completeAction = (err) ->
@@ -324,13 +328,13 @@ class ConsoleInterface
 	# Extract Configuration
 	extractConfig: (customConfig={}) =>
 		# Prepare
-		config = {}
+		config          = {}
 		commanderConfig = @commander
-		sourceConfig = @docpad.initialConfig
+		sourceConfig    = @docpad.initialConfig
 
 		# debug -> logLevel
 		if commanderConfig.debug
-			commanderConfig.debug = 7  if commanderConfig.debug is true
+			commanderConfig.debug    = 7  if commanderConfig.debug is true
 			commanderConfig.logLevel = commanderConfig.debug
 
 		# silent -> prompt
@@ -343,12 +347,12 @@ class ConsoleInterface
 
 		# config -> configPaths
 		if commanderConfig.config
-			configPath = pathUtil.resolve(process.cwd(),commanderConfig.config)
+			configPath                  = pathUtil.resolve(process.cwd(),commanderConfig.config)
 			commanderConfig.configPaths = [configPath]
 
 		# out -> outPath
 		if commanderConfig.out
-			outPath = pathUtil.resolve(process.cwd(),commanderConfig.out)
+			outPath                 = pathUtil.resolve(process.cwd(),commanderConfig.out)
 			commanderConfig.outPath = outPath
 
 		# Apply global configuration
@@ -368,15 +372,15 @@ class ConsoleInterface
 	selectSkeletonCallback: (skeletonsCollection,next) =>
 		# Prepare
 		consoleInterface = @
-		commander = @commander
-		docpad = @docpad
-		locale = docpad.getLocale()
-		skeletonNames = []
+		commander        = @commander
+		docpad           = @docpad
+		locale           = docpad.getLocale()
+		skeletonNames    = []
 
 		# Show
 		docpad.log 'info', locale.skeletonSelectionIntroduction+'\n'
 		skeletonsCollection.forEach (skeletonModel) ->
-			skeletonName = skeletonModel.get('name')
+			skeletonName        = skeletonModel.get('name')
 			skeletonDescription = skeletonModel.get('description').replace(/\n/g,'\n\t')
 			skeletonNames.push(skeletonName)
 			console.log "  #{skeletonModel.get('position')+1}.\t#{skeletonName}\n  \t#{skeletonDescription}\n"
@@ -394,11 +398,11 @@ class ConsoleInterface
 	welcomeCallback: (opts,next) =>
 		# Prepare
 		consoleInterface = @
-		commander = @commander
-		docpad = @docpad
-		locale = docpad.getLocale()
-		userConfig = docpad.userConfig
-		welcomeTasks = new TaskGroup().once('complete',next)
+		commander        = @commander
+		docpad           = @docpad
+		locale           = docpad.getLocale()
+		userConfig       = docpad.userConfig
+		welcomeTasks     = new TaskGroup().once('complete',next)
 
 		# TOS
 		welcomeTasks.addTask (complete) ->
@@ -456,8 +460,8 @@ class ConsoleInterface
 
 						# Fetch
 						# The or to '' is there because otherwise we will get "undefined" as a string if the value doesn't exist
-						userConfig.name = String(results?[0]?[1] or '').trim() or null
-						userConfig.email = String(results?[1]?[1] or '').trim() or null
+						userConfig.name     = String(results?[0]?[1] or '').trim() or null
+						userConfig.email    = String(results?[1]?[1] or '').trim() or null
 						userConfig.username = String(results?[2]?[1] or '').trim() or null
 
 						# Let the user know we scanned their configuration if we got anything useful
@@ -480,7 +484,7 @@ class ConsoleInterface
 								console.log locale.subscribeSuccess
 
 								# Save the updated subscription status, and continue to what is next
-								userConfig.subscribed = true
+								userConfig.subscribed        = true
 								userConfig.subscribeTryAgain = null
 
 							# Save the new user configuration changes, and forward to the next task
@@ -672,13 +676,13 @@ class ConsoleInterface
 
 	render: (next,opts) =>
 		# Prepare
-		docpad = @docpad
-		commander = @commander
+		docpad     = @docpad
+		commander  = @commander
 		renderOpts = {}
 
 		# Extract
-		filename = opts.args[0] or null
-		basename = pathUtil.basename(filename)
+		filename            = opts.args[0] or null
+		basename            = pathUtil.basename(filename)
 		renderOpts.filename = filename
 		renderOpts.renderSingleExtensions = 'auto'
 

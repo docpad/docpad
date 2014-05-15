@@ -34,10 +34,10 @@ class FilesCollection extends QueryCollection
 		queries = [
 			{relativePath: escapedData}
 			{relativeBase: escapedData}
-			{url: data}
+			{url:          data}
 			{relativePath: $startsWith: escapedData}
-			{fullPath: $startsWith: escapedData}
-			{url: $startsWith: data}
+			{fullPath:     $startsWith: escapedData}
+			{url:          $startsWith: data}
 		]
 
 		# Try the queries

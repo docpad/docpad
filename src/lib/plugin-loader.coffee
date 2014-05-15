@@ -21,35 +21,35 @@ class PluginLoader
 	# Constructed
 
 	# DocPad Instance
-	docpad: null
+	docpad:     null
 
 	# BasePlugin Class
 	BasePlugin: null
 
 	# The full path of the plugin's directory
-	dirPath: null
+	dirPath:    null
 
 
 	# ---------------------------------
 	# Loaded
 
 	# The full path of the plugin's package.json file
-	packagePath: null
+	packagePath:     null
 
 	# The parsed contents of the plugin's package.json file
-	packageData: {}
+	packageData:     {}
 
 	# The full path of the plugin's main file
-	pluginPath: null
+	pluginPath:      null
 
 	# The parsed content of the plugin's main file
-	pluginClass: {}
+	pluginClass:     {}
 
 	# Plugin name
-	pluginName: null
+	pluginName:      null
 
 	# Plugin version
-	pluginVersion: null
+	pluginVersion:   null
 
 	# Node modules path
 	nodeModulesPath: null
@@ -64,9 +64,9 @@ class PluginLoader
 		docpad = @docpad
 
 		# Apply
-		@pluginName = pathUtil.basename(@dirPath).replace(/^docpad-plugin-/,'')
-		@pluginClass = {}
-		@packageData = {}
+		@pluginName      = pathUtil.basename(@dirPath).replace(/^docpad-plugin-/,'')
+		@pluginClass     = {}
+		@packageData     = {}
 		@nodeModulesPath = pathUtil.resolve(@dirPath, 'node_modules')
 
 	# Exists
@@ -101,7 +101,7 @@ class PluginLoader
 
 				# Extract the version and main
 				pluginVersion = @packageData.version
-				pluginPath = @packageData.main and pathUtil.join(@dirPath, @packageData.main)
+				pluginPath    = @packageData.main and pathUtil.join(@dirPath, @packageData.main)
 
 				# Check defined
 				return failure()  unless pluginVersion
@@ -109,7 +109,7 @@ class PluginLoader
 
 				# Success
 				@pluginVersion = pluginVersion
-				@pluginPath = pluginPath
+				@pluginPath    = pluginPath
 				return success()
 
 		# Chain
@@ -123,10 +123,10 @@ class PluginLoader
 		docpad = @docpad
 
 		# Extract
-		version = @packageData.version
-		keywords = @packageData.keywords or []
-		platforms = @packageData.platforms or []
-		engines = @packageData.engines or {}
+		version          = @packageData.version
+		keywords         = @packageData.keywords         or []
+		platforms        = @packageData.platforms        or []
+		engines          = @packageData.engines          or {}
 		peerDependencies = @packageData.peerDependencies or {}
 
 		# Check
@@ -199,9 +199,9 @@ class PluginLoader
 		# Load
 		try
 			# Load in our plugin
-			@pluginClass = require(@pluginPath)(@BasePlugin)
+			@pluginClass           = require(@pluginPath)(@BasePlugin)
 			@pluginClass::version ?= @pluginVersion
-			pluginPrototypeName = @pluginClass::name
+			pluginPrototypeName    = @pluginClass::name
 
 			# Checks
 			# Alphanumeric
@@ -230,7 +230,7 @@ class PluginLoader
 		# Load
 		try
 			# Create instance with merged configuration
-			docpad = @docpad
+			docpad         = @docpad
 			pluginInstance = new @pluginClass({docpad,config})
 		catch err
 			# An error occured, return it

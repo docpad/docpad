@@ -12,10 +12,10 @@ pathUtil = require('path')
 # Export
 module.exports =
 	# Pre-Defined
-	DocPad: DocPad
-	queryEngine: queryEngine
-	Backbone: Backbone
-	createInstance: createInstance
+	DocPad:                   DocPad
+	queryEngine:              queryEngine
+	Backbone:                 Backbone
+	createInstance:           createInstance
 	createMiddlewareInstance: createMiddlewareInstance
 
 	# Require a local DocPad file

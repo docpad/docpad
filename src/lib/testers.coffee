@@ -41,29 +41,29 @@ class PluginTester
 
 	# Plugin Config
 	config:
-		testerName: null
-		pluginName: null
-		pluginPath: null
-		testPath: null
-		outExpectedPath: null
-		removeWhitespace: false
+		testerName:         null
+		pluginName:         null
+		pluginPath:         null
+		testPath:           null
+		outExpectedPath:    null
+		removeWhitespace:   false
 		contentRemoveRegex: null
-		autoExit: 'safe'
+		autoExit:           'safe'
 
 	# DocPad Config
 	docpadConfig:
-		global: true
-		port: null
-		logLevel: (if ('-d' in process.argv) then 7 else 5)
-		rootPath: null
-		outPath: null
-		srcPath: null
+		global:      true
+		port:        null
+		logLevel:    (if ('-d' in process.argv) then 7 else 5)
+		rootPath:    null
+		outPath:     null
+		srcPath:     null
 		pluginPaths: null
-		enableUnlistedPlugins: true
-		enabledPlugins: null
+		enableUnlistedPlugins:  true
+		enabledPlugins:         null
 		skipUnsupportedPlugins: false
-		catchExceptions: false
-		environment: null
+		catchExceptions:        false
+		environment:            null
 
 	# DocPad Instance
 	docpad: null
@@ -71,30 +71,30 @@ class PluginTester
 	# Constructor
 	constructor: (config={},docpadConfig={},next) ->
 		# Apply Configuration
-		tester = @
-		@config = extendr.deepExtendPlainObjects({}, PluginTester::config, @config, config)
-		@docpadConfig = extendr.deepExtendPlainObjects({}, PluginTester::docpadConfig, @docpadConfig, docpadConfig)
+		tester              = @
+		@config             = extendr.deepExtendPlainObjects({}, PluginTester::config,       @config,       config)
+		@docpadConfig       = extendr.deepExtendPlainObjects({}, PluginTester::docpadConfig, @docpadConfig, docpadConfig)
 		@docpadConfig.port ?= ++pluginPort
 		@config.testerName ?= @config.pluginName
 
 		# Extend Configuration
-		@config.testPath or= pathUtil.join(@config.pluginPath, 'test')
-		@config.outExpectedPath or= pathUtil.join(@config.testPath, 'out-expected')
+		@config.testPath        or= pathUtil.join(@config.pluginPath, 'test')
+		@config.outExpectedPath or= pathUtil.join(@config.testPath,   'out-expected')
 
 		# Extend DocPad Configuration
-		@docpadConfig.rootPath or= @config.testPath
-		@docpadConfig.outPath or= pathUtil.join(@docpadConfig.rootPath, 'out')
-		@docpadConfig.srcPath or= pathUtil.join(@docpadConfig.rootPath, 'src')
-		@docpadConfig.pluginPaths ?= [@config.pluginPath]
-		defaultEnabledPlugins = {}
+		defaultEnabledPlugins                     = {}
 		defaultEnabledPlugins[@config.pluginName] = true
+		@docpadConfig.rootPath       or= @config.testPath
+		@docpadConfig.outPath        or= pathUtil.join(@docpadConfig.rootPath, 'out')
+		@docpadConfig.srcPath        or= pathUtil.join(@docpadConfig.rootPath, 'src')
+		@docpadConfig.pluginPaths     ?= [@config.pluginPath]
 		@docpadConfig.enabledPlugins or= defaultEnabledPlugins
 
 		# Test API
 		joe.describe @config.testerName, (suite,task) ->
 			tester.describe = tester.suite = suite
-			tester.it = tester.test = task
-			tester.done = tester.exit = (next) ->
+			tester.it       = tester.test  = task
+			tester.done     = tester.exit  = (next) ->
 				tester.docpad?.action('destroy', next)
 			next?(null, tester)
 
@@ -112,7 +112,7 @@ class PluginTester
 	# Create DocPad Instance
 	testCreate: =>
 		# Prepare
-		tester = @
+		tester       = @
 		docpadConfig = @docpadConfig
 
 		# Create Instance
@@ -237,7 +237,7 @@ class RendererTester extends PluginTester
 						return done(err)  if err
 
 						# Prepare
-						outResultsKeys = Object.keys(outResults)
+						outResultsKeys         = Object.keys(outResults)
 						outExpectedResultsKeys = Object.keys(outExpectedResults)
 
 						# Check we have the same files
@@ -249,18 +249,18 @@ class RendererTester extends PluginTester
 						outResultsKeys.forEach (key) ->
 							test "same file content for: #{key}", ->
 								# Fetch file value
-								actual = outResults[key]
+								actual   = outResults[key]
 								expected = outExpectedResults[key]
 
 								# Remove empty lines
 								if tester.config.removeWhitespace is true
 									replaceLinesRegex = /\s+/g
-									actual = actual.replace(replaceLinesRegex, '')
+									actual   = actual.replace(replaceLinesRegex, '')
 									expected = expected.replace(replaceLinesRegex, '')
 
 								# Content regex
 								if tester.config.contentRemoveRegex
-									actual = actual.replace(tester.config.contentRemoveRegex, '')
+									actual   = actual.replace(tester.config.contentRemoveRegex, '')
 									expected = expected.replace(tester.config.contentRemoveRegex, '')
 
 								# Compare
@@ -286,10 +286,10 @@ testers.test =
 test = (testerConfig, docpadConfig) ->
 	# Configure
 	testerConfig.testerClass ?= PluginTester
-	testerConfig.pluginPath = pathUtil.resolve(testerConfig.pluginPath)
-	testerConfig.pluginName ?= pathUtil.basename(testerConfig.pluginPath).replace('docpad-plugin-','')
-	testerConfig.testerPath ?= pathUtil.join('out', "#{testerConfig.pluginName}.tester.js")
-	testerConfig.testerPath = pathUtil.resolve(testerConfig.pluginPath, testerConfig.testerPath)  if testerConfig.testerPath
+	testerConfig.pluginPath   = pathUtil.resolve(testerConfig.pluginPath)
+	testerConfig.pluginName  ?= pathUtil.basename(testerConfig.pluginPath).replace('docpad-plugin-','')
+	testerConfig.testerPath  ?= pathUtil.join('out', "#{testerConfig.pluginName}.tester.js")
+	testerConfig.testerPath   = pathUtil.resolve(testerConfig.pluginPath, testerConfig.testerPath)  if testerConfig.testerPath
 
 	# Create tester
 	complete = ->

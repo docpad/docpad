@@ -32,7 +32,7 @@ class BasePlugin
 	name: null
 
 	# Plugin config
-	config: {}
+	config:         {}
 	instanceConfig: {}
 
 	# Plugin priority
@@ -41,17 +41,17 @@ class BasePlugin
 	# Constructor
 	constructor: (opts) ->
 		# Prepare
-		me = @
+		me              = @
 		{docpad,config} = opts
-		@docpad = docpad
+		@docpad         = docpad
 
 		# Bind listeners
 		@bindListeners()
 
 		# Swap out our configuration
-		@config = extendr.deepClone(@config)
+		@config         = extendr.deepClone(@config)
 		@instanceConfig = extendr.deepClone(@instanceConfig)
-		@initialConfig = @config
+		@initialConfig  = @config
 		@setConfig(config)
 
 		# Return early if we are disabled
@@ -74,9 +74,9 @@ class BasePlugin
 	# Set Configuration
 	setConfig: (instanceConfig=null) =>
 		# Prepare
-		docpad = @docpad
+		docpad     = @docpad
 		userConfig = @docpad.config.plugins[@name]
-		@config = @docpad.config.plugins[@name] = {}
+		@config    = @docpad.config.plugins[@name] = {}
 
 		# Instance config
 		@setInstanceConfig(instanceConfig)  if instanceConfig
@@ -103,8 +103,8 @@ class BasePlugin
 	bindListeners: ->
 		# Prepare
 		pluginInstance = @
-		docpad = @docpad
-		events = docpad.getEvents()
+		docpad         = @docpad
+		events         = docpad.getEvents()
 
 		# Bind events
 		eachr events, (eventName) ->
@@ -123,8 +123,8 @@ class BasePlugin
 	addListeners: ->
 		# Prepare
 		pluginInstance = @
-		docpad = @docpad
-		events = docpad.getEvents()
+		docpad         = @docpad
+		events         = docpad.getEvents()
 
 		# Bind events
 		eachr events, (eventName) ->
@@ -134,10 +134,10 @@ class BasePlugin
 			# Check it exists and is a function
 			if typeChecker.isFunction(eventHandler)
 				# Apply the priority
-				eventHandlerPriority = pluginInstance[eventName+'Priority'] or pluginInstance.priority or null
+				eventHandlerPriority   = pluginInstance[eventName+'Priority'] or pluginInstance.priority or null
 				eventHandler.priority ?= eventHandlerPriority
-				eventHandler.name = "#{pluginInstance.name}: {eventName}"
-				eventHandler.name += "(priority eventHandler.priority})"  if eventHandler.priority?
+				eventHandler.name      = "#{pluginInstance.name}: {eventName}"
+				eventHandler.name     += "(priority eventHandler.priority})"  if eventHandler.priority?
 
 				# Wrap the event handler, and bind it to docpad
 				docpad
@@ -151,8 +151,8 @@ class BasePlugin
 	removeListeners: ->
 		# Prepare
 		pluginInstance = @
-		docpad = @docpad
-		events = docpad.getEvents()
+		docpad         = @docpad
+		events         = docpad.getEvents()
 
 		# Bind events
 		eachr events, (eventName) ->

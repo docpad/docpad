@@ -13,19 +13,19 @@ joe      = require('joe')
 # Configuration
 
 # Paths
-docpadPath = pathUtil.join(__dirname, '..', '..')
+docpadPath = pathUtil.join(__dirname,  '..', '..')
 rootPath   = pathUtil.join(docpadPath, 'test')
-renderPath = pathUtil.join(rootPath, 'render')
-expectPath = pathUtil.join(rootPath, 'render-expected')
+renderPath = pathUtil.join(rootPath,   'render')
+expectPath = pathUtil.join(rootPath,   'render-expected')
 cliPath    = pathUtil.join(docpadPath, 'bin', 'docpad')
 
 # Configure DocPad
 docpadConfig =
-	port: 9780
+	port:     9780
 	rootPath: rootPath
 	logLevel: if (process.env.TRAVIS_NODE_VERSION? or '-d' in process.argv) then 7 else 5
 	skipUnsupportedPlugins: false
-	catchExceptions: false
+	catchExceptions:        false
 	environments:
 		development:
 			a: 'instanceConfig'

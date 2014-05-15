@@ -10,7 +10,7 @@ DocPad = require('../lib/docpad')
 
 # Prepare
 getArgument = (name,value=null,defaultValue=null) ->
-	result = defaultValue
+	result        = defaultValue
 	argumentIndex = process.argv.indexOf("--#{name}")
 	if argumentIndex isnt -1
 		result = value ? process.argv[argumentIndex+1]

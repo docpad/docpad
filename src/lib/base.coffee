@@ -33,7 +33,7 @@ extendr.extend(Events::, Backbone.Events)
 
 # Model
 class Model extends Backbone.Model
-	log: log
+	log:  log
 	emit: emit
 
 	# Set Defaults
@@ -49,25 +49,25 @@ class Model extends Backbone.Model
 
 # Collection
 class Collection extends Backbone.Collection
-	log: log
+	log:  log
 	emit: emit
 	destroy: =>
 		@emit('destroy')
 		@off().stopListening()
 		@
-Collection::model = Model
+Collection::model      = Model
 Collection::collection = Collection
 
 
 # View
 class View extends Backbone.View
-	log: log
+	log:  log
 	emit: emit
 
 
 # QueryCollection
 class QueryCollection extends queryEngine.QueryCollection
-	log: log
+	log:  log
 	emit: emit
 
 	setParentCollection: ->
@@ -80,7 +80,7 @@ class QueryCollection extends queryEngine.QueryCollection
 		@emit('destroy')
 		@off().stopListening()
 		@
-QueryCollection::model = Model
+QueryCollection::model      = Model
 QueryCollection::collection = QueryCollection
 
 

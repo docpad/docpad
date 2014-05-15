@@ -10,7 +10,7 @@ DocPad = require('../lib/docpad')
 
 # Prepare
 getArgument = (name,value=null,defaultValue=null) ->
-	result = defaultValue
+	result        = defaultValue
 	argumentIndex = process.argv.indexOf("--#{name}")
 	if argumentIndex isnt -1
 		result = value ? process.argv[argumentIndex+1]
@@ -22,10 +22,10 @@ action = (getArgument('action', null, 'generate')+' '+getArgument('watch', 'watc
 
 # ---------------------------------
 # DocPad Configuration
-docpadConfig = {}
+docpadConfig          = {}
 docpadConfig.rootPath = getArgument('rootPath', null, process.cwd())
-docpadConfig.outPath = getArgument('outPath', null, docpadConfig.rootPath+'/out')
-docpadConfig.srcPath = getArgument('srcPath', null, docpadConfig.rootPath+'/src')
+docpadConfig.outPath  = getArgument('outPath',  null, docpadConfig.rootPath+'/out')
+docpadConfig.srcPath  = getArgument('srcPath',  null, docpadConfig.rootPath+'/src')
 
 docpadConfig.documentsPaths = (->
 	documentsPath = getArgument('documentsPath')

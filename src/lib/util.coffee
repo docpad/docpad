@@ -31,7 +31,7 @@ module.exports = docpadUtil =
 
 	# Spawn Local DocPad Executable
 	startLocalDocPadExecutable: (next) ->
-		args = process.argv.slice(2)
+		args    = process.argv.slice(2)
 		command = ['node', docpadUtil.getLocalDocPadExecutable()].concat(args)
 		return require('safeps').spawn command, {stdio:'inherit'}, (err) ->
 			if err
@@ -96,8 +96,8 @@ module.exports = docpadUtil =
 	action: (action,opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
-		me = @
-		runner = me.getActionRunner()
+		me          = @
+		runner      = me.getActionRunner()
 
 		# Array?
 		if Array.isArray(action)
@@ -127,7 +127,7 @@ module.exports = docpadUtil =
 			return me
 
 		# Fetch the action
-		action = actions[0]
+		action       = actions[0]
 
 		# Fetch
 		actionMethod = me[action].bind(me)
