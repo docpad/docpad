@@ -1,8 +1,51 @@
+# ---------------------------------
 # Requires
 
-# Essential
+# Standard Library
 pathUtil = require('path')
+util     = require('util')
+
+# External
 {lazyRequire} = require('lazy-require')
+_ = require('lodash')
+CSON = require('cson')
+balUtil = require('bal-util')
+extendr = require('extendr')
+eachr = require('eachr')
+typeChecker = require('typechecker')
+ambi = require('ambi')
+{TaskGroup} = require('taskgroup')
+safefs = require('safefs')
+safeps = require('safeps')
+ignorefs = require('ignorefs')
+superAgent = require('superagent')
+{extractOptsAndCallback} = require('extract-opts')
+{EventEmitterGrouped} = require('event-emitter-grouped')
+
+# Base
+{queryEngine,Backbone,Events,Model,Collection,View,QueryCollection} = require('./base')
+
+# Utils
+docpadUtil = require('./util')
+
+# Models
+FileModel = require('./models/file')
+DocumentModel = require('./models/document')
+
+# Collections
+FilesCollection = require('./collections/files')
+ElementsCollection = require('./collections/elements')
+MetaCollection = require('./collections/meta')
+ScriptsCollection = require('./collections/scripts')
+StylesCollection = require('./collections/styles')
+
+# Plugins
+PluginLoader = require('./plugin-loader')
+BasePlugin = require('./plugin')
+
+
+# ---------------------------------
+# Helpers
 corePath = pathUtil.resolve(__dirname, '..', '..')
 setImmediate = global?.setImmediate or process.nextTick  # node 0.8 b/c
 
@@ -36,43 +79,7 @@ if ('--profile' in process.argv)
 		return  if err
 		console.log("Profiling with webkit-devtools-agent on process id:", process.pid)
 
-# Necessary
-_ = require('lodash')
-CSON = require('cson')
-balUtil = require('bal-util')
-extendr = require('extendr')
-eachr = require('eachr')
-typeChecker = require('typechecker')
-ambi = require('ambi')
-{TaskGroup} = require('taskgroup')
-safefs = require('safefs')
-safeps = require('safeps')
-ignorefs = require('ignorefs')
-util = require('util')
-superAgent = require('superagent')
-{extractOptsAndCallback} = require('extract-opts')
-{EventEmitterGrouped} = require('event-emitter-grouped')
 
-# Base
-{queryEngine,Backbone,Events,Model,Collection,View,QueryCollection} = require('./base')
-
-# Utils
-docpadUtil = require('./util')
-
-# Models
-FileModel = require('./models/file')
-DocumentModel = require('./models/document')
-
-# Collections
-FilesCollection = require('./collections/files')
-ElementsCollection = require('./collections/elements')
-MetaCollection = require('./collections/meta')
-ScriptsCollection = require('./collections/scripts')
-StylesCollection = require('./collections/styles')
-
-# Plugins
-PluginLoader = require('./plugin-loader')
-BasePlugin = require('./plugin')
 
 
 # =====================================
@@ -4804,9 +4811,7 @@ class DocPad extends EventEmitterGrouped
 		@
 
 
-# =====================================
-# Export
-
+# ---------------------------------
 # Export
 module.exports =
 	# Modules

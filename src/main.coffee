@@ -1,8 +1,14 @@
+# ---------------------------------
 # Requires
+
+# Standard Library
 pathUtil = require('path')
+
+# Local
 {DocPad,queryEngine,Backbone,createInstance,createMiddlewareInstance} = require('./lib/docpad')
 
 
+# ---------------------------------
 # Export
 module.exports =
 	# Pre-Defined

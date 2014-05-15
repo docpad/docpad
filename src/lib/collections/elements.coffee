@@ -1,8 +1,15 @@
-# Necessary
+# ---------------------------------
+# Requires
+
+# External
 typeChecker = require('typechecker')
 
 # Local
 {Collection,Model} = require('../base')
+
+
+# ---------------------------------
+# Classes
 
 # Elements Collection
 class ElementsCollection extends Collection
@@ -46,5 +53,7 @@ class ElementsCollection extends Collection
 	# Join alias toHTML for b/c
 	join: -> @toHTML()
 
+
+# ---------------------------------
 # Export
 module.exports = ElementsCollection

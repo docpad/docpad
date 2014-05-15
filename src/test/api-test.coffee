@@ -1,7 +1,13 @@
-# RequirestestServer
+# ---------------------------------
+# Requires
+
+# Standard Library
+pathUtil = require('path')
+
+# External
 {expect} = require('chai')
 joe = require('joe')
-pathUtil = require('path')
+
 
 # -------------------------------------
 # Configuration

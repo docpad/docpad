@@ -1,8 +1,18 @@
+# ---------------------------------
 # Requires
+
+# Standard Library
 pathUtil = require('path')
+util = require('util')
+
+# External
 semver = require('semver')
 safefs = require('safefs')
-util = require('util')
+
+
+
+# ---------------------------------
+# Classes
 
 # Define Plugin Loader
 class PluginLoader
@@ -233,5 +243,6 @@ class PluginLoader
 		@
 
 
+# ---------------------------------
 # Export
 module.exports = PluginLoader

@@ -1,4 +1,7 @@
+# ---------------------------------
 # Requires
+
+# Standard Library
 {extendOnClass} = require('extendonclass')
 pathUtil = require('path')
 safefs = require('safefs')
@@ -8,7 +11,13 @@ joe = require('joe')
 {expect} = require('chai')
 CSON = require('cson')
 _ = require('lodash')
+
+# Local
 DocPad = require('./docpad')
+
+
+# ---------------------------------
+# Helpers
 
 # Prepare
 # We want the plugn port to be a semi-random number above 2000
@@ -17,6 +26,10 @@ testers = {
 	CSON,
 	DocPad
 }
+
+
+# ---------------------------------
+# Classes
 
 # Plugin Tester
 testers.PluginTester =
@@ -301,5 +314,7 @@ test = (testerConfig, docpadConfig) ->
 	# Chain
 	return testers
 
+
+# ---------------------------------
 # Export Testers
 module.exports = testers

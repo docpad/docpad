@@ -1,8 +1,14 @@
-# RequirestestServer
+# ---------------------------------
+# Requires
+
+# Standard Library
+pathUtil = require('path')
+
+# External
 {expect} = require('chai')
 joe = require('joe')
-pathUtil = require('path')
 superagent = require('superagent')
+
 
 # -------------------------------------
 # Configuration
@@ -17,6 +23,7 @@ cliPath    = pathUtil.join(docpadPath, 'bin', 'docpad')
 # Fail on an uncaught error
 process.on 'uncaughtException', (err) ->
 	throw err
+
 
 # -------------------------------------
 # Tests

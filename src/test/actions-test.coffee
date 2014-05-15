@@ -1,12 +1,20 @@
-# RequirestestServer
+# ---------------------------------
+# Requires
+
+# Standard Library
+pathUtil = require('path')
+
+# External
 superAgent = require('superagent')
 balUtil = require('bal-util')
 safefs = require('safefs')
-DocPad = require('../lib/docpad')
 {expect} = require('chai')
 joe = require('joe')
 _ = require('lodash')
-pathUtil = require('path')
+
+# Local
+DocPad = require('../lib/docpad')
+
 
 # -------------------------------------
 # Configuration

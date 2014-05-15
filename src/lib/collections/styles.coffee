@@ -1,8 +1,15 @@
-# Necessary
+# ---------------------------------
+# Requires
+
+# External
 typeChecker = require('typechecker')
 
 # Local
 ElementsCollection = require('./elements')
+
+
+# ---------------------------------
+# Classes
 
 # Styles Collection
 class StylesCollection extends ElementsCollection
@@ -41,5 +48,6 @@ class StylesCollection extends ElementsCollection
 		super(values, opts)
 
 
+# ---------------------------------
 # Export
 module.exports = StylesCollection
