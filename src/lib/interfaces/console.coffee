@@ -2,14 +2,14 @@
 # Requires
 
 # Standard Library
-pathUtil = require('path')
+pathUtil    = require('path')
 
 # External
-safefs = require('safefs')
-safeps = require('safeps')
+extendr     = require('extendr')
+promptly    = require('promptly')
+safefs      = require('safefs')
+safeps      = require('safeps')
 {TaskGroup} = require('taskgroup')
-extendr = require('extendr')
-promptly = require('promptly')
 
 
 # ---------------------------------

@@ -6,7 +6,7 @@ pathUtil = require('path')
 
 # Local
 {QueryCollection,Model} = require('../base')
-FileModel = require('../models/file')
+FileModel               = require('../models/file')
 
 
 # ---------------------------------

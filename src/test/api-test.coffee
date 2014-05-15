@@ -5,8 +5,8 @@
 pathUtil = require('path')
 
 # External
+joe      = require('joe')
 {expect} = require('chai')
-joe = require('joe')
 
 
 # -------------------------------------

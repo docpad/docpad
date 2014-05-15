@@ -2,9 +2,10 @@
 # Requires
 
 # External
-extendr = require('extendr')
+extendr     = require('extendr')
 queryEngine = require('query-engine')
-Backbone = queryEngine.Backbone
+
+Backbone    = queryEngine.Backbone
 
 
 # ---------------------------------

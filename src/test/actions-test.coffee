@@ -2,15 +2,15 @@
 # Requires
 
 # Standard Library
-pathUtil = require('path')
+pathUtil   = require('path')
 
 # External
+_          = require('lodash')
+balUtil    = require('bal-util')
+joe        = require('joe')
+safefs     = require('safefs')
 superAgent = require('superagent')
-balUtil = require('bal-util')
-safefs = require('safefs')
-{expect} = require('chai')
-joe = require('joe')
-_ = require('lodash')
+{expect}   = require('chai')
 
 # Local
 DocPad = require('../lib/docpad')

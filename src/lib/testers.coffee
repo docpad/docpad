@@ -2,15 +2,17 @@
 # Requires
 
 # Standard Library
-{extendOnClass} = require('extendonclass')
 pathUtil = require('path')
-safefs = require('safefs')
-balUtil = require('bal-util')
-extendr = require('extendr')
-joe = require('joe')
-{expect} = require('chai')
-CSON = require('cson')
-_ = require('lodash')
+
+# External
+_               = require('lodash')
+balUtil         = require('bal-util')
+CSON            = require('cson')
+extendr         = require('extendr')
+joe             = require('joe')
+safefs          = require('safefs')
+{expect}        = require('chai')
+{extendOnClass} = require('extendonclass')
 
 # Local
 DocPad = require('./docpad')

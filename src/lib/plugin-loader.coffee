@@ -3,11 +3,11 @@
 
 # Standard Library
 pathUtil = require('path')
-util = require('util')
+util     = require('util')
 
 # External
-semver = require('semver')
-safefs = require('safefs')
+semver   = require('semver')
+safefs   = require('safefs')
 
 
 

@@ -2,25 +2,25 @@
 # Requires
 
 # Standard Library
-pathUtil = require('path')
+pathUtil                 = require('path')
 
 # External
-isTextOrBinary = require('istextorbinary')
-typeChecker = require('typechecker')
-{TaskGroup} = require('taskgroup')
-safefs = require('safefs')
-mime = require('mime')
-extendr = require('extendr')
+extendr                  = require('extendr')
+isTextOrBinary           = require('istextorbinary')
+mime                     = require('mime')
+safefs                   = require('safefs')
+typeChecker              = require('typechecker')
 {extractOptsAndCallback} = require('extract-opts')
+{TaskGroup}              = require('taskgroup')
 
 # (Optional)
-jschardet = null
-encodingUtil = null
+jschardet                = null
+encodingUtil             = null
 #Iconv = null
 
 # Local
+docpadUtil       = require('../util')
 {Backbone,Model} = require('../base')
-docpadUtil = require('../util')
 
 
 # ---------------------------------

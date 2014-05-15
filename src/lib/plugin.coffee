@@ -2,11 +2,11 @@
 # Requires
 
 # External
+ambi            = require('ambi')
+eachr           = require('eachr')
+extendr         = require('extendr')
+typeChecker     = require('typechecker')
 {extendOnClass} = require('extendonclass')
-extendr = require('extendr')
-typeChecker = require('typechecker')
-ambi = require('ambi')
-eachr = require('eachr')
 
 
 # ---------------------------------

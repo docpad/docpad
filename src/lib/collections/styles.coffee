@@ -2,7 +2,7 @@
 # Requires
 
 # External
-typeChecker = require('typechecker')
+typeChecker        = require('typechecker')
 
 # Local
 ElementsCollection = require('./elements')

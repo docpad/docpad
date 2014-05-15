@@ -5,10 +5,9 @@
 pathUtil = require('path')
 
 # External
-{expect} = require('chai')
-joe = require('joe')
+joe        = require('joe')
 superagent = require('superagent')
-
+{expect}   = require('chai')
 
 # -------------------------------------
 # Configuration

@@ -5,10 +5,9 @@
 pathUtil = require('path')
 
 # External
-_ = require('lodash')
+_                        = require('lodash')
 {extractOptsAndCallback} = require('extract-opts')
-{TaskGroup} = require('taskgroup')
-
+{TaskGroup}              = require('taskgroup')
 
 
 # ---------------------------------

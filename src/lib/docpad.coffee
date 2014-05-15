@@ -6,42 +6,44 @@ pathUtil = require('path')
 util     = require('util')
 
 # External
-{lazyRequire} = require('lazy-require')
-_ = require('lodash')
-CSON = require('cson')
-balUtil = require('bal-util')
-extendr = require('extendr')
-eachr = require('eachr')
+_           = require('lodash')
+ambi        = require('ambi')
+balUtil     = require('bal-util')
+CSON        = require('cson')
+eachr       = require('eachr')
+extendr     = require('extendr')
+ignorefs    = require('ignorefs')
+safefs      = require('safefs')
+safeps      = require('safeps')
+superAgent  = require('superagent')
 typeChecker = require('typechecker')
-ambi = require('ambi')
-{TaskGroup} = require('taskgroup')
-safefs = require('safefs')
-safeps = require('safeps')
-ignorefs = require('ignorefs')
-superAgent = require('superagent')
+{EventEmitterGrouped}    = require('event-emitter-grouped')
 {extractOptsAndCallback} = require('extract-opts')
-{EventEmitterGrouped} = require('event-emitter-grouped')
+{lazyRequire}            = require('lazy-require')
+{TaskGroup}              = require('taskgroup')
+
+# Local
 
 # Base
 {queryEngine,Backbone,Events,Model,Collection,View,QueryCollection} = require('./base')
 
 # Utils
-docpadUtil = require('./util')
+docpadUtil         = require('./util')
 
 # Models
-FileModel = require('./models/file')
-DocumentModel = require('./models/document')
+FileModel          = require('./models/file')
+DocumentModel      = require('./models/document')
 
 # Collections
-FilesCollection = require('./collections/files')
+FilesCollection    = require('./collections/files')
 ElementsCollection = require('./collections/elements')
-MetaCollection = require('./collections/meta')
-ScriptsCollection = require('./collections/scripts')
-StylesCollection = require('./collections/styles')
+MetaCollection     = require('./collections/meta')
+ScriptsCollection  = require('./collections/scripts')
+StylesCollection   = require('./collections/styles')
 
 # Plugins
-PluginLoader = require('./plugin-loader')
-BasePlugin = require('./plugin')
+PluginLoader       = require('./plugin-loader')
+BasePlugin         = require('./plugin')
 
 
 # ---------------------------------
@@ -82,7 +84,7 @@ if ('--profile' in process.argv)
 
 
 
-# =====================================
+# ---------------------------------
 # DocPad
 
 # The DocPad Class
