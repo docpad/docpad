@@ -1,0 +1,14 @@
+# EditorConfig is awesome: 
+# http://editorconfig.org
+root = true
+
+[*]
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = false
+indent_style = tab
+
+[{*.yml,*.json}]
+indent_style = space
+indent_size = 2
