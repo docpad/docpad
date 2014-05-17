@@ -1,4 +1,4 @@
-# v1.3.13 December 19, 2013
+# v1.3.15 May 16, 2014
 # https://github.com/bevry/base
 
 
@@ -35,7 +35,7 @@ config = {}
 config.TEST_PATH = "test"
 config.DOCCO_SRC_PATH   = null
 config.DOCCO_OUT_PATH   = "docs"
-config.COFFEE_SRC_PATH  = "src"  # eventually we'll set this to null, right now it isn't for b/c compat
+config.COFFEE_SRC_PATH  = null
 config.COFFEE_OUT_PATH  = "out"
 config.DOCPAD_SRC_PATH  = null
 config.DOCPAD_OUT_PATH  = "out"
@@ -82,10 +82,10 @@ actions =
 	clean: (opts,next) ->
 		# Prepare
 		(next = opts; opts = {})  unless next?
-		
+
 		# Add compilation paths
 		args = ['-Rf', config.COFFEE_OUT_PATH, config.DOCPAD_OUT_PATH, config.DOCCO_OUT_PATH]
-		
+
 		# Add common ignore paths
 		for path in [APP_PATH, config.TEST_PATH]
 			args.push(

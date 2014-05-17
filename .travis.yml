@@ -1,4 +1,4 @@
-# v1.3.8 November 7, 2013
+# v1.3.14 February 6, 2014
 # https://github.com/bevry/base
 language: node_js
 install: "npm install; ./node_modules/.bin/cake install"
@@ -7,6 +7,9 @@ script: "npm test"
 node_js:
   - "0.8"
   - "0.10"
+cache:
+  directories:
+    - node_modules
 notifications:
   irc:
     - "irc.freenode.org#bevry-dev"

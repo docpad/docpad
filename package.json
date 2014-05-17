@@ -98,6 +98,7 @@
     "ttamminen (https://github.com/ttamminen)",
     "unframework (https://github.com/unframework)",
     "Vladislav Botvin <darkvlados@me.com> (https://github.com/darrrk)",
+    "Zearin (https://github.com/Zearin)",
     "Zhao Lei <aicoylei@gmail.com> (https://github.com/firede)"
   ],
   "bugs": {
@@ -167,5 +168,8 @@
   "scripts": {
     "test": "node ./out/test/everything-test.js"
   },
-  "main": "./out/main.js"
+  "main": "./out/main.js",
+  "cakeConfiguration": {
+    "COFFEE_SRC_PATH": "src"
+  }
 }

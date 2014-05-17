@@ -182,6 +182,7 @@ These amazing people have contributed code to this project:
 - [ttamminen](https://github.com/ttamminen) — [view contributions](https://github.com/bevry/docpad/commits?author=ttamminen)
 - [unframework](https://github.com/unframework) — [view contributions](https://github.com/bevry/docpad/commits?author=unframework)
 - [Vladislav Botvin](https://github.com/darrrk) <darkvlados@me.com> — [view contributions](https://github.com/bevry/docpad/commits?author=darrrk)
+- [Zearin](https://github.com/Zearin) — [view contributions](https://github.com/bevry/docpad/commits?author=Zearin)
 - [Zhao Lei](https://github.com/firede) <aicoylei@gmail.com> — [view contributions](https://github.com/bevry/docpad/commits?author=firede)
 
 [Become a contributor!](https://github.com/bevry/docpad/blob/master/CONTRIBUTING.md#files)
