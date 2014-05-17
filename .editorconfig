@@ -1,24 +1,14 @@
 # EditorConfig is awesome: 
 # http://editorconfig.org
-
-
-# top-most EditorConfig file
 root = true
-
 
 [*]
 end_of_line = lf
-insert_final_newline = true
-
-
-[{*.coffee,*.cson,Cakefile}]
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = false
 indent_style = tab
 
-
-[{*.js,.travis.yml,package.json}]
+[{*.yml,*.json}]
 indent_style = space
 indent_size = 2
-
-
-[*.md]
-indent_style = tab
