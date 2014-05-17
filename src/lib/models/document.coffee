@@ -529,7 +529,7 @@ class DocumentModel extends FileModel
 		tasks = new TaskGroup "render tasks for: #{relativePath}", next:(err) ->
 			# Error?
 			if err
-				file.log 'warn', "Something went wrong while rendering: #{relativePath}\n#{err.message or err}"
+				file.log 'warn', "Something went wrong while rendering: #{relativePath}\n#{err.stack or err.message or err}"
 				return next(err, opts.content, file)
 
 			# Apply

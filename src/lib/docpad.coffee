@@ -1176,7 +1176,7 @@ class DocPad extends EventEmitterGrouped
 		@filesBySelector = {}
 		@filesByOutPath = {}
 		@database = new FilesCollection(null, {name:'database'})
-			.on('remove', (model,options) =>
+			.on('remove', (model,options) ->
 				# Skip if we are not a writeable file
 				return  if model.get('write') is false
 
@@ -1187,7 +1187,7 @@ class DocPad extends EventEmitterGrouped
 				# Ensure we regenerate anything (on the next regeneration) that was using the same outPath
 				outPath = model.get('outPath')
 				if outPath
-					updatedModels = @database.findAll({outPath})
+					updatedModels = docpad.database.findAll({outPath})
 					updatedModels.remove(model)
 					updatedModels.each (model) ->
 						model.set('mtime': new Date())
@@ -1198,7 +1198,7 @@ class DocPad extends EventEmitterGrouped
 				# Return safely
 				return true
 			)
-			.on('add change:urls', (model) =>
+			.on('add change:urls', (model) ->
 				# Skip if we are not a writeable file
 				return  if model.get('write') is false
 
@@ -1213,7 +1213,7 @@ class DocPad extends EventEmitterGrouped
 				# Return safely
 				return true
 			)
-			.on('add change:outPath', (model) =>
+			.on('add change:outPath', (model) ->
 				# Skip if we are not a writeable file
 				return  if model.get('write') is false
 
@@ -1221,7 +1221,7 @@ class DocPad extends EventEmitterGrouped
 				previousOutPath = model.previous('outPath')
 				if previousOutPath
 					# Ensure we regenerate anything (on the next regeneration) that was using the same outPath
-					previousModels = @database.findAll(outPath:previousOutPath)
+					previousModels = docpad.database.findAll(outPath:previousOutPath)
 					previousModels.remove(model)
 					previousModels.each (model) ->
 						model.set('mtime': new Date())
@@ -1230,18 +1230,18 @@ class DocPad extends EventEmitterGrouped
 					docpad.log('debug', 'Updated mtime for these models due to addition of a similar one', previousModels.pluck('relativePath'))
 
 					# Update the cache entry with another file that has the same outPath or delete it if there aren't any others
-					previousModelId = @filesByOutPath[previousOutPath]
+					previousModelId = docpad.filesByOutPath[previousOutPath]
 					if previousModelId is model.id
 						if previousModels.length
-							@filesByOutPath[previousOutPath] = previousModelId
+							docpad.filesByOutPath[previousOutPath] = previousModelId
 						else
-							delete @filesByOutPath[previousOutPath]
+							delete docpad.filesByOutPath[previousOutPath]
 
 				# Update the cache entry and fetch the latest if it was already set
 				if (outPath = model.get('outPath'))
-					existingModelId = @filesByOutPath[outPath] ?= model.id
+					existingModelId = docpad.filesByOutPath[outPath] ?= model.id
 					if existingModelId isnt model.id
-						existingModel = @database.get(existingModelId)
+						existingModel = docpad.database.get(existingModelId)
 						if existingModel
 							# We have a conflict, let the user know
 							modelPath = model.get('fullPath') or (model.get('relativePath')+':'+model.id)
@@ -1250,7 +1250,7 @@ class DocPad extends EventEmitterGrouped
 							docpad.warn(message)
 						else
 							# There reference was old, update it with our new one
-							@filesByOutPath[outPath] = model.id
+							docpad.filesByOutPath[outPath] = model.id
 
 				# Return safely
 				return true
@@ -1441,12 +1441,12 @@ class DocPad extends EventEmitterGrouped
 			# Welcome
 			docpad.emitSerial('welcome', {docpad}, complete)
 
-		tasks.addTask 'track', (complete) =>
+		tasks.addTask 'track', (complete) ->
 			# Identify
-			return @identify(complete)
+			return docpad.identify(complete)
 
-		tasks.addTask 'emit docpadReady', (complete) =>
-			@emitSerial('docpadReady', {docpad}, complete)
+		tasks.addTask 'emit docpadReady', (complete) ->
+			docpad.emitSerial('docpadReady', {docpad}, complete)
 
 		# Run tasks
 		tasks.run()
@@ -1541,8 +1541,8 @@ class DocPad extends EventEmitterGrouped
 			@on('error', @error)
 
 		# Prepare the Post Tasks
-		postTasks = new TaskGroup 'setConfig post tasks', next:(err) =>
-			return next(err, @config)
+		postTasks = new TaskGroup 'setConfig post tasks', next:(err) ->
+			return next(err, docpad.config)
 
 		###
 		postTasks.addTask 'lazy depedencnies: encoding', (complete) =>
@@ -1555,14 +1555,14 @@ class DocPad extends EventEmitterGrouped
 		postTasks.addTask 'load plugins', (complete) ->
 			docpad.loadPlugins(complete)
 
-		postTasks.addTask 'extend collections', (complete) =>
-			@extendCollections(complete)
+		postTasks.addTask 'extend collections', (complete) ->
+			docpad.extendCollections(complete)
 
-		postTasks.addTask 'fetch plugins templateData', (complete) =>
-			@emitSerial('extendTemplateData', {templateData:@pluginsTemplateData}, complete)
+		postTasks.addTask 'fetch plugins templateData', (complete) ->
+			docpad.emitSerial('extendTemplateData', {templateData:docpad.pluginsTemplateData}, complete)
 
-		postTasks.addTask 'fire the docpadLoaded event', (complete) =>
-			@emitSerial('docpadLoaded', complete)
+		postTasks.addTask 'fire the docpadLoaded event', (complete) ->
+			docpad.emitSerial('docpadLoaded', complete)
 
 		# Fire post tasks
 		postTasks.run()
@@ -1823,7 +1823,7 @@ class DocPad extends EventEmitterGrouped
 		database = @getDatabase()
 
 		# Standard Collections
-		@setCollections(
+		@setCollections({
 			# Standard Collections
 			documents: database.createLiveChildCollection()
 				.setQuery('isDocument', {
@@ -1896,14 +1896,14 @@ class DocPad extends EventEmitterGrouped
 					write: true
 					outExtension: 'css'
 				})
-		)
+		})
 
 		# Blocks
-		@setBlocks(
+		@setBlocks({
 			meta: new MetaCollection()
 			scripts: new ScriptsCollection()
 			styles: new StylesCollection()
-		)
+		})
 
 		# Custom Collections Group
 		tasks = new TaskGroup "extendCollections tasks", concurrency:0, next:(err) ->
@@ -2498,13 +2498,13 @@ class DocPad extends EventEmitterGrouped
 	# Add Model
 	addModel: (model, opts) ->
 		model = @createModel(model, opts)
-		docpad.getDatabase().add(model)
+		@getDatabase().add(model)
 		return model
 
 	# Add Models
 	addModels: (models, opts) ->
 		models = @createModels(models, opts)
-		docpad.getDatabase().add(models)
+		@getDatabase().add(models)
 		return models
 
 	# Create Models
