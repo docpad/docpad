@@ -6,7 +6,7 @@
 	- More detailed errors when somethign goes wrong with rendering a file
 	- Deprecated `docpad.cloneModel(document)`, you can now use `document.clone()` safely
 	- Deprecated `apply` option for `document.render`, now use `document.clone().action('render')` instead
-	- Fixed broken `docpad.addModel` and `docpad.addModels`
+	- Fixed broken `docpad.addModel` and `docpad.addModels` (broken since their introduction in v6.55.0)
 	- Updated dependencies
 
 - v6.64.3 May 4, 2014
