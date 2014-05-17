@@ -5,6 +5,7 @@ safeps = require('safeps')
 {TaskGroup} = require('taskgroup')
 extendr = require('extendr')
 promptly = require('promptly')
+docpadUtil = require('../util')
 
 # Console Interface
 class ConsoleInterface
@@ -58,6 +59,10 @@ class ConsoleInterface
 			.option(
 				'--cache'
 				locale.consoleOptionCache
+			)
+			.option(
+				'--no-color'
+				locale.consoleOptionNoColor
 			)
 			.option(
 				'--silent'
@@ -245,7 +250,7 @@ class ConsoleInterface
 		locale = docpad.getLocale()
 
 		# Error?
-		process.stderr.write(require('util').inspect(err.stack or err.message or err))  if err
+		process.stderr.write(docpadUtil.inspect(err.stack or err.message or err))  if err
 		# ^ @TODO document we we use process.stderr.write instead of console.log here
 
 		# Log Shutdown
@@ -254,7 +259,7 @@ class ConsoleInterface
 		# Destroy docpad
 		docpad.destroy (err) ->
 			# Error?
-			process.stderr.write(require('util').inspect(err.stack or err.message or err))  if err
+			process.stderr.write(docpadUtil.inspect(err.stack or err.message or err))  if err
 			# ^ @TODO document we we use process.stderr.write instead of console.log here
 
 			# don't force exit, it should occur naturally
@@ -622,7 +627,7 @@ class ConsoleInterface
 		@
 
 	info: (next) =>
-		info = require('util').inspect(@docpad.config)
+		info = docpadUtil.inspect(@docpad.config)
 		console.log(info)
 		next()
 		@

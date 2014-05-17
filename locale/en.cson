@@ -177,6 +177,7 @@
 	consoleOptionPort: "a custom port to use for the server <port>"
 	consoleOptionProfile: "enable profiling"
 	consoleOptionOffline: "don't do any remote requests"
+	consoleOptionNoColor: "don't colorize terminal output"
 	consoleOptionSilent: "don't use any prompts"
 	consoleOptionCache: "use the database cache ability to speed up docpad"
 
