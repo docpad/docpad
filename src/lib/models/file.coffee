@@ -120,10 +120,13 @@ class FileModel extends Model
 		delete attrs.id
 
 		# Clone
-		instance = new @klass(attrs, opts)
+		clonedModel = new @klass(attrs, opts)
+
+		# Emit clone event so parent can re-attach listeners
+		@emit('clone', clonedModel)
 
 		# Return
-		return instance
+		return clonedModel
 
 
 	# ---------------------------------

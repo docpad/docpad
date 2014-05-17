@@ -112,9 +112,9 @@ module.exports = docpadUtil =
 			return me
 
 		else if actions.length > 1
-			tasks = new TaskGroup({next})
+			tasks = new TaskGroup('action tasks', {next})
 			actions.forEach (action) ->
-				tasks.addTask (complete) ->
+				tasks.addTask 'actions completion callback', (complete) ->
 					me.action(action, opts, complete)
 			tasks.run()
 			return me
@@ -131,7 +131,7 @@ module.exports = docpadUtil =
 			return next(err)
 
 		# Wrap
-		runner.addTask (complete) ->
+		runner.addTask 'action completion callback', (complete) ->
 			# Forward
 			actionMethod opts, (args...) ->
 				# Prepare

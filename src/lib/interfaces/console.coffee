@@ -389,10 +389,10 @@ class ConsoleInterface
 		docpad = @docpad
 		locale = docpad.getLocale()
 		userConfig = docpad.userConfig
-		welcomeTasks = new TaskGroup().once('complete',next)
+		welcomeTasks = new TaskGroup('welcome tasks').once('complete',next)
 
 		# TOS
-		welcomeTasks.addTask (complete) ->
+		welcomeTasks.addTask 'tos', (complete) ->
 			return complete()  if docpad.config.prompts is false or userConfig.tos is true
 
 			# Ask the user if they agree to the TOS
@@ -456,7 +456,7 @@ class ConsoleInterface
 							console.log locale.subscribeConfigNotify
 
 						# Tasks
-						subscribeTasks = new TaskGroup().once 'complete', (err) ->
+						subscribeTasks = new TaskGroup('subscribe tasks').once 'complete', (err) ->
 							# Error?
 							if err
 								# Inform the user
@@ -478,32 +478,32 @@ class ConsoleInterface
 							docpad.updateUserConfig(userConfig, complete)
 
 						# Name Fallback
-						subscribeTasks.addTask (complete) ->
+						subscribeTasks.addTask 'name fallback', (complete) ->
 							consoleInterface.prompt locale.subscribeNamePrompt, {default: userConfig.name}, (err, result) ->
 								return complete(err)  if err
 								userConfig.name = result
 								return complete()
 
 						# Email Fallback
-						subscribeTasks.addTask (complete) ->
+						subscribeTasks.addTask 'email fallback', (complete) ->
 							consoleInterface.prompt locale.subscribeEmailPrompt, {default: userConfig.email}, (err, result) ->
 								return complete(err)  if err
 								userConfig.email = result
 								return complete()
 
 						# Username Fallback
-						subscribeTasks.addTask (complete) ->
+						subscribeTasks.addTask 'username fallback', (complete) ->
 							consoleInterface.prompt locale.subscribeUsernamePrompt, {default: userConfig.username}, (err, result) ->
 								return complete(err)  if err
 								userConfig.username = result
 								return complete()
 
 						# Save the details
-						subscribeTasks.addTask (complete) ->
+						subscribeTasks.addTask 'save defaults', (complete) ->
 							return docpad.updateUserConfig(complete)
 
 						# Perform the subscribe
-						subscribeTasks.addTask (complete) ->
+						subscribeTasks.addTask 'subscribe', (complete) ->
 							# Inform the user
 							console.log locale.subscribeProgress
 

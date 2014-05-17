@@ -478,7 +478,7 @@ class DocumentModel extends FileModel
 				# templateData.document.metaMerged = extendr.extend({}, layout.getMeta().toJSON(), file.getMeta().toJSON())
 
 				# Render the layout with the templateData
-				layout.render {templateData,apply:false}, (err,result) ->
+				layout.clone().action 'render', {templateData}, (err,result) ->
 					return next(err, result)
 
 			# We had a layout, but it is missing
@@ -502,7 +502,7 @@ class DocumentModel extends FileModel
 		# Prepare
 		opts = extendr.clone(opts or {})
 		opts.actions ?= ['renderExtensions','renderDocument','renderLayouts']
-		opts.apply ?= true
+		opts.apply ?= true  # @TODO: deprecate this in favour of cloning the document
 		contentRenderedWithoutLayouts = null
 		relativePath = file.get('relativePath')
 

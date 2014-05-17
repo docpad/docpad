@@ -2328,7 +2328,7 @@ class DocPad extends EventEmitterGrouped
 				things['plugin-'+key] = value.version or true
 
 			# Apply
-			docpad.getTrackRunner().addTask (complete) ->
+			docpad.getTrackRunner().addTask 'track task', (complete) ->
 				superAgent
 					.post(config.helperUrl)
 					.type('json').set('Accept', 'application/json')
@@ -2381,7 +2381,7 @@ class DocPad extends EventEmitterGrouped
 				things.created = now.toISOString()
 
 				# Create the new user
-				docpad.getTrackRunner().addTask (complete) ->
+				docpad.getTrackRunner().addTask 'create new user', (complete) ->
 					superAgent
 						.post(config.helperUrl)
 						.type('json').set('Accept', 'application/json')
@@ -2401,7 +2401,7 @@ class DocPad extends EventEmitterGrouped
 			# Or an existing user?
 			else
 				# Update the existing user's information witht he latest
-				docpad.getTrackRunner().addTask (complete) =>
+				docpad.getTrackRunner().addTask 'update user', (complete) =>
 					superAgent
 						.post(config.helperUrl)
 						.type('json').set('Accept', 'application/json')
@@ -2455,48 +2455,45 @@ class DocPad extends EventEmitterGrouped
 		# Prepare
 		docpad = @
 
-		# Attach document events
-		if model.type is 'document'
-			# Render
-			model.on 'render', (args...) ->
-				docpad.emitSerial('render', args...)
+		# Only attach events if we haven't already done so
+		if model.attachedDocumentEvents isnt true
+			model.attachedDocumentEvents = true
 
-			# Render document
-			model.on 'renderDocument', (args...) ->
-				docpad.emitSerial('renderDocument', args...)
+			# Attach document events
+			if model.type is 'document'
+				# Clone
+				model.on 'clone', (clonedModel) ->
+					docpad.attachModelEvents(clonedModel)
 
-			# Fetch a layout
-			model.on 'getLayout', (opts={},next) ->
-				opts.collection = docpad.getCollection('layouts')
-				layout = docpad.getFileBySelector(opts.selector, opts)
-				next(null, {layout})
+				# Render
+				model.on 'render', (args...) ->
+					docpad.emitSerial('render', args...)
 
-		# Remove
-		#model.on 'remove', (file) ->
-		#	docpad.getDatabase().remove(file)
-		# ^ Commented out as for some reason this stops layouts from working
+				# Render document
+				model.on 'renderDocument', (args...) ->
+					docpad.emitSerial('renderDocument', args...)
 
-		# Error
-		model.on 'error', (args...) ->
-			docpad.error(args...)
+				# Fetch a layout
+				model.on 'getLayout', (opts={},next) ->
+					opts.collection = docpad.getCollection('layouts')
+					layout = docpad.getFileBySelector(opts.selector, opts)
+					next(null, {layout})
 
-		# Log
-		model.on 'log', (args...) ->
-			docpad.log(args...)
+			# Remove
+			#model.on 'remove', (file) ->
+			#	docpad.getDatabase().remove(file)
+			# ^ Commented out as for some reason this stops layouts from working
+
+			# Error
+			model.on 'error', (args...) ->
+				docpad.error(args...)
+
+			# Log
+			model.on 'log', (args...) ->
+				docpad.log(args...)
 
 		# Chain
 		@
-
-	# Clone Model
-	cloneModel: (model) ->
-		# Clone
-		clone = model.clone()
-
-		# Attach events for the model type
-		@attachModelEvents(clone)
-
-		# Return
-		return clone
 
 	# Add Model
 	addModel: (model, opts) ->
@@ -3486,7 +3483,7 @@ class DocPad extends EventEmitterGrouped
 					addGroup 'import data from file system', (addGroup, addTask) ->
 						# Documents
 						config.documentsPaths.forEach (documentsPath) ->
-							addTask (complete) ->
+							addTask 'import documents', (complete) ->
 								docpad.parseDirectory({
 									modelType: 'document'
 									collection: database
@@ -3496,7 +3493,7 @@ class DocPad extends EventEmitterGrouped
 
 						# Files
 						config.filesPaths.forEach (filesPath) ->
-							addTask (complete) ->
+							addTask 'import files', (complete) ->
 								docpad.parseDirectory({
 									modelType: 'file'
 									collection: database
@@ -3506,7 +3503,7 @@ class DocPad extends EventEmitterGrouped
 
 						# Layouts
 						config.layoutsPaths.forEach (layoutsPath) ->
-							addTask (complete) ->
+							addTask 'import layouts', (complete) ->
 								docpad.parseDirectory({
 									modelType: 'document'
 									collection: database
@@ -3656,33 +3653,15 @@ class DocPad extends EventEmitterGrouped
 	# ---------------------------------
 	# Render
 
-	# Flow through a Document
-	# next(err,document)
-	flowDocument: (document,opts,next) ->
-		# Prepare
-		[opts,next] = extractOptsAndCallback(opts,next)
-
-		# Flow
-		balUtil.flow(
-			object: document
-			action: opts.action
-			args: [opts]
-			next: (err) ->
-				return next?(err, document)
-		)
-
-		# Chain
-		@
-
 	# Load a Document
 	# next(err,document)
 	loadDocument: (document,opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
-		opts.action or= 'load contextualize'
 
-		# Flow
-		@flowDocument(document, opts, next)
+		# Load
+		# @TODO: don't load if already loaded
+		document.action('load contextualize', opts, next)
 
 		# Chain
 		@
@@ -3692,12 +3671,15 @@ class DocPad extends EventEmitterGrouped
 	loadAndRenderDocument: (document,opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
-		opts.action or= 'load contextualize render'
+		docpad = @
 
-		# Flow
-		@flowDocument document, opts, (err) ->
-			result = document.getOutContent()
-			return next?(err,result,document)
+		# Load
+		docpad.loadDocument document, opts, (err) ->
+			return next(err)  if err
+
+			# Render
+			console.log('now render')
+			docpad.renderDocument(document, opts, next)
 
 		# Chain
 		@
@@ -3709,7 +3691,9 @@ class DocPad extends EventEmitterGrouped
 		[opts,next] = extractOptsAndCallback(opts,next)
 
 		# Render
-		document.action('render', opts, next)
+		clone = document.clone().action 'render', opts, (err) ->
+			result = clone.getOutContent()
+			return next(err, result, document)
 
 		# Chain
 		@
@@ -3765,9 +3749,9 @@ class DocPad extends EventEmitterGrouped
 		# Handle
 		document = @createDocument(attributes)
 
-		# Flow
-		document.action 'normalize contextualize render', opts, (err) ->
-			result = document.getOutContent()
+		# Render
+		clone = document.clone().action 'normalize contextualize render', opts, (err) ->
+			result = clone.getOutContent()
 			return next(err, result, document)
 
 		# Chain

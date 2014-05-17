@@ -1,5 +1,9 @@
 # History
 
+- v6.65.0 Unreleased
+	- Deprecated `docpad.cloneModel(document)`, you can now use `document.clone()` safely
+	- 
+
 - v6.64.3 May 4, 2014
 	- Added donation plea for [bevry/meta#3](http://github.com/bevry/meta/issues/3)
 
