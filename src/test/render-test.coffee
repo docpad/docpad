@@ -1,22 +1,29 @@
-# RequirestestServer
-balUtil = require('bal-util')
-safefs = require('safefs')
-safeps = require('safeps')
-{expect} = require('chai')
-joe = require('joe')
+# ---------------------------------
+# Requires
+
+# Standard Library
 pathUtil = require('path')
+
+# External
+balUtil  = require('bal-util')
+joe      = require('joe')
+safefs   = require('safefs')
+safeps   = require('safeps')
+{expect} = require('chai')
+
 
 # -------------------------------------
 # Configuration
 
 # Paths
-docpadPath = pathUtil.join(__dirname, '..', '..')
+docpadPath = pathUtil.join(__dirname,  '..', '..')
 rootPath   = pathUtil.join(docpadPath, 'test')
-renderPath = pathUtil.join(rootPath, 'render')
-outPath    = pathUtil.join(rootPath, 'render-out')
-expectPath = pathUtil.join(rootPath, 'render-expected')
+renderPath = pathUtil.join(rootPath,   'render')
+outPath    = pathUtil.join(rootPath,   'render-out')
+expectPath = pathUtil.join(rootPath,   'render-expected')
 cliPath    = pathUtil.join(docpadPath, 'bin', 'docpad')
 nodePath   = null
+
 
 # -------------------------------------
 # Tests
@@ -28,11 +35,11 @@ joe.suite 'docpad-render', (suite,test) ->
 		inputs = [
 			{
 				filename: 'markdown-with-extension.md'
-				stdout: '*awesome*'
+				stdout:   '*awesome*'
 			}
 			{
 				filename: 'markdown-with-extensions.html.md'
-				stdout: '<p><em>awesome</em></p>'
+				stdout:   '<p><em>awesome</em></p>'
 			}
 		]
 		inputs.forEach (input) ->
@@ -43,7 +50,7 @@ joe.suite 'docpad-render', (suite,test) ->
 				safeps.spawnCommand 'node', command, {cwd:rootPath,output:false}, (err,stdout,stderr,code,signal) ->
 					return done(err)  if err
 					expected = input.stdout
-					actual = stdout.trim()
+					actual   = stdout.trim()
 					expect(actual).to.equal(expected)
 					return done()
 
@@ -53,33 +60,33 @@ joe.suite 'docpad-render', (suite,test) ->
 			{
 				testname: 'markdown without extension'
 				filename: ''
-				stdin: '*awesome*'
-				stdout: '*awesome*'
-				error: 'Error: filename is required'
+				stdin:    '*awesome*'
+				stdout:   '*awesome*'
+				error:    'Error: filename is required'
 			}
 			{
 				testname: 'markdown with extension as filename'
 				filename: 'markdown'
-				stdin: '*awesome*'
-				stdout: '<p><em>awesome</em></p>'
+				stdin:    '*awesome*'
+				stdout:   '<p><em>awesome</em></p>'
 			}
 			{
 				testname: 'markdown with extension'
 				filename: 'example.md'
-				stdin: '*awesome*'
-				stdout: '*awesome*'
+				stdin:    '*awesome*'
+				stdout:   '*awesome*'
 			}
 			{
 				testname: 'markdown with extensions'
 				filename: '.html.md'
-				stdin: '*awesome*'
-				stdout: '<p><em>awesome</em></p>'
+				stdin:    '*awesome*'
+				stdout:   '<p><em>awesome</em></p>'
 			}
 			{
 				testname: 'markdown with filename'
 				filename: 'example.html.md'
-				stdin: '*awesome*'
-				stdout: '<p><em>awesome</em></p>'
+				stdin:    '*awesome*'
+				stdout:   '<p><em>awesome</em></p>'
 			}
 		]
 		inputs.forEach (input) ->
@@ -95,8 +102,8 @@ joe.suite 'docpad-render', (suite,test) ->
 		# Works with out path
 		test 'outPath', (done) ->
 			input = {
-				in: '*awesome*'
-				out: '<p><em>awesome</em></p>'
+				in:      '*awesome*'
+				out:     '<p><em>awesome</em></p>'
 				outPath: pathUtil.join(outPath,'outpath-render.html')
 			}
 			safeps.spawnCommand 'node', [cliPath, 'render', 'markdown', '-o', input.outPath], {stdin:input.in,cwd:rootPath,output:false}, (err,stdout,stderr,code,signal) ->

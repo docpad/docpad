@@ -42,7 +42,7 @@ checkDocPad = ->
 
 startDocPad = ->
 	# Require
-	DocPad = require('../lib/docpad')
+	DocPad           = require('../lib/docpad')
 	ConsoleInterface = require('../lib/interfaces/console')
 
 	# Fetch action
@@ -69,5 +69,4 @@ startDocPad = ->
 
 # ---------------------------------
 # Fire
-
 checkDocPad()

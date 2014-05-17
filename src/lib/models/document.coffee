@@ -1,12 +1,19 @@
-# Necessary
-pathUtil = require('path')
-extendr = require('extendr')
-eachr = require('eachr')
-{TaskGroup} = require('taskgroup')
-mime = require('mime')
-{extractOptsAndCallback} = require('extract-opts')
+# ---------------------------------
+# Requires
 
-# Optional
+# (Necessary) ---
+
+# Standard Library
+pathUtil = require('path')
+
+# External
+eachr                    = require('eachr')
+extendr                  = require('extendr')
+mime                     = require('mime')
+{extractOptsAndCallback} = require('extract-opts')
+{TaskGroup}              = require('taskgroup')
+
+# (Optional) ---
 CSON = null
 YAML = null
 
@@ -15,7 +22,7 @@ FileModel = require('./file')
 
 
 # ---------------------------------
-# Document Model
+# Classes
 
 class DocumentModel extends FileModel
 
@@ -51,13 +58,13 @@ class DocumentModel extends FileModel
 		# Content variables
 
 		# The file meta data (header) in string format before it has been parsed
-		header: null
+		header:   null
 
 		# The parser to use for the file's meta data (header)
-		parser: null
+		parser:   null
 
 		# The file content (body) before rendering, excludes the meta data (header)
-		body: null
+		body:     null
 
 		# Have we been rendered yet?
 		rendered: false
@@ -73,7 +80,7 @@ class DocumentModel extends FileModel
 		# User set variables
 
 		# Whether or not we should render this file
-		render: true
+		render:   true
 
 		# Whether or not we want to render single extensions
 		renderSingleExtensions: false
@@ -104,13 +111,13 @@ class DocumentModel extends FileModel
 	parse: (opts={},next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
-		buffer = @getBuffer()
+		buffer      = @getBuffer()
 
 		# Reparse the data and extract the content
 		# With the content, fetch the new meta data, header, and body
 		super opts, =>
 			# Prepare
-			meta = @getMeta()
+			meta            = @getMeta()
 			metaDataChanges = {}
 			parser = header = body = content = null
 
@@ -151,20 +158,20 @@ class DocumentModel extends FileModel
 
 				# Prepare
 				seperator = match[1]
-				parser = match[3] or 'yaml'
-				header = match[4].trim()
-				body = content.substring(match[0].length).trim()
+				parser    = match[3] or 'yaml'
+				header    = match[4].trim()
+				body      = content.substring(match[0].length).trim()
 
 				# Parse
 				try
 					switch parser
 						when 'cson', 'coffee', 'coffeescript', 'coffee-script', 'json'
-							CSON = require('cson')  unless CSON
+							CSON            = require('cson')  unless CSON
 							metaParseResult = CSON.parseSync(header)
 							extendr.extend(metaDataChanges, metaParseResult)
 
 						when 'yaml'
-							YAML = require('yamljs')  unless YAML
+							YAML            = require('yamljs')  unless YAML
 							metaParseResult = YAML.parse(
 								header.replace(/\t/g,'    ')  # YAML doesn't support tabs that well
 							)
@@ -188,11 +195,11 @@ class DocumentModel extends FileModel
 			# Update meta data
 			body = body.replace(/^\n+/,'')
 			@set(
-				source: content
+				source:  content
 				content: body
-				header: header
-				body: body
-				parser: parser
+				header:  header
+				body:    body
+				parser:  parser
 				name: @get('name') or @get('title') or @get('basename')
 			)
 
@@ -238,13 +245,13 @@ class DocumentModel extends FileModel
 	normalize: (opts={},next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
-		changes = {}
-		meta = @getMeta()
+		changes     = {}
+		meta        = @getMeta()
 
 		# Extract
 		outExtension = opts.outExtension or meta.get('outExtension') or null
-		filename = opts.filename or @get('filename') or null
-		extensions = @getExtensions({filename}) or null
+		filename     = opts.filename or @get('filename') or null
+		extensions   = @getExtensions({filename}) or null
 
 		# Extension Rendered
 		if !outExtension
@@ -268,13 +275,13 @@ class DocumentModel extends FileModel
 			# Prepare
 			return next(err)  if err
 			changes = {}
-			meta = @getMeta()
+			meta    = @getMeta()
 
 			# User specified
-			outFilename = opts.outFilename or meta.get('outFilename') or null
-			outPath = opts.outPath or meta.get('outPath') or null
+			outFilename  = opts.outFilename or meta.get('outFilename') or null
+			outPath      = opts.outPath or meta.get('outPath') or null
 			outExtension = opts.outExtension or meta.get('outExtension') or null
-			extensions = @getExtensions({filename:outFilename}) or null
+			extensions   = @getExtensions({filename:outFilename}) or null
 
 			# outExtension
 			if !outExtension
@@ -305,7 +312,7 @@ class DocumentModel extends FileModel
 	# next(err, layout)
 	getLayout: (next) ->
 		# Prepare
-		file = @
+		file           = @
 		layoutSelector = @get('layout')
 
 		# Check
@@ -358,15 +365,18 @@ class DocumentModel extends FileModel
 	# next(err,result)
 	renderExtensions: (opts,next) ->
 		# Prepare
-		file = @
-		[opts,next] = extractOptsAndCallback(opts, next)
+		file          = @
+		[opts,next]   = extractOptsAndCallback(opts, next)
 		{content,templateData,renderSingleExtensions} = opts
-		extensions = @get('extensions')
-		filename = @get('filename')
-		filePath = @getFilePath()
-		content ?= @get('body')
-		templateData ?= {}
+		
+		extensions    = @get('extensions')
+		filename      = @get('filename')
+		filePath      = @getFilePath()
+		
+		content                ?= @get('body')
 		renderSingleExtensions ?= @get('renderSingleExtensions')
+		templateData           ?= {}
+		
 
 		# Prepare result
 		result = content
@@ -400,11 +410,11 @@ class DocumentModel extends FileModel
 				# definining it in the above loop will cause eventData to persist between the tasks... very strange, but it happens
 				# will cause the jade tests to fail
 				eventData =
-					inExtension: extensionsReversed[index]
+					inExtension:  extensionsReversed[index]
 					outExtension: extension
 					templateData: templateData
-					file: file
-					content: result
+					file:         file
+					content:      result
 
 				# Render
 				file.trigger 'render', eventData, (err) ->
@@ -434,12 +444,12 @@ class DocumentModel extends FileModel
 	# next(err,result)
 	renderDocument: (opts,next) ->
 		# Prepare
-		file = @
-		[opts,next] = extractOptsAndCallback(opts, next)
+		file                   = @
+		[opts,next]            = extractOptsAndCallback(opts, next)
 		{content,templateData} = opts
-		extension = @get('extensions')[0]
-		content ?= @get('body')
-		templateData ?= {}
+		extension              = @get('extensions')[0]
+		content               ?= @get('body')
+		templateData          ?= {}
 
 		# Prepare event data
 		eventData = {extension,templateData,file,content}
@@ -457,11 +467,11 @@ class DocumentModel extends FileModel
 	# next(err,result)
 	renderLayouts: (opts,next) ->
 		# Prepare
-		file = @
-		[opts,next] = extractOptsAndCallback(opts, next)
+		file                   = @
+		[opts,next]            = extractOptsAndCallback(opts, next)
 		{content,templateData} = opts
-		content ?= @get('body')
-		templateData ?= {}
+		content               ?= @get('body')
+		templateData          ?= {}
 
 		# Grab the layout
 		file.getLayout (err, layout) ->
@@ -497,21 +507,21 @@ class DocumentModel extends FileModel
 	render: (opts={},next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
-		file = @
+		file        = @
 
 		# Prepare
-		opts = extendr.clone(opts or {})
+		opts          = extendr.clone(opts or {})
 		opts.actions ?= ['renderExtensions','renderDocument','renderLayouts']
-		opts.apply ?= true
+		opts.apply   ?= true
+		relativePath  = file.get('relativePath')
 		contentRenderedWithoutLayouts = null
-		relativePath = file.get('relativePath')
 
 		# Prepare content
 		opts.content ?= file.get('body')
 
 		# Prepare templateData
-		opts.templateData = extendr.clone(opts.templateData or {})  # deepClone may be more suitable
-		opts.templateData.document ?= file.toJSON()
+		opts.templateData                = extendr.clone(opts.templateData or {})  # deepClone may be more suitable
+		opts.templateData.document      ?= file.toJSON()
 		opts.templateData.documentModel ?= file
 
 		# Ensure template helpers are bound correctly
@@ -537,7 +547,7 @@ class DocumentModel extends FileModel
 				# Attributes
 				contentRendered = opts.content
 				contentRenderedWithoutLayouts ?= contentRendered
-				rendered = true
+				rendered        = true
 				file.set({contentRendered, contentRenderedWithoutLayouts, rendered})
 
 				# Log
@@ -611,23 +621,24 @@ class DocumentModel extends FileModel
 	# next(err)
 	writeSource: (opts,next) ->
 		# Prepare
-		[opts,next] = extractOptsAndCallback(opts, next)
-		file = @
+		[opts,next]   = extractOptsAndCallback(opts, next)
+		file          = @
 
 		# Fetch
 		opts.content ?= (@getContent() or '').toString('')
 
 		# Adjust
-		CSON      = require('cson')  unless CSON
-		metaData  = @getMeta().toJSON(true)
+		CSON          = require('cson')  unless CSON
+		metaData      = @getMeta().toJSON(true)
 		delete metaData.writeSource
-		content   = body = opts.content.replace(/^\s+/,'')
-		header    = CSON.stringifySync(metaData)
+		content       = body = opts.content.replace(/^\s+/,'')
+		header        = CSON.stringifySync(metaData)
+		
+		# No meta data
 		if !header or header is '{}'
-			# No meta data
 			source    = body
+		# Has meta data
 		else
-			# Has meta data
 			parser    = 'cson'
 			seperator = '###'
 			source    = "#{seperator} #{parser}\n#{header}\n#{seperator}\n\n#{body}"
@@ -644,5 +655,6 @@ class DocumentModel extends FileModel
 		@
 
 
+# ---------------------------------
 # Export
 module.exports = DocumentModel

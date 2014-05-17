@@ -1,12 +1,20 @@
-# RequirestestServer
+# ---------------------------------
+# Requires
+
+# Standard Library
+pathUtil   = require('path')
+
+# External
+_          = require('lodash')
+balUtil    = require('bal-util')
+joe        = require('joe')
+safefs     = require('safefs')
 superAgent = require('superagent')
-balUtil = require('bal-util')
-safefs = require('safefs')
+{expect}   = require('chai')
+
+# Local
 DocPad = require('../lib/docpad')
-{expect} = require('chai')
-joe = require('joe')
-_ = require('lodash')
-pathUtil = require('path')
+
 
 # -------------------------------------
 # Configuration
@@ -20,19 +28,19 @@ expectPath = pathUtil.join(rootPath, 'out-expected')
 cliPath    = pathUtil.join(docpadPath, 'bin', 'docpad')
 
 # Params
-port = 9770
+port     = 9770
 hostname = "0.0.0.0"
-baseUrl = "http://#{hostname}:#{port}"
+baseUrl  = "http://#{hostname}:#{port}"
 testWait = 1000*60*5  # five minutes
 
 # Configure DocPad
 docpadConfig =
-	port: port
+	port:     port
 	hostname: hostname
 	rootPath: rootPath
 	logLevel: if (process.env.TRAVIS_NODE_VERSION? or '-d' in process.argv) then 7 else 5
 	skipUnsupportedPlugins: false
-	catchExceptions: false
+	catchExceptions:        false
 	environments:
 		development:
 			a: 'instanceConfig'
@@ -60,9 +68,9 @@ joe.suite 'docpad-actions', (suite,test) ->
 
 	test 'config', (done) ->
 		expected = {a:'instanceConfig', b:'instanceConfig', c:'websiteConfig'}
-
-		config = docpad.getConfig()
-		{a,b,c} = config
+		config   = docpad.getConfig()
+		{a,b,c}  = config
+		
 		expect(
 			{a,b,c}
 		).to.deep.equal(
@@ -70,7 +78,8 @@ joe.suite 'docpad-actions', (suite,test) ->
 		)
 
 		templateData = docpad.getTemplateData()
-		{a,b,c} = templateData
+		{a,b,c}      = templateData
+		
 		expect(
 			{a,b,c}
 		).to.deep.equal(
@@ -101,7 +110,7 @@ joe.suite 'docpad-actions', (suite,test) ->
 				test key, ->
 					# trim whitespace, to avoid util conflicts between node versions and other oddities
 					# also address the slash backslash issue with windows and unix
-					actualString = actual.trim().replace(/\s+/g,'').replace(/([abc])[\\]+/g, '$1/')
+					actualString   = actual.trim().replace(  /\s+/g,'').replace(/([abc])[\\]+/g, '$1/')
 					expectedString = expected.trim().replace(/\s+/g,'').replace(/([abc])[\\]+/g, '$1/')
 
 					# check equality
@@ -109,14 +118,16 @@ joe.suite 'docpad-actions', (suite,test) ->
 
 			test 'same files', (done) ->
 				balUtil.scandir(
-					path: outPath
-					readFiles: true
+					path:              outPath
+					readFiles:         true
 					ignoreHiddenFiles: false
+					
 					next: (err,outList) ->
 						balUtil.scandir(
-							path: expectPath
-							readFiles: true
+							path:              expectPath
+							readFiles:         true
 							ignoreHiddenFiles: false
+							
 							next: (err,expectList) ->
 								# check we have the same files
 								expect(
@@ -179,7 +190,7 @@ joe.suite 'docpad-actions', (suite,test) ->
 		test 'served dynamic documents - part 1/2', (done) ->
 			superAgent.get "#{baseUrl}/dynamic.html?name=ben", (err,res) ->
 				return done(err)  if err
-				actual = res.text
+				actual   = res.text
 				expected = 'hi ben'
 				expect(
 					actual.toString().trim()
@@ -191,7 +202,7 @@ joe.suite 'docpad-actions', (suite,test) ->
 		test 'served dynamic documents - part 2/2', (done) ->
 			superAgent.get "#{baseUrl}/dynamic.html?name=joe", (err,res) ->
 				return done(err)  if err
-				actual = res.text
+				actual   = res.text
 				expected = 'hi joe'
 				expect(
 					actual.toString().trim()

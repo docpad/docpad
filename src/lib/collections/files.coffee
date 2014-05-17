@@ -1,9 +1,16 @@
-# Global
+# ---------------------------------
+# Requires
+
+# Standard Library
 pathUtil = require('path')
 
 # Local
 {QueryCollection,Model} = require('../base')
-FileModel = require('../models/file')
+FileModel               = require('../models/file')
+
+
+# ---------------------------------
+# Classes
 
 # Files Collection
 class FilesCollection extends QueryCollection
@@ -27,10 +34,10 @@ class FilesCollection extends QueryCollection
 		queries = [
 			{relativePath: escapedData}
 			{relativeBase: escapedData}
-			{url: data}
+			{url:          data}
 			{relativePath: $startsWith: escapedData}
-			{fullPath: $startsWith: escapedData}
-			{url: $startsWith: data}
+			{fullPath:     $startsWith: escapedData}
+			{url:          $startsWith: data}
 		]
 
 		# Try the queries
@@ -41,5 +48,7 @@ class FilesCollection extends QueryCollection
 		# Didn't find a file
 		return null
 
+
+# ---------------------------------
 # Export
 module.exports = FilesCollection

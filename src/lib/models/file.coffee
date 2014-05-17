@@ -1,25 +1,30 @@
-# Import
-pathUtil = require('path')
-isTextOrBinary = require('istextorbinary')
-typeChecker = require('typechecker')
-{TaskGroup} = require('taskgroup')
-safefs = require('safefs')
-mime = require('mime')
-extendr = require('extendr')
-{extractOptsAndCallback} = require('extract-opts')
+# ---------------------------------
+# Requires
 
-# Import: Optional
-jschardet = null
-encodingUtil = null
+# Standard Library
+pathUtil                 = require('path')
+
+# External
+extendr                  = require('extendr')
+isTextOrBinary           = require('istextorbinary')
+mime                     = require('mime')
+safefs                   = require('safefs')
+typeChecker              = require('typechecker')
+{extractOptsAndCallback} = require('extract-opts')
+{TaskGroup}              = require('taskgroup')
+
+# (Optional)
+jschardet                = null
+encodingUtil             = null
 #Iconv = null
 
 # Local
+docpadUtil       = require('../util')
 {Backbone,Model} = require('../base')
-docpadUtil = require('../util')
 
 
 # ---------------------------------
-# File Model
+# Classes
 
 class FileModel extends Model
 
@@ -39,17 +44,17 @@ class FileModel extends Model
 	detectEncoding: false
 
 	# Stat Object
-	stat: null
+	stat:       null
 
 	# File buffer
-	buffer: null
+	buffer:     null
 
 	# Buffer time
 	bufferTime: null
 
 	# The parsed file meta data (header)
 	# Is a Backbone.Model instance
-	meta: null
+	meta:       null
 
 	# Get Options
 	getOptions: ->
@@ -57,7 +62,7 @@ class FileModel extends Model
 
 	# Is Option
 	isOption: (key) ->
-		names = ['detectEncoding', 'rootOutDirPath', 'stat', 'data', 'buffer', 'meta']
+		names  = ['detectEncoding', 'rootOutDirPath', 'stat', 'data', 'buffer', 'meta']
 		result = key in names
 		return result
 
@@ -114,7 +119,7 @@ class FileModel extends Model
 	clone: ->
 		# Fetch
 		attrs = @getAttributes()
-		opts = @getOptions()
+		opts  = @getOptions()
 
 		# Clean up
 		delete attrs.id
@@ -138,75 +143,75 @@ class FileModel extends Model
 		id: null
 
 		# The file's name without the extension
-		basename: null
+		basename:     null
 
 		# The out file's name without the extension
-		outBasename: null
+		outBasename:  null
 
 		# The file's last extension
 		# "hello.md.eco" -> "eco"
-		extension: null
+		extension:    null
 
 		# The extension used for our output file
 		outExtension: null
 
 		# The file's extensions as an array
 		# "hello.md.eco" -> ["md","eco"]
-		extensions: null  # Array
+		extensions:   null  # Array
 
 		# The file's name with the extension
-		filename: null
+		filename:     null
 
 		# The full path of our source file, only necessary if called by @load
-		fullPath: null
+		fullPath:     null
 
 		# The full directory path of our source file
-		fullDirPath: null
+		fullDirPath:  null
 
 		# The output path of our file
-		outPath: null
+		outPath:      null
 
 		# The output path of our file's directory
-		outDirPath: null
+		outDirPath:   null
 
 		# The file's name with the rendered extension
-		outFilename: null
+		outFilename:  null
 
 		# The relative path of our source file (with extensions)
 		relativePath: null
 
 		# The relative output path of our file
-		relativeOutPath: null
+		relativeOutPath:    null
 
 		# The relative directory path of our source file
-		relativeDirPath: null
+		relativeDirPath:    null
 
 		# The relative output path of our file's directory
 		relativeOutDirPath: null
 
 		# The relative base of our source file (no extension)
-		relativeBase: null
+		relativeBase:       null
 
 		# The relative base of our out file (no extension)
-		relativeOutBase: null
+		relativeOutBase:    null
 
 		# The MIME content-type for the source file
-		contentType: null
+		contentType:    null
 
 		# The MIME content-type for the out file
 		outContentType: null
 
 		# The date object for when this document was created
-		ctime: null
+		ctime:  null
 
 		# The date object for when this document was last modified
-		mtime: null
+		mtime:  null
 
 		# The date object for when this document was last rendered
-		rtime: null
+		rtime:  null
 
 		# The date object for when this document was last written
-		wtime: null
+		wtime:  null
 
 		# Does the file actually exist on the file system
 		exists: null
@@ -219,29 +224,29 @@ class FileModel extends Model
 		encoding: null
 
 		# The raw contents of the file, stored as a String
-		source: null
+		source:   null
 
 		# The contents of the file, stored as a String
-		content: null
+		content:  null
 
 
 		# ---------------------------------
 		# User set variables
 
 		# The tags for this document
-		tags: null  # CSV/Array
+		tags:   null  # CSV/Array
 
 		# Whether or not we should render this file
 		render: false
 
 		# Whether or not we should write this file to the output directory
-		write: true
+		write:  true
 
 		# Whether or not we should write this file to the source directory
 		writeSource: false
 
 		# Whether or not this file should be re-rendered on each request
-		dynamic: false
+		dynamic:     false
 
 		# The title for this document
 		# Useful for page headings
@@ -249,22 +254,22 @@ class FileModel extends Model
 
 		# The name for this document, defaults to the outFilename
 		# Useful for navigation listings
-		name: null
+		name:  null
 
 		# The date object for this document, defaults to mtime
-		date: null
+		date:  null
 
 		# The generated slug (url safe seo title) for this document
-		slug: null
+		slug:  null
 
 		# The url for this document
-		url: null
+		url:   null
 
 		# Alternative urls for this document
-		urls: null  # Array
+		urls:  null  # Array
 
 		# Whether or not we ignore this file
-		ignored: false
+		ignored:    false
 
 		# Whether or not we should treat this file as standalone (that nothing depends on it)
 		standalone: false
@@ -276,9 +281,9 @@ class FileModel extends Model
 
 	# Set Buffer
 	setBuffer: (buffer) ->
-		buffer = new Buffer(buffer)  unless Buffer.isBuffer(buffer)
+		buffer      = new Buffer(buffer)  unless Buffer.isBuffer(buffer)
 		@bufferTime = @get('mtime') or new Date()
-		@buffer = buffer
+		@buffer     = buffer
 		@
 
 	# Get Buffer
@@ -311,9 +316,9 @@ class FileModel extends Model
 
 	# To JSON
 	toJSON: (dereference=false) ->
-		data = super
+		data      = super
 		data.meta = @getMeta().toJSON()
-		data = extendr.dereference(data)  if dereference is true
+		data      = extendr.dereference(data)  if dereference is true
 		return data
 
 	# Get Meta
@@ -333,7 +338,7 @@ class FileModel extends Model
 			return @set(newAttrs, opts)
 
 		# Prepare
-		attrs = attrs.toJSON?() ? attrs
+		attrs   = attrs.toJSON?() ? attrs
 
 		# Extract options
 		options = @extractOptions(attrs)
@@ -350,7 +355,7 @@ class FileModel extends Model
 	# Set Defaults
 	setDefaults: (attrs,opts) ->
 		# Prepare
-		attrs = attrs.toJSON?() ? attrs
+		attrs   = attrs.toJSON?() ? attrs
 
 		# Extract options
 		options = @extractOptions(attrs)
@@ -367,7 +372,7 @@ class FileModel extends Model
 	# Set Meta
 	setMeta: (attrs,opts) ->
 		# Prepare
-		attrs = attrs.toJSON?() ? attrs
+		attrs   = attrs.toJSON?() ? attrs
 
 		# Extract options
 		options = @extractOptions(attrs)
@@ -385,7 +390,7 @@ class FileModel extends Model
 	# Set Meta Defaults
 	setMetaDefaults: (attrs,opts) ->
 		# Prepare
-		attrs = attrs.toJSON?() ? attrs
+		attrs   = attrs.toJSON?() ? attrs
 
 		# Extract options
 		options = @extractOptions(attrs)
@@ -517,12 +522,12 @@ class FileModel extends Model
 	initialize: (attrs,opts={}) ->
 		# Defaults
 		file = @
-		@attributes ?= {}
+		@attributes            ?= {}
 		@attributes.extensions ?= []
-		@attributes.urls ?= []
+		@attributes.urls       ?= []
 		now = new Date()
-		@attributes.ctime ?= now
-		@attributes.mtime ?= now
+		@attributes.ctime      ?= now
+		@attributes.mtime      ?= now
 
 		# Id
 		@id ?= @attributes.id ?= @cid
@@ -545,8 +550,8 @@ class FileModel extends Model
 	# If it doesn't, then parse and normalize the file
 	load: (opts={},next) ->
 		# Prepare
-		[opts,next] = extractOptsAndCallback(opts,next)
-		file = @
+		[opts,next]  = extractOptsAndCallback(opts,next)
+		file         = @
 		opts.exists ?= null
 
 		# Fetch
@@ -615,11 +620,11 @@ class FileModel extends Model
 	# next(err)
 	parse: (opts={},next) ->
 		# Prepare
-		[opts,next] = extractOptsAndCallback(opts, next)
-		buffer = @getBuffer()
+		[opts,next]  = extractOptsAndCallback(opts, next)
+		buffer       = @getBuffer()
 		relativePath = @get('relativePath')
-		encoding = opts.encoding or @get('encoding') or null
-		changes = {}
+		encoding     = opts.encoding or @get('encoding') or null
+		changes      = {}
 
 		# Detect Encoding
 		if buffer and encoding? is false or opts.reencode is true
@@ -630,7 +635,7 @@ class FileModel extends Model
 				# Detect source encoding if not manually specified
 				if @detectEncoding
 					jschardet ?= require('jschardet')
-					encoding ?= jschardet.detect(buffer)?.encoding
+					encoding  ?= jschardet.detect(buffer)?.encoding
 
 				# Default the encoding
 				encoding or= 'utf8'
@@ -677,7 +682,7 @@ class FileModel extends Model
 
 			# Apply
 			changes.content = content
-			changes.source = source
+			changes.source  = source
 
 		# Text
 		else
@@ -685,12 +690,12 @@ class FileModel extends Model
 			encoding = changes.encoding = 'utf8'  if encoding? is false
 
 			# Set
-			source = buffer?.toString('utf8') or ''
+			source  = buffer?.toString('utf8') or ''
 			content = source
 
 			# Apply
 			changes.content = content
-			changes.source = source
+			changes.source  = source
 
 		# Apply
 		@set(changes)
@@ -705,38 +710,39 @@ class FileModel extends Model
 	normalize: (opts={},next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
-		changes = {}
-		meta = @getMeta()
+		changes     = {}
+		meta        = @getMeta()
 
 		# App specified
-		filename = opts.filename or @get('filename') or null
+		filename     = opts.filename     or @get('filename')     or null
 		relativePath = opts.relativePath or @get('relativePath') or null
-		fullPath = opts.fullPath or @get('fullPath') or null
-		mtime = opts.mtime or @get('mtime') or null
+		fullPath     = opts.fullPath     or @get('fullPath')     or null
+		mtime        = opts.mtime        or @get('mtime')        or null
 
 		# User specified
 		tags = opts.tags or meta.get('tags') or null
 		date = opts.date or meta.get('date') or null
 		name = opts.name or meta.get('name') or null
 		slug = opts.slug or meta.get('slug') or null
-		url = opts.url or meta.get('url') or null
-		contentType = opts.contentType or meta.get('contentType') or null
+		url  = opts.url  or meta.get('url')  or null
+		
+		contentType    = opts.contentType    or meta.get('contentType')    or null
 		outContentType = opts.outContentType or meta.get('outContentType') or null
-		outFilename = opts.outFilename or meta.get('outFilename') or null
-		outExtension = opts.outExtension or meta.get('outExtension') or null
-		outPath = opts.outPath or meta.get('outPath') or null
+		outFilename    = opts.outFilename    or meta.get('outFilename')    or null
+		outExtension   = opts.outExtension   or meta.get('outExtension')   or null
+		outPath        = opts.outPath        or meta.get('outPath')        or null
 
 		# Force specifeid
-		extensions = null
-		extension = null
-		basename = null
+		extensions  = null
+		extension   = null
+		basename    = null
 		outBasename = null
-		relativeOutPath = null
-		relativeDirPath = null
+		relativeOutPath    = null
+		relativeDirPath    = null
 		relativeOutDirPath = null
-		relativeBase = null
-		relativeOutBase = null
-		outDirPath = null
+		relativeBase       = null
+		relativeOutBase    = null
+		outDirPath  = null
 		fullDirPath = null
 
 		# filename
@@ -752,13 +758,13 @@ class FileModel extends Model
 			changes.relativePath = relativePath = filename
 
 		# force basename
-		changes.basename = basename = docpadUtil.getBasename(filename)
+		changes.basename   = basename   = docpadUtil.getBasename(filename)
 
 		# force extensions
 		changes.extensions = extensions = @getExtensions({filename})
 
 		# force extension
-		changes.extension = extension = docpadUtil.getExtension(extensions)
+		changes.extension  = extension  = docpadUtil.getExtension(extensions)
 
 		# force fullDirPath
 		if fullPath
@@ -811,7 +817,7 @@ class FileModel extends Model
 				null
 
 		# force outBasename
-		changes.outBasename = outBasename = docpadUtil.getBasename(outFilename)
+		changes.outBasename  = outBasename  = docpadUtil.getBasename(outFilename)
 
 		# force outExtension
 		changes.outExtension = outExtension = docpadUtil.getExtension(outFilename)
@@ -827,7 +833,7 @@ class FileModel extends Model
 		changes.relativeOutDirPath = relativeOutDirPath = docpadUtil.getDirPath(relativeOutPath)
 
 		# force relativeOutBase
-		changes.relativeOutBase = relativeOutBase = pathUtil.join(relativeOutDirPath, outBasename)
+		changes.relativeOutBase    = relativeOutBase    = pathUtil.join(relativeOutDirPath, outBasename)
 
 		# force name
 		if !name
@@ -854,7 +860,7 @@ class FileModel extends Model
 		changes.rtime = rtime = new Date(rtime)  if typeof rtime is 'string'
 		changes.ctime = ctime = new Date(ctime)  if typeof ctime is 'string'
 		changes.mtime = mtime = new Date(mtime)  if typeof mtime is 'string'
-		changes.date  = date  = new Date(date)   if typeof date is 'string'
+		changes.date  = date  = new Date(date)   if typeof date  is 'string'
 
 		# Apply
 		@set(changes)
@@ -959,7 +965,7 @@ class FileModel extends Model
 	writeSource: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
-		file = @
+		file        = @
 
 		# Fetch
 		opts.path      or= file.get('fullPath')
@@ -977,7 +983,7 @@ class FileModel extends Model
 	'delete': (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
-		file = @
+		file        = @
 
 		# Fetch
 		opts.path      or= file.get('outPath')
@@ -1016,7 +1022,7 @@ class FileModel extends Model
 	deleteSource: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
-		file = @
+		file        = @
 
 		# Fetch
 		opts.path      or= file.get('fullPath')
@@ -1028,5 +1034,7 @@ class FileModel extends Model
 		# Chain
 		@
 
+
+# ---------------------------------
 # Export
 module.exports = FileModel
