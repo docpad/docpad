@@ -499,12 +499,16 @@ class DocumentModel extends FileModel
 		[opts,next] = extractOptsAndCallback(opts, next)
 		file = @
 
-		# Prepare
-		opts = extendr.clone(opts or {})
-		opts.actions ?= ['renderExtensions','renderDocument','renderLayouts']
-		opts.apply ?= true  # @TODO: deprecate this in favour of cloning the document
+		# Prepare variables
 		contentRenderedWithoutLayouts = null
 		relativePath = file.get('relativePath')
+
+		# Options
+		opts = extendr.clone(opts or {})
+		opts.actions ?= ['renderExtensions', 'renderDocument', 'renderLayouts']
+		if opts.apply?
+			err = new Error("The `apply` option when rendering documents is now deprecated. Use `document.clone().action('render', ...)` instead")
+			return next(err)
 
 		# Prepare content
 		opts.content ?= file.get('body')
@@ -532,16 +536,11 @@ class DocumentModel extends FileModel
 				file.log 'warn', "Something went wrong while rendering: #{relativePath}\n#{err.stack or err.message or err}"
 				return next(err, opts.content, file)
 
-			# Apply
-			if opts.apply is true
-				# Attributes
-				contentRendered = opts.content
-				contentRenderedWithoutLayouts ?= contentRendered
-				rendered = true
-				file.set({contentRendered, contentRenderedWithoutLayouts, rendered})
-
-				# Log
-				file.log 'debug', "Rendering applied to: #{relativePath}"
+			# Attributes
+			contentRendered = opts.content
+			contentRenderedWithoutLayouts ?= contentRendered
+			rendered = true
+			file.set({contentRendered, contentRenderedWithoutLayouts, rendered})
 
 			# Log
 			file.log 'debug', "Rendering completed for: #{relativePath}"
