@@ -2,7 +2,7 @@
 
 
 ## v6.66.0 May 23, 2014
-- Meta header seperators can now contain additional characaters, providing there is still a character that repeats at least 3 times
+- Meta header seperators can now contain additional characters, providing there is still a character that repeats at least 3 times
 	
 	This allows you to do things like:
 
@@ -11,7 +11,7 @@
 	works: "yes"
 	--- */
 
-	window.alert(<%- @document.works %>)
+	window.alert("<%- @document.works %>")
 	```
 
 	Or even more concisely:
@@ -21,7 +21,7 @@
 	works: "yes"
 	***/
 
-	window.alert(<%- @document.works %>)
+	window.alert("<%- @document.works %>")
 	```
 
 	Big thanks to [pflannery](https://github.com/pflannery) for pushing for this with [#814](https://github.com/bevry/docpad/pull/814)
