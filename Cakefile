@@ -1,4 +1,4 @@
-# v1.3.15 May 16, 2014
+# v1.3.16 May 23, 2014
 # https://github.com/bevry/base
 
 
@@ -24,12 +24,11 @@ PACKAGE_DATA     = require(PACKAGE_PATH)
 
 MODULES_PATH     = pathUtil.join(APP_PATH, "node_modules")
 DOCPAD_PATH      = pathUtil.join(MODULES_PATH, "docpad")
-BIN_PATH         = pathUtil.join(MODULES_PATH, ".bin")
-CAKE             = pathUtil.join(BIN_PATH, "cake" + EXT)
-COFFEE           = pathUtil.join(BIN_PATH, "coffee" + EXT)
-PROJECTZ         = pathUtil.join(BIN_PATH, "projectz" + EXT)
-DOCCO            = pathUtil.join(BIN_PATH, "docco" + EXT)
-DOCPAD           = pathUtil.join(BIN_PATH, "docpad" + EXT)
+CAKE             = pathUtil.join(MODULES_PATH, "coffee-script/bin/cake")
+COFFEE           = pathUtil.join(MODULES_PATH, "coffee-script/bin/coffee")
+PROJECTZ         = pathUtil.join(MODULES_PATH, "projectz/bin/projectz")
+DOCCO            = pathUtil.join(MODULES_PATH, "docco/bin/docco")
+DOCPAD           = pathUtil.join(MODULES_PATH, "docpad/bin/docpad")
 
 config = {}
 config.TEST_PATH = "test"
@@ -133,11 +132,11 @@ actions =
 		step2 = ->
 			return step3()  if !config.COFFEE_SRC_PATH or !fsUtil.existsSync(COFFEE)
 			console.log('coffee compile')
-			spawn(COFFEE, ['-co', config.COFFEE_OUT_PATH, config.COFFEE_SRC_PATH], {stdio:'inherit', cwd:APP_PATH}).on('close', safe next, step3)
+			spawn(NODE, [COFFEE, '-co', config.COFFEE_OUT_PATH, config.COFFEE_SRC_PATH], {stdio:'inherit', cwd:APP_PATH}).on('close', safe next, step3)
 		step3 = ->
 			return step4()  if !config.DOCPAD_SRC_PATH or !fsUtil.existsSync(DOCPAD)
 			console.log('docpad generate')
-			spawn(DOCPAD, ['generate'], {stdio:'inherit', cwd:APP_PATH}).on('close', safe next, step4)
+			spawn(NODE, [DOCPAD, 'generate'], {stdio:'inherit', cwd:APP_PATH}).on('close', safe next, step4)
 		step4 = next
 
 		# Start
@@ -154,12 +153,12 @@ actions =
 		step2 = ->
 			return step3()  if !config.COFFEE_SRC_PATH or !fsUtil.existsSync(COFFEE)
 			console.log('coffee watch')
-			spawn(COFFEE, ['-wco', config.COFFEE_OUT_PATH, config.COFFEE_SRC_PATH], {stdio:'inherit', cwd:APP_PATH}).on('close', safe)  # background
+			spawn(NODE, [COFFEE, '-wco', config.COFFEE_OUT_PATH, config.COFFEE_SRC_PATH], {stdio:'inherit', cwd:APP_PATH}).on('close', safe)  # background
 			step3()  # continue while coffee runs in background
 		step3 = ->
 			return step4()  if !config.DOCPAD_SRC_PATH or !fsUtil.existsSync(DOCPAD)
 			console.log('docpad run')
-			spawn(DOCPAD, ['run'], {stdio:'inherit', cwd:APP_PATH}).on('close', safe)  # background
+			spawn(NODE, [DOCPAD, 'run'], {stdio:'inherit', cwd:APP_PATH}).on('close', safe)  # background
 			step4()  # continue while docpad runs in background
 		step4 = next
 
@@ -193,11 +192,11 @@ actions =
 		step2 = ->
 			return step3()  if !fsUtil.existsSync(PROJECTZ)
 			console.log('projectz compile')
-			spawn(PROJECTZ, ['compile'], {stdio:'inherit', cwd:APP_PATH}).on('close', safe next, step3)
+			spawn(NODE, [PROJECTZ, 'compile'], {stdio:'inherit', cwd:APP_PATH}).on('close', safe next, step3)
 		step3 = ->
 			return step4()  if !config.DOCCO_SRC_PATH or !fsUtil.existsSync(DOCCO)
 			console.log('docco compile')
-			exec("#{DOCCO} -o #{config.DOCCO_OUT_PATH} #{config.DOCCO_SRC_PATH}", {stdio:'inherit', cwd:APP_PATH}, safe next, step4)
+			exec("#{NODE} #{DOCCO} -o #{config.DOCCO_OUT_PATH} #{config.DOCCO_SRC_PATH}", {stdio:'inherit', cwd:APP_PATH}, safe next, step4)
 		step4 = ->
 			console.log('cake test')
 			actions.test(opts, safe next, step5)

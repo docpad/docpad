@@ -1,0 +1,5 @@
+/***
+works: 'yes'
+***/
+
+window.alert("<%- @document.works %>")
