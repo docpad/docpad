@@ -1,7 +1,7 @@
 {
   "title": "DocPad. Streamlined web development.",
   "name": "docpad",
-  "version": "6.66.0",
+  "version": "6.67.0",
   "description": "DocPad is a next generation web architecture that lets you create fast static websites with dynamic abilities and powerful abstractions. Write your website as files on your computer, entries in a database, or even RSS feeds and DocPad will import it, generate & render it, then output a static website for deployment anywhere or a dynamic node website for advanced server-side functionality. Use it as a module or standalone. It's purely awesome. Check it out.",
   "homepage": "http://docpad.org",
   "installUrl": "http://docpad.org/install",
@@ -122,19 +122,23 @@
     "commander": "~2.2.0",
     "cson": "~1.6.0",
     "eachr": "~2.0.2",
+    "encoding": "~0.1.6",
     "envfile": "~1.0.0",
     "event-emitter-grouped": "~2.3.3",
     "express": "~3.4.4",
+    "extendonclass": "~1.0.1",
     "extendr": "~2.1.0",
     "extract-opts": "~2.2.0",
     "getmac": "~1.0.6",
     "ignorefs": "~1.0.0",
+    "istextorbinary": "~1.0.0",
     "jschardet": "~1.1.0",
-    "encoding": "~0.1.6",
     "lazy-require": "~1.0.0",
     "lodash": "~2.4.1",
+    "longjohn": "^0.2.4",
     "mime": "~1.2.9",
     "progressbar": "~1.0.3",
+    "promptly": "~0.2.0",
     "query-engine": "~1.5.5",
     "safefs": "~3.1.1",
     "safeps": "~2.2.10",
@@ -143,17 +147,14 @@
     "taskgroup": "~3.4.0",
     "typechecker": "~2.0.8",
     "watchr": "~2.4.11",
-    "yamljs": "~0.1.5",
-    "promptly": "~0.2.0",
-    "istextorbinary": "~1.0.0",
-    "extendonclass": "~1.0.1"
+    "yamljs": "~0.1.5"
   },
   "devDependencies": {
     "coffee-script": "~1.7.1",
     "chai": "~1.9.1",
     "joe": "~1.4.0",
     "joe-reporter-console": "~1.2.1",
-    "projectz": "~0.3.11"
+    "projectz": "~0.3.14"
   },
   "directories": {
     "lib": "./out/lib"

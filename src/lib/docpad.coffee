@@ -2139,13 +2139,15 @@ class DocPad extends EventEmitterGrouped
 		@getLogger().setConfig({level})
 		if level is 7
 			loggers = @getLoggers()
-			loggers.debug ?= loggers.logger
-				.pipe(
-					new (require('caterpillar-human').Human)(color:false)
-				)
-				.pipe(
-					require('fs').createWriteStream(@debugLogPath)
-				)
+			if loggers.debug? is false
+				require('longjohn')  # better error stack traces
+				loggers.debug = loggers.logger
+					.pipe(
+						new (require('caterpillar-human').Human)(color:false)
+					)
+					.pipe(
+						require('fs').createWriteStream(@debugLogPath)
+					)
 		@
 
 	# Are we debugging?
@@ -2195,8 +2197,9 @@ class DocPad extends EventEmitterGrouped
 			err.logged = true
 			err = new Error(err)  unless err.message?
 			err.logged = true
-			message = (err.stack ? err.message).toString()
+			message = (err.stack ? err.message).toString().trim()
 			docpad.log(type, locale.errorOccured, '\n'+message)
+			docpad.log('error', locale.errorSubmission)
 			docpad.notify(err.message, title:locale.errorOccured)
 
 			# Track

@@ -207,6 +207,7 @@
 	encodingLoadFailed: "Could not load the libraries required for encoding detection"
 	warnOccured: "A warning occured:"
 	errorOccured: "An error occured:"
+	errorSubmission: "To report the above error, follow the guide at: http://docpad.org/bug-report"
 	errorLoggedTo: "Error has been logged to: %s"
 	errorFollows: "\nThe error follows:"
 	errorInvalidCollection: "The custom collection %s is not a valid collection instance"
