@@ -1127,13 +1127,13 @@ class DocPad extends EventEmitterGrouped
 		@errorRunnerInstance = new TaskGroup('error runner').run().on 'complete', (err) ->
 			if err and docpad.getDebugging()
 				locale = docpad.getLocale()
-				docpad.log('warn', locale.reportError+' '+locale.errorFollows, (err.stack ? err.message).toString())
+				docpad.log('warn', locale.reportError+' '+locale.errorFollows+' '+(err.stack ? err.message).toString())
 
 		# Create our track runner
 		@trackRunnerInstance = new TaskGroup('track runner').run().on 'complete', (err) ->
 			if err and docpad.getDebugging()
 				locale = docpad.getLocale()
-				docpad.log('warn', locale.trackError+' '+locale.errorFollows, (err.stack ? err.message).toString())
+				docpad.log('warn', locale.trackError+' '+locale.errorFollows+' '+(err.stack ? err.message).toString())
 
 		# Initialize the loggers
 		if (loggers = instanceConfig.loggers)
@@ -2567,6 +2567,7 @@ class DocPad extends EventEmitterGrouped
 		opts = extendr.extend({
 			detectEncoding: config.detectEncoding
 			rootOutDirPath: config.outPath
+			locale: @getLocale()
 		}, opts)
 
 		if opts.modelType is 'file'
@@ -3681,7 +3682,6 @@ class DocPad extends EventEmitterGrouped
 			return next(err)  if err
 
 			# Render
-			console.log('now render')
 			docpad.renderDocument(document, opts, next)
 
 		# Chain

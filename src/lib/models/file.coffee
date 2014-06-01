@@ -1,4 +1,5 @@
 # Import
+util = require('util')
 pathUtil = require('path')
 isTextOrBinary = require('istextorbinary')
 typeChecker = require('typechecker')
@@ -51,13 +52,17 @@ class FileModel extends Model
 	# Is a Backbone.Model instance
 	meta: null
 
+	# Locale
+	locale: null
+
 	# Get Options
+	# @TODO: why does this not use the isOption way?
 	getOptions: ->
-		return {@detectEncoding, @rootOutDirPath, @stat, @buffer, @meta}
+		return {@detectEncoding, @rootOutDirPath, @locale, @stat, @buffer, @meta}
 
 	# Is Option
 	isOption: (key) ->
-		names = ['detectEncoding', 'rootOutDirPath', 'stat', 'data', 'buffer', 'meta']
+		names = ['detectEncoding', 'rootOutDirPath', 'locale', 'stat', 'data', 'buffer', 'meta']
 		result = key in names
 		return result
 
@@ -86,6 +91,11 @@ class FileModel extends Model
 		if attrs.rootOutDirPath?
 			@rootOutDirPath = attrs.rootOutDirPath
 			delete @attributes.rootOutDirPath
+
+		# Locale
+		if attrs.locale?
+			@locale = attrs.locale
+			delete @attributes.locale
 
 		# Stat
 		if attrs.stat?
@@ -276,6 +286,31 @@ class FileModel extends Model
 
 	# ---------------------------------
 	# Helpers
+
+	# Encode
+	# opts = {path, to, from, content}
+	encode: (opts) ->
+		# Prepare
+		locale = @locale
+		result = opts.content
+		opts.to ?= 'utf8'
+		opts.from ?= 'utf8'
+
+		# Import optional dependencies
+		try encodingUtil ?= require('encoding')
+
+		# Convert
+		if encodingUtil?
+			@log 'info', util.format(locale.fileEncode, opts.to, opts.from, opts.path)
+			try
+				result = encodingUtil.convert(opts.content, opts.to, opts.from)
+			catch err
+				@log 'warn', util.format(locale.fileEncodeConvertError, opts.to, opts.from, opts.path)
+		else
+			@log 'warn', util.format(locale.fileEncodeConvertError, opts.to, opts.from, opts.path)
+
+		# Return
+		return result
 
 	# Set Buffer
 	setBuffer: (buffer) ->
@@ -533,12 +568,16 @@ class FileModel extends Model
 		# Options
 		@setOptions(opts)
 
+		# Error
+		if @rootOutDirPath? is false or @locale? is false
+			throw new Error("Use docpad.createModel to create the file or document model")
+
 		# Create our action runner
 		@actionRunnerInstance = new TaskGroup("file action runner").run().on 'complete', (err) ->
 			file.emit('error', err)  if err
 
-		# Super
-		super
+		# Apply
+		@emit('init')
 
 		# Chain
 		@
@@ -640,30 +679,12 @@ class FileModel extends Model
 
 				# Convert into utf8
 				if docpadUtil.isStandardEncoding(encoding) is false
-					# Import optional dependencies
-					try
-						#Iconv ?= require('iconv').Iconv
-						encodingUtil ?= require('encoding')
-						# ^ when we prove encoding/iconv-lite works better than iconv
-						# we can move this out of the try catch and make detectEncoding standard
-					catch err
-						# ignore
-
-					# Can convert?
-					if encodingUtil?
-						@log('info', "Converting encoding #{encoding} to UTF-8 on #{relativePath}")
-
-						# Convert
-						d = require('domain').create()
-						d.on 'error', =>
-							@log('warn', "Encoding conversion failed, therefore we cannot convert the encoding #{encoding} to UTF-8 on #{relativePath}")
-						d.run ->
-							#buffer = new Iconv(encoding, 'utf8').convert(buffer)
-							buffer = encodingUtil.convert(buffer, 'utf8', encoding)  # content, to, from
-
-					# Can't convert
-					else
-						@log('warn', "Encoding utilities did not load, therefore we cannot convert the encoding #{encoding} to UTF-8 on #{relativePath}")
+					buffer = @encode({
+						path: relativePath
+						to: 'utf8'
+						from: encoding
+						content: buffer
+					})
 
 				# Apply
 				changes.encoding = encoding
@@ -710,6 +731,7 @@ class FileModel extends Model
 		[opts,next] = extractOptsAndCallback(opts,next)
 		changes = {}
 		meta = @getMeta()
+		locale = @locale
 
 		# App specified
 		filename = opts.filename or @get('filename') or null
@@ -747,7 +769,7 @@ class FileModel extends Model
 
 		# check
 		if !filename
-			err = new Error('filename is required, it can be specified via filename, fullPath, or relativePath')
+			err = new Error(locale.filenameMissingError)
 			return next(err)
 
 		# relativePath
@@ -903,6 +925,7 @@ class FileModel extends Model
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
 		file = @
+		locale = @locale
 
 		# Fetch
 		opts.path      or= file.get('outPath')
@@ -918,26 +941,15 @@ class FileModel extends Model
 
 		# Convert utf8 to original encoding
 		unless opts.encoding.toLowerCase() in ['ascii','utf8','utf-8','binary']
-			# Import optional dependencies
-			try
-				#Iconv ?= require('iconv').Iconv
-				encodingUtil ?= require('encoding')
-			catch err
-				# ignore
-
-			# Convert
-			if encodingUtil?
-				@log('info', "Converting encoding UTF-8 to #{opts.encoding} on #{opts.path}")
-				try
-					#opts.content = new Iconv('utf8',opts.encoding).convert(opts.content)
-					opts.content = encodingUtil.convert(opts.content, opts.encoding, 'utf8')  # content, to, from
-				catch err
-					@log('warn', "Encoding conversion failed, therefore we cannot convert the encoding UTF-8 to #{opts.encoding} on #{opts.path}")
-			else
-				@log('warn', "Encoding utilities did not load, therefore we cannot convert the encoding UTF-8 to #{opts.encoding} on #{opts.path}")
+			opts.content = @encode({
+				path: opts.path
+				to: opts.encoding
+				from: 'utf8'
+				content: opts.content
+			})
 
 		# Log
-		file.log 'debug', "Writing the #{opts.type}: #{opts.path} #{opts.encoding}"
+		file.log 'debug', util.format(locale.fileWrite, opts.type, opts.path, opts.encoding)
 
 		# Write data
 		safefs.writeFile opts.path, opts.content, (err) ->
@@ -949,7 +961,7 @@ class FileModel extends Model
 				file.attributes.wtime = new Date()
 
 			# Log
-			file.log 'debug', "Wrote the #{opts.type}: #{opts.path} #{opts.encoding}"
+			file.log 'debug',  util.format(locale.fileWrote, opts.type, opts.path, opts.encoding)
 
 			# Next
 			return next()
@@ -981,6 +993,7 @@ class FileModel extends Model
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
 		file = @
+		locale = @locale
 
 		# Fetch
 		opts.path      or= file.get('outPath')
@@ -993,7 +1006,7 @@ class FileModel extends Model
 			return @
 
 		# Log
-		file.log 'debug', "Delete the #{opts.type}: #{opts.path}"
+		file.log 'debug',  util.format(locale.fileDelete, opts.type, opts.path)
 
 		# Check existance
 		safefs.exists opts.path, (exists) ->
@@ -1006,7 +1019,7 @@ class FileModel extends Model
 				return next(err)  if err
 
 				# Log
-				file.log 'debug', "Deleted the #{opts.type}: #{opts.path}"
+				file.log 'debug', util.format(locale.fileDeleted, opts.type, opts.path)
 
 				# Next
 				next()

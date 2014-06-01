@@ -1,5 +1,10 @@
 # History
 
+## v6.68.0 June 1, 2014
+- File and document messages are now localised
+- Better error messages when parsing the meta data fails
+- Will now output an error when a document or file model was instantiated outside of `docpad.createModel` as instantiating directly will mean they will be missing necessary properties and events
+
 ## v6.67.0 June 1, 2014
 - We now output the link to the bug report guide with error messages
 - We now include [longjohn](https://github.com/mattinsler/longjohn) in debug mode for better stack traces

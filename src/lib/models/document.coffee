@@ -1,4 +1,5 @@
 # Necessary
+util = require('util')
 pathUtil = require('path')
 extendr = require('extendr')
 eachr = require('eachr')
@@ -105,6 +106,8 @@ class DocumentModel extends FileModel
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 		buffer = @getBuffer()
+		locale = @locale
+		filePath = @getFilePath()
 
 		# Reparse the data and extract the content
 		# With the content, fetch the new meta data, header, and body
@@ -181,9 +184,12 @@ class DocumentModel extends FileModel
 							extendr.extend(metaDataChanges, metaParseResult)
 
 						else
-							err = new Error("Unknown meta parser: #{parser}")
+							err = new Error(util.format(locale.documentMissingParserError, parser, filePath))
 							return next(err)
 				catch err
+					err = new Error(
+						util.format(locale.documentParserError, parser, filePath)+' '+locale.errorFollows+' '+(err.stack ? err.message)
+					)
 					return next(err)
 			else
 				body = content
@@ -191,7 +197,9 @@ class DocumentModel extends FileModel
 			# Incorrect encoding detection?
 			# If so, re-parse with the correct encoding conversion
 			if metaDataChanges.encoding and metaDataChanges.encoding isnt @get('encoding')
-				@set({encoding:metaDataChanges.encoding})
+				@set({
+					encoding: metaDataChanges.encoding
+				})
 				opts.reencode = true
 				return @parse(opts, next)
 
@@ -225,12 +233,7 @@ class DocumentModel extends FileModel
 
 			# Check if the id was being over-written
 			if metaDataChanges.id?
-				@log 'warn', """
-					The document #{@getFilePath()} tried to over-write its `id` attribute with its meta-data.
-					This will cause unexpected issues. We have ignored the `id` attribute changes to prevent further errors.
-					We recommend you rename the `id` meta-data attribute on this document to something else.
-					For more information, see: https://github.com/bevry/docpad/issues/742
-					"""
+				@log 'warn', util.format(locale.documentIdChangeError, filePath)
 				delete metaDataChanges.id
 
 			# Apply meta data
@@ -369,6 +372,7 @@ class DocumentModel extends FileModel
 	renderExtensions: (opts,next) ->
 		# Prepare
 		file = @
+		locale = @locale
 		[opts,next] = extractOptsAndCallback(opts, next)
 		{content,templateData,renderSingleExtensions} = opts
 		extensions = @get('extensions')
@@ -425,8 +429,7 @@ class DocumentModel extends FileModel
 					# and only check if we actually have content to render!
 					# if this check fails, error with a suggestion
 					if result and (result is eventData.content)
-						message = "\n  Rendering the extension \"#{eventData.inExtension}\" to \"#{eventData.outExtension}\" on \"#{file.attributes.relativePath}\" didn't do anything.\n  Explanation here: http://docpad.org/extension-not-rendering"
-						file.log('warn', message)
+						file.log 'warn', util.format(locale.documentRenderExtensionNoChange, eventData.inExtension, eventData.outExtension, filePath)
 						return complete()
 
 					# The render did something, so apply and continue
@@ -468,6 +471,8 @@ class DocumentModel extends FileModel
 	renderLayouts: (opts,next) ->
 		# Prepare
 		file = @
+		locale = @locale
+		filePath = @getFilePath()
 		[opts,next] = extractOptsAndCallback(opts, next)
 		{content,templateData} = opts
 		content ?= @get('body')
@@ -493,7 +498,7 @@ class DocumentModel extends FileModel
 
 			# We had a layout, but it is missing
 			else if file.hasLayout()
-					err = new Error("Could not find the specified layout: #{layoutSelector}")
+					err = new Error(util.format(locale.documentMissingLayoutError, layoutSelector, filePath))
 					return next(err, content)
 
 			# We never had a layout
@@ -508,16 +513,18 @@ class DocumentModel extends FileModel
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
 		file = @
+		locale = @locale
 
 		# Prepare variables
 		contentRenderedWithoutLayouts = null
+		filePath = @getFilePath()
 		relativePath = file.get('relativePath')
 
 		# Options
 		opts = extendr.clone(opts or {})
 		opts.actions ?= ['renderExtensions', 'renderDocument', 'renderLayouts']
 		if opts.apply?
-			err = new Error("The `apply` option when rendering documents is now deprecated. Use `document.clone().action('render', ...)` instead")
+			err = new Error(locale.documentApplyError)
 			return next(err)
 
 		# Prepare content
@@ -537,13 +544,13 @@ class DocumentModel extends FileModel
 		# file.set({contentRendered:null, contentRenderedWithoutLayouts:null, rendered:false})
 
 		# Log
-		file.log 'debug', "Rendering the file: #{relativePath}"
+		file.log 'debug', util.format(locale.documentRender, filePath)
 
 		# Prepare the tasks
 		tasks = new TaskGroup "render tasks for: #{relativePath}", next:(err) ->
 			# Error?
 			if err
-				file.log 'warn', "Something went wrong while rendering: #{relativePath}\n#{err.stack or err.message or err}"
+				file.log 'warn', util.format(locale.documentRenderError, filePath)+' '+locale.errorFollows+' '+(err.stack or err.message)
 				return next(err, opts.content, file)
 
 			# Attributes
@@ -553,7 +560,7 @@ class DocumentModel extends FileModel
 			file.set({contentRendered, contentRenderedWithoutLayouts, rendered})
 
 			# Log
-			file.log 'debug', "Rendering completed for: #{relativePath}"
+			file.log 'debug', util.format(locale.documentRendered, filePath)
 
 			# Apply
 			file.attributes.rtime = new Date()
