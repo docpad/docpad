@@ -4,4 +4,4 @@
 
 - [CONTRIBUTING GUIDE](http://docpad.org/docs/contribute)	
 - [SUPPORT GUIDE](http://docpad.org/docs/support)
-- [BUG REPORT GUIDE](http://docpad.org/docs/support#bug-reports-via-github-s-issue-tracker)
+- [BUG REPORT GUIDE](http://docpad.org/bug-report)
