@@ -41,12 +41,12 @@ docpad = null
 
 joe.suite 'docpad-api', (suite,test) ->
 
+	# Create a DocPad Instance
+	test 'createInstance', (done) ->
+		docpad = require('../main').createInstance(docpadConfig, done)
+
 	# Instantiate Files
 	suite 'models', (suite,test) ->
-		# Prepare
-		FileModel = require('../lib/models/file')
-		DocumentModel = require('../lib/models/document')
-
 		# Document
 		suite 'document', (suite,tet) ->
 			# Prepare
@@ -58,7 +58,7 @@ joe.suite 'docpad-api', (suite,test) ->
 			# Test
 			test 'create', ->
 				# Create
-				document = new DocumentModel(documentAttributes)
+				document = docpad.createDocument(documentAttributes)
 
 				# Add logging
 				document.on('log', console.log.bind(console))
@@ -78,10 +78,6 @@ joe.suite 'docpad-api', (suite,test) ->
 
 					# Complete
 					return complete()
-
-	# Create a DocPad Instance
-	test 'createInstance', (done) ->
-		docpad = require('../main').createInstance(docpadConfig, done)
 
 	# Render some input
 	suite 'render', (suite,test) ->
