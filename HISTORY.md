@@ -1,5 +1,8 @@
 # History
 
+## v6.68.1 June 5, 2014
+- [longjohn](https://github.com/mattinsler/longjohn) is now an optional dependency, as for some people it was not loading, also made it use ~ instead of ^ as maybe those users are using old npm versions
+
 ## v6.68.0 June 1, 2014
 - File and document messages are now localised
 - Better error messages when parsing the meta data fails
