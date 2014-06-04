@@ -1268,9 +1268,9 @@ class DocPad extends EventEmitterGrouped
 		if action
 			@action action, instanceConfig, (err) ->
 				return docpad.fatal(err)  if err
-				next?(null,docpad)
+				next?(null, docpad)
 		else
-			next?(null,docpad)
+			next?(null, docpad)
 
 		# Chain
 		@
