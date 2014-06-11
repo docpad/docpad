@@ -573,7 +573,7 @@ class FileModel extends Model
 			throw new Error("Use docpad.createModel to create the file or document model")
 
 		# Create our action runner
-		@actionRunnerInstance = new TaskGroup("file action runner").completed (err) ->
+		@actionRunnerInstance = new TaskGroup("file action runner").whenDone (err) ->
 			file.emit('error', err)  if err
 
 		# Apply
