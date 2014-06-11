@@ -1102,6 +1102,11 @@ class DocPad extends EventEmitterGrouped
 		[instanceConfig,next] = extractOptsAndCallback(instanceConfig, next)
 		docpad = @
 
+		# Binders
+		# Using this over coffescript's => on class methods, ensures that the method length is kept
+		for methodName in 'log error warn trackError checkRequest subscribe track identify serverMiddlewareRouter serverMiddlewareHeader serverMiddleware404 serverMiddleware500'.split(/\s+/)
+			@[methodName] = @[methodName].bind(@)
+
 		# Allow DocPad to have unlimited event listeners
 		@setMaxListeners(0)
 
@@ -1120,17 +1125,17 @@ class DocPad extends EventEmitterGrouped
 					next()
 
 		# Create our action runner
-		@actionRunnerInstance = new TaskGroup('action runner').run().on 'complete', (err) ->
+		@actionRunnerInstance = new TaskGroup('action runner').completed (err) ->
 			docpad.error(err)  if err
 
 		# Create our error runner
-		@errorRunnerInstance = new TaskGroup('error runner').run().on 'complete', (err) ->
+		@errorRunnerInstance = new TaskGroup('error runner').completed (err) ->
 			if err and docpad.getDebugging()
 				locale = docpad.getLocale()
 				docpad.log('warn', locale.reportError+' '+locale.errorFollows+' '+(err.stack ? err.message).toString())
 
 		# Create our track runner
-		@trackRunnerInstance = new TaskGroup('track runner').run().on 'complete', (err) ->
+		@trackRunnerInstance = new TaskGroup('track runner').completed (err) ->
 			if err and docpad.getDebugging()
 				locale = docpad.getLocale()
 				docpad.log('warn', locale.trackError+' '+locale.errorFollows+' '+(err.stack ? err.message).toString())
@@ -1278,7 +1283,7 @@ class DocPad extends EventEmitterGrouped
 	# Destroy
 	# This is an action, and should be called as such
 	# E.g. docpad.action('destroy', next)
-	destroy: (opts, next) =>
+	destroy: (opts, next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
 		docpad = @
@@ -1400,7 +1405,7 @@ class DocPad extends EventEmitterGrouped
 
 	# Ready
 	# next(err,docpadInstance)
-	ready: (opts,next) =>
+	ready: (opts,next) ->
 		# Prepare
 		[instanceConfig,next] = extractOptsAndCallback(instanceConfig,next)
 		docpad = @
@@ -1483,7 +1488,7 @@ class DocPad extends EventEmitterGrouped
 
 	# Set Configuration
 	# next(err,config)
-	setConfig: (instanceConfig,next) =>
+	setConfig: (instanceConfig,next) ->
 		# Prepare
 		[instanceConfig,next] = extractOptsAndCallback(instanceConfig,next)
 		docpad = @
@@ -1573,7 +1578,7 @@ class DocPad extends EventEmitterGrouped
 
 	# Load Configuration
 	# next(err,config)
-	load: (instanceConfig,next) =>
+	load: (instanceConfig,next) ->
 		# Prepare
 		[instanceConfig,next] = extractOptsAndCallback(instanceConfig,next)
 		docpad = @
@@ -1803,7 +1808,8 @@ class DocPad extends EventEmitterGrouped
 				safefs.exists configPath, (exists) ->
 					if exists
 						result = configPath
-						tasks.exit()
+						tasks.clear()
+						complete()
 					else
 						complete()
 
@@ -2184,7 +2190,7 @@ class DocPad extends EventEmitterGrouped
 		@
 
 	# Handle an error
-	error: (err,type='err',next) =>
+	error: (err,type='err',next) ->
 		# Prepare
 		docpad = @
 		locale = @getLocale()
@@ -2209,7 +2215,7 @@ class DocPad extends EventEmitterGrouped
 		@
 
 	# Track error
-	trackError: (err,next) =>
+	trackError: (err,next) ->
 		# PRepare
 		docpad = @
 		config = @getConfig()
@@ -2230,7 +2236,7 @@ class DocPad extends EventEmitterGrouped
 		@
 
 	# Handle a warning
-	warn: (message,err,next) =>
+	warn: (message,err,next) ->
 		# Prepare
 		docpad = @
 		locale = @getLocale()
@@ -2256,7 +2262,7 @@ class DocPad extends EventEmitterGrouped
 		@
 
 	# Check Request
-	checkRequest: (next) =>
+	checkRequest: (next) ->
 		next ?= @error.bind(@)
 		return (err,res) ->
 			# Check
@@ -2272,7 +2278,7 @@ class DocPad extends EventEmitterGrouped
 
 	# Subscribe
 	# next(err)
-	subscribe: (next) =>
+	subscribe: (next) ->
 		# Prepare
 		config = @getConfig()
 
@@ -2306,7 +2312,7 @@ class DocPad extends EventEmitterGrouped
 
 	# Track
 	# next(err)
-	track: (name,things={},next) =>
+	track: (name,things={},next) ->
 		# Prepare
 		docpad = @
 		config = @getConfig()
@@ -2353,7 +2359,7 @@ class DocPad extends EventEmitterGrouped
 
 	# Identify
 	# next(err)
-	identify: (next) =>
+	identify: (next) ->
 		# Prepare
 		docpad = @
 		config = @getConfig()
@@ -3281,7 +3287,7 @@ class DocPad extends EventEmitterGrouped
 
 	# Generate
 	# next(err)
-	generate: (opts, next) =>
+	generate: (opts, next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
@@ -3333,7 +3339,7 @@ class DocPad extends EventEmitterGrouped
 				opts.progress?.step("generate: #{item.getConfig().name}").total(totals.total).setTick(totals.completed)
 			)
 
-			.once('complete', (err) ->
+			.done((err) ->
 				# Update generating flag
 				docpad.generating = false
 				docpad.generateEnded = new Date()
@@ -3546,11 +3552,15 @@ class DocPad extends EventEmitterGrouped
 
 
 		addTask 'generateBefore', (complete) ->
-			# Exit if we have nothing to generate
-			return tasks.exit()  if opts.collection.length is 0
+			# If we have nothing to generate
+			if opts.collection.length is 0
+				# then there is no need to execute further tasks
+				tasks.clear()
+				complete()
 
 			# Otherwise continue down the task loop
-			docpad.emitSerial('generateBefore', opts, complete)
+			else
+				docpad.emitSerial('generateBefore', opts, complete)
 
 
 		addTask 'prepare files', (complete) ->
@@ -3762,7 +3772,7 @@ class DocPad extends EventEmitterGrouped
 
 	# Render Action
 	# next(err,document,result)
-	render: (opts,next) =>
+	render: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 		locale = @getLocale()
@@ -3811,7 +3821,7 @@ class DocPad extends EventEmitterGrouped
 		@
 
 	# Watch
-	watch: (opts,next) =>
+	watch: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
@@ -3981,7 +3991,7 @@ class DocPad extends EventEmitterGrouped
 	# ---------------------------------
 	# Run Action
 
-	run: (opts,next) =>
+	run: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
 		docpad = @
@@ -4085,7 +4095,7 @@ class DocPad extends EventEmitterGrouped
 
 	# Uninstall
 	# next(err)
-	uninstall: (opts,next) =>
+	uninstall: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
@@ -4118,7 +4128,7 @@ class DocPad extends EventEmitterGrouped
 
 	# Install
 	# next(err)
-	install: (opts,next) =>
+	install: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
@@ -4163,7 +4173,7 @@ class DocPad extends EventEmitterGrouped
 
 	# Upgrade
 	# next(err)
-	upgrade: (opts,next) =>
+	upgrade: (opts,next) ->
 		# Update Global NPM and DocPad
 		@installNodeModule('npm docpad@6', {
 			global: true
@@ -4176,7 +4186,7 @@ class DocPad extends EventEmitterGrouped
 
 	# Update
 	# next(err)
-	update: (opts,next) =>
+	update: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
@@ -4233,7 +4243,7 @@ class DocPad extends EventEmitterGrouped
 
 	# Clean
 	# next(err)
-	clean: (opts,next) =>
+	clean: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
@@ -4448,7 +4458,7 @@ class DocPad extends EventEmitterGrouped
 		@
 
 	# Skeleton
-	skeleton: (opts,next) =>
+	skeleton: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
@@ -4474,7 +4484,7 @@ class DocPad extends EventEmitterGrouped
 		@
 
 	# Init
-	init: (opts,next) =>
+	init: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
@@ -4499,7 +4509,7 @@ class DocPad extends EventEmitterGrouped
 	# Server
 
 	# Serve Document
-	serveDocument: (opts,next) =>
+	serveDocument: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 		{document,err,req,res} = opts
@@ -4584,7 +4594,7 @@ class DocPad extends EventEmitterGrouped
 		@
 
 	# Server Middleware: Header
-	serverMiddlewareHeader: (req,res,next) =>
+	serverMiddlewareHeader: (req,res,next) ->
 		# Prepare
 		docpad = @
 
@@ -4603,7 +4613,7 @@ class DocPad extends EventEmitterGrouped
 		@
 
 	# Server Middleware: Router
-	serverMiddlewareRouter: (req,res,next) =>
+	serverMiddlewareRouter: (req,res,next) ->
 		# Prepare
 		docpad = @
 
@@ -4626,7 +4636,7 @@ class DocPad extends EventEmitterGrouped
 		@
 
 	# Server Middleware: 404
-	serverMiddleware404: (req,res,next) =>
+	serverMiddleware404: (req,res,next) ->
 		# Prepare
 		docpad = @
 		database = docpad.getDatabaseSafe()
@@ -4645,7 +4655,7 @@ class DocPad extends EventEmitterGrouped
 		@
 
 	# Server Middleware: 500
-	serverMiddleware500: (err,req,res,next) =>
+	serverMiddleware500: (err,req,res,next) ->
 		# Prepare
 		docpad = @
 		database = docpad.getDatabaseSafe()
@@ -4661,7 +4671,7 @@ class DocPad extends EventEmitterGrouped
 		@
 
 	# Server
-	server: (opts,next) =>
+	server: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @

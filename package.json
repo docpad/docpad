@@ -143,7 +143,7 @@
     "safeps": "~2.2.10",
     "semver": "~2.3.0",
     "superagent": "~0.18.0",
-    "taskgroup": "~3.4.0",
+    "taskgroup": "bevry/taskgroup#promise-attempt2",
     "typechecker": "~2.0.8",
     "watchr": "~2.4.11",
     "yamljs": "~0.1.5"

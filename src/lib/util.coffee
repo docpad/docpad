@@ -86,11 +86,14 @@ module.exports = docpadUtil =
 
 	# Perform an action
 	# next(err,...), ... = any special arguments from the action
+	# this should be it's own npm module
+	# as we also use the concept of actions in a few other packages
 	action: (action,opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 		me = @
-		runner = me.getActionRunner()
+		run = opts.run ? true
+		runner = opts.runner ? me.getActionRunner()
 
 		# Array?
 		if Array.isArray(action)
@@ -102,46 +105,47 @@ module.exports = docpadUtil =
 		actions = _.uniq _.compact actions
 
 		# Next
-		next or= (err) =>
+		next ?= (err) =>
 			@emit('error', err)  if err
 
 		# Multiple actions?
 		if actions.length is 0
 			err = new Error('No action was given')
 			next(err)
-			return me
 
 		else if actions.length > 1
-			tasks = new TaskGroup('action tasks', {next})
-			actions.forEach (action) ->
-				tasks.addTask 'actions completion callback', (complete) ->
-					me.action(action, opts, complete)
-			tasks.run()
-			return me
+			group = runner.createGroup 'actions bundle: '+actions.join(' ')
 
-		# Fetch the action
-		action = actions[0]
+			for action in actions
+				# Fetch
+				actionMethod = me[action].bind(me)
 
-		# Fetch
-		actionMethod = me[action].bind(me)
+				# Task
+				task = group.createTask(action, actionMethod, {args: [opts]})
+				group.addTask(task)
 
-		# Check
-		unless actionMethod
-			err = new Error(util.format(locale.actionNonexistant, action))
-			return next(err)
+			# Run
+			runner.addGroup(group, {next})
+			runner.run()  if run is true
 
-		# Wrap
-		runner.addTask 'action completion callback', (complete) ->
-			# Forward
-			actionMethod opts, (args...) ->
-				# Prepare
-				err = args[0]
+		else
+			# Fetch the action
+			action = actions[0]
 
-				# Continue to our completion callback
-				next(args...)
+			# Fetch
+			actionMethod = me[action].bind(me)
 
-				# Continue down the action queue
-				complete()  # ignore the error
+			# Check
+			unless actionMethod
+				err = new Error(util.format(locale.actionNonexistant, action))
+				return next(err)
+
+			# Task
+			task = runner.createTask(action, actionMethod, {args: [opts], next})
+
+			# Run
+			runner.addTask(task)
+			runner.run()  if run is true
 
 		# Chain
 		me

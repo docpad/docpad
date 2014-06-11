@@ -389,7 +389,7 @@ class ConsoleInterface
 		docpad = @docpad
 		locale = docpad.getLocale()
 		userConfig = docpad.userConfig
-		welcomeTasks = new TaskGroup('welcome tasks').once('complete',next)
+		welcomeTasks = new TaskGroup('welcome tasks').done(next)
 
 		# TOS
 		welcomeTasks.addTask 'tos', (complete) ->
@@ -456,7 +456,7 @@ class ConsoleInterface
 							console.log locale.subscribeConfigNotify
 
 						# Tasks
-						subscribeTasks = new TaskGroup('subscribe tasks').once 'complete', (err) ->
+						subscribeTasks = new TaskGroup('subscribe tasks').done (err) ->
 							# Error?
 							if err
 								# Inform the user

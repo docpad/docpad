@@ -7,6 +7,20 @@ DocPad = require('../lib/docpad')
 joe = require('joe')
 _ = require('lodash')
 pathUtil = require('path')
+util = require('util')
+
+# -------------------------------------
+# Test Heleprs
+
+inspect = (args...) ->
+	for arg in args
+		console.log util.inspect(arg, {colors:true})
+expectDeep = (argsActual, argsExpected) ->
+	try
+		expect(argsActual).to.deep.equal(argsExpected)
+	catch err
+		inspect 'actual:', argsActual, 'expected:', argsExpected
+		throw err
 
 # -------------------------------------
 # Configuration
@@ -60,22 +74,13 @@ joe.suite 'docpad-actions', (suite,test) ->
 
 	test 'config', (done) ->
 		expected = {a:'instanceConfig', b:'instanceConfig', c:'websiteConfig'}
-
 		config = docpad.getConfig()
 		{a,b,c} = config
-		expect(
-			{a,b,c}
-		).to.deep.equal(
-			expected
-		)
+		expectDeep({a,b,c}, expected)
 
 		templateData = docpad.getTemplateData()
 		{a,b,c} = templateData
-		expect(
-			{a,b,c}
-		).to.deep.equal(
-			expected
-		)
+		expectDeep({a,b,c}, expected)
 
 		done()
 
