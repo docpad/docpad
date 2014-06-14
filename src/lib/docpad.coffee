@@ -1,4 +1,38 @@
 # ---------------------------------
+# This block *must* come first
+
+# Profile
+if ('--profile' in process.argv)
+	# Debug
+	debugger
+
+	# Nodefly
+	if process.env.NODEFLY_KEY
+		console.log 'Loading profiling tool: nodefly'
+		lazyRequire 'nodefly', {cwd:corePath}, (err,nodefly) ->
+			return  if err
+			nodefly.profile(process.env.NODEFLY_KEY, 'docpad')
+			console.log('Profiling with nodefly')
+
+	# Nodetime
+	if process.env.NODETIME_KEY
+		console.log 'Loading profiling tool: nodetime'
+		lazyRequire 'nodetime', {cwd:corePath}, (err,nodetime) ->
+			return  if err
+			nodetime.profile({
+				accountKey: process.env.NODETIME_KEY
+				appName: 'DocPad'
+			})
+			console.log('Profiling with nodetime')
+
+	# Webkit Devtools
+	console.log 'Loading profiling tool: webkit-devtools-agent'
+	lazyRequire 'webkit-devtools-agent', {cwd:corePath}, (err) ->
+		return  if err
+		console.log("Profiling with webkit-devtools-agent on process id:", process.pid)
+
+
+# ---------------------------------
 # Requires
 
 # Standard Library
@@ -48,39 +82,6 @@ BasePlugin = require('./plugin')
 # Helpers
 corePath = pathUtil.resolve(__dirname, '..', '..')
 setImmediate = global?.setImmediate or process.nextTick  # node 0.8 b/c
-
-# Profile
-if ('--profile' in process.argv)
-	# Debug
-	debugger
-
-	# Nodefly
-	if process.env.NODEFLY_KEY
-		console.log 'Loading profiling tool: nodefly'
-		lazyRequire 'nodefly', {cwd:corePath}, (err,nodefly) ->
-			return  if err
-			nodefly.profile(process.env.NODEFLY_KEY, 'docpad')
-			console.log('Profiling with nodefly')
-
-	# Nodetime
-	if process.env.NODETIME_KEY
-		console.log 'Loading profiling tool: nodetime'
-		lazyRequire 'nodetime', {cwd:corePath}, (err,nodetime) ->
-			return  if err
-			nodetime.profile({
-				accountKey: process.env.NODETIME_KEY
-				appName: 'DocPad'
-			})
-			console.log('Profiling with nodetime')
-
-	# Webkit Devtools
-	console.log 'Loading profiling tool: webkit-devtools-agent'
-	lazyRequire 'webkit-devtools-agent', {cwd:corePath}, (err) ->
-		return  if err
-		console.log("Profiling with webkit-devtools-agent on process id:", process.pid)
-
-
-
 
 # =====================================
 # DocPad
