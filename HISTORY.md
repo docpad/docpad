@@ -1,5 +1,8 @@
 # History
 
+## v6.69.0 June 16, 2014
+- Updated dependencies
+
 ## v6.68.1 June 5, 2014
 - [longjohn](https://github.com/mattinsler/longjohn) is now an optional dependency, as for some people it was not loading, also made it use ~ instead of ^ as maybe those users are using old npm versions
 
