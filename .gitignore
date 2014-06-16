@@ -1,8 +1,9 @@
-# v1.3.5 October 31, 2013
+# v1.3.10 December 10, 2013
 # https://github.com/bevry/base
 
 # Temp Files
 **/*.log
+**/.docpad.db
 
 # Build Files
 build/
@@ -11,9 +12,8 @@ bower_components/
 node_modules/
 out/
 
-
 # =====================================
-# PROJECT SPECIFIC FILES
+# CUSTOM MODIFICATIONS
 
 test/render-out/
 test/.docpad.db

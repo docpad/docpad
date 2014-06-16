@@ -1,4 +1,4 @@
-# v1.3.16 May 23, 2014
+# v1.3.20 June 16, 2014
 # https://github.com/bevry/base
 
 
@@ -18,7 +18,7 @@ NPM              = (if WINDOWS then process.execPath.replace('node.exe', 'npm.cm
 EXT              = (if WINDOWS then '.cmd' else '')
 GIT              = "git"
 
-APP_PATH        = process.cwd()
+APP_PATH         = process.cwd()
 PACKAGE_PATH     = pathUtil.join(APP_PATH, "package.json")
 PACKAGE_DATA     = require(PACKAGE_PATH)
 
@@ -29,15 +29,18 @@ COFFEE           = pathUtil.join(MODULES_PATH, "coffee-script/bin/coffee")
 PROJECTZ         = pathUtil.join(MODULES_PATH, "projectz/bin/projectz")
 DOCCO            = pathUtil.join(MODULES_PATH, "docco/bin/docco")
 DOCPAD           = pathUtil.join(MODULES_PATH, "docpad/bin/docpad")
+BISCOTTO         = pathUtil.join(MODULES_PATH, "biscotto/bin/biscotto")
 
 config = {}
-config.TEST_PATH = "test"
-config.DOCCO_SRC_PATH   = null
-config.DOCCO_OUT_PATH   = "docs"
-config.COFFEE_SRC_PATH  = null
-config.COFFEE_OUT_PATH  = "out"
-config.DOCPAD_SRC_PATH  = null
-config.DOCPAD_OUT_PATH  = "out"
+config.TEST_PATH           = "test"
+config.DOCCO_SRC_PATH      = null
+config.DOCCO_OUT_PATH      = "docs"
+config.BISCOTTO_SRC_PATH   = null
+config.BISCOTTO_OUT_PATH   = "docs"
+config.COFFEE_SRC_PATH     = null
+config.COFFEE_OUT_PATH     = "out"
+config.DOCPAD_SRC_PATH     = null
+config.DOCPAD_OUT_PATH     = "out"
 
 for own key,value of (PACKAGE_DATA.cakeConfiguration or {})
 	config[key] = value
@@ -198,6 +201,10 @@ actions =
 			console.log('docco compile')
 			exec("#{NODE} #{DOCCO} -o #{config.DOCCO_OUT_PATH} #{config.DOCCO_SRC_PATH}", {stdio:'inherit', cwd:APP_PATH}, safe next, step4)
 		step4 = ->
+			return step5()  if !config.BISCOTTO_SRC_PATH or !fsUtil.existsSync(BISCOTTO)
+			console.log('biscotto compile')
+			exec("""#{BISCOTTO} --name #{PACKAGE_DATA.title or PACKAGE_DATA.name} --title "#{PACKAGE_DATA.title or PACKAGE_DATA.name} API Documentation" --readme README.md --output-dir #{config.BISCOTTO_OUT_PATH} #{config.BISCOTTO_SRC_PATH} - LICENSE.md HISTORY.md""", {stdio:'inherit', cwd:APP_PATH}, safe next, step5)
+		step5 = ->
 			console.log('cake test')
 			actions.test(opts, safe next, step5)
 		step5 = next

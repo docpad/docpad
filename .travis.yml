@@ -1,7 +1,11 @@
-# v1.3.14 February 6, 2014
+# v1.3.17 May 29, 2014
 # https://github.com/bevry/base
 language: node_js
-install: "npm install; ./node_modules/.bin/cake install"
+# ensure npm is the latest (handled via npm install -g npm)
+# ensure dev dependencies are installed (handled via npm install)
+# ensure test dependencies are installed (handled via cake install)
+install: "npm install -g npm && npm install && ./node_modules/.bin/cake install"
+# ensure our application is compiled before we run our tests
 before_script: "./node_modules/.bin/cake compile"
 script: "npm test"
 node_js:

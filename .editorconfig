@@ -1,14 +1,18 @@
-# EditorConfig is awesome: 
-# http://editorconfig.org
+# v1.3.18 June 8, 2014
+# https://github.com/bevry/base
 root = true
 
 [*]
 end_of_line = lf
 charset = utf-8
-trim_trailing_whitespace = true
+trim_trailing_whitespace = false
 insert_final_newline = false
 indent_style = tab
 
-[{*.yml,*.json}]
+[*.json]
+indent_style = space
+indent_size = 2
+
+[*.yml]
 indent_style = space
 indent_size = 2
