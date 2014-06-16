@@ -1133,17 +1133,17 @@ class DocPad extends EventEmitterGrouped
 					next()
 
 		# Create our action runner
-		@actionRunnerInstance = new TaskGroup('action runner').completed (err) ->
+		@actionRunnerInstance = TaskGroup.create('action runner').whenDone (err) ->
 			docpad.error(err)  if err
 
 		# Create our error runner
-		@errorRunnerInstance = new TaskGroup('error runner').completed (err) ->
+		@errorRunnerInstance = TaskGroup.create('error runner').whenDone (err) ->
 			if err and docpad.getDebugging()
 				locale = docpad.getLocale()
 				docpad.log('warn', locale.reportError+' '+locale.errorFollows+' '+(err.stack ? err.message).toString())
 
 		# Create our track runner
-		@trackRunnerInstance = new TaskGroup('track runner').completed (err) ->
+		@trackRunnerInstance = TaskGroup.create('track runner').whenDone (err) ->
 			if err and docpad.getDebugging()
 				locale = docpad.getLocale()
 				docpad.log('warn', locale.trackError+' '+locale.errorFollows+' '+(err.stack ? err.message).toString())
