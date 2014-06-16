@@ -1,9 +1,16 @@
-# Global
+# =====================================
+# Requires
+
+# Standard Library
 pathUtil = require('path')
 
 # Local
 {QueryCollection,Model} = require('../base')
 FileModel = require('../models/file')
+
+
+# =====================================
+# Classes
 
 # Files Collection
 class FilesCollection extends QueryCollection
@@ -41,5 +48,7 @@ class FilesCollection extends QueryCollection
 		# Didn't find a file
 		return null
 
+
+# =====================================
 # Export
 module.exports = FilesCollection

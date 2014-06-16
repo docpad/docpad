@@ -1,7 +1,14 @@
+# =====================================
 # Requires
+
+# External
 extendr = require('extendr')
 queryEngine = require('query-engine')
 Backbone = queryEngine.Backbone
+
+
+# =====================================
+# Helpers
 
 # Log a message
 log = (args...) ->
@@ -11,12 +18,17 @@ log = (args...) ->
 emit = (args...) ->
 	@trigger.apply(@, args)
 
+
+# =====================================
+# Classes
+
 # Events
 class Events
 	log: log
 	emit: emit
 
 extendr.extend(Events::, Backbone.Events)
+
 
 # Model
 class Model extends Backbone.Model
@@ -33,6 +45,7 @@ class Model extends Backbone.Model
 		# Forward
 		return @set(set, opts)
 
+
 # Collection
 class Collection extends Backbone.Collection
 	log: log
@@ -44,10 +57,12 @@ class Collection extends Backbone.Collection
 Collection::model = Model
 Collection::collection = Collection
 
+
 # View
 class View extends Backbone.View
 	log: log
 	emit: emit
+
 
 # QueryCollection
 class QueryCollection extends queryEngine.QueryCollection
@@ -67,5 +82,7 @@ class QueryCollection extends queryEngine.QueryCollection
 QueryCollection::model = Model
 QueryCollection::collection = QueryCollection
 
+
+# ---------------------------------
 # Export our base models
 module.exports = {queryEngine,Backbone,Events,Model,Collection,View,QueryCollection}

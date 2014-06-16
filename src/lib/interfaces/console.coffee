@@ -1,10 +1,19 @@
+# =====================================
 # Requires
+
+# Standard Library
 pathUtil = require('path')
+
+# External
 safefs = require('safefs')
 safeps = require('safeps')
 {TaskGroup} = require('taskgroup')
 extendr = require('extendr')
 promptly = require('promptly')
+
+
+# =====================================
+# Classes
 
 # Console Interface
 class ConsoleInterface
@@ -746,7 +755,6 @@ class ConsoleInterface
 		@
 
 
-# =================================
+# =====================================
 # Export
-
 module.exports = ConsoleInterface

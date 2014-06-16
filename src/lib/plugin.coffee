@@ -1,9 +1,16 @@
+# ---------------------------------
 # Requires
+
+# External
 {extendOnClass} = require('extendonclass')
 extendr = require('extendr')
 typeChecker = require('typechecker')
 ambi = require('ambi')
 eachr = require('eachr')
+
+
+# ---------------------------------
+# Classes
 
 # Define Plugin
 class BasePlugin
@@ -170,5 +177,6 @@ class BasePlugin
 		return @config.enabled isnt false
 
 
+# ---------------------------------
 # Export Plugin
 module.exports = BasePlugin

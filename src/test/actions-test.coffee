@@ -1,15 +1,22 @@
-# RequirestestServer
+# =====================================
+# Requires
+
+# Standard Library
+util = require('util')
+pathUtil = require('path')
+
+# External
 superAgent = require('superagent')
 balUtil = require('bal-util')
 safefs = require('safefs')
-DocPad = require('../lib/docpad')
 {expect} = require('chai')
 joe = require('joe')
 _ = require('lodash')
-pathUtil = require('path')
-util = require('util')
 
-# -------------------------------------
+# Local
+DocPad = require('../lib/docpad')
+
+# =====================================
 # Test Heleprs
 
 inspect = (args...) ->

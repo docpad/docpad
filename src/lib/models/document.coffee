@@ -1,22 +1,27 @@
-# Necessary
+# =====================================
+# Requires
+
+# Standard Library
 util = require('util')
 pathUtil = require('path')
+
+# External
 extendr = require('extendr')
 eachr = require('eachr')
 {TaskGroup} = require('taskgroup')
 mime = require('mime')
 {extractOptsAndCallback} = require('extract-opts')
 
-# Optional
-CSON = null
-YAML = null
-
 # Local
 FileModel = require('./file')
 
+# Optiona
+CSON = null
+YAML = null
 
-# ---------------------------------
-# Document Model
+
+# =====================================
+# Classes
 
 class DocumentModel extends FileModel
 
@@ -660,5 +665,6 @@ class DocumentModel extends FileModel
 		@
 
 
+# =====================================
 # Export
 module.exports = DocumentModel

@@ -1,10 +1,5 @@
-# Requires
-
-# Essential
-pathUtil = require('path')
-{lazyRequire} = require('lazy-require')
-corePath = pathUtil.resolve(__dirname, '..', '..')
-setImmediate = global?.setImmediate or process.nextTick  # node 0.8 b/c
+# =====================================
+# This block *must* come first
 
 # Profile
 if ('--profile' in process.argv)
@@ -36,7 +31,16 @@ if ('--profile' in process.argv)
 		return  if err
 		console.log("Profiling with webkit-devtools-agent on process id:", process.pid)
 
-# Necessary
+
+# =====================================
+# Requires
+
+# Standard Library
+pathUtil = require('path')
+util     = require('util')
+
+# External
+{lazyRequire} = require('lazy-require')
 _ = require('lodash')
 CSON = require('cson')
 balUtil = require('bal-util')
@@ -48,7 +52,6 @@ ambi = require('ambi')
 safefs = require('safefs')
 safeps = require('safeps')
 ignorefs = require('ignorefs')
-util = require('util')
 superAgent = require('superagent')
 {extractOptsAndCallback} = require('extract-opts')
 {EventEmitterGrouped} = require('event-emitter-grouped')
@@ -74,6 +77,11 @@ StylesCollection = require('./collections/styles')
 PluginLoader = require('./plugin-loader')
 BasePlugin = require('./plugin')
 
+
+# ---------------------------------
+# Helpers
+corePath = pathUtil.resolve(__dirname, '..', '..')
+setImmediate = global?.setImmediate or process.nextTick  # node 0.8 b/c
 
 # =====================================
 # DocPad
@@ -4801,9 +4809,7 @@ class DocPad extends EventEmitterGrouped
 		@
 
 
-# =====================================
-# Export
-
+# ---------------------------------
 # Export
 module.exports =
 	# Modules

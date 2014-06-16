@@ -1,9 +1,16 @@
+# =====================================
+# Requires
 
+# Standard Library
+pathUtil = require('path')
+
+# External
 _ = require('lodash')
 {extractOptsAndCallback} = require('extract-opts')
 {TaskGroup} = require('taskgroup')
-pathUtil = require('path')
 
+
+# =====================================
 # Export
 module.exports = docpadUtil =
 	# Standard Encodings
@@ -149,4 +156,3 @@ module.exports = docpadUtil =
 
 		# Chain
 		me
-

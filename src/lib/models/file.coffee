@@ -1,6 +1,11 @@
-# Import
+# =====================================
+# Requires
+
+# Standard Library
 util = require('util')
 pathUtil = require('path')
+
+# External
 isTextOrBinary = require('istextorbinary')
 typeChecker = require('typechecker')
 {TaskGroup} = require('taskgroup')
@@ -9,18 +14,17 @@ mime = require('mime')
 extendr = require('extendr')
 {extractOptsAndCallback} = require('extract-opts')
 
-# Import: Optional
+# Optional
 jschardet = null
 encodingUtil = null
-#Iconv = null
 
 # Local
 {Backbone,Model} = require('../base')
 docpadUtil = require('../util')
 
 
-# ---------------------------------
-# File Model
+# =====================================
+# Classes
 
 class FileModel extends Model
 
@@ -1044,5 +1048,7 @@ class FileModel extends Model
 		# Chain
 		@
 
+
+# ---------------------------------
 # Export
 module.exports = FileModel

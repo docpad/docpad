@@ -1,12 +1,18 @@
-# RequirestestServer
+# =====================================
+# Requires
+
+# Standard Library
+pathUtil = require('path')
+
+# External
 balUtil = require('bal-util')
 safefs = require('safefs')
 safeps = require('safeps')
 {expect} = require('chai')
 joe = require('joe')
-pathUtil = require('path')
 
-# -------------------------------------
+
+# =====================================
 # Configuration
 
 # Paths
@@ -17,6 +23,7 @@ outPath    = pathUtil.join(rootPath, 'render-out')
 expectPath = pathUtil.join(rootPath, 'render-expected')
 cliPath    = pathUtil.join(docpadPath, 'bin', 'docpad')
 nodePath   = null
+
 
 # -------------------------------------
 # Tests

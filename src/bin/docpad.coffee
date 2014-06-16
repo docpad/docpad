@@ -69,5 +69,4 @@ startDocPad = ->
 
 # ---------------------------------
 # Fire
-
 checkDocPad()
