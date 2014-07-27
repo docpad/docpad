@@ -116,6 +116,7 @@
     "ambi": "~2.2.0",
     "backbone": "1.1.2",
     "bal-util": "~2.4.0",
+    "coffee-script": "~1.7.1",
     "caterpillar": "~2.0.7",
     "caterpillar-filter": "~2.0.3",
     "caterpillar-human": "~2.1.1",
@@ -169,6 +170,7 @@
     "docpad-trace": "./bin/docpad-trace"
   },
   "scripts": {
+    "install": "cake compilelib",
     "test": "node ./out/test/everything-test.js"
   },
   "main": "./out/main.js",

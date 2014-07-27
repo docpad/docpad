@@ -124,6 +124,19 @@ actions =
 		# Start
 		step1()
 
+	compilelib: (opts,next) ->
+		# Prepare
+		(next = opts; opts = {})  unless next?
+
+		step1 = ->
+			return step2()  if !config.COFFEE_SRC_PATH or !fsUtil.existsSync(COFFEE)
+			console.log('coffee compile lib')
+			spawn(NODE, [COFFEE, '-co', config.COFFEE_OUT_PATH, config.COFFEE_SRC_PATH], {stdio:'inherit', cwd:APP_PATH}).on('close', safe next, step2)
+		step2 = next
+
+		# Start
+		step1()
+
 	compile: (opts,next) ->
 		# Prepare
 		(next = opts; opts = {})  unless next?
@@ -133,9 +146,8 @@ actions =
 			console.log('cake install')
 			actions.install(opts, safe next, step2)
 		step2 = ->
-			return step3()  if !config.COFFEE_SRC_PATH or !fsUtil.existsSync(COFFEE)
-			console.log('coffee compile')
-			spawn(NODE, [COFFEE, '-co', config.COFFEE_OUT_PATH, config.COFFEE_SRC_PATH], {stdio:'inherit', cwd:APP_PATH}).on('close', safe next, step3)
+			console.log('coffee compile lib')
+			actions.compilelib(opts, safe next, step3)
 		step3 = ->
 			return step4()  if !config.DOCPAD_SRC_PATH or !fsUtil.existsSync(DOCPAD)
 			console.log('docpad generate')
@@ -244,7 +256,8 @@ actions =
 commands =
 	clean:       'clean up instance'
 	install:     'install dependencies'
-	compile:     'compile our files (runs install)'
+	compilelib:  'compile docpad lib files'
+	compile:     'compile docpad files (runs install/compilelib)'
 	watch:       'compile our files initially, and again for each change (runs install)'
 	test:        'run our tests (runs compile)'
 	prepublish:  'prepare our package for publishing'
