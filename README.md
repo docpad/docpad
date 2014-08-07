@@ -1,4 +1,4 @@
-[![DocPad Logo](http://d.pr/i/cfmt+)](http://docpad.org "Visit the DocPad Website")
+[![DocPad Logo](https://raw.githubusercontent.com/bevry/designs/1437c9993a77b24c3ad1856087908b508f3ceec6/docpad/flyers/docpad-youtube.gif)](http://docpad.org "Visit the DocPad Website")
 
 <!-- TITLE/ -->
 
@@ -68,7 +68,7 @@ Discover my features below, or skip ahead to the installation instructions to ge
 
 All sorts of people love DocPad, from first time web developers to even industry leaders and experts. In fact, people even migrate to DocPad from other systems as they love it so much. Here are some our [favourite tweets](https://twitter.com/#!/DocPad/favorites) of what people are saying about DocPad :)
 
-[![Some favourite tweets about DocPad](https://github.com/bevry/designs/raw/master/docpad/favourites/docpad-favs.gif)](https://twitter.com/#!/DocPad/favorites)
+[![Some favourite tweets about DocPad](https://github.com/bevry/designs/raw/1437c9993a77b24c3ad1856087908b508f3ceec6/docpad/favourites/docpad-favs.gif)](https://twitter.com/#!/DocPad/favorites)
 
 
 
