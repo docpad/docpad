@@ -2345,7 +2345,8 @@ class DocPad extends EventEmitterGrouped
 				things['plugin-'+key] = value.version or true
 
 			# Apply
-			docpad.getTrackRunner().addTask 'track task', (complete) ->
+			trackRunner = docpad.getTrackRunner()
+			trackRunner.addTask 'track task', (complete) ->
 				superAgent
 					.post(config.helperUrl)
 					.type('json').set('Accept', 'application/json')
@@ -2359,6 +2360,8 @@ class DocPad extends EventEmitterGrouped
 						next?(err)
 						complete(err)  # we pass the error here, as if we error, we want to stop all tracking
 
+			# Execute the tracker tasks 
+			trackRunner.run()
 		else
 			next?()
 
