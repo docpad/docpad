@@ -1,5 +1,10 @@
 # History
 
+## v6.69.1 September 18, 2014
+- Fixed a TOS issue
+	- Thanks to [plfannery](https://github.com/pflannery) for [pull request #884](https://github.com/docpad/docpad/pull/884)
+- Updated dependencies
+
 ## v6.69.0 June 16, 2014
 - Updated dependencies
 
