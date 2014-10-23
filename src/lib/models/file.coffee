@@ -132,9 +132,9 @@ class FileModel extends Model
 
 		# Clean up
 		delete attrs.id
-		delete attrs.meta.id;
-		delete opts.meta.id;
-		delete opts.meta.attributes.id;
+		delete attrs.meta.id
+		delete opts.meta.id
+		delete opts.meta.attributes.id
 
 		# Clone
 		clonedModel = new @klass(attrs, opts)
