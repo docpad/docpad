@@ -19,7 +19,8 @@
     "flattr": "344188/balupton-on-Flattr",
     "paypal": "QB8GQPZAH84N6",
     "bitcoin": "https://coinbase.com/checkouts/9ef59f5479eec1d97d63382c9ebcb93a",
-    "wishlist": "http://amzn.com/w/2F8TXKSNAFG4V"
+    "wishlist": "http://amzn.com/w/2F8TXKSNAFG4V",
+    "npmdownloads": true
   },
   "keywords": [
     "document management system",
@@ -74,9 +75,11 @@
     "Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)",
     "Bruno Héridet (https://github.com/Delapouite)",
     "Changwoo Park <pismute@gmail.com> (https://github.com/pismute)",
+    "chaos95 (https://github.com/chaos95)",
     "Chase Colman <chase@infinityatlas.com> (https://github.com/chase)",
     "eldios <lele@amicofigo.com> (https://github.com/eldios)",
     "Ferrari Lee <shiyung@gmail.com> (https://github.com/Ferrari)",
+    "Greduan (https://github.com/Greduan)",
     "Homme Zwaagstra <hrz@geodata.soton.ac.uk> (https://github.com/homme)",
     "kalkin (https://github.com/kalkin)",
     "Luke Hagan (https://github.com/lhagan)",
@@ -102,11 +105,11 @@
     "Zhao Lei <aicoylei@gmail.com> (https://github.com/firede)"
   ],
   "bugs": {
-    "url": "https://github.com/bevry/docpad/issues"
+    "url": "https://github.com/docpad/docpad/issues"
   },
   "repository": {
     "type": "git",
-    "url": "http://github.com/bevry/docpad.git"
+    "url": "http://github.com/docpad/docpad.git"
   },
   "engines": {
     "node": ">=0.8",
@@ -119,10 +122,10 @@
     "caterpillar": "~2.0.7",
     "caterpillar-filter": "~2.0.3",
     "caterpillar-human": "~2.1.1",
-    "commander": "~2.2.0",
+    "commander": "~2.5.0",
     "cson": "~1.6.1",
     "eachr": "~2.0.2",
-    "encoding": "~0.1.6",
+    "encoding": "~0.1.11",
     "envfile": "~1.0.0",
     "event-emitter-grouped": "~2.4.3",
     "express": "~3.4.4",
@@ -141,22 +144,22 @@
     "query-engine": "~1.5.5",
     "safefs": "~3.1.1",
     "safeps": "~2.2.10",
-    "semver": "~2.3.0",
-    "superagent": "~0.18.2",
+    "semver": "~4.1.0",
+    "superagent": "~0.21.0",
     "taskgroup": "~4.0.5",
     "typechecker": "~2.0.8",
     "watchr": "~2.4.11",
-    "yamljs": "~0.1.5"
+    "yamljs": "~0.2.1"
   },
   "optionalDependencies": {
     "longjohn": "~0.2.4"
   },
   "devDependencies": {
     "coffee-script": "~1.8.0",
-    "chai": "~1.9.1",
+    "chai": "~1.10.0",
     "joe": "~1.5.0",
     "joe-reporter-console": "~1.2.1",
-    "projectz": "~0.3.15"
+    "projectz": "~0.3.17"
   },
   "directories": {
     "lib": "./out/lib"

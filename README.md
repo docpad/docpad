@@ -9,15 +9,16 @@
 
 <!-- BADGES/ -->
 
-[![Build Status](http://img.shields.io/travis-ci/docpad/docpad.png?branch=master)](http://travis-ci.org/docpad/docpad "Check this project's build status on TravisCI")
-[![NPM version](http://badge.fury.io/js/docpad.png)](https://npmjs.org/package/docpad "View this project on NPM")
-[![Dependency Status](https://david-dm.org/docpad/docpad.png?theme=shields.io)](https://david-dm.org/docpad/docpad)
-[![Development Dependency Status](https://david-dm.org/docpad/docpad/dev-status.png?theme=shields.io)](https://david-dm.org/docpad/docpad#info=devDependencies)<br/>
-[![Gittip donate button](http://img.shields.io/gittip/docpad.png)](https://www.gittip.com/docpad/ "Donate weekly to this project using Gittip")
-[![Flattr donate button](http://img.shields.io/flattr/donate.png?color=yellow)](http://flattr.com/thing/344188/balupton-on-Flattr "Donate monthly to this project using Flattr")
-[![PayPayl donate button](http://img.shields.io/paypal/donate.png?color=yellow)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=QB8GQPZAH84N6 "Donate once-off to this project using Paypal")
-[![BitCoin donate button](http://img.shields.io/bitcoin/donate.png?color=yellow)](https://coinbase.com/checkouts/9ef59f5479eec1d97d63382c9ebcb93a "Donate once-off to this project using BitCoin")
-[![Wishlist browse button](http://img.shields.io/wishlist/browse.png?color=yellow)](http://amzn.com/w/2F8TXKSNAFG4V "Buy an item on our wishlist for us")
+[![Build Status](https://img.shields.io/travis/docpad/docpad/master.svg)](http://travis-ci.org/docpad/docpad "Check this project's build status on TravisCI")
+[![NPM version](https://img.shields.io/npm/v/docpad.svg)](https://npmjs.org/package/docpad "View this project on NPM")
+[![NPM downloads](https://img.shields.io/npm/dm/docpad.svg)](https://npmjs.org/package/docpad "View this project on NPM")
+[![Dependency Status](https://img.shields.io/david/docpad/docpad.svg)](https://david-dm.org/docpad/docpad)
+[![Dev Dependency Status](https://img.shields.io/david/dev/docpad/docpad.svg)](https://david-dm.org/docpad/docpad#info=devDependencies)<br/>
+[![Gratipay donate button](https://img.shields.io/gratipay/docpad.svg)](https://www.gratipay.com/docpad/ "Donate weekly to this project using Gratipay")
+[![Flattr donate button](https://img.shields.io/badge/flattr-donate-yellow.svg)](http://flattr.com/thing/344188/balupton-on-Flattr "Donate monthly to this project using Flattr")
+[![PayPayl donate button](https://img.shields.io/badge/paypal-donate-yellow.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=QB8GQPZAH84N6 "Donate once-off to this project using Paypal")
+[![BitCoin donate button](https://img.shields.io/badge/bitcoin-donate-yellow.svg)](https://coinbase.com/checkouts/9ef59f5479eec1d97d63382c9ebcb93a "Donate once-off to this project using BitCoin")
+[![Wishlist browse button](https://img.shields.io/badge/wishlist-donate-yellow.svg)](http://amzn.com/w/2F8TXKSNAFG4V "Buy an item on our wishlist for us")
 
 <!-- /BADGES -->
 
@@ -138,11 +139,11 @@ These amazing people have contributed finances to this project:
 
 Become a sponsor!
 
-[![Gittip donate button](http://img.shields.io/gittip/docpad.png)](https://www.gittip.com/docpad/ "Donate weekly to this project using Gittip")
-[![Flattr donate button](http://img.shields.io/flattr/donate.png?color=yellow)](http://flattr.com/thing/344188/balupton-on-Flattr "Donate monthly to this project using Flattr")
-[![PayPayl donate button](http://img.shields.io/paypal/donate.png?color=yellow)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=QB8GQPZAH84N6 "Donate once-off to this project using Paypal")
-[![BitCoin donate button](http://img.shields.io/bitcoin/donate.png?color=yellow)](https://coinbase.com/checkouts/9ef59f5479eec1d97d63382c9ebcb93a "Donate once-off to this project using BitCoin")
-[![Wishlist browse button](http://img.shields.io/wishlist/browse.png?color=yellow)](http://amzn.com/w/2F8TXKSNAFG4V "Buy an item on our wishlist for us")
+[![Gratipay donate button](https://img.shields.io/gratipay/docpad.svg)](https://www.gratipay.com/docpad/ "Donate weekly to this project using Gratipay")
+[![Flattr donate button](https://img.shields.io/badge/flattr-donate-yellow.svg)](http://flattr.com/thing/344188/balupton-on-Flattr "Donate monthly to this project using Flattr")
+[![PayPayl donate button](https://img.shields.io/badge/paypal-donate-yellow.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=QB8GQPZAH84N6 "Donate once-off to this project using Paypal")
+[![BitCoin donate button](https://img.shields.io/badge/bitcoin-donate-yellow.svg)](https://coinbase.com/checkouts/9ef59f5479eec1d97d63382c9ebcb93a "Donate once-off to this project using BitCoin")
+[![Wishlist browse button](https://img.shields.io/badge/wishlist-donate-yellow.svg)](http://amzn.com/w/2F8TXKSNAFG4V "Buy an item on our wishlist for us")
 
 ### Contributors
 
@@ -158,9 +159,11 @@ These amazing people have contributed code to this project:
 - [Benjamin Lupton](https://github.com/balupton) <b@lupton.cc> — [view contributions](https://github.com/docpad/docpad/commits?author=balupton)
 - [Bruno Héridet](https://github.com/Delapouite) — [view contributions](https://github.com/docpad/docpad/commits?author=Delapouite)
 - [Changwoo Park](https://github.com/pismute) <pismute@gmail.com> — [view contributions](https://github.com/docpad/docpad/commits?author=pismute)
+- [chaos95](https://github.com/chaos95) — [view contributions](https://github.com/docpad/docpad/commits?author=chaos95)
 - [Chase Colman](https://github.com/chase) <chase@infinityatlas.com> — [view contributions](https://github.com/docpad/docpad/commits?author=chase)
 - [eldios](https://github.com/eldios) <lele@amicofigo.com> — [view contributions](https://github.com/docpad/docpad/commits?author=eldios)
 - [Ferrari Lee](https://github.com/Ferrari) <shiyung@gmail.com> — [view contributions](https://github.com/docpad/docpad/commits?author=Ferrari)
+- [Greduan](https://github.com/Greduan) — [view contributions](https://github.com/docpad/docpad/commits?author=Greduan)
 - [Homme Zwaagstra](https://github.com/homme) <hrz@geodata.soton.ac.uk> — [view contributions](https://github.com/docpad/docpad/commits?author=homme)
 - [kalkin](https://github.com/kalkin) — [view contributions](https://github.com/docpad/docpad/commits?author=kalkin)
 - [Luke Hagan](https://github.com/lhagan) — [view contributions](https://github.com/docpad/docpad/commits?author=lhagan)
