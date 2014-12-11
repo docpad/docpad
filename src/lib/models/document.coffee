@@ -503,6 +503,7 @@ class DocumentModel extends FileModel
 
 			# We had a layout, but it is missing
 			else if file.hasLayout()
+					layoutSelector = file.get('layout')
 					err = new Error(util.format(locale.documentMissingLayoutError, layoutSelector, filePath))
 					return next(err, content)
 
