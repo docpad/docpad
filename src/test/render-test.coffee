@@ -5,7 +5,6 @@
 pathUtil = require('path')
 
 # External
-balUtil = require('bal-util')
 safefs = require('safefs')
 safeps = require('safeps')
 {expect} = require('chai')

@@ -7,7 +7,7 @@ pathUtil = require('path')
 
 # External
 superAgent = require('superagent')
-balUtil = require('bal-util')
+scandir = require('scandirectory')
 safefs = require('safefs')
 {expect} = require('chai')
 joe = require('joe')
@@ -120,12 +120,12 @@ joe.suite 'docpad-actions', (suite,test) ->
 					expect(actualString).to.be.equal(expectedString)
 
 			test 'same files', (done) ->
-				balUtil.scandir(
+				scandir(
 					path: outPath
 					readFiles: true
 					ignoreHiddenFiles: false
 					next: (err,outList) ->
-						balUtil.scandir(
+						scandir(
 							path: expectPath
 							readFiles: true
 							ignoreHiddenFiles: false

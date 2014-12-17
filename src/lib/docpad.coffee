@@ -44,6 +44,7 @@ util     = require('util')
 _ = require('lodash')
 CSON = require('cson')
 balUtil = require('bal-util')
+scandir = require('scandirectory')
 extendr = require('extendr')
 eachr = require('eachr')
 typeChecker = require('typechecker')
@@ -52,6 +53,7 @@ ambi = require('ambi')
 safefs = require('safefs')
 safeps = require('safeps')
 ignorefs = require('ignorefs')
+rimraf = require('rimraf')
 superAgent = require('superagent')
 {extractOptsAndCallback} = require('extract-opts')
 {EventEmitterGrouped} = require('event-emitter-grouped')
@@ -1400,7 +1402,7 @@ class DocPad extends EventEmitterGrouped
 	# Scan Directory
 	scandir: (opts={}) ->
 		opts = extendr.extend(@getIgnoreOpts(), opts)
-		return balUtil.scandir(opts)
+		return scandir(opts)
 
 	# Watch Directory
 	watchdir: (opts={}) ->
@@ -2360,7 +2362,7 @@ class DocPad extends EventEmitterGrouped
 						next?(err)
 						complete(err)  # we pass the error here, as if we error, we want to stop all tracking
 
-			# Execute the tracker tasks 
+			# Execute the tracker tasks
 			trackRunner.run()
 		else
 			next?()
@@ -4285,7 +4287,7 @@ class DocPad extends EventEmitterGrouped
 			return complete()  if config.rootPath.indexOf(config.outPath) isnt -1
 
 			# Our outPath is not related or lower than our root path, so do remove it
-			balUtil.rmdirDeep(config.outPath, complete)
+			rimraf(config.outPath, complete)
 
 		# Delete database cache
 		tasks.addTask 'delete database cache file', (complete) ->

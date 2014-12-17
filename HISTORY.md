@@ -1,5 +1,12 @@
 # History
 
+## v6.69.2 December 17, 2014
+- Better id deletion when cloning a model
+	- Thanks to [Nathan Friedly](https://github.com/nfriedly) for [pull request #893](https://github.com/docpad/docpad/pull/893)
+- Fixed incorrect `layoutSelector` undefined error when DocPad can't find your layout
+	- Thanks to [Nathan Friedly](https://github.com/nfriedly) for [pull request #897](https://github.com/docpad/docpad/pull/897)
+- Updated dependencies
+
 ## v6.69.1 September 18, 2014
 - Fixed a TOS issue
 	- Thanks to [plfannery](https://github.com/pflannery) for [pull request #884](https://github.com/docpad/docpad/pull/884)
