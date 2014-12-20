@@ -133,7 +133,7 @@ class PluginLoader
 		unsupported =
 			# Check type
 			if 'docpad-plugin' not in keywords
-				'type'
+				'need-docpad-plugin-keyword'
 
 			# Check version
 			else if version and not semver.satisfies(version, docpad.pluginVersion)
