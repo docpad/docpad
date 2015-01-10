@@ -243,7 +243,7 @@ class RendererTester extends PluginTester
 						# Check we have the same files
 						test 'same files', ->
 							outDifferenceKeys = _.difference(outExpectedResultsKeys, outResultsKeys)
-							expect(outDifferenceKeys, 'The following file(s) was not generated').to.be.empty
+							expect(outDifferenceKeys, 'The following file(s) should have been generated').to.be.empty
 							outDifferenceKeys = _.difference(outResultsKeys, outExpectedResultsKeys)
 							expect(outDifferenceKeys, 'The following file(s) should not have been generated').to.be.empty
 
