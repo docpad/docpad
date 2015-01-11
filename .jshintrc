@@ -1,0 +1,63 @@
+{
+  // enforcing options
+  "bitwise": true,
+  "camelcase": true,
+  "curly": false,  // we like one liners
+  "eqeqeq": true,
+  "es3": true,
+  "forin": true,
+  "freeze": true,
+  "immed": true,
+  "indent": 1,  // we use tabs
+  "latedef": true,
+  "newcap": true,
+  "noarg": true,
+  "noempty": true,
+  "nonbsp": true,
+  "nonew": true,
+  "plusplus": false,  // we are good at js
+  "quotmark": false,  // we like flexibility
+  "undef": true,
+  "unused": true,
+  "strict": true,
+  "trailing": true,
+  "maxparams": false,  // no
+  "maxdepth": false,   // no
+  "maxstatements": false,  // no
+  "maxcomplexity": false,  // no
+  "maxlen": false,  // no
+  
+  // relaxing options
+  "asi": true,  // we use asi
+  "boss": true,  // we understand assignments
+  "debug": false,
+  "eqnull": true,  // we know how to do null/undefined checks
+  "esnext": false,
+  "evil": false,
+  "expr": false,
+  "funcscope": false,
+  "gcl": true,
+  "globalstrict": false,
+  "iterator": false,
+  "lastsemic": false,
+  "laxbreak": false,
+  "laxcomma": false,
+  "loopfunc": false,
+  "moz": false,
+  "multistr": false,
+  "notypeof": false,
+  "proto": false,
+  "scripturl": false,
+  "smarttabs": false,  // default; spaces should only be mixed with tabs after words
+  "shadow": false,
+  "sub": false,
+  "supernew": false,
+  "noyield": false,
+  
+  // environments
+  "browser": true,
+  "node": true,
+  
+  // legacy
+  "onevar": false
+}
