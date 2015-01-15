@@ -62,7 +62,9 @@
     "Meeho! <info@meeho.net> (http://www.meeho.net)"
   ],
   "maintainers": [
-    "Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)"
+    "Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)",
+    "Rob Loach <robloach@gmail.com> (https://github.com/robloach)",
+    "Michael Mooring <mike@mdm.cc> (https://github.com/mikeumus)"
   ],
   "contributors": [
     "Aaron Powell <me@aaron-powell.com> (https://github.com/aaronpowell)",
@@ -81,6 +83,7 @@
     "Ferrari Lee <shiyung@gmail.com> (https://github.com/Ferrari)",
     "Greduan (https://github.com/Greduan)",
     "Homme Zwaagstra <hrz@geodata.soton.ac.uk> (https://github.com/homme)",
+    "jtwebman (https://github.com/jtwebman)",
     "kalkin (https://github.com/kalkin)",
     "Luke Hagan (https://github.com/lhagan)",
     "mikeumus (https://github.com/mikeumus)",

@@ -129,6 +129,8 @@ Here are some quick links to help you get started:
 These amazing people are maintaining this project:
 
 - Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)
+- Rob Loach <robloach@gmail.com> (https://github.com/robloach)
+- Michael Mooring <mike@mdm.cc> (https://github.com/mikeumus)
 
 ### Sponsors
 
@@ -165,6 +167,7 @@ These amazing people have contributed code to this project:
 - [Ferrari Lee](https://github.com/Ferrari) <shiyung@gmail.com> — [view contributions](https://github.com/docpad/docpad/commits?author=Ferrari)
 - [Greduan](https://github.com/Greduan) — [view contributions](https://github.com/docpad/docpad/commits?author=Greduan)
 - [Homme Zwaagstra](https://github.com/homme) <hrz@geodata.soton.ac.uk> — [view contributions](https://github.com/docpad/docpad/commits?author=homme)
+- [jtwebman](https://github.com/jtwebman) — [view contributions](https://github.com/docpad/docpad/commits?author=jtwebman)
 - [kalkin](https://github.com/kalkin) — [view contributions](https://github.com/docpad/docpad/commits?author=kalkin)
 - [Luke Hagan](https://github.com/lhagan) — [view contributions](https://github.com/docpad/docpad/commits?author=lhagan)
 - [mikeumus](https://github.com/mikeumus) — [view contributions](https://github.com/docpad/docpad/commits?author=mikeumus)
