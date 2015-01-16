@@ -87,7 +87,7 @@
     "jtwebman (https://github.com/jtwebman)",
     "kalkin (https://github.com/kalkin)",
     "Luke Hagan (https://github.com/lhagan)",
-    "mikeumus (https://github.com/mikeumus)",
+    "Michael Mooring <mike@mdm.cc> (https://github.com/mikeumus)",
     "Neil Taylor <neil.t@myplanetdigital.com> (https://github.com/neilbaylorrulez)",
     "nfriedly (https://github.com/nfriedly)",
     "Nick Crohn <ncrohn@me.com> (https://github.com/ncrohn)",
@@ -96,6 +96,7 @@
     "pflannery (https://github.com/pflannery)",
     "radiodario (https://github.com/radiodario)",
     "Richard A <richard@antecki.id.au> (https://github.com/rantecki)",
+    "Rob Loach <robloach@gmail.com> (https://github.com/robloach)",
     "ruemic (https://github.com/ruemic)",
     "Sorin Ionescu <sorin.ionescu@gmail.com> (https://github.com/sorin-ionescu)",
     "Stefan (https://github.com/stegrams)",
@@ -178,7 +179,8 @@
     "docpad-trace": "./bin/docpad-trace"
   },
   "scripts": {
-    "test": "node ./out/test/everything-test.js"
+    "test": "node ./out/test/everything-test.js",
+    "projectz": "node_modules/.bin/projectz compile"
   },
   "main": "./out/main.js",
   "cakeConfiguration": {
