@@ -1,5 +1,8 @@
 # History
 
+## v6.70.x
+- Updated dependencies
+
 ## v6.69.2 December 17, 2014
 - Better id deletion when cloning a model
 	- Thanks to [Nathan Friedly](https://github.com/nfriedly) for [pull request #893](https://github.com/docpad/docpad/pull/893)

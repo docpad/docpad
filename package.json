@@ -87,7 +87,7 @@
     "jtwebman (https://github.com/jtwebman)",
     "kalkin (https://github.com/kalkin)",
     "Luke Hagan (https://github.com/lhagan)",
-    "mikeumus (https://github.com/mikeumus)",
+    "Michael Mooring <mike@mdm.cc> (https://github.com/mikeumus)",
     "Neil Taylor <neil.t@myplanetdigital.com> (https://github.com/neilbaylorrulez)",
     "nfriedly (https://github.com/nfriedly)",
     "Nick Crohn <ncrohn@me.com> (https://github.com/ncrohn)",
@@ -96,6 +96,7 @@
     "pflannery (https://github.com/pflannery)",
     "radiodario (https://github.com/radiodario)",
     "Richard A <richard@antecki.id.au> (https://github.com/rantecki)",
+    "Rob Loach <robloach@gmail.com> (https://github.com/robloach)",
     "ruemic (https://github.com/ruemic)",
     "Sorin Ionescu <sorin.ionescu@gmail.com> (https://github.com/sorin-ionescu)",
     "Stefan (https://github.com/stegrams)",
@@ -121,18 +122,18 @@
   },
   "dependencies": {
     "ambi": "~2.2.0",
-    "backbone": "1.1.2",
+    "backbone": "~1.1.2",
     "bal-util": "~2.5.0",
     "caterpillar": "~2.0.7",
     "caterpillar-filter": "~2.0.3",
-    "caterpillar-human": "~2.1.1",
+    "caterpillar-human": "~2.1.2",
     "commander": "~2.5.1",
     "cson": "~1.6.2",
     "eachr": "~2.0.2",
     "encoding": "~0.1.11",
     "envfile": "~1.0.0",
     "event-emitter-grouped": "~2.4.3",
-    "express": "~3.4.4",
+    "express": "~3.4.8",
     "extendonclass": "~1.0.1",
     "extendr": "~2.1.0",
     "extract-opts": "~2.2.0",
@@ -142,15 +143,15 @@
     "jschardet": "~1.1.0",
     "lazy-require": "~1.0.0",
     "lodash": "~2.4.1",
-    "mime": "~1.2.9",
+    "mime": "~1.2.11",
     "progressbar": "~1.0.3",
     "promptly": "~0.2.0",
-    "query-engine": "~1.5.5",
-    "rimraf": "^2.2.8",
+    "query-engine": "~1.5.7",
+    "rimraf": "~2.2.8",
     "safefs": "~3.1.2",
-    "safeps": "~2.2.10",
-    "scandirectory": "^2.5.0",
-    "semver": "~4.1.0",
+    "safeps": "~2.2.12",
+    "scandirectory": "~2.5.0",
+    "semver": "~4.1.1",
     "superagent": "~0.21.0",
     "taskgroup": "~4.0.5",
     "typechecker": "~2.0.8",
@@ -161,8 +162,8 @@
     "longjohn": "~0.2.4"
   },
   "devDependencies": {
-    "coffee-script": "~1.8.0",
     "chai": "~1.10.0",
+    "coffee-script": "~1.8.0",
     "joe": "~1.5.0",
     "joe-reporter-console": "~1.2.1",
     "projectz": "~0.3.17"
@@ -178,10 +179,12 @@
     "docpad-trace": "./bin/docpad-trace"
   },
   "scripts": {
-    "test": "node ./out/test/everything-test.js"
+    "test": "node ./out/test/everything-test.js",
+    "projectz": "node_modules/.bin/projectz compile"
   },
   "main": "./out/main.js",
   "cakeConfiguration": {
-    "COFFEE_SRC_PATH": "src"
+    "COFFEE_SRC_PATH": "src",
+    "BISCOTTO_SRC_PATH": "src"
   }
 }
