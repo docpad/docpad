@@ -733,9 +733,10 @@ class DocPad extends EventEmitterGrouped
 
 	# Load Locale
 	loadLocale: (code) ->
-		localePath = pathUtil.join(@localePath, "#{code}.cson")
+		localeFilename = "#{code}.cson"
+		localePath = pathUtil.join(@localePath, localeFilename)
 		return null  unless safefs.existsSync(localePath)
-		locale = CSON.parseFileSync(localePath)
+		locale = CSON.parseCSONFile(localePath)
 		return locale
 
 
@@ -1722,15 +1723,14 @@ class DocPad extends EventEmitterGrouped
 		# and that appears to be an imaginary problem
 		extendr.extend(@userConfig, data)  if data
 
-		# Write it with CSON
-		CSON.stringify @userConfig, (err,userConfigString) ->
-			# Check
-			return next?(err)  if err
+		# Convert to CSON
+		result = CSON.stringify(@userConfig)
+		return next?(err)  if result instanceof Error
 
-			# Write it
-			safefs.writeFile userConfigPath, userConfigString, 'utf8', (err) ->
-				# Forward
-				return next?(err)
+		# Write it
+		safefs.writeFile userConfigPath, userConfigString, 'utf8', (err) ->
+			# Forward
+			return next?(err)
 
 		# Chain
 		@
@@ -1754,7 +1754,9 @@ class DocPad extends EventEmitterGrouped
 				return next(err)  if err
 
 				# Read the string using CSON
-				CSON.parse(res.text, next)
+				result = CSON.parseCSON(res.text)
+				return next?(result)  if result instanceof Error
+				return next(null, result)
 
 		# Chain
 		@
@@ -1780,10 +1782,16 @@ class DocPad extends EventEmitterGrouped
 				return next()  unless exists
 
 				# Read the path using CSON
-				CSON.parseFile configPath, (err,result) ->
-					if err
-						docpad.log 'error', util.format(locale.loadingConfigPathFailed, configPath)
-					return next(err, result)
+				result = CSON.requireFile(configPath, {
+					cson: true
+					json: true
+					coffeescript: true
+					javascript: true
+				})
+				if result instanceof Error
+					docpad.log 'error', util.format(locale.loadingConfigPathFailed, configPath)
+					return next(result)
+				return next(null, result)
 
 		# Check
 		if opts.configPath

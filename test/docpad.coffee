@@ -3,6 +3,14 @@ module.exports =
 	reportErrors: false
 	detectEncoding: require('safeps').isWindows() is false
 
+	# Why is this here?
+	# When the DocPad plugins are specified in test/package.json
+	# npm will install the latest stable (not our dev) docpad into test/node_modules
+	# so we would be testing our old stable docpad, rather than our new dev local docpad
+	# To get around this, we moved the docpad plugins into docpad's dev deps
+	# then we tell our test docpad site to use docpad's node modules directory for plugins
+	pluginsPaths: ['../node_modules']
+
 	environments:
 		development:
 			a: 'websiteConfig'

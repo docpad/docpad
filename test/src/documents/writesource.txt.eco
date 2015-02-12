@@ -1,7 +1,5 @@
 ### cson
-{
 title: "Write source test"
-}
 ###
 
 some content: <%- @document.title %>

@@ -4,12 +4,12 @@
 # Standard Library
 util = require('util')
 pathUtil = require('path')
+docpadUtil = require('../util')
 
 # External
 extendr = require('extendr')
 eachr = require('eachr')
 {TaskGroup} = require('taskgroup')
-mime = require('mime')
 {extractOptsAndCallback} = require('extract-opts')
 
 # Local
@@ -176,9 +176,18 @@ class DocumentModel extends FileModel
 				# Parse
 				try
 					switch parser
-						when 'cson', 'coffee', 'coffeescript', 'coffee-script', 'json'
+						when 'cson', 'json', 'coffee', 'coffeescript', 'coffee-script', 'js', 'javascript'
 							CSON = require('cson')  unless CSON
-							metaParseResult = CSON.parseSync(header)
+							switch parser
+								when 'coffee', 'coffeescript', 'coffee-script'
+									parser = 'coffeescript'
+								when 'js', 'javascript'
+									parser = 'javascript'
+							metaParseResult = CSON.parse(header, {
+								format: parser
+								coffeescript: true
+								javascript: true
+							})
 							extendr.extend(metaDataChanges, metaParseResult)
 
 						when 'yaml'
@@ -644,7 +653,7 @@ class DocumentModel extends FileModel
 		metaData  = @getMeta().toJSON(true)
 		delete metaData.writeSource
 		content   = body = opts.content.replace(/^\s+/,'')
-		header    = CSON.stringifySync(metaData)
+		header    = CSON.stringify(metaData)
 		if !header or header is '{}'
 			# No meta data
 			source    = body

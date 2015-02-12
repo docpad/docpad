@@ -1,7 +1,7 @@
 {
   "title": "DocPad. Streamlined web development.",
   "name": "docpad",
-  "version": "6.69.2",
+  "version": "6.70.0",
   "description": "DocPad is a next generation web architecture that lets you create fast static websites with dynamic abilities and powerful abstractions. Write your website as files on your computer, entries in a database, or even RSS feeds and DocPad will import it, generate & render it, then output a static website for deployment anywhere or a dynamic node website for advanced server-side functionality. Use it as a module or standalone. It's purely awesome. Check it out.",
   "homepage": "http://docpad.org",
   "installUrl": "http://docpad.org/install",
@@ -87,7 +87,7 @@
     "jtwebman (https://github.com/jtwebman)",
     "kalkin (https://github.com/kalkin)",
     "Luke Hagan (https://github.com/lhagan)",
-    "mikeumus (https://github.com/mikeumus)",
+    "Michael Mooring <mike@mdm.cc> (https://github.com/mikeumus)",
     "Neil Taylor <neil.t@myplanetdigital.com> (https://github.com/neilbaylorrulez)",
     "nfriedly (https://github.com/nfriedly)",
     "Nick Crohn <ncrohn@me.com> (https://github.com/ncrohn)",
@@ -96,6 +96,7 @@
     "pflannery (https://github.com/pflannery)",
     "radiodario (https://github.com/radiodario)",
     "Richard A <richard@antecki.id.au> (https://github.com/rantecki)",
+    "Rob Loach <robloach@gmail.com> (https://github.com/robloach)",
     "ruemic (https://github.com/ruemic)",
     "Sorin Ionescu <sorin.ionescu@gmail.com> (https://github.com/sorin-ionescu)",
     "Stefan (https://github.com/stegrams)",
@@ -116,18 +117,18 @@
     "url": "http://github.com/docpad/docpad.git"
   },
   "engines": {
-    "node": ">=0.8",
-    "npm": ">=1.2"
+    "node": ">=0.10",
+    "npm": ">=2.5.0"
   },
   "dependencies": {
     "ambi": "~2.2.0",
     "backbone": "1.1.2",
-    "bal-util": "~2.5.0",
-    "caterpillar": "~2.0.7",
+    "bal-util": "~2.5.1",
+    "caterpillar": "~2.0.8",
     "caterpillar-filter": "~2.0.3",
     "caterpillar-human": "~2.1.1",
-    "commander": "~2.5.1",
-    "cson": "~1.6.2",
+    "commander": "~2.6.0",
+    "cson": "~2.0.0",
     "eachr": "~2.0.2",
     "encoding": "~0.1.11",
     "envfile": "~1.0.0",
@@ -141,31 +142,35 @@
     "istextorbinary": "~1.0.0",
     "jschardet": "~1.1.0",
     "lazy-require": "~1.0.0",
-    "lodash": "~2.4.1",
-    "mime": "~1.2.9",
+    "lodash": "~3.1.0",
+    "mime": "^1.3.4",
     "progressbar": "~1.0.3",
-    "promptly": "~0.2.0",
+    "promptly": "~0.2.1",
     "query-engine": "~1.5.5",
     "rimraf": "^2.2.8",
     "safefs": "~3.1.2",
-    "safeps": "~2.2.10",
+    "safeps": "~2.2.13",
     "scandirectory": "^2.5.0",
-    "semver": "~4.1.0",
+    "semver": "~4.2.0",
     "superagent": "~0.21.0",
-    "taskgroup": "~4.0.5",
+    "taskgroup": "~4.2.0",
     "typechecker": "~2.0.8",
-    "watchr": "~2.4.12",
+    "watchr": "~2.4.13",
     "yamljs": "~0.2.1"
   },
   "optionalDependencies": {
     "longjohn": "~0.2.4"
   },
   "devDependencies": {
-    "coffee-script": "~1.8.0",
-    "chai": "~1.10.0",
-    "joe": "~1.5.0",
-    "joe-reporter-console": "~1.2.1",
-    "projectz": "~0.3.17"
+    "coffee-script": "^1.9.0",
+    "chai": "^2.00.0",
+    "joe": "^1.6.0",
+    "joe-reporter-console": "^1.2.1",
+    "projectz": "^0.4.2",
+    "moment": "^2.9.0",
+    "docpad-plugin-marked": "2",
+    "docpad-plugin-coffeekup": "2",
+    "docpad-plugin-eco": "2"
   },
   "directories": {
     "lib": "./out/lib"

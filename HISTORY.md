@@ -1,5 +1,14 @@
 # History
 
+## v6.70.0 February 12, 2014
+- Node 0.12 and io.js support
+- CSON has been updated to v2, this means that your `docpad.cson` files will no longer work with functions
+	- If you have functions inside your `docpad.cson` file:
+		- Rename `docpad.cson` to `docpad.coffee`
+		- Export your configuration inside `docpad.coffee` by doing: `module.exports = {your configuration data}`
+		- [Example `docpad.coffee` file.](https://docpad.org/docs/config)
+- Updated dependencies
+
 ## v6.69.2 December 17, 2014
 - Better id deletion when cloning a model
 	- Thanks to [Nathan Friedly](https://github.com/nfriedly) for [pull request #893](https://github.com/docpad/docpad/pull/893)

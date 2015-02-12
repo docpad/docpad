@@ -1,17 +1,19 @@
-# v1.3.23 October 11, 2014
+# February 12, 2015
 # https://github.com/bevry/base
 language: node_js
-# ensure npm@1 is the latest 0.8 compatible version (needed to ensure modules are installed correctly)
+# install npm@1 so we can install npm@2 so we can ensure we have the latest version (can't install npm@2 directly on 0.8 as their bundled npm is too old)
 # ensure coffee-script is installed (needed for cake commands)
 # ensure dev dependencies are installed (handled via npm install)
 # ensure test dependencies are installed (handled via cake install)
-install: "npm install -g npm@1 && npm install coffee-script && npm install && ./node_modules/.bin/cake install"
+install: "npm install -g npm@1 && npm install -g npm@2 && npm install coffee-script && npm install && ./node_modules/.bin/cake install"
 # ensure our application is compiled before we run our tests
 before_script: "./node_modules/.bin/cake compile"
 script: "npm test"
 node_js:
   - "0.8"
   - "0.10"
+  - "0.12"
+  - iojs
 cache:
   directories:
     - node_modules
