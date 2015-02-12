@@ -1,6 +1,10 @@
 # History
 
-## v6.70.0 February 12, 2014
+## v6.70.1 February 12, 2015
+- We now output `localhost` instead of `0.0.0.0`
+	- Thanks to [paleite](https://github.com/paleite) and [Stephen Brown II](https://github.com/StephenBrown2) for [issue #911](https://github.com/docpad/docpad/issues/911)
+
+## v6.70.0 February 12, 2015
 - Node 0.12 and io.js support
 - CSON has been updated to v2, this means that your `docpad.cson` files will no longer work with functions
 	- If you have functions inside your `docpad.cson` file:

@@ -4800,6 +4800,8 @@ class DocPad extends EventEmitterGrouped
 				address = opts.serverHttp.address()
 				serverHostname = address.address
 				serverPort = address.port
+				if serverHostname is '0.0.0.0'
+					serverHostname = 'localhost'
 				serverLocation = "http://#{serverHostname}:#{serverPort}/"
 				docpad.log 'info', util.format(locale.serverStarted, serverLocation, config.outPath)
 
