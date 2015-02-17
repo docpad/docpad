@@ -1728,7 +1728,7 @@ class DocPad extends EventEmitterGrouped
 		return next?(err)  if result instanceof Error
 
 		# Write it
-		safefs.writeFile userConfigPath, userConfigString, 'utf8', (err) ->
+		safefs.writeFile userConfigPath, result, 'utf8', (err) ->
 			# Forward
 			return next?(err)
 
