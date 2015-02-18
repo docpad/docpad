@@ -1,6 +1,8 @@
 # History
 
 ## v6.71.0 February 18, 2015
+The pull request edition! Huge thanks to our extended community for all their awesome code reviews and pull requests.
+
 - Updated `docpad-debug` to work with latest debugging tools
 - DocPad will now output most things with colours when it is able to
 	- Thanks to [Zearin](https://github.com/Zearin) for [pull request #834](https://github.com/docpad/docpad/pull/834)
@@ -15,6 +17,7 @@
 - When an error occurs with the `docpad.action` API and a completion callback is specified, the error will no longer be logged
 - Fixed reporting of errors when something goes wrong when initialising a selected skeleton
 - Fixed potential crash under random circumstances caused by 3rd party dependency
+	- Also removed the [longjohn] package as a precaution for when caterpillar can't fix the issue
 	- More information on [issue #926](https://github.com/docpad/docpad/issues/926)
 
 ## v6.70.1 February 12, 2015

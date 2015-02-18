@@ -2175,7 +2175,6 @@ class DocPad extends EventEmitterGrouped
 		if level is 7
 			loggers = @getLoggers()
 			if loggers.debug? is false
-				try require('longjohn')  # better error stack traces
 				loggers.debug = loggers.logger
 					.pipe(
 						new (require('caterpillar-human').Human)(color:false)

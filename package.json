@@ -160,9 +160,7 @@
     "watchr": "~2.4.13",
     "yamljs": "~0.2.1"
   },
-  "optionalDependencies": {
-    "longjohn": "~0.2.4"
-  },
+  "optionalDependencies": {},
   "devDependencies": {
     "coffee-script": "^1.9.0",
     "chai": "^2.00.0",
