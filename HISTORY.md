@@ -14,6 +14,8 @@
 	- Thanks to [Zeno Rocha](https://github.com/zenorocha) for [issue #918](https://github.com/docpad/docpad/issues/918)
 - When an error occurs with the `docpad.action` API and a completion callback is specified, the error will no longer be logged
 - Fixed reporting of errors when something goes wrong when initialising a selected skeleton
+- Fixed potential crash under random circumstances caused by 3rd party dependency
+	- More information on [issue #926](https://github.com/docpad/docpad/issues/926)
 
 ## v6.70.1 February 12, 2015
 - We now output `localhost` instead of `0.0.0.0`
