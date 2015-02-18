@@ -1769,7 +1769,7 @@ class DocPad extends EventEmitterGrouped
 				return next(err)  if err
 
 				# Read the string using CSON
-				result = CSON.parseCSON(res.text)
+				result = CSON.parseCSONString(res.text)
 				return next?(result)  if result instanceof Error
 				return next(null, result)
 
