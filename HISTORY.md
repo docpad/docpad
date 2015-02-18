@@ -1,5 +1,10 @@
 # History
 
+## v6.71.1 February 19, 2015
+- Output `127.0.0.1` as the hostname when IPv6 addresses `::` and `::1` are reported
+- Output `127.0.0.1` as the hostname instead of `localhost` when `0.0.0.0` is reported
+
+
 ## v6.71.0 February 19, 2015
 - Updated `docpad-debug` to work with latest debugging tools
 - DocPad will now output most things with colours when it is able to
