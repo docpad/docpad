@@ -993,6 +993,11 @@ class DocPad extends EventEmitterGrouped
 		# By default it is only enabled if we are not running inside a test
 		reportStatistics: process.argv.join('').indexOf('test') is -1
 
+		# No Color
+		# Whether or not our terminal output should have color
+		# `null` will default to what the terminal supports
+		noColor: null
+
 
 		# -----------------------------
 		# Other
@@ -2202,11 +2207,17 @@ class DocPad extends EventEmitterGrouped
 
 		# Handle
 		@error err, 'err', ->
-			process.stderr.write require('util').inspect(err.stack or err.message)
+			process.stderr.write docpad.inspect(err.stack or err.message)
 			docpad.destroy()
 
 		# Chain
 		@
+
+	# Inspect
+	inspect: (obj, opts) ->
+		opts ?= {}
+		opts.colors ?= @getConfig().noColor
+		return docpadUtil.inspect(obj, opts)
 
 	# Log
 	log: (args...) =>

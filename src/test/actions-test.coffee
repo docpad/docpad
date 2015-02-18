@@ -15,18 +15,17 @@ _ = require('lodash')
 
 # Local
 DocPad = require('../lib/docpad')
+docpadUtil = require('../lib/util')
+
 
 # =====================================
 # Test Heleprs
 
-inspect = (args...) ->
-	for arg in args
-		console.log util.inspect(arg, {colors:true})
 expectDeep = (argsActual, argsExpected) ->
 	try
 		expect(argsActual).to.deep.equal(argsExpected)
 	catch err
-		inspect 'actual:', argsActual, 'expected:', argsExpected
+		inspect 'actual:', docpadUtil.inspect(argsActual), 'expected:', docpadUtil.inspect(argsExpected)
 		throw err
 
 # -------------------------------------

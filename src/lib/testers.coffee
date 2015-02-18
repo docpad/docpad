@@ -16,6 +16,7 @@ _ = require('lodash')
 
 # Local
 DocPad = require('./docpad')
+docpadUtil = require('./util')
 
 
 # =====================================
@@ -270,9 +271,9 @@ class RendererTester extends PluginTester
 									expect(actual).to.eql(expected)
 								catch err
 									console.log '\nactual:'
-									console.log actual
+									console.log docpadUtil.inspect(actual)
 									console.log '\nexpected:'
-									console.log expected
+									console.log docpadUtil.inspect(expected)
 									console.log ''
 									throw err
 

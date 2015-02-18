@@ -57,12 +57,12 @@ startDocPad = ->
 	# Create DocPad Instance
 	DocPad.createInstance {action}, (err,docpad) ->
 		# Check
-		return console.log(err.stack)  if err
+		return process.stderr.write(err.stack or err.message or err)  if err
 
 		# Create Console Interface
 		new ConsoleInterface {docpad}, (err,consoleInterface) ->
 			# Check
-			return console.log(err.stack)  if err
+			return process.stderr.write(err.stack or err.message or err)  if err
 
 			# Start
 			consoleInterface.start()

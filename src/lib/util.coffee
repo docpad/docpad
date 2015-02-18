@@ -3,6 +3,7 @@
 
 # Standard Library
 pathUtil = require('path')
+util = require('util')
 
 # External
 _ = require('lodash')
@@ -13,6 +14,21 @@ _ = require('lodash')
 # =====================================
 # Export
 module.exports = docpadUtil =
+	# Inspect
+	inspect: (obj, opts) ->
+		# Prepare
+		opts ?= {}
+
+		# If the terminal doesn't support colours, then over-write whatever the user set
+		if process.stdout.isTTY is false or process.stderr.isTTY is false
+			opts.colors = false
+		else
+			# If it doesn't, and the user hasn't set anything, then default to a sensible default
+			opts.colors ?= process.argv.indexof('--no-colors') is -1
+
+		# Inspect and return
+		return util.inspect(obj, opts)
+
 	# Standard Encodings
 	isStandardEncoding: (encoding) ->
 		return encoding.toLowerCase() in ['ascii', 'utf8', 'utf-8']

@@ -60,6 +60,10 @@ class ConsoleInterface
 				locale.consoleOptionForce
 			)
 			.option(
+				'--no-color'
+				locale.consoleOptionNoColor
+			)
+			.option(
 				'-p, --port <port>'
 				locale.consoleOptionPort
 				parseInt
@@ -254,8 +258,7 @@ class ConsoleInterface
 		locale = docpad.getLocale()
 
 		# Error?
-		process.stderr.write(require('util').inspect(err.stack or err.message or err))  if err
-		# ^ @TODO document we we use process.stderr.write instead of console.log here
+		process.stderr.write(docpad.inspect(err.stack or err.message or err))  if err
 
 		# Log Shutdown
 		docpad.log('info', locale.consoleShutdown)
@@ -263,8 +266,7 @@ class ConsoleInterface
 		# Destroy docpad
 		docpad.destroy (err) ->
 			# Error?
-			process.stderr.write(require('util').inspect(err.stack or err.message or err))  if err
-			# ^ @TODO document we we use process.stderr.write instead of console.log here
+			process.stderr.write(docpad.inspect(err.stack or err.message or err))  if err
 
 			# don't force exit, it should occur naturally
 
@@ -631,7 +633,8 @@ class ConsoleInterface
 		@
 
 	info: (next) =>
-		info = require('util').inspect(@docpad.config)
+		docpad = @docpad
+		info = docpad.inspect(docpad.config)
 		console.log(info)
 		next()
 		@

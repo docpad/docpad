@@ -203,6 +203,7 @@
 	consoleOptionEnv: "the environment name to use for this instance, multiple names can be separated with a comma"
 	consoleOptionDebug: "the level of debug messages you would like to display, if specified defaults to 7, otherwise 6"
 	consoleOptionForce: "force a re-install of all modules"
+	consoleOptionNoColor: "don't colorize terminal output"
 	consoleOptionPort: "a custom port to use for the server <port>"
 	consoleOptionProfile: "enable profiling"
 	consoleOptionOffline: "don't do any remote requests"
