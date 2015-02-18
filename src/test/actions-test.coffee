@@ -188,6 +188,46 @@ joe.suite 'docpad-actions', (suite,test) ->
 					)
 					done()
 
+		test 'supports secondary urls - part 1/2', (done) ->
+			superAgent.get "#{baseUrl}/my-secondary-urls1", (err,res) ->
+				return done(err)  if err
+				expect(
+					res.redirects
+				).to.have.length(1)
+				expect(
+					res.redirects[0]
+				).to.match(/.+secondary-urls\.html$/)
+
+				actual = res.text
+				safefs.readFile "#{expectPath}/secondary-urls.html", (err,expected) ->
+					return done(err)  if err
+					expect(
+						actual.toString().trim()
+					).to.be.equal(
+						expected.toString().trim()
+					)
+					done()
+
+		test 'supports secondary urls - part 2/2', (done) ->
+			superAgent.get "#{baseUrl}/my-secondary-urls2", (err,res) ->
+				return done(err)  if err
+				expect(
+					res.redirects
+				).to.have.length(1)
+				expect(
+					res.redirects[0]
+				).to.match(/.+secondary-urls\.html$/)
+
+				actual = res.text
+				safefs.readFile "#{expectPath}/secondary-urls.html", (err,expected) ->
+					return done(err)  if err
+					expect(
+						actual.toString().trim()
+					).to.be.equal(
+						expected.toString().trim()
+					)
+					done()
+
 		test 'served dynamic documents - part 1/2', (done) ->
 			superAgent.get "#{baseUrl}/dynamic.html?name=ben", (err,res) ->
 				return done(err)  if err

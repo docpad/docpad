@@ -4646,7 +4646,7 @@ class DocPad extends EventEmitterGrouped
 			# Check if we are the desired url
 			# if we aren't do a permanent redirect
 			url = file.get('url')
-			cleanUrl = docpad.getUrlPathname(url)
+			cleanUrl = docpad.getUrlPathname(req.url)
 			if (url isnt cleanUrl) and (url isnt req.url)
 				return res.redirect(301, url)
 
