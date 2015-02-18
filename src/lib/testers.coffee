@@ -76,7 +76,7 @@ class PluginTester
 		@config = extendr.deepExtendPlainObjects({}, PluginTester::config, @config, config)
 		@docpadConfig = extendr.deepExtendPlainObjects({}, PluginTester::docpadConfig, @docpadConfig, docpadConfig)
 		@docpadConfig.port ?= ++pluginPort
-		@config.testerName ?= @config.pluginName
+		@config.testerName ?= "#{@config.pluginName} plugin"
 
 		# Extend Configuration
 		@config.testPath or= pathUtil.join(@config.pluginPath, 'test')
@@ -124,7 +124,12 @@ class PluginTester
 
 				# init docpad in case the plugin is starting from scratch
 				tester.docpad.action 'init', (err) ->
-					# ignore error as it is probably just related to there already being something
+					if err
+						if err.message is tester.docpad.getLocale().skeletonExists
+							# ignore the error, as this is expected
+						else
+							# care about the error
+							return done(err)
 
 					# clean up the docpad out directory
 					tester.docpad.action 'clean', (err) ->

@@ -24,7 +24,7 @@ module.exports = docpadUtil =
 			opts.colors = false
 		else
 			# If it doesn't, and the user hasn't set anything, then default to a sensible default
-			opts.colors ?= process.argv.indexof('--no-colors') is -1
+			opts.colors ?= '--no-colors' not in process.argv
 
 		# Inspect and return
 		return util.inspect(obj, opts)
@@ -115,6 +115,7 @@ module.exports = docpadUtil =
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 		me = @
+		locale = me.getLocale()
 		run = opts.run ? true
 		runner = opts.runner ? me.getActionRunner()
 
@@ -127,30 +128,29 @@ module.exports = docpadUtil =
 		# Clean actions
 		actions = _.uniq _.compact actions
 
-		# Next
-		next ?= (err) =>
-			@emit('error', err)  if err
-
-		# Multiple actions?
+		# Exit if we have no actions
 		if actions.length is 0
-			err = new Error('No action was given')
-			next(err)
+			err = new Error(locale.actionEmpty)
+			return next(err); me
 
-		else if actions.length > 1
-			group = runner.createGroup 'actions bundle: '+actions.join(' ')
+		# We have multiple actions
+		if actions.length > 1
+			actionTaskOrGroup = runner.createGroup 'actions bundle: '+actions.join(' ')
 
 			for action in actions
 				# Fetch
 				actionMethod = me[action].bind(me)
 
+				# Check
+				unless actionMethod
+					err = new Error(util.format(locale.actionNonexistant, action))
+					return next(err); me
+
 				# Task
-				task = group.createTask(action, actionMethod, {args: [opts]})
-				group.addTask(task)
+				task = actionTaskOrGroup.createTask(action, actionMethod, {args: [opts]})
+				actionTaskOrGroup.addTask(task)
 
-			# Run
-			runner.addGroup(group, {next})
-			runner.run()  if run is true
-
+		# We have single actions
 		else
 			# Fetch the action
 			action = actions[0]
@@ -161,14 +161,29 @@ module.exports = docpadUtil =
 			# Check
 			unless actionMethod
 				err = new Error(util.format(locale.actionNonexistant, action))
-				return next(err)
+				return next(err); me
 
 			# Task
-			task = runner.createTask(action, actionMethod, {args: [opts], next})
+			actionTaskOrGroup = runner.createTask(action, actionMethod, {args: [opts]})
 
-			# Run
-			runner.addTask(task)
-			runner.run()  if run is true
+		# Create our runner task
+		runnerTask = runner.createTask "runner task for action: #{action}", (continueWithRunner) ->
+			# Add our listener for our action
+			actionTaskOrGroup.done (args...) ->
+				# If we have a completion callback, let it handle the error
+				if next
+					next(args...)
+					args[0] = null
+
+				# Continue with our runner
+				continueWithRunner(args...)
+
+			# Run our action
+			actionTaskOrGroup.run()
+
+		# Add it and run it
+		runner.addTask(runnerTask)
+		runner.run()  if run is true
 
 		# Chain
-		me
+		return me

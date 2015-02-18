@@ -246,7 +246,10 @@ class ConsoleInterface
 
 		# Handle
 		docpad.log('error', locale.consoleError)
-		docpad.error(err, 'err', @destroy)
+		docpad.error(err)
+
+		# Destroy
+		@destroy()
 
 		# Chain
 		@

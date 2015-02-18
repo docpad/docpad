@@ -58,6 +58,7 @@ class FileModel extends Model
 
 	# Locale
 	locale: null
+	getLocale: -> @locale
 
 	# Get Options
 	# @TODO: why does this not use the isOption way?
@@ -298,7 +299,7 @@ class FileModel extends Model
 	# opts = {path, to, from, content}
 	encode: (opts) ->
 		# Prepare
-		locale = @locale
+		locale = @getLocale()
 		result = opts.content
 		opts.to ?= 'utf8'
 		opts.from ?= 'utf8'
@@ -738,7 +739,7 @@ class FileModel extends Model
 		[opts,next] = extractOptsAndCallback(opts,next)
 		changes = {}
 		meta = @getMeta()
-		locale = @locale
+		locale = @getLocale()
 
 		# App specified
 		filename = opts.filename or @get('filename') or null
@@ -932,7 +933,7 @@ class FileModel extends Model
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
 		file = @
-		locale = @locale
+		locale = @getLocale()
 
 		# Fetch
 		opts.path      or= file.get('outPath')
@@ -1000,7 +1001,7 @@ class FileModel extends Model
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
 		file = @
-		locale = @locale
+		locale = @getLocale()
 
 		# Fetch
 		opts.path      or= file.get('outPath')

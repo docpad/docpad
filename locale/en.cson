@@ -120,6 +120,7 @@
 	actionStart: "Performing the action %s"
 	actionFinished: "Performed the action %s"
 	actionNonexistant: "The action %s does not exist"
+	actionEmpty: "No action was provided"
 
 	# Plugins
 	pluginFailedToLoad: "Failed to load the plugin: %s at %s"

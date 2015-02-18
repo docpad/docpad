@@ -1154,12 +1154,6 @@ class DocPad extends EventEmitterGrouped
 		@actionRunnerInstance = TaskGroup.create('action runner').whenDone (err) ->
 			docpad.error(err)  if err
 
-		# Create our error runner
-		@errorRunnerInstance = TaskGroup.create('error runner').whenDone (err) ->
-			if err and docpad.getDebugging()
-				locale = docpad.getLocale()
-				docpad.log('warn', locale.reportError+' '+locale.errorFollows+' '+(err.stack ? err.message).toString())
-
 		# Create our track runner
 		@trackRunnerInstance = TaskGroup.create('track runner').whenDone (err) ->
 			if err and docpad.getDebugging()
@@ -1316,6 +1310,8 @@ class DocPad extends EventEmitterGrouped
 
 		# Destroy Regenerate Timer
 		docpad.destroyRegenerateTimer()
+
+		# @TODO: We should wait for the track runner to complete if it has tasks and is running
 
 		# Destroy Plugins
 		docpad.emitSerial 'docpadDestroy', (err) ->
@@ -2206,7 +2202,9 @@ class DocPad extends EventEmitterGrouped
 		return @  unless err
 
 		# Handle
-		@error err, 'err', ->
+		@error err, null, ->
+			# Even though the error would have already been logged by the above
+			# Ensureis definitely outputted in the case the above fails
 			process.stderr.write docpad.inspect(err.stack or err.message)
 			docpad.destroy()
 
@@ -2228,61 +2226,88 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Handle an error
-	error: (err,type='err',next) ->
+	# Create an error
+	createError: (err, opts) ->
+		# Prepare
+		opts ?= {}
+		opts.level ?= err.level ? 'error'
+		opts.track ?= err.track ? true
+		opts.tracked ?= err.tracked ? false
+		opts.log ?= err.log ? true
+		opts.logged ?= err.logged ? false
+
+		# Ensure we have an error object
+		err = new Error(err)  unless err.stack
+
+		# Add our options to the error object
+		for own key,value of opts
+			err[key] ?= value
+
+		# Return the error
+		return err
+
+	# Create an error (tracks it) and log it
+	error: (err, level='err') ->
 		# Prepare
 		docpad = @
-		locale = @getLocale()
 
-		# Check if we have already logged this error
-		if !err or err.logged
-			next?()
-		else
-			# Log the error only if it hasn't been logged already
-			err.logged = true
-			err = new Error(err)  unless err.message?
-			err.logged = true
-			message = (err.stack ? err.message).toString().trim()
-			docpad.log(type, locale.errorOccured, '\n'+message)
-			docpad.log('error', locale.errorSubmission)
-			docpad.notify(err.message, title:locale.errorOccured)
+		# Create the error and track it
+		err = @createError(err, {level})
 
-			# Track
-			@trackError(err, next)
+		# Track the error
+		@trackError(err)
+
+		# Log the error
+		@logError(err)
 
 		# Chain
 		@
 
-	# Track error
-	trackError: (err,next) ->
+	# Log an error
+	logError: (err) ->
+		# Prepare
+		docpad = @
+		locale = @getLocale()
+
+		# Track
+		if err and err.log isnt false and err.logged isnt true
+			err = @createError(err, {logged:true})
+			message = (err.stack).toString().trim()
+			docpad.log(err.level, locale.errorOccured, '\n'+message)
+			docpad.log('error', locale.errorSubmission)
+			docpad.notify(err.message, title:locale.errorOccured)
+
+		# Chain
+		@
+
+	# Track an error in the background
+	trackError: (err) ->
 		# PRepare
 		docpad = @
 		config = @getConfig()
 
 		# Track
-		if config.offline is false and config.reportErrors
+		if err and err.track isnt false and err.tracked isnt true and config.offline is false and config.reportErrors is true
+			err = @createError(err, {tracked:true})
 			data = {}
-			data.message = err.message
+			data.message = err.message ? err
 			data.stack = err.stack.toString()  if err.stack
 			data.config = config
 			data.env = process.env
-			docpad.track('error', data, next)
-		else
-			setImmediate ->  # avoid zalgo
-				next?()
+			docpad.track('error', data)
 
 		# Chain
 		@
 
 	# Handle a warning
-	warn: (message,err,next) ->
+	warn: (message,err) ->
 		# Prepare
 		docpad = @
 		locale = @getLocale()
 
 		# Log
 		docpad.log('warn', message)
-		docpad.error(err, 'warn', next)  if err
+		docpad.error(err, 'warn')  if err
 		docpad.notify(message, title:locale.warnOccured)
 
 		# Chain
@@ -4499,20 +4524,39 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
+	# Skeleton Empty?
+	skeletonEmpty: (path, next) ->
+		# Prepare
+		locale = @getLocale()
+
+		# Defaults
+		path ?= @getConfig().rootPath
+
+		# Check the destination path is empty
+		safefs.exists pathUtil.join(path, 'package.json'), (exists) ->
+			# Check
+			if exists
+				err = new Error(locale.skeletonExists)
+				return next(err)
+
+			# Success
+			return next()
+
+		# Chain
+		@
+
+
 	# Skeleton
 	skeleton: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
-		config = @getConfig()
 		opts.selectSkeletonCallback ?= null
 
-		# Don't do anything if the src path exists
-		safefs.exists config.srcPath, (exists) ->
+		# Init the directory with the basic skeleton
+		@skeletonEmpty null, (err) ->
 			# Check
-			if exists
-				err = new Error(locale.skeletonExists)
-				return next(err)
+			return next(err)  if err
 
 			# Select Skeleton
 			docpad.selectSkeleton opts, (err,skeletonModel) ->
@@ -4530,17 +4574,13 @@ class DocPad extends EventEmitterGrouped
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
-		locale = @getLocale()
-		config = @getConfig()
 
-		# Don't do anything if the src path exists
-		safefs.exists config.srcPath, (exists) ->
+		# Init the directory with the basic skeleton
+		@skeletonEmpty null, (err) ->
 			# Check
-			if exists
-				err = new Error(locale.skeletonExists)
-				return next(err)
+			return next(err)  if err
 
-			# No Skeleton
+			# Basic Skeleton
 			docpad.useSkeleton(null, next)
 
 		# Chain
