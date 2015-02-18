@@ -1,5 +1,17 @@
 # History
 
+## v6.71.0 February 18, 2015
+- Updated `docpad-debug` to work with latest debugging tools
+- Fixed `TypeError: Object #<CSON> has no method 'parseCSON'` error when parsing user configuration
+	- Thanks to [Kasper Souren](https://github.com/guaka) for [pull request #921](https://github.com/docpad/docpad/issues/921) and [issue #917](https://github.com/docpad/docpad/issues/917)
+- Fixed secondary URL redirect
+	- Thanks to [shawnzhu](https://github.com/shawnzhu) for [pull request #905](https://github.com/docpad/docpad/pull/905) and [issue #850](https://github.com/docpad/docpad/issues/850)
+- Fixed incorrect writing of user configuration
+	- Thanks to [Pavan Gupta](https://github.com/pavangupta) for [pull request #922](https://github.com/docpad/docpad/pull/922)
+- DocPad will now output most things with colours when it is able to
+	- Thanks to [Zearin](https://github.com/Zearin) for [pull request #834](https://github.com/docpad/docpad/pull/834)
+
+
 ## v6.70.1 February 12, 2015
 - We now output `localhost` instead of `0.0.0.0`
 	- Thanks to [paleite](https://github.com/paleite) and [Stephen Brown II](https://github.com/StephenBrown2) for [issue #911](https://github.com/docpad/docpad/issues/911)
