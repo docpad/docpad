@@ -733,10 +733,20 @@ class DocPad extends EventEmitterGrouped
 
 	# Load Locale
 	loadLocale: (code) ->
+		# Check if it exists
 		localeFilename = "#{code}.cson"
 		localePath = pathUtil.join(@localePath, localeFilename)
 		return null  unless safefs.existsSync(localePath)
+
+		# Load it
 		locale = CSON.parseCSONFile(localePath)
+
+		# Log the error in the background and continue
+		if locale instanceof Error
+			docpad.error(locale)
+			return null
+
+		# Success
 		return locale
 
 
