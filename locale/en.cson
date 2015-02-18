@@ -235,6 +235,13 @@
 	welcomeEnvironment: "Environment: %s"
 	includeFailed: "Could not include the file at path %s as we could not find it"
 	encodingLoadFailed: "Could not load the libraries required for encoding detection"
+	pluginIssueTracker: "the plugin's issue tracker"
+	pluginUncompiled: """
+		The plugin %s is using uncompiled CoffeeScript files.
+		  While this is okay for local development, it could cause issues in the future when the plugin is published.
+		  You should post this warning at %s so the plugin author can address this.
+		  For more information, visit: http://docpad.org/plugin-uncompiled
+		"""
 	warnOccured: "A warning occured:"
 	errorOccured: "An error occured:"
 	errorSubmission: "To report the above error, follow the guide at: http://docpad.org/bug-report"

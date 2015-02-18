@@ -196,6 +196,11 @@ class PluginLoader
 		docpad = @docpad
 		locale = docpad.getLocale()
 
+		# Ensure we still have deprecated support for old-style uncompiled plugins
+		if pathUtil.extname(@pluginPath) is '.coffee'
+			require('coffee-script/register')
+			docpad.log 'notice', util.format(locale.pluginUncompiled, @pluginName, @packageData.bugs?.url or locale.pluginIssueTracker)
+
 		# Load
 		try
 			# Load in our plugin
