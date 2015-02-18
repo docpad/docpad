@@ -1,8 +1,6 @@
 # History
 
-## v6.71.0 February 18, 2015
-The pull request edition! Huge thanks to our extended community for all their awesome code reviews and pull requests.
-
+## v6.71.0 February 19, 2015
 - Updated `docpad-debug` to work with latest debugging tools
 - DocPad will now output most things with colours when it is able to
 	- Thanks to [Zearin](https://github.com/Zearin) for [pull request #834](https://github.com/docpad/docpad/pull/834)
