@@ -11,7 +11,6 @@
 - DocPad will now output most things with colours when it is able to
 	- Thanks to [Zearin](https://github.com/Zearin) for [pull request #834](https://github.com/docpad/docpad/pull/834)
 
-
 ## v6.70.1 February 12, 2015
 - We now output `localhost` instead of `0.0.0.0`
 	- Thanks to [paleite](https://github.com/paleite) and [Stephen Brown II](https://github.com/StephenBrown2) for [issue #911](https://github.com/docpad/docpad/issues/911)
