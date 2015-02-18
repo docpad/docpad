@@ -2905,19 +2905,22 @@ class DocPad extends EventEmitterGrouped
 			fileAction: false
 
 			# Handle directories
-			dirAction: (fileFullPath,fileRelativePath,_nextFile) ->
+			dirAction: (fileFullPath,fileRelativePath,nextFile) ->
 				# Prepare
 				pluginName = pathUtil.basename(fileFullPath)
-				return _nextFile(null, false)  if fileFullPath is pluginsPath
-				nextFile = (err,skip) ->
+
+				# Delve deeper into the directory if it is a direcotry of plugins
+				return nextFile(null, false)  if fileFullPath is pluginsPath
+
+				# Otherwise, it is a plugin directory, so load the plugin
+				docpad.loadPlugin fileFullPath, (err) ->
+					# Warn about the plugin load error if there is one
 					if err
 						message = util.format(locale.pluginFailedToLoad, pluginName, fileFullPath)+' '+locale.errorFollows
 						docpad.warn(message, err)
-					return _nextFile(null, skip)
 
-				# Forward
-				docpad.loadPlugin fileFullPath, (err) ->
-					return nextFile(err, true)
+					# All done and don't recurse into this directory
+					return nextFile(null, true)
 
 			# Next
 			next: (err) ->
