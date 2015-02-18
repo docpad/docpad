@@ -1724,8 +1724,8 @@ class DocPad extends EventEmitterGrouped
 		extendr.extend(@userConfig, data)  if data
 
 		# Convert to CSON
-		result = CSON.stringify(@userConfig)
-		return next?(err)  if result instanceof Error
+		userConfigString = CSON.stringify(@userConfig)
+		return next?(err)  if userConfigString instanceof Error
 
 		# Write it
 		safefs.writeFile userConfigPath, userConfigString, 'utf8', (err) ->
