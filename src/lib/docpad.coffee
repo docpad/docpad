@@ -743,7 +743,7 @@ class DocPad extends EventEmitterGrouped
 
 		# Log the error in the background and continue
 		if locale instanceof Error
-			docpad.error(locale)
+			docpad.error(locale)  # @TODO: should this be a fatal error instead?
 			return null
 
 		# Success
@@ -1313,42 +1313,43 @@ class DocPad extends EventEmitterGrouped
 		# Destroy Regenerate Timer
 		docpad.destroyRegenerateTimer()
 
-		# @TODO: We should wait for the track runner to complete if it has tasks and is running
-
-		# Destroy Plugins
-		docpad.emitSerial 'docpadDestroy', (err) ->
-			# Check
-			return next?(err)  if err
+		# Wait one second to wait for any logging to complete
+		docpadUtil.wait 1000, ->
 
 			# Destroy Plugins
-			docpad.destroyPlugins()
+			docpad.emitSerial 'docpadDestroy', (err) ->
+				# Check
+				return next?(err)  if err
 
-			# Destroy Server
-			docpad.destroyServer()
+				# Destroy Plugins
+				docpad.destroyPlugins()
 
-			# Destroy Watchers
-			docpad.destroyWatchers()
+				# Destroy Server
+				docpad.destroyServer()
 
-			# Destroy Blocks
-			docpad.destroyBlocks()
+				# Destroy Watchers
+				docpad.destroyWatchers()
 
-			# Destroy Collections
-			docpad.destroyCollections()
+				# Destroy Blocks
+				docpad.destroyBlocks()
 
-			# Destroy Database
-			docpad.destroyDatabase()
+				# Destroy Collections
+				docpad.destroyCollections()
 
-			# Destroy Logging
-			docpad.destroyLoggers()
+				# Destroy Database
+				docpad.destroyDatabase()
 
-			# Destroy Process Listners
-			process.removeListener('uncaughtException', docpad.error)
+				# Destroy Logging
+				docpad.destroyLoggers()
 
-			# Destroy DocPad Listeners
-			docpad.removeAllListeners()
+				# Destroy Process Listners
+				process.removeListener('uncaughtException', docpad.error)
 
-			# Forward
-			return next?()
+				# Destroy DocPad Listeners
+				docpad.removeAllListeners()
+
+				# Forward
+				return next?()
 
 		# Chain
 		@
@@ -2203,11 +2204,14 @@ class DocPad extends EventEmitterGrouped
 		return @  unless err
 
 		# Handle
-		@error err, null, ->
-			# Even though the error would have already been logged by the above
-			# Ensureis definitely outputted in the case the above fails
-			process.stderr.write docpad.inspect(err.stack or err.message)
-			docpad.destroy()
+		@error(err)
+
+		# Even though the error would have already been logged by the above
+		# Ensure it is definitely outputted in the case the above fails
+		process.stderr.write(err.stack or err.message or err)
+
+		# Destroy DocPad
+		@destroy()
 
 		# Chain
 		@
@@ -2378,7 +2382,7 @@ class DocPad extends EventEmitterGrouped
 
 			# Check
 			if res.body?.success is false or res.body?.error
-				err = new Error(res.body.error or 'unknown request error')
+				err = new Error(res.body.error or 'unknown request error')  # @TODO localise this
 				return next(err, res)
 
 			# Success
@@ -2410,7 +2414,7 @@ class DocPad extends EventEmitterGrouped
 					.timeout(30*1000)
 					.end @checkRequest next
 			else
-				err = new Error('Email not provided')
+				err = new Error('Email not provided')  # @TODO localise this
 				next?(err)
 		else
 			next?()

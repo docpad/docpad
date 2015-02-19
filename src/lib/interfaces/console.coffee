@@ -11,6 +11,9 @@ safeps = require('safeps')
 extendr = require('extendr')
 promptly = require('promptly')
 
+# Local
+docpadUtil = require('../util')
+
 
 # =====================================
 # Classes
@@ -261,7 +264,7 @@ class ConsoleInterface
 		locale = docpad.getLocale()
 
 		# Error?
-		process.stderr.write(docpad.inspect(err.stack or err.message or err))  if err
+		docpadUtil.writeError(err)  if err
 
 		# Log Shutdown
 		docpad.log('info', locale.consoleShutdown)
@@ -269,7 +272,7 @@ class ConsoleInterface
 		# Destroy docpad
 		docpad.destroy (err) ->
 			# Error?
-			process.stderr.write(docpad.inspect(err.stack or err.message or err))  if err
+			docpadUtil.writeError(err)  if err
 
 			# don't force exit, it should occur naturally
 

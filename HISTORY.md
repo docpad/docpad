@@ -1,5 +1,10 @@
 # History
 
+## v6.72.1 February 20, 2015
+- Fixed possibility of DocPad not exiting on exiting on a error
+- More robust error writing
+- jshint compliance
+
 ## v6.72.0 February 20, 2015
 - Fixed fetching of skeletons (regression since v6.70.0)
 	- Thanks to [Kasper Souren](https://github.com/guaka) for [issue #930](https://github.com/docpad/docpad/issues/930)
@@ -7,7 +12,7 @@
 	- Thanks to [Dimitar Kolev-Dick](https://github.com/dimitarkolev) for [issue #928](https://github.com/docpad/docpad/issues/928)
 - Added better warnings when loading a plugin fails for whatever reason
 - Better reporting of warnings
-- We now pass coffeelint tests
+- coffelint compliance
 - Updated dependencies
 
 ## v6.71.1 February 19, 2015

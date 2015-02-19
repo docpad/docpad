@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+"use strict";
 
 // Prefix our docpad executable with the node debug and profile flags
 // and suffix docpad with it's profile flag

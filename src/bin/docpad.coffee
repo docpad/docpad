@@ -14,6 +14,9 @@ if process.versions.node.indexOf('0') is 0 and process.versions.node.split('.')[
 		process.versions.node, "0."+(process.versions.node.split('.')[1]-1), "http://docpad.org/unstable-node"
 	)
 
+# Prepare
+docpadUtil = require('../lib/util')
+
 
 # ---------------------------------
 # Check for Local DocPad Installation
@@ -22,9 +25,6 @@ checkDocPad = ->
 	# Skip if we explcitly want to use the global installation
 	if '--global' in process.argv or '--g' in process.argv
 		return startDocPad()
-
-	# Prepare
-	docpadUtil = require('../lib/util')
 
 	# Skip if we are already the local installation
 	if docpadUtil.isLocalDocPadExecutable()
@@ -57,12 +57,12 @@ startDocPad = ->
 	# Create DocPad Instance
 	DocPad.createInstance {action}, (err,docpad) ->
 		# Check
-		return process.stderr.write(err.stack or err.message or err)  if err
+		return docpadUtil.writeError(err)  if err
 
 		# Create Console Interface
 		new ConsoleInterface {docpad}, (err,consoleInterface) ->
 			# Check
-			return process.stderr.write(err.stack or err.message or err)  if err
+			return docpadUtil.writeError(err)  if err
 
 			# Start
 			consoleInterface.start()

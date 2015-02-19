@@ -14,6 +14,17 @@ _ = require('lodash')
 # =====================================
 # Export
 module.exports = docpadUtil =
+	# Write to stderr
+	writeStderr: (data) ->
+		(process.stderr or process.stdin).write(data)
+
+	# Write an error
+	writeError: (error) ->
+		docpadUtil.writeStderr(err.stack.toString() or err.message or err)
+
+	# Wait
+	wait: (time, fn) -> setTimeout(fn, time)
+
 	# Inspect
 	inspect: (obj, opts) ->
 		# Prepare
@@ -55,7 +66,7 @@ module.exports = docpadUtil =
 					next(err)
 				else
 					message = 'An error occured within the child DocPad instance: '+err.message+'\n'
-					process.stderr.write(message)
+					docpadUtil.writeStderr(message)
 			else
 				next?()
 

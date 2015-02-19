@@ -3,6 +3,7 @@
 
 # Local
 DocPad = require('../lib/docpad')
+docpadUtil = require('../lib/util')
 
 
 # ---------------------------------
@@ -35,12 +36,12 @@ docpadConfig.port = (->
 # Create DocPad Instance
 DocPad.createInstance docpadConfig, (err,docpad) ->
 	# Check
-	return process.stderr.write(err.stack or err.message or err)  if err
+	return docpadUtil.writeError(err)  if err
 
 	# Generate and Serve
 	docpad.action action, (err) ->
 		# Check
-		return process.stderr.write(err.stack or err.message or err)  if err
+		return docpadUtil.writeError(err)  if err
 
 		# Done
 		console.log('OK')
