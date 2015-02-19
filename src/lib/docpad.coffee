@@ -91,6 +91,34 @@ setImmediate = global?.setImmediate or process.nextTick  # node 0.8 b/c
 # The DocPad Class
 # Extends https://github.com/bevry/event-emitter-grouped
 class DocPad extends EventEmitterGrouped
+	# Self Reference
+	klass: DocPad
+	@DocPad: DocPad  # Legacy API reasons, in case they did `require('docpad').DocPad` to get access to the class
+
+	# Allow for `DocPad.create()` as an alias for `new DocPad()`
+	@create: (args...) -> new DocPad(args...)
+	@createInstance: (args...) -> DocPad.create(args...)  # Legacy alias for DocPad.create
+
+	# Require a local DocPad file
+	# Before v6.73.0 this allowed requiring of files inside src/lib, as well as files inside src
+	# Now it only allows requiring of files inside src/lib as that makes more sense
+	@require: (relativePath) ->
+		# Absolute the path
+		absolutePath = pathUtil.normalize(pathUtil.join(__dirname, relativePath))
+
+		# Check if we are actually a local docpad file
+		if absolutePath.replace(__dirname, '') is absolutePath
+			throw new Error("docpad.require is limited to local docpad files only: #{relativePath}")
+
+		# Require the path
+		return require(absolutePath)
+
+	# Libraries
+	@Backbone: Backbone
+	@queryEngine: queryEngine
+	# ^ This is here instead of below for legacy reasons
+	# As prior to v6.73.0, they were exported to require('docpad') via src/main.coffee - which now no longer exists
+
 
 	# =================================
 	# Variables
@@ -4946,14 +4974,5 @@ class DocPad extends EventEmitterGrouped
 
 # ---------------------------------
 # Export
-module.exports =
-	# Modules
-	DocPad: DocPad
-	queryEngine: queryEngine
-	Backbone: Backbone
 
-	# Create Instance
-	# Wrapper for creating a DocPad instance
-	# good for future compatibility in case the API changes
-	createInstance: (args...) ->
-		return new DocPad(args...)
+module.exports = DocPad

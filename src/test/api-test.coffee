@@ -49,7 +49,7 @@ joe.suite 'docpad-api', (suite,test) ->
 
 	# Create a DocPad Instance
 	test 'createInstance', (done) ->
-		docpad = require('../main').createInstance(docpadConfig, done)
+		docpad = require('../lib/docpad').create(docpadConfig, done)
 
 	# Instantiate Files
 	suite 'models', (suite,test) ->

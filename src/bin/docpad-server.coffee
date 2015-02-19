@@ -34,7 +34,7 @@ docpadConfig.port = (->
 
 # ---------------------------------
 # Create DocPad Instance
-DocPad.createInstance docpadConfig, (err,docpad) ->
+new DocPad docpadConfig, (err,docpad) ->
 	# Check
 	return docpadUtil.writeError(err)  if err
 

@@ -48,7 +48,7 @@ joe.suite 'docpad-custom-server', (suite,test) ->
 			serverHttp: serverHttp = require('http').createServer(serverExpress).listen(port)
 		serverExpress.get '/hello', (req,res) ->
 			res.send(200, 'hello world')
-		docpad = require('../main').createInstance(docpadConfig, done)
+		docpad = require('../lib/docpad').createInstance(docpadConfig, done)
 
 	# Run Server Action
 	test 'server action', (done) ->

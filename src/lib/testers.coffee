@@ -5,7 +5,6 @@
 pathUtil = require('path')
 
 # External
-{extendOnClass} = require('extendonclass')
 safefs = require('safefs')
 balUtil = require('bal-util')
 extendr = require('extendr')
@@ -37,8 +36,8 @@ testers = {
 # Plugin Tester
 testers.PluginTester =
 class PluginTester
-	# Add support for PluginTester.extend(proto)
-	@extend: extendOnClass
+	# Add support for BasePlugin.extend(proto)
+	@extend: require('csextends')
 
 	# Plugin Config
 	config:
@@ -118,7 +117,7 @@ class PluginTester
 
 		# Create Instance
 		@test "create", (done) ->
-			DocPad.createInstance docpadConfig, (err, docpad) ->
+			new DocPad docpadConfig, (err, docpad) ->
 				return done(err)  if err
 				tester.docpad = docpad
 

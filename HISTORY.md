@@ -1,5 +1,9 @@
 # History
 
+## v6.73.0 February 20, 2015
+- Got rid of the `main.coffee`/`main.js` file, our new main file is the DocPad class itself `lib/docpad`
+- Updated dependencies
+
 ## v6.72.1 February 20, 2015
 - Fixed possibility of DocPad not exiting on exiting on a error
 - More robust error writing

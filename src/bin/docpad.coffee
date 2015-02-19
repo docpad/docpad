@@ -55,7 +55,7 @@ startDocPad = ->
 			false
 
 	# Create DocPad Instance
-	DocPad.createInstance {action}, (err,docpad) ->
+	new DocPad {action}, (err,docpad) ->
 		# Check
 		return docpadUtil.writeError(err)  if err
 
