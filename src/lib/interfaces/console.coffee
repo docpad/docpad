@@ -315,7 +315,7 @@ class ConsoleInterface
 			return consoleInterface.destroy()  if stayAlive is false
 
 		# Load
-		docpad.action 'load ready', opts.instanceConfig, (err) =>
+		docpad.action 'load ready', opts.instanceConfig, (err) ->
 			# Check
 			return completeAction(err)  if err
 

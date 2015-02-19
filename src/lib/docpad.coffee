@@ -174,7 +174,7 @@ class DocPad extends EventEmitterGrouped
 	getLoggers: -> @loggerInstances
 	setLoggers: (loggers) ->
 		if @loggerInstances
-			@warn('Loggers have already been set')
+			@warn @getLocale().loggersAlreadyDefined
 		else
 			@loggerInstances = loggers
 			@loggerInstances.logger.setConfig(dry:true)
@@ -454,7 +454,7 @@ class DocPad extends EventEmitterGrouped
 	# Remove the query string from a url
 	# Pathname convention taken from document.location.pathname
 	getUrlPathname: (url) ->
-		 return url.replace(/\?.*/,'')
+		return url.replace(/\?.*/,'')
 
 	# Get a file by its route
 	# next(err,file)
@@ -835,6 +835,9 @@ class DocPad extends EventEmitterGrouped
 		# Whether or not we should skip unsupported plugins
 		skipUnsupportedPlugins: true
 
+		# Whether or not to warn about uncompiled private plugins
+		warnUncompiledPrivatePlugins: true
+
 		# Configuration to pass to any plugins pluginName: pluginConfiguration
 		plugins: {}
 
@@ -1158,7 +1161,7 @@ class DocPad extends EventEmitterGrouped
 		@trackRunnerInstance = TaskGroup.create('track runner').whenDone (err) ->
 			if err and docpad.getDebugging()
 				locale = docpad.getLocale()
-				docpad.log('warn', locale.trackError+' '+locale.errorFollows+' '+(err.stack ? err.message).toString())
+				docpad.warn(locale.trackError, err)
 
 		# Initialize the loggers
 		if (loggers = instanceConfig.loggers)
@@ -1180,7 +1183,7 @@ class DocPad extends EventEmitterGrouped
 			loggers = {logger, console:loggerConsole}
 
 		# Apply the loggers
-		safefs.unlink(@debugLogPath, ->)  # Remove the old debug log file
+		safefs.unlink(@debugLogPath, -> )  # Remove the old debug log file
 		@setLoggers(loggers)  # Apply the logger streams
 		@setLogLevel(@initialConfig.logLevel)  # Set the default log level
 
@@ -1271,8 +1274,7 @@ class DocPad extends EventEmitterGrouped
 							# We have a conflict, let the user know
 							modelPath = model.get('fullPath') or (model.get('relativePath')+':'+model.id)
 							existingModelPath = existingModel.get('fullPath') or (existingModel.get('relativePath')+':'+existingModel.id)
-							message =  util.format(docpad.getLocale().outPathConflict, outPath, modelPath, existingModelPath)
-							docpad.warn(message)
+							docpad.warn util.format(docpad.getLocale().outPathConflict, outPath, modelPath, existingModelPath)
 						else
 							# There reference was old, update it with our new one
 							docpad.filesByOutPath[outPath] = model.id
@@ -1765,7 +1767,7 @@ class DocPad extends EventEmitterGrouped
 				return next(err)  if err
 
 				# Read the string using CSON
-				result = CSON.parseCSONString(res.text)
+				result = CSON.parse(res.text, {filename:configUrl.replace(/\?.*/, '')})
 				return next?(result)  if result instanceof Error
 				return next(null, result)
 
@@ -1957,7 +1959,7 @@ class DocPad extends EventEmitterGrouped
 
 					# Check the type of the collection
 					else unless collection instanceof QueryCollection
-						docpad.log 'warn', util.format(locale.errorInvalidCollection, name)
+						docpad.warn util.format(locale.errorInvalidCollection, name)
 						return complete()
 
 					# Make it a live collection
@@ -2226,6 +2228,10 @@ class DocPad extends EventEmitterGrouped
 		@
 
 	# Create an error
+	# @TODO: Decide whether or not we should track warnings
+	# Previously we didn't, but perhaps it would be useful
+	# If the statistics gets polluted after a while, we will remove it
+	# Ask @balupton to check the stats after March 30th 2015
 	createError: (err, opts) ->
 		# Prepare
 		opts ?= {}
@@ -2234,6 +2240,9 @@ class DocPad extends EventEmitterGrouped
 		opts.tracked ?= err.tracked ? false
 		opts.log ?= err.log ? true
 		opts.logged ?= err.logged ? false
+		opts.notify ?= err.notify ? true
+		opts.notified ?= err.notified ? false
+		opts.context ?= err.context  if err.context?
 
 		# Ensure we have an error object
 		err = new Error(err)  unless err.stack
@@ -2259,6 +2268,9 @@ class DocPad extends EventEmitterGrouped
 		# Log the error
 		@logError(err)
 
+		# Notify the error
+		@notifyError(err)
+
 		# Chain
 		@
 
@@ -2271,17 +2283,26 @@ class DocPad extends EventEmitterGrouped
 		# Track
 		if err and err.log isnt false and err.logged isnt true
 			err = @createError(err, {logged:true})
-			message = (err.stack).toString().trim()
-			docpad.log(err.level, locale.errorOccured, '\n'+message)
-			docpad.log('error', locale.errorSubmission)
-			docpad.notify(err.message, title:locale.errorOccured)
+			occured =
+				if err.level in ['warn', 'warning']
+					locale.warnOccured
+				else
+					locale.errorOccured
+			message =
+				if err.context
+					err.context+locale.errorFollows
+				else
+					occured
+			message += '\n\n'+err.stack.toString().trim()
+			message += '\n\n'+locale.errorSubmission
+			docpad.log(err.level, message)
 
 		# Chain
 		@
 
 	# Track an error in the background
 	trackError: (err) ->
-		# PRepare
+		# Prepare
 		docpad = @
 		config = @getConfig()
 
@@ -2289,8 +2310,8 @@ class DocPad extends EventEmitterGrouped
 		if err and err.track isnt false and err.tracked isnt true and config.offline is false and config.reportErrors is true
 			err = @createError(err, {tracked:true})
 			data = {}
-			data.message = err.message ? err
-			data.stack = err.stack.toString()  if err.stack
+			data.message = err.message
+			data.stack = err.stack.toString().trim()  if err.stack
 			data.config = config
 			data.env = process.env
 			docpad.track('error', data)
@@ -2298,27 +2319,51 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Handle a warning
-	warn: (message,err) ->
+	# Notify error
+	notifyError: (err) ->
 		# Prepare
 		docpad = @
 		locale = @getLocale()
 
-		# Log
-		docpad.log('warn', message)
-		docpad.error(err, 'warn')  if err
-		docpad.notify(message, title:locale.warnOccured)
+		# Check
+		if err.notify isnt false and err.notified isnt true
+			err.notified = true
+			occured =
+				if err.level in ['warn', 'warning']
+					locale.warnOccured
+				else
+					locale.errorOccured
+			docpad.notify(err.message, {title:occured})
+
+		# Chain
+		@
+
+	# Warn
+	warn: (message, err) ->
+		# Handle
+		if err
+			err.context = message
+			err.level = 'warn'
+			@error(err)
+		else
+			err =
+				if message instanceof Error
+					message
+				else
+					new Error(message)
+			err.level = 'warn'
+			@error(err)
 
 		# Chain
 		@
 
 	# Send a notify event to plugins (like growl)
-	notify: (message,options={}) =>
+	notify: (message,opts={}) =>
 		# Prepare
 		docpad = @
 
 		# Emit
-		docpad.emitSerial 'notify', {message,options}, (err) ->
+		docpad.emitSerial 'notify', {message,opts}, (err) ->
 			docpad.error(err)  if err
 
 		# Chain
@@ -2466,7 +2511,7 @@ class DocPad extends EventEmitterGrouped
 						)
 						.send(data)
 						.timeout(30*1000)
-						.end docpad.checkRequest (err) =>
+						.end docpad.checkRequest (err) ->
 							# Save the changes with these
 							docpad.updateUserConfig(identified:true)
 
@@ -2476,7 +2521,7 @@ class DocPad extends EventEmitterGrouped
 			# Or an existing user?
 			else
 				# Update the existing user's information witht he latest
-				docpad.getTrackRunner().addTask 'update user', (complete) =>
+				docpad.getTrackRunner().addTask 'update user', (complete) ->
 					superAgent
 						.post(config.helperUrl)
 						.type('json').set('Accept', 'application/json')
@@ -2565,6 +2610,15 @@ class DocPad extends EventEmitterGrouped
 
 			# Log
 			model.on 'log', (args...) ->
+				if args.length is 2
+					if args[0] in ['err', 'error']
+						docpad.error(args[1])
+						return
+
+					if args[0] in ['warn', 'warning']
+						docpad.warn(args[1])
+						return
+
 				docpad.log(args...)
 
 		# Chain
@@ -2915,8 +2969,7 @@ class DocPad extends EventEmitterGrouped
 				docpad.loadPlugin fileFullPath, (err) ->
 					# Warn about the plugin load error if there is one
 					if err
-						message = util.format(locale.pluginFailedToLoad, pluginName, fileFullPath)+' '+locale.errorFollows
-						docpad.warn(message, err)
+						docpad.warn util.format(locale.pluginFailedToLoad, pluginName, fileFullPath), err
 
 					# All done and don't recurse into this directory
 					return nextFile(null, true)
@@ -2994,7 +3047,7 @@ class DocPad extends EventEmitterGrouped
 			# Check
 			if err
 				locale = docpad.getLocale()
-				docpad.log('notice', locale.exchangeError+' '+locale.errgdorFollows, err)
+				docpad.warn(locale.exchangeError, err)
 				return next()
 
 			# Log
@@ -3116,7 +3169,7 @@ class DocPad extends EventEmitterGrouped
 		# Render Collection
 		renderCollection = (collectionToRender,{renderPass},next) ->
 			# Plugin Event
-			docpad.emitSerial 'renderCollectionBefore', {collection:collectionToRender,renderPass}, (err) =>
+			docpad.emitSerial 'renderCollectionBefore', {collection:collectionToRender,renderPass}, (err) ->
 				# Prepare
 				return next(err)  if err
 
@@ -3143,7 +3196,7 @@ class DocPad extends EventEmitterGrouped
 				return collectionToRender
 
 		# Plugin Event
-		docpad.emitSerial 'renderBefore', {collection,templateData}, (err) =>
+		docpad.emitSerial 'renderBefore', {collection,templateData}, (err) ->
 			# Prepare
 			return next(err)  if err
 
@@ -3217,7 +3270,7 @@ class DocPad extends EventEmitterGrouped
 		docpad.log 'debug', util.format(locale.writingFiles, collection.length)
 
 		# Plugin Event
-		docpad.emitSerial 'writeBefore', {collection,templateData}, (err) =>
+		docpad.emitSerial 'writeBefore', {collection,templateData}, (err) ->
 			# Prepare
 			return next(err)  if err
 
@@ -3397,7 +3450,7 @@ class DocPad extends EventEmitterGrouped
 
 		# Log
 		docpad.log('info', locale.renderGenerating)
-		docpad.notify (new Date()).toLocaleTimeString(), title: locale.renderGeneratingNotification
+		docpad.notify (new Date()).toLocaleTimeString(), {title: locale.renderGeneratingNotification}
 
 
 		# Tasks
@@ -3921,7 +3974,7 @@ class DocPad extends EventEmitterGrouped
 							performGenerate(reset:true)
 				next: (err,_watchers) ->
 					if err
-						docpad.log('warn', "Watching the reload paths has failed:", reloadPaths, err)
+						docpad.warn("Watching the reload paths has failed:\n"+docpadUtil.inspect(reloadPaths), err)
 						return complete()
 					for watcher in _watchers
 						docpad.watchers.push(watcher)
@@ -3938,7 +3991,7 @@ class DocPad extends EventEmitterGrouped
 					'change': -> performGenerate(reset:true)
 				next: (err,_watchers) ->
 					if err
-						docpad.log('warn', "Watching the regenerate paths has failed:", regeneratePaths, err)
+						docpad.warn("Watching the regenerate paths has failed:\n"+docpadUtil.inspect(regeneratePaths), err)
 						return complete()
 					for watcher in _watchers
 						docpad.watchers.push(watcher)
@@ -3955,7 +4008,7 @@ class DocPad extends EventEmitterGrouped
 					'change': changeHandler
 				next: (err,watcher) ->
 					if err
-						docpad.log('warn', "Watching the src path has failed:", srcPath, err)
+						docpad.warn("Watching the src path has failed: "+srcPath, err)
 						return complete()
 					docpad.watchers.push(watcher)
 					return complete()
@@ -4090,7 +4143,7 @@ class DocPad extends EventEmitterGrouped
 				# Check if our directory is empty
 				if files.length
 					# It isn't empty, display a warning
-					docpad.log('warn', "\n"+util.format(locale.skeletonNonexistant, rootPath))
+					docpad.warn util.format(locale.skeletonNonexistant, rootPath)
 					return next()
 				else
 					docpad.skeleton opts, (err) ->

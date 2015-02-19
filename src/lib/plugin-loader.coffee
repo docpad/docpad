@@ -77,7 +77,7 @@ class PluginLoader
 		packagePath = @packagePath or pathUtil.resolve(@dirPath, "package.json")
 		failure = (err=null) ->
 			return next(err, false)
-		success = =>
+		success = ->
 			return next(null, true)
 
 		# Check the package
@@ -198,33 +198,50 @@ class PluginLoader
 
 		# Ensure we still have deprecated support for old-style uncompiled plugins
 		if pathUtil.extname(@pluginPath) is '.coffee'
-			require('coffee-script/register')
-			docpad.log 'notice', util.format(locale.pluginUncompiled, @pluginName, @packageData.bugs?.url or locale.pluginIssueTracker)
+			# Warn the user they are trying to include an uncompiled plugin (if they want to be warned)
+			# They have the option of opting out of warnings for private plugins
+			unless @packageData.private is true and docpad.getConfig().warnUncompiledPrivatePlugins is false
+				docpad.warn util.format(locale.pluginUncompiled, @pluginName, @packageData.bugs?.url or locale.pluginIssueTracker)
 
-		# Load
+			# Attempt to include the coffee-script register extension
+			# coffee-script is an external party dependency (docpad doesn't depend on it, so we don't install it)
+			# so we may not have it, hence the try catch
+			try
+				require('coffee-script/register')
+			catch err
+				# Including coffee-script has failed, so let the user know, and exit
+				err.context = util.format(locale.pluginUncompiledFailed, @pluginName, @packageData.bugs?.url or locale.pluginIssueTracker)
+				return next(err); @
+
+
+		# Attempt to load the plugin
 		try
-			# Load in our plugin
 			@pluginClass = require(@pluginPath)(@BasePlugin)
-			@pluginClass::version ?= @pluginVersion
-			pluginPrototypeName = @pluginClass::name
-
-			# Checks
-			# Alphanumeric
-			if /^[a-z0-9]+$/.test(@pluginName) is false
-				validPluginName = @pluginName.replace(/[^a-z0-9]/,'')
-				docpad.log('warn', util.format(locale.pluginNamingConventionInvalid, @pluginName, validPluginName))
-			# Same name
-			if pluginPrototypeName is null
-				@pluginClass::name = @pluginName
-				docpad.log('warn',  util.format(locale.pluginPrototypeNameUndefined, @pluginName))
-			else if pluginPrototypeName isnt @pluginName
-				docpad.log('warn', util.format(locale.pluginPrototypeNameDifferent, @pluginName, pluginPrototypeName))
 		catch err
-			# An error occured, return it
-			return next(err, null)
+			# Loading the plugin has failed, so let the user know, and exit
+			err.context = util.format(locale.pluginLoadFailed, @pluginName, @packageData.bugs?.url or locale.pluginIssueTracker)
+			return next(err); @
+
+		# Plugin loaded, inject it's version and grab its name
+		@pluginClass::version ?= @pluginVersion
+		pluginPrototypeName = @pluginClass::name
+
+		# Check Alphanumeric Name
+		if /^[a-z0-9]+$/.test(@pluginName) is false
+			validPluginName = @pluginName.replace(/[^a-z0-9]/,'')
+			docpad.warn util.format(locale.pluginNamingConventionInvalid, @pluginName, validPluginName)
+
+		# Check for Empty Name
+		if pluginPrototypeName is null
+			@pluginClass::name = @pluginName
+			docpad.warn util.format(locale.pluginPrototypeNameUndefined, @pluginName)
+
+		# Check for Same Name
+		else if pluginPrototypeName isnt @pluginName
+			docpad.warn util.format(locale.pluginPrototypeNameDifferent, @pluginName, pluginPrototypeName)
 
 		# Return our plugin
-		next(null,@pluginClass)
+		next(null, @pluginClass)
 
 		# Chain
 		@

@@ -111,7 +111,7 @@ class DocumentModel extends FileModel
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 		buffer = @getBuffer()
-		locale = @locale
+		locale = @getLocale()
 		filePath = @getFilePath()
 
 		# Reparse the data and extract the content
@@ -201,9 +201,7 @@ class DocumentModel extends FileModel
 							err = new Error(util.format(locale.documentMissingParserError, parser, filePath))
 							return next(err)
 				catch err
-					err = new Error(
-						util.format(locale.documentParserError, parser, filePath)+' '+locale.errorFollows+' '+(err.stack ? err.message)
-					)
+					err.context = util.format(locale.documentParserError, parser, filePath)
 					return next(err)
 			else
 				body = content
@@ -386,7 +384,7 @@ class DocumentModel extends FileModel
 	renderExtensions: (opts,next) ->
 		# Prepare
 		file = @
-		locale = @locale
+		locale = @getLocale()
 		[opts,next] = extractOptsAndCallback(opts, next)
 		{content,templateData,renderSingleExtensions} = opts
 		extensions = @get('extensions')
@@ -485,7 +483,7 @@ class DocumentModel extends FileModel
 	renderLayouts: (opts,next) ->
 		# Prepare
 		file = @
-		locale = @locale
+		locale = @getLocale()
 		filePath = @getFilePath()
 		[opts,next] = extractOptsAndCallback(opts, next)
 		{content,templateData} = opts
@@ -512,9 +510,9 @@ class DocumentModel extends FileModel
 
 			# We had a layout, but it is missing
 			else if file.hasLayout()
-					layoutSelector = file.get('layout')
-					err = new Error(util.format(locale.documentMissingLayoutError, layoutSelector, filePath))
-					return next(err, content)
+				layoutSelector = file.get('layout')
+				err = new Error(util.format(locale.documentMissingLayoutError, layoutSelector, filePath))
+				return next(err, content)
 
 			# We never had a layout
 			else
@@ -528,7 +526,7 @@ class DocumentModel extends FileModel
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
 		file = @
-		locale = @locale
+		locale = @getLocale()
 
 		# Prepare variables
 		contentRenderedWithoutLayouts = null
@@ -565,7 +563,7 @@ class DocumentModel extends FileModel
 		tasks = new TaskGroup "render tasks for: #{relativePath}", next:(err) ->
 			# Error?
 			if err
-				file.log 'warn', util.format(locale.documentRenderError, filePath)+' '+locale.errorFollows+' '+(err.stack or err.message)
+				err.context = util.format(locale.documentRenderError, filePath)
 				return next(err, opts.content, file)
 
 			# Attributes

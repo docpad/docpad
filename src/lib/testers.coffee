@@ -124,12 +124,8 @@ class PluginTester
 
 				# init docpad in case the plugin is starting from scratch
 				tester.docpad.action 'init', (err) ->
-					if err
-						if err.message is tester.docpad.getLocale().skeletonExists
-							# ignore the error, as this is expected
-						else
-							# care about the error
-							return done(err)
+					if err and err.message isnt tester.docpad.getLocale().skeletonExists
+						return done(err)  # care about the error providing it isn't the skeleton exists error
 
 					# clean up the docpad out directory
 					tester.docpad.action 'clean', (err) ->

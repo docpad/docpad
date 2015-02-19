@@ -239,13 +239,21 @@
 	pluginIssueTracker: "the plugin's issue tracker"
 	pluginUncompiled: """
 		The plugin %s is using uncompiled CoffeeScript files.
-		  While this is okay for local development, it could cause issues in the future when the plugin is published.
-		  You should post this warning at %s so the plugin author can address this.
+		  Supporting uncompiled plugins has been deprecated; only legacy support remains.
+		  You may want to report this warning to %s so the plugin author can address it.
 		  For more information, visit: http://docpad.org/plugin-uncompiled
+		"""
+	pluginUncompiledFailed: """
+		The uncompiled plugin %s failed to load as DocPad no longer has the ability to load it.
+		You may want to report this error to %s so the plugin author can address it.
+		"""
+	pluginLoadFailed: """
+		The plugin %s failed to load.
+		You may want to report this error to %s so the plugin author can address it.
 		"""
 	warnOccured: "A warning occured:"
 	errorOccured: "An error occured:"
-	errorSubmission: "To report the above error, follow the guide at: http://docpad.org/bug-report"
+	errorSubmission: "To report the above, follow the guide at: http://docpad.org/bug-report"
 	errorLoggedTo: "Error has been logged to: %s"
 	errorFollows: "\nThe error follows:"
 	errorInvalidCollection: "The custom collection %s is not a valid collection instance"
@@ -265,4 +273,5 @@
 		"""
 	versionOutdatedNotification: "New version of DocPad!"
 	startLocal: "Shutting down the global DocPad, and starting up the local"
+	loggersAlreadyDefined: "Loggers have already been defined"
 }

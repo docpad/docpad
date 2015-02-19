@@ -1,9 +1,18 @@
 # History
 
+## v6.72.0 February 20, 2015
+- Fixed fetching of skeletons (regression since v6.70.0)
+	- Thanks to [Kasper Souren](https://github.com/guaka) for [issue #930](https://github.com/docpad/docpad/issues/930)
+- Added the ability to uncompiled warn warnings off for private plugins by setting `warnUncompiledPrivatePlugins` to `false`
+	- Thanks to [Dimitar Kolev-Dick](https://github.com/dimitarkolev) for [issue #928](https://github.com/docpad/docpad/issues/928)
+- Added better warnings when loading a plugin fails for whatever reason
+- Better reporting of warnings
+- We now pass coffeelint tests
+- Updated dependencies
+
 ## v6.71.1 February 19, 2015
 - Output `127.0.0.1` as the hostname when IPv6 addresses `::` and `::1` are reported
 - Output `127.0.0.1` as the hostname instead of `localhost` when `0.0.0.0` is reported
-
 
 ## v6.71.0 February 19, 2015
 - Updated `docpad-debug` to work with latest debugging tools

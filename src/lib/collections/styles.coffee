@@ -32,7 +32,7 @@ class StylesCollection extends ElementsCollection
 		for value,key in values
 			if typeChecker.isString(value)
 				if value[0] is '<'
-					# we are an element already, don't bother doing anything
+					continue  # we are an element already, don't bother doing anything
 				else if value.indexOf(' ') is -1
 					# we are a url
 					values[key] = """
