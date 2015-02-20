@@ -1695,6 +1695,7 @@ class DocPad extends EventEmitterGrouped
 	# next(err,config)
 	load: (instanceConfig,next) ->
 		# Prepare
+		console.log('sup')
 		[instanceConfig,next] = extractOptsAndCallback(instanceConfig,next)
 		docpad = @
 		locale = @getLocale()
