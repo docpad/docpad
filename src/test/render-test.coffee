@@ -55,11 +55,15 @@ joe.suite 'docpad-render', (suite,test) ->
 					return done(err)  if err
 					expected = input.stdout
 					actual = stdout.trim()
-					testUtil.expect(
-						actual
-						expected
-						'output'
-					)
+					try
+						testUtil.expect(
+							actual
+							expected
+							'output'
+						)
+					catch err
+						console.log 'travis error:', err
+						return done(err)
 					return done()
 
 	suite 'stdin', (suite,test) ->
