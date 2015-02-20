@@ -50,6 +50,9 @@ joe.suite 'docpad-api', (suite,test) ->
 
 	# Create a DocPad Instance
 	suite 'create', (suite,test) ->
+		test 'output configuration', ->
+			console.log 'Creating DocPad with the configuration:\n'+require('../lib/util').inspect(docpadConfig)
+
 		test 'create DocPad instance without an action', (done) ->
 			docpad = require('../lib/docpad').create(docpadConfig, done)
 
