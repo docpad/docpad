@@ -118,6 +118,7 @@ joe.suite 'docpad-render', (suite,test) ->
 				outPath: pathUtil.join(outPath,'outpath-render.html')
 			}
 			safeps.spawnCommand 'node', [cliPath, 'render', 'markdown', '-o', input.outPath], {stdin:input.in,cwd:rootPath,output:false}, (err,stdout,stderr,code,signal) ->
+				console.log {err, stdout, stderr, code, signal}
 				return done(err)  if err
 				testUtil.expect(
 					stdout
