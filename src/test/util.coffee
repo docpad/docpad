@@ -11,7 +11,7 @@ module.exports = testUtil =
 		try
 			expect(actual, name).to.equal(expected)
 		catch err
-			console.log 'actual:', docpadUtil.inspect(actual), 'expected:', docpadUtil.inspect(expected)
+			docpadUtil.writeStderr 'actual:\n'+docpadUtil.inspect(actual)+'\n\nexpected:\n'+docpadUtil.inspect(expected)
 			throw err
 
 	# Expect Deep
@@ -19,5 +19,5 @@ module.exports = testUtil =
 		try
 			expect(actual, name).to.deep.equal(expected)
 		catch err
-			console.log 'actual:', docpadUtil.inspect(actual), 'expected:', docpadUtil.inspect(expected)
+			docpadUtil.writeStderr 'actual:\n'+docpadUtil.inspect(actual)+'\n\nexpected:\n'+docpadUtil.inspect(expected)
 			throw err

@@ -62,8 +62,7 @@ joe.suite 'docpad-render', (suite,test) ->
 							'output'
 						)
 					catch err
-						console.log 'travis error:', err
-						return done(err)
+						return done(err)  # @TODO: Figure out why this is needed
 					return done()
 
 	suite 'stdin', (suite,test) ->
