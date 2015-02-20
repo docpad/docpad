@@ -155,7 +155,7 @@
     "scandirectory": "^2.5.0",
     "semver": "^4.3.0",
     "superagent": "~0.21.0",
-    "taskgroup": "~4.2.0",
+    "taskgroup": "~4.2.1",
     "typechecker": "~2.0.8",
     "watchr": "~2.4.13",
     "yamljs": "~0.2.1"

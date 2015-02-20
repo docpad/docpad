@@ -23,7 +23,7 @@ module.exports = docpadUtil =
 
 	# Write an error
 	writeError: (error) ->
-		docpadUtil.writeStderr(err.stack.toString() or err.message or err)
+		docpadUtil.writeStderr(err.stack?.toString?() or err.message or err)
 
 	# Wait
 	wait: (time, fn) -> setTimeout(fn, time)
