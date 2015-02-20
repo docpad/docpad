@@ -689,7 +689,7 @@ class ConsoleInterface
 
 				# Path
 				if commander.out?
-					safefs.writeFile(commander.out, result, next)
+					safefs.writeFile(commander.out, result, complete)
 
 				# Stdout
 				else
