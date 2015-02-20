@@ -22,7 +22,7 @@ module.exports = docpadUtil =
 			process.stdout.write(data)
 
 	# Write an error
-	writeError: (error) ->
+	writeError: (err) ->
 		docpadUtil.writeStderr(err.stack?.toString?() or err.message or err)
 
 	# Wait
