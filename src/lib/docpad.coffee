@@ -1695,36 +1695,25 @@ class DocPad extends EventEmitterGrouped
 	# next(err,config)
 	load: (instanceConfig,next) ->
 		# Prepare
-		console.log(1)
 		[instanceConfig,next] = extractOptsAndCallback(instanceConfig,next)
-		console.log(2)
 		docpad = @
-		console.log(3)
 		locale = @getLocale()
-		console.log(4)
 		instanceConfig or= {}
-		console.log(5)
 
 		# Reset non persistant configurations
 		@websitePackageConfig = {}
-		console.log(6)
 		@websiteConfig = {}
-		console.log(7)
 		@config = {}
-		console.log(8)
 
 		# Merge in the instance configurations
 		@setInstanceConfig(instanceConfig)
-		console.log(9)
 
 		# Prepare the Load Tasks
 		preTasks = new @TaskGroup 'load tasks', next:(err) =>
 			return next(err)  if err
 			return @setConfig(next)
 
-		console.log(10)
 		preTasks.addTask 'normalize the userConfigPath', (complete) =>
-			console.log(18)
 			safeps.getHomePath (err,homePath) =>
 				return complete(err)  if err
 				dropboxPath = pathUtil.resolve(homePath, 'Dropbox')
@@ -1735,9 +1724,7 @@ class DocPad extends EventEmitterGrouped
 					@userConfigPath = pathUtil.resolve(userConfigDirPath, @userConfigPath)
 					return complete()
 
-		console.log(11)
 		preTasks.addTask "load the user's configuration", (complete) =>
-			console.log(19)
 			configPath = @userConfigPath
 			docpad.log 'debug', util.format(locale.loadingUserConfig, configPath)
 			@loadConfigPath {configPath}, (err,data) =>
@@ -1750,16 +1737,14 @@ class DocPad extends EventEmitterGrouped
 				docpad.log 'debug', util.format(locale.loadingUserConfig, configPath)
 				return complete()
 
-		console.log(12)
 		preTasks.addTask "load the anonymous user's configuration", (complete) =>
-			console.log(20)
 			# Ignore if username is already identified
 			return complete()  if @userConfig.username
 
 			# User is anonymous, set their username to the hashed and salted mac address
 			require('getmac').getMac (err,macAddress) =>
 				if err or !macAddress
-					docpad.warn(locale, err)
+					docpad.warn(locale.macError, err)
 					return complete()
 
 				# Hash with salt
@@ -1776,9 +1761,7 @@ class DocPad extends EventEmitterGrouped
 				# Next
 				return complete()
 
-		console.log(13)
 		preTasks.addTask "load the website's package data", (complete) =>
-			console.log(21)
 			rootPath = pathUtil.resolve(@instanceConfig.rootPath or @initialConfig.rootPath)
 			configPath = pathUtil.resolve(rootPath, @instanceConfig.packagePath or @initialConfig.packagePath)
 			docpad.log 'debug', util.format(locale.loadingWebsitePackageConfig, configPath)
@@ -1793,9 +1776,7 @@ class DocPad extends EventEmitterGrouped
 				docpad.log 'debug', util.format(locale.loadedWebsitePackageConfig, configPath)
 				return complete()
 
-		console.log(14)
 		preTasks.addTask "read the .env file if it exists", (complete) =>
-			console.log(22)
 			rootPath = pathUtil.resolve(@instanceConfig.rootPath or @websitePackageConfig.rootPath or @initialConfig.rootPath)
 			configPath = pathUtil.resolve(rootPath, '.env')
 			docpad.log 'debug', util.format(locale.loadingEnvConfig, configPath)
@@ -1808,9 +1789,7 @@ class DocPad extends EventEmitterGrouped
 					docpad.log 'debug', util.format(locale.loadingEnvConfig, configPath)
 					return complete()
 
-		console.log(15)
 		preTasks.addTask "load the website's configuration", (complete) =>
-			console.log(23)
 			docpad.log 'debug', util.format(locale.loadingWebsiteConfig)
 			rootPath = pathUtil.resolve(@instanceConfig.rootPath or @initialConfig.rootPath)
 			configPaths = @instanceConfig.configPaths or @initialConfig.configPaths
@@ -1827,10 +1806,8 @@ class DocPad extends EventEmitterGrouped
 				docpad.log 'debug', util.format(locale.loadedWebsiteConfig)
 				return complete()
 
-		console.log(16)
 		# Run the load tasks synchronously
 		preTasks.run()
-		console.log(17)
 
 		# Chain
 		@

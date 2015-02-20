@@ -57,7 +57,7 @@ joe.suite 'docpad-api', (suite,test) ->
 			docpad = require('../lib/docpad').create(docpadConfig, done)
 
 		test 'load action', (done) ->
-			docpad.load(done)
+			docpad.action('load', done)
 
 		test 'ready action', (done) ->
 			docpad.action('ready', done)
