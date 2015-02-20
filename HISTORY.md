@@ -1,5 +1,9 @@
 # History
 
+## v6.73.2 February 20, 2015
+- If an error occurs during the initialisation actions, DocPad will only suicide if there was no completion callback to handle the error
+- More robust way of writing errors in case `stderr` doesn't exist or isn't writeable
+
 ## v6.73.1 February 20, 2015
 - Fixed DocPad creation via API returning `2` (regression since v6.71.0)
 	- For some reason, having `DocPad::inspect` defined broke it, as such `DocPad::inspect` is now `DocPad::inspector`

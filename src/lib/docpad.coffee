@@ -1328,8 +1328,10 @@ class DocPad extends EventEmitterGrouped
 		# Check if we want to perform an action
 		if action
 			@action action, instanceConfig, (err) ->
-				return docpad.fatal(err)  if err
-				next?(null, docpad)
+				if next?
+					next(err, docpad)
+				else if err
+					docpad.fatal(err)
 		else
 			next?(null, docpad)
 
@@ -2242,7 +2244,7 @@ class DocPad extends EventEmitterGrouped
 
 		# Even though the error would have already been logged by the above
 		# Ensure it is definitely outputted in the case the above fails
-		process.stderr.write(err.stack or err.message or err)
+		docpadUtil.writeError(err)
 
 		# Destroy DocPad
 		@destroy()

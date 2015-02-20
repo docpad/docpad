@@ -241,22 +241,6 @@ class ConsoleInterface
 	getCommander: =>
 		@commander
 
-	# Destroy with Error
-	destroyWithError: (err) =>
-		# Prepare
-		docpad = @docpad
-		locale = docpad.getLocale()
-
-		# Handle
-		docpad.log('error', locale.consoleError)
-		docpad.error(err)
-
-		# Destroy
-		@destroy()
-
-		# Chain
-		@
-
 	# Destroy
 	destroy: (err) =>
 		# Prepare
@@ -309,7 +293,9 @@ class ConsoleInterface
 			locale = docpad.getLocale()
 
 			# Handle the error
-			return consoleInterface.destroyWithError(err)  if err
+			if err
+				docpad.log('error', locale.consoleSuccess)
+				return docpad.fatal(err)
 
 			# Success
 			docpad.log('info', locale.consoleSuccess)
@@ -696,30 +682,34 @@ class ConsoleInterface
 
 		# Render
 		useStdin = true
-		renderDocument = ->
+		renderDocument = (complete) ->
 			# Perform the render
 			docpad.action 'render', renderOpts, (err,result) ->
-				return docpad.fatal(err)  if err
+				return complete(err)  if err
+
 				# Path
 				if commander.out?
 					safefs.writeFile(commander.out, result, next)
+
 				# Stdout
 				else
 					process.stdout.write(result)
-					return next()
+					return complete()
 
 		# Timeout if we don't have stdin
-		timeoutFunction = ->
+		timeout = docpadUtil.wait 1000, (complete) ->
 			# Clear timeout
 			timeout = null
+
 			# Skip if we are using stdin
-			return  if data.replace(/\s+/,'')
+			return complete()  if data.replace(/\s+/,'')
+
 			# Close stdin as we are not using it
 			useStdin = false
 			stdin.pause()
+
 			# Render the document
-			renderDocument()
-		timeout = setTimeout(timeoutFunction, 1000)
+			renderDocument(complete)
 
 		# Read stdin
 		stdin = process.stdin
@@ -733,7 +723,7 @@ class ConsoleInterface
 				clearTimeout(timeout)
 				timeout = null
 			renderOpts.data = data
-			renderDocument()
+			renderDocument(next)
 
 		@
 

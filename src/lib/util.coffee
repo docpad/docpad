@@ -16,7 +16,10 @@ _ = require('lodash')
 module.exports = docpadUtil =
 	# Write to stderr
 	writeStderr: (data) ->
-		(process.stderr or process.stdin).write(data)
+		try
+			process.stderr.write(data)
+		catch err
+			process.stdout.write(data)
 
 	# Write an error
 	writeError: (error) ->
