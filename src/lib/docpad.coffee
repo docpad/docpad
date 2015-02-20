@@ -1168,6 +1168,17 @@ class DocPad extends EventEmitterGrouped
 				tasks = @
 
 				# Listen to executing tasks and output their progress
+				tasks.on 'item.add', (item) ->
+					config = tasks.getConfig()
+					name = item.getNames()
+					progress = config.progress
+					if progress
+						totals = tasks.getTotals()
+						progress.step(name).total(totals.total).setTick(totals.completed)
+					else
+						docpad.log('debug', name+' > added')
+
+				# Listen to executing tasks and output their progress
 				tasks.on 'item.started', (item) ->
 					config = tasks.getConfig()
 					name = item.getNames()
@@ -1176,7 +1187,7 @@ class DocPad extends EventEmitterGrouped
 						totals = tasks.getTotals()
 						progress.step(name).total(totals.total).setTick(totals.completed)
 					else
-						docpad.log('debug', name+': started')
+						docpad.log('debug', name+' > started')
 
 				# Listen to executing tasks and output their progress
 				tasks.on 'item.done', (item, err) ->
@@ -1187,7 +1198,7 @@ class DocPad extends EventEmitterGrouped
 						totals = tasks.getTotals()
 						progress.step(name).total(totals.total).setTick(totals.completed)
 					else
-						docpad.log('debug', name+': done')
+						docpad.log('debug', name+' > done')
 
 				# Chain
 				@
