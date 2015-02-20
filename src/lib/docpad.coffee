@@ -96,8 +96,9 @@ class DocPad extends EventEmitterGrouped
 	@DocPad: DocPad  # Legacy API reasons, in case they did `require('docpad').DocPad` to get access to the class
 
 	# Allow for `DocPad.create()` as an alias for `new DocPad()`
-	@create: (args...) -> new DocPad(args...)
-	@createInstance: (args...) -> DocPad.create(args...)  # Legacy alias for DocPad.create
+	# Allow for `DocPad.createInstance()` as an alias for `new DocPad()` (legacy alias)
+	@create: (instanceConfig, next) -> new DocPad(instanceConfig, next)
+	@createInstance: (instanceConfig, next) -> new DocPad(instanceConfig, next)
 
 	# Require a local DocPad file
 	# Before v6.73.0 this allowed requiring of files inside src/lib, as well as files inside src
@@ -217,7 +218,7 @@ class DocPad extends EventEmitterGrouped
 	# The action runner instance bound to docpad
 	actionRunnerInstance: null
 	getActionRunner: -> @actionRunnerInstance
-	action: (args...) => docpadUtil.action.apply(@, args)
+	action: (args...) -> docpadUtil.action.apply(@, args)
 
 	# The error runner instance bound to docpad
 	errorRunnerInstance: null
@@ -1024,10 +1025,10 @@ class DocPad extends EventEmitterGrouped
 		# By default it is only enabled if we are not running inside a test
 		reportStatistics: process.argv.join('').indexOf('test') is -1
 
-		# No Color
+		# Color
 		# Whether or not our terminal output should have color
 		# `null` will default to what the terminal supports
-		noColor: null
+		color: null
 
 
 		# -----------------------------
@@ -1161,7 +1162,12 @@ class DocPad extends EventEmitterGrouped
 
 		# Binders
 		# Using this over coffescript's => on class methods, ensures that the method length is kept
-		for methodName in 'log error warn trackError checkRequest subscribe track identify serverMiddlewareRouter serverMiddlewareHeader serverMiddleware404 serverMiddleware500'.split(/\s+/)
+		for methodName in """
+			action
+			log warn error fatal inspector notify track identify subscribe checkRequest
+			serverMiddlewareRouter serverMiddlewareHeader serverMiddleware404 serverMiddleware500
+			destroyWatchers
+			""".split(/\s+/)
 			@[methodName] = @[methodName].bind(@)
 
 		# Allow DocPad to have unlimited event listeners
@@ -2224,7 +2230,7 @@ class DocPad extends EventEmitterGrouped
 		return @getLogLevel() is 7
 
 	# Handle a fatal error
-	fatal: (err) =>
+	fatal: (err) ->
 		docpad = @
 		config = @getConfig()
 
@@ -2245,13 +2251,14 @@ class DocPad extends EventEmitterGrouped
 		@
 
 	# Inspect
-	inspect: (obj, opts) ->
+	# Can't use the inspect namespace as for some silly reason it destroys everything
+	inspector: (obj, opts) ->
 		opts ?= {}
-		opts.colors ?= @getConfig().noColor
+		opts.colors ?= @getConfig().color
 		return docpadUtil.inspect(obj, opts)
 
 	# Log
-	log: (args...) =>
+	log: (args...) ->
 		# Log
 		logger = @getLogger() or console
 		logger.log.apply(logger, args)
@@ -2390,7 +2397,7 @@ class DocPad extends EventEmitterGrouped
 		@
 
 	# Send a notify event to plugins (like growl)
-	notify: (message,opts={}) =>
+	notify: (message,opts={}) ->
 		# Prepare
 		docpad = @
 
@@ -3958,7 +3965,7 @@ class DocPad extends EventEmitterGrouped
 	watchers: null
 
 	# Destroy Watchers
-	destroyWatchers: =>
+	destroyWatchers: ->
 		# Prepare
 		docpad = @
 
@@ -4006,7 +4013,7 @@ class DocPad extends EventEmitterGrouped
 							performGenerate(reset:true)
 				next: (err,_watchers) ->
 					if err
-						docpad.warn("Watching the reload paths has failed:\n"+docpadUtil.inspect(reloadPaths), err)
+						docpad.warn("Watching the reload paths has failed:\n"+docpad.inspector(reloadPaths), err)
 						return complete()
 					for watcher in _watchers
 						docpad.watchers.push(watcher)
@@ -4023,7 +4030,7 @@ class DocPad extends EventEmitterGrouped
 					'change': -> performGenerate(reset:true)
 				next: (err,_watchers) ->
 					if err
-						docpad.warn("Watching the regenerate paths has failed:\n"+docpadUtil.inspect(regeneratePaths), err)
+						docpad.warn("Watching the regenerate paths has failed:\n"+docpad.inspector(regeneratePaths), err)
 						return complete()
 					for watcher in _watchers
 						docpad.watchers.push(watcher)

@@ -1,5 +1,12 @@
 # History
 
+## v6.73.1 February 20, 2015
+- Fixed DocPad creation via API returning `2` (regression since v6.71.0)
+	- For some reason, having `DocPad::inspect` defined broke it, as such `DocPad::inspect` is now `DocPad::inspector`
+- Fixed double binding of some prototype methods
+- Simpler `DocPad.create` and `DocPad.createInstance` functions
+- The `--no-color` option now works (introduced in v6.71.0)
+
 ## v6.73.0 February 20, 2015
 - Got rid of the `main.coffee`/`main.js` file, our new main file is the DocPad class itself `lib/docpad`
 - Updated dependencies

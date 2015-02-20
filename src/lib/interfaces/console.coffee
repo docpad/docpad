@@ -63,7 +63,7 @@ class ConsoleInterface
 				locale.consoleOptionForce
 			)
 			.option(
-				'--no-color'
+				'--no-color'  # commander translates this to the `color` option for us
 				locale.consoleOptionNoColor
 			)
 			.option(
@@ -640,7 +640,7 @@ class ConsoleInterface
 
 	info: (next) =>
 		docpad = @docpad
-		info = docpad.inspect(docpad.config)
+		info = docpad.inspector(docpad.config)
 		console.log(info)
 		next()
 		@
