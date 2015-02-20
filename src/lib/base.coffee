@@ -22,6 +22,10 @@ emit = (args...) ->
 # =====================================
 # Classes
 
+
+# -------------------------------------
+# Backbone
+
 # Events
 class Events
 	log: log
@@ -83,6 +87,6 @@ QueryCollection::model = Model
 QueryCollection::collection = QueryCollection
 
 
-# ---------------------------------
+# =====================================
 # Export our base models
 module.exports = {queryEngine,Backbone,Events,Model,Collection,View,QueryCollection}

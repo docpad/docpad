@@ -92,13 +92,12 @@ setImmediate = global?.setImmediate or process.nextTick  # node 0.8 b/c
 # Extends https://github.com/bevry/event-emitter-grouped
 class DocPad extends EventEmitterGrouped
 	# Self Reference
-	klass: DocPad
 	@DocPad: DocPad  # Legacy API reasons, in case they did `require('docpad').DocPad` to get access to the class
 
 	# Allow for `DocPad.create()` as an alias for `new DocPad()`
 	# Allow for `DocPad.createInstance()` as an alias for `new DocPad()` (legacy alias)
-	@create: (instanceConfig, next) -> new DocPad(instanceConfig, next)
-	@createInstance: (instanceConfig, next) -> new DocPad(instanceConfig, next)
+	@create: (args...) -> return new @(args...)
+	@createInstance: (args...) -> return new @(args...)
 
 	# Require a local DocPad file
 	# Before v6.73.0 this allowed requiring of files inside src/lib, as well as files inside src
@@ -1160,6 +1159,39 @@ class DocPad extends EventEmitterGrouped
 		[instanceConfig,next] = extractOptsAndCallback(instanceConfig, next)
 		docpad = @
 
+		# Create our own custom TaskGroup class for DocPad
+		# That will listen to tasks as they execute and provide debugging information
+		@TaskGroup = class extends TaskGroup
+			constructor: ->
+				# Prepare
+				super
+				tasks = @
+
+				# Listen to executing tasks and output their progress
+				tasks.on 'item.started', (item) ->
+					config = tasks.getConfig()
+					name = item.getNames()
+					progress = config.progress
+					if progress
+						totals = tasks.getTotals()
+						progress.step(name).total(totals.total).setTick(totals.completed)
+					else
+						docpad.log('debug', name+': started')
+
+				# Listen to executing tasks and output their progress
+				tasks.on 'item.done', (item, err) ->
+					config = tasks.getConfig()
+					name = item.getNames()
+					progress = config.progress
+					if progress
+						totals = tasks.getTotals()
+						progress.step(name).total(totals.total).setTick(totals.completed)
+					else
+						docpad.log('debug', name+': done')
+
+				# Chain
+				@
+
 		# Binders
 		# Using this over coffescript's => on class methods, ensures that the method length is kept
 		for methodName in """
@@ -1188,11 +1220,11 @@ class DocPad extends EventEmitterGrouped
 					next()
 
 		# Create our action runner
-		@actionRunnerInstance = TaskGroup.create('action runner').whenDone (err) ->
+		@actionRunnerInstance = @TaskGroup.create('action runner').whenDone (err) ->
 			docpad.error(err)  if err
 
 		# Create our track runner
-		@trackRunnerInstance = TaskGroup.create('track runner').whenDone (err) ->
+		@trackRunnerInstance = @TaskGroup.create('track runner').whenDone (err) ->
 			if err and docpad.getDebugging()
 				locale = docpad.getLocale()
 				docpad.warn(locale.trackError, err)
@@ -1493,7 +1525,7 @@ class DocPad extends EventEmitterGrouped
 		docpad.log 'info', util.format(locale.welcomeEnvironment, @getEnvironment())
 
 		# Prepare
-		tasks = new TaskGroup 'ready tasks', next:(err) ->
+		tasks = new @TaskGroup 'ready tasks', next:(err) ->
 			# Error?
 			return docpad.error(err)  if err
 
@@ -1607,7 +1639,7 @@ class DocPad extends EventEmitterGrouped
 			@on('error', @error)
 
 		# Prepare the Post Tasks
-		postTasks = new TaskGroup 'setConfig post tasks', next:(err) ->
+		postTasks = new @TaskGroup 'setConfig post tasks', next:(err) ->
 			return next(err, docpad.config)
 
 		###
@@ -1655,7 +1687,7 @@ class DocPad extends EventEmitterGrouped
 		@setInstanceConfig(instanceConfig)
 
 		# Prepare the Load Tasks
-		preTasks = new TaskGroup 'load tasks', next:(err) =>
+		preTasks = new @TaskGroup 'load tasks', next:(err) =>
 			return next(err)  if err
 			return @setConfig(next)
 
@@ -1866,7 +1898,7 @@ class DocPad extends EventEmitterGrouped
 		opts.configPaths ?= config.configPaths
 		opts.configPaths = [opts.configPaths]  unless typeChecker.isArray(opts.configPaths)
 
-		tasks = new TaskGroup 'getConfigPath tasks', next:(err) ->
+		tasks = new @TaskGroup 'getConfigPath tasks', next:(err) ->
 			return next(err, result)
 
 		# Determine our configuration path
@@ -1980,7 +2012,7 @@ class DocPad extends EventEmitterGrouped
 		})
 
 		# Custom Collections Group
-		tasks = new TaskGroup "extendCollections tasks", concurrency:0, next:(err) ->
+		tasks = new @TaskGroup "extendCollections tasks", concurrency:0, next:(err) ->
 			docpad.error(err)  if err
 			docpad.emitSerial('extendCollections', next)
 
@@ -2854,7 +2886,7 @@ class DocPad extends EventEmitterGrouped
 			docpad.log 'notice', util.format(locale.pluginsSlow, Object.keys(docpad.slowPlugins).join(', '))
 
 		# Async
-		tasks = new TaskGroup "loadPlugins tasks", concurrency:0, next:(err) ->
+		tasks = new @TaskGroup "loadPlugins tasks", concurrency:0, next:(err) ->
 			docpad.slowPlugins = {}
 			snore.clear()
 			return next(err)
@@ -3129,7 +3161,7 @@ class DocPad extends EventEmitterGrouped
 			return next(err)  if err
 
 			# Completion callback
-			tasks = new TaskGroup "contextualizeFiles tasks", concurrency:0, next:(err) ->
+			tasks = new docpad.TaskGroup "contextualizeFiles tasks", concurrency:0, next:(err) ->
 				# Kill the timer
 				clearInterval(slowFilesTimer)
 				slowFilesTimer = null
@@ -3214,7 +3246,7 @@ class DocPad extends EventEmitterGrouped
 				# Prepare
 				return next(err)  if err
 
-				subTasks = new TaskGroup "renderCollection: #{collectionToRender.options.name}", concurrency:0, next:(err) ->
+				subTasks = new docpad.TaskGroup "renderCollection: #{collectionToRender.options.name}", concurrency:0, next:(err) ->
 					# Prepare
 					return next(err)  if err
 
@@ -3242,7 +3274,7 @@ class DocPad extends EventEmitterGrouped
 			return next(err)  if err
 
 			# Async
-			tasks = new TaskGroup "renderCollection: renderBefore tasks", next:(err) ->
+			tasks = new docpad.TaskGroup "renderCollection: renderBefore tasks", next:(err) ->
 				# Kill the timer
 				clearInterval(slowFilesTimer)
 				slowFilesTimer = null
@@ -3316,7 +3348,7 @@ class DocPad extends EventEmitterGrouped
 			return next(err)  if err
 
 			# Completion callback
-			tasks = new TaskGroup "writeFiles tasks", concurrency:0, next:(err) ->
+			tasks = new docpad.TaskGroup "writeFiles tasks", concurrency:0, next:(err) ->
 				# Kill the timer
 				clearInterval(slowFilesTimer)
 				slowFilesTimer = null
@@ -3344,7 +3376,7 @@ class DocPad extends EventEmitterGrouped
 					slowFilesObject[file.id] = file.get('relativePath')
 
 					# Create sub tasks
-					fileTasks = new TaskGroup "tasks for file write: #{filePath}", concurrency:0, next:(err) ->
+					fileTasks = new docpad.TaskGroup "tasks for file write: #{filePath}", concurrency:0, next:(err) ->
 						delete slowFilesObject[file.id]
 						opts.progress?.tick()
 						return complete(err)
@@ -3493,55 +3525,46 @@ class DocPad extends EventEmitterGrouped
 		docpad.log('info', locale.renderGenerating)
 		docpad.notify (new Date()).toLocaleTimeString(), {title: locale.renderGeneratingNotification}
 
-
 		# Tasks
-		tasks = new TaskGroup("generate tasks")
+		tasks = new @TaskGroup("generate tasks", {progress: opts.progress}).done (err) ->
+			# Update generating flag
+			docpad.generating = false
+			docpad.generateEnded = new Date()
 
-			.on('item.run', (item) ->
-				totals = tasks.getTotals()
-				opts.progress?.step("generate: #{item.getConfig().name}").total(totals.total).setTick(totals.completed)
-			)
+			# Update caches
+			docpad.databaseTempCache = null
 
-			.done((err) ->
-				# Update generating flag
-				docpad.generating = false
-				docpad.generateEnded = new Date()
+			# Create Regenerate Timer
+			docpad.createRegenerateTimer()
 
-				# Update caches
-				docpad.databaseTempCache = null
+			# Clear Progress
+			if opts.progress
+				docpad.destroyProgress(opts.progress)
+				opts.progress = null
 
-				# Create Regenerate Timer
-				docpad.createRegenerateTimer()
+			# Error?
+			return next(err)  if err
 
-				# Clear Progress
-				if opts.progress
-					docpad.destroyProgress(opts.progress)
-					opts.progress = null
+			# Log success message
+			seconds = (docpad.generateEnded - docpad.generateStarted) / 1000
+			howMany = "#{opts.collection?.length or 0}/#{database.length}"
+			docpad.log 'info', util.format(locale.renderGenerated, howMany, seconds)
+			docpad.notify (new Date()).toLocaleTimeString(), {title: locale.renderGeneratedNotification}
 
-				# Error?
-				return next(err)  if err
+			# Generated
+			if opts.initial is true
+				docpad.generated = true
+				return docpad.emitSerial('generated', opts, next)
 
-				# Log success message
-				seconds = (docpad.generateEnded - docpad.generateStarted) / 1000
-				howMany = "#{opts.collection?.length or 0}/#{database.length}"
-				docpad.log 'info', util.format(locale.renderGenerated, howMany, seconds)
-				docpad.notify (new Date()).toLocaleTimeString(), {title: locale.renderGeneratedNotification}
+			# Safety check if generated is false but initial was false too
+			# https://github.com/bevry/docpad/issues/811
+			else if docpad.generated is false
+				return next(
+					new Error('DocPad is in an invalid state, please report this on the github issue tracker. Reference 3360')
+				)
 
-				# Generated
-				if opts.initial is true
-					docpad.generated = true
-					return docpad.emitSerial('generated', opts, next)
-
-				# Safety check if generated is false but initial was false too
-				# https://github.com/bevry/docpad/issues/811
-				else if docpad.generated is false
-					return next(
-						new Error('DocPad is in an invalid state, please report this on the github issue tracker. Reference 3360')
-					)
-
-				else
-					return next()
-			)
+			else
+				return next()
 
 		# Extract functions from tasks for simplicity
 		# when dealing with nested tasks/groups
@@ -3999,7 +4022,7 @@ class DocPad extends EventEmitterGrouped
 			docpad.destroyWatchers()
 
 			# Start a group
-			tasks = new TaskGroup("watch tasks", {concurrency:0, next})
+			tasks = new docpad.TaskGroup("watch tasks", {concurrency:0, next})
 
 			# Watch reload paths
 			reloadPaths = _.union(config.reloadPaths, config.configPaths)
@@ -4221,7 +4244,7 @@ class DocPad extends EventEmitterGrouped
 		config = @getConfig()
 
 		# Tasks
-		tasks = new TaskGroup("initInstall tasks", {concurrency:0, next})
+		tasks = new @TaskGroup("initInstall tasks", {concurrency:0, next})
 
 		tasks.addTask "node modules", (complete) ->
 			path = pathUtil.join(config.rootPath, 'node_modules')
@@ -4265,7 +4288,7 @@ class DocPad extends EventEmitterGrouped
 		config = @getConfig()
 
 		# Tasks
-		tasks = new TaskGroup("uninstall tasks", {next})
+		tasks = new @TaskGroup("uninstall tasks", {next})
 
 		# Uninstall a plugin
 		if opts.plugin
@@ -4298,7 +4321,7 @@ class DocPad extends EventEmitterGrouped
 		config = @getConfig()
 
 		# Tasks
-		tasks = new TaskGroup("install tasks", {next})
+		tasks = new @TaskGroup("install tasks", {next})
 
 		tasks.addTask "init the installation", (complete) ->
 			docpad.initInstall(opts, complete)
@@ -4356,7 +4379,7 @@ class DocPad extends EventEmitterGrouped
 		config = @getConfig()
 
 		# Tasks
-		tasks = new TaskGroup("update tasks", {next})
+		tasks = new @TaskGroup("update tasks", {next})
 
 		tasks.addTask "init the install", (complete) ->
 			docpad.initInstall(opts, complete)
@@ -4417,7 +4440,7 @@ class DocPad extends EventEmitterGrouped
 		docpad.log('info', locale.renderCleaning)
 
 		# Tasks
-		tasks = new TaskGroup "clean tasks", {concurrency:0}, next:(err) ->
+		tasks = new @TaskGroup "clean tasks", {concurrency:0}, next:(err) ->
 			# Error?
 			return next(err)  if err
 
@@ -4461,7 +4484,7 @@ class DocPad extends EventEmitterGrouped
 		opts.destinationPath ?= config.rootPath
 
 		# Tasks
-		tasks = new TaskGroup("initSkeleton tasks", {next})
+		tasks = new @TaskGroup("initSkeleton tasks", {next})
 
 		tasks.addTask "ensure the path we are writing to exists", (complete) ->
 			safefs.ensurePath(opts.destinationPath, complete)
@@ -4874,7 +4897,7 @@ class DocPad extends EventEmitterGrouped
 		# @TODO: Why do we do opts here instead of config???
 
 		# Tasks
-		tasks = new TaskGroup("server tasks", {next})
+		tasks = new @TaskGroup("server tasks", {next})
 
 		# Before Plugin Event
 		tasks.addTask "emit serverBefore", (complete) ->
