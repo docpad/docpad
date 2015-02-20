@@ -10,6 +10,10 @@ safeps = require('safeps')
 {expect} = require('chai')
 joe = require('joe')
 
+# Local
+docpadUtil = require('../lib/util')
+testUtil = require('./util')
+
 
 # =====================================
 # Configuration
@@ -50,7 +54,11 @@ joe.suite 'docpad-render', (suite,test) ->
 					return done(err)  if err
 					expected = input.stdout
 					actual = stdout.trim()
-					expect(actual).to.equal(expected)
+					testUtil.expect(
+						actual
+						expected
+						'output'
+					)
 					return done()
 
 	suite 'stdin', (suite,test) ->
@@ -95,7 +103,11 @@ joe.suite 'docpad-render', (suite,test) ->
 				safeps.spawnCommand 'node', command, {stdin:input.stdin,cwd:rootPath,output:false}, (err,stdout,stderr,code,signal) ->
 					return done(err)  if err
 					return done()  if input.error and stdout.indexOf(input.error)
-					expect(stdout.trim()).to.equal(input.stdout)
+					testUtil.expect(
+						stdout.trim()
+						input.stdout
+						'output'
+					)
 					done()
 
 		# Works with out path
@@ -107,9 +119,16 @@ joe.suite 'docpad-render', (suite,test) ->
 			}
 			safeps.spawnCommand 'node', [cliPath, 'render', 'markdown', '-o', input.outPath], {stdin:input.in,cwd:rootPath,output:false}, (err,stdout,stderr,code,signal) ->
 				return done(err)  if err
-				expect(stdout).to.equal('')
+				testUtil.expect(
+					stdout
+					''
+				)
 				safefs.readFile input.outPath, (err,data) ->
 					return done(err)  if err
 					result = data.toString()
-					expect(result.trim()).to.equal(input.out)
+					testUtil.expect(
+						result.trim()
+						input.out
+						'output'
+					)
 					done()

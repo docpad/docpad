@@ -15,18 +15,8 @@ _ = require('lodash')
 
 # Local
 DocPad = require('../lib/docpad')
-docpadUtil = require('../lib/util')
+testUtil = require('./util')
 
-
-# =====================================
-# Test Heleprs
-
-expectDeep = (argsActual, argsExpected) ->
-	try
-		expect(argsActual).to.deep.equal(argsExpected)
-	catch err
-		inspect 'actual:', docpadUtil.inspect(argsActual), 'expected:', docpadUtil.inspect(argsExpected)
-		throw err
 
 # -------------------------------------
 # Configuration
@@ -82,11 +72,17 @@ joe.suite 'docpad-actions', (suite,test) ->
 		expected = {a:'instanceConfig', b:'instanceConfig', c:'websiteConfig'}
 		config = docpad.getConfig()
 		{a,b,c} = config
-		expectDeep({a,b,c}, expected)
+		testUtil.expectDeep(
+			{a,b,c}
+			expected
+		)
 
 		templateData = docpad.getTemplateData()
 		{a,b,c} = templateData
-		expectDeep({a,b,c}, expected)
+		testUtil.expectDeep(
+			{a,b,c}
+			expected
+		)
 
 		done()
 
@@ -116,7 +112,10 @@ joe.suite 'docpad-actions', (suite,test) ->
 					expectedString = expected.trim().replace(/\s+/g,'').replace(/([abc])[\\]+/g, '$1/')
 
 					# check equality
-					expect(actualString).to.be.equal(expectedString)
+					testUtil.expect(
+						actualString
+						expectedString
+					)
 
 			test 'same files', (done) ->
 				scandir(
@@ -200,9 +199,8 @@ joe.suite 'docpad-actions', (suite,test) ->
 				actual = res.text
 				safefs.readFile "#{expectPath}/secondary-urls.html", (err,expected) ->
 					return done(err)  if err
-					expect(
+					testUtil.expect(
 						actual.toString().trim()
-					).to.be.equal(
 						expected.toString().trim()
 					)
 					done()
@@ -220,9 +218,8 @@ joe.suite 'docpad-actions', (suite,test) ->
 				actual = res.text
 				safefs.readFile "#{expectPath}/secondary-urls.html", (err,expected) ->
 					return done(err)  if err
-					expect(
+					testUtil.expect(
 						actual.toString().trim()
-					).to.be.equal(
 						expected.toString().trim()
 					)
 					done()
@@ -232,9 +229,8 @@ joe.suite 'docpad-actions', (suite,test) ->
 				return done(err)  if err
 				actual = res.text
 				expected = 'hi ben'
-				expect(
+				testUtil.expect(
 					actual.toString().trim()
-				).to.be.equal(
 					expected
 				)
 				done()
@@ -244,9 +240,8 @@ joe.suite 'docpad-actions', (suite,test) ->
 				return done(err)  if err
 				actual = res.text
 				expected = 'hi joe'
-				expect(
+				testUtil.expect(
 					actual.toString().trim()
-				).to.be.equal(
 					expected
 				)
 				done()

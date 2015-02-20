@@ -9,6 +9,10 @@ pathUtil = require('path')
 joe = require('joe')
 superagent = require('superagent')
 
+# Local
+docpadUtil = require('../lib/util')
+testUtil = require('./util')
+
 
 # =====================================
 # Configuration
@@ -56,13 +60,25 @@ joe.suite 'docpad-custom-server', (suite,test) ->
 
 	# Test Server Binding
 	test 'server bound', (done) ->
-		expect(docpad.serverExpress, "serverExpress was bound").to.eql(serverExpress)
-		expect(docpad.serverHttp, "serverHttp was bound").to.eql(serverHttp)
+		testUtil.expect(
+			docpad.serverExpress
+			serverExpress
+			"serverExpress was bound"
+		)
+		testUtil.expect(
+			docpad.serverHttp
+			serverHttp
+			"serverHttp was bound"
+		)
 		superagent.get("http://127.0.0.1:#{port}/hello")
 			.timeout(5*1000)
 			.end (err, res) ->
 				expect(err, "no error").to.not.exist
-				expect(res.text, "server was extended correctly").to.eql('hello world')
+				testUtil.expect(
+					res.text
+					'hello world'
+					"server was extended correctly"
+				)
 				done()
 
 	# Destroy

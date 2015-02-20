@@ -8,6 +8,9 @@ pathUtil = require('path')
 {expect} = require('chai')
 joe = require('joe')
 
+# Local
+testUtil = require('./util')
+
 
 # =====================================
 # Configuration
@@ -81,8 +84,16 @@ joe.suite 'docpad-api', (suite,test) ->
 				document.on('log', console.log.bind(console))
 
 				# Checks
-				expect(document.getMeta('relativePath'), 'meta relativePath').to.eql(documentAttributes.meta.relativePath)
-				expect(document.get('relativePath'), 'attr relativePath').to.eql(documentAttributes.meta.relativePath)
+				testUtil.expect(
+					document.getMeta('relativePath')
+					documentAttributes.meta.relativePath
+					'meta relativePath'
+				)
+				testUtil.expect(
+					document.get('relativePath')
+					documentAttributes.meta.relativePath
+					'attr relativePath'
+				)
 
 			# Load
 			test 'load', (complete) ->
@@ -91,7 +102,11 @@ joe.suite 'docpad-api', (suite,test) ->
 					return complete(err)  if err
 
 					# Check
-					expect(document.getMeta('relativePath'), 'relativePath').to.eql(documentAttributes.meta.relativePath)
+					testUtil.expect(
+						document.getMeta('relativePath')
+						documentAttributes.meta.relativePath
+						'relativePath'
+					)
 
 					# Complete
 					return complete()
@@ -139,5 +154,9 @@ joe.suite 'docpad-api', (suite,test) ->
 					renderSingleExtensions: 'auto'
 				docpad.action 'render', opts, (err,result) ->
 					return done(err)  if err
-					expect(result.trim()).to.equal(input.stdout)
+					testUtil.expect(
+						result.trim()
+						input.stdout
+						'output'
+					)
 					done()
