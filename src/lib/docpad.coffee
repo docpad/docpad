@@ -1597,8 +1597,10 @@ class DocPad extends EventEmitterGrouped
 	setInstanceConfig: (instanceConfig) ->
 		# Merge in the instance configurations
 		if instanceConfig
+			logLevel = @getLogLevel()
 			extendr.safeDeepExtendPlainObjects(@instanceConfig, instanceConfig)
-			extendr.safeDeepExtendPlainObjects(@config, instanceConfig)  if @config
+			extendr.safeDeepExtendPlainObjects(@config, instanceConfig)  if @config  # @TODO document why there is the if
+			@setLogLevel(instanceConfig.logLevel)  if instanceConfig.logLevel and instanceConfig.logLevel isnt logLevel
 		@
 
 	# Set Configuration
