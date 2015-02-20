@@ -51,6 +51,7 @@ joe.suite 'docpad-render', (suite,test) ->
 				# OTHERWISE the sky falls down on scoping, seriously, it is wierd
 				command = [cliPath, 'render', pathUtil.join(renderPath,input.filename)]
 				safeps.spawnCommand 'node', command, {cwd:rootPath,output:false}, (err,stdout,stderr,code,signal) ->
+					console.log {err, stdout, stderr, code, signal}
 					return done(err)  if err
 					expected = input.stdout
 					actual = stdout.trim()
@@ -101,6 +102,7 @@ joe.suite 'docpad-render', (suite,test) ->
 				command = [cliPath, 'render']
 				command.push(input.filename)  if input.filename
 				safeps.spawnCommand 'node', command, {stdin:input.stdin,cwd:rootPath,output:false}, (err,stdout,stderr,code,signal) ->
+					console.log {err, stdout, stderr, code, signal}
 					return done(err)  if err
 					return done()  if input.error and stdout.indexOf(input.error)
 					testUtil.expect(
