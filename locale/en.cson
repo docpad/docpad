@@ -259,6 +259,7 @@
 	errorInvalidCollection: "The custom collection %s is not a valid collection instance"
 	reportError: "An error occured reporting the error"
 	trackError: "An error occured sending statistics"
+	macError: "Failed to get your computer's MAC address"
 	exchangeError: "An error occured fetching the exchange data, this is okay, but not all skeletons will be available to you"
 	unknownModelInCollection: "Unknown model structure inside the collection"
 	versionOutdatedLocal: """

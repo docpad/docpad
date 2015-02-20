@@ -1759,7 +1759,8 @@ class DocPad extends EventEmitterGrouped
 			# User is anonymous, set their username to the hashed and salted mac address
 			require('getmac').getMac (err,macAddress) =>
 				if err or !macAddress
-					return docpad.trackError(err or new Error('no mac address'), complete)
+					docpad.warn(locale, err)
+					return complete()
 
 				# Hash with salt
 				try
