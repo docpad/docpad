@@ -1273,7 +1273,7 @@ class DocPad extends EventEmitterGrouped
 		# Apply the loggers
 		safefs.unlink(@debugLogPath, -> )  # Remove the old debug log file
 		@setLoggers(loggers)  # Apply the logger streams
-		@setLogLevel(instanceConfig.logLevel or @initialConfig.logLevel)  # Set the default log level
+		@setLogLevel(instanceConfig.logLevel ? @initialConfig.logLevel)  # Set the default log level
 
 		# Log to bubbled events
 		@on 'log', (args...) ->

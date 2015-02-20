@@ -49,7 +49,7 @@ joe.suite 'docpad-render', (suite,test) ->
 			test input.filename, (done) ->
 				# IMPORTANT THAT ANY OPTIONS GO AFTER THE RENDER CALL, SERIOUSLY
 				# OTHERWISE the sky falls down on scoping, seriously, it is wierd
-				command = [cliPath, 'render', pathUtil.join(renderPath,input.filename)]
+				command = [cliPath, '--global', 'render', pathUtil.join(renderPath,input.filename)]
 				safeps.spawnCommand 'node', command, {cwd:rootPath,output:false}, (err,stdout,stderr,code,signal) ->
 					console.log {err, stdout, stderr, code, signal}
 					return done(err)  if err
@@ -102,7 +102,7 @@ joe.suite 'docpad-render', (suite,test) ->
 		]
 		inputs.forEach (input) ->
 			test input.testname, (done) ->
-				command = [cliPath, 'render']
+				command = [cliPath, '--global', 'render']
 				command.push(input.filename)  if input.filename
 				safeps.spawnCommand 'node', command, {stdin:input.stdin,cwd:rootPath,output:false}, (err,stdout,stderr,code,signal) ->
 					console.log {err, stdout, stderr, code, signal}
@@ -122,7 +122,7 @@ joe.suite 'docpad-render', (suite,test) ->
 				out: '<p><em>awesome</em></p>'
 				outPath: pathUtil.join(outPath,'outpath-render.html')
 			}
-			safeps.spawnCommand 'node', [cliPath, 'render', 'markdown', '-o', input.outPath], {stdin:input.in,cwd:rootPath,output:false}, (err,stdout,stderr,code,signal) ->
+			safeps.spawnCommand 'node', [cliPath, '--global', 'render', 'markdown', '-o', input.outPath], {stdin:input.in,cwd:rootPath,output:false}, (err,stdout,stderr,code,signal) ->
 				console.log {err, stdout, stderr, code, signal}
 				return done(err)  if err
 				testUtil.expect(
