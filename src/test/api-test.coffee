@@ -21,6 +21,7 @@ cliPath    = pathUtil.join(docpadPath, 'bin', 'docpad')
 
 # Configure DocPad
 docpadConfig =
+	action: false
 	port: 9780
 	rootPath: rootPath
 	logLevel: if (process.env.TRAVIS_NODE_VERSION? or '-d' in process.argv) then 7 else 5
@@ -48,8 +49,15 @@ docpad = null
 joe.suite 'docpad-api', (suite,test) ->
 
 	# Create a DocPad Instance
-	test 'createInstance', (done) ->
-		docpad = require('../lib/docpad').create(docpadConfig, done)
+	suite 'create', (suite,test) ->
+		test 'create DocPad instance without an action', (done) ->
+			docpad = require('../lib/docpad').create(docpadConfig, done)
+
+		test 'load action', (done) ->
+			docpad.action('load', done)
+
+		test 'ready action', (done) ->
+			docpad.action('ready', done)
 
 	# Instantiate Files
 	suite 'models', (suite,test) ->
