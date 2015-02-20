@@ -1708,6 +1708,8 @@ class DocPad extends EventEmitterGrouped
 		# Merge in the instance configurations
 		@setInstanceConfig(instanceConfig)
 
+		console.log 'travis debugging', instanceConfig, @getLogLevel()
+
 		# Prepare the Load Tasks
 		preTasks = new @TaskGroup 'load tasks', next:(err) =>
 			return next(err)  if err
