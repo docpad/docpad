@@ -187,9 +187,7 @@ module.exports = docpadUtil =
 				# If we have a completion callback, let it handle the error
 				if next
 					next(args...)
-					console.log 'travis debugging:', {args}
 					args[0] = null
-					console.log 'travis debugging:', {args}
 
 				# Continue with our runner
 				continueWithRunner(args...)

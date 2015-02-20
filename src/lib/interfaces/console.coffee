@@ -697,19 +697,19 @@ class ConsoleInterface
 					return complete()
 
 		# Timeout if we don't have stdin
-		timeout = docpadUtil.wait 1000, (complete) ->
+		timeout = docpadUtil.wait 1000, ->
 			# Clear timeout
 			timeout = null
 
 			# Skip if we are using stdin
-			return complete()  if data.replace(/\s+/,'')
+			return next()  if data.replace(/\s+/,'')
 
 			# Close stdin as we are not using it
 			useStdin = false
 			stdin.pause()
 
 			# Render the document
-			renderDocument(complete)
+			renderDocument(next)
 
 		# Read stdin
 		stdin = process.stdin
