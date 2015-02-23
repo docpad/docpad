@@ -1,5 +1,16 @@
 # History
 
+## v6.73.3 February 23, 2015
+- Improved debugging of TaskGroups
+- Fixed crash when MAC was not available (regression since v6.72.0)
+	- Fixes Travis CI problems, hopefully fixes Heroku Problems
+- Fixed changed log level configuration not applying in subsequent configuration updates (regression since always?)
+	- Fixes warnings appearing in CLI render commands (regression since always?)
+- Better `create` and `createInstance` methods (inspired from TaskGroup's)
+- Better expectation tests that now show differences
+- Fixed CLI tests using old DocPad (they now use `--global` flag) (regression since always?)
+- Updated dependencies
+
 ## v6.73.2 February 20, 2015
 - If an error occurs during the initialisation actions, DocPad will only suicide if there was no completion callback to handle the error
 - More robust way of writing errors in case `stderr` doesn't exist or isn't writeable

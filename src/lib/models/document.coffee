@@ -413,7 +413,7 @@ class DocumentModel extends FileModel
 		return next(null, result)  if extensionsReversed.length <= 1
 
 		# Prepare the tasks
-		tasks = new TaskGroup "renderExtensions: #{filePath}", next:(err) ->
+		tasks = new @TaskGroup "renderExtensions: #{filePath}", next:(err) ->
 			# Forward with result
 			return next(err, result)
 
@@ -560,7 +560,7 @@ class DocumentModel extends FileModel
 		file.log 'debug', util.format(locale.documentRender, filePath)
 
 		# Prepare the tasks
-		tasks = new TaskGroup "render tasks for: #{relativePath}", next:(err) ->
+		tasks = new @TaskGroup "render tasks for: #{relativePath}", next:(err) ->
 			# Error?
 			if err
 				err.context = util.format(locale.documentRenderError, filePath)

@@ -2792,6 +2792,7 @@ class DocPad extends EventEmitterGrouped
 			detectEncoding: config.detectEncoding
 			rootOutDirPath: config.outPath
 			locale: @getLocale()
+			TaskGroup: @TaskGroup
 		}, opts)
 
 		if opts.modelType is 'file'

@@ -37,6 +37,9 @@ class FileModel extends Model
 	# Model Type
 	type: 'file'
 
+	# Task Group Class
+	TaskGroup: null
+
 	# The out directory path to put the relative path
 	rootOutDirPath: null
 
@@ -63,11 +66,11 @@ class FileModel extends Model
 	# Get Options
 	# @TODO: why does this not use the isOption way?
 	getOptions: ->
-		return {@detectEncoding, @rootOutDirPath, @locale, @stat, @buffer, @meta}
+		return {@detectEncoding, @rootOutDirPath, @locale, @stat, @buffer, @meta, @TaskGroup}
 
 	# Is Option
 	isOption: (key) ->
-		names = ['detectEncoding', 'rootOutDirPath', 'locale', 'stat', 'data', 'buffer', 'meta']
+		names = ['detectEncoding', 'rootOutDirPath', 'locale', 'stat', 'data', 'buffer', 'meta', 'TaskGroup']
 		result = key in names
 		return result
 
@@ -87,6 +90,11 @@ class FileModel extends Model
 
 	# Set Options
 	setOptions: (attrs={}) ->
+		# TaskGroup
+		if attrs.TaskGroup?
+			@TaskGroup = attrs.TaskGroup
+			delete @attributes.TaskGroup
+
 		# Root Out Path
 		if attrs.detectEncoding?
 			@rootOutDirPath = attrs.detectEncoding
@@ -581,7 +589,7 @@ class FileModel extends Model
 			throw new Error("Use docpad.createModel to create the file or document model")
 
 		# Create our action runner
-		@actionRunnerInstance = new TaskGroup("file action runner").whenDone (err) ->
+		@actionRunnerInstance = new @TaskGroup("file action runner").whenDone (err) ->
 			file.emit('error', err)  if err
 
 		# Apply
@@ -609,7 +617,7 @@ class FileModel extends Model
 		file.setBuffer(opts.buffer)    if opts.buffer?
 
 		# Tasks
-		tasks = new TaskGroup("load tasks for file: #{filePath}", {next})
+		tasks = new @TaskGroup("load tasks for file: #{filePath}", {next})
 			.on('item.run', (item) ->
 				file.log("debug", "#{item.getConfig().name}: #{file.type}: #{filePath}")
 			)
