@@ -82,8 +82,15 @@ BasePlugin = require('./plugin')
 
 # ---------------------------------
 # Helpers
+
 corePath = pathUtil.resolve(__dirname, '..', '..')
 setImmediate = global?.setImmediate or process.nextTick  # node 0.8 b/c
+
+# ---------------------------------
+# Variables
+
+isStandaloneAndTTY = /docpad$/.test(process.argv[1] or '') and docpadUtil.isTTY()
+
 
 # =====================================
 # DocPad
@@ -1127,10 +1134,9 @@ class DocPad extends EventEmitterGrouped
 				maxAge: false
 
 				# Only do these if we are running standalone (aka not included in a module)
-				checkVersion: /docpad$/.test(process.argv[1] or '')
-				welcome: /docpad$/.test(process.argv[1] or '')
-				prompts: /docpad$/.test(process.argv[1] or '')
-
+				checkVersion: isStandaloneAndTTY
+				welcome: isStandaloneAndTTY
+				prompts: isStandaloneAndTTY
 
 	# Regenerate Timer
 	# When config.regenerateEvery is set to a value, we create a timer here

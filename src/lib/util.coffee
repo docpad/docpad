@@ -28,17 +28,22 @@ module.exports = docpadUtil =
 	# Wait
 	wait: (time, fn) -> setTimeout(fn, time)
 
+	# Is TTY
+	isTTY: ->
+		return process.stdout?.isTTY is true and process.stderr?.isTTY is true
+
 	# Inspect
 	inspect: (obj, opts) ->
 		# Prepare
 		opts ?= {}
 
-		# If the terminal doesn't support colours, then over-write whatever the user set
-		if process.stdout.isTTY is false or process.stderr.isTTY is false
-			opts.colors = false
-		else
-			# If it doesn't, and the user hasn't set anything, then default to a sensible default
+		# If the terminal supports colours, and the user hasn't set anything, then default to a sensible default
+		if docpadUtil.isTTY()
 			opts.colors ?= '--no-colors' not in process.argv
+
+		# If the terminal doesn't support colours, then over-write whatever the user set
+		else
+			opts.colors = false
 
 		# Inspect and return
 		return util.inspect(obj, opts)

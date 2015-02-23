@@ -1,5 +1,8 @@
 # History
 
+## v6.73.4 February 23, 2015
+- Only display prompts and check for updates when we are in an interactive terminal by default
+
 ## v6.73.3 February 23, 2015
 - Improved debugging of TaskGroups
 - Fixed crash when MAC was not available (regression since v6.72.0)
