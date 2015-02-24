@@ -1179,7 +1179,7 @@ class DocPad extends EventEmitterGrouped
 					name = tasks.getNames()
 					progress = config.progress
 					if progress
-						totals = tasks.getTotals()
+						totals = tasks.getItemTotals()
 						progress.step(name).total(totals.total).setTick(totals.completed)
 					else
 						docpad.log('debug', name+' > started')
@@ -1190,7 +1190,7 @@ class DocPad extends EventEmitterGrouped
 					name = item.getNames()
 					progress = config.progress
 					if progress
-						totals = tasks.getTotals()
+						totals = tasks.getItemTotals()
 						progress.step(name).total(totals.total).setTick(totals.completed)
 					else
 						docpad.log('debug', name+' > added')
@@ -1201,7 +1201,7 @@ class DocPad extends EventEmitterGrouped
 					name = item.getNames()
 					progress = config.progress
 					if progress
-						totals = tasks.getTotals()
+						totals = tasks.getItemTotals()
 						progress.step(name).total(totals.total).setTick(totals.completed)
 					else
 						docpad.log('debug', name+' > started')
@@ -1212,7 +1212,7 @@ class DocPad extends EventEmitterGrouped
 					name = item.getNames()
 					progress = config.progress
 					if progress
-						totals = tasks.getTotals()
+						totals = tasks.getItemTotals()
 						progress.step(name).total(totals.total).setTick(totals.completed)
 					else
 						docpad.log('debug', name+' > done')

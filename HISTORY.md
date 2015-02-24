@@ -1,5 +1,9 @@
 # History
 
+## v6.73.5 February 23, 2015
+- Fixed `TypeError: undefined is not a function` under some circumstances
+	- Thanks to [Dimitar Kolev-Dick](https://github.com/dimitarkolev) and [Lisa Williams](https://github.com/Lisa-Williams) for [issue #935](https://github.com/docpad/docpad/issues/935)
+
 ## v6.73.4 February 23, 2015
 - Only display prompts and check for updates when we are in an interactive terminal by default
 
