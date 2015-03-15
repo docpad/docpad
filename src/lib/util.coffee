@@ -7,7 +7,7 @@ util = require('util')
 
 # External
 _ = require('lodash')
-{extractOptsAndCallback} = require('extract-opts')
+extractOptsAndCallback = require('extract-opts')
 {TaskGroup} = require('taskgroup')
 
 

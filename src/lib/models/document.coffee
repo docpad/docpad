@@ -10,7 +10,7 @@ docpadUtil = require('../util')
 extendr = require('extendr')
 eachr = require('eachr')
 {TaskGroup} = require('taskgroup')
-{extractOptsAndCallback} = require('extract-opts')
+extractOptsAndCallback = require('extract-opts')
 
 # Local
 FileModel = require('./file')

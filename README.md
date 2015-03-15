@@ -178,6 +178,7 @@ These amazing people have contributed code to this project:
 - [Olivier Bazoud](https://github.com/obazoud) — [view contributions](https://github.com/docpad/docpad/commits?author=obazoud)
 - [Paul Armstrong](https://github.com/paularmstrong) <paul@paularmstrongdesigns.com> — [view contributions](https://github.com/docpad/docpad/commits?author=paularmstrong)
 - [pavangupta](https://github.com/pavangupta) — [view contributions](https://github.com/docpad/docpad/commits?author=pavangupta)
+- [pavgup](https://github.com/pavgup) — [view contributions](https://github.com/docpad/docpad/commits?author=pavgup)
 - [pflannery](https://github.com/pflannery) — [view contributions](https://github.com/docpad/docpad/commits?author=pflannery)
 - [radiodario](https://github.com/radiodario) — [view contributions](https://github.com/docpad/docpad/commits?author=radiodario)
 - [Richard A](https://github.com/rantecki) <richard@antecki.id.au> — [view contributions](https://github.com/docpad/docpad/commits?author=rantecki)
@@ -208,10 +209,14 @@ Also thanks to all the countless others who have continued to raise DocPad even 
 
 ## License
 
-Licensed under the incredibly [permissive](http://en.wikipedia.org/wiki/Permissive_free_software_licence) [MIT license](http://docpad.org/license)
+Unless stated otherwise all works are:
 
-Copyright &copy; 2012+ Bevry Pty Ltd <us@bevry.me> (http://bevry.me)
-<br/>Copyright &copy; 2011 Benjamin Lupton <b@lupton.cc> (http://balupton.com)
+- Copyright &copy; 2012+ Bevry Pty Ltd <us@bevry.me> (http://bevry.me)
+- Copyright &copy; 2011 Benjamin Lupton <b@lupton.cc> (http://balupton.com)
+
+and licensed under:
+
+- The incredibly [permissive](http://en.wikipedia.org/wiki/Permissive_free_software_licence) [MIT License](http://opensource.org/licenses/mit-license.php)
 
 <!-- /LICENSE -->
 

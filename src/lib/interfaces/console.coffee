@@ -124,16 +124,6 @@ class ConsoleInterface
 				_stayAlive: true
 			}))
 
-		# skeleton
-		commander
-			.command('skeleton')
-			.description(locale.consoleDescriptionSkeleton)
-			.option(
-				'-s, --skeleton <skeleton>'
-				locale.consoleOptionSkeleton
-			)
-			.action(consoleInterface.wrapAction(consoleInterface.skeleton))
-
 		# render
 		commander
 			.command('render [path]')
@@ -366,6 +356,16 @@ class ConsoleInterface
 		docpad = @docpad
 		locale = docpad.getLocale()
 		skeletonNames = []
+
+		# Already selected?
+		if @commander.skeleton
+			skeletonModel = skeletonsCollection.get(@commander.skeleton)
+			if skeletonModel
+				next(null, skeletonModel)
+			else
+				err = new Error("Couldn't fetch the skeleton with id #{@commander.skeleton}")
+				next(err)
+			return @
 
 		# Show
 		docpad.log 'info', locale.skeletonSelectionIntroduction+'\n'
@@ -740,13 +740,6 @@ class ConsoleInterface
 
 	clean: (next) =>
 		@docpad.action('clean', next)
-		@
-
-	skeleton: (next) =>
-		@docpad.action('skeleton', {
-			selectSkeletonCallback: @selectSkeletonCallback
-			next: next
-		})
 		@
 
 	watch: (next) =>

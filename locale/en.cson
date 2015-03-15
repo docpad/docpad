@@ -185,7 +185,6 @@
 	consoleDescriptionInit: "initialize your directory with an empty docpad project"
 	consoleDescriptionRun: "does everything: skeleton, generate, watch, server"
 	consoleDescriptionServer: "creates a server for your generated project"
-	consoleDescriptionSkeleton: "will create a new project in your cwd based off an existing skeleton"
 	consoleDescriptionRender: "render the file at <path> and output its results to stdout"
 	consoleDescriptionGenerate: "(re)generates your project"
 	consoleDescriptionWatch: "watches your project for changes, and (re)generates whenever a change is made"
@@ -210,6 +209,7 @@
 	consoleOptionOffline: "don't do any remote requests"
 	consoleOptionSilent: "don't use any prompts"
 	consoleOptionCache: "use the database cache ability to speed up docpad"
+	consoleOptionSkeleton: "specify the id of a skeleton to use instead of prompting"
 
 	# Misc
 	databaseCacheRead: "Imported %s/%s files from the database cache"

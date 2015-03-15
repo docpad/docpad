@@ -1,5 +1,17 @@
 # History
 
+## v6.74.0 March 14, 2015
+- Updated for latest exchange and docpad package info retrieval
+- Fixed `--profile`
+	- Thanks to [Zearin](https://github.com/Zearin), [fengtingzhang](https://github.com/fengtingzhang) for [issue #937](https://github.com/docpad/docpad/issues/937)
+- Fixed `--skeleton` option not working
+	- Fixes [issue #942](https://github.com/docpad/docpad/issues/942)
+- Removed `skeleton` command, use the `init` or `run` commands instead
+- Removed `engines` from `init`'s `package.json`
+- Updated dependencies
+- Updated most dependencies from `~` to `^`
+- Released live: https://plus.google.com/events/cc41smt4r608vj8fdrjp7a1jqbg
+
 ## v6.73.5 February 23, 2015
 - Fixed `TypeError: undefined is not a function` under some circumstances
 	- Thanks to [Dimitar Kolev-Dick](https://github.com/dimitarkolev) and [Lisa Williams](https://github.com/Lisa-Williams) for [issue #935](https://github.com/docpad/docpad/issues/935)

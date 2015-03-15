@@ -12,7 +12,7 @@ typeChecker = require('typechecker')
 safefs = require('safefs')
 mime = require('mime')
 extendr = require('extendr')
-{extractOptsAndCallback} = require('extract-opts')
+extractOptsAndCallback = require('extract-opts')
 
 # Optional
 jschardet = null

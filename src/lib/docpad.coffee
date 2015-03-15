@@ -1,6 +1,9 @@
 # =====================================
 # This block *must* come first
 
+# External
+{lazyRequire} = require('lazy-require')
+
 # Profile
 if ('--profile' in process.argv)
 	# Debug
@@ -40,7 +43,6 @@ pathUtil = require('path')
 util     = require('util')
 
 # External
-{lazyRequire} = require('lazy-require')
 _ = require('lodash')
 CSON = require('cson')
 balUtil = require('bal-util')
@@ -55,7 +57,7 @@ safeps = require('safeps')
 ignorefs = require('ignorefs')
 rimraf = require('rimraf')
 superAgent = require('superagent')
-{extractOptsAndCallback} = require('extract-opts')
+extractOptsAndCallback = require('extract-opts')
 {EventEmitterGrouped} = require('event-emitter-grouped')
 
 # Base
@@ -552,7 +554,7 @@ class DocPad extends EventEmitterGrouped
 
 		# Check if we have cached locally
 		if @skeletonsCollection?
-			return next(null,@skeletonsCollection)
+			return next(null, @skeletonsCollection)
 
 		# Fetch the skeletons from the exchange
 		@skeletonsCollection = new Collection()
@@ -566,7 +568,7 @@ class DocPad extends EventEmitterGrouped
 
 			# If we have the exchange data, then add the skeletons from it
 			if exchange
-				for own skeletonKey,skeleton of exchange.skeletons
+				eachr exchange.skeletons, (skeleton, skeletonKey) ->
 					skeleton.id ?= skeletonKey
 					skeleton.name ?= skeletonKey
 					skeleton.position ?= index
@@ -876,9 +878,6 @@ class DocPad extends EventEmitterGrouped
 		# Configuration to pass to any plugins pluginName: pluginConfiguration
 		plugins: {}
 
-		# Where to fetch the exchange information from
-		exchangeUrl: 'http://docpad.org/exchange.json'
-
 
 		# -----------------------------
 		# Project Paths
@@ -891,9 +890,6 @@ class DocPad extends EventEmitterGrouped
 
 		# The project's package.json path
 		packagePath: 'package.json'
-
-		# Where to get the latest package information from
-		latestPackageUrl: 'http://docpad.org/latest.json'
 
 		# The project's configuration paths
 		# Reads only the first one that exists
@@ -1083,8 +1079,8 @@ class DocPad extends EventEmitterGrouped
 
 		# Helper Url
 		# Used for subscribing to newsletter, account information, and statistics etc
-		# Helper's source-code can be found at: https://github.com/bevry/docpad-helper
-		helperUrl: if true then 'http://docpad-helper.herokuapp.com/' else 'http://localhost:8000/'
+		# Helper's source-code can be found at: https://github.com/docpad/helper
+		helperUrl: if true then 'http://helper.docpad.org/' else 'http://localhost:8000/'
 
 		# Safe Mode
 		# If enabled, we will try our best to sandbox our template rendering so that they cannot modify things outside of them
@@ -1867,8 +1863,8 @@ class DocPad extends EventEmitterGrouped
 				return next(err)  if err
 
 				# Read the string using CSON
-				result = CSON.parse(res.text, {filename:configUrl.replace(/\?.*/, '')})
-				return next?(result)  if result instanceof Error
+				result = CSON.parseCSONString(res.text)
+				return next(result)  if result instanceof Error
 				return next(null, result)
 
 		# Chain
@@ -3108,7 +3104,7 @@ class DocPad extends EventEmitterGrouped
 		# Check
 		balUtil.packageCompare(
 			local: @packagePath
-			remote: config.latestPackageUrl
+			remote: config.helperUrl+'latest'
 			newVersionCallback: (details) ->
 				isLocalInstallation = docpadUtil.isLocalDocPadExecutable()
 				message = (if isLocalInstallation then locale.versionOutdatedLocal else locale.versionOutdatedGlobal)
@@ -3147,7 +3143,7 @@ class DocPad extends EventEmitterGrouped
 		docpad.log('info', locale.exchangeUpdate+' '+locale.pleaseWait)
 
 		# Otherwise fetch it from the exchangeUrl
-		exchangeUrl = config.exchangeUrl+'?version='+@version
+		exchangeUrl = config.helperUrl+'?method=exchange&version='+@version
 		docpad.loadConfigUrl exchangeUrl, (err,parsedData) ->
 			# Check
 			if err
@@ -4294,14 +4290,11 @@ class DocPad extends EventEmitterGrouped
 					name: 'no-skeleton.docpad'
 					version: '0.1.0'
 					description: 'New DocPad project without using a skeleton'
-					engines:
-						node: '0.10'
-						npm: '1.3'
 					dependencies:
 						docpad: '~'+docpad.getVersion()
-					main: 'node_modules/docpad/bin/docpad-server'
+					main: 'node_modules/.bin/docpad-server'
 					scripts:
-						start: 'node_modules/docpad/bin/docpad-server'
+						start: 'node_modules/.bin/docpad-server'
 				}, null, '  ')
 				safefs.writeFile(path, data, complete)
 
@@ -4952,7 +4945,10 @@ class DocPad extends EventEmitterGrouped
 
 				# Allow over-riding of the request type (e.g. GET, POST, PUT, DELETE)
 				if opts.middlewareMethodOverride isnt false
-					opts.serverExpress.use(express.methodOverride())
+					if typeChecker.isString(opts.middlewareMethodOverride)
+						opts.serverExpress.use(require('method-override')(opts.middlewareMethodOverride))
+					else
+						opts.serverExpress.use(require('method-override')())
 
 				# Emit the serverExtend event
 				# So plugins can define their routes earlier than the DocPad routes
