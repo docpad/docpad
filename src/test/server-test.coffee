@@ -5,7 +5,7 @@
 pathUtil = require('path')
 
 # External
-{expect} = require('chai')
+{equal} = require('assert-helpers')
 joe = require('joe')
 superagent = require('superagent')
 
@@ -60,12 +60,12 @@ joe.suite 'docpad-custom-server', (suite,test) ->
 
 	# Test Server Binding
 	test 'server bound', (done) ->
-		testUtil.expect(
+		equal(
 			docpad.serverExpress
 			serverExpress
 			"serverExpress was bound"
 		)
-		testUtil.expect(
+		equal(
 			docpad.serverHttp
 			serverHttp
 			"serverHttp was bound"
@@ -73,8 +73,8 @@ joe.suite 'docpad-custom-server', (suite,test) ->
 		superagent.get("http://127.0.0.1:#{port}/hello")
 			.timeout(5*1000)
 			.end (err, res) ->
-				expect(err, "no error").to.not.exist
-				testUtil.expect(
+				equal(err, null, "no error")
+				equal(
 					res.text
 					'hello world'
 					"server was extended correctly"

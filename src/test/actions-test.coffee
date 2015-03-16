@@ -9,13 +9,12 @@ pathUtil = require('path')
 superAgent = require('superagent')
 scandir = require('scandirectory')
 safefs = require('safefs')
-{expect} = require('chai')
+{equal, deepEqual} = require('assert-helpers')
 joe = require('joe')
 _ = require('lodash')
 
 # Local
 DocPad = require('../lib/docpad')
-testUtil = require('./util')
 
 
 # -------------------------------------
@@ -72,14 +71,14 @@ joe.suite 'docpad-actions', (suite,test) ->
 		expected = {a:'instanceConfig', b:'instanceConfig', c:'websiteConfig'}
 		config = docpad.getConfig()
 		{a,b,c} = config
-		testUtil.expectDeep(
+		deepEqual(
 			{a,b,c}
 			expected
 		)
 
 		templateData = docpad.getTemplateData()
 		{a,b,c} = templateData
-		testUtil.expectDeep(
+		deepEqual(
 			{a,b,c}
 			expected
 		)
@@ -112,7 +111,7 @@ joe.suite 'docpad-actions', (suite,test) ->
 					expectedString = expected.trim().replace(/\s+/g,'').replace(/([abc])[\\]+/g, '$1/')
 
 					# check equality
-					testUtil.expect(
+					equal(
 						actualString
 						expectedString
 					)
@@ -129,9 +128,11 @@ joe.suite 'docpad-actions', (suite,test) ->
 							ignoreHiddenFiles: false
 							next: (err,expectList) ->
 								# check we have the same files
-								expect(
+								deepEqual(
 									_.difference(Object.keys(outList), Object.keys(expectList))
-								).to.be.empty
+									[]
+									'difference to be empty'
+								)
 
 								# check the contents of those files match
 								for own key,actual of outList
@@ -146,12 +147,12 @@ joe.suite 'docpad-actions', (suite,test) ->
 
 		test 'ignored "ignored" documents"', (done) ->
 			safefs.exists "#{outPath}/ignored.html", (exists) ->
-				expect(exists).to.be.false
+				equal(exists, false)
 				done()
 
 		test 'ignored common patterns documents"', (done) ->
 			safefs.exists "#{outPath}/.svn", (exists) ->
-				expect(exists).to.be.false
+				equal(exists, false)
 				done()
 
 	suite 'server', (suite,test) ->
@@ -166,9 +167,8 @@ joe.suite 'docpad-actions', (suite,test) ->
 				actual = res.text
 				safefs.readFile "#{expectPath}/html.html", (err,expected) ->
 					return done(err)  if err
-					expect(
+					equal(
 						actual.toString().trim()
-					).to.be.equal(
 						expected.toString().trim()
 					)
 					done()
@@ -179,9 +179,8 @@ joe.suite 'docpad-actions', (suite,test) ->
 				actual = res.text
 				safefs.readFile "#{expectPath}/custom-url.html", (err,expected) ->
 					return done(err)  if err
-					expect(
+					equal(
 						actual.toString().trim()
-					).to.be.equal(
 						expected.toString().trim()
 					)
 					done()
@@ -189,17 +188,17 @@ joe.suite 'docpad-actions', (suite,test) ->
 		test 'supports secondary urls - part 1/2', (done) ->
 			superAgent.get "#{baseUrl}/my-secondary-urls1", (err,res) ->
 				return done(err)  if err
-				expect(
+
+				deepEqual(
 					res.redirects
-				).to.have.length(1)
-				expect(
-					res.redirects[0]
-				).to.match(/.+secondary-urls\.html$/)
+					['http://0.0.0.0:9770/secondary-urls.html']
+					'redirects to be as expected'
+				)
 
 				actual = res.text
 				safefs.readFile "#{expectPath}/secondary-urls.html", (err,expected) ->
 					return done(err)  if err
-					testUtil.expect(
+					equal(
 						actual.toString().trim()
 						expected.toString().trim()
 					)
@@ -208,17 +207,17 @@ joe.suite 'docpad-actions', (suite,test) ->
 		test 'supports secondary urls - part 2/2', (done) ->
 			superAgent.get "#{baseUrl}/my-secondary-urls2", (err,res) ->
 				return done(err)  if err
-				expect(
+
+				deepEqual(
 					res.redirects
-				).to.have.length(1)
-				expect(
-					res.redirects[0]
-				).to.match(/.+secondary-urls\.html$/)
+					['http://0.0.0.0:9770/secondary-urls.html']
+					'redirects to be as expected'
+				)
 
 				actual = res.text
 				safefs.readFile "#{expectPath}/secondary-urls.html", (err,expected) ->
 					return done(err)  if err
-					testUtil.expect(
+					equal(
 						actual.toString().trim()
 						expected.toString().trim()
 					)
@@ -229,7 +228,7 @@ joe.suite 'docpad-actions', (suite,test) ->
 				return done(err)  if err
 				actual = res.text
 				expected = 'hi ben'
-				testUtil.expect(
+				equal(
 					actual.toString().trim()
 					expected
 				)
@@ -240,7 +239,7 @@ joe.suite 'docpad-actions', (suite,test) ->
 				return done(err)  if err
 				actual = res.text
 				expected = 'hi joe'
-				testUtil.expect(
+				equal(
 					actual.toString().trim()
 					expected
 				)

@@ -7,7 +7,7 @@ pathUtil = require('path')
 # External
 safefs = require('safefs')
 safeps = require('safeps')
-{expect} = require('chai')
+{equal} = require('assert-helpers')
 joe = require('joe')
 
 # Local
@@ -56,7 +56,7 @@ joe.suite 'docpad-render', (suite,test) ->
 					expected = input.stdout
 					actual = stdout.trim()
 					try
-						testUtil.expect(
+						equal(
 							actual
 							expected
 							'output'
@@ -108,7 +108,7 @@ joe.suite 'docpad-render', (suite,test) ->
 					# console.log {err, stdout, stderr, code, signal}
 					return done(err)  if err
 					return done()  if input.error and stdout.indexOf(input.error)
-					testUtil.expect(
+					equal(
 						stdout.trim()
 						input.stdout
 						'output'
@@ -125,14 +125,14 @@ joe.suite 'docpad-render', (suite,test) ->
 			safeps.spawnCommand 'node', [cliPath, '--global', 'render', 'markdown', '-o', input.outPath], {stdin:input.in,cwd:rootPath,output:false}, (err,stdout,stderr,code,signal) ->
 				# console.log {err, stdout, stderr, code, signal}
 				return done(err)  if err
-				testUtil.expect(
+				equal(
 					stdout
 					''
 				)
 				safefs.readFile input.outPath, (err,data) ->
 					return done(err)  if err
 					result = data.toString()
-					testUtil.expect(
+					equal(
 						result.trim()
 						input.out
 						'output'

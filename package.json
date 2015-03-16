@@ -165,7 +165,7 @@
   "optionalDependencies": {},
   "devDependencies": {
     "coffee-script": "^1.9.1",
-    "chai": "^2.0.0",
+    "assert-helpers": "^1.0.0",
     "joe": "^1.6.0",
     "joe-reporter-console": "^1.2.1",
     "projectz": "^0.5.0",

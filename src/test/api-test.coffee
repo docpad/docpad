@@ -5,11 +5,8 @@
 pathUtil = require('path')
 
 # External
-{expect} = require('chai')
+{equal} = require('assert-helpers')
 joe = require('joe')
-
-# Local
-testUtil = require('./util')
 
 
 # =====================================
@@ -84,12 +81,12 @@ joe.suite 'docpad-api', (suite,test) ->
 				document.on('log', console.log.bind(console))
 
 				# Checks
-				testUtil.expect(
+				equal(
 					document.getMeta('relativePath')
 					documentAttributes.meta.relativePath
 					'meta relativePath'
 				)
-				testUtil.expect(
+				equal(
 					document.get('relativePath')
 					documentAttributes.meta.relativePath
 					'attr relativePath'
@@ -102,7 +99,7 @@ joe.suite 'docpad-api', (suite,test) ->
 					return complete(err)  if err
 
 					# Check
-					testUtil.expect(
+					equal(
 						document.getMeta('relativePath')
 						documentAttributes.meta.relativePath
 						'relativePath'
@@ -154,7 +151,7 @@ joe.suite 'docpad-api', (suite,test) ->
 					renderSingleExtensions: 'auto'
 				docpad.action 'render', opts, (err,result) ->
 					return done(err)  if err
-					testUtil.expect(
+					equal(
 						result.trim()
 						input.stdout
 						'output'
