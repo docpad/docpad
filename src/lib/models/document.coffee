@@ -182,14 +182,19 @@ class DocumentModel extends FileModel
 									parser = 'coffeescript'
 								when 'js', 'javascript'
 									parser = 'javascript'
+
 							csonOptions =
 								format: parser
 								json: true
 								cson: true
 								coffeescript: true
 								javascript: true
+
 							metaParseResult = CSON.parseString(header, csonOptions)
-							return next(metaParseResult)  if metaParseResult instanceof Error
+							if metaParseResult instanceof Error
+								metaParseResult.context = "Failed to parse #{parser} meta header for the file: #{filePath}"
+								return next(metaParseResult)
+
 							extendr.extend(metaDataChanges, metaParseResult)
 
 						when 'yaml'
@@ -644,6 +649,7 @@ class DocumentModel extends FileModel
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
 		file = @
+		filePath = @getFilePath()
 
 		# Fetch
 		opts.content ?= (@getContent() or '').toString('')
@@ -653,7 +659,11 @@ class DocumentModel extends FileModel
 		delete metaData.writeSource
 		content   = body = opts.content.replace(/^\s+/,'')
 		header    = CSON.stringify(metaData)
-		return next(header)  if header instanceof Error
+
+		if header instanceof Error
+			header.context = "Failed to write CSON meta header for the file: #{filePath}"
+			return next(header)
+
 		if !header or header is '{}'
 			# No meta data
 			source    = body

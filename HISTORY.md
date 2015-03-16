@@ -1,5 +1,9 @@
 # History
 
+## v6.75.2 March 16, 2015
+- Better error handling when updating user config fails
+- Better error messages when CSON handling fails
+
 ## v6.75.1 March 16, 2015
 - Better input availability detection
 

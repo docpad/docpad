@@ -781,6 +781,7 @@ class DocPad extends EventEmitterGrouped
 
 		# Log the error in the background and continue
 		if locale instanceof Error
+			locale.context = "Failed to parse the CSON locale file: #{localePath}"
 			docpad.error(locale)  # @TODO: should this be a fatal error instead?
 			return null
 
@@ -1835,12 +1836,14 @@ class DocPad extends EventEmitterGrouped
 
 		# Convert to CSON
 		CSON.createCSONString @userConfig, (err, userConfigString) ->
-			return next?(err)  if err
+			if err
+				err.context = "Failed to create the CSON string for the user configuration"
+				return next(err)
 
 			# Write it
 			safefs.writeFile userConfigPath, userConfigString, 'utf8', (err) ->
 				# Forward
-				return next?(err)
+				return next(err)
 
 		# Chain
 		@
@@ -1898,7 +1901,8 @@ class DocPad extends EventEmitterGrouped
 
 				# Read the path using CSON
 				CSON.requireFile configPath, csonOptions, (err, result) ->
-					docpad.log 'error', util.format(locale.loadingConfigPathFailed, configPath)  if err
+					if err
+						err.context = util.format(locale.loadingConfigPathFailed, configPath)
 					return next(err, result)
 
 		# Check
@@ -2612,10 +2616,7 @@ class DocPad extends EventEmitterGrouped
 						.timeout(30*1000)
 						.end docpad.checkRequest (err) ->
 							# Save the changes with these
-							docpad.updateUserConfig(identified:true)
-
-							# Complete
-							return complete(err)
+							docpad.updateUserConfig({identified:true}, complete)
 
 			# Or an existing user?
 			else
