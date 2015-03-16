@@ -1,45 +1,55 @@
 # =====================================
 # This block *must* come first
 
-# External
-{lazyRequire} = require('lazy-require')
+# Important
+pathUtil = require('path')
+lazyRequire = require('lazy-require')
+corePath = pathUtil.resolve(__dirname, '..', '..')
 
 # Profile
 if ('--profile' in process.argv)
 	# Debug
 	debugger
 
-	# Nodefly
-	if process.env.NODEFLY_KEY
-		console.log 'Loading profiling tool: nodefly'
-		lazyRequire 'nodefly', {cwd:corePath}, (err,nodefly) ->
-			return  if err
-			nodefly.profile(process.env.NODEFLY_KEY, 'docpad')
-			console.log('Profiling with nodefly')
-
 	# Nodetime
 	if process.env.NODETIME_KEY
 		console.log 'Loading profiling tool: nodetime'
-		lazyRequire 'nodetime', {cwd:corePath}, (err,nodetime) ->
-			return  if err
-			nodetime.profile({
-				accountKey: process.env.NODETIME_KEY
-				appName: 'DocPad'
-			})
-			console.log('Profiling with nodetime')
+		require('lazy-require').sync 'nodetime', {cwd:corePath}, (err,nodetime) ->
+			if err
+				console.log 'Failed to load profiling tool: nodetime'
+				console.log err.stack or err
+			else
+				nodetime.profile({
+					accountKey: process.env.NODETIME_KEY
+					appName: 'DocPad'
+				})
+				console.log 'Profiling with nodetime with account key:', process.env.NODETIME_KEY
 
-	# Webkit Devtools
-	console.log 'Loading profiling tool: webkit-devtools-agent'
-	lazyRequire 'webkit-devtools-agent', {cwd:corePath}, (err) ->
-		return  if err
-		console.log("Profiling with webkit-devtools-agent on process id:", process.pid)
+	# # Look
+	# console.log 'Loading profiling tool: look'
+	# require('lazy-require').sync 'look', {cwd:corePath}, (err,look) ->
+	# 	if err
+	# 		console.log 'Failed to load profiling tool: look'
+	# 		console.log err.stack or err
+	# 	else
+	# 		look.start()
+	# 		console.log 'Profiling with look on http://127.0.0.1:5959/'
+
+	# # Webkit Devtools
+	# console.log 'Loading profiling tool: webkit-devtools-agent'
+	# require('lazy-require').sync 'webkit-devtools-agent', {cwd:corePath}, (err, agent) ->
+	# 	if err
+	# 		console.log 'Failed to load profiling tool: webkit-devtools-agent'
+	# 		console.log err.stack or err
+	# 	else
+	# 		agent.start()
+	# 		console.log "Profiling with webkit-devtools-agent on pid #{process.pid} at http://127.0.0.1:9999/
 
 
 # =====================================
 # Requires
 
 # Standard Library
-pathUtil = require('path')
 util     = require('util')
 
 # External
@@ -85,7 +95,6 @@ BasePlugin = require('./plugin')
 # ---------------------------------
 # Helpers
 
-corePath = pathUtil.resolve(__dirname, '..', '..')
 setImmediate = global?.setImmediate or process.nextTick  # node 0.8 b/c
 
 
