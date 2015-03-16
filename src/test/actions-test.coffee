@@ -11,7 +11,7 @@ scandir = require('scandirectory')
 safefs = require('safefs')
 {equal, deepEqual} = require('assert-helpers')
 joe = require('joe')
-_ = require('lodash')
+difference = require('lodash.difference')
 
 # Local
 DocPad = require('../lib/docpad')
@@ -130,7 +130,10 @@ joe.suite 'docpad-actions', (suite,test) ->
 							next: (err,expectList) ->
 								# check we have the same files
 								deepEqual(
-									_.difference(Object.keys(outList), Object.keys(expectList))
+									difference(
+										Object.keys(outList)
+										Object.keys(expectList)
+									)
 									[]
 									'difference to be empty'
 								)

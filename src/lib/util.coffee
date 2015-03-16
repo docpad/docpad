@@ -6,7 +6,8 @@ pathUtil = require('path')
 util = require('util')
 
 # External
-_ = require('lodash')
+uniq = require('lodash.uniq')
+compact = require('lodash.compact')
 extractOptsAndCallback = require('extract-opts')
 {TaskGroup} = require('taskgroup')
 
@@ -164,7 +165,7 @@ module.exports = docpadUtil =
 			actions = action.split(/[,\s]+/g)
 
 		# Clean actions
-		actions = _.uniq _.compact actions
+		actions = uniq compact actions
 
 		# Exit if we have no actions
 		if actions.length is 0

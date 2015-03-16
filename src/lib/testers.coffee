@@ -11,7 +11,7 @@ extendr = require('extendr')
 joe = require('joe')
 {expect} = require('chai')
 CSON = require('cson')
-_ = require('lodash')
+difference = require('lodash.difference')
 
 # Local
 DocPad = require('./docpad')
@@ -243,9 +243,9 @@ class RendererTester extends PluginTester
 
 						# Check we have the same files
 						test 'same files', ->
-							outDifferenceKeys = _.difference(outExpectedResultsKeys, outResultsKeys)
+							outDifferenceKeys = difference(outExpectedResultsKeys, outResultsKeys)
 							expect(outDifferenceKeys, 'The following file(s) should have been generated').to.be.empty
-							outDifferenceKeys = _.difference(outResultsKeys, outExpectedResultsKeys)
+							outDifferenceKeys = difference(outResultsKeys, outExpectedResultsKeys)
 							expect(outDifferenceKeys, 'The following file(s) should not have been generated').to.be.empty
 
 						# Check the contents of those files match

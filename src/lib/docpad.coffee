@@ -53,7 +53,9 @@ if ('--profile' in process.argv)
 util     = require('util')
 
 # External
-_ = require('lodash')
+uniq = require('lodash.uniq')
+union = require('lodash.union')
+pick = require('lodash.pick')
 CSON = require('cson')
 balUtil = require('bal-util')
 scandir = require('scandirectory')
@@ -766,7 +768,7 @@ class DocPad extends EventEmitterGrouped
 	getLocale: ->
 		if @locale? is false
 			config = @getConfig()
-			codes = _.uniq [
+			codes = uniq [
 				'en'
 				safeps.getLanguageCode config.localeCode
 				safeps.getLanguageCode safeps.getLocaleCode()
@@ -1510,7 +1512,7 @@ class DocPad extends EventEmitterGrouped
 	# Helpers
 
 	getIgnoreOpts: ->
-		return _.pick(@config, 'ignorePaths', 'ignoreHiddenFiles', 'ignoreCommonPatterns', 'ignoreCustomPatterns')
+		return pick(@config, ['ignorePaths', 'ignoreHiddenFiles', 'ignoreCommonPatterns', 'ignoreCustomPatterns'])
 
 	# Is Ignored Path
 	isIgnoredPath: (path,opts={}) ->
@@ -3651,7 +3653,11 @@ class DocPad extends EventEmitterGrouped
 			opts.partial   ?= !(opts.reset)
 
 			# Log our opts
-			docpad.log('debug', 'Generate options:', _.pick(opts, 'cache', 'initial', 'reset', 'populate', 'reload', 'partial', 'renderPasses'))
+			docpad.log(
+				'debug'
+				'Generate options:'
+				pick(opts, ['cache', 'initial', 'reset', 'populate', 'reload', 'partial', 'renderPasses'])
+			)
 
 
 		# Check directory structure
@@ -4062,7 +4068,7 @@ class DocPad extends EventEmitterGrouped
 			tasks = new docpad.TaskGroup("watch tasks", {concurrency:0, next})
 
 			# Watch reload paths
-			reloadPaths = _.union(config.reloadPaths, config.configPaths)
+			reloadPaths = union(config.reloadPaths, config.configPaths)
 			tasks.addTask "watch reload paths", (complete) -> docpad.watchdir(
 				paths: reloadPaths
 				listeners:
