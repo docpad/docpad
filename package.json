@@ -1,7 +1,7 @@
 {
   "title": "DocPad. Streamlined web development.",
   "name": "docpad",
-  "version": "6.74.0",
+  "version": "6.75.0",
   "description": "DocPad is a dynamic static site generator. Write your content as files, or import your content from other external sources. Render the content with plugins. And deploy your static or dynamic website to your favourite hosting provider.",
   "homepage": "http://docpad.org",
   "installUrl": "http://docpad.org/install",
@@ -132,7 +132,7 @@
     "caterpillar-human": "^2.1.1",
     "commander": "^2.7.1",
     "csextends": "^1.0.3",
-    "cson": "^2.0.0",
+    "cson": "^3.0.1",
     "eachr": "^2.0.2",
     "encoding": "~0.1.11",
     "envfile": "^1.0.0",
