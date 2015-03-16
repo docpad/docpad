@@ -41,7 +41,15 @@ module.exports = docpadUtil =
 
 	# Is TTY
 	isTTY: ->
-		return docpadUtil.isTravis() is false and process.stdout?.isTTY is true and process.stderr?.isTTY is true
+		return process.stdout?.isTTY is true and process.stderr?.isTTY is true
+
+	# Is Standadlone
+	isStandalone: ->
+		return /docpad$/.test(process.argv[1] or '')
+
+	# Is User
+	isUser: ->
+		return docpadUtil.isStandalone() and docpadUtil.isTTY() and docpadUtil.isTravis() is false
 
 	# Inspect
 	inspect: (obj, opts) ->

@@ -1,5 +1,8 @@
 # History
 
+## v6.75.1 March 16, 2015
+- Better input availability detection
+
 ## v6.75.0 March 16, 2015
 - Better CSON config and meta parsing
 - Updated dependencies
