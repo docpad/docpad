@@ -11,7 +11,6 @@ superagent = require('superagent')
 
 # Local
 docpadUtil = require('../lib/util')
-testUtil = require('./util')
 
 
 # =====================================

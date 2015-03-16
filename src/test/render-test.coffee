@@ -12,7 +12,6 @@ joe = require('joe')
 
 # Local
 docpadUtil = require('../lib/util')
-testUtil = require('./util')
 
 
 # =====================================
