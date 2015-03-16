@@ -28,9 +28,20 @@ module.exports = docpadUtil =
 	# Wait
 	wait: (time, fn) -> setTimeout(fn, time)
 
+	# Get Default Log Level
+	getDefaultLogLevel: ->
+		if docpadUtil.isTravis() or ('-d' in process.argv)
+			return 7
+		else
+			return 5
+
+	# Is Travis
+	isTravis: ->
+		return process.env.TRAVIS_NODE_VERSION?
+
 	# Is TTY
 	isTTY: ->
-		return process.stdout?.isTTY is true and process.stderr?.isTTY is true
+		return docpadUtil.isTravis() is false and process.stdout?.isTTY is true and process.stderr?.isTTY is true
 
 	# Inspect
 	inspect: (obj, opts) ->

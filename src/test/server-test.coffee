@@ -44,7 +44,7 @@ joe.suite 'docpad-custom-server', (suite,test) ->
 		docpadConfig =
 			port: port = 9780
 			rootPath: rootPath
-			logLevel: if (process.env.TRAVIS_NODE_VERSION? or '-d' in process.argv) then 7 else 5
+			logLevel: docpadUtil.getDefaultLogLevel()
 			skipUnsupportedPlugins: false
 			catchExceptions: false
 			serverExpress: serverExpress = require('express')()

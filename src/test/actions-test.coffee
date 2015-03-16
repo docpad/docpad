@@ -15,6 +15,7 @@ _ = require('lodash')
 
 # Local
 DocPad = require('../lib/docpad')
+docpadUtil = require('../lib/util')
 
 
 # -------------------------------------
@@ -39,7 +40,7 @@ docpadConfig =
 	port: port
 	hostname: hostname
 	rootPath: rootPath
-	logLevel: if (process.env.TRAVIS_NODE_VERSION? or '-d' in process.argv) then 7 else 5
+	logLevel: docpadUtil.getDefaultLogLevel()
 	skipUnsupportedPlugins: false
 	catchExceptions: false
 	environments:
