@@ -9,7 +9,8 @@ safefs = require('safefs')
 balUtil = require('bal-util')
 extendr = require('extendr')
 joe = require('joe')
-{expect} = require('chai')
+assert = require('assert')
+{equal, deepEqual, errorEqual} = require('assert-helpers')
 CSON = require('cson')
 difference = require('lodash.difference')
 
@@ -145,7 +146,7 @@ class PluginTester
 		@test "load plugin #{tester.config.pluginName}", (done) ->
 			tester.docpad.loadedPlugin tester.config.pluginName, (err,loaded) ->
 				return done(err)  if err
-				expect(loaded).to.be.ok
+				assert.ok(loaded)
 				return done()
 
 		# Chain
@@ -244,9 +245,9 @@ class RendererTester extends PluginTester
 						# Check we have the same files
 						test 'same files', ->
 							outDifferenceKeys = difference(outExpectedResultsKeys, outResultsKeys)
-							expect(outDifferenceKeys, 'The following file(s) should have been generated').to.be.empty
+							deepEqual(outDifferenceKeys, [], 'The following file(s) should have been generated')
 							outDifferenceKeys = difference(outResultsKeys, outExpectedResultsKeys)
-							expect(outDifferenceKeys, 'The following file(s) should not have been generated').to.be.empty
+							deepEqual(outDifferenceKeys, [], 'The following file(s) should not have been generated')
 
 						# Check the contents of those files match
 						outResultsKeys.forEach (key) ->
@@ -267,15 +268,7 @@ class RendererTester extends PluginTester
 									expected = expected.replace(tester.config.contentRemoveRegex, '')
 
 								# Compare
-								try
-									expect(actual).to.eql(expected)
-								catch err
-									console.log '\nactual:'
-									console.log docpadUtil.inspect(actual)
-									console.log '\nexpected:'
-									console.log docpadUtil.inspect(expected)
-									console.log ''
-									throw err
+								equal(actual, expected)
 
 						# Forward
 						done()

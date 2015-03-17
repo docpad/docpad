@@ -1,5 +1,8 @@
 # History
 
+## v6.76.1 March 17, 2015
+- Fixed testers wanting chai (regression since v6.76.0)
+
 ## v6.76.0 March 17, 2015
 - Regenerate timer is now closed correctly (regression since v6.48.0)
 - Close stdin after destroy when using the console interface
