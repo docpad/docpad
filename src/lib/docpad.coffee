@@ -25,25 +25,15 @@ if ('--profile' in process.argv)
 				})
 				console.log 'Profiling with nodetime with account key:', process.env.NODETIME_KEY
 
-	# # Look
-	# console.log 'Loading profiling tool: look'
-	# require('lazy-require').sync 'look', {cwd:corePath}, (err,look) ->
-	# 	if err
-	# 		console.log 'Failed to load profiling tool: look'
-	# 		console.log err.stack or err
-	# 	else
-	# 		look.start()
-	# 		console.log 'Profiling with look on http://127.0.0.1:5959/'
-
-	# # Webkit Devtools
-	# console.log 'Loading profiling tool: webkit-devtools-agent'
-	# require('lazy-require').sync 'webkit-devtools-agent', {cwd:corePath}, (err, agent) ->
-	# 	if err
-	# 		console.log 'Failed to load profiling tool: webkit-devtools-agent'
-	# 		console.log err.stack or err
-	# 	else
-	# 		agent.start()
-	# 		console.log "Profiling with webkit-devtools-agent on pid #{process.pid} at http://127.0.0.1:9999/
+	# Webkit Devtools
+	console.log 'Loading profiling tool: webkit-devtools-agent'
+	require('lazy-require').sync 'webkit-devtools-agent', {cwd:corePath}, (err, agent) ->
+		if err
+			console.log 'Failed to load profiling tool: webkit-devtools-agent'
+			console.log err.stack or err
+		else
+			agent.start()
+			console.log "Profiling with webkit-devtools-agent on pid #{process.pid} at http://127.0.0.1:9999/"
 
 
 # =====================================
@@ -2192,8 +2182,9 @@ class DocPad extends EventEmitterGrouped
 
 		# Extract
 		opts.cwd ?= config.rootPath
-		opts.output ?= docpad.getDebugging()
 		opts.args ?= []
+		if docpad.getDebugging()
+			opts.stdio ?= 'inherit'
 
 		opts.global ?= false
 		opts.global = ['--global']             if opts.global is true
@@ -3494,7 +3485,7 @@ class DocPad extends EventEmitterGrouped
 
 		# Clear Regenerate Timer
 		if docpad.regenerateTimer
-			clearInterval(docpad.regenerateTimer)
+			clearTimeout(docpad.regenerateTimer)
 			docpad.regenerateTimer = null
 
 		# Chain
@@ -4338,7 +4329,7 @@ class DocPad extends EventEmitterGrouped
 						plugin = "docpad-plugin-#{plugin}"  if plugin.indexOf('docpad-plugin-') isnt 0
 						plugin
 				docpad.uninstallNodeModule(plugins, {
-					output: true
+					stdio: 'inherit'
 					next: complete
 				})
 
@@ -4375,13 +4366,13 @@ class DocPad extends EventEmitterGrouped
 						plugin += '@'+docpad.pluginVersion  if plugin.indexOf('@') is -1
 						plugin
 				docpad.installNodeModule(plugins, {
-					output: true
+					stdio: 'inherit'
 					next: complete
 				})
 
 		tasks.addTask "re-initialize the website's modules", (complete) ->
 			docpad.initNodeModules({
-				output: true
+				stdio: 'inherit'
 				next: complete
 			})
 
@@ -4403,7 +4394,7 @@ class DocPad extends EventEmitterGrouped
 		# Update Global NPM and DocPad
 		@installNodeModule('npm docpad@6', {
 			global: true
-			output: true
+			stdio: 'inherit'
 			next: next
 		})
 
@@ -4435,7 +4426,7 @@ class DocPad extends EventEmitterGrouped
 		if dependencies.length isnt 0
 			tasks.addTask "update plugins that are dependencies", (complete) ->
 				docpad.installNodeModule('docpad@6 '+dependencies, {
-					output: true
+					stdio: 'inherit'
 					next: complete
 				})
 
@@ -4448,7 +4439,7 @@ class DocPad extends EventEmitterGrouped
 			tasks.addTask "update plugins that are dev dependencies", (complete) ->
 				docpad.installNodeModule(devDependencies, {
 					save: '--save-dev'
-					output: true
+					stdio: 'inherit'
 					next: complete
 				})
 
@@ -4457,7 +4448,7 @@ class DocPad extends EventEmitterGrouped
 
 		tasks.addTask "re-initialize the rest of the website's modules", (complete) ->
 			docpad.initNodeModules({
-				output: true
+				stdio: 'inherit'
 				next: complete
 			})
 
@@ -4537,7 +4528,7 @@ class DocPad extends EventEmitterGrouped
 					url: skeletonModel.get('repo')
 					branch: skeletonModel.get('branch')
 					remote: 'skeleton'
-					output: true
+					stdio: 'inherit'
 					next: complete
 				})
 		else

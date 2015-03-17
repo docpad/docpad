@@ -1,5 +1,14 @@
 # History
 
+## v6.76.0 March 17, 2015
+- Regenerate timer is now closed correctly (regression since v6.48.0)
+- Close stdin after destroy when using the console interface
+- Output anything we could be waiting for after destroy using the console interface
+- Rather than including all of lodash, we now just include the modules we need
+- Updated profiling for the latest tools
+- Quicker execution of certain spawned commands
+- Updated dependencies
+
 ## v6.75.2 March 16, 2015
 - Better error handling when updating user config fails
 - Better error messages when CSON handling fails

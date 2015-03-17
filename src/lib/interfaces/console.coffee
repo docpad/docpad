@@ -243,12 +243,29 @@ class ConsoleInterface
 		# Log Shutdown
 		docpad.log('info', locale.consoleShutdown)
 
+		# Close stdin
+		process.stdin.end()
+
 		# Destroy docpad
 		docpad.destroy (err) ->
 			# Error?
 			docpadUtil.writeError(err)  if err
 
-			# don't force exit, it should occur naturally
+			# Note any requests that are still active
+			activeRequests = process._getActiveRequests()
+			if activeRequests?.length
+				console.log """
+					Waiting on the requests:
+					#{docpadUtil.inspect activeRequests}
+					"""
+
+			# Note any handles that are still active
+			activeHandles = process._getActiveHandles()
+			if activeHandles?.length
+				console.log """
+					Waiting on the handles:
+					#{docpadUtil.inspect activeHandles}
+					"""
 
 		# Chain
 		@
@@ -450,9 +467,9 @@ class ConsoleInterface
 
 						# Fetch
 						# The or to '' is there because otherwise we will get "undefined" as a string if the value doesn't exist
-						userConfig.name = String(results?[0]?[1] or '').trim() or null
-						userConfig.email = String(results?[1]?[1] or '').trim() or null
-						userConfig.username = String(results?[2]?[1] or '').trim() or null
+						userConfig.name = String(results?[0]?[1] or '').toString().trim() or null
+						userConfig.email = String(results?[1]?[1] or '').toString().trim() or null
+						userConfig.username = String(results?[2]?[1] or '').toString().trim() or null
 
 						# Let the user know we scanned their configuration if we got anything useful
 						if userConfig.name or userConfig.email or userConfig.username

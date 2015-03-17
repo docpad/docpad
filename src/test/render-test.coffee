@@ -34,7 +34,7 @@ joe.suite 'docpad-render', (suite,test) ->
 
 	suite 'files', (suite,test) ->
 		# Check render physical files
-		inputs = [
+		items = [
 			{
 				filename: 'markdown-with-extension.md'
 				stdout: '*awesome*'
@@ -44,29 +44,25 @@ joe.suite 'docpad-render', (suite,test) ->
 				stdout: '<p><em>awesome</em></p>'
 			}
 		]
-		inputs.forEach (input) ->
-			test input.filename, (done) ->
+		items.forEach (item) ->
+			test item.filename, (done) ->
 				# IMPORTANT THAT ANY OPTIONS GO AFTER THE RENDER CALL, SERIOUSLY
 				# OTHERWISE the sky falls down on scoping, seriously, it is wierd
-				command = [cliPath, '--global', 'render', pathUtil.join(renderPath,input.filename)]
-				safeps.spawnCommand 'node', command, {cwd:rootPath,output:false}, (err,stdout,stderr,code,signal) ->
-					# console.log {err, stdout, stderr, code, signal}
+				command = ['node', cliPath, '--global', 'render', pathUtil.join(renderPath,item.filename)]
+				opts = {cwd:rootPath, output:false}
+				safeps.spawn command, opts, (err,stdout,stderr,status,signal) ->
+					stdout = (stdout or '').toString().trim()
 					return done(err)  if err
-					expected = input.stdout
-					actual = stdout.trim()
-					try
-						equal(
-							actual
-							expected
-							'output'
-						)
-					catch err
-						return done(err)  # @TODO: Figure out why this is needed
+					equal(
+						stdout
+						item.stdout
+						'output'
+					)
 					return done()
 
 	suite 'stdin', (suite,test) ->
-		# Check rendering stdin inputs
-		inputs = [
+		# Check rendering stdin items
+		items = [
 			{
 				testname: 'markdown without extension'
 				filename: ''
@@ -99,41 +95,44 @@ joe.suite 'docpad-render', (suite,test) ->
 				stdout: '<p><em>awesome</em></p>'
 			}
 		]
-		inputs.forEach (input) ->
-			test input.testname, (done) ->
-				command = [cliPath, '--global', 'render']
-				command.push(input.filename)  if input.filename
-				safeps.spawnCommand 'node', command, {stdin:input.stdin,cwd:rootPath,output:false}, (err,stdout,stderr,code,signal) ->
-					# console.log {err, stdout, stderr, code, signal}
+		items.forEach (item) ->
+			test item.testname, (done) ->
+				command = ['node', cliPath, '--global', 'render']
+				command.push(item.filename)  if item.filename
+				opts = {stdin:item.stdin, cwd:rootPath, output:false}
+				safeps.spawn command, opts, (err,stdout,stderr,status,signal) ->
+					stdout = (stdout or '').toString().trim()
 					return done(err)  if err
-					return done()  if input.error and stdout.indexOf(input.error)
+					return done()  if item.error and stdout.indexOf(item.error)
 					equal(
-						stdout.trim()
-						input.stdout
+						stdout
+						item.stdout
 						'output'
 					)
 					done()
 
 		# Works with out path
 		test 'outPath', (done) ->
-			input = {
+			item = {
 				in: '*awesome*'
 				out: '<p><em>awesome</em></p>'
-				outPath: pathUtil.join(outPath,'outpath-render.html')
+				outPath: pathUtil.join(outPath, 'outpath-render.html')
 			}
-			safeps.spawnCommand 'node', [cliPath, '--global', 'render', 'markdown', '-o', input.outPath], {stdin:input.in,cwd:rootPath,output:false}, (err,stdout,stderr,code,signal) ->
-				# console.log {err, stdout, stderr, code, signal}
+			command = ['node', cliPath, '--global', 'render', 'markdown', '-o', item.outPath]
+			opts = {stdin:item.in, cwd:rootPath, output:false}
+			safeps.spawn command, opts, (err,stdout,stderr,status,signal) ->
+				stdout = (stdout or '').toString().trim()
 				return done(err)  if err
 				equal(
 					stdout
 					''
 				)
-				safefs.readFile input.outPath, (err,data) ->
+				safefs.readFile item.outPath, (err,data) ->
 					return done(err)  if err
-					result = data.toString()
+					result = data.toString().trim()
 					equal(
-						result.trim()
-						input.out
+						result
+						item.out
 						'output'
 					)
 					done()
