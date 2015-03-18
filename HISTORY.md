@@ -1,5 +1,8 @@
 # History
 
+## v6.78.0 March 18, 2015
+- You can now `module.exports = function(docpad){ return {/* your docpad configuration */} }`
+
 ## v6.77.1 March 18, 2015
 - Better error reporting when a custom collection is invalid
 	- Thanks to [Simon Smithies](https://github.com/simonsmithies) for [issue #875](https://github.com/docpad/docpad/issues/875)

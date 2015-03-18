@@ -1900,10 +1900,23 @@ class DocPad extends EventEmitterGrouped
 					javascript: true
 
 				# Read the path using CSON
-				CSON.requireFile configPath, csonOptions, (err, result) ->
+				CSON.requireFile configPath, csonOptions, (err, data) ->
 					if err
 						err.context = util.format(locale.loadingConfigPathFailed, configPath)
-					return next(err, result)
+						return next(err)
+
+					# Check if the data is a function, if so, then execute it as one
+					while typeChecker.isFunction(data)
+						try
+							data = data(docpad)
+						catch err
+							return next(err)
+					unless typeChecker.isObject(data)
+						err = new Error("Loading the configuration #{docpad.inspector configPath} returned an invalid result #{docpad.inspector data}")
+						return next(err)  if err
+
+					# Return the data
+					return next(null, data)
 
 		# Check
 		if opts.configPath
