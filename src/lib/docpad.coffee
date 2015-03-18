@@ -43,9 +43,7 @@ if ('--profile' in process.argv)
 util     = require('util')
 
 # External
-uniq = require('lodash.uniq')
-union = require('lodash.union')
-pick = require('lodash.pick')
+{uniq, union, pick} = require('underscore')
 CSON = require('cson')
 balUtil = require('bal-util')
 scandir = require('scandirectory')
@@ -63,7 +61,7 @@ extractOptsAndCallback = require('extract-opts')
 {EventEmitterGrouped} = require('event-emitter-grouped')
 
 # Base
-{queryEngine,Backbone,Events,Model,Collection,View,QueryCollection} = require('./base')
+{Events,Model,Collection,QueryCollection} = require('./base')
 
 # Utils
 docpadUtil = require('./util')
@@ -102,8 +100,11 @@ isUser = docpadUtil.isUser()
 # The DocPad Class
 # Extends https://github.com/bevry/event-emitter-grouped
 class DocPad extends EventEmitterGrouped
-	# Self Reference
-	@DocPad: DocPad  # Legacy API reasons, in case they did `require('docpad').DocPad` to get access to the class
+	# Libraries
+	# Here for legacy API reasons
+	#@DocPad: DocPad
+	#@Backbone: require('backbone')
+	#@queryEngine: require('query-engine')
 
 	# Allow for `DocPad.create()` as an alias for `new DocPad()`
 	# Allow for `DocPad.createInstance()` as an alias for `new DocPad()` (legacy alias)
@@ -124,12 +125,6 @@ class DocPad extends EventEmitterGrouped
 		# Require the path
 		return require(absolutePath)
 
-	# Libraries
-	@Backbone: Backbone
-	@queryEngine: queryEngine
-	# ^ This is here instead of below for legacy reasons
-	# As prior to v6.73.0, they were exported to require('docpad') via src/main.coffee - which now no longer exists
-
 
 	# =================================
 	# Variables
@@ -141,7 +136,6 @@ class DocPad extends EventEmitterGrouped
 	Events: Events
 	Model: Model
 	Collection: Collection
-	View: View
 	QueryCollection: QueryCollection
 
 	# Models
@@ -1074,6 +1068,11 @@ class DocPad extends EventEmitterGrouped
 		# Prompts
 		# Whether or not we should display any prompts
 		prompts: false
+
+		# Progress
+		# Whether or not we should display any progress bars
+		# Requires prompts being true, and log level 6 or above
+		progress: true
 
 		# Powered By DocPad
 		# Whether or not we should include DocPad in the Powered-By meta header
@@ -3455,10 +3454,11 @@ class DocPad extends EventEmitterGrouped
 		config = docpad.getConfig()
 
 		# Only show progress if
+		# - progress is true
 		# - prompts are supported (so no servers)
 		# - and we are log level 6 (the default level)
 		progress = null
-		if config.prompts and @getLogLevel() is 6
+		if config.progress and config.prompts and @getLogLevel() is 6
 			progress = require('progressbar').create()
 			@getLoggers().console.unpipe(process.stdout)
 			@getLogger().once 'log', progress.logListener ?= (data) ->

@@ -6,8 +6,7 @@ pathUtil = require('path')
 util = require('util')
 
 # External
-uniq = require('lodash.uniq')
-compact = require('lodash.compact')
+{uniq, compact} = require('underscore')
 extractOptsAndCallback = require('extract-opts')
 {TaskGroup} = require('taskgroup')
 

@@ -12,7 +12,7 @@ joe = require('joe')
 assert = require('assert')
 {equal, deepEqual, errorEqual} = require('assert-helpers')
 CSON = require('cson')
-difference = require('lodash.difference')
+{difference} = require('underscore')
 
 # Local
 DocPad = require('./docpad')

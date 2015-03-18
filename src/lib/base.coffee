@@ -3,8 +3,8 @@
 
 # External
 extendr = require('extendr')
-queryEngine = require('query-engine')
-Backbone = queryEngine.Backbone
+{Backbone, QueryCollection} = require('query-engine')
+{Events, Model, Collection} = Backbone
 
 
 # =====================================
@@ -31,11 +31,11 @@ class Events
 	log: log
 	emit: emit
 
-extendr.extend(Events::, Backbone.Events)
+extendr.extend(Events::, Events)
 
 
 # Model
-class Model extends Backbone.Model
+class Model extends Model
 	log: log
 	emit: emit
 
@@ -51,7 +51,7 @@ class Model extends Backbone.Model
 
 
 # Collection
-class Collection extends Backbone.Collection
+class Collection extends Collection
 	log: log
 	emit: emit
 	destroy: =>
@@ -62,14 +62,8 @@ Collection::model = Model
 Collection::collection = Collection
 
 
-# View
-class View extends Backbone.View
-	log: log
-	emit: emit
-
-
 # QueryCollection
-class QueryCollection extends queryEngine.QueryCollection
+class QueryCollection extends QueryCollection
 	log: log
 	emit: emit
 
@@ -89,4 +83,4 @@ QueryCollection::collection = QueryCollection
 
 # =====================================
 # Export our base models
-module.exports = {queryEngine,Backbone,Events,Model,Collection,View,QueryCollection}
+module.exports = {Events,Model,Collection,QueryCollection}

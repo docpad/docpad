@@ -6,12 +6,12 @@ util = require('util')
 pathUtil = require('path')
 
 # External
+{difference} = require('underscore')
 superAgent = require('superagent')
 scandir = require('scandirectory')
 safefs = require('safefs')
 {equal, deepEqual} = require('assert-helpers')
 joe = require('joe')
-difference = require('lodash.difference')
 
 # Local
 DocPad = require('../lib/docpad')

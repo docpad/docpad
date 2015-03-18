@@ -1,5 +1,15 @@
 # History
 
+## v6.77.0 March 18, 2015
+- Replaced `lodash` with `underscore`
+	- Backbone (our dependency) already includes `underscore`, so makes sense to reduce our footprint
+- Removed these deprecated exports:
+	- `require('docpad').DocPad`
+	- `require('docpad').Backbone`
+	- `require('docpad').queryEngine`
+	- `docpadInstance.View`
+- Added `progress` configuration option that you can use to disable progress bars
+
 ## v6.76.1 March 17, 2015
 - Fixed testers wanting chai (regression since v6.76.0)
 

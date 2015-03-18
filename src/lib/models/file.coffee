@@ -19,7 +19,7 @@ jschardet = null
 encodingUtil = null
 
 # Local
-{Backbone,Model} = require('../base')
+{Model} = require('../base')
 docpadUtil = require('../util')
 
 
@@ -56,7 +56,7 @@ class FileModel extends Model
 	bufferTime: null
 
 	# The parsed file meta data (header)
-	# Is a Backbone.Model instance
+	# Is a Model instance
 	meta: null
 
 	# Locale
