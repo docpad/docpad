@@ -2048,6 +2048,16 @@ class DocPad extends EventEmitterGrouped
 
 		# Cycle through Custom Collections
 		eachr docpadConfig.collections or {}, (fn,name) ->
+			if !name or !typeChecker.isString(name)
+				err = new Error("Inside your DocPad configuration you have a custom collection with an invalid name of: #{docpad.inspector name}")
+				docpad.error(err)
+				return
+
+			if !fn or !typeChecker.isFunction(fn)
+				err = new Error("Inside your DocPad configuration you have a custom collection called #{docpad.inspector name} with an invalid method of: #{docpad.inspector fn}")
+				docpad.error(err)
+				return
+
 			tasks.addTask "creating the custom collection: #{name}", (complete) ->
 				# Init
 				ambi [fn.bind(docpad), fn], database, (err, collection) ->
