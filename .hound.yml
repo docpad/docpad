@@ -1,0 +1,5 @@
+# March 20, 2015
+coffee_script:
+  config_file: coffeelint.json
+java_script:
+  config_file: .jshintrc
