@@ -1,6 +1,6 @@
 # History
 
-## v6.78.1 March 18, 2015
+## v6.78.1 March 20, 2015
 - Fixed `queryEngine` is undefined error (regression since v6.78.1)
 	- Thanks to [wlbrough](https://github.com/wlbrough) for [issue #943](https://github.com/docpad/docpad/issues/943)
 
