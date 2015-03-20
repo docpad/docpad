@@ -1,5 +1,9 @@
 # History
 
+## v6.78.1 March 18, 2015
+- Fixed `queryEngine` is undefined error (regression since v6.78.1)
+	- Thanks to [wlbrough](https://github.com/wlbrough) for [issue #943](https://github.com/docpad/docpad/issues/943)
+
 ## v6.78.0 March 18, 2015
 - You can now `module.exports = function(docpad){ return {/* your docpad configuration */} }`
 

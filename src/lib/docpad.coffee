@@ -43,6 +43,7 @@ if ('--profile' in process.argv)
 util     = require('util')
 
 # External
+queryEngine = require('query-engine')
 {uniq, union, pick} = require('underscore')
 CSON = require('cson')
 balUtil = require('bal-util')
@@ -104,7 +105,7 @@ class DocPad extends EventEmitterGrouped
 	# Here for legacy API reasons
 	#@DocPad: DocPad
 	#@Backbone: require('backbone')
-	#@queryEngine: require('query-engine')
+	#@queryEngine: queryEngine
 
 	# Allow for `DocPad.create()` as an alias for `new DocPad()`
 	# Allow for `DocPad.createInstance()` as an alias for `new DocPad()` (legacy alias)
