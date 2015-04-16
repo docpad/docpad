@@ -96,38 +96,38 @@
 	renderGeneratingNotification: "Website generating..."
 	renderGenerated: "Generated %s files in %s seconds"
 	renderGeneratedNotification: "Website generated"
-	renderParsing: 'Parsing everything'
+	renderParsing: 'Parsing everything...'
 	renderParsed: 'Parsed everything'
 	renderNonexistant: 'Cannot generate website as the src dir was not found'
 	renderNoPlugins: "DocPad is currently running without any plugins installed. You probably want to install some: http://docpad.org/plugins"
 	renderDirectoryParsing: "Parsing directory: %s"
 	renderDirectoryParsed: "Parsed directory: %s"
 	renderDirectoryNonexistant: "Skipped directory: %s (it does not exist)"
-	renderCleaning: "Cleaning files"
+	renderCleaning: "Cleaning files..."
 	renderCleaned: "Cleaned files"
-	renderInterval: "Performing interval regeneration"
+	renderInterval: "Performing interval regeneration..."
 	slowFiles: "Waiting on the following files on %s:"
 
 	# Contextualize
-	contextualizingFiles: "Contextualizing %s files"
+	contextualizingFiles: "Contextualizing %s files..."
 	contextualizedFiles: "Contextualized %s files"
 
 	# Write
-	writingFiles: "Writing %s files"
+	writingFiles: "Writing %s files..."
 	wroteFiles: "Wrote %s files"
 
 	# Action
-	actionStart: "Performing the action %s"
+	actionStart: "Performing the action %s..."
 	actionFinished: "Performed the action %s"
 	actionNonexistant: "The action %s does not exist"
 	actionEmpty: "No action was provided"
 
 	# Plugins
 	pluginFailedToLoad: "Failed to load the plugin: %s at %s"
-	pluginsLoadingFor: "Plugins loading for: %s"
+	pluginsLoadingFor: "Plugins loading for: %s..."
 	pluginsLoadedFor: "Plugins loaded for: %s"
 	pluginsSlow: "We're preparing your plugins, this may take a while the first time. Waiting on the plugins: %s"
-	pluginLoading: "Loading plugin: %s"
+	pluginLoading: "Loading plugin: %s..."
 	pluginLoaded: "Loaded plugin: %s"
 	pluginSkipped: "Skipped plugin: %s"
 	pluginSkippedDueTo: "Skipped the unsupported plugin: %s due to %s"
@@ -174,7 +174,7 @@
 	loadedWebsitePackageConfig: "Loaded website package.json configuration: %s"
 	loadingEnvConfig: "Loading .env file configuration: %s"
 	loadedEnvConfig: "Loaded .env file configuration: %s"
-	loadingWebsiteConfig: "Loading website configuration"
+	loadingWebsiteConfig: "Loading website configuration..."
 	loadedWebsiteConfig: "Loaded website configuration"
 
 	# Console
