@@ -30,7 +30,7 @@
 	skeletonSelectionIntroduction: "You are about to create your new project inside your current directory. Below is a list of skeletons to bootstrap your new project:"
 	skeletonSelectionPrompt: "Which skeleton will you use?"
 	skeletonInstall: "Installing the %s skeleton into %s"
-	skeletonInstalled: "Installed the skeleton succesfully"
+	skeletonInstalled: "Installed the skeleton successfully"
 	skeletonExists: "Didn't place the skeleton as the desired structure already exists"
 	skeletonNonexistant: """
 		We couldn't find an existing DocPad project inside your current directory. Looked at: %s
@@ -72,7 +72,7 @@
 	documentMissingParserError: "Unknown meta parser %s on %s"
 	documentParserError: "Failed to parse the meta data using the %s parser on %s"
 	documentIdChangeError: """
-		The document %s tried to over-write its `id` attribute with its meta-data.
+		The document %s tried to overwrite its `id` attribute with its meta-data.
 		This will cause unexpected issues. We have ignored the `id` attribute changes to prevent further errors.
 		We recommend you rename the `id` meta-data attribute on this document to something else.
 		For more information, see: https://github.com/bevry/docpad/issues/742
@@ -220,7 +220,7 @@
 		You have multiple files being written to %s, they are:
 		  - %s
 		  - %s
-		  Rename one of them to avoid an over-write
+		  Rename one of them to avoid an overwrite
 		"""
 	renderedEarlyViaInclude: """
 		Your include of %s has failed as that document has not been rendered yet.
@@ -257,10 +257,10 @@
 	errorLoggedTo: "Error has been logged to: %s"
 	errorFollows: "\nThe error follows:"
 	errorInvalidCollection: "The custom collection %s is not a valid collection instance"
-	reportError: "An error occured reporting the error"
-	trackError: "An error occured sending statistics"
+	reportError: "An error occurred reporting the error"
+	trackError: "An error occurred sending statistics"
 	macError: "Failed to get your computer's MAC address"
-	exchangeError: "An error occured fetching the exchange data, this is okay, but not all skeletons will be available to you"
+	exchangeError: "An error occurred fetching the exchange data, this is okay, but not all skeletons will be available to you"
 	unknownModelInCollection: "Unknown model structure inside the collection"
 	versionOutdatedLocal: """
 		There's a new version of DocPad available!
