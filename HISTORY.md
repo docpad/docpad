@@ -464,7 +464,7 @@
 	- `rtime` (render time), `wtime` (write time) attributes have been added
 	- `date`, `mtime`, `ctime`, `rtime`, `wtime` attributes if set will always be Date instances
 	- `action` method has been added
-	- `load`, `parse`, `conextualize`, `render`, `write`, `writeSource` should now be called via `file.action('the action name', opts, next)` instead
+	- `load`, `parse`, `contextualize`, `render`, `write`, `writeSource` should now be called via `file.action('the action name', opts, next)` instead
 - Updated dependencies
 
 
