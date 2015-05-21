@@ -442,7 +442,7 @@
 	- You can customise the path of the database cache file via the `databaseCachePath` configuration option
 	- The database cache will be cleared on `docpad clean`
 	- NOTE: If you remove files when DocPad is shut down, DocPad will not pick it up the changes, to fix do one of the following:
-		- Run `docpad clean` to reset the databae cache
+		- Run `docpad clean` to reset the database cache
 		- Disable the database cache by setting the `databaseCache` configuration option to `false`
 		- Or just make sure when you are working on your DocPad site, you have `docpad run` running
 		- This potentional problem is planned on being fixed in a later version, for now an immediate release with these huge performance gains far outweigh a delayed release with the fix
