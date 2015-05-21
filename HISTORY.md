@@ -2073,7 +2073,7 @@
 - Support for dynamic documents
 	- These are re-rendered on each request, must use the docpad server
 	- See the search example in the [kitchensink skeleton](https://github.com/bevry/kitchensink.docpad)
-- Removed deprecated `@Document`, `@Documents`, and `@Site` from the `templateData` (the variables available to the templates). Use their lowercase equivalants instead. This can cause backwards compatibility problems with your templates, the console will notify you if there is a problem.
+- Removed deprecated `@Document`, `@Documents`, and `@Site` from the `templateData` (the variables available to the templates). Use their lowercase equivalents instead. This can cause backwards compatibility problems with your templates, the console will notify you if there is a problem.
 - Fixed `docpad --version` returning `null` instead of the docpad version
 
 
