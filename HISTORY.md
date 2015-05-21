@@ -1063,7 +1063,7 @@
 
 
 ## v6.25.0 March 10, 2013
-- Database is now persistant
+- Database is now persistent
 - We now destroy unused collections
 
 
