@@ -436,7 +436,7 @@
 
 ## v6.55.0 November 26, 2013
 - DocPad will now cache the database to `.docpad.db` after generation, and load it up upon initial generation
-	- This removes the huge performance burdon of the initial scan, load, parse, render
+	- This removes the huge performance burden of the initial scan, load, parse, render
 	- The `writeSource` attribute can now be considered under review for deprecation
 	- This can be turned off by setting the configuration option `databaseCache` to `false`
 	- You can customise the path of the database cache file via the `databaseCachePath` configuration option
