@@ -2127,7 +2127,7 @@
 	- Version checking moved to the `bal-util` module
 - File properties have changed
 	- `basename` is extensionless
-	- `filename` now contains the file's extnesions
+	- `filename` now contains the file's extensions
 	- `id` is now the `relativeBase` instead of the `slug`
 	- `extensionRendered` is the result extension
 	- `filenameRendered` is the result filename: `"#{basename}.#{extensionRendered}"
