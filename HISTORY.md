@@ -195,7 +195,7 @@
 ## v6.65.0 May 17, 2014
 - Independent rendering (including layout rendering) now occurs on a clone, allowing independent renderings on the same file to occur at the same time
 	- This fixes an issue where a recursive render on a file will cause a stalemate
-- More detailed errors when somethign goes wrong with rendering a file
+- More detailed errors when something goes wrong with rendering a file
 - Deprecated `docpad.cloneModel(document)`, you can now use `document.clone()` safely
 - Deprecated `apply` option for `document.render`, now use `document.clone().action('render')` instead
 - Fixed broken `docpad.addModel` and `docpad.addModels` (broken since their introduction in v6.55.0)
