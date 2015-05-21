@@ -445,7 +445,7 @@
 		- Run `docpad clean` to reset the databae cache
 		- Disable the database cache by setting the `databaseCache` configuration option to `false`
 		- Or just make sure when you are working on your DocPad site, you have `docpad run` running
-		- This potentional problem is planned on being fixed in a later version, for now an immediate release with these huge performance gains far outweigh a delayed release with the fix
+		- This potential problem is planned on being fixed in a later version, for now an immediate release with these huge performance gains far outweigh a delayed release with the fix
 - DocPad will now only re-render things that have explicitly changed or not been written yet
 	- This removes a huge performance burdon when pulling in virtual documents
 	- To use this when importing documents, make sure you set the `mtime` attribute
