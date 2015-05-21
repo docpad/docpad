@@ -1149,7 +1149,7 @@
 - Supports Node v0.9
 - Added `renderSingleExtensions` option
 	- Note: currently this will render `src/documents/script.coffee` from CoffeeScript to JavaScript as intended, HOWEVER the outfile will be `out/script.coffee` instead of the expected `out/script.js`. We will likely have to do an extension mapping for single extensions.
-- Added expiremental `docpad-compile` executable
+- Added experimental `docpad-compile` executable
 - Updated dependencies
 	- [bal-util](https://github.com/balupton/bal-util) ~1.15.4 to ~1.16.0
 
