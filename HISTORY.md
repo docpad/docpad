@@ -2174,7 +2174,7 @@
 		- Uses [Jeremy Ashkenas's](https://github.com/jashkenas) [CoffeeScript](https://github.com/jashkenas/coffee-script/) and [Rico Sta. Cruz's](https://github.com/rstacruz) [Js2Coffee](https://github.com/rstacruz/js2coffee)
 - Added a [Commander.js](https://github.com/visionmedia/commander.js) based CLI
 	- Thanks to [~eldios](https://github.com/eldios)
-- Added support for [Growl](http://growl.info/) notificaitons
+- Added support for [Growl](http://growl.info/) notifications
 - Added asynchronous version comparison
 
 
@@ -2196,7 +2196,7 @@
 
 
 ## v0.8 May 23, 2011
-- Now supports mutliple skeletons
+- Now supports multiple skeletons
 - Structure changes
 
 
