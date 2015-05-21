@@ -1317,7 +1317,7 @@
 	- Thanks to [Luke Hagan](https://github.com/lhagan) for [pull request #346](https://github.com/bevry/docpad/pull/346), [issue #343](https://github.com/bevry/docpad/issues/343)
 - We now error and provide suggestions when an extension transform doesn't do anything
 	- Thanks to [Farid Neshat](https://github.com/alFReD-NSH), [Elias Dawson](https://github.com/eliasdawson), [Steve Trevathan](https://github.com/kidfribble) for [issue #192](https://github.com/bevry/docpad/issues/192)
-- Watching stability has been improved signifcantly
+- Watching stability has been improved significantly
 	- Thanks to [ashnur](https://github.com/ashnur) for [issue #283](https://github.com/bevry/docpad/issues/283)
 - Parser headers that don't include spacing now work again (e.g. `---cson` instead of `--- cson`)
 	- Thanks to [bobobo1618](https://github.com/bobobo1618) for [issue #341](https://github.com/bevry/docpad/issues/341)
@@ -1494,7 +1494,7 @@
 
 ## v6.5.7 August 26, 2012
 - Fixed "cannot get length of undefined" intermittent error
-	- Due to an incorret variable name inside `DocPad::ensureDocumentOrFile`
+	- Due to an incorrect variable name inside `DocPad::ensureDocumentOrFile`
 
 
 ## v6.5.6 August 19, 2012
@@ -1603,8 +1603,8 @@
 
 ## v6.1.0 July 8, 2012
 - End user changes
-	- Added suport for using no skeleton on empty directory
-	- Action completion callback will now correctly return all arugments instead of just the error argument
+	- Added support for using no skeleton on empty directory
+	- Action completion callback will now correctly return all arguments instead of just the error argument
 	- Filename argument on command line is now optional, if specified it now supports single extension values, e.g. `markdown` instead of `file.html.md`
 	- When using CoffeeScript intead of YAML for meta data headers, the CoffeeScript will now be sandboxed
 		- If you are wanting to get stuff outside the sandbox write a `docpad.coffee` configuration file
@@ -1623,7 +1623,7 @@
 		- `FilesCollection`, `ElementsCollection`, `MetaCollection`, `ScriptsCollection`, `StylesCollection`
 		- `PluginLoader`, `BasePlugin`
 	- New Collection Helpers
-		- `getFiles(query,storting,paging)`
+		- `getFiles(query,sorting,paging)`
 		- `getFile(query,sorting,paging)`
 		- `getFilesAtPath(path,sorting,paging)`
 		- `getFileAtPath(path,sorting,paging)`
@@ -1665,7 +1665,7 @@
 
 ## v6.0.11 June 24, 2012
 - We now output that we are actually installing the skeleton, rather than just doing nothing
-- We now also always output the skeleton clone and instlalation progress to the user
+- We now also always output the skeleton clone and installation progress to the user
 - Skeletons are now a backbone collection
 
 
@@ -1744,7 +1744,7 @@
 	- Removed `documentsPath`, `filesPath`, `layoutsPath` configuration options for their array based alternatives `documentsPaths`, `filesPaths`, `layoutsPaths`
 	- Removed `require` from `templateData` as it needs to be specified in your project otherwise it has the wrong paths
 	- Removed `database`, `collections`, `blocks` from `templateData` for their helper based alternatives `getDatabase()`, `getCollection('collectionName')`, `getBlock('blockName')`
-	- Removed `String::startsWith`, `String::finsihesWith`, `Array::hasCount`, `Array::has` as we never used them
+	- Removed `String::startsWith`, `String::finishesWith`, `Array::hasCount`, `Array::has` as we never used them
 	- Removed `DocPad::documents` and `templateData.documents`, now use `getCollection('documents')`
 - New features
 	- Differential rendering
