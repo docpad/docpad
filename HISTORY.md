@@ -2000,7 +2000,7 @@
 	- If you are working on a cloned version of docpad, be sure to update your docpad's git repo address
 - Fixed plugin priorities [#115](https://github.com/bevry/docpad/pull/115)
 	- Thanks to [Changwoo Park](https://github.com/pismute)
-- Updated depdencies
+- Updated dependencies
 	- Growl 1.2.x -> 1.4.x [- changelog](https://github.com/visionmedia/node-growl/blob/master/History.md)
 	- CoffeeScript 1.1.3 -> 1.2.x [- changelog](http://coffeescript.org/#changelog)
 
@@ -2127,7 +2127,7 @@
 	- Version checking moved to the `bal-util` module
 - File properties have changed
 	- `basename` is extensionless
-	- `filename` now contains the file's extnesions
+	- `filename` now contains the file's extensions
 	- `id` is now the `relativeBase` instead of the `slug`
 	- `extensionRendered` is the result extension
 	- `filenameRendered` is the result filename: `"#{basename}.#{extensionRendered}"
