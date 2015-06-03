@@ -274,7 +274,7 @@
 
 
 ## v6.62.0 January 28, 2014
-- Stylesheets are more effeciently generated
+- Stylesheets are more efficiently generated
 	- Files with the `outExtension: 'css'` are now the only ones included in the `stylesheet` collection
 	- Stylesheets no longer have `referencesOthers` to `true` on them by default, this is now left up to plugin authors to do
 	- Thanks to [Dimitar Kolev-Dick](https://github.com/dimitarkolev) for [issue #789](https://github.com/bevry/docpad/issues/789)
