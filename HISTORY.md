@@ -1241,7 +1241,7 @@
 	-  `Document::initialize` didn't do anything
 	-  `Document::getMeta` didn't do anything
 	-  `File::readFile` merged into `File::parse`
-	- `File::parseData` renamed to `File::parse` and cleaned signficantly
+	- `File::parseData` renamed to `File::parse` and cleaned significantly
 - Added
 	- `Base::setDefaults` to update attributes that haven't been set
 	- `File::setMeta` to update the meta more easily than `File.getMeta().set`
