@@ -101,7 +101,7 @@
 	- Thanks to [Dimitar Kolev-Dick](https://github.com/dimitarkolev) for [issue #928](https://github.com/docpad/docpad/issues/928)
 - Added better warnings when loading a plugin fails for whatever reason
 - Better reporting of warnings
-- coffelint compliance
+- coffeelint compliance
 - Updated dependencies
 
 ## v6.71.1 February 19, 2015
@@ -256,7 +256,7 @@
 
 
 ## v6.63.2 January 30, 2014
-- Don't show generate success message if an error occured
+- Don't show generate success message if an error occurred
 
 
 ## v6.63.1 January 30, 2014
@@ -315,7 +315,7 @@
 
 
 ## v6.59.5 December 20, 2013
-- Non-CoffeeScript plugin authors can now rejoice, you can now easily exend the `BasePlugin` class by using `var MyPlugin = BasePlugin.extend({})`
+- Non-CoffeeScript plugin authors can now rejoice, you can now easily extend the `BasePlugin` class by using `var MyPlugin = BasePlugin.extend({})`
 	- Thanks to the [extendonclass](https://github.com/bevry/extendonclass) module
 
 
@@ -447,7 +447,7 @@
 		- Or just make sure when you are working on your DocPad site, you have `docpad run` running
 		- This potential problem is planned on being fixed in a later version, for now an immediate release with these huge performance gains far outweigh a delayed release with the fix
 - DocPad will now only re-render things that have explicitly changed or not been written yet
-	- This removes a huge performance burdon when pulling in virtual documents
+	- This removes a huge performance burden when pulling in virtual documents
 	- To use this when importing documents, make sure you set the `mtime` attribute
 - Added `--silent` option that sets `prompts: false` for disabling all prompts
 	- Removed `-s` option that was an alias for `--skeleton` to avoid confusion
@@ -1124,7 +1124,7 @@
 ## v6.21.8 February 5, 2013
 - Swapped out underscore dependency for lodash
 - Underscore is no longer provided to testers
-- `File::getMeta` now alises to `File.getMeta().get` if arguments have been supplied
+- `File::getMeta` now aliases to `File.getMeta().get` if arguments have been supplied
 - No longer does deep clones on template data per file render (just shallow clone now)
 - Fixed a bug that keeps `exists` attribute on `File` always `true`
 	- Thanks to [Stefan](https://github.com/stegrams) for [pull request #409](https://github.com/bevry/docpad/pull/409)
@@ -1234,7 +1234,7 @@
 
 
 ## v6.17.0 December 4, 2012
-- Cleaned up the way we handle buffers, data, and meta data - more effecient and simpler api
+- Cleaned up the way we handle buffers, data, and meta data - more efficient and simpler api
 - Updated
 	- `File::getMeta` to create meta if it doesn't exist yet
 - Removed
@@ -1606,7 +1606,7 @@
 	- Added support for using no skeleton on empty directory
 	- Action completion callback will now correctly return all arguments instead of just the error argument
 	- Filename argument on command line is now optional, if specified it now supports single extension values, e.g. `markdown` instead of `file.html.md`
-	- When using CoffeeScript intead of YAML for meta data headers, the CoffeeScript will now be sandboxed
+	- When using CoffeeScript instead of YAML for meta data headers, the CoffeeScript will now be sandboxed
 		- If you are wanting to get stuff outside the sandbox write a `docpad.coffee` configuration file
 - Document and File model changes
 	- Now work fine without any path specified
@@ -1805,7 +1805,7 @@
 		posts: (database) ->
 			database.findAll(tags: $has: 'post')
 	```
-- Templates now have access to a new function called `include`. It will include the renderedContent (or if unavilable to content) of the file. In eco, you would use it like this: `<%- @include('filename.ext1.ext2.ext3') %>`
+- Templates now have access to a new function called `include`. It will include the renderedContent (or if unavailable to content) of the file. In eco, you would use it like this: `<%- @include('filename.ext1.ext2.ext3') %>`
 - Blocks are now Collections too! You can call `.add` on them, and use `.toHTML()` to grab them as HTML (`.join` will do the same thing for b/c)
 - This should be a completely backwards compatible release, let us know if you any issues on the
 
@@ -1930,7 +1930,7 @@
 	- Useful for things that modify the rendered result of a document, e.g. syntax highlighting, paging, etc
 - Closes
 	- [#146](https://github.com/bevry/docpad/pull/146) - Require RubyGems on Ruby 1.8
-	- [#137](https://github.com/bevry/docpad/pull/137) - An error occured: Cannot find module 'uglify-js'
+	- [#137](https://github.com/bevry/docpad/pull/137) - An error occurred: Cannot find module 'uglify-js'
 	- [#34](https://github.com/bevry/docpad/issues/34) - As a User, I want server-side syntax highlighting, as pygments rocks
 
 
@@ -2025,7 +2025,7 @@
 	- AutoUpdate
 	- Buildr
 	- Html2Jade
-- Updated depdencies
+- Updated dependencies
 	- Commander 0.3.x -> 0.5.x [- changelog](https://github.com/visionmedia/commander.js/blob/master/History.md)
 	- Growl 1.1.x -> 1.2.x [- changelog](https://github.com/visionmedia/node-growl/blob/master/History.md)
 	- NPM 1.0.x -> 1.1.x
