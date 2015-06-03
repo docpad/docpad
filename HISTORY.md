@@ -624,7 +624,7 @@
 
 
 ## v6.51.2 August 29, 2013
-- Fixed certain pugin tests that require skeleton initialisation (regression since v6.52.0)
+- Fixed certain plugin tests that require skeleton initialisation (regression since v6.52.0)
 - When using `--global` flag we won't kill the global instance when starting a skeleton
 
 
