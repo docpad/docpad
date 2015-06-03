@@ -776,7 +776,7 @@
 ## v6.44.0 July 2, 2013
 - Model Improvements
 	- Way better support for virtual documents (files that do not have a physical path)
-	- Cleaned up and fortified the normalization and contextualize prodecures
+	- Cleaned up and fortified the normalization and contextualize procedures
 	- At least one of these file attributes must be specified: `filename`, `relativePath`, `fullPath`
 		- `relativePath` if not set will default to `fullPath` or `filename`
 		- `filename` if not set will default to the filename of `fullPath` or `relativePath`
