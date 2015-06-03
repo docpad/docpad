@@ -1312,7 +1312,7 @@
 
 
 ## v6.12.0 November 23, 2012
-- When creating new documents or files, if it is inside an unknown path we will now default to creating a document intead of a file
+- When creating new documents or files, if it is inside an unknown path we will now default to creating a document instead of a file
 - We now send growl notifications when errors occur
 	- Thanks to [Luke Hagan](https://github.com/lhagan) for [pull request #346](https://github.com/bevry/docpad/pull/346), [issue #343](https://github.com/bevry/docpad/issues/343)
 - We now error and provide suggestions when an extension transform doesn't do anything
