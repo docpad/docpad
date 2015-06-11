@@ -139,6 +139,7 @@ These amazing people have contributed finances to this project:
 - Myplanet Digital <hello@myplanetdigital.com> (http://www.myplanetdigital.com)
 - Meeho! <info@meeho.net> (http://www.meeho.net)
 - Prismatik <hello@prismatik.com.au> (http://www.prismatik.com.au)
+- hybris <yaas-feedback@sap.com> (http://yaas.io/)
 
 Become a sponsor!
 
