@@ -95,11 +95,13 @@ setImmediate = global?.setImmediate or process.nextTick  # node 0.8 b/c
 isUser = docpadUtil.isUser()
 
 
-# =====================================
-# DocPad
-
+###*
 # The DocPad Class
 # Extends https://github.com/bevry/event-emitter-grouped
+# @class Docpad
+# @constructor
+# @extends EventEmitterGrouped
+###
 class DocPad extends EventEmitterGrouped
 	# Libraries
 	# Here for legacy API reasons
@@ -133,60 +135,176 @@ class DocPad extends EventEmitterGrouped
 	# ---------------------------------
 	# Modules
 
-	# Base
+	# Base-----------------------------
+	###*
+	# Events class
+	# @property {Object} Events
+	###
 	Events: Events
+	###*
+	# Model class
+	# @property {Object} Model
+	###
 	Model: Model
+
+	###*
+	# Collection class
+	# @property {Object} Collection
+	###
 	Collection: Collection
+
+	###*
+	# QueryCollection class
+	# @property {Object} QueryCollection
+	###
 	QueryCollection: QueryCollection
 
-	# Models
+	# Models----------------------------
+	###*
+	# File Model class
+	# @property {Object} FileModel
+	###
 	FileModel: FileModel
+
+	###*
+	# Document Model class
+	# @property {Object} FileModel
+	###
 	DocumentModel: DocumentModel
 
-	# Collections
+	# Collections------------------------
+	###*
+	# Collection of files in a DocPad project
+	# @property {Object} FilesCollection
+	###
 	FilesCollection: FilesCollection
+
+	###*
+	# Collection of elements in a DocPad project
+	# @property {Object} ElementsCollection
+	###
 	ElementsCollection: ElementsCollection
+
+	###*
+	# Collection of metadata in a DocPad project
+	# @property {Object} MetaCollection
+	###
 	MetaCollection: MetaCollection
+
+	###*
+	# Collection of JS script files in a DocPad project
+	# @property {Object} ScriptsCollection
+	###
 	ScriptsCollection: ScriptsCollection
+
+	###*
+	# Collection of CSS style files in a DocPad project
+	# @property {Object} StylesCollection
+	###
 	StylesCollection: StylesCollection
 
-	# Plugins
+	###*
+	# Loads the DocPad plugins from the file system into
+	# a DocPad project
+	# @property {Object} PluginLoader
+	###
 	PluginLoader: PluginLoader
+
+	###*
+	# Base class for all DocPad plugins
+	# @property {Object} BasePlugin
+	###
 	BasePlugin: BasePlugin
 
 
 	# ---------------------------------
 	# DocPad
 
+
+	###*
 	# DocPad's version number
+	# @private
+	# @property {Number} version
+	###
 	version: null
 
+	###*
+	# Get the DocPad version number
+	# @method getVersion
+	# @return {Number}
+	###
 	getVersion: ->
 		@version ?= require(@packagePath).version
 		return @version
 
+	###*
+	# Get the DocPad version string
+	# @method getVersionString
+	# @return {String}
+	###
 	getVersionString: ->
 		if docpadUtil.isLocalDocPadExecutable()
 			return util.format(@getLocale().versionLocal, @getVersion(), @corePath)
 		else
 			return util.format(@getLocale().versionGlobal, @getVersion(), @corePath)
 
-	# Plugin version requirements
+	###*
+	# The plugin version requirements
+	# @property {String} pluginVersion
+	###
 	pluginVersion: '2'
 
 	# Process getters
+	###*
+	# Get the process platform
+	# @method getProcessPlatform
+	# @return {Object}
+	###
 	getProcessPlatform: -> process.platform
+
+	###*
+	# Get the process version string
+	# @method getProcessVersion
+	# @return {String}
+	###
 	getProcessVersion: -> process.version.replace(/^v/,'')
 
-	# The express and http server instances bound to docpad
+	###*
+	# The express.js server instance bound to DocPad.
+	# http://expressjs.com
+	# @private
+	# @property {Object} serverExpress
+	###
 	serverExpress: null
+
+	###*
+	# The Node.js http server instance bound to DocPad
+	# https://nodejs.org/api/http.html
+	# @private
+	# @property {Object} serverHttp
+	###
 	serverHttp: null
+
+	###*
+	# Get the DocPad express.js server instance and, optionally,
+	# the node.js https server instance
+	# @method getServer
+	# @param {Boolean} [both=false]
+	# @return {Object}
+	###
 	getServer: (both=false) ->
 		{serverExpress,serverHttp} = @
 		if both
 			return {serverExpress, serverHttp}
 		else
 			return serverExpress
+
+	###*
+	# Set the express.js server and node.js http server
+	# to bind to DocPad
+	# @method setServer
+	# @param {Object} servers
+	###
 	setServer: (servers) ->
 		# Apply
 		if servers.serverExpress and servers.serverHttp
@@ -197,6 +315,11 @@ class DocPad extends EventEmitterGrouped
 		delete @config.serverHttp
 		delete @config.serverExpress
 		delete @config.server
+
+	###*
+	# Close and destroy the node.js http server
+	# @method destroyServer
+	###
 	destroyServer: ->
 		@serverHttp?.close()
 		@serverHttp = null
