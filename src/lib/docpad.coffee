@@ -161,8 +161,9 @@ class DocPad extends EventEmitterGrouped
 	###
 	QueryCollection: QueryCollection
 
-	# Models
 	# ---------------------------------
+	# Models
+
 	###*
 	# File Model class
 	# @property {Object} FileModel
@@ -175,8 +176,9 @@ class DocPad extends EventEmitterGrouped
 	###
 	DocumentModel: DocumentModel
 
-	# Collections
 	# ---------------------------------
+	# Collections
+
 	###*
 	# Collection of files in a DocPad project
 	# @property {Object} FilesCollection
@@ -895,7 +897,7 @@ class DocPad extends EventEmitterGrouped
 	# Get a file by its selector
 	# @method getFileBySelector
 	# @param {Object} selector
-	# @param {Object} opts={}
+	# @param {Object} [opts={}]
 	# @return {Object} a file
 	###
 	getFileBySelector: (selector,opts={}) ->
