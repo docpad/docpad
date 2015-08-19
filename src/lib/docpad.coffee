@@ -135,8 +135,9 @@ class DocPad extends EventEmitterGrouped
 	# ---------------------------------
 	# Modules
 
-	# Base
 	# ---------------------------------
+	# Base
+
 	###*
 	# Events class
 	# @property {Object} Events
@@ -853,7 +854,7 @@ class DocPad extends EventEmitterGrouped
 	###*
 	# Get a file by its route
 	# @method getFileByRoute
-	# @param {Object} url
+	# @param {String} url
 	# @param {Object} next
 	# @return {Object} description
 	###
