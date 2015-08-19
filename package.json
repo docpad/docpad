@@ -6,10 +6,7 @@
   "homepage": "http://docpad.org",
   "installUrl": "http://docpad.org/install",
   "upgradeUrl": "http://docpad.org/upgrade",
-  "license": {
-    "type": "MIT",
-    "url": "http://docpad.org/license"
-  },
+  "license": "MIT",
   "badges": {
     "travis": true,
     "npm": true,
