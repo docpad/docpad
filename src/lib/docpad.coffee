@@ -1041,13 +1041,27 @@ class DocPad extends EventEmitterGrouped
 	# -----------------------------
 	# Template Data
 
-	# DocPad's Template Data
+
+	###*
+	# Description for initialTemplateData
+	# @private
+	# @property {Object} initialTemplateData
+	###
 	initialTemplateData: null  # {}
 
+	###*
 	# Plugin's Extended Template Data
+	# @private
+	# @property {Object} pluginsTemplateData
+	###
 	pluginsTemplateData: null  # {}
 
+	###*
 	# Get Complete Template Data
+	# @method getTemplateData
+	# @param {Object} userTemplateData
+	# @return {Object} templateData
+	###
 	getTemplateData: (userTemplateData) ->
 		# Prepare
 		userTemplateData or= {}
@@ -1159,10 +1173,19 @@ class DocPad extends EventEmitterGrouped
 	# -----------------------------
 	# Locales
 
+	###*
 	# Determined locale
+	# @private
+	# @property {Object} locale
+	###
 	locale: null
 
-	# Get Locale
+
+	###*
+	# Get the locale (language code and locale code)
+	# @method getLocale
+	# @return {Object} locale
+	###
 	getLocale: ->
 		if @locale? is false
 			config = @getConfig()
@@ -1178,7 +1201,12 @@ class DocPad extends EventEmitterGrouped
 
 		return @locale
 
-	# Load Locale
+	###*
+	# Load the locale
+	# @method loadLocale
+	# @param {String} code
+	# @return {Object} locale
+	###
 	loadLocale: (code) ->
 		# Check if it exists
 		localeFilename = "#{code}.cson"
@@ -1201,12 +1229,22 @@ class DocPad extends EventEmitterGrouped
 	# -----------------------------
 	# Environments
 
-	# Get Environment
+
+	###*
+	# Get the DocPad environment, eg: development,
+	# production or static
+	# @method getEnvironment
+	# @return {String} the environment
+	###
 	getEnvironment: ->
 		env = @getConfig().env or 'development'
 		return env
 
-	# Get Environments
+	###*
+	# Get the environments
+	# @method getEnvironments
+	# @return {Array} array of environment strings
+	###
 	getEnvironments: ->
 		env = @getEnvironment()
 		envs = env.split(/[, ]+/)
@@ -1216,13 +1254,22 @@ class DocPad extends EventEmitterGrouped
 	# -----------------------------
 	# Configuration
 
+	###*
 	# Hash Key
 	# The key that we use to hash some data before sending it to our statistic server
+	# @private
+	# @property {String} string constant
+	###
 	hashKey: '7>9}$3hP86o,4=@T'  # const
 
+	###*
 	# Website Package Configuration
+	# @private
+	# @property {Object} websitePackageConfig
+	###
 	websitePackageConfig: null  # {}
 
+	###*
 	# Merged Configuration
 	# Merged in the order of:
 	# - initialConfig
@@ -1230,15 +1277,35 @@ class DocPad extends EventEmitterGrouped
 	# - websiteConfig
 	# - instanceConfig
 	# - environmentConfig
+	# Use getConfig to retrieve this value
+	# @private
+	# @property {Object} config
+	###
 	config: null  # {}
 
+
+	###*
 	# Instance Configuration
+
+	# @private
+	# @property {Object} instanceConfig
+	###
 	instanceConfig: null  # {}
 
+	###*
 	# Website Configuration
+	# Merged into the config property
+	# @private
+	# @property {Object} websiteConfig
+	###
 	websiteConfig: null  # {}
 
+	###*
 	# User Configuraiton
+	# Merged into the config property
+	# @private
+	# @property {Object} userConfig
+	###
 	userConfig:
 		# Name
 		name: null
@@ -1262,7 +1329,13 @@ class DocPad extends EventEmitterGrouped
 		# Identified
 		identified: null
 
-	# Initial Configuration
+	###*
+	# Initial Configuration. The default docpadConfig
+	# settings that can be overridden in a project's docpad.coffee file.
+	# Merged into the config property
+	# @private
+	# @property {Object} initialConfig
+	###
 	initialConfig:
 
 		# -----------------------------
@@ -1550,19 +1623,35 @@ class DocPad extends EventEmitterGrouped
 				welcome: isUser
 				prompts: isUser
 
+	###*
 	# Regenerate Timer
 	# When config.regenerateEvery is set to a value, we create a timer here
+	# @private
+	# @property {Object} regenerateTimer
+	###
 	regenerateTimer: null
 
+	###*
 	# Get the Configuration
+	# @method getConfig
+	# @return {Object} the DocPad configuration object
+	###
 	getConfig: ->
 		return @config or {}
 
-	# Get the Port
+	###*
+	# Get the port that DocPad is listening on (eg 9778)
+	# @method getPort
+	# @return {Number} the port number
+	###
 	getPort: ->
 		return @getConfig().port ? process.env.PORT ? process.env.VCAP_APP_PORT ? process.env.VMC_APP_PORT ? 9778
 
+	###*
 	# Get the Hostname
+	# @method getHostname
+	# @return {String}
+	###
 	getHostname: ->
 		return @getConfig().hostname ? process.env.HOSTNAME ? null
 
@@ -1570,8 +1659,14 @@ class DocPad extends EventEmitterGrouped
 	# =================================
 	# Initialization Functions
 
+	###*
 	# Construct DocPad
 	# next(err)
+	# @constructor constructor
+	# @param {Object} instanceConfig
+	# @param {Function} next
+	# @return {Object} the DocPad instance
+	###
 	constructor: (instanceConfig,next) ->
 		# Prepare
 		[instanceConfig,next] = extractOptsAndCallback(instanceConfig, next)
@@ -1810,9 +1905,14 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Destroy
+	###*
+	# Destructor. Destroy the DocPad instance
 	# This is an action, and should be called as such
 	# E.g. docpad.action('destroy', next)
+	# @method destroy
+	# @param {Object} opts
+	# @param {Function} next
+	###
 	destroy: (opts, next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
@@ -1862,7 +1962,14 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Emit Serial
+	###*
+	# Emit event, serial
+	# @private
+	# @method emitSerial
+	# @param {String} eventName
+	# @param {Object} opts
+	# @param {Function} next
+	###
 	emitSerial: (eventName, opts, next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
@@ -1886,7 +1993,14 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Emit Parallel
+	###*
+	# Emit event, parallel
+	# @private
+	# @method emitParallel
+	# @param {String} eventName
+	# @param {Object} opts
+	# @param {Function} next
+	###
 	emitParallel: (eventName, opts, next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
@@ -1914,20 +2028,43 @@ class DocPad extends EventEmitterGrouped
 	# =================================
 	# Helpers
 
+	###*
+	# Get the ignore options for the DocPad project
+	# @method getIgnoreOpts
+	# @return {Array} string array of ignore options
+	###
 	getIgnoreOpts: ->
 		return pick(@config, ['ignorePaths', 'ignoreHiddenFiles', 'ignoreCommonPatterns', 'ignoreCustomPatterns'])
 
-	# Is Ignored Path
+	###*
+	# Is the supplied path ignored?
+	# @method isIgnoredPath
+	# @param {String} path
+	# @param {Object} [opts={}]
+	# @return {Boolean}
+	###
 	isIgnoredPath: (path,opts={}) ->
 		opts = extendr.extend(@getIgnoreOpts(), opts)
 		return ignorefs.isIgnoredPath(path, opts)
 
-	# Scan Directory
+	###*
+	# Scan directory
+	# @method scandir
+	# @param {Object} [opts={}]
+	###
+	#NB: How does this work? What is returned?
+	#Does it require a callback (next) passed as
+	#one of the options
 	scandir: (opts={}) ->
 		opts = extendr.extend(@getIgnoreOpts(), opts)
 		return scandir(opts)
 
+	###*
 	# Watch Directory
+	# @method watchdir
+	# @param {Object} [opts={}]
+	# @return {Object} the watcher
+	###
 	watchdir: (opts={}) ->
 		opts = extendr.extend(@getIgnoreOpts(), opts, @config.watchOptions)
 		return require('watchr').watch(opts)
@@ -1936,8 +2073,15 @@ class DocPad extends EventEmitterGrouped
 	# =================================
 	# Setup and Loading
 
-	# Ready
+	###*
+	# DocPad is ready. Peforms the tasks needed after DocPad construction
+	# and DocPad has loaded. Triggers the docpadReady event.
 	# next(err,docpadInstance)
+	# @private
+	# @method ready
+	# @param {Object} opts
+	# @param {Function} next
+	###
 	ready: (opts,next) ->
 		# Prepare
 		[instanceConfig,next] = extractOptsAndCallback(instanceConfig,next)
@@ -1992,7 +2136,13 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Merge Configurations
+	###*
+	# Performs the merging of the passed configuration objects
+	# @private
+	# @method mergeConfigurations
+	# @param {Object} configPackages
+	# @param {Object} configsToMerge
+	###
 	mergeConfigurations: (configPackages,configsToMerge) ->
 		# Prepare
 		envs = @getEnvironments()
@@ -2011,7 +2161,14 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Set Instance Configuration
+	###*
+	# Set the instance configuration
+	# by merging the properties of the passed object
+	# with the existing DocPad instanceConfig object
+	# @private
+	# @method setInstanceConfig
+	# @param {Object} instanceConfig
+	###
 	setInstanceConfig: (instanceConfig) ->
 		# Merge in the instance configurations
 		if instanceConfig
@@ -2021,8 +2178,17 @@ class DocPad extends EventEmitterGrouped
 			@setLogLevel(instanceConfig.logLevel)  if instanceConfig.logLevel and instanceConfig.logLevel isnt logLevel
 		@
 
-	# Set Configuration
+	###*
+	# Set the DocPad configuration object.
+	# Performs a number of tasks, including
+	# merging the pass instanceConfig with DocPad's
+	# other config objects.
 	# next(err,config)
+	# @private
+	# @method setConfig
+	# @param {Object} instanceConfig
+	# @param {Object} next
+	###
 	setConfig: (instanceConfig,next) ->
 		# Prepare
 		[instanceConfig,next] = extractOptsAndCallback(instanceConfig,next)
@@ -2111,8 +2277,15 @@ class DocPad extends EventEmitterGrouped
 		@
 
 
-	# Load Configuration
+	###*
+	# Load the various configuration files from the
+	# file system. Set the instanceConfig.
 	# next(err,config)
+	# @private
+	# @method load
+	# @param {Object} instanceConfig
+	# @param {Function} next
+	###
 	load: (instanceConfig,next) ->
 		# Prepare
 		[instanceConfig,next] = extractOptsAndCallback(instanceConfig,next)
@@ -2236,7 +2409,12 @@ class DocPad extends EventEmitterGrouped
 	# =================================
 	# Configuration
 
-	# Update User Configuration
+	###*
+	# Update user configuration with the passed data
+	# @method updateUserConfig
+	# @param {Object} [data={}]
+	# @param {Function} next
+	###
 	updateUserConfig: (data={},next) ->
 		# Prepare
 		[data,next] = extractOptsAndCallback(data,next)
@@ -2262,8 +2440,13 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
+	###*
 	# Load a configuration url
 	# next(err,parsedData)
+	# @method loadConfigUrl
+	# @param {String} configUrl
+	# @param {Function} next
+	###
 	loadConfigUrl: (configUrl,next) ->
 		# Prepare
 		docpad = @
@@ -2286,8 +2469,17 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Load the configuration path
+
+	###*
+	# Load the configuration from a file path
+	# passed as one of the options (opts.configPath) or
+	# from DocPad's configPaths
 	# next(err,parsedData)
+	# @private
+	# @method loadConfigPath
+	# @param {Object} opts
+	# @param {Function} next
+	###
 	loadConfigPath: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
@@ -2342,8 +2534,15 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Get Config Path
+	###*
+	# Get config paths and check that those
+	# paths exist
 	# next(err,path)
+	# @private
+	# @method getConfigPath
+	# @param {Object} opts
+	# @param {Object} next
+	###
 	getConfigPath: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
@@ -2376,8 +2575,17 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Extend Collecitons
+
+	###*
+	# Extend collecitons. Create DocPad's
+	# standard (documents, files
+	# layouts) and special (generate, referencesOthers,
+	# hasLayout, html, stylesheet) collections. Set blocks
 	# next(err)
+	# @private
+	# @method extendCollections
+	# @param {Function} next
+	###
 	extendCollections: (next) ->
 		# Prepare
 		docpad = @
@@ -2511,8 +2719,15 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Reset Collections
+
+	###*
+	# Reset collections. Perform a complete clean of our collections
 	# next(err)
+	# @private
+	# @method resetCollections
+	# @param {Object} opts
+	# @param {Function} next
+	###
 	resetCollections: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
@@ -2542,8 +2757,15 @@ class DocPad extends EventEmitterGrouped
 		next()
 		@
 
-	# Init Git Repo
+
+	###*
+	# Initialise git repo
 	# next(err,results)
+	# @private
+	# @method initGitRepo
+	# @param {Object} opts
+	# @param {Function} next
+	###
 	initGitRepo: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
@@ -2560,8 +2782,14 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Init Node Modules
+	###*
+	# Init node modules
 	# next(err,results)
+	# @private
+	# @method initNodeModules
+	# @param {Object} opts
+	# @param {Function} next
+	###
 	initNodeModules: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
@@ -2586,9 +2814,14 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Fix Node Package Versions
+	###*
+	# Fix node package versions
 	# Combat to https://github.com/npm/npm/issues/4587#issuecomment-35370453
 	# next(err)
+	# @private
+	# @method fixNodePackageVersions
+	# @param {Object} opts
+	###
 	fixNodePackageVersions: (opts) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
@@ -2608,8 +2841,16 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Install Node Module
+
+	###*
+	# Install node module. Same as running
+	# 'npm install' through the command line
 	# next(err,result)
+	# @private
+	# @method installNodeModule
+	# @param {Array} names
+	# @param {Object} opts
+	###
 	installNodeModule: (names,opts) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
@@ -2661,8 +2902,16 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Uninstall Node Module
+
+	###*
+	# Uninstall node module. Same as running
+	# 'npm uninstall' through the command line
 	# next(err,result)
+	# @private
+	# @method uninstallNodeModule
+	# @param {Array} names
+	# @param {Object} opts
+	###
 	uninstallNodeModule: (names,opts) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
@@ -2708,7 +2957,12 @@ class DocPad extends EventEmitterGrouped
 	# =================================
 	# Logging
 
-	# Set Log Level
+	###*
+	# Set the log level
+	# @private
+	# @method setLogLevel
+	# @param {Number} level
+	###
 	setLogLevel: (level) ->
 		@getLogger().setConfig({level})
 		if level is 7
@@ -2723,15 +2977,29 @@ class DocPad extends EventEmitterGrouped
 					)
 		@
 
-	# Are we debugging?
+	###*
+	# Get the log level
+	# @method getLogLevel
+	# @return {Number} the log level
+	###
 	getLogLevel: ->
 		return @getConfig().logLevel
 
+	###*
 	# Are we debugging?
+	# @method getDebugging
+	# @return {Boolean}
+	###
 	getDebugging: ->
 		return @getLogLevel() is 7
 
+
+	###*
 	# Handle a fatal error
+	# @private
+	# @method fatal
+	# @param {Object} err
+	###
 	fatal: (err) ->
 		docpad = @
 		config = @getConfig()
@@ -2752,14 +3020,25 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Inspect
+
+	###*
+	# Inspect. Converts object to JSON string. Wrapper around nodes util.inspect method.
 	# Can't use the inspect namespace as for some silly reason it destroys everything
+	# @method inspector
+	# @param {Object} obj
+	# @param {Object} opts
+	# @return {String} JSON string of passed object
+	###
 	inspector: (obj, opts) ->
 		opts ?= {}
 		opts.colors ?= @getConfig().color
 		return docpadUtil.inspect(obj, opts)
 
-	# Log
+	###*
+	# Log arguments
+	# @property {Object} log
+	# @param {Mixed} args...
+	###
 	log: (args...) ->
 		# Log
 		logger = @getLogger() or console
@@ -2768,7 +3047,14 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Create an error
+
+	###*
+	# Create an error object
+	# @method createError
+	# @param {Object} err
+	# @param {Object} opts
+	# @return {Object} the error
+	###
 	# @TODO: Decide whether or not we should track warnings
 	# Previously we didn't, but perhaps it would be useful
 	# If the statistics gets polluted after a while, we will remove it
@@ -2795,7 +3081,13 @@ class DocPad extends EventEmitterGrouped
 		# Return the error
 		return err
 
+
+	###*
 	# Create an error (tracks it) and log it
+	# @method error
+	# @param {Object} err
+	# @param {Object} [level='err']
+	###
 	error: (err, level='err') ->
 		# Prepare
 		docpad = @
@@ -2815,7 +3107,11 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
+	###*
 	# Log an error
+	# @method logError
+	# @param {Object} err
+	###
 	logError: (err) ->
 		# Prepare
 		docpad = @
@@ -2841,7 +3137,13 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
+
+	###*
 	# Track an error in the background
+	# @private
+	# @method trackError
+	# @param {Object} err
+	###
 	trackError: (err) ->
 		# Prepare
 		docpad = @
@@ -2860,7 +3162,12 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
+	###*
 	# Notify error
+	# @private
+	# @method notifyError
+	# @param {Object} err
+	###
 	notifyError: (err) ->
 		# Prepare
 		docpad = @
@@ -2879,7 +3186,13 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Warn
+	###*
+	# Log an error of level 'warn'
+	# @method warn
+	# @param {String} message
+	# @param {Object} err
+	# @return {Object} description
+	###
 	warn: (message, err) ->
 		# Handle
 		if err
@@ -2898,7 +3211,13 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
+
+	###*
 	# Send a notify event to plugins (like growl)
+	# @method notify
+	# @param {String} message
+	# @param {Object} [opts={}]
+	###
 	notify: (message,opts={}) ->
 		# Prepare
 		docpad = @
@@ -2910,7 +3229,13 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
+
+	###*
 	# Check Request
+	# @private
+	# @method checkRequest
+	# @param {Function} next
+	###
 	checkRequest: (next) ->
 		next ?= @error.bind(@)
 		return (err,res) ->
@@ -2925,8 +3250,14 @@ class DocPad extends EventEmitterGrouped
 			# Success
 			return next(null, res)
 
-	# Subscribe
+
+	###*
+	# Subscribe to the DocPad email list.
 	# next(err)
+	# @private
+	# @method subscribe
+	# @param {Function} next
+	###
 	subscribe: (next) ->
 		# Prepare
 		config = @getConfig()
@@ -2959,8 +3290,15 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
+	###*
 	# Track
 	# next(err)
+	# @private
+	# @method track
+	# @param {String} name
+	# @param {Object} [things={}]
+	# @param {Function} next
+	###
 	track: (name,things={},next) ->
 		# Prepare
 		docpad = @
