@@ -3347,8 +3347,13 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Identify
+	###*
+	# Identify DocPad user
 	# next(err)
+	# @private
+	# @method identify
+	# @param {Function} next
+	###
 	identify: (next) ->
 		# Prepare
 		docpad = @
@@ -3420,23 +3425,48 @@ class DocPad extends EventEmitterGrouped
 	# ---------------------------------
 	# b/c compat functions
 
-	# Create File
+	###*
+	# Create file model
+	# @method createFile
+	# @param {Object} [attrs={}]
+	# @param {Object} [opts={}]
+	# @return {Object} FileModel
+	###
 	createFile: (attrs={},opts={}) ->
 		opts.modelType = 'file'
 		return @createModel(attrs, opts)
 
-	# Create Document
+	###*
+	# Create document model
+	# @method createDocument
+	# @param {Object} [attrs={}]
+	# @param {Object} [opts={}]
+	# @return {Object} DocumentModel
+	###
 	createDocument: (attrs={},opts={}) ->
 		opts.modelType = 'document'
 		return @createModel(attrs, opts)
 
-	# Parse File Directory
+
+	###*
+	# Parse the files directory
+	# @method parseFileDirectory
+	# @param {Object} [opts={}]
+	# @param {Function} next
+	# @return {Object} FilesCollection
+	###
 	parseFileDirectory: (opts={},next) ->
 		opts.modelType ?= 'file'
 		opts.collection ?= @getDatabase()
 		return @parseDirectory(opts, next)
 
-	# Parse Document Directory
+	###*
+	# Parse the documents directory
+	# @method parseDocumentDirectory
+	# @param {Object} [opts={}]
+	# @param {Function} next
+	# @return {Object} FilesCollection of documents
+	###
 	parseDocumentDirectory: (opts={},next) ->
 		opts.modelType ?= 'document'
 		opts.collection ?= @getDatabase()
@@ -3446,7 +3476,13 @@ class DocPad extends EventEmitterGrouped
 	# ---------------------------------
 	# Standard functions
 
-	# Attach Model Events
+
+	###*
+	# Attach events to document models
+	# @private
+	# @method attachModelEvents
+	# @param {Object} model
+	###
 	attachModelEvents: (model) ->
 		# Prepare
 		docpad = @
@@ -3500,25 +3536,55 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Add Model
+	###*
+	# Add supplied model to the DocPad database
+	# @method addModel
+	# @param {Object} model
+	# @param {Object} opts
+	# @return {Object} the model
+	###
 	addModel: (model, opts) ->
 		model = @createModel(model, opts)
 		@getDatabase().add(model)
 		return model
 
-	# Add Models
+	###*
+	# Add the supplied collection of models to the DocPad database
+	# @method addModels
+	# @param {Object} models
+	# @param {Object} opts
+	# @return {Object} the models
+	###
 	addModels: (models, opts) ->
 		models = @createModels(models, opts)
 		@getDatabase().add(models)
 		return models
 
-	# Create Models
+	###*
+	# Create a collection of models from the supplied collection
+	# ensuring that the collection is suitable for adding to the
+	# DocPad database
+	# @private
+	# @method createModels
+	# @param {Object} models
+	# @param {Object} opts
+	# @return {Object} the models
+	###
 	createModels: (models, opts) ->
 		for model in models
 			@createModel(model, opts)
 		# return the for loop results
 
-	# Create Model
+	###*
+	# Creates either a file or document model.
+	# Ensures a duplicate model is not created
+	# and all required attributes are present and
+	# events attached
+	# @method createModel
+	# @param {Object} [attrs={}]
+	# @param {Object} [opts={}]
+	# @return {Object} the file or document model
+	###
 	createModel: (attrs={},opts={}) ->
 		# Check
 		if attrs instanceof FileModel
@@ -3589,8 +3655,15 @@ class DocPad extends EventEmitterGrouped
 		# Return
 		return model
 
-	# Parse a directory
+	###*
+	# Parse a directory and return a
+	# files collection
 	# next(err, files)
+	# @method parseDirectory
+	# @param {Object} [opts={}]
+	# @param {Object} next
+	# @return {Object} FilesCollection
+	###
 	parseDirectory: (opts={},next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
@@ -3662,23 +3735,42 @@ class DocPad extends EventEmitterGrouped
 	# =================================
 	# Plugins
 
+	###*
 	# Get a plugin by it's name
+	# @method getPlugin
+	# @param {Object} pluginName
+	# @return {Object} a DocPad plugin
+	###
 	getPlugin: (pluginName) ->
 		@loadedPlugins[pluginName]
 
+
+	###*
 	# Check if we have any plugins
+	# @method hasPlugins
+	# @return {Boolean}
+	###
 	hasPlugins: ->
 		return typeChecker.isEmptyObject(@loadedPlugins) is false
 
-	# Destroy plugins
+	###*
+	# Destructor. Destroy plugins
+	# @private
+	# @method destroyPlugins
+	###
 	destroyPlugins: ->
 		for own name,plugin of @loadedPlugins
 			plugin.destroy()
 			@loadedPlugins[name] = null
 		@
 
-	# Load Plugins
+	###*
+	# Load plugins from the file system
 	# next(err)
+	# @private
+	# @method loadPlugins
+	# @param {Function} next
+	###
 	loadPlugins: (next) ->
 		# Prepare
 		docpad = @
@@ -3715,9 +3807,12 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Loaded Plugin
+	###*
 	# Checks if a plugin was loaded succesfully
-	# next(err,loaded)
+	# @method loadedPlugin
+	# @param {String} pluginName
+	# @param {Function} next
+	###
 	loadedPlugin: (pluginName,next) ->
 		# Prepare
 		docpad = @
@@ -3729,8 +3824,15 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Load PLugin
-	# next(err)
+	###*
+	# Load a plugin from its full file path
+	# _next(err)
+	# @private
+	# @method loadPlugin
+	# @param {String} fileFullPath
+	# @param {Function} _next
+	# @return {Object} description
+	###
 	loadPlugin: (fileFullPath,_next) ->
 		# Prepare
 		docpad = @
@@ -3818,8 +3920,14 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Load Plugins
+	###*
+	# Load plugins from a directory path
 	# next(err)
+	# @private
+	# @method loadPluginsIn
+	# @param {String} pluginsPath
+	# @param {Function} next
+	###
 	loadPluginsIn: (pluginsPath, next) ->
 		# Prepare
 		docpad = @
@@ -3867,7 +3975,13 @@ class DocPad extends EventEmitterGrouped
 	# ---------------------------------
 	# Utilities: Misc
 
+	###*
 	# Compare current DocPad version to the latest
+	# and print out the result to the console.
+	# Used at startup.
+	# @private
+	# @method compareVersion
+	###
 	compareVersion: ->
 		# Prepare
 		docpad = @
@@ -3899,10 +4013,15 @@ class DocPad extends EventEmitterGrouped
 	# ---------------------------------
 	# Utilities: Exchange
 
-	# Get Exchange
-	# Get the exchange data
+
+	###*
+	# Get DocPad's exchange data
 	# Requires internet access
 	# next(err,exchange)
+	# @private
+	# @method getExchange
+	# @param {Function} next
+	###
 	getExchange: (next) ->
 		# Prepare
 		docpad = @
@@ -3941,8 +4060,18 @@ class DocPad extends EventEmitterGrouped
 	# ---------------------------------
 	# Utilities: Files
 
-	# Contextualize files
+	###*
+	# Contextualize files.
+	# Contextualizing is the process of adding layouts and
+	# awareness of other documents to our document. The
+	# contextualizeBefore and contextualizeAfter events
+	# are emitted here.
 	# next(err)
+	# @private
+	# @method contextualizeFiles
+	# @param {Object} [opts={}]
+	# @param {Function} next
+	###
 	contextualizeFiles: (opts={},next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
@@ -4012,8 +4141,16 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Render files
+	###*
+	# Render the DocPad project's files.
+	# The renderCollectionBefore, renderCollectionAfter,
+	# renderBefore, renderAfter events are all emitted here.
 	# next(err)
+	# @private
+	# @method renderFiles
+	# @param {Object} [opts={}]
+	# @param {Function} next
+	###
 	renderFiles: (opts={},next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
@@ -4128,8 +4265,15 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Write files
+	###*
+	# Write rendered files to the DocPad out directory.
+	# The writeBefore and writeAfter events are emitted here.
 	# next(err)
+	# @private
+	# @method writeFiles
+	# @param {Object} [opts={}]
+	# @param {Function} next
+	###
 	writeFiles: (opts={},next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
@@ -4217,12 +4361,44 @@ class DocPad extends EventEmitterGrouped
 	# Generate
 
 	# Generate Helpers
+	###*
+	# Has DocPad's generation process started?
+	# @private
+	# @property {Boolean} generateStarted
+	###
 	generateStarted: null
-	generateEnded: null
-	generating: false
-	generated: false  # true once the first generation has occured
 
-	# Create Progress Bar
+	###*
+	# Has DocPad's generation process ended?
+	# @private
+	# @property {Boolean} generateEnded
+	###
+	generateEnded: null
+
+	###*
+	# Is DocPad currently generating?
+	# @private
+	# @property {Boolean} generating
+	###
+	generating: false
+
+	###*
+	# Has DocPad done at least one generation?
+	# True once the first generation has occured.
+	# @private
+	# @property {Object} generated
+	###
+	generated: false
+
+	###*
+	# Create the console progress bar.
+	# Progress only shown if the DocPad config 'progress'
+	# option is true, the DocPad config 'prompts' option is true
+	# and the log level is 6 (default)
+	# @private
+	# @method createProgress
+	# @return {Object} the progress object
+	###
 	createProgress: ->
 		# Prepare
 		docpad = @
@@ -4243,7 +4419,13 @@ class DocPad extends EventEmitterGrouped
 		# Return
 		return progress
 
-	# Destroy Progress Bar
+	###*
+	# Destructor. Destroy the progress object
+	# @private
+	# @method destroyProgress
+	# @param {Object} progress
+	# @return {Object} the progress object
+	###
 	destroyProgress: (progress) ->
 		# Fetch
 		if progress
@@ -4253,7 +4435,11 @@ class DocPad extends EventEmitterGrouped
 		# Return
 		return progress
 
-	# Destroy Regenerate Timer
+	###*
+	# Destructor. Destroy the regeneration timer.
+	# @private
+	# @method destroyRegenerateTimer
+	###
 	destroyRegenerateTimer: ->
 		# Prepare
 		docpad = @
@@ -4266,7 +4452,11 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Create Regenerate Timer
+	###*
+	# Create the regeneration timer
+	# @private
+	# @method createRegenerateTimer
+	###
 	createRegenerateTimer: ->
 		# Prepare
 		docpad = @
@@ -4285,8 +4475,15 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Generate
+	###*
+	# Set off DocPad's generation process.
+	# The generated, populateCollectionsBefore, populateCollections, populateCollections
+	# generateBefore and generateAfter events are emitted here
 	# next(err)
+	# @method generate
+	# @param {Object} opts
+	# @param {Function} next
+	###
 	generate: (opts, next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
@@ -4662,8 +4859,15 @@ class DocPad extends EventEmitterGrouped
 	# ---------------------------------
 	# Render
 
-	# Load a Document
+	###*
+	# Load a document
 	# next(err,document)
+	# @private
+	# @method loadDocument
+	# @param {Object} document
+	# @param {Object} opts
+	# @param {Function} next
+	###
 	loadDocument: (document,opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
@@ -4675,8 +4879,14 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Load and Render a Document
+	###*
+	# Load and render a document
 	# next(err,document)
+	# @method loadAndRenderDocument
+	# @param {Object} document
+	# @param {Object} opts
+	# @param {Function} next
+	###
 	loadAndRenderDocument: (document,opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
@@ -4692,8 +4902,14 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Render Document
+	###*
+	# Render a document
 	# next(err,result)
+	# @method renderDocument
+	# @param {Object} document
+	# @param {Object} opts
+	# @param {Object} next
+	###
 	renderDocument: (document,opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
@@ -4706,8 +4922,14 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Render Path
+	###*
+	# Render a document at a file path
 	# next(err,result)
+	# @method renderPath
+	# @param {String} path
+	# @param {Object} opts
+	# @param {Function} next
+	###
 	renderPath: (path,opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
@@ -4722,8 +4944,16 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Render Data
+	###*
+	# Render the passed content data as a
+	# document. Required option, filename
+	# (opts.filename)
 	# next(err,result)
+	# @method renderData
+	# @param {String} content
+	# @param {Object} opts
+	# @param {Function} next
+	###
 	renderData: (content,opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
@@ -4742,7 +4972,18 @@ class DocPad extends EventEmitterGrouped
 	# Render Text
 	# Doesn't extract meta information, or render layouts
 	# TODO: Why not? Why not just have renderData?
+
+	###*
+	# Render the passed text data as a
+	# document. Required option, filename
+	# (opts.filename)
 	# next(err,result)
+	# @private
+	# @method renderText
+	# @param {String} text
+	# @param {Object} opts
+	# @param {Function} next
+	###
 	renderText: (text,opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
@@ -4765,8 +5006,13 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Render Action
+	###*
+	# Render action
 	# next(err,document,result)
+	# @method render
+	# @param {Object} opts
+	# @param {Function} next
+	###
 	render: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
