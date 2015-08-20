@@ -3543,7 +3543,7 @@ class DocPad extends EventEmitterGrouped
 	# @param {Object} opts
 	# @return {Object} the model
 	###
-		addModel: (model, opts) ->
+	addModel: (model, opts) ->
 		model = @createModel(model, opts)
 		@getDatabase().add(model)
 		return model
