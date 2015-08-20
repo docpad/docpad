@@ -135,7 +135,9 @@ class DocPad extends EventEmitterGrouped
 	# ---------------------------------
 	# Modules
 
-	# Base-----------------------------
+	# ---------------------------------
+	# Base
+
 	###*
 	# Events class
 	# @property {Object} Events
@@ -159,7 +161,9 @@ class DocPad extends EventEmitterGrouped
 	###
 	QueryCollection: QueryCollection
 
-	# Models----------------------------
+	# ---------------------------------
+	# Models
+
 	###*
 	# File Model class
 	# @property {Object} FileModel
@@ -172,7 +176,9 @@ class DocPad extends EventEmitterGrouped
 	###
 	DocumentModel: DocumentModel
 
-	# Collections------------------------
+	# ---------------------------------
+	# Collections
+
 	###*
 	# Collection of files in a DocPad project
 	# @property {Object} FilesCollection
@@ -216,10 +222,8 @@ class DocPad extends EventEmitterGrouped
 	###
 	BasePlugin: BasePlugin
 
-
 	# ---------------------------------
 	# DocPad
-
 
 	###*
 	# DocPad's version number
@@ -317,7 +321,8 @@ class DocPad extends EventEmitterGrouped
 		delete @config.server
 
 	###*
-	# Close and destroy the node.js http server
+	# Destructor. Close and destroy the node.js http server
+	# @private
 	# @method destroyServer
 	###
 	destroyServer: ->
@@ -325,10 +330,34 @@ class DocPad extends EventEmitterGrouped
 		@serverHttp = null
 		# @TODO figure out how to destroy the express server
 
-	# The caterpillar instances bound to docpad
+	#
+	###*
+	# Internal property. The caterpillar logger instances bound to DocPad
+	# @private
+	# @property {Object} loggerInstances
+	###
 	loggerInstances: null
+
+	###*
+	# Get the caterpillar logger instance bound to DocPad
+	# @method getLogger
+	# @return {Object} caterpillar logger
+	###
 	getLogger: -> @loggerInstances?.logger
+
+	###*
+	# Get all the caterpillar logger instances bound to DocPad
+	# @method getLoggers
+	# @return {Object} collection of caterpillar loggers
+	###
 	getLoggers: -> @loggerInstances
+
+	###*
+	# Sets the caterpillar logger instances bound to DocPad
+	# @method setLoggers
+	# @param {Object} loggers
+	# @return {Object} logger instances bound to DocPad
+	###
 	setLoggers: (loggers) ->
 		if @loggerInstances
 			@warn @getLocale().loggersAlreadyDefined
@@ -337,28 +366,76 @@ class DocPad extends EventEmitterGrouped
 			@loggerInstances.logger.setConfig(dry:true)
 			@loggerInstances.console.setConfig(dry:false).pipe(process.stdout)
 		return loggers
+
+	###*
+	# Destructor. Destroy the caterpillar logger instances bound to DocPad
+	# @private
+	# @method {Object} destroyLoggers
+	###
 	destroyLoggers: ->
 		if @loggerInstances
 			for own key,value of @loggerInstances
 				value.end()
 		@
 
+	###*
 	# The action runner instance bound to docpad
+	# @private
+	# @property {Object} actionRunnerInstance
+	###
 	actionRunnerInstance: null
+
+	###*
+	# Get the action runner instance bound to docpad
+	# @method getActionRunner
+	# @return {Object} the action runner instance
+	###
 	getActionRunner: -> @actionRunnerInstance
+
+	###*
+	# Apply the passed DocPad action arguments
+	# @method {Object} action
+	# @param {Object} args
+	# @return {Object}
+	###
 	action: (args...) -> docpadUtil.action.apply(@, args)
 
-	# The error runner instance bound to docpad
+
+	###*
+	# The error runner instance bound to DocPad
+	# @property {Object} errorRunnerInstance
+	###
 	errorRunnerInstance: null
+
+	###*
+	# Get the error runner instance
+	# @method {Object} getErrorRunner
+	# @return {Object} the error runner instance
+	###
 	getErrorRunner: -> @errorRunnerInstance
 
-	# The track runner instance bound to docpad
+	###*
+	# The track runner instance bound to DocPad
+	# @private
+	# @property {Object} trackRunnerInstance
+	###
 	trackRunnerInstance: null
+
+	###*
+	# Get the track runner instance
+	# @method getTrackRunner
+	# @return {Object} the track runner instance
+	###
 	getTrackRunner: -> @trackRunnerInstance
 
+
+	###*
 	# Event Listing
-	# Whenever a event is created, it must be applied here to be available to plugins and configuration files
+	# Whenever an event is created, it must be applied here to be available to plugins and configuration files
 	# https://github.com/bevry/docpad/wiki/Events
+	# @private
+	# @property {Object} events
+	###
 	events: [
 		'extendTemplateData'           # fired each load
 		'extendCollections'            # fired each load
@@ -386,6 +463,12 @@ class DocPad extends EventEmitterGrouped
 		'serverAfter'
 		'notify'
 	]
+
+	###*
+	# Get the list of available events
+	# @method getEvents
+	# @return {Object} string array of event names
+	###
 	getEvents: ->
 		@events
 
@@ -394,10 +477,41 @@ class DocPad extends EventEmitterGrouped
 	# Collections
 
 	# Database collection
-	database: null  # QueryEngine Collection
+
+	###*
+	# QueryEngine collection
+	# @private
+	# @property {Object} database
+	###
+	database: null
+
+	###*
+	# Description for databaseTempCache
+	# @property {Object} databaseTempCache
+	###
 	databaseTempCache: null
+
+	###*
+	# Description for getDatabase
+	# @method {Object} getDatabase
+	###
 	getDatabase: -> @database
+
+	###*
+	# Safe method for retrieving the database by
+	# either returning the database itself or the temporary
+	# database cache
+	# @method getDatabaseSafe
+	# @return {Object}
+	###
 	getDatabaseSafe: -> @databaseTempCache or @database
+
+	###*
+	# Destructor. Destroy the DocPad database
+	# @private
+	# @method destroyDatabase
+	# @return {Object} description
+	###
 	destroyDatabase: ->
 		if @database?
 			@database.destroy()
@@ -407,20 +521,29 @@ class DocPad extends EventEmitterGrouped
 			@databaseTempCache = null
 		@
 
-	# Files by URL
-	# Used to speed up fetching
+	###*
+	# Files by url. Used to speed up fetching
+	# @property {Object} filesByUrl
+	###
 	filesByUrl: null
 
-	# Files by Selector
-	# Used to speed up fetching
+	###*
+	# Files by Selector. Used to speed up fetching
+	# @property {Object} filesBySelector
+	###
 	filesBySelector: null
 
-	# Files by Out Path
-	# Used to speed up conflict detection
-	# Do not use for anything else
+	###*
+	# Files by Out Path. Used to speed up conflict detection. Do not use for anything else
+	# @property {Object} filesByOutPath
+	###
 	filesByOutPath: null
 
+	###*
 	# Blocks
+	# @private
+	# @property {Object} blocks
+	###
 	blocks: null
 	### {
 		# A collection of meta elements
@@ -433,7 +556,13 @@ class DocPad extends EventEmitterGrouped
 		styles: null  # Styles Collection
 	} ###
 
-	# Get a block
+	###*
+	# Get a block by block name. Optionally clone block.
+	# @method getBlock
+	# @param {String} name
+	# @param {Object} [clone]
+	# @return {Object} block
+	###
 	getBlock: (name,clone) ->
 		block = @blocks[name]
 		if clone
@@ -441,7 +570,12 @@ class DocPad extends EventEmitterGrouped
 			block = new @[classname](block.models)
 		return block
 
-	#  Set a block
+	###*
+	# Set a block by name and value
+	# @method setBlock
+	# @param {String} name
+	# @param {Object} value
+	###
 	setBlock: (name,value) ->
 		if @blocks[name]?
 			@blocks[name].destroy()
@@ -453,21 +587,37 @@ class DocPad extends EventEmitterGrouped
 			@blocks[name] = value
 		@
 
-	#  Get blocks
+	###*
+	# Get all blocks
+	# @method getBlocks
+	# @return {Object} collection of blocks
+	###
 	getBlocks: -> @blocks
 
-	#  Set blocks
+	###*
+	# Set all blocks
+	# @method setBlocks
+	# @param {Object} blocks
+	###
 	setBlocks: (blocks) ->
 		for own name,value of blocks
 			@setBlock(name,value)
 		@
 
-	# Each block
+	###*
+	# Apply the passed function to each block
+	# @method eachBlock
+	# @param {Function} fn
+	###
 	eachBlock: (fn) ->
 		eachr(@blocks, fn)
 		@
 
-	# Destroy Blocks
+	###*
+	# Destructor. Destroy all blocks
+	# @private
+	# @method destroyBlocks
+	###
 	destroyBlocks: ->
 		if @blocks
 			for own name,block of @blocks
@@ -475,10 +625,19 @@ class DocPad extends EventEmitterGrouped
 				@blocks[name] = null
 		@
 
-	# Collections
+	###*
+	# The DocPad collections
+	# @private
+	# @property {Object} collections
+	###
 	collections: null
 
-	# Get a collection
+	###*
+	# Get a collection by collection name or key
+	# @method getCollection
+	# @param {String} value
+	# @return {Object} collection
+	###
 	getCollection: (value) ->
 		if value
 			if typeof value is 'string'
@@ -497,7 +656,12 @@ class DocPad extends EventEmitterGrouped
 
 		return null
 
-	# Get a collection
+	###*
+	# Destroy a collection by collection name or key
+	# @method destroyCollection
+	# @param {String} value
+	# @return {Object} description
+	###
 	destroyCollection: (value) ->
 		if value
 			if typeof value is 'string' and value isnt 'database'
@@ -518,14 +682,24 @@ class DocPad extends EventEmitterGrouped
 
 		return null
 
+	###*
 	# Add a collection
+	# @method addCollection
+	# @param {Object} collection
+	###
 	addCollection: (collection) ->
 		if collection and collection not in [@getDatabase(), @getCollection(collection)]
 			@collections.push(collection)
 		@
 
-	# Set a collection
+	###*
+	# Set a name for a collection
 	# A collection can have multiple names
+	# @private
+	# @method setCollection
+	# @param {String} name
+	# @param {Object} collection
+	###
 	setCollection: (name, collection) ->
 		if collection
 			if name
@@ -536,11 +710,18 @@ class DocPad extends EventEmitterGrouped
 		else
 			@destroyCollection(name)
 
-	# Get collections
+	###*
+	# Get the DocPad project's collections
+	# @method getCollections
+	# @return {Object} the collections
+	###
 	getCollections: ->
 		return @collections
 
-	# Set collections
+	###*
+	# Set the DocPad project's collections
+	# @method setCollections
+	###
 	setCollections: (collections) ->
 		if Array.isArray(collections)
 			for value in collections
@@ -550,14 +731,22 @@ class DocPad extends EventEmitterGrouped
 				@setCollection(name, value)
 		@
 
-	# Each collection
+	###*
+	# Apply the passed function to each collection
+	# @method eachCollection
+	# @param {Function} fn
+	###
 	eachCollection: (fn) ->
 		fn(@getDatabase(), 'database')
 		for collection,index in @collections
 			fn(collection, collection.options.name or collection.options.key or index)
 		@
 
-	# Destroy Collections
+	###*
+	# Destructor. Destroy the DocPad project's collections.
+	# @private
+	# @method destroyCollections
+	###
 	destroyCollections: ->
 		if @collections
 			for collection in @collections
@@ -569,7 +758,14 @@ class DocPad extends EventEmitterGrouped
 	# ---------------------------------
 	# Collection Helpers
 
-	# Get files (will use live collections)
+	###*
+	# Get all the files in the DocPad database (will use live collections)
+	# @method getFiles
+	# @param {Object} query
+	# @param {Object} sorting
+	# @param {Object} paging
+	# @return {Object} collection
+	###
 	getFiles: (query,sorting,paging) ->
 		key = JSON.stringify({query, sorting, paging})
 		collection = @getCollection(key)
@@ -579,42 +775,91 @@ class DocPad extends EventEmitterGrouped
 			@addCollection(collection)
 		return collection
 
+
+	###*
 	# Get a single file based on a query
+	# @method getFile
+	# @param {Object} query
+	# @param {Object} sorting
+	# @param {Object} paging
+	# @return {Object} file
+	###
 	getFile: (query,sorting,paging) ->
 		file = @getDatabase().findOne(query, sorting, paging)
 		return file
 
+	###*
 	# Get files at a path
+	# @method getFilesAtPath
+	# @param {String} path
+	# @param {Object} sorting
+	# @param {Object} paging
+	# @return {Object} files
+	###
 	getFilesAtPath: (path,sorting,paging) ->
 		query = $or: [{relativePath: $startsWith: path}, {fullPath: $startsWith: path}]
 		files = @getFiles(query, sorting, paging)
 		return files
 
+	###*
 	# Get a file at a relative or absolute path or url
+	# @method getFileAtPath
+	# @param {String} path
+	# @param {Object} sorting
+	# @param {Object} paging
+	# @return {Object} a file
+	###
 	getFileAtPath: (path,sorting,paging) ->
 		file = @getDatabase().fuzzyFindOne(path, sorting, paging)
 		return file
 
-	# Get a file by its url
+
 	# TODO: Does this still work???
+	###*
+	# Get a file by its url
+	# @method getFileByUrl
+	# @param {String} url
+	# @param {Object} [opts={}]
+	# @return {Object} file
+	###
 	getFileByUrl: (url,opts={}) ->
 		opts.collection ?= @getDatabase()
 		file = opts.collection.get(@filesByUrl[url])
 		return file
 
+
+	###*
 	# Get a file by its id
+	# @method getFileById
+	# @param {String} id
+	# @param {Object} [opts={}]
+	# @return {Object} a file
+	###
 	getFileById: (id,opts={}) ->
 		opts.collection ?= @getDatabase()
 		file = opts.collection.get(id)
 		return file
 
+
+	###*
 	# Remove the query string from a url
 	# Pathname convention taken from document.location.pathname
+	# @method getUrlPathname
+	# @param {String} url
+	# @return {Object} description
+	###
 	getUrlPathname: (url) ->
 		return url.replace(/\?.*/,'')
 
-	# Get a file by its route
+
 	# next(err,file)
+	###*
+	# Get a file by its route
+	# @method getFileByRoute
+	# @param {String} url
+	# @param {Object} next
+	# @return {Object} description
+	###
 	getFileByRoute: (url,next) ->
 		# Prepare
 		docpad = @
@@ -646,8 +891,15 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Get a file by its selector
+
 	# TODO: What on earth is a selector?
+	###*
+	# Get a file by its selector
+	# @method getFileBySelector
+	# @param {Object} selector
+	# @param {Object} [opts={}]
+	# @return {Object} a file
+	###
 	getFileBySelector: (selector,opts={}) ->
 		opts.collection ?= @getDatabase()
 		file = opts.collection.get(@filesBySelector[selector])
@@ -661,12 +913,22 @@ class DocPad extends EventEmitterGrouped
 	# ---------------------------------
 	# Skeletons
 
+
+	###*
 	# Skeletons Collection
+	# @private
+	# @property {Object} skeletonsCollection
+	###
 	skeletonsCollection: null
 
+	# next(err,skeletonsCollection)
+	###*
 	# Get Skeletons
 	# Get all the available skeletons for us and their details
-	# next(err,skeletonsCollection)
+	# @method getSkeletons
+	# @param {Function} next
+	# @return {Object} DocPad skeleton collection
+	###
 	getSkeletons: (next) ->
 		# Prepare
 		docpad = @
@@ -711,42 +973,70 @@ class DocPad extends EventEmitterGrouped
 	# ---------------------------------
 	# Plugins
 
+
+	###*
 	# Plugins that are loading really slow
+	# @property {Object} slowPlugins
+	###
 	slowPlugins: null  # {}
 
+	###*
 	# Loaded plugins indexed by name
+	# @property {Object} loadedPlugins
+	###
 	loadedPlugins: null  # {}
 
+	###*
 	# A listing of all the available extensions for DocPad
+	# @property {Object} exchange
+	###
 	exchange: null  # {}
-
 
 	# -----------------------------
 	# Paths
 
+	###*
 	# The DocPad directory
+	# @property {String} corePath
+	###
 	corePath: corePath
 
+	###*
 	# The DocPad library directory
+	# @private
+	# @property {String} libPath
+	###
 	libPath: __dirname
 
+	###*
 	# The main DocPad file
+	# @property {String} mainPath
+	###
 	mainPath: pathUtil.resolve(__dirname, 'docpad')
 
+	###*
 	# The DocPad package.json path
+	# @property {String} packagePath
+	###
 	packagePath: pathUtil.resolve(__dirname, '..', '..', 'package.json')
 
+	###*
 	# The DocPad locale path
+	# @property {String} localePath
+	###
 	localePath: pathUtil.resolve(__dirname, '..', '..', 'locale')
 
-	# The DocPad debug log path
+	###*
+	# The DocPad debug log path (docpad-debug.log)
+	# @property {String} debugLogPath
+	###
 	debugLogPath: pathUtil.join(process.cwd(), 'docpad-debug.log')
 
-	# The User's configuration path
+	###*
+	# The User's configuration path (.docpad.cson)
+	# @property {String} userConfigPath
+	###
 	userConfigPath: '.docpad.cson'
-
-
-
 
 	# -----------------------------
 	# Template Data
