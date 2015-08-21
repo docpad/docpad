@@ -1,35 +1,24 @@
-# February 19, 2015
+# August 21, 2015
 # https://github.com/bevry/base
 language: node_js
 # ensure npm is the latest version (ignore node versions that can't run it)
-# ensure coffee-script is installed (needed for cake commands)
-# ensure dev dependencies are installed (handled via npm install)
-# ensure test dependencies are installed (handled via cake install)
-install: "npm install -g npm && npm install coffee-script && npm install && ./node_modules/.bin/cake install"
+# ensure correct dependencies are installed (handled via npm run-script install)
+install: "npm install -g npm && npm run-script setup"
 # ensure our application is compiled before we run our tests
-before_script: "./node_modules/.bin/cake compile"
+before_script: "npm run-script compile"
 script: "npm test"
 node_js:
-  - "0.10"
   - "0.12"
   - iojs
 cache:
   directories:
     - node_modules
 notifications:
-  # Notify #bevry-dev
-  irc:
-    - "irc.freenode.org#bevry-dev"
-
-  # Nofity travisci@bevry.me
+  # Nofity email travisci@bevry.me
   email:
     recipients:
       - travisci@bevry.me
 
-  # Notify https://gitter.im/bevry
-  webhooks:
-    urls:
-      - "https://webhooks.gitter.im/e/d2884017c0c4b0319adc"
-    on_success: always  # options: [always|never|change] default: always
-    on_failure: always  # options: [always|never|change] default: always
-    on_start: false     # default: false
+  # Notify slack #updates channel on https://bevry.slack.com
+  slack:
+    secure: dEy5aysTFomqygrsjUz58mu65pOZUGW+a+IXwMwlbqAZGetevUy1dMVBXnJYFV+oijBLOgctCF1niKBvbQ7WCsEvM9GjTf6jb+g3aswM6xEqDve8nriS9y+T/6YR2EgpRpN9gVFFsxPrgtieg/cLZUJrTwwNfEoAC/WLJXfzHhM=
