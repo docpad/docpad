@@ -17,50 +17,51 @@ const pathUtil = require('path')
 const WINDOWS          = process.platform.indexOf('win') === 0
 const NODE             = process.execPath
 const NPM              = WINDOWS ? process.execPath.replace('node.exe', 'npm.cmd') : 'npm'
-const EXT              = WINDOWS ? '.cmd' : ''
-const GIT              = "git"
+// const EXT              = WINDOWS ? '.cmd' : ''
+const GIT              = 'git'
 
 // Define project paths
 const APP_PATH         = process.cwd()
-const PACKAGE_PATH     = pathUtil.join(APP_PATH, "package.json")
+const PACKAGE_PATH     = pathUtil.join(APP_PATH, 'package.json')
 const PACKAGE_DATA     = require(PACKAGE_PATH)
+const PACKAGE_CONFIG   = PACKAGE_DATA.nakeConfiguration || PACKAGE_DATA.cakeConfiguration || {}
 
 // Define module paths
-const MODULES_PATH     = pathUtil.join(APP_PATH, "node_modules")
-const DOCPAD_PATH      = pathUtil.join(MODULES_PATH, "docpad")
-const COFFEE           = pathUtil.join(MODULES_PATH, ".bin", "coffee")
-const PROJECTZ         = pathUtil.join(MODULES_PATH, ".bin", "projectz")
-const DOCCO            = pathUtil.join(MODULES_PATH, ".bin", "docco")
-const DOCPAD           = pathUtil.join(MODULES_PATH, ".bin", "docpad")
-const BISCOTTO         = pathUtil.join(MODULES_PATH, ".bin", "biscotto")
-const YUIDOC           = pathUtil.join(MODULES_PATH, ".bin", "yuidoc")
-const BABEL            = pathUtil.join(MODULES_PATH, ".bin", "babel")
-const ESLINT           = pathUtil.join(MODULES_PATH, ".bin", "eslint")
-const COFFEELINT       = pathUtil.join(MODULES_PATH, ".bin", "coffeelint")
+const MODULES_PATH     = pathUtil.join(APP_PATH, 'node_modules')
+const DOCPAD_PATH      = pathUtil.join(MODULES_PATH, 'docpad')
+const COFFEE           = pathUtil.join(MODULES_PATH, '.bin', 'coffee')
+const PROJECTZ         = pathUtil.join(MODULES_PATH, '.bin', 'projectz')
+const DOCCO            = pathUtil.join(MODULES_PATH, '.bin', 'docco')
+const DOCPAD           = pathUtil.join(MODULES_PATH, '.bin', 'docpad')
+const BISCOTTO         = pathUtil.join(MODULES_PATH, '.bin', 'biscotto')
+const YUIDOC           = pathUtil.join(MODULES_PATH, '.bin', 'yuidoc')
+const BABEL            = pathUtil.join(MODULES_PATH, '.bin', 'babel')
+const ESLINT           = pathUtil.join(MODULES_PATH, '.bin', 'eslint')
+const COFFEELINT       = pathUtil.join(MODULES_PATH, '.bin', 'coffeelint')
 
 // Define configuration
 const config = {
-	"TEST_PATH": "test",
-	"DOCCO_SRC_PATH": null,
-	"DOCCO_OUT_PATH": "docs",
-	"BISCOTTO_SRC_PATH": null,
-	"BISCOTTO_OUT_PATH": "docs",
-	"YUIDOC_SRC_PATH": null,
-	"YUIDOC_OUT_PATH": "docs",
-	"YUIDOC_SYNTAX": "js",
-	"COFFEE_SRC_PATH": null,
-	"COFFEE_OUT_PATH": "out",
-	"DOCPAD_SRC_PATH": null,
-	"DOCPAD_OUT_PATH": "out",
-	"BABEL_SRC_PATH": null,
-	"BABEL_OUT_PATH": "es5",
-	"ESLINT_SRC_PATH": null,
-	"COFFEELINT_SRC_PATH": null
+	TEST_PATH: 'test',
+	DOCCO_SRC_PATH: null,
+	DOCCO_OUT_PATH: 'docs',
+	BISCOTTO_SRC_PATH: null,
+	BISCOTTO_OUT_PATH: 'docs',
+	YUIDOC_SRC_PATH: null,
+	YUIDOC_OUT_PATH: 'docs',
+	YUIDOC_SYNTAX: 'js',
+	COFFEE_SRC_PATH: null,
+	COFFEE_OUT_PATH: 'out',
+	DOCPAD_SRC_PATH: null,
+	DOCPAD_OUT_PATH: 'out',
+	BABEL_SRC_PATH: null,
+	BABEL_OUT_PATH: 'es5',
+	ESLINT_SRC_PATH: null,
+	COFFEELINT_SRC_PATH: null
 }
 
 // Move package.json:nakeConfiguration into our configuration object
-Object.keys(PACKAGE_DATA.nakeConfiguration || PACKAGE_DATA.cakeConfiguration || {}).forEach(function (key) {
-	const value = config[key]
+Object.keys(PACKAGE_CONFIG).forEach(function (key) {
+	const value = PACKAGE_CONFIG[key]
 	config[key] = value
 })
 
@@ -68,20 +69,20 @@ Object.keys(PACKAGE_DATA.nakeConfiguration || PACKAGE_DATA.cakeConfiguration || 
 // =====================================
 // Generic
 
-const child_process = require('child_process')
+const childProcess = require('child_process')
 
 const spawn = function (command, args, opts, next) {
-	const commandString = command+' '+args.join(' ')
+	const commandString = command + ' ' + args.join(' ')
 	if ( opts.output === true ) {
 		console.log(commandString)
 		opts.stdio = 'inherit'
 	}
-	const pid = child_process.spawn(command, args, opts)
+	const pid = childProcess.spawn(command, args, opts)
 	pid.on('close', function () {
 		let args = Array.prototype.slice.call(arguments)
 		if ( args[0] === 1 ) {
-			error = new Error('Process ['+commandString+'] exited with error status code.')
-			next(err)
+			const error = new Error('Process [' + commandString + '] exited with error status code.')
+			next(error)
 		}
 		else {
 			next()
@@ -93,14 +94,14 @@ const spawn = function (command, args, opts, next) {
 const exec = function (command, opts, next) {
 	if ( opts.output === true ) {
 		console.log(command)
-		return child_process.exec(command, opts, function (err, stdout, stderr) {
+		return childProcess.exec(command, opts, function (error, stdout, stderr) {
 			console.log(stdout)
 			console.log(stderr)
-			if ( next )  next()
+			if ( next )  next(error)
 		})
 	}
 	else {
-		return child_process.exec(command, opts, next)
+		return childProcess.exec(command, opts, next)
 	}
 }
 
@@ -159,7 +160,7 @@ const actions = {
 				})
 
 				// Add common ignore paths to args
-				;[APP_PATH, config.TEST_PATH].forEach(function (path) {
+				; [APP_PATH, config.TEST_PATH].forEach(function (path) {
 					args.push(
 						pathUtil.join(path,  'build'),
 						pathUtil.join(path,  'components'),
@@ -173,7 +174,7 @@ const actions = {
 				})
 
 				// rm
-				spawn('rm', args, {output:true, cwd:APP_PATH}, complete)
+				spawn('rm', args, {output: true, cwd: APP_PATH}, complete)
 			}
 		])
 	},
@@ -183,19 +184,19 @@ const actions = {
 		steps(next, [
 			function (complete) {
 				console.log('\nnpm install (for app):')
-				spawn(NPM, ['install'], {output:true, cwd:APP_PATH}, complete)
+				spawn(NPM, ['install'], {output: true, cwd: APP_PATH}, complete)
 			},
 
 			function (complete) {
 				if ( !config.TEST_PATH || !fsUtil.existsSync(config.TEST_PATH) )  return complete()
 				console.log('\nnpm install (for test):')
-				spawn(NPM, ['install'], {output:true, cwd:config.TEST_PATH}, complete)
+				spawn(NPM, ['install'], {output: true, cwd: config.TEST_PATH}, complete)
 			},
 
 			function (complete) {
 				if ( !fsUtil.existsSync(DOCPAD_PATH) )  return complete()
 				console.log('\nnpm install (for docpad tests):')
-				spawn(NPM, ['install'], {output:true, cwd:DOCPAD_PATH}, complete)
+				spawn(NPM, ['install'], {output: true, cwd: DOCPAD_PATH}, complete)
 			}
 		])
 	},
@@ -211,19 +212,19 @@ const actions = {
 			function (complete) {
 				if ( !config.COFFEE_SRC_PATH || !fsUtil.existsSync(COFFEE) )  return complete()
 				console.log('\ncoffee compile:')
-				spawn(NODE, [COFFEE, '-co', config.COFFEE_OUT_PATH, config.COFFEE_SRC_PATH], {output:true, cwd:APP_PATH}, complete)
+				spawn(NODE, [COFFEE, '-co', config.COFFEE_OUT_PATH, config.COFFEE_SRC_PATH], {output: true, cwd: APP_PATH}, complete)
 			},
 
 			function (complete) {
 				if ( !config.BABEL_SRC_PATH || !fsUtil.existsSync(BABEL) )  return complete()
 				console.log('\nbabel compile:')
-				spawn(NODE, [BABEL, config.BABEL_SRC_PATH, '--out-dir', config.BABEL_OUT_PATH], {output:true, cwd:APP_PATH}, complete)
+				spawn(NODE, [BABEL, config.BABEL_SRC_PATH, '--out-dir', config.BABEL_OUT_PATH], {output: true, cwd: APP_PATH}, complete)
 			},
 
 			function (complete) {
 				if ( !config.DOCPAD_SRC_PATH || !fsUtil.existsSync(DOCPAD) )  return complete()
 				console.log('\ndocpad generate:')
-				spawn(NODE, [DOCPAD, 'generate'], {output:true, cwd:APP_PATH}, complete)
+				spawn(NODE, [DOCPAD, 'generate'], {output: true, cwd: APP_PATH}, complete)
 			}
 		])
 	},
@@ -239,20 +240,20 @@ const actions = {
 			function (complete) {
 				if ( !config.BABEL_SRC_PATH || !fsUtil.existsSync(BABEL) )  return complete()
 				console.log('\nbabel compile:')
-				spawn(NODE, [BABEL, '-w', config.BABEL_SRC_PATH, '--out-dir', config.BABEL_OUT_PATH], {output:true, cwd:APP_PATH}, complete)
+				spawn(NODE, [BABEL, '-w', config.BABEL_SRC_PATH, '--out-dir', config.BABEL_OUT_PATH], {output: true, cwd: APP_PATH}, complete)
 			},
 
 			function (complete) {
 				if ( !config.COFFEE_SRC_PATH || !fsUtil.existsSync(COFFEE) )  return complete()
 				console.log('\ncoffee watch:')
-				spawn(NODE, [COFFEE, '-wco', config.COFFEE_OUT_PATH, config.COFFEE_SRC_PATH], {output:true, cwd:APP_PATH})  // background
+				spawn(NODE, [COFFEE, '-wco', config.COFFEE_OUT_PATH, config.COFFEE_SRC_PATH], {output: true, cwd: APP_PATH})  // background
 				complete()  // continue while coffee runs in background
 			},
 
 			function (complete) {
 				if ( !config.DOCPAD_SRC_PATH || !fsUtil.existsSync(DOCPAD) )  return complete()
 				console.log('\ndocpad run:')
-				spawn(NODE, [DOCPAD, 'run'], {output:true, cwd:APP_PATH})  // background
+				spawn(NODE, [DOCPAD, 'run'], {output: true, cwd: APP_PATH})  // background
 				complete()  // continue while docpad runs in background
 			}
 		])
@@ -269,18 +270,18 @@ const actions = {
 			function (complete) {
 				console.log('\ncoffeelint:')
 				if ( !config.COFFEELINT_SRC_PATH || !fsUtil.existsSync(COFFEELINT) )  return complete()
-				spawn(COFFEELINT, [config.COFFEELINT_SRC_PATH], {output:true, cwd:APP_PATH}, complete)
+				spawn(COFFEELINT, [config.COFFEELINT_SRC_PATH], {output: true, cwd: APP_PATH}, complete)
 			},
 
 			function (complete) {
 				console.log('\neslint:')
 				if ( !config.ESLINT_SRC_PATH || !fsUtil.existsSync(ESLINT) )  return complete()
-				spawn(ESLINT, [config.ESLINT_SRC_PATH], {output:true, cwd:APP_PATH}, complete)
+				spawn(ESLINT, [config.ESLINT_SRC_PATH], {output: true, cwd: APP_PATH}, complete)
 			},
 
 			function (complete) {
 				console.log('\nnpm test:')
-				spawn(NPM, ['test'], {output:true, cwd:APP_PATH}, complete)
+				spawn(NPM, ['test'], {output: true, cwd: APP_PATH}, complete)
 			}
 		])
 	},
@@ -291,41 +292,41 @@ const actions = {
 			function (complete) {
 				if ( !config.DOCCO_SRC_PATH || !fsUtil.existsSync(DOCCO) )  return complete()
 				console.log('\ndocco compile:')
-				command = [NODE, DOCCO,
+				let command = [NODE, DOCCO,
 					'-o', config.DOCCO_OUT_PATH,
 					config.DOCCO_SRC_PATH
 				].join(' ')
-				exec(command, {output:true, cwd:APP_PATH}, complete)
+				exec(command, {output: true, cwd: APP_PATH}, complete)
 			},
 
 			function (complete) {
 				if ( !config.BISCOTTO_SRC_PATH || !fsUtil.existsSync(BISCOTTO) )  return complete()
 				console.log('\nbiscotto compile:')
-				command = [BISCOTTO,
-					'-n', (PACKAGE_DATA.title || PACKAGE_DATA.name),
-					'--title', '"'+(PACKAGE_DATA.title || PACKAGE_DATA.name)+' API Documentation"',
+				let command = [BISCOTTO,
+					'-n', PACKAGE_DATA.title || PACKAGE_DATA.name,
+					'--title', '"' + (PACKAGE_DATA.title || PACKAGE_DATA.name) + ' API Documentation"',
 					'-r', 'README.md',
 					'-o', config.BISCOTTO_OUT_PATH,
 					config.BISCOTTO_SRC_PATH,
 					'-', 'LICENSE.md HISTORY.md'
 				].join(' ')
-				exec(command, {output:true, cwd:APP_PATH}, complete)
+				exec(command, {output: true, cwd: APP_PATH}, complete)
 			},
 
 			function (complete) {
 				if ( !fsUtil.existsSync(YUIDOC) )  return complete()
 				console.log('\nyuidoc compile:')
-				command = [YUIDOC]
+				let command = [YUIDOC]
 				if ( config.YUIDOC_OUT_PATH )  command.push('-o', config.YUIDOC_OUT_PATH)
 				if ( config.YUIDOC_SYNTAX )    command.push('--syntaxtype', config.YUIDOC_SYNTAX)
 				if ( config.YUIDOC_SRC_PATH )  command.push(config.YUIDOC_SRC_PATH)
-				spawn(NODE, command, {output:true, cwd:APP_PATH}, complete)
+				spawn(NODE, command, {output: true, cwd: APP_PATH}, complete)
 			},
 
 			function (complete) {
 				if ( !fsUtil.existsSync(PROJECTZ) )  return complete()
 				console.log('\nprojectz compile')
-				spawn(NODE, [PROJECTZ, 'compile'], {output:true, cwd:APP_PATH}, complete)
+				spawn(NODE, [PROJECTZ, 'compile'], {output: true, cwd: APP_PATH}, complete)
 			}
 		])
 	},
@@ -355,7 +356,7 @@ const actions = {
 
 			function (complete) {
 				console.log('\nnpm publish:')
-				spawn(NPM, ['publish'], {output:true, cwd:APP_PATH}, complete)
+				spawn(NPM, ['publish'], {output: true, cwd: APP_PATH}, complete)
 				// ^ npm will run prepublish and postpublish for us
 			},
 
@@ -371,17 +372,17 @@ const actions = {
 		steps(next, [
 			function (complete) {
 				console.log('\ngit tag:')
-				spawn(GIT, ['tag', 'v'+PACKAGE_DATA.version, '-a'], {output:true, cwd:APP_PATH}, complete)
+				spawn(GIT, ['tag', 'v' + PACKAGE_DATA.version, '-a'], {output: true, cwd: APP_PATH}, complete)
 			},
 
 			function (complete) {
 				console.log('\ngit push origin master:')
-				spawn(GIT, ['push', 'origin', 'master'], {output:true, cwd:APP_PATH}, complete)
+				spawn(GIT, ['push', 'origin', 'master'], {output: true, cwd: APP_PATH}, complete)
 			},
 
 			function (complete) {
 				console.log('\ngit push tags:')
-				spawn(GIT, ['push', 'origin', '--tags'], {output:true, cwd:APP_PATH}, complete)
+				spawn(GIT, ['push', 'origin', '--tags'], {output: true, cwd: APP_PATH}, complete)
 			}
 		])
 	}
@@ -392,24 +393,24 @@ const actions = {
 // Commands
 
 const commands = {
-	clean:       'clean up instance',
-	setup:       'setup our project for development',
-	compile:     'compile our files (includes setup)',
-	watch:       'compile our files initially, and again for each change (includes setup)',
-	verify:      'verify our project works (includes compile)',
-	meta:        'compile our meta files',
-	prerelease:  'prepare our project for publishing (includes verify and compile)',
-	release:     'publish our project using npm (includes prerelease and postrelease)',
+	clean: 'clean up instance',
+	setup: 'setup our project for development',
+	compile: 'compile our files (includes setup)',
+	watch: 'compile our files initially, and again for each change (includes setup)',
+	verify: 'verify our project works (includes compile)',
+	meta: 'compile our meta files',
+	prerelease: 'prepare our project for publishing (includes verify and compile)',
+	release: 'publish our project using npm (includes prerelease and postrelease)',
 	postrelease: 'prepare our project after publishing'
 }
 
 const aliases = {
-	install:     'setup',
-	test:        'verify',
-	docs:        'meta',
-	prepare:     'prerelease',
-	prepublish:  'prerelease',
-	publish:     'release',
+	install: 'setup',
+	test: 'verify',
+	docs: 'meta',
+	prepare: 'prerelease',
+	prepublish: 'prerelease',
+	publish: 'release',
 	postpublish: 'postpublish'
 }
 
@@ -426,7 +427,7 @@ Object.keys(commands).forEach(function (command) {
 
 Object.keys(aliases).forEach(function (alias) {
 	const command = aliases[alias]
-	const description = 'alias for '+command
+	const description = 'alias for ' + command
 	const method = actions[command]
 	combined[alias] = {
 		description: description,
@@ -436,6 +437,9 @@ Object.keys(aliases).forEach(function (alias) {
 
 // =====================================
 // Command Line Interface
+
+let desiredAction = null
+let longestNameLength = 0
 
 const finish = function (error) {
 	if ( error ) {
@@ -447,19 +451,16 @@ const finish = function (error) {
 	}
 }
 
-const output = function(list) {
+const output = function (list) {
 	let result = ''
 	Object.keys(list).forEach(function (key) {
 		const description = combined[key].description
-		let name = key+': '
-		while ( name.length < longestNameLength+10 )  name += ' '
-		result += name+' '+description+'\n'
+		let name = key + ': '
+		while ( name.length < longestNameLength + 10 )  name += ' '
+		result += name + ' ' + description + '\n'
 	})
 	return result
 }
-
-let desiredAction = null
-let longestNameLength = 0
 
 Object.keys(combined).forEach(function (command) {
 	if ( command.length > longestNameLength ) {
@@ -479,7 +480,7 @@ if ( desiredAction ) {
 // Display the help
 else {
 	console.log([
-		'Nakefile help for '+PACKAGE_DATA.name,
+		'Nakefile help for ' + PACKAGE_DATA.name,
 		'',
 		'USAGE',
 		'',
