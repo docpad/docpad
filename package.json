@@ -144,6 +144,7 @@
     "extendr": "^2.1.0",
     "extract-opts": "^3.0.1",
     "getmac": "^1.0.6",
+    "hostenv": "^1.0.3",
     "ignorefs": "^1.0.0",
     "istextorbinary": "^1.0.0",
     "jschardet": "~1.3.0",
@@ -199,7 +200,6 @@
     "meta": "node --harmony nakefile.js meta",
     "prepare": "node --harmony nakefile.js prepare",
     "release": "node --harmony nakefile.js release",
-
     "test": "node ./out/test/everything-test.js"
   },
   "main": "./out/lib/docpad.js",

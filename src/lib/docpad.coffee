@@ -1212,7 +1212,7 @@ class DocPad extends EventEmitterGrouped
 		templateData = extendr.extend({}, @initialTemplateData, @pluginsTemplateData, @getConfig().templateData, userTemplateData)
 
 		# Add site data
-		templateData.site.url or= 'http://'+(docpad.getHostname() or 'localhost')+':'+(docpad.getPort())
+		templateData.site.url or= 'http://'+(docpad.getHostname().replace('0.0.0.0', '') or 'localhost')+':'+(docpad.getPort())
 		templateData.site.date or= new Date()
 		templateData.site.keywords or= []
 		if typeChecker.isString(templateData.site.keywords)
@@ -1697,7 +1697,7 @@ class DocPad extends EventEmitterGrouped
 	# @return {Number} the port number
 	###
 	getPort: ->
-		return @getConfig().port ? process.env.PORT ? process.env.VCAP_APP_PORT ? process.env.VMC_APP_PORT ? 9778
+		return @getConfig().port ? require('hostenv').PORT ? 9778
 
 	###*
 	# Get the Hostname
@@ -1705,7 +1705,7 @@ class DocPad extends EventEmitterGrouped
 	# @return {String}
 	###
 	getHostname: ->
-		return @getConfig().hostname ? process.env.HOSTNAME ? null
+		return @getConfig().hostname ? require('hostenv').HOSTNAME ? '0.0.0.0'
 
 
 	# =================================
