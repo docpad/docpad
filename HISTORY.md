@@ -1,5 +1,11 @@
 # History
 
+## v6.78.2 August 21, 2015
+- Profilers must now be specified by `DOCPAD_PROFILER` variable
+- Prevent waiting handles from being outputted in silent mode (prevents a common render test failure)
+- Updated dependencies
+- Updated base files
+
 ## v6.78.1 March 20, 2015
 - Fixed `queryEngine` is undefined error (regression since v6.78.1)
 	- Thanks to [wlbrough](https://github.com/wlbrough) for [issue #943](https://github.com/docpad/docpad/issues/943)
