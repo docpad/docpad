@@ -1,5 +1,11 @@
 # History
 
+## v6.78.3 August 21, 2015
+- Consolidated server address code
+- DocPad will now output both the original server address and the simplified server address if they differ, background:
+	- https://github.com/docpad/docpad/commit/2b9f567870f7b396e6b0f680a8aca92ea7bc45b6#commitcomment-12824451
+	- https://github.com/docpad/docpad/issues/911
+
 ## v6.78.2 August 21, 2015
 - Profilers must now be specified by `DOCPAD_PROFILER` variable
 - Prevent waiting handles from being outputted in silent mode (prevents a common render test failure)

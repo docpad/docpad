@@ -1212,7 +1212,7 @@ class DocPad extends EventEmitterGrouped
 		templateData = extendr.extend({}, @initialTemplateData, @pluginsTemplateData, @getConfig().templateData, userTemplateData)
 
 		# Add site data
-		templateData.site.url or= 'http://'+(docpad.getHostname().replace('0.0.0.0', '') or 'localhost')+':'+(docpad.getPort())
+		templateData.site.url or= @getSimpleServerUrl()
 		templateData.site.date or= new Date()
 		templateData.site.keywords or= []
 		if typeChecker.isString(templateData.site.keywords)
@@ -1706,6 +1706,31 @@ class DocPad extends EventEmitterGrouped
 	###
 	getHostname: ->
 		return @getConfig().hostname ? require('hostenv').HOSTNAME ? '0.0.0.0'
+
+	###*
+	# Get address
+	# @method getServerUrl
+	# @param {Object} [opts={}]
+	# @return {String}
+	###
+	getServerUrl: (opts={}) ->
+		opts.hostname ?= @getHostname()
+		opts.port ?= @getPort()
+		opts.simple ?= false
+		if opts.simple is true and opts.hostname in ['0.0.0.0', '::', '::1']
+			return "http://127.0.0.1:#{opts.port}"
+		else
+			return "http://#{opts.hostname}:#{opts.port}"
+
+	###*
+	# Get simple server URL (changes 0.0.0.0, ::, and ::1 to 127.0.0.1)
+	# @method getSimpleServerUrl
+	# @param {Object} [opts={}]
+	# @return {String}
+	###
+	getSimpleServerUrl: (opts={}) ->
+		opts.simple = true
+		return @getServerUrl(opts)
 
 
 	# =================================
@@ -6241,16 +6266,21 @@ class DocPad extends EventEmitterGrouped
 				return complete(err)
 
 			# Listen
-			docpad.log 'debug', util.format(locale.serverStart, hostname, port, config.outPath)
+			docpad.log 'debug', util.format(locale.serverStart, hostname, port)
 			opts.serverHttp.listen port, hostname,  ->
 				# Log
 				address = opts.serverHttp.address()
-				serverHostname = address.address
-				serverPort = address.port
-				if serverHostname in ['0.0.0.0', '::', '::1']
-					serverHostname = '127.0.0.1'
-				serverLocation = "http://#{serverHostname}:#{serverPort}/"
-				docpad.log 'info', util.format(locale.serverStarted, serverLocation, config.outPath)
+				serverUrl = docpad.getServerUrl(
+					hostname: address.hostname
+					port: address.port
+				)
+				simpleServerUrl = docpad.getSimpleServerUrl(
+					hostname: address.hostname
+					port: address.port
+				)
+				docpad.log 'info', util.format(locale.serverStarted, serverUrl)
+				if serverUrl isnt simpleServerUrl
+					docpad.log 'info', util.format(locale.serverBrowse, simpleServerUrl)
 
 				# Done
 				return complete()

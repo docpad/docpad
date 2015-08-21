@@ -1,7 +1,7 @@
 {
   "title": "DocPad. Streamlined web development.",
   "name": "docpad",
-  "version": "6.78.2",
+  "version": "6.78.3",
   "description": "DocPad is a dynamic static site generator. Write your content as files, or import your content from other external sources. Render the content with plugins. And deploy your static or dynamic website to your favourite hosting provider.",
   "homepage": "http://docpad.org",
   "installUrl": "http://docpad.org/install",
@@ -100,7 +100,7 @@
     "pflannery (https://github.com/pflannery)",
     "radiodario (https://github.com/radiodario)",
     "Richard A <richard@antecki.id.au> (https://github.com/rantecki)",
-    "Rob Loach <robloach@gmail.com> (https://github.com/RobLoach)",
+    "Rob Loach <robloach@gmail.com> (https://github.com/robloach)",
     "ruemic (https://github.com/ruemic)",
     "shawnzhu (https://github.com/shawnzhu)",
     "Sorin Ionescu <sorin.ionescu@gmail.com> (https://github.com/sorin-ionescu)",

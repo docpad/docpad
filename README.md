@@ -185,7 +185,7 @@ These amazing people have contributed code to this project:
 - [pflannery](https://github.com/pflannery) — [view contributions](https://github.com/docpad/docpad/commits?author=pflannery)
 - [radiodario](https://github.com/radiodario) — [view contributions](https://github.com/docpad/docpad/commits?author=radiodario)
 - [Richard A](https://github.com/rantecki) <richard@antecki.id.au> — [view contributions](https://github.com/docpad/docpad/commits?author=rantecki)
-- [Rob Loach](https://github.com/RobLoach) <robloach@gmail.com> — [view contributions](https://github.com/docpad/docpad/commits?author=RobLoach)
+- [Rob Loach](https://github.com/robloach) <robloach@gmail.com> — [view contributions](https://github.com/docpad/docpad/commits?author=robloach)
 - [ruemic](https://github.com/ruemic) — [view contributions](https://github.com/docpad/docpad/commits?author=ruemic)
 - [shawnzhu](https://github.com/shawnzhu) — [view contributions](https://github.com/docpad/docpad/commits?author=shawnzhu)
 - [Sorin Ionescu](https://github.com/sorin-ionescu) <sorin.ionescu@gmail.com> — [view contributions](https://github.com/docpad/docpad/commits?author=sorin-ionescu)
