@@ -1737,8 +1737,7 @@ class DocPad extends EventEmitterGrouped
 	# Initialization Functions
 
 	###*
-	# Constructor method. Creates
-	# the DocPad TaskGroup object.
+	# Constructor method. Sets up the DocPad instance.
 	# next(err)
 	# @method constructor
 	# @param {Object} instanceConfig
