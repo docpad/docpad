@@ -318,7 +318,7 @@ const actions = {
 				console.log('\nyuidoc compile:')
 				let command = [YUIDOC]
 				if ( config.YUIDOC_OUT_PATH )  command.push('-o', config.YUIDOC_OUT_PATH)
-				if ( config.YUIDOC_SYNTAX )    command.push('--syntaxtype', config.YUIDOC_SYNTAX)
+				if ( config.YUIDOC_SYNTAX )    command.push('--syntaxtype', config.YUIDOC_SYNTAX, '-e', '.coffee')
 				if ( config.YUIDOC_SRC_PATH )  command.push(config.YUIDOC_SRC_PATH)
 				spawn(NODE, command, {output: true, cwd: APP_PATH}, complete)
 			},
