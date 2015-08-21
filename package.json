@@ -1,12 +1,14 @@
 {
   "title": "DocPad. Streamlined web development.",
   "name": "docpad",
-  "version": "6.78.1",
+  "version": "6.78.2",
   "description": "DocPad is a dynamic static site generator. Write your content as files, or import your content from other external sources. Render the content with plugins. And deploy your static or dynamic website to your favourite hosting provider.",
   "homepage": "http://docpad.org",
   "installUrl": "http://docpad.org/install",
   "upgradeUrl": "http://docpad.org/upgrade",
-  "license": "MIT",
+  "license": {
+    "type": "MIT"
+  },
   "badges": {
     "travis": true,
     "npm": true,
@@ -69,6 +71,7 @@
     "Aaron Powell <me@aaron-powell.com> (https://github.com/aaronpowell)",
     "Adrian Olaru <agolaru@gmail.com> (https://github.com/adrianolaru)",
     "Alex (https://github.com/amesarosh)",
+    "alexwoehr (https://github.com/alexwoehr)",
     "Alroniks (https://github.com/Alroniks)",
     "Andrew Patton <andrew@acusti.ca> (https://github.com/acusti)",
     "Ashnur (https://github.com/ashnur)",
@@ -78,6 +81,7 @@
     "Changwoo Park <pismute@gmail.com> (https://github.com/pismute)",
     "chaos95 (https://github.com/chaos95)",
     "Chase Colman <chase@infinityatlas.com> (https://github.com/chase)",
+    "derberg (https://github.com/derberg)",
     "eldios <lele@amicofigo.com> (https://github.com/eldios)",
     "Ferrari Lee <shiyung@gmail.com> (https://github.com/Ferrari)",
     "Greduan (https://github.com/Greduan)",
@@ -107,6 +111,7 @@
     "ttamminen (https://github.com/ttamminen)",
     "unframework (https://github.com/unframework)",
     "Vladislav Botvin <darkvlados@me.com> (https://github.com/darrrk)",
+    "vsopvsop (https://github.com/vsopvsop)",
     "Zearin (https://github.com/Zearin)",
     "Zhao Lei <aicoylei@gmail.com> (https://github.com/firede)"
   ],
@@ -123,7 +128,7 @@
   },
   "dependencies": {
     "ambi": "^2.2.0",
-    "backbone": "1.1.2",
+    "backbone": "1.2.2",
     "bal-util": "~2.5.1",
     "caterpillar": "^2.0.9",
     "caterpillar-filter": "^2.0.3",
@@ -135,13 +140,13 @@
     "encoding": "~0.1.11",
     "envfile": "^1.0.0",
     "event-emitter-grouped": "^2.4.3",
-    "express": "^3.20.1",
+    "express": "^3.21.2",
     "extendr": "^2.1.0",
     "extract-opts": "^3.0.1",
     "getmac": "^1.0.6",
     "ignorefs": "^1.0.0",
     "istextorbinary": "^1.0.0",
-    "jschardet": "~1.1.0",
+    "jschardet": "~1.3.0",
     "lazy-require": "^2.0.0",
     "method-override": "^2.3.2",
     "mime": "^1.3.4",
@@ -150,9 +155,9 @@
     "query-engine": "~1.5.5",
     "rimraf": "^2.2.8",
     "safefs": "^3.1.2",
-    "safeps": "^4.0.0",
+    "safeps": "^5.1.0",
     "scandirectory": "^2.5.0",
-    "semver": "^4.3.0",
+    "semver": "^5.0.1",
     "superagent": "^1.1.0",
     "taskgroup": "^4.2.1",
     "typechecker": "^2.0.8",
@@ -162,15 +167,18 @@
   },
   "optionalDependencies": {},
   "devDependencies": {
-    "coffee-script": "^1.9.1",
     "assert-helpers": "^1.0.0",
+    "babel-eslint": "^4.0.10",
+    "coffee-script": "^1.9.1",
+    "docpad-plugin-coffeekup": "2",
+    "docpad-plugin-eco": "2",
+    "docpad-plugin-marked": "2",
+    "eslint": "^1.2.1",
     "joe": "^1.6.0",
     "joe-reporter-console": "^1.2.1",
-    "projectz": "^0.5.0",
     "moment": "^2.9.0",
-    "docpad-plugin-marked": "2",
-    "docpad-plugin-coffeekup": "2",
-    "docpad-plugin-eco": "2"
+    "projectz": "^0.5.0",
+    "yuidocjs": "^0.9.0"
   },
   "directories": {
     "lib": "./out/lib"
@@ -183,10 +191,21 @@
     "docpad-trace": "./bin/docpad-trace"
   },
   "scripts": {
+    "clean": "node --harmony nakefile.js clean",
+    "setup": "node --harmony nakefile.js setup",
+    "compile": "node --harmony nakefile.js compile",
+    "watch": "node --harmony nakefile.js watch",
+    "verify": "node --harmony nakefile.js verify",
+    "meta": "node --harmony nakefile.js meta",
+    "prepare": "node --harmony nakefile.js prepare",
+    "release": "node --harmony nakefile.js release",
+
     "test": "node ./out/test/everything-test.js"
   },
   "main": "./out/lib/docpad.js",
-  "cakeConfiguration": {
-    "COFFEE_SRC_PATH": "src"
+  "nakeConfiguration": {
+    "COFFEE_SRC_PATH": "src",
+    "YUIDOC_SRC_PATH": "src",
+    "YUIDOC_SYNTAX": "coffee"
   }
 }

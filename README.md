@@ -16,7 +16,7 @@
 [![Dev Dependency Status](https://img.shields.io/david/dev/docpad/docpad.svg)](https://david-dm.org/docpad/docpad#info=devDependencies)<br/>
 [![Gratipay donate button](https://img.shields.io/gratipay/docpad.svg)](https://www.gratipay.com/docpad/ "Donate weekly to this project using Gratipay")
 [![Flattr donate button](https://img.shields.io/badge/flattr-donate-yellow.svg)](http://flattr.com/thing/344188/balupton-on-Flattr "Donate monthly to this project using Flattr")
-[![PayPal donate button](https://img.shields.io/badge/paypal-donate-yellow.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=QB8GQPZAH84N6 "Donate once-off to this project using Paypal")
+[![PayPayl donate button](https://img.shields.io/badge/paypal-donate-yellow.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=QB8GQPZAH84N6 "Donate once-off to this project using Paypal")
 [![BitCoin donate button](https://img.shields.io/badge/bitcoin-donate-yellow.svg)](https://bevry.me/bitcoin "Donate once-off to this project using BitCoin")
 [![Wishlist browse button](https://img.shields.io/badge/wishlist-donate-yellow.svg)](https://bevry.me/wishlist "Buy an item on our wishlist for us")
 
@@ -145,9 +145,9 @@ Become a sponsor!
 
 [![Gratipay donate button](https://img.shields.io/gratipay/docpad.svg)](https://www.gratipay.com/docpad/ "Donate weekly to this project using Gratipay")
 [![Flattr donate button](https://img.shields.io/badge/flattr-donate-yellow.svg)](http://flattr.com/thing/344188/balupton-on-Flattr "Donate monthly to this project using Flattr")
-[![PayPal donate button](https://img.shields.io/badge/paypal-donate-yellow.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=QB8GQPZAH84N6 "Donate once-off to this project using Paypal")
-[![BitCoin donate button](https://img.shields.io/badge/bitcoin-donate-yellow.svg)](https://coinbase.com/checkouts/9ef59f5479eec1d97d63382c9ebcb93a "Donate once-off to this project using BitCoin")
-[![Wishlist browse button](https://img.shields.io/badge/wishlist-donate-yellow.svg)](http://amzn.com/w/2F8TXKSNAFG4V "Buy an item on our wishlist for us")
+[![PayPayl donate button](https://img.shields.io/badge/paypal-donate-yellow.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=QB8GQPZAH84N6 "Donate once-off to this project using Paypal")
+[![BitCoin donate button](https://img.shields.io/badge/bitcoin-donate-yellow.svg)](https://bevry.me/bitcoin "Donate once-off to this project using BitCoin")
+[![Wishlist browse button](https://img.shields.io/badge/wishlist-donate-yellow.svg)](https://bevry.me/wishlist "Buy an item on our wishlist for us")
 
 ### Contributors
 
@@ -156,6 +156,7 @@ These amazing people have contributed code to this project:
 - [Aaron Powell](https://github.com/aaronpowell) <me@aaron-powell.com> — [view contributions](https://github.com/docpad/docpad/commits?author=aaronpowell)
 - [Adrian Olaru](https://github.com/adrianolaru) <agolaru@gmail.com> — [view contributions](https://github.com/docpad/docpad/commits?author=adrianolaru)
 - [Alex](https://github.com/amesarosh) — [view contributions](https://github.com/docpad/docpad/commits?author=amesarosh)
+- [alexwoehr](https://github.com/alexwoehr) — [view contributions](https://github.com/docpad/docpad/commits?author=alexwoehr)
 - [Alroniks](https://github.com/Alroniks) — [view contributions](https://github.com/docpad/docpad/commits?author=Alroniks)
 - [Andrew Patton](https://github.com/acusti) <andrew@acusti.ca> — [view contributions](https://github.com/docpad/docpad/commits?author=acusti)
 - [Ashnur](https://github.com/ashnur) — [view contributions](https://github.com/docpad/docpad/commits?author=ashnur)
@@ -165,6 +166,7 @@ These amazing people have contributed code to this project:
 - [Changwoo Park](https://github.com/pismute) <pismute@gmail.com> — [view contributions](https://github.com/docpad/docpad/commits?author=pismute)
 - [chaos95](https://github.com/chaos95) — [view contributions](https://github.com/docpad/docpad/commits?author=chaos95)
 - [Chase Colman](https://github.com/chase) <chase@infinityatlas.com> — [view contributions](https://github.com/docpad/docpad/commits?author=chase)
+- [derberg](https://github.com/derberg) — [view contributions](https://github.com/docpad/docpad/commits?author=derberg)
 - [eldios](https://github.com/eldios) <lele@amicofigo.com> — [view contributions](https://github.com/docpad/docpad/commits?author=eldios)
 - [Ferrari Lee](https://github.com/Ferrari) <shiyung@gmail.com> — [view contributions](https://github.com/docpad/docpad/commits?author=Ferrari)
 - [Greduan](https://github.com/Greduan) — [view contributions](https://github.com/docpad/docpad/commits?author=Greduan)
@@ -194,6 +196,7 @@ These amazing people have contributed code to this project:
 - [ttamminen](https://github.com/ttamminen) — [view contributions](https://github.com/docpad/docpad/commits?author=ttamminen)
 - [unframework](https://github.com/unframework) — [view contributions](https://github.com/docpad/docpad/commits?author=unframework)
 - [Vladislav Botvin](https://github.com/darrrk) <darkvlados@me.com> — [view contributions](https://github.com/docpad/docpad/commits?author=darrrk)
+- [vsopvsop](https://github.com/vsopvsop) — [view contributions](https://github.com/docpad/docpad/commits?author=vsopvsop)
 - [Zearin](https://github.com/Zearin) — [view contributions](https://github.com/docpad/docpad/commits?author=Zearin)
 - [Zhao Lei](https://github.com/firede) <aicoylei@gmail.com> — [view contributions](https://github.com/docpad/docpad/commits?author=firede)
 

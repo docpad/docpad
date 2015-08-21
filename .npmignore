@@ -1,9 +1,12 @@
-# v1.3.23 October 11, 2014
+# 27 March 2015
 # https://github.com/bevry/base
 
 # Temp Files
-**/*.log
 **/.docpad.db
+**/out.*
+**/*.log
+**/*.cpuprofile
+**/*.heapsnapshot
 
 # Build Files
 build/
