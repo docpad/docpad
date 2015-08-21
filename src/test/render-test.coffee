@@ -48,7 +48,7 @@ joe.suite 'docpad-render', (suite,test) ->
 			test item.filename, (done) ->
 				# IMPORTANT THAT ANY OPTIONS GO AFTER THE RENDER CALL, SERIOUSLY
 				# OTHERWISE the sky falls down on scoping, seriously, it is wierd
-				command = ['node', cliPath, '--global', 'render', pathUtil.join(renderPath,item.filename)]
+				command = ['node', cliPath, '--global', '--silent', 'render', pathUtil.join(renderPath,item.filename)]
 				opts = {cwd:rootPath, output:false}
 				safeps.spawn command, opts, (err,stdout,stderr,status,signal) ->
 					stdout = (stdout or '').toString().trim()

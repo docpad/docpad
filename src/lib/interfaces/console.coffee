@@ -236,6 +236,7 @@ class ConsoleInterface
 		# Prepare
 		docpad = @docpad
 		locale = docpad.getLocale()
+		logLevel = docpad.getLogLevel()
 
 		# Error?
 		docpadUtil.writeError(err)  if err
@@ -251,21 +252,23 @@ class ConsoleInterface
 			# Error?
 			docpadUtil.writeError(err)  if err
 
-			# Note any requests that are still active
-			activeRequests = process._getActiveRequests()
-			if activeRequests?.length
-				console.log """
-					Waiting on the requests:
-					#{docpadUtil.inspect activeRequests}
-					"""
+			# Output if we are not in silent mode
+			if 6 <= logLevel
+				# Note any requests that are still active
+				activeRequests = process._getActiveRequests()
+				if activeRequests?.length
+					console.log """
+						Waiting on the requests:
+						#{docpadUtil.inspect activeRequests}
+						"""
 
-			# Note any handles that are still active
-			activeHandles = process._getActiveHandles()
-			if activeHandles?.length
-				console.log """
-					Waiting on the handles:
-					#{docpadUtil.inspect activeHandles}
-					"""
+				# Note any handles that are still active
+				activeHandles = process._getActiveHandles()
+				if activeHandles?.length
+					console.log """
+						Waiting on the handles:
+						#{docpadUtil.inspect activeHandles}
+						"""
 
 		# Chain
 		@
