@@ -1737,12 +1737,11 @@ class DocPad extends EventEmitterGrouped
 	# Initialization Functions
 
 	###*
-	# Construct DocPad
+	# Constructor method. Sets up the DocPad instance.
 	# next(err)
-	# @constructor constructor
+	# @method constructor
 	# @param {Object} instanceConfig
 	# @param {Function} next
-	# @return {Object} the DocPad instance
 	###
 	constructor: (instanceConfig,next) ->
 		# Prepare
