@@ -17,7 +17,8 @@ if ('--profile' in process.argv)
 	debugger
 
 	# Nodetime
-	if process.env.NODETIME_KEY
+	if process.env.DOCPAD_PROFILER.indexOf('nodetime') isnt -1
+		throw new Error('NODETIME_KEY environment variable is undefined')  unless process.env.NODETIME_KEY
 		console.log 'Loading profiling tool: nodetime'
 		require('lazy-require').sync 'nodetime', {cwd:corePath}, (err,nodetime) ->
 			if err
@@ -31,14 +32,28 @@ if ('--profile' in process.argv)
 				console.log 'Profiling with nodetime with account key:', process.env.NODETIME_KEY
 
 	# Webkit Devtools
-	console.log 'Loading profiling tool: webkit-devtools-agent'
-	require('lazy-require').sync 'webkit-devtools-agent', {cwd:corePath}, (err, agent) ->
-		if err
-			console.log 'Failed to load profiling tool: webkit-devtools-agent'
-			console.log err.stack or err
-		else
-			agent.start()
-			console.log "Profiling with webkit-devtools-agent on pid #{process.pid} at http://127.0.0.1:9999/"
+	if process.env.DOCPAD_PROFILER.indexOf('webkit-devtools-agent') isnt -1
+		console.log 'Loading profiling tool: webkit-devtools-agent'
+		require('lazy-require').sync 'webkit-devtools-agent', {cwd:corePath}, (err, agent) ->
+			if err
+				console.log 'Failed to load profiling tool: webkit-devtools-agent'
+				console.log err.stack or err
+			else
+				agent.start()
+				console.log "Profiling with webkit-devtools-agent on pid #{process.pid} at http://127.0.0.1:9999/"
+
+	# V8 Profiler
+	if process.env.DOCPAD_PROFILER.indexOf('v8-profiler') isnt -1
+		console.log 'Loading profiling tool: v8-profiler'
+		require('lazy-require').sync 'v8-profiler-helper', {cwd:corePath}, (err, profiler) ->
+			if err
+				console.log 'Failed to load profiling tool: v8-profiler'
+				console.log err.stack or err
+			else
+				profiler.startProfile('docpad-profile')
+				console.log "Profiling with v8-profiler"
+			process.on 'exit', ->
+				profiler.stopProfile('docpad-profile')
 
 
 # =====================================
