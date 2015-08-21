@@ -3,6 +3,8 @@
 ## v6.78.2 August 21, 2015
 - Profilers must now be specified by `DOCPAD_PROFILER` variable
 - Prevent waiting handles from being outputted in silent mode (prevents a common render test failure)
+- Use [hostenv](https://github.com/bevry/hostenv) for `PORT` and `HOSTNAME` variables
+- Listen to `0.0.0.0` hostname by default (will be outputted as `localhost`)
 - Updated dependencies
 - Updated base files
 
