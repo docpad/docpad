@@ -1,3 +1,8 @@
+##*
+# The central module for DocPad
+# @module DocPad
+##
+
 # =====================================
 # This block *must* come first
 
@@ -96,7 +101,11 @@ isUser = docpadUtil.isUser()
 
 
 ###*
-# The DocPad Class
+# The DocPad Class.
+# Contains methods for managing the DocPad application.
+# This includes managing a DocPad projects files and
+# documents, watching directories, emitting events and
+# managing the node.js/express.js web server.
 # Extends https://github.com/bevry/event-emitter-grouped
 # @class Docpad
 # @constructor
@@ -140,23 +149,33 @@ class DocPad extends EventEmitterGrouped
 
 	###*
 	# Events class
+	# https://github.com/docpad/docpad/blob/master/src/lib/base.coffee
 	# @property {Object} Events
 	###
 	Events: Events
 	###*
 	# Model class
+	# Extension of the Backbone Model class
+	# http://backbonejs.org/#Model
+	# https://github.com/docpad/docpad/blob/master/src/lib/base.coffee
 	# @property {Object} Model
 	###
 	Model: Model
 
 	###*
 	# Collection class
+	# Extension of the Backbone Collection class
+	# https://github.com/docpad/docpad/blob/master/src/lib/base.coffee
+	# http://backbonejs.org/#Collection
 	# @property {Object} Collection
 	###
 	Collection: Collection
 
 	###*
 	# QueryCollection class
+	# Extension of the Query Engine QueryCollection class
+	# https://github.com/docpad/docpad/blob/master/src/lib/base.coffee
+	# https://github.com/bevry/query-engine/blob/master/src/documents/lib/query-engine.js.coffee
 	# @property {Object} QueryCollection
 	###
 	QueryCollection: QueryCollection
@@ -166,13 +185,17 @@ class DocPad extends EventEmitterGrouped
 
 	###*
 	# File Model class
+	# Extension of the Model class
+	# https://github.com/docpad/docpad/blob/master/src/lib/models/file.coffee
 	# @property {Object} FileModel
 	###
 	FileModel: FileModel
 
 	###*
 	# Document Model class
-	# @property {Object} FileModel
+	# Extension of the File Model class
+	# https://github.com/docpad/docpad/blob/master/src/lib/models/document.coffee
+	# @property {Object} DocumentModel
 	###
 	DocumentModel: DocumentModel
 
@@ -181,35 +204,47 @@ class DocPad extends EventEmitterGrouped
 
 	###*
 	# Collection of files in a DocPad project
+	# Extension of the QueryCollection class
+	# https://github.com/docpad/docpad/blob/master/src/lib/collections/files.coffee
 	# @property {Object} FilesCollection
 	###
 	FilesCollection: FilesCollection
 
 	###*
 	# Collection of elements in a DocPad project
+	# Extension of the Collection class
+	# https://github.com/docpad/docpad/blob/master/src/lib/collections/elements.coffee
 	# @property {Object} ElementsCollection
 	###
 	ElementsCollection: ElementsCollection
 
 	###*
 	# Collection of metadata in a DocPad project
+	# Extension of the ElementsCollection class
+	# https://github.com/docpad/docpad/blob/master/src/lib/collections/meta.coffee
 	# @property {Object} MetaCollection
 	###
 	MetaCollection: MetaCollection
 
 	###*
 	# Collection of JS script files in a DocPad project
+	# Extension of the ElementsCollection class
+	# https://github.com/docpad/docpad/blob/master/src/lib/collections/scripts.coffee
 	# @property {Object} ScriptsCollection
 	###
 	ScriptsCollection: ScriptsCollection
 
 	###*
 	# Collection of CSS style files in a DocPad project
+	# Extension of the ElementsCollection class
+	# https://github.com/docpad/docpad/blob/master/src/lib/collections/styles.coffee
 	# @property {Object} StylesCollection
 	###
 	StylesCollection: StylesCollection
 
 	###*
+	# Plugin Loader class
+	# https://github.com/docpad/docpad/blob/master/src/lib/plugin-loader.coffee
 	# Loads the DocPad plugins from the file system into
 	# a DocPad project
 	# @property {Object} PluginLoader
@@ -218,6 +253,7 @@ class DocPad extends EventEmitterGrouped
 
 	###*
 	# Base class for all DocPad plugins
+	# https://github.com/docpad/docpad/blob/master/src/lib/plugin.coffee
 	# @property {Object} BasePlugin
 	###
 	BasePlugin: BasePlugin
@@ -430,11 +466,11 @@ class DocPad extends EventEmitterGrouped
 
 
 	###*
-	# Event Listing
+	# Event Listing. String array of event names.
 	# Whenever an event is created, it must be applied here to be available to plugins and configuration files
 	# https://github.com/bevry/docpad/wiki/Events
 	# @private
-	# @property {Object} events
+	# @property {Array} string array of event names
 	###
 	events: [
 		'extendTemplateData'           # fired each load
@@ -510,7 +546,6 @@ class DocPad extends EventEmitterGrouped
 	# Destructor. Destroy the DocPad database
 	# @private
 	# @method destroyDatabase
-	# @return {Object} description
 	###
 	destroyDatabase: ->
 		if @database?
@@ -523,18 +558,21 @@ class DocPad extends EventEmitterGrouped
 
 	###*
 	# Files by url. Used to speed up fetching
+	# @private
 	# @property {Object} filesByUrl
 	###
 	filesByUrl: null
 
 	###*
 	# Files by Selector. Used to speed up fetching
+	# @private
 	# @property {Object} filesBySelector
 	###
 	filesBySelector: null
 
 	###*
 	# Files by Out Path. Used to speed up conflict detection. Do not use for anything else
+	# @private
 	# @property {Object} filesByOutPath
 	###
 	filesByOutPath: null
@@ -782,7 +820,7 @@ class DocPad extends EventEmitterGrouped
 	# @param {Object} query
 	# @param {Object} sorting
 	# @param {Object} paging
-	# @return {Object} file
+	# @return {Object} a file
 	###
 	getFile: (query,sorting,paging) ->
 		file = @getDatabase().findOne(query, sorting, paging)
@@ -820,7 +858,7 @@ class DocPad extends EventEmitterGrouped
 	# @method getFileByUrl
 	# @param {String} url
 	# @param {Object} [opts={}]
-	# @return {Object} file
+	# @return {Object} a file
 	###
 	getFileByUrl: (url,opts={}) ->
 		opts.collection ?= @getDatabase()
@@ -846,7 +884,7 @@ class DocPad extends EventEmitterGrouped
 	# Pathname convention taken from document.location.pathname
 	# @method getUrlPathname
 	# @param {String} url
-	# @return {Object} description
+	# @return {String}
 	###
 	getUrlPathname: (url) ->
 		return url.replace(/\?.*/,'')
@@ -858,7 +896,6 @@ class DocPad extends EventEmitterGrouped
 	# @method getFileByRoute
 	# @param {String} url
 	# @param {Object} next
-	# @return {Object} description
 	###
 	getFileByRoute: (url,next) ->
 		# Prepare
@@ -921,10 +958,10 @@ class DocPad extends EventEmitterGrouped
 	###
 	skeletonsCollection: null
 
-	# next(err,skeletonsCollection)
 	###*
 	# Get Skeletons
 	# Get all the available skeletons for us and their details
+	# next(err,skeletonsCollection)
 	# @method getSkeletons
 	# @param {Function} next
 	# @return {Object} DocPad skeleton collection
@@ -5041,10 +5078,19 @@ class DocPad extends EventEmitterGrouped
 	# ---------------------------------
 	# Watch
 
-	# Watchers
+	###*
+	# Array of file watchers
+	# @private
+	# @property {Array} watchers
+	###
 	watchers: null
 
-	# Destroy Watchers
+	###*
+	# Destructor. Destroy the watchers used
+	# by DocPad
+	# @private
+	# @method destroyWatchers
+	###
 	destroyWatchers: ->
 		# Prepare
 		docpad = @
@@ -5061,7 +5107,13 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Watch
+	###*
+	# Start up file watchers used by DocPad
+	# @private
+	# @method watch
+	# @param {Object} opts
+	# @param {Function} next
+	###
 	watch: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
@@ -5232,6 +5284,12 @@ class DocPad extends EventEmitterGrouped
 	# ---------------------------------
 	# Run Action
 
+	###*
+	# Run an action
+	# @method run
+	# @param {Object} opts
+	# @param {Function} next
+	###
 	run: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
@@ -5290,8 +5348,14 @@ class DocPad extends EventEmitterGrouped
 	# ---------------------------------
 	# Skeleton
 
-	# Init Install
+	###*
+	# Initialize the skeleton install process
 	# next(err)
+	# @private
+	# @method initInstall
+	# @param {Object} opts
+	# @param {Function} next
+	###
 	initInstall: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
@@ -5331,8 +5395,14 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Uninstall
+	###*
+	# Uninstall a plugin.
 	# next(err)
+	# @private
+	# @method uninstall
+	# @param {Object} opts
+	# @param {Function} next
+	###
 	uninstall: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
@@ -5364,8 +5434,14 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Install
+	###*
+	# Install a plugin
 	# next(err)
+	# @private
+	# @method install
+	# @param {Object} opts
+	# @param {Function} next
+	###
 	install: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
@@ -5409,8 +5485,15 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Upgrade
+	###*
+	# Update global NPM and DocPad
 	# next(err)
+	# @private
+	# @method upgrade
+	# @param {Object} opts
+	# @param {Object} next
+	# @return {Object} description
+	###
 	upgrade: (opts,next) ->
 		# Update Global NPM and DocPad
 		@installNodeModule('npm docpad@6', {
@@ -5422,8 +5505,14 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Update
+	###*
+	# Update the local DocPad and plugin dependencies
 	# next(err)
+	# @private
+	# @method update
+	# @param {Object} opts
+	# @param {Object} next
+	###
 	update: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
@@ -5479,8 +5568,15 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Clean
+	###*
+	# DocPad cleanup tasks
 	# next(err)
+	# @private
+	# @method clean
+	# @param {Object} opts
+	# @param {Object} next
+	# @return {Object} description
+	###
 	clean: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
@@ -5524,8 +5620,17 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
+
+
+	###*
 	# Initialize a Skeleton into to a Directory
 	# next(err)
+	# @private
+	# @method initSkeleton
+	# @param {Object} skeletonModel
+	# @param {Object} opts
+	# @param {Function} next
+	###
 	initSkeleton: (skeletonModel,opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
@@ -5617,8 +5722,16 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Install a Skeleton into a Directory
+
 	# next(err)
+	###*
+	# Install a Skeleton into a Directory
+	# @private
+	# @method installSkeleton
+	# @param {Object} skeletonModel
+	# @param {Object} opts
+	# @param {Function} next
+	###
 	installSkeleton: (skeletonModel,opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
@@ -5638,8 +5751,16 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
+	###*
 	# Use a Skeleton
 	# next(err)
+	# @private
+	# @method useSkeleton
+	# @param {Object} skeletonModel
+	# @param {Object} opts
+	# @param {Object} next
+	# @return {Object} description
+	###
 	useSkeleton: (skeletonModel,opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
@@ -5673,8 +5794,15 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
+
+	###*
 	# Select a Skeleton
 	# next(err,skeletonModel)
+	# @private
+	# @method selectSkeleton
+	# @param {Object} opts
+	# @param {Function} next
+	###
 	selectSkeleton: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
@@ -5695,7 +5823,13 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
+	###*
 	# Skeleton Empty?
+	# @private
+	# @method skeletonEmpty
+	# @param {Object} path
+	# @param {Function} next
+	###
 	skeletonEmpty: (path, next) ->
 		# Prepare
 		locale = @getLocale()
@@ -5716,8 +5850,14 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-
-	# Skeleton
+	###*
+	# Initialize the project directory
+	# with the basic skeleton.
+	# @private
+	# @method skeleton
+	# @param {Object} opts
+	# @param {Function} next
+	###
 	skeleton: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
@@ -5740,7 +5880,15 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Init
+	###*
+	# Initialize the project directory
+	# with the basic skeleton.
+	# @private
+	# @method init
+	# @param {Object} opts
+	# @param {Object} next
+	# @return {Object} description
+	###
 	init: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
@@ -5761,7 +5909,13 @@ class DocPad extends EventEmitterGrouped
 	# ---------------------------------
 	# Server
 
-	# Serve Document
+	###*
+	# Serve a document
+	# @private
+	# @method serveDocument
+	# @param {Object} opts
+	# @param {Function} next
+	###
 	serveDocument: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
@@ -5846,7 +6000,15 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
+
+	###*
 	# Server Middleware: Header
+	# @private
+	# @method serverMiddlewareHeader
+	# @param {Object} req
+	# @param {Object} res
+	# @param {Object} next
+	###
 	serverMiddlewareHeader: (req,res,next) ->
 		# Prepare
 		docpad = @
@@ -5865,7 +6027,15 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
+
+	###*
 	# Server Middleware: Router
+	# @private
+	# @method serverMiddlewareRouter
+	# @param {Object} req
+	# @param {Object} res
+	# @param {Function} next
+	###
 	serverMiddlewareRouter: (req,res,next) ->
 		# Prepare
 		docpad = @
@@ -5888,7 +6058,15 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
+
+	###*
 	# Server Middleware: 404
+	# @private
+	# @method serverMiddleware404
+	# @param {Object} req
+	# @param {Object} res
+	# @param {Object} next
+	###
 	serverMiddleware404: (req,res,next) ->
 		# Prepare
 		docpad = @
@@ -5907,7 +6085,16 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
+
+	###*
 	# Server Middleware: 500
+	# @private
+	# @method serverMiddleware500
+	# @param {Object} err
+	# @param {Object} req
+	# @param {Object} res
+	# @param {Function} next
+	###
 	serverMiddleware500: (err,req,res,next) ->
 		# Prepare
 		docpad = @
@@ -5923,7 +6110,17 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-	# Server
+	###*
+	# Configure and start up the DocPad web server.
+	# Http and express server is created, extended with
+	# middleware, started up and begins listening.
+	# The events serverBefore, serverExtend and
+	# serverAfter emitted here.
+	# @private
+	# @method server
+	# @param {Object} opts
+	# @param {Function} next
+	###
 	server: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
