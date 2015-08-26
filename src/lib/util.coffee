@@ -13,45 +13,102 @@ extractOptsAndCallback = require('extract-opts')
 
 # =====================================
 # Export
+###*
+# The DocPad Util Class.
+# Collection of DocPad utility methods
+# @class docpadUtil
+# @constructor
+# @static
+###
 module.exports = docpadUtil =
+
+	###*
 	# Write to stderr
+	# @private
+	# @method writeStderr
+	# @param {String} data
+	###
 	writeStderr: (data) ->
 		try
 			process.stderr.write(data)
 		catch err
 			process.stdout.write(data)
 
+	###*
 	# Write an error
+	# @private
+	# @method writeError
+	# @param {Object} err
+	###
 	writeError: (err) ->
 		docpadUtil.writeStderr(err.stack?.toString?() or err.message or err)
 
-	# Wait
+	###*
+	# Wait. Wrapper for setTimeout
+	# @private
+	# @method wait
+	# @param {Number} time
+	# @param {function} fn
+	###
 	wait: (time, fn) -> setTimeout(fn, time)
 
+
+	###*
 	# Get Default Log Level
+	# @private
+	# @method getDefaultLogLevel
+	# @return {Number} default log level
+	###
 	getDefaultLogLevel: ->
 		if docpadUtil.isTravis() or ('-d' in process.argv)
 			return 7
 		else
 			return 5
 
-	# Is Travis
+	###*
+	# Are we executing on Travis
+	# @private
+	# @method isTravis
+	# @return {String} The travis node version
+	###
 	isTravis: ->
 		return process.env.TRAVIS_NODE_VERSION?
 
-	# Is TTY
+	###*
+	# Is this TTY
+	# @private
+	# @method isTTY
+	# @return {Boolean}
+	###
 	isTTY: ->
 		return process.stdout?.isTTY is true and process.stderr?.isTTY is true
 
+
+	###*
 	# Is Standadlone
+	# @private
+	# @method isStandalone
+	# @return {Object}
+	###
 	isStandalone: ->
 		return /docpad$/.test(process.argv[1] or '')
 
-	# Is User
+	###*
+	# Is user
+	# @private
+	# @method isUser
+	# @return {Boolean}
+	###
 	isUser: ->
 		return docpadUtil.isStandalone() and docpadUtil.isTTY() and docpadUtil.isTravis() is false
 
-	# Inspect
+	###*
+	# Wrapper for the node.js method util.inspect
+	# @method inspect
+	# @param {Object} obj
+	# @param {Object} opts
+	# @return {String}
+	###
 	inspect: (obj, opts) ->
 		# Prepare
 		opts ?= {}
@@ -67,23 +124,52 @@ module.exports = docpadUtil =
 		# Inspect and return
 		return util.inspect(obj, opts)
 
-	# Standard Encodings
+	###*
+	# Are we using standard encoding?
+	# @private
+	# @method isStandardEncoding
+	# @param {String} encoding
+	# @return {Boolean}
+	###
 	isStandardEncoding: (encoding) ->
 		return encoding.toLowerCase() in ['ascii', 'utf8', 'utf-8']
 
-	# Get Local DocPad Installation Executable
+
+	###*
+	# Get Local DocPad Installation Executable - ie
+	# not the global installation
+	# @private
+	# @method getLocalDocPadExecutable
+	# @return {String} the path to the local DocPad executable
+	###
 	getLocalDocPadExecutable: ->
 		return pathUtil.join(process.cwd(), 'node_modules', 'docpad', 'bin', 'docpad')
 
+	###*
 	# Is Local DocPad Installation
+	# @private
+	# @method isLocalDocPadExecutable
+	# @return {Boolean}
+	###
 	isLocalDocPadExecutable: ->
 		return docpadUtil.getLocalDocPadExecutable() in process.argv
 
-	# Does Local DocPad Installation Exist?
+	###*
+	# Does the local DocPad Installation Exist?
+	# @private
+	# @method getLocalDocPadExecutableExistance
+	# @return {Boolean}
+	###
 	getLocalDocPadExecutableExistance: ->
 		return require('safefs').existsSync(docpadUtil.getLocalDocPadExecutable()) is true
 
+	###*
 	# Spawn Local DocPad Executable
+	# @private
+	# @method startLocalDocPadExecutable
+	# @param {Function} next
+	# @return {Object} don't know what
+	###
 	startLocalDocPadExecutable: (next) ->
 		args = process.argv.slice(2)
 		command = ['node', docpadUtil.getLocalDocPadExecutable()].concat(args)
@@ -97,7 +183,13 @@ module.exports = docpadUtil =
 			else
 				next?()
 
+
+	###*
 	# get a filename without the extension
+	# @method getBasename
+	# @param {String} filename
+	# @return {String} base name
+	###
 	getBasename: (filename) ->
 		if filename[0] is '.'
 			basename = filename.replace(/^(\.[^\.]+)\..*$/, '$1')
@@ -105,12 +197,24 @@ module.exports = docpadUtil =
 			basename = filename.replace(/\..*$/, '')
 		return basename
 
-	# get the extensions of a filename
+
+	###*
+	# Get the extensions of a filename
+	# @method getExtensions
+	# @param {String} filename
+	# @return {Array} array of string
+	###
 	getExtensions: (filename) ->
 		extensions = filename.split(/\./g).slice(1)
 		return extensions
 
-	# get the extension from a bunch of extensions
+
+	###*
+	# Get the extension from a bunch of extensions
+	# @method getExtension
+	# @param {Array} extensions
+	# @return {String} the extension
+	###
 	getExtension: (extensions) ->
 		unless require('typechecker').isArray(extensions)
 			extensions = docpadUtil.getExtensions(extensions)
@@ -122,33 +226,68 @@ module.exports = docpadUtil =
 
 		return extension
 
-	# get the dir path
+	###*
+	# Get the directory path.
+	# Wrapper around the node.js path.dirname method
+	# @method getDirPath
+	# @param {String} path
+	# @return {String}
+	###
 	getDirPath: (path) ->
 		return pathUtil.dirname(path) or ''
 
-	# get filename
+	###*
+	# Get the file name.
+	# Wrapper around the node.js path.basename method
+	# @method getFilename
+	# @param {String} path
+	# @return {String}
+	###
 	getFilename: (path) ->
 		return pathUtil.basename(path)
 
-	# get out filename
+	###*
+	# Get the DocPad out file name
+	# @method getOutFilename
+	# @param {String} basename
+	# @param {String} extension
+	# @return {String}
+	###
 	getOutFilename: (basename, extension) ->
 		if basename is '.'+extension  # prevent: .htaccess.htaccess
 			return basename
 		else
 			return basename+(if extension then '.'+extension else '')
 
-	# get url
+	###*
+	# Get the URL
+	# @method getUrl
+	# @param {String} relativePath
+	# @return {String}
+	###
 	getUrl: (relativePath) ->
 		return '/'+relativePath.replace(/[\\]/g, '/')
 
-	# get slug
+	###*
+	# Get the post slug from the URL
+	# @method getSlug
+	# @param {String} relativeBase
+	# @return {String} the slug
+	###
 	getSlug: (relativeBase) ->
 		return require('bal-util').generateSlugSync(relativeBase)
 
+	###*
 	# Perform an action
 	# next(err,...), ... = any special arguments from the action
 	# this should be it's own npm module
-	# as we also use the concept of actions in a few other packages
+	# as we also use the concept of actions in a few other packages.
+	# Important concept in DocPad.
+	# @method action
+	# @param {Object} action
+	# @param {Object} opts
+	# @param {Function} next
+	###
 	action: (action,opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
