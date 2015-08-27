@@ -235,7 +235,6 @@ class BasePlugin
 	# Destructor. Calls removeListeners
 	# @private
 	# @method destroy
-	# @return {Object} description
 	###
 	destroy: ->
 		@removeListeners()
