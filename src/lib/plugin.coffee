@@ -12,31 +12,64 @@ eachr = require('eachr')
 # Classes
 
 # Define Plugin
+###*
+# The base class for all DocPad plugins
+# @class BasePlugin
+# @constructor
+###
 class BasePlugin
+
+	###*
 	# Add support for BasePlugin.extend(proto)
+	# @private
+	# @property {Object} @extend
+	###
 	@extend: require('csextends')
 
 	# ---------------------------------
 	# Inherited
 
-	# DocPad Instance
+	###*
+	# The DocPad Instance
+	# @private
+	# @property {Object} docpad
+	###
 	docpad: null
-
 
 	# ---------------------------------
 	# Variables
 
-	# Plugin name
+	###*
+	# The plugin name
+	# @property {String}
+	###
 	name: null
 
-	# Plugin config
+	###*
+	# The plugin config
+	# @property {Object}
+	###
 	config: {}
+	
+	###*
+	# The instance config. Is this the
+	# DocPad instance config?
+	# @property {Object}
+	###
 	instanceConfig: {}
 
+	###*
 	# Plugin priority
+	# @private
+	# @property {Number}
+	###
 	priority: 500
 
-	# Constructor
+	###*
+	# Constructor method for the plugin
+	# @method constructor
+	# @param {Object} opts
+	###
 	constructor: (opts) ->
 		# Prepare
 		me = @
@@ -61,7 +94,12 @@ class BasePlugin
 		# Chain
 		@
 
+	###*
 	# Set Instance Configuration
+	# @private
+	# @method setInstanceConfig
+	# @param {Object} instanceConfig
+	###
 	setInstanceConfig: (instanceConfig) ->
 		# Merge in the instance configurations
 		if instanceConfig
@@ -69,7 +107,12 @@ class BasePlugin
 			extendr.safeDeepExtendPlainObjects(@config, instanceConfig)  if @config
 		@
 
+	###*
 	# Set Configuration
+	# @private
+	# @method {Object} setConfig
+	# @param {Object} [instanceConfig=null]
+	###
 	setConfig: (instanceConfig=null) =>
 		# Prepare
 		docpad = @docpad
@@ -90,14 +133,27 @@ class BasePlugin
 		# Chain
 		@
 
-	# Get Configuration
+	###*
+	# Get the Configuration
+	# @private
+	# @method {Object}
+	###
 	getConfig: =>
 		return @config
 
+	###*
 	# Alias for b/c
+	# @private
+	# @method bindEvents
+	###
 	bindEvents: -> @addListeners()
 
+
+	###*
 	# Bind Listeners
+	# @private
+	# @method bindListeners
+	###
 	bindListeners: ->
 		# Prepare
 		pluginInstance = @
@@ -117,7 +173,12 @@ class BasePlugin
 		# Chain
 		@
 
+
+	###*
 	# Add Listeners
+	# @private
+	# @method addListeners
+	###
 	addListeners: ->
 		# Prepare
 		pluginInstance = @
@@ -145,7 +206,12 @@ class BasePlugin
 		# Chain
 		@
 
+
+	###*
 	# Remove Listeners
+	# @private
+	# @method removeListeners
+	###
 	removeListeners: ->
 		# Prepare
 		pluginInstance = @
@@ -165,12 +231,22 @@ class BasePlugin
 		# Chain
 		@
 
-	# Destroy
+	###*
+	# Destructor. Calls removeListeners
+	# @private
+	# @method destroy
+	# @return {Object} description
+	###
 	destroy: ->
 		@removeListeners()
 		@
 
+
+	###*
 	# Is Enabled?
+	# @method isEnabled
+	# @return {Boolean}
+	###
 	isEnabled: ->
 		return @config.enabled isnt false
 
