@@ -52,8 +52,7 @@ class BasePlugin
 	config: {}
 	
 	###*
-	# The instance config. Is this the
-	# DocPad instance config?
+	# The instance config.
 	# @property {Object}
 	###
 	instanceConfig: {}
