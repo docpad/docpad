@@ -108,7 +108,6 @@ class PluginLoader
 
 	###*
 	# Constructor method
-	# @private
 	# @method constructor
 	# @param {Object} @docpad
 	# @param {String} @dirPath
@@ -128,7 +127,6 @@ class PluginLoader
 	###*
 	# Loads the package.json file and extracts the main path
 	# next(err,exists)
-	# @private
 	# @method exists
 	# @param {Function} next
 	###
@@ -180,7 +178,6 @@ class PluginLoader
 	# Boolean value returned as a parameter
 	# in the passed callback
 	# next(err,supported)
-	# @private
 	# @method unsupported
 	# @param {Function} next
 	###
@@ -231,9 +228,13 @@ class PluginLoader
 		# Chain
 		@
 
-	# Install
-	# Installs the plugins node modules
+	###*
+	# Installs the plugins node modules.
 	# next(err)
+	# @private
+	# @method install
+	# @param {Function} next
+	###
 	install: (next) ->
 		# Prepare
 		docpad = @docpad
@@ -259,7 +260,6 @@ class PluginLoader
 	# The plugin class that has been loaded is returned
 	# in the passed callback
 	# next(err,pluginClass)
-	# @private
 	# @method load
 	# @param {Function} next
 	###
@@ -324,7 +324,6 @@ class PluginLoader
 	# The plugin instance is returned in
 	# the passed callback.
 	# next(err,pluginInstance)
-	# @private
 	# @method create
 	# @param {Object} config
 	# @param {Function} next
