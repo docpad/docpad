@@ -109,9 +109,7 @@ class PluginLoader
 	###*
 	# Constructor method
 	# @method constructor
-	# @param {Object} @docpad
-	# @param {String} @dirPath
-	# @param {Object} @BasePlugin
+	# @param {Object} opts
 	###
 	constructor: ({@docpad,@dirPath,@BasePlugin}) ->
 		# Prepare
