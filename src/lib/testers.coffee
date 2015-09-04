@@ -34,13 +34,21 @@ testers = {
 # ---------------------------------
 # Classes
 
-# Plugin Tester
+###*
+# The Plugin Tester class
+# @class PluginTester
+# @constructor
+###
 testers.PluginTester =
 class PluginTester
 	# Add support for BasePlugin.extend(proto)
 	@extend: require('csextends')
 
-	# Plugin Config
+
+	###*
+	# Default plugin config
+	# @property {Object}
+	###
 	config:
 		testerName: null
 		pluginName: null
@@ -51,7 +59,10 @@ class PluginTester
 		contentRemoveRegex: null
 		autoExit: 'safe'
 
-	# DocPad Config
+	###*
+	# Default DocPad config
+	# @property {Object}
+	###
 	docpadConfig:
 		global: true
 		port: null
@@ -66,10 +77,21 @@ class PluginTester
 		catchExceptions: false
 		environment: null
 
-	# DocPad Instance
-	docpad: null
 
-	# Constructor
+	###*
+	# The DocPad instance
+	# @private
+	# @property {Object}
+	###
+	docpad: null
+	
+	###*
+	# Constructor method
+	# @method constructor
+	# @param {Object} [config={}]
+	# @param {Object} [docpadConfig={}]
+	# @param {Function} next
+	###
 	constructor: (config={},docpadConfig={},next) ->
 		# Apply Configuration
 		tester = @
@@ -102,15 +124,28 @@ class PluginTester
 		# Chain
 		@
 
-	# Get Tester Configuration
+
+	###*
+	# Get tester Configuration
+	# @method getConfig
+	# @return {Object}
+	###
 	getConfig: ->
 		return @config
 
-	# Get Plugin Instance
+	###*
+	# Get the plugin instance
+	# @method getPlugin
+	# @return {Object} the plugin
+	###
 	getPlugin: ->
 		return @docpad.getPlugin(@getConfig().pluginName)
 
-	# Create DocPad Instance
+
+	###*
+	# Create the DocPad instance
+	# @method testCreate
+	###
 	testCreate: =>
 		# Prepare
 		tester = @
@@ -137,7 +172,10 @@ class PluginTester
 		# Chain
 		@
 
+	###*
 	# Test Loaded
+	# @method
+	###
 	testLoad: =>
 		# Prepare
 		tester = @
@@ -165,7 +203,10 @@ class PluginTester
 		# Chain
 		@
 
-	# Test Generate
+	###*
+	# Test generate
+	# @method
+	###
 	testGenerate: =>
 		# Prepare
 		tester = @
@@ -178,7 +219,10 @@ class PluginTester
 		# Chain
 		@
 
+	###*
 	# Test everything
+	# @method {Object}
+	###
 	testEverything: =>
 		# Prepare
 		tester = @
@@ -196,7 +240,10 @@ class PluginTester
 		# Chain
 		@
 
+	###*
 	# Finish
+	# @method finish
+	###
 	finish: ->
 		# Prepare
 		tester = @
@@ -209,13 +256,22 @@ class PluginTester
 		# Chain
 		@
 
-
-# Server Tester
+###*
+# Server tester
+# @class ServerTester
+# @extends PluginTester
+# @constructor
+###
 testers.ServerTester =
 class ServerTester extends PluginTester
 
 
-# Renderer Tester
+###*
+# Rednderer tester
+# @class ServerTester
+# @extends PluginTester
+# @constructor
+###
 testers.RendererTester =
 class RendererTester extends PluginTester
 	# Test Generation
@@ -276,8 +332,11 @@ class RendererTester extends PluginTester
 		# Chain
 		@
 
+###*
 # Test a plugin
 # test({pluginPath: String})
+# @property test
+###
 testers.test =
 test = (testerConfig, docpadConfig) ->
 	# Configure

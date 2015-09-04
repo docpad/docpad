@@ -15,50 +15,104 @@ safefs = require('safefs')
 # Classes
 
 # Define Plugin Loader
+###*
+# The Plugin Loader class
+# @class PluginLoader
+# @constructor
+###
 class PluginLoader
 
 	# ---------------------------------
 	# Constructed
 
-	# DocPad Instance
+	###*
+	# The DocPad Instance
+	# @private
+	# @property {Object} docpad
+	###
 	docpad: null
 
-	# BasePlugin Class
+
+	###*
+	# The BasePlugin Class
+	# @private
+	# @property {Object}
+	###
 	BasePlugin: null
 
+
+	###*
 	# The full path of the plugin's directory
+	# @private
+	# @property {String}
+	###
 	dirPath: null
 
 
 	# ---------------------------------
 	# Loaded
 
+	###*
 	# The full path of the plugin's package.json file
+	# @private
+	# @property {String}
+	###
 	packagePath: null
 
+	###*
 	# The parsed contents of the plugin's package.json file
+	# @private
+	# @property {Object}
+	###
 	packageData: {}
 
+	###*
 	# The full path of the plugin's main file
+	# @private
+	# @property {String}
+	###
 	pluginPath: null
 
+
+	###*
 	# The parsed content of the plugin's main file
+	# @private
+	# @property {Object}
+	###
 	pluginClass: {}
 
-	# Plugin name
+	###*
+	# The plugin name
+	# @private
+	# @property {String}
+	###
 	pluginName: null
 
-	# Plugin version
+	###*
+	# The plugin version
+	# @private
+	# @property {String}
+	###
 	pluginVersion: null
 
+	###*
 	# Node modules path
+	# @private
+	# @property {String}
+	###
 	nodeModulesPath: null
 
 
 	# ---------------------------------
 	# Functions
 
-	# Constructor
+	###*
+	# Constructor method
+	# @param {Object} opts
+	# @param {Object} opts.docpad The docpad instance that we are loading plugins for
+	# @param {String} opts.dirPath The directory path of the plugin
+	# @param {Object} opts.BasePlugin The base plugin class
+	###
 	constructor: ({@docpad,@dirPath,@BasePlugin}) ->
 		# Prepare
 		docpad = @docpad
@@ -69,9 +123,13 @@ class PluginLoader
 		@packageData = {}
 		@nodeModulesPath = pathUtil.resolve(@dirPath, 'node_modules')
 
-	# Exists
+
+	###*
 	# Loads the package.json file and extracts the main path
 	# next(err,exists)
+	# @method exists
+	# @param {Function} next
+	###
 	exists: (next) ->
 		# Prepare
 		packagePath = @packagePath or pathUtil.resolve(@dirPath, "package.json")
@@ -115,9 +173,14 @@ class PluginLoader
 		# Chain
 		@
 
-	# Unsupported
+	###*
 	# Check if this plugin is unsupported
+	# Boolean value returned as a parameter
+	# in the passed callback
 	# next(err,supported)
+	# @method unsupported
+	# @param {Function} next
+	###
 	unsupported: (next) ->
 		# Prepare
 		docpad = @docpad
@@ -165,9 +228,13 @@ class PluginLoader
 		# Chain
 		@
 
-	# Install
-	# Installs the plugins node modules
+	###*
+	# Installs the plugins node modules.
 	# next(err)
+	# @private
+	# @method install
+	# @param {Function} next
+	###
 	install: (next) ->
 		# Prepare
 		docpad = @docpad
@@ -188,9 +255,14 @@ class PluginLoader
 		# Chain
 		@
 
-	# Load
-	# Load in the pluginClass from the pugin file
+	###*
+	# Load in the pluginClass from the plugin file.
+	# The plugin class that has been loaded is returned
+	# in the passed callback
 	# next(err,pluginClass)
+	# @method load
+	# @param {Function} next
+	###
 	load: (next) ->
 		# Prepare
 		docpad = @docpad
@@ -246,8 +318,16 @@ class PluginLoader
 		# Chain
 		@
 
-	# Create Instance
+	###*
+	# Create an instance of a plugin
+	# defined by the passed config.
+	# The plugin instance is returned in
+	# the passed callback.
 	# next(err,pluginInstance)
+	# @method create
+	# @param {Object} config
+	# @param {Function} next
+	###
 	create: (config,next) ->
 		# Load
 		try
