@@ -18,10 +18,20 @@ docpadUtil = require('../util')
 # =====================================
 # Classes
 
+###*
 # Console Interface
+# @constructor
+###
 class ConsoleInterface
 
-	# Setup the CLI
+
+	###*
+	# Constructor method. Setup the CLI
+	# @private
+	# @method constructor
+	# @param {Object} opts
+	# @param {Function} next
+	###
 	constructor: (opts,next) ->
 		# Prepare
 		consoleInterface = @
@@ -222,16 +232,28 @@ class ConsoleInterface
 	# =================================
 	# Helpers
 
+	###*
 	# Start the CLI
+	# @method start
+	# @param {Object} argv
+	###
 	start: (argv) =>
 		@commander.parse(argv or process.argv)
 		@
 
+	###*
 	# Get the commander
+	# @method getCommander
+	# @return the commander instance
+	###
 	getCommander: =>
 		@commander
 
-	# Destroy
+	###*
+	# Destructor.
+	# @method destroy
+	# @param {Object} err
+	###
 	destroy: (err) =>
 		# Prepare
 		docpad = @docpad
@@ -273,13 +295,25 @@ class ConsoleInterface
 		# Chain
 		@
 
+
+	###*
 	# Wrap Action
+	# @method wrapAction
+	# @param {Object} action
+	# @param {Object} config
+	###
 	wrapAction: (action,config) =>
 		consoleInterface = @
 		return (args...) ->
 			consoleInterface.performAction(action, args, config)
 
+	###*
 	# Perform Action
+	# @method performAction
+	# @param {Object} action
+	# @param {Object} args
+	# @param {Object} [config={}]
+	###
 	performAction: (action,args,config={}) =>
 		# Prepare
 		consoleInterface = @
@@ -324,8 +358,12 @@ class ConsoleInterface
 		# Chain
 		@
 
-
+	###*
 	# Extract Configuration
+	# @method extractConfig
+	# @param {Object} [customConfig={}]
+	# @return {Object} the DocPad config
+	###
 	extractConfig: (customConfig={}) =>
 		# Prepare
 		config = {}
@@ -368,7 +406,12 @@ class ConsoleInterface
 		# Return config object
 		config
 
+	###*
 	# Select a skeleton
+	# @method selectSkeletonCallback
+	# @param {Object} skeletonsCollection
+	# @param {Function} next
+	###
 	selectSkeletonCallback: (skeletonsCollection,next) =>
 		# Prepare
 		consoleInterface = @
@@ -404,7 +447,12 @@ class ConsoleInterface
 		# Chain
 		@
 
+	###*
 	# Welcome Callback
+	# @method welcomeCallback
+	# @param {Object} opts
+	# @param {Function} next
+	###
 	welcomeCallback: (opts,next) =>
 		# Prepare
 		consoleInterface = @
@@ -550,7 +598,13 @@ class ConsoleInterface
 		# Chain
 		@
 
+	###*
 	# Prompt for input
+	# @method prompt
+	# @param {String} message
+	# @param {Object} [opts={}]
+	# @param {Function} next
+	###
 	prompt: (message, opts={}, next) ->
 		# Default
 		message += " [#{opts.default}]"  if opts.default
@@ -568,7 +622,13 @@ class ConsoleInterface
 		# Chain
 		@
 
+	###*
 	# Confirm an option
+	# @method confirm
+	# @param {String} message
+	# @param {Object} [opts={}]
+	# @param {Function} next
+	###
 	confirm: (message, opts={}, next) ->
 		# Default
 		if opts.default is true
@@ -589,7 +649,14 @@ class ConsoleInterface
 		# Chain
 		@
 
-	# Choose an option
+	###*
+	# Choose something
+	# @method choose
+	# @param {String} message
+	# @param {Object} choices
+	# @param {Object} [opts={}]
+	# @param {Function} next
+	###
 	choose: (message, choices, opts={}, next) ->
 		# Default
 		message += " [1-#{choices.length}]"
@@ -624,26 +691,52 @@ class ConsoleInterface
 	# =================================
 	# Actions
 
+	###*
+	# Do action
+	# @method action
+	# @param {Function} next
+	# @param {Object} opts
+	###
 	action: (next,opts) =>
 		actions = opts.args[0]
 		@docpad.log 'info', 'Performing the actions:', actions
 		@docpad.action(actions, next)
 		@
 
+	###*
+	# Action initialise
+	# @method init
+	# @param {Function} next
+	###
 	init: (next) =>
 		@docpad.action('init', next)
 		@
 
+	###*
+	# Generate action
+	# @method generate
+	# @param {Function} next
+	###
 	generate: (next) =>
 		@docpad.action('generate', next)
 		@
 
+	###*
+	# Help method
+	# @method help
+	# @param {Function} next
+	###
 	help: (next) =>
 		help = @commander.helpInformation()
 		console.log(help)
 		next()
 		@
 
+	###*
+	# Info method
+	# @method info
+	# @param {Function} next
+	###
 	info: (next) =>
 		docpad = @docpad
 		info = docpad.inspector(docpad.config)
@@ -651,13 +744,24 @@ class ConsoleInterface
 		next()
 		@
 
+	###*
+	# Update method
+	# @method update
+	# @param {Function} next
+	# @param {Object} opts
+	###
 	update: (next,opts) =>
 		# Act
 		@docpad.action('clean update', next)
 
 		# Chain
 		@
-
+	###*
+	# Upgrade method
+	# @method upgrade
+	# @param {Function} next
+	# @param {Object} opts
+	###
 	upgrade: (next,opts) =>
 		# Act
 		@docpad.action('upgrade', next)
@@ -665,6 +769,12 @@ class ConsoleInterface
 		# Chain
 		@
 
+	###*
+	# Install method
+	# @method install
+	# @param {Function} next
+	# @param {Object} opts
+	###
 	install: (next,opts) =>
 		# Extract
 		plugin = opts.args[0] or null
@@ -675,6 +785,12 @@ class ConsoleInterface
 		# Chain
 		@
 
+	###*
+	# Uninstall method
+	# @method uninstall
+	# @param {Function} next
+	# @param {Object} opts
+	###
 	uninstall: (next,opts) =>
 		# Extract
 		plugin = opts.args[0] or null
@@ -685,6 +801,12 @@ class ConsoleInterface
 		# Chain
 		@
 
+	###*
+	# Render method
+	# @method render
+	# @param {Function} next
+	# @param {Object} opts
+	###
 	render: (next,opts) =>
 		# Prepare
 		docpad = @docpad
@@ -747,6 +869,11 @@ class ConsoleInterface
 
 		@
 
+	###*
+	# Run method
+	# @method run
+	# @param {Function} next
+	###
 	run: (next) =>
 		@docpad.action('run', {
 			selectSkeletonCallback: @selectSkeletonCallback
@@ -754,14 +881,29 @@ class ConsoleInterface
 		})
 		@
 
+	###*
+	# Server method
+	# @method server
+	# @param {Function} next
+	###
 	server: (next) =>
 		@docpad.action('server generate', next)
 		@
 
+	###*
+	# Clean method
+	# @method clean
+	# @param {Function} next
+	###
 	clean: (next) =>
 		@docpad.action('clean', next)
 		@
 
+	###*
+	# Watch method
+	# @method watch
+	# @param {Function} next
+	###
 	watch: (next) =>
 		@docpad.action('generate watch', next)
 		@
