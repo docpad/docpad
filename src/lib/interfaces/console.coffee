@@ -235,7 +235,7 @@ class ConsoleInterface
 	###*
 	# Start the CLI
 	# @method start
-	# @param {Object} argv
+	# @param {Array} argv
 	###
 	start: (argv) =>
 		@commander.parse(argv or process.argv)
