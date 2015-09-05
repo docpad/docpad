@@ -548,7 +548,7 @@
 - Backwards compatibility change: Notifications are now handled by plugins instead of the core
 	- So if you like notifications, you'll probably want to install the [growl plugin](https://github.com/Delapouite/docpad-plugin-growl)
 	- Thanks to [Bruno Heridet](https://github.com/Delapouite) for [pull request #605](https://github.com/bevry/docpad/pull/605)
-- Backwards compatibility change: i18n support is now handled via the `encoding`and `iconvlite` dependencies instead of `iconv`
+- Backwards compatibility change: i18n support is now handled via the `encoding` and `iconvlite` dependencies instead of `iconv`
 	- This enables windows support for i18n
 	- Just like before, you turn on i18n abilities by setting the `detectEncoding` configuration option to `true` (still `false` by default)
 	- Thanks to [Sim Jiason](https://github.com/Snger) and [Eduán Lávaque](https://github.com/Greduan) for [issue #627](https://github.com/bevry/docpad/issues/627)
@@ -1386,7 +1386,7 @@
 	- [Chai](http://chaijs.com/) 1.1.x to 1.3.x
 - Removed ability to require uncompiled plugins
 	- This is due to the CoffeeScript 1.4.x from 1.3.x upgrade
-- `skeletonNonexistant` now tells us the path it checked
+- `skeletonNonexistent` now tells us the path it checked
 
 
 ## v6.8.4 October 25, 2012
@@ -1972,7 +1972,7 @@
 	- [PHP](http://php.net/)
 	- [Move](http://movelang.org/)
 	- [Hogan/Mustache](http://twitter.github.com/hogan.js/)
-- Added the ability to render files programatically via the command line
+- Added the ability to render files programmatically via the command line
 	- See the readme for usage instructions and more information
 - Backwards compatibility breaks
 	- File property names have been changed
