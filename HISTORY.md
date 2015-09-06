@@ -181,7 +181,7 @@
 - We now include [longjohn](https://github.com/mattinsler/longjohn) in debug mode for better stack traces
 
 ## v6.66.0 May 23, 2014
-- Meta header seperators can now contain additional characters, providing there is still a character that repeats at least 3 times
+- Meta header separators can now contain additional characters, providing there is still a character that repeats at least 3 times
 
 	This allows you to do things like:
 
