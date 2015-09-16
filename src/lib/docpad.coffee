@@ -5689,7 +5689,7 @@ class DocPad extends EventEmitterGrouped
 		if skeletonModel? and skeletonModel.id isnt 'none'
 			tasks.addTask "clone out the git repo", (complete) ->
 				docpad.initGitRepo({
-					path: opts.destinationPath
+					cwd: opts.destinationPath
 					url: skeletonModel.get('repo')
 					branch: skeletonModel.get('branch')
 					remote: 'skeleton'
