@@ -1,4 +1,4 @@
-// 21 August 2015
+// 11 September 2015
 // https://github.com/bevry/base
 'use strict'
 
@@ -205,11 +205,6 @@ const actions = {
 		// Steps
 		steps(next, [
 			function (complete) {
-				console.log('\nnake setup')
-				actions.setup(opts, complete)
-			},
-
-			function (complete) {
 				if ( !config.COFFEE_SRC_PATH || !fsUtil.existsSync(COFFEE) )  return complete()
 				console.log('\ncoffee compile:')
 				spawn(NODE, [COFFEE, '-co', config.COFFEE_OUT_PATH, config.COFFEE_SRC_PATH], {output: true, cwd: APP_PATH}, complete)
@@ -232,11 +227,6 @@ const actions = {
 	watch: function (opts, next) {
 		// Steps
 		steps(next, [
-			function (complete) {
-				console.log('\nnake setup')
-				actions.setup(opts, complete)
-			},
-
 			function (complete) {
 				if ( !config.BABEL_SRC_PATH || !fsUtil.existsSync(BABEL) )  return complete()
 				console.log('\nbabel compile:')
@@ -318,7 +308,7 @@ const actions = {
 				console.log('\nyuidoc compile:')
 				let command = [YUIDOC]
 				if ( config.YUIDOC_OUT_PATH )  command.push('-o', config.YUIDOC_OUT_PATH)
-				if ( config.YUIDOC_SYNTAX )    command.push('--syntaxtype', config.YUIDOC_SYNTAX, '-e', '.coffee')
+				if ( config.YUIDOC_SYNTAX )    command.push('--syntaxtype', config.YUIDOC_SYNTAX, '-e', '.' + config.YUIDOC_SYNTAX)
 				if ( config.YUIDOC_SRC_PATH )  command.push(config.YUIDOC_SRC_PATH)
 				spawn(NODE, command, {output: true, cwd: APP_PATH}, complete)
 			},
@@ -395,11 +385,11 @@ const actions = {
 const commands = {
 	clean: 'clean up instance',
 	setup: 'setup our project for development',
-	compile: 'compile our files (includes setup)',
-	watch: 'compile our files initially, and again for each change (includes setup)',
+	compile: 'compile our files',
+	watch: 'compile our files initially, and again for each change',
 	verify: 'verify our project works (includes compile)',
 	meta: 'compile our meta files',
-	prerelease: 'prepare our project for publishing (includes verify and compile)',
+	prerelease: 'prepare our project for publishing (includes verify and meta)',
 	release: 'publish our project using npm (includes prerelease and postrelease)',
 	postrelease: 'prepare our project after publishing'
 }

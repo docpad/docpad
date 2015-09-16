@@ -1,5 +1,6 @@
-// 21 August 2015
+// 14 September 2015
 // https://github.com/bevry/base
+// http://eslint.org
 {
 	"parser": "babel-eslint",
 	"ecmaFeatures": {
@@ -139,8 +140,8 @@
 		// Seems like a good idea to error about this
 		"use-isnan": 2,
 
-		// Seems like a good idea to error about this
-		"valid-jsdoc": 2,
+		// We use YUIdoc, not JSDoc
+		"valid-jsdoc": 0,
 
 		// Seems like a good idea to error about this
 		"valid-typeof": 2,
@@ -155,8 +156,8 @@
 		// Disable complexity checks, they are annoying and not that useful in detecting actual complexity
 		"complexity": 0,
 
-		// Seems like a good idea to error about this
-		"consistent-return": 2,
+		// We use blank returns for break statements
+		"consistent-return": 0,
 
 		// Always require curly braces unless the statement is all on a single line
 		"curly": [2, "multi-line"],
@@ -167,8 +168,8 @@
 		// Use dot notation where possible
 		"dot-notation": 2,
 
-		// Unless you are does == null, then force === to avoid truthy/falsey mistakes
-		"eqeqeq": 2,
+		// Unless you are doing == null, then force === to avoid truthy/falsey mistakes
+		"eqeqeq": [2, "allow-null"],
 
 		// Always use hasOwnProperty when doing for in
 		"guard-for-in": 2,
@@ -409,12 +410,8 @@
 		// We like anonymous functions
 		"func-names": 0,
 
-		// Define functions with var statements
-		// @TODO babel will name the functions for us, however quite redundantly:
-		// var myfunc = function myfunc (){}
-		// We can't yet change this to declaration mode, as declaration mode doesn't support ES6 => syntax which
-		// is only for anonymous functions that must be assigned via expressions instead of declarations
-		"func-style": [2, "expression"],
+		// Prefer to define functions via variables
+		"func-style": [1, "declaration"],
 
 		// Space after the colon
 		"key-spacing": [2, {
@@ -470,9 +467,9 @@
 		// Sometimes this is useful when avoiding shadowing
 		"no-underscore-dangle": 0,
 
-		// Unless it is needed such as IIFE rule then error
+		// Unless it is needed such as IIFE rule then warn as sometimes it can be useful for clarity
 		// "no-wrap-func": 2,
-		"no-extra-parens": 2,
+		"no-extra-parens": 1,
 
 		// We like multiple var statements
 		"one-var": 0,
