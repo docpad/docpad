@@ -3,8 +3,7 @@
 
 # External
 extendr = require('extendr')
-{Backbone, QueryCollection} = require('query-engine')
-{Events, Model, Collection} = Backbone
+queryEngine = require('query-engine')
 
 
 # =====================================
@@ -32,13 +31,12 @@ emit = (args...) ->
 # http://backbonejs.org/#Events
 # @class Events
 # @constructor
-# @extends Events
+# @extends require('backbone').Events
 ###
 class Events
 	log: log
 	emit: emit
-
-extendr.extend(Events::, Events)
+extendr.extend(Events::, queryEngine.Backbone.Events)
 
 ###*
 # Base class for the DocPad file and document model
@@ -46,9 +44,9 @@ extendr.extend(Events::, Events)
 # http://backbonejs.org/#Model
 # @class Model
 # @constructor
-# @extends Model
+# @extends require('backbone').Model
 ###
-class Model extends Model
+class Model extends queryEngine.Backbone.Model
 	log: log
 	emit: emit
 
@@ -69,9 +67,9 @@ class Model extends Model
 # http://backbonejs.org/#Collection
 # @class Collection
 # @constructor
-# @extends Collection
+# @extends require('backbone').Collection
 ###
-class Collection extends Collection
+class Collection extends queryEngine.Backbone.Collection
 	log: log
 	emit: emit
 	destroy: =>
@@ -88,16 +86,16 @@ Collection::collection = Collection
 # http://github.com/bevry/query-engine
 # @class QueryCollection
 # @constructor
-# @extends QueryCollection
+# @extends require('query-engine').QueryCollection
 ###
-class QueryCollection extends QueryCollection
+class QueryCollection extends queryEngine.QueryCollection
 	log: log
 	emit: emit
 
 	setParentCollection: ->
 		super
 		parentCollection = @getParentCollection()
-		parentCollection.on('destroy',@destroy)
+		parentCollection.on('destroy', @destroy)
 		@
 
 	destroy: =>
@@ -110,4 +108,4 @@ QueryCollection::collection = QueryCollection
 
 # =====================================
 # Export our base models
-module.exports = {Events,Model,Collection,QueryCollection}
+module.exports = {Events, Model, Collection, QueryCollection}
