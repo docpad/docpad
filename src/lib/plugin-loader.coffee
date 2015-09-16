@@ -108,6 +108,7 @@ class PluginLoader
 
 	###*
 	# Constructor method
+	# @method constructor
 	# @param {Object} opts
 	# @param {Object} opts.docpad The docpad instance that we are loading plugins for
 	# @param {String} opts.dirPath The directory path of the plugin
