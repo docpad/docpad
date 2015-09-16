@@ -190,7 +190,7 @@
     "joe": "^1.6.0",
     "joe-reporter-console": "^1.2.1",
     "moment": "^2.9.0",
-    "projectz": "^1.0.0",
+    "projectz": "^1.0.1",
     "yuidocjs": "^0.9.0"
   },
   "directories": {
