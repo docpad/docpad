@@ -1,5 +1,13 @@
 # History
 
+## v6.78.4 September 16, 2015
+- Fixed `path option is deprecated` error when cloning a skeleton
+	- Thanks to [Gabriel Ignisca](https://github.com/16nsk) for [issue #1016](https://github.com/docpad/docpad/issues/1016)
+- Changed donation message, maybe this one will be more successful
+- The next x.X.x release of DocPad will drop support for Node v0.10, Node v4.0.0 is out with many improvements. [Upgrade.](https://learn.bevry.me/node/install)
+- Updated dev dependencies
+- Updated base files
+
 ## v6.78.3 August 21, 2015
 - Consolidated server address code
 - DocPad will now output both the original server address and the simplified server address if they differ, background:
