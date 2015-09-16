@@ -8,7 +8,13 @@ ElementsCollection = require('./elements')
 # =====================================
 # Classes
 
-# Meta Collection
+###*
+# Meta collection class. Collection of
+# document meta data strings
+# @class MetaCollection
+# @constructor
+# @extends require('./elements').ElementsCollection
+###
 class MetaCollection extends ElementsCollection
 
 

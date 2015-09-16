@@ -11,10 +11,22 @@ ElementsCollection = require('./elements')
 # =====================================
 # Classes
 
-# Scripts Collection
+###*
+# Scripts collection class. A DocPad
+# project's script file paths
+# @class ScriptCollection
+# @constructor
+# @extends require('./elements').ElementsCollection
+###
 class ScriptsCollection extends ElementsCollection
+
+	###*
 	# Add an element to the collection
 	# Right now we just support strings
+	# @method add
+	# @param {Array} values string array of file paths
+	# @param {Object} opts
+	###
 	add: (values,opts) ->
 		# Prepare
 		opts or= {}

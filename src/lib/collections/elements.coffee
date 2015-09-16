@@ -11,13 +11,31 @@ typeChecker = require('typechecker')
 # =====================================
 # Classes
 
-# Elements Collection
+###*
+# Base class for the DocPad Elements Collection object
+# Extends the DocPad collection class
+# https://github.com/docpad/docpad/blob/master/src/lib/base.coffee#L72
+# Used as the base collection class for specific collection of file types.
+# In particular metadata, scripts and styles.
+# @class ElementsCollection
+# @constructor
+# @extends require('../base').Collection
+###
 class ElementsCollection extends Collection
+
+	###*
 	# Base Model for all items in this collection
+	# @property {Object} model
+	###
 	model: Model
 
-	# Add an element to the collection
-	# Right now we just support strings
+	###*
+	# Add an element to the collection.
+	# Right now we just support strings.
+	# @method add
+	# @param {Array} values string array of values
+	# @param {Object} opts
+	###
 	add: (values,opts) ->
 		# Ensure array
 		if typeChecker.isArray(values)
@@ -43,7 +61,11 @@ class ElementsCollection extends Collection
 	remove: -> super; @
 	reset: -> super; @
 
+	###*
 	# Create a way to output our elements to HTML
+	# @method toHTML
+	# @return {String}
+	###
 	toHTML: ->
 		html = ''
 		@forEach (item) ->
