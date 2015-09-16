@@ -1,6 +1,18 @@
 {
     "project": {},
     "files": {
+        "src/lib/base.coffee": {
+            "name": "src/lib/base.coffee",
+            "modules": {},
+            "classes": {
+                "Events": 1,
+                "Model": 1,
+                "Collection": 1,
+                "QueryCollection": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
         "src/lib/docpad.coffee": {
             "name": "src/lib/docpad.coffee",
             "modules": {},
@@ -9,10 +21,103 @@
             },
             "fors": {},
             "namespaces": {}
+        },
+        "src/lib/plugin-loader.coffee": {
+            "name": "src/lib/plugin-loader.coffee",
+            "modules": {},
+            "classes": {
+                "PluginLoader": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src/lib/plugin.coffee": {
+            "name": "src/lib/plugin.coffee",
+            "modules": {},
+            "classes": {
+                "BasePlugin": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src/lib/testers.coffee": {
+            "name": "src/lib/testers.coffee",
+            "modules": {},
+            "classes": {
+                "PluginTester": 1,
+                "ServerTester": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src/lib/util.coffee": {
+            "name": "src/lib/util.coffee",
+            "modules": {},
+            "classes": {
+                "docpadUtil": 1
+            },
+            "fors": {},
+            "namespaces": {}
         }
     },
     "modules": {},
     "classes": {
+        "Events": {
+            "name": "Events",
+            "shortname": "Events",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "src/lib/base.coffee",
+            "line": 28,
+            "description": "Base class for the DocPad Events object\nExtends the backbone.js events object\nhttp://backbonejs.org/#Events",
+            "is_constructor": 1,
+            "extends": "require('backbone').Events"
+        },
+        "Model": {
+            "name": "Model",
+            "shortname": "Model",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "src/lib/base.coffee",
+            "line": 41,
+            "description": "Base class for the DocPad file and document model\nExtends the backbone.js model\nhttp://backbonejs.org/#Model",
+            "is_constructor": 1,
+            "extends": "require('backbone').Model"
+        },
+        "Collection": {
+            "name": "Collection",
+            "shortname": "Collection",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "src/lib/base.coffee",
+            "line": 64,
+            "description": "Base class for the DocPad collection object\nExtends the backbone.js collection object\nhttp://backbonejs.org/#Collection",
+            "is_constructor": 1,
+            "extends": "require('backbone').Collection"
+        },
+        "QueryCollection": {
+            "name": "QueryCollection",
+            "shortname": "QueryCollection",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "src/lib/base.coffee",
+            "line": 83,
+            "description": "Base class for the DocPad query collection object\nExtends the bevry QueryEngine object\nhttp://github.com/bevry/query-engine",
+            "is_constructor": 1,
+            "extends": "require('query-engine').QueryCollection"
+        },
         "Docpad": {
             "name": "Docpad",
             "shortname": "Docpad",
@@ -26,6 +131,73 @@
             "description": "The DocPad Class.\nContains methods for managing the DocPad application.\nThis includes managing a DocPad projects files and\ndocuments, watching directories, emitting events and\nmanaging the node.js/express.js web server.\nExtends https://github.com/bevry/event-emitter-grouped",
             "is_constructor": 1,
             "extends": "EventEmitterGrouped"
+        },
+        "PluginLoader": {
+            "name": "PluginLoader",
+            "shortname": "PluginLoader",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "src/lib/plugin-loader.coffee",
+            "line": 18,
+            "description": "The Plugin Loader class",
+            "is_constructor": 1
+        },
+        "BasePlugin": {
+            "name": "BasePlugin",
+            "shortname": "BasePlugin",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "src/lib/plugin.coffee",
+            "line": 15,
+            "description": "The base class for all DocPad plugins",
+            "is_constructor": 1
+        },
+        "PluginTester": {
+            "name": "PluginTester",
+            "shortname": "PluginTester",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "src/lib/testers.coffee",
+            "line": 37,
+            "description": "The Plugin Tester class",
+            "is_constructor": 1
+        },
+        "ServerTester": {
+            "name": "ServerTester",
+            "shortname": "ServerTester",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "src/lib/testers.coffee",
+            "line": 269,
+            "description": "Rednderer tester",
+            "extends": "PluginTester",
+            "is_constructor": 1
+        },
+        "docpadUtil": {
+            "name": "docpadUtil",
+            "shortname": "docpadUtil",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "src/lib/util.coffee",
+            "line": 16,
+            "description": "The DocPad Util Class.\nCollection of DocPad utility methods",
+            "is_constructor": 1,
+            "static": 1
         }
     },
     "elements": {},
@@ -1413,8 +1585,9 @@
         {
             "file": "src/lib/docpad.coffee",
             "line": 1739,
-            "description": "Construct DocPad\nnext(err)",
-            "is_constructor": 1,
+            "description": "Constructor method. Sets up the DocPad instance.\nnext(err)",
+            "itemtype": "method",
+            "name": "constructor",
             "params": [
                 {
                     "name": "instanceConfig",
@@ -1427,15 +1600,11 @@
                     "type": "Function"
                 }
             ],
-            "return": {
-                "description": "the DocPad instance",
-                "type": "Object"
-            },
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1985,
+            "line": 1984,
             "description": "Destructor. Destroy the DocPad instance\nThis is an action, and should be called as such\nE.g. docpad.action('destroy', next)",
             "itemtype": "method",
             "name": "destroy",
@@ -1455,7 +1624,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2042,
+            "line": 2041,
             "description": "Emit event, serial",
             "access": "private",
             "tagname": "",
@@ -1482,7 +1651,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2073,
+            "line": 2072,
             "description": "Emit event, parallel",
             "access": "private",
             "tagname": "",
@@ -1509,7 +1678,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2108,
+            "line": 2107,
             "description": "Get the ignore options for the DocPad project",
             "itemtype": "method",
             "name": "getIgnoreOpts",
@@ -1521,7 +1690,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2116,
+            "line": 2115,
             "description": "Is the supplied path ignored?",
             "itemtype": "method",
             "name": "isIgnoredPath",
@@ -1547,7 +1716,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2127,
+            "line": 2126,
             "description": "Scan directory",
             "itemtype": "method",
             "name": "scandir",
@@ -1564,7 +1733,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2139,
+            "line": 2138,
             "description": "Watch Directory",
             "itemtype": "method",
             "name": "watchdir",
@@ -1585,7 +1754,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2153,
+            "line": 2152,
             "description": "DocPad is ready. Peforms the tasks needed after DocPad construction\nand DocPad has loaded. Triggers the docpadReady event.\nnext(err,docpadInstance)",
             "access": "private",
             "tagname": "",
@@ -1607,7 +1776,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2216,
+            "line": 2215,
             "description": "Performs the merging of the passed configuration objects",
             "access": "private",
             "tagname": "",
@@ -1629,7 +1798,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2241,
+            "line": 2240,
             "description": "Set the instance configuration\nby merging the properties of the passed object\nwith the existing DocPad instanceConfig object",
             "access": "private",
             "tagname": "",
@@ -1646,7 +1815,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2258,
+            "line": 2257,
             "description": "Set the DocPad configuration object.\nPerforms a number of tasks, including\nmerging the pass instanceConfig with DocPad's\nother config objects.\nnext(err,config)",
             "access": "private",
             "tagname": "",
@@ -1668,7 +1837,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2357,
+            "line": 2356,
             "description": "Load the various configuration files from the\nfile system. Set the instanceConfig.\nnext(err,config)",
             "access": "private",
             "tagname": "",
@@ -1690,7 +1859,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2489,
+            "line": 2488,
             "description": "Update user configuration with the passed data",
             "itemtype": "method",
             "name": "updateUserConfig",
@@ -1712,7 +1881,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2520,
+            "line": 2519,
             "description": "Load a configuration url\nnext(err,parsedData)",
             "itemtype": "method",
             "name": "loadConfigUrl",
@@ -1732,7 +1901,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2550,
+            "line": 2549,
             "description": "Load the configuration from a file path\npassed as one of the options (opts.configPath) or\nfrom DocPad's configPaths\nnext(err,parsedData)",
             "access": "private",
             "tagname": "",
@@ -1754,7 +1923,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2614,
+            "line": 2613,
             "description": "Get config paths and check that those\npaths exist\nnext(err,path)",
             "access": "private",
             "tagname": "",
@@ -1776,7 +1945,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2656,
+            "line": 2655,
             "description": "Extend collecitons. Create DocPad's\nstandard (documents, files\nlayouts) and special (generate, referencesOthers,\nhasLayout, html, stylesheet) collections. Set blocks\nnext(err)",
             "access": "private",
             "tagname": "",
@@ -1793,7 +1962,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2800,
+            "line": 2799,
             "description": "Reset collections. Perform a complete clean of our collections\nnext(err)",
             "access": "private",
             "tagname": "",
@@ -1815,7 +1984,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2838,
+            "line": 2837,
             "description": "Initialise git repo\nnext(err,results)",
             "access": "private",
             "tagname": "",
@@ -1837,7 +2006,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2862,
+            "line": 2861,
             "description": "Init node modules\nnext(err,results)",
             "access": "private",
             "tagname": "",
@@ -1859,7 +2028,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2894,
+            "line": 2893,
             "description": "Fix node package versions\nCombat to https://github.com/npm/npm/issues/4587#issuecomment-35370453\nnext(err)",
             "access": "private",
             "tagname": "",
@@ -1876,7 +2045,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2922,
+            "line": 2921,
             "description": "Install node module. Same as running\n'npm install' through the command line\nnext(err,result)",
             "access": "private",
             "tagname": "",
@@ -1898,7 +2067,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2983,
+            "line": 2982,
             "description": "Uninstall node module. Same as running\n'npm uninstall' through the command line\nnext(err,result)",
             "access": "private",
             "tagname": "",
@@ -1920,7 +2089,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3037,
+            "line": 3036,
             "description": "Set the log level",
             "access": "private",
             "tagname": "",
@@ -1937,7 +2106,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3057,
+            "line": 3056,
             "description": "Get the log level",
             "itemtype": "method",
             "name": "getLogLevel",
@@ -1949,7 +2118,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3065,
+            "line": 3064,
             "description": "Are we debugging?",
             "itemtype": "method",
             "name": "getDebugging",
@@ -1961,7 +2130,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3074,
+            "line": 3073,
             "description": "Handle a fatal error",
             "access": "private",
             "tagname": "",
@@ -1978,7 +2147,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3101,
+            "line": 3100,
             "description": "Inspect. Converts object to JSON string. Wrapper around nodes util.inspect method.\nCan't use the inspect namespace as for some silly reason it destroys everything",
             "itemtype": "method",
             "name": "inspector",
@@ -2002,7 +2171,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3114,
+            "line": 3113,
             "description": "Log arguments",
             "itemtype": "property",
             "name": "log",
@@ -2018,7 +2187,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3128,
+            "line": 3127,
             "description": "Create an error object",
             "itemtype": "method",
             "name": "createError",
@@ -2042,7 +2211,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3162,
+            "line": 3161,
             "description": "Create an error (tracks it) and log it",
             "itemtype": "method",
             "name": "error",
@@ -2064,7 +2233,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3187,
+            "line": 3186,
             "description": "Log an error",
             "itemtype": "method",
             "name": "logError",
@@ -2079,7 +2248,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3218,
+            "line": 3217,
             "description": "Track an error in the background",
             "access": "private",
             "tagname": "",
@@ -2096,7 +2265,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3242,
+            "line": 3241,
             "description": "Notify error",
             "access": "private",
             "tagname": "",
@@ -2113,7 +2282,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3266,
+            "line": 3265,
             "description": "Log an error of level 'warn'",
             "itemtype": "method",
             "name": "warn",
@@ -2137,7 +2306,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3292,
+            "line": 3291,
             "description": "Send a notify event to plugins (like growl)",
             "itemtype": "method",
             "name": "notify",
@@ -2159,7 +2328,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3310,
+            "line": 3309,
             "description": "Check Request",
             "access": "private",
             "tagname": "",
@@ -2176,7 +2345,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3331,
+            "line": 3330,
             "description": "Subscribe to the DocPad email list.\nnext(err)",
             "access": "private",
             "tagname": "",
@@ -2193,7 +2362,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3370,
+            "line": 3369,
             "description": "Track\nnext(err)",
             "access": "private",
             "tagname": "",
@@ -2222,7 +2391,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3427,
+            "line": 3426,
             "description": "Identify DocPad user\nnext(err)",
             "access": "private",
             "tagname": "",
@@ -2239,7 +2408,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3505,
+            "line": 3504,
             "description": "Create file model",
             "itemtype": "method",
             "name": "createFile",
@@ -2267,7 +2436,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3516,
+            "line": 3515,
             "description": "Create document model",
             "itemtype": "method",
             "name": "createDocument",
@@ -2295,7 +2464,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3528,
+            "line": 3527,
             "description": "Parse the files directory",
             "itemtype": "method",
             "name": "parseFileDirectory",
@@ -2321,7 +2490,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3540,
+            "line": 3539,
             "description": "Parse the documents directory",
             "itemtype": "method",
             "name": "parseDocumentDirectory",
@@ -2347,7 +2516,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3557,
+            "line": 3556,
             "description": "Attach events to document models",
             "access": "private",
             "tagname": "",
@@ -2364,7 +2533,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3616,
+            "line": 3615,
             "description": "Add supplied model to the DocPad database",
             "itemtype": "method",
             "name": "addModel",
@@ -2388,7 +2557,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3628,
+            "line": 3627,
             "description": "Add the supplied collection of models to the DocPad database",
             "itemtype": "method",
             "name": "addModels",
@@ -2412,7 +2581,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3640,
+            "line": 3639,
             "description": "Create a collection of models from the supplied collection\nensuring that the collection is suitable for adding to the\nDocPad database",
             "access": "private",
             "tagname": "",
@@ -2438,7 +2607,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3655,
+            "line": 3654,
             "description": "Creates either a file or document model.\nEnsures a duplicate model is not created\nand all required attributes are present and\nevents attached",
             "itemtype": "method",
             "name": "createModel",
@@ -2466,7 +2635,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3735,
+            "line": 3734,
             "description": "Parse a directory and return a\nfiles collection\nnext(err, files)",
             "itemtype": "method",
             "name": "parseDirectory",
@@ -2492,7 +2661,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3815,
+            "line": 3814,
             "description": "Get a plugin by it's name",
             "itemtype": "method",
             "name": "getPlugin",
@@ -2511,7 +2680,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3825,
+            "line": 3824,
             "description": "Check if we have any plugins",
             "itemtype": "method",
             "name": "hasPlugins",
@@ -2523,7 +2692,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3833,
+            "line": 3832,
             "description": "Destructor. Destroy plugins",
             "access": "private",
             "tagname": "",
@@ -2533,7 +2702,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3844,
+            "line": 3843,
             "description": "Load plugins from the file system\nnext(err)",
             "access": "private",
             "tagname": "",
@@ -2550,7 +2719,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3887,
+            "line": 3886,
             "description": "Checks if a plugin was loaded succesfully",
             "itemtype": "method",
             "name": "loadedPlugin",
@@ -2570,7 +2739,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3904,
+            "line": 3903,
             "description": "Load a plugin from its full file path\n_next(err)",
             "access": "private",
             "tagname": "",
@@ -2596,7 +2765,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4000,
+            "line": 3999,
             "description": "Load plugins from a directory path\nnext(err)",
             "access": "private",
             "tagname": "",
@@ -2618,7 +2787,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4055,
+            "line": 4054,
             "description": "Compare current DocPad version to the latest\nand print out the result to the console.\nUsed at startup.",
             "access": "private",
             "tagname": "",
@@ -2628,7 +2797,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4094,
+            "line": 4093,
             "description": "Get DocPad's exchange data\nRequires internet access\nnext(err,exchange)",
             "access": "private",
             "tagname": "",
@@ -2645,7 +2814,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4140,
+            "line": 4139,
             "description": "Contextualize files.\nContextualizing is the process of adding layouts and\nawareness of other documents to our document. The\ncontextualizeBefore and contextualizeAfter events\nare emitted here.\nnext(err)",
             "access": "private",
             "tagname": "",
@@ -2669,7 +2838,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4221,
+            "line": 4220,
             "description": "Render the DocPad project's files.\nThe renderCollectionBefore, renderCollectionAfter,\nrenderBefore, renderAfter events are all emitted here.\nnext(err)",
             "access": "private",
             "tagname": "",
@@ -2693,7 +2862,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4345,
+            "line": 4344,
             "description": "Write rendered files to the DocPad out directory.\nThe writeBefore and writeAfter events are emitted here.\nnext(err)",
             "access": "private",
             "tagname": "",
@@ -2717,7 +2886,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4441,
+            "line": 4440,
             "description": "Has DocPad's generation process started?",
             "access": "private",
             "tagname": "",
@@ -2728,7 +2897,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4448,
+            "line": 4447,
             "description": "Has DocPad's generation process ended?",
             "access": "private",
             "tagname": "",
@@ -2739,7 +2908,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4455,
+            "line": 4454,
             "description": "Is DocPad currently generating?",
             "access": "private",
             "tagname": "",
@@ -2750,7 +2919,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4462,
+            "line": 4461,
             "description": "Has DocPad done at least one generation?\nTrue once the first generation has occured.",
             "access": "private",
             "tagname": "",
@@ -2761,7 +2930,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4470,
+            "line": 4469,
             "description": "Create the console progress bar.\nProgress only shown if the DocPad config 'progress'\noption is true, the DocPad config 'prompts' option is true\nand the log level is 6 (default)",
             "access": "private",
             "tagname": "",
@@ -2775,7 +2944,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4499,
+            "line": 4498,
             "description": "Destructor. Destroy the progress object",
             "access": "private",
             "tagname": "",
@@ -2796,7 +2965,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4515,
+            "line": 4514,
             "description": "Destructor. Destroy the regeneration timer.",
             "access": "private",
             "tagname": "",
@@ -2806,7 +2975,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4532,
+            "line": 4531,
             "description": "Create the regeneration timer",
             "access": "private",
             "tagname": "",
@@ -2816,7 +2985,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4555,
+            "line": 4554,
             "description": "Set off DocPad's generation process.\nThe generated, populateCollectionsBefore, populateCollections, populateCollections\ngenerateBefore and generateAfter events are emitted here\nnext(err)",
             "itemtype": "method",
             "name": "generate",
@@ -2836,7 +3005,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4939,
+            "line": 4938,
             "description": "Load a document\nnext(err,document)",
             "access": "private",
             "tagname": "",
@@ -2863,7 +3032,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4959,
+            "line": 4958,
             "description": "Load and render a document\nnext(err,document)",
             "itemtype": "method",
             "name": "loadAndRenderDocument",
@@ -2888,7 +3057,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4982,
+            "line": 4981,
             "description": "Render a document\nnext(err,result)",
             "itemtype": "method",
             "name": "renderDocument",
@@ -2913,7 +3082,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5002,
+            "line": 5001,
             "description": "Render a document at a file path\nnext(err,result)",
             "itemtype": "method",
             "name": "renderPath",
@@ -2938,7 +3107,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5024,
+            "line": 5023,
             "description": "Render the passed content data as a\ndocument. Required option, filename\n(opts.filename)\nnext(err,result)",
             "itemtype": "method",
             "name": "renderData",
@@ -2963,7 +3132,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5053,
+            "line": 5052,
             "description": "Render the passed text data as a\ndocument. Required option, filename\n(opts.filename)\nnext(err,result)",
             "access": "private",
             "tagname": "",
@@ -2990,7 +3159,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5086,
+            "line": 5085,
             "description": "Render action\nnext(err,document,result)",
             "itemtype": "method",
             "name": "render",
@@ -3010,7 +3179,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5121,
+            "line": 5120,
             "description": "Array of file watchers",
             "access": "private",
             "tagname": "",
@@ -3021,7 +3190,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5128,
+            "line": 5127,
             "description": "Destructor. Destroy the watchers used\nby DocPad",
             "access": "private",
             "tagname": "",
@@ -3031,7 +3200,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5150,
+            "line": 5149,
             "description": "Start up file watchers used by DocPad",
             "access": "private",
             "tagname": "",
@@ -3053,7 +3222,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5327,
+            "line": 5326,
             "description": "Run an action",
             "itemtype": "method",
             "name": "run",
@@ -3073,7 +3242,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5391,
+            "line": 5390,
             "description": "Initialize the skeleton install process\nnext(err)",
             "access": "private",
             "tagname": "",
@@ -3095,7 +3264,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5438,
+            "line": 5437,
             "description": "Uninstall a plugin.\nnext(err)",
             "access": "private",
             "tagname": "",
@@ -3117,7 +3286,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5477,
+            "line": 5476,
             "description": "Install a plugin\nnext(err)",
             "access": "private",
             "tagname": "",
@@ -3139,7 +3308,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5528,
+            "line": 5527,
             "description": "Update global NPM and DocPad\nnext(err)",
             "access": "private",
             "tagname": "",
@@ -3165,7 +3334,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5548,
+            "line": 5547,
             "description": "Update the local DocPad and plugin dependencies\nnext(err)",
             "access": "private",
             "tagname": "",
@@ -3187,7 +3356,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5611,
+            "line": 5610,
             "description": "DocPad cleanup tasks\nnext(err)",
             "access": "private",
             "tagname": "",
@@ -3213,7 +3382,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5665,
+            "line": 5664,
             "description": "Initialize a Skeleton into to a Directory\nnext(err)",
             "access": "private",
             "tagname": "",
@@ -3240,7 +3409,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5767,
+            "line": 5766,
             "description": "Install a Skeleton into a Directory",
             "access": "private",
             "tagname": "",
@@ -3267,7 +3436,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5794,
+            "line": 5793,
             "description": "Use a Skeleton\nnext(err)",
             "access": "private",
             "tagname": "",
@@ -3298,7 +3467,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5838,
+            "line": 5837,
             "description": "Select a Skeleton\nnext(err,skeletonModel)",
             "access": "private",
             "tagname": "",
@@ -3320,7 +3489,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5866,
+            "line": 5865,
             "description": "Skeleton Empty?",
             "access": "private",
             "tagname": "",
@@ -3342,7 +3511,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5893,
+            "line": 5892,
             "description": "Initialize the project directory\nwith the basic skeleton.",
             "access": "private",
             "tagname": "",
@@ -3364,7 +3533,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5923,
+            "line": 5922,
             "description": "Initialize the project directory\nwith the basic skeleton.",
             "access": "private",
             "tagname": "",
@@ -3390,7 +3559,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5952,
+            "line": 5951,
             "description": "Serve a document",
             "access": "private",
             "tagname": "",
@@ -3412,7 +3581,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 6044,
+            "line": 6043,
             "description": "Server Middleware: Header",
             "access": "private",
             "tagname": "",
@@ -3439,7 +3608,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 6071,
+            "line": 6070,
             "description": "Server Middleware: Router",
             "access": "private",
             "tagname": "",
@@ -3466,7 +3635,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 6102,
+            "line": 6101,
             "description": "Server Middleware: 404",
             "access": "private",
             "tagname": "",
@@ -3493,7 +3662,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 6129,
+            "line": 6128,
             "description": "Server Middleware: 500",
             "access": "private",
             "tagname": "",
@@ -3525,7 +3694,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 6153,
+            "line": 6152,
             "description": "Configure and start up the DocPad web server.\nHttp and express server is created, extended with\nmiddleware, started up and begins listening.\nThe events serverBefore, serverExtend and\nserverAfter emitted here.",
             "access": "private",
             "tagname": "",
@@ -3544,12 +3713,963 @@
                 }
             ],
             "class": "Docpad"
+        },
+        {
+            "file": "src/lib/plugin-loader.coffee",
+            "line": 28,
+            "description": "The DocPad Instance",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "property",
+            "name": "docpad",
+            "type": "Object",
+            "class": "PluginLoader"
+        },
+        {
+            "file": "src/lib/plugin-loader.coffee",
+            "line": 36,
+            "description": "The BasePlugin Class",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "property",
+            "name": "",
+            "type": "Object",
+            "class": "PluginLoader"
+        },
+        {
+            "file": "src/lib/plugin-loader.coffee",
+            "line": 44,
+            "description": "The full path of the plugin's directory",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "property",
+            "name": "",
+            "type": "String",
+            "class": "PluginLoader"
+        },
+        {
+            "file": "src/lib/plugin-loader.coffee",
+            "line": 55,
+            "description": "The full path of the plugin's package.json file",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "property",
+            "name": "",
+            "type": "String",
+            "class": "PluginLoader"
+        },
+        {
+            "file": "src/lib/plugin-loader.coffee",
+            "line": 62,
+            "description": "The parsed contents of the plugin's package.json file",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "property",
+            "name": "",
+            "type": "Object",
+            "class": "PluginLoader"
+        },
+        {
+            "file": "src/lib/plugin-loader.coffee",
+            "line": 69,
+            "description": "The full path of the plugin's main file",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "property",
+            "name": "",
+            "type": "String",
+            "class": "PluginLoader"
+        },
+        {
+            "file": "src/lib/plugin-loader.coffee",
+            "line": 77,
+            "description": "The parsed content of the plugin's main file",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "property",
+            "name": "",
+            "type": "Object",
+            "class": "PluginLoader"
+        },
+        {
+            "file": "src/lib/plugin-loader.coffee",
+            "line": 84,
+            "description": "The plugin name",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "property",
+            "name": "",
+            "type": "String",
+            "class": "PluginLoader"
+        },
+        {
+            "file": "src/lib/plugin-loader.coffee",
+            "line": 91,
+            "description": "The plugin version",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "property",
+            "name": "",
+            "type": "String",
+            "class": "PluginLoader"
+        },
+        {
+            "file": "src/lib/plugin-loader.coffee",
+            "line": 98,
+            "description": "Node modules path",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "property",
+            "name": "",
+            "type": "String",
+            "class": "PluginLoader"
+        },
+        {
+            "file": "src/lib/plugin-loader.coffee",
+            "line": 109,
+            "description": "Constructor method",
+            "itemtype": "method",
+            "name": "constructor",
+            "params": [
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object",
+                    "props": [
+                        {
+                            "name": "docpad",
+                            "description": "The docpad instance that we are loading plugins for",
+                            "type": "Object"
+                        },
+                        {
+                            "name": "dirPath",
+                            "description": "The directory path of the plugin",
+                            "type": "String"
+                        },
+                        {
+                            "name": "BasePlugin",
+                            "description": "The base plugin class",
+                            "type": "Object"
+                        }
+                    ]
+                }
+            ],
+            "class": "PluginLoader"
+        },
+        {
+            "file": "src/lib/plugin-loader.coffee",
+            "line": 128,
+            "description": "Loads the package.json file and extracts the main path\nnext(err,exists)",
+            "itemtype": "method",
+            "name": "exists",
+            "params": [
+                {
+                    "name": "next",
+                    "description": "",
+                    "type": "Function"
+                }
+            ],
+            "class": "PluginLoader"
+        },
+        {
+            "file": "src/lib/plugin-loader.coffee",
+            "line": 177,
+            "description": "Check if this plugin is unsupported\nBoolean value returned as a parameter\nin the passed callback\nnext(err,supported)",
+            "itemtype": "method",
+            "name": "unsupported",
+            "params": [
+                {
+                    "name": "next",
+                    "description": "",
+                    "type": "Function"
+                }
+            ],
+            "class": "PluginLoader"
+        },
+        {
+            "file": "src/lib/plugin-loader.coffee",
+            "line": 232,
+            "description": "Installs the plugins node modules.\nnext(err)",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "install",
+            "params": [
+                {
+                    "name": "next",
+                    "description": "",
+                    "type": "Function"
+                }
+            ],
+            "class": "PluginLoader"
+        },
+        {
+            "file": "src/lib/plugin-loader.coffee",
+            "line": 259,
+            "description": "Load in the pluginClass from the plugin file.\nThe plugin class that has been loaded is returned\nin the passed callback\nnext(err,pluginClass)",
+            "itemtype": "method",
+            "name": "load",
+            "params": [
+                {
+                    "name": "next",
+                    "description": "",
+                    "type": "Function"
+                }
+            ],
+            "class": "PluginLoader"
+        },
+        {
+            "file": "src/lib/plugin-loader.coffee",
+            "line": 322,
+            "description": "Create an instance of a plugin\ndefined by the passed config.\nThe plugin instance is returned in\nthe passed callback.\nnext(err,pluginInstance)",
+            "itemtype": "method",
+            "name": "create",
+            "params": [
+                {
+                    "name": "config",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "next",
+                    "description": "",
+                    "type": "Function"
+                }
+            ],
+            "class": "PluginLoader"
+        },
+        {
+            "file": "src/lib/plugin.coffee",
+            "line": 22,
+            "description": "Add support for BasePlugin.extend(proto)",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "property",
+            "name": "@extend",
+            "type": "Object",
+            "class": "BasePlugin"
+        },
+        {
+            "file": "src/lib/plugin.coffee",
+            "line": 32,
+            "description": "The DocPad Instance",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "property",
+            "name": "docpad",
+            "type": "Object",
+            "class": "BasePlugin"
+        },
+        {
+            "file": "src/lib/plugin.coffee",
+            "line": 42,
+            "description": "The plugin name",
+            "itemtype": "property",
+            "name": "",
+            "type": "String",
+            "class": "BasePlugin"
+        },
+        {
+            "file": "src/lib/plugin.coffee",
+            "line": 48,
+            "description": "The plugin config",
+            "itemtype": "property",
+            "name": "",
+            "type": "Object",
+            "class": "BasePlugin"
+        },
+        {
+            "file": "src/lib/plugin.coffee",
+            "line": 54,
+            "description": "The instance config.",
+            "itemtype": "property",
+            "name": "",
+            "type": "Object",
+            "class": "BasePlugin"
+        },
+        {
+            "file": "src/lib/plugin.coffee",
+            "line": 60,
+            "description": "Plugin priority",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "property",
+            "name": "",
+            "type": "Number",
+            "class": "BasePlugin"
+        },
+        {
+            "file": "src/lib/plugin.coffee",
+            "line": 67,
+            "description": "Constructor method for the plugin",
+            "itemtype": "method",
+            "name": "constructor",
+            "params": [
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "class": "BasePlugin"
+        },
+        {
+            "file": "src/lib/plugin.coffee",
+            "line": 96,
+            "description": "Set Instance Configuration",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "setInstanceConfig",
+            "params": [
+                {
+                    "name": "instanceConfig",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "class": "BasePlugin"
+        },
+        {
+            "file": "src/lib/plugin.coffee",
+            "line": 109,
+            "description": "Set Configuration",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "setConfig",
+            "type": "Object",
+            "params": [
+                {
+                    "name": "instanceConfig",
+                    "description": "",
+                    "type": "Object",
+                    "optional": true,
+                    "optdefault": "null"
+                }
+            ],
+            "class": "BasePlugin"
+        },
+        {
+            "file": "src/lib/plugin.coffee",
+            "line": 135,
+            "description": "Get the Configuration",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "",
+            "type": "Object",
+            "class": "BasePlugin"
+        },
+        {
+            "file": "src/lib/plugin.coffee",
+            "line": 143,
+            "description": "Alias for b/c",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "bindEvents",
+            "class": "BasePlugin"
+        },
+        {
+            "file": "src/lib/plugin.coffee",
+            "line": 151,
+            "description": "Bind Listeners",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "bindListeners",
+            "class": "BasePlugin"
+        },
+        {
+            "file": "src/lib/plugin.coffee",
+            "line": 176,
+            "description": "Add Listeners",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "addListeners",
+            "class": "BasePlugin"
+        },
+        {
+            "file": "src/lib/plugin.coffee",
+            "line": 209,
+            "description": "Remove Listeners",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "removeListeners",
+            "class": "BasePlugin"
+        },
+        {
+            "file": "src/lib/plugin.coffee",
+            "line": 233,
+            "description": "Destructor. Calls removeListeners",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "destroy",
+            "class": "BasePlugin"
+        },
+        {
+            "file": "src/lib/plugin.coffee",
+            "line": 243,
+            "description": "Is Enabled?",
+            "itemtype": "method",
+            "name": "isEnabled",
+            "return": {
+                "description": "",
+                "type": "Boolean"
+            },
+            "class": "BasePlugin"
+        },
+        {
+            "file": "src/lib/testers.coffee",
+            "line": 48,
+            "description": "Default plugin config",
+            "itemtype": "property",
+            "name": "",
+            "type": "Object",
+            "class": "PluginTester"
+        },
+        {
+            "file": "src/lib/testers.coffee",
+            "line": 62,
+            "description": "Default DocPad config",
+            "itemtype": "property",
+            "name": "",
+            "type": "Object",
+            "class": "PluginTester"
+        },
+        {
+            "file": "src/lib/testers.coffee",
+            "line": 81,
+            "description": "The DocPad instance",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "property",
+            "name": "",
+            "type": "Object",
+            "class": "PluginTester"
+        },
+        {
+            "file": "src/lib/testers.coffee",
+            "line": 88,
+            "description": "Constructor method",
+            "itemtype": "method",
+            "name": "constructor",
+            "params": [
+                {
+                    "name": "config",
+                    "description": "",
+                    "type": "Object",
+                    "optional": true,
+                    "optdefault": "{}"
+                },
+                {
+                    "name": "docpadConfig",
+                    "description": "",
+                    "type": "Object",
+                    "optional": true,
+                    "optdefault": "{}"
+                },
+                {
+                    "name": "next",
+                    "description": "",
+                    "type": "Function"
+                }
+            ],
+            "class": "PluginTester"
+        },
+        {
+            "file": "src/lib/testers.coffee",
+            "line": 128,
+            "description": "Get tester Configuration",
+            "itemtype": "method",
+            "name": "getConfig",
+            "return": {
+                "description": "",
+                "type": "Object"
+            },
+            "class": "PluginTester"
+        },
+        {
+            "file": "src/lib/testers.coffee",
+            "line": 136,
+            "description": "Get the plugin instance",
+            "itemtype": "method",
+            "name": "getPlugin",
+            "return": {
+                "description": "the plugin",
+                "type": "Object"
+            },
+            "class": "PluginTester"
+        },
+        {
+            "file": "src/lib/testers.coffee",
+            "line": 145,
+            "description": "Create the DocPad instance",
+            "itemtype": "method",
+            "name": "testCreate",
+            "class": "PluginTester"
+        },
+        {
+            "file": "src/lib/testers.coffee",
+            "line": 175,
+            "description": "Test Loaded",
+            "itemtype": "method",
+            "name": "",
+            "class": "PluginTester"
+        },
+        {
+            "file": "src/lib/testers.coffee",
+            "line": 206,
+            "description": "Test generate",
+            "itemtype": "method",
+            "name": "",
+            "class": "PluginTester"
+        },
+        {
+            "file": "src/lib/testers.coffee",
+            "line": 222,
+            "description": "Test everything",
+            "itemtype": "method",
+            "name": "",
+            "type": "Object",
+            "class": "PluginTester"
+        },
+        {
+            "file": "src/lib/testers.coffee",
+            "line": 243,
+            "description": "Finish",
+            "itemtype": "method",
+            "name": "finish",
+            "class": "PluginTester"
+        },
+        {
+            "file": "src/lib/testers.coffee",
+            "line": 335,
+            "description": "Test a plugin\ntest({pluginPath: String})",
+            "itemtype": "property",
+            "name": "test",
+            "class": "ServerTester"
+        },
+        {
+            "file": "src/lib/util.coffee",
+            "line": 25,
+            "description": "Write to stderr",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "writeStderr",
+            "params": [
+                {
+                    "name": "data",
+                    "description": "",
+                    "type": "String"
+                }
+            ],
+            "class": "docpadUtil"
+        },
+        {
+            "file": "src/lib/util.coffee",
+            "line": 37,
+            "description": "Write an error",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "writeError",
+            "params": [
+                {
+                    "name": "err",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "class": "docpadUtil"
+        },
+        {
+            "file": "src/lib/util.coffee",
+            "line": 46,
+            "description": "Wait. Wrapper for setTimeout",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "wait",
+            "params": [
+                {
+                    "name": "time",
+                    "description": "",
+                    "type": "Number"
+                },
+                {
+                    "name": "fn",
+                    "description": "",
+                    "type": "Function"
+                }
+            ],
+            "class": "docpadUtil"
+        },
+        {
+            "file": "src/lib/util.coffee",
+            "line": 56,
+            "description": "Get Default Log Level",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "getDefaultLogLevel",
+            "return": {
+                "description": "default log level",
+                "type": "Number"
+            },
+            "class": "docpadUtil"
+        },
+        {
+            "file": "src/lib/util.coffee",
+            "line": 68,
+            "description": "Are we executing on Travis",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "isTravis",
+            "return": {
+                "description": "The travis node version",
+                "type": "String"
+            },
+            "class": "docpadUtil"
+        },
+        {
+            "file": "src/lib/util.coffee",
+            "line": 77,
+            "description": "Is this TTY",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "isTTY",
+            "return": {
+                "description": "",
+                "type": "Boolean"
+            },
+            "class": "docpadUtil"
+        },
+        {
+            "file": "src/lib/util.coffee",
+            "line": 87,
+            "description": "Is Standadlone",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "isStandalone",
+            "return": {
+                "description": "",
+                "type": "Object"
+            },
+            "class": "docpadUtil"
+        },
+        {
+            "file": "src/lib/util.coffee",
+            "line": 96,
+            "description": "Is user",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "isUser",
+            "return": {
+                "description": "",
+                "type": "Boolean"
+            },
+            "class": "docpadUtil"
+        },
+        {
+            "file": "src/lib/util.coffee",
+            "line": 105,
+            "description": "Wrapper for the node.js method util.inspect",
+            "itemtype": "method",
+            "name": "inspect",
+            "params": [
+                {
+                    "name": "obj",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "String"
+            },
+            "class": "docpadUtil"
+        },
+        {
+            "file": "src/lib/util.coffee",
+            "line": 127,
+            "description": "Are we using standard encoding?",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "isStandardEncoding",
+            "params": [
+                {
+                    "name": "encoding",
+                    "description": "",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Boolean"
+            },
+            "class": "docpadUtil"
+        },
+        {
+            "file": "src/lib/util.coffee",
+            "line": 138,
+            "description": "Get Local DocPad Installation Executable - ie\nnot the global installation",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "getLocalDocPadExecutable",
+            "return": {
+                "description": "the path to the local DocPad executable",
+                "type": "String"
+            },
+            "class": "docpadUtil"
+        },
+        {
+            "file": "src/lib/util.coffee",
+            "line": 148,
+            "description": "Is Local DocPad Installation",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "isLocalDocPadExecutable",
+            "return": {
+                "description": "",
+                "type": "Boolean"
+            },
+            "class": "docpadUtil"
+        },
+        {
+            "file": "src/lib/util.coffee",
+            "line": 157,
+            "description": "Does the local DocPad Installation Exist?",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "getLocalDocPadExecutableExistance",
+            "return": {
+                "description": "",
+                "type": "Boolean"
+            },
+            "class": "docpadUtil"
+        },
+        {
+            "file": "src/lib/util.coffee",
+            "line": 166,
+            "description": "Spawn Local DocPad Executable",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "startLocalDocPadExecutable",
+            "params": [
+                {
+                    "name": "next",
+                    "description": "",
+                    "type": "Function"
+                }
+            ],
+            "return": {
+                "description": "don't know what",
+                "type": "Object"
+            },
+            "class": "docpadUtil"
+        },
+        {
+            "file": "src/lib/util.coffee",
+            "line": 187,
+            "description": "get a filename without the extension",
+            "itemtype": "method",
+            "name": "getBasename",
+            "params": [
+                {
+                    "name": "filename",
+                    "description": "",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "base name",
+                "type": "String"
+            },
+            "class": "docpadUtil"
+        },
+        {
+            "file": "src/lib/util.coffee",
+            "line": 201,
+            "description": "Get the extensions of a filename",
+            "itemtype": "method",
+            "name": "getExtensions",
+            "params": [
+                {
+                    "name": "filename",
+                    "description": "",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "array of string",
+                "type": "Array"
+            },
+            "class": "docpadUtil"
+        },
+        {
+            "file": "src/lib/util.coffee",
+            "line": 212,
+            "description": "Get the extension from a bunch of extensions",
+            "itemtype": "method",
+            "name": "getExtension",
+            "params": [
+                {
+                    "name": "extensions",
+                    "description": "",
+                    "type": "Array"
+                }
+            ],
+            "return": {
+                "description": "the extension",
+                "type": "String"
+            },
+            "class": "docpadUtil"
+        },
+        {
+            "file": "src/lib/util.coffee",
+            "line": 229,
+            "description": "Get the directory path.\nWrapper around the node.js path.dirname method",
+            "itemtype": "method",
+            "name": "getDirPath",
+            "params": [
+                {
+                    "name": "path",
+                    "description": "",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "String"
+            },
+            "class": "docpadUtil"
+        },
+        {
+            "file": "src/lib/util.coffee",
+            "line": 239,
+            "description": "Get the file name.\nWrapper around the node.js path.basename method",
+            "itemtype": "method",
+            "name": "getFilename",
+            "params": [
+                {
+                    "name": "path",
+                    "description": "",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "String"
+            },
+            "class": "docpadUtil"
+        },
+        {
+            "file": "src/lib/util.coffee",
+            "line": 249,
+            "description": "Get the DocPad out file name",
+            "itemtype": "method",
+            "name": "getOutFilename",
+            "params": [
+                {
+                    "name": "basename",
+                    "description": "",
+                    "type": "String"
+                },
+                {
+                    "name": "extension",
+                    "description": "",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "String"
+            },
+            "class": "docpadUtil"
+        },
+        {
+            "file": "src/lib/util.coffee",
+            "line": 262,
+            "description": "Get the URL",
+            "itemtype": "method",
+            "name": "getUrl",
+            "params": [
+                {
+                    "name": "relativePath",
+                    "description": "",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "String"
+            },
+            "class": "docpadUtil"
+        },
+        {
+            "file": "src/lib/util.coffee",
+            "line": 271,
+            "description": "Get the post slug from the URL",
+            "itemtype": "method",
+            "name": "getSlug",
+            "params": [
+                {
+                    "name": "relativeBase",
+                    "description": "",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "the slug",
+                "type": "String"
+            },
+            "class": "docpadUtil"
+        },
+        {
+            "file": "src/lib/util.coffee",
+            "line": 280,
+            "description": "Perform an action\nnext(err,...), ... = any special arguments from the action\nthis should be it's own npm module\nas we also use the concept of actions in a few other packages.\nImportant concept in DocPad.",
+            "itemtype": "method",
+            "name": "action",
+            "params": [
+                {
+                    "name": "action",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "next",
+                    "description": "",
+                    "type": "Function"
+                }
+            ],
+            "class": "docpadUtil"
         }
     ],
-    "warnings": [
-        {
-            "message": "Missing item type\nConstruct DocPad\nnext(err)",
-            "line": " src/lib/docpad.coffee:1739"
-        }
-    ]
+    "warnings": []
 }

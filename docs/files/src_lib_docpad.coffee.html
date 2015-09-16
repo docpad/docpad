@@ -38,7 +38,16 @@
                 
                         <div id="api-tabview-panel">
                             <ul id="api-classes" class="apis classes">
+                                <li><a href="../classes/BasePlugin.html">BasePlugin</a></li>
+                                <li><a href="../classes/Collection.html">Collection</a></li>
                                 <li><a href="../classes/Docpad.html">Docpad</a></li>
+                                <li><a href="../classes/docpadUtil.html">docpadUtil</a></li>
+                                <li><a href="../classes/Events.html">Events</a></li>
+                                <li><a href="../classes/Model.html">Model</a></li>
+                                <li><a href="../classes/PluginLoader.html">PluginLoader</a></li>
+                                <li><a href="../classes/PluginTester.html">PluginTester</a></li>
+                                <li><a href="../classes/QueryCollection.html">QueryCollection</a></li>
+                                <li><a href="../classes/ServerTester.html">ServerTester</a></li>
                             </ul>
                 
                 
@@ -1819,12 +1828,11 @@ class DocPad extends EventEmitterGrouped
 	# Initialization Functions
 
 	###*
-	# Construct DocPad
+	# Constructor method. Sets up the DocPad instance.
 	# next(err)
-	# @constructor constructor
+	# @method constructor
 	# @param {Object} instanceConfig
 	# @param {Function} next
-	# @return {Object} the DocPad instance
 	###
 	constructor: (instanceConfig,next) -&gt;
 		# Prepare
@@ -5772,7 +5780,7 @@ class DocPad extends EventEmitterGrouped
 		if skeletonModel? and skeletonModel.id isnt &#x27;none&#x27;
 			tasks.addTask &quot;clone out the git repo&quot;, (complete) -&gt;
 				docpad.initGitRepo({
-					path: opts.destinationPath
+					cwd: opts.destinationPath
 					url: skeletonModel.get(&#x27;repo&#x27;)
 					branch: skeletonModel.get(&#x27;branch&#x27;)
 					remote: &#x27;skeleton&#x27;

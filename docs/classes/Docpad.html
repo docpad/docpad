@@ -38,7 +38,16 @@
                 
                         <div id="api-tabview-panel">
                             <ul id="api-classes" class="apis classes">
+                                <li><a href="../classes/BasePlugin.html">BasePlugin</a></li>
+                                <li><a href="../classes/Collection.html">Collection</a></li>
                                 <li><a href="../classes/Docpad.html">Docpad</a></li>
+                                <li><a href="../classes/docpadUtil.html">docpadUtil</a></li>
+                                <li><a href="../classes/Events.html">Events</a></li>
+                                <li><a href="../classes/Model.html">Model</a></li>
+                                <li><a href="../classes/PluginLoader.html">PluginLoader</a></li>
+                                <li><a href="../classes/PluginTester.html">PluginTester</a></li>
+                                <li><a href="../classes/QueryCollection.html">QueryCollection</a></li>
+                                <li><a href="../classes/ServerTester.html">ServerTester</a></li>
                             </ul>
                 
                 
@@ -181,6 +190,10 @@ Extends <a href="https://github.com/bevry/event-emitter-grouped">https://github.
                             </li>
                             <li class="index-item method private">
                                 <a href="#method_compareVersion">compareVersion</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_constructor">constructor</a>
 
                             </li>
                             <li class="index-item method private">
@@ -1130,7 +1143,7 @@ Extends <a href="https://github.com/bevry/event-emitter-grouped">https://github.
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3616"><code>src&#x2F;lib&#x2F;docpad.coffee:3616</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3615"><code>src&#x2F;lib&#x2F;docpad.coffee:3615</code></a>
         </p>
 
 
@@ -1208,7 +1221,7 @@ Extends <a href="https://github.com/bevry/event-emitter-grouped">https://github.
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3628"><code>src&#x2F;lib&#x2F;docpad.coffee:3628</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3627"><code>src&#x2F;lib&#x2F;docpad.coffee:3627</code></a>
         </p>
 
 
@@ -1281,7 +1294,7 @@ Extends <a href="https://github.com/bevry/event-emitter-grouped">https://github.
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3557"><code>src&#x2F;lib&#x2F;docpad.coffee:3557</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3556"><code>src&#x2F;lib&#x2F;docpad.coffee:3556</code></a>
         </p>
 
 
@@ -1335,7 +1348,7 @@ Extends <a href="https://github.com/bevry/event-emitter-grouped">https://github.
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3310"><code>src&#x2F;lib&#x2F;docpad.coffee:3310</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3309"><code>src&#x2F;lib&#x2F;docpad.coffee:3309</code></a>
         </p>
 
 
@@ -1395,7 +1408,7 @@ Extends <a href="https://github.com/bevry/event-emitter-grouped">https://github.
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5611"><code>src&#x2F;lib&#x2F;docpad.coffee:5611</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5610"><code>src&#x2F;lib&#x2F;docpad.coffee:5610</code></a>
         </p>
 
 
@@ -1463,7 +1476,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l4055"><code>src&#x2F;lib&#x2F;docpad.coffee:4055</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4054"><code>src&#x2F;lib&#x2F;docpad.coffee:4054</code></a>
         </p>
 
 
@@ -1477,6 +1490,73 @@ Used at startup.</p>
 
     </div>
 
+
+
+
+</div>
+<div id="method_constructor" class="method item">
+    <h3 class="name"><code>constructor</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>instanceConfig</code>
+                </li>
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_docpad.coffee.html#l1739"><code>src&#x2F;lib&#x2F;docpad.coffee:1739</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Constructor method. Sets up the DocPad instance.
+next(err)</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">instanceConfig</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Function</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
 
 
 
@@ -1506,7 +1586,7 @@ Used at startup.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l4140"><code>src&#x2F;lib&#x2F;docpad.coffee:4140</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4139"><code>src&#x2F;lib&#x2F;docpad.coffee:4139</code></a>
         </p>
 
 
@@ -1581,7 +1661,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3516"><code>src&#x2F;lib&#x2F;docpad.coffee:3516</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3515"><code>src&#x2F;lib&#x2F;docpad.coffee:3515</code></a>
         </p>
 
 
@@ -1661,7 +1741,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3128"><code>src&#x2F;lib&#x2F;docpad.coffee:3128</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3127"><code>src&#x2F;lib&#x2F;docpad.coffee:3127</code></a>
         </p>
 
 
@@ -1739,7 +1819,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3505"><code>src&#x2F;lib&#x2F;docpad.coffee:3505</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3504"><code>src&#x2F;lib&#x2F;docpad.coffee:3504</code></a>
         </p>
 
 
@@ -1819,7 +1899,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3655"><code>src&#x2F;lib&#x2F;docpad.coffee:3655</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3654"><code>src&#x2F;lib&#x2F;docpad.coffee:3654</code></a>
         </p>
 
 
@@ -1903,7 +1983,7 @@ events attached</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3640"><code>src&#x2F;lib&#x2F;docpad.coffee:3640</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3639"><code>src&#x2F;lib&#x2F;docpad.coffee:3639</code></a>
         </p>
 
 
@@ -1975,7 +2055,7 @@ DocPad database</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l4470"><code>src&#x2F;lib&#x2F;docpad.coffee:4470</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4469"><code>src&#x2F;lib&#x2F;docpad.coffee:4469</code></a>
         </p>
 
 
@@ -2019,7 +2099,7 @@ and the log level is 6 (default)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l4532"><code>src&#x2F;lib&#x2F;docpad.coffee:4532</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4531"><code>src&#x2F;lib&#x2F;docpad.coffee:4531</code></a>
         </p>
 
 
@@ -2059,7 +2139,7 @@ and the log level is 6 (default)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l1985"><code>src&#x2F;lib&#x2F;docpad.coffee:1985</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l1984"><code>src&#x2F;lib&#x2F;docpad.coffee:1984</code></a>
         </p>
 
 
@@ -2312,7 +2392,7 @@ E.g. docpad.action('destroy', next)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3833"><code>src&#x2F;lib&#x2F;docpad.coffee:3833</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3832"><code>src&#x2F;lib&#x2F;docpad.coffee:3832</code></a>
         </p>
 
 
@@ -2353,7 +2433,7 @@ E.g. docpad.action('destroy', next)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l4499"><code>src&#x2F;lib&#x2F;docpad.coffee:4499</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4498"><code>src&#x2F;lib&#x2F;docpad.coffee:4498</code></a>
         </p>
 
 
@@ -2410,7 +2490,7 @@ E.g. docpad.action('destroy', next)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l4515"><code>src&#x2F;lib&#x2F;docpad.coffee:4515</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4514"><code>src&#x2F;lib&#x2F;docpad.coffee:4514</code></a>
         </p>
 
 
@@ -2474,7 +2554,7 @@ E.g. docpad.action('destroy', next)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5128"><code>src&#x2F;lib&#x2F;docpad.coffee:5128</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5127"><code>src&#x2F;lib&#x2F;docpad.coffee:5127</code></a>
         </p>
 
 
@@ -2625,7 +2705,7 @@ by DocPad</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2073"><code>src&#x2F;lib&#x2F;docpad.coffee:2073</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2072"><code>src&#x2F;lib&#x2F;docpad.coffee:2072</code></a>
         </p>
 
 
@@ -2705,7 +2785,7 @@ by DocPad</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2042"><code>src&#x2F;lib&#x2F;docpad.coffee:2042</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2041"><code>src&#x2F;lib&#x2F;docpad.coffee:2041</code></a>
         </p>
 
 
@@ -2781,7 +2861,7 @@ by DocPad</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3162"><code>src&#x2F;lib&#x2F;docpad.coffee:3162</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3161"><code>src&#x2F;lib&#x2F;docpad.coffee:3161</code></a>
         </p>
 
 
@@ -2846,7 +2926,7 @@ by DocPad</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2656"><code>src&#x2F;lib&#x2F;docpad.coffee:2656</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2655"><code>src&#x2F;lib&#x2F;docpad.coffee:2655</code></a>
         </p>
 
 
@@ -2904,7 +2984,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3074"><code>src&#x2F;lib&#x2F;docpad.coffee:3074</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3073"><code>src&#x2F;lib&#x2F;docpad.coffee:3073</code></a>
         </p>
 
 
@@ -2958,7 +3038,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2894"><code>src&#x2F;lib&#x2F;docpad.coffee:2894</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2893"><code>src&#x2F;lib&#x2F;docpad.coffee:2893</code></a>
         </p>
 
 
@@ -3016,7 +3096,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l4555"><code>src&#x2F;lib&#x2F;docpad.coffee:4555</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4554"><code>src&#x2F;lib&#x2F;docpad.coffee:4554</code></a>
         </p>
 
 
@@ -3402,7 +3482,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2614"><code>src&#x2F;lib&#x2F;docpad.coffee:2614</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2613"><code>src&#x2F;lib&#x2F;docpad.coffee:2613</code></a>
         </p>
 
 
@@ -3538,7 +3618,7 @@ database cache</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3065"><code>src&#x2F;lib&#x2F;docpad.coffee:3065</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3064"><code>src&#x2F;lib&#x2F;docpad.coffee:3064</code></a>
         </p>
 
 
@@ -3756,7 +3836,7 @@ production or static</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l4094"><code>src&#x2F;lib&#x2F;docpad.coffee:4094</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4093"><code>src&#x2F;lib&#x2F;docpad.coffee:4093</code></a>
         </p>
 
 
@@ -4516,7 +4596,7 @@ next(err,exchange)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2108"><code>src&#x2F;lib&#x2F;docpad.coffee:2108</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2107"><code>src&#x2F;lib&#x2F;docpad.coffee:2107</code></a>
         </p>
 
 
@@ -4688,7 +4768,7 @@ next(err,exchange)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3057"><code>src&#x2F;lib&#x2F;docpad.coffee:3057</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3056"><code>src&#x2F;lib&#x2F;docpad.coffee:3056</code></a>
         </p>
 
 
@@ -4737,7 +4817,7 @@ next(err,exchange)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3815"><code>src&#x2F;lib&#x2F;docpad.coffee:3815</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3814"><code>src&#x2F;lib&#x2F;docpad.coffee:3814</code></a>
         </p>
 
 
@@ -5435,7 +5515,7 @@ Pathname convention taken from document.location.pathname</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3825"><code>src&#x2F;lib&#x2F;docpad.coffee:3825</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3824"><code>src&#x2F;lib&#x2F;docpad.coffee:3824</code></a>
         </p>
 
 
@@ -5480,7 +5560,7 @@ Pathname convention taken from document.location.pathname</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3427"><code>src&#x2F;lib&#x2F;docpad.coffee:3427</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3426"><code>src&#x2F;lib&#x2F;docpad.coffee:3426</code></a>
         </p>
 
 
@@ -5541,7 +5621,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5923"><code>src&#x2F;lib&#x2F;docpad.coffee:5923</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5922"><code>src&#x2F;lib&#x2F;docpad.coffee:5922</code></a>
         </p>
 
 
@@ -5618,7 +5698,7 @@ with the basic skeleton.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2838"><code>src&#x2F;lib&#x2F;docpad.coffee:2838</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2837"><code>src&#x2F;lib&#x2F;docpad.coffee:2837</code></a>
         </p>
 
 
@@ -5686,7 +5766,7 @@ next(err,results)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5391"><code>src&#x2F;lib&#x2F;docpad.coffee:5391</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5390"><code>src&#x2F;lib&#x2F;docpad.coffee:5390</code></a>
         </p>
 
 
@@ -5754,7 +5834,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2862"><code>src&#x2F;lib&#x2F;docpad.coffee:2862</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2861"><code>src&#x2F;lib&#x2F;docpad.coffee:2861</code></a>
         </p>
 
 
@@ -5825,7 +5905,7 @@ next(err,results)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5665"><code>src&#x2F;lib&#x2F;docpad.coffee:5665</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5664"><code>src&#x2F;lib&#x2F;docpad.coffee:5664</code></a>
         </p>
 
 
@@ -5905,7 +5985,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3101"><code>src&#x2F;lib&#x2F;docpad.coffee:3101</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3100"><code>src&#x2F;lib&#x2F;docpad.coffee:3100</code></a>
         </p>
 
 
@@ -5982,7 +6062,7 @@ Can't use the inspect namespace as for some silly reason it destroys everything<
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5477"><code>src&#x2F;lib&#x2F;docpad.coffee:5477</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5476"><code>src&#x2F;lib&#x2F;docpad.coffee:5476</code></a>
         </p>
 
 
@@ -6050,7 +6130,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2922"><code>src&#x2F;lib&#x2F;docpad.coffee:2922</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2921"><code>src&#x2F;lib&#x2F;docpad.coffee:2921</code></a>
         </p>
 
 
@@ -6122,7 +6202,7 @@ next(err,result)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5767"><code>src&#x2F;lib&#x2F;docpad.coffee:5767</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5766"><code>src&#x2F;lib&#x2F;docpad.coffee:5766</code></a>
         </p>
 
 
@@ -6201,7 +6281,7 @@ next(err,result)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2116"><code>src&#x2F;lib&#x2F;docpad.coffee:2116</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2115"><code>src&#x2F;lib&#x2F;docpad.coffee:2115</code></a>
         </p>
 
 
@@ -6276,7 +6356,7 @@ next(err,result)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2357"><code>src&#x2F;lib&#x2F;docpad.coffee:2357</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2356"><code>src&#x2F;lib&#x2F;docpad.coffee:2356</code></a>
         </p>
 
 
@@ -6347,7 +6427,7 @@ next(err,config)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l4959"><code>src&#x2F;lib&#x2F;docpad.coffee:4959</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4958"><code>src&#x2F;lib&#x2F;docpad.coffee:4958</code></a>
         </p>
 
 
@@ -6425,7 +6505,7 @@ next(err,document)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2550"><code>src&#x2F;lib&#x2F;docpad.coffee:2550</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2549"><code>src&#x2F;lib&#x2F;docpad.coffee:2549</code></a>
         </p>
 
 
@@ -6494,7 +6574,7 @@ next(err,parsedData)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2520"><code>src&#x2F;lib&#x2F;docpad.coffee:2520</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2519"><code>src&#x2F;lib&#x2F;docpad.coffee:2519</code></a>
         </p>
 
 
@@ -6565,7 +6645,7 @@ next(err,parsedData)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l4939"><code>src&#x2F;lib&#x2F;docpad.coffee:4939</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4938"><code>src&#x2F;lib&#x2F;docpad.coffee:4938</code></a>
         </p>
 
 
@@ -6642,7 +6722,7 @@ next(err,document)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3887"><code>src&#x2F;lib&#x2F;docpad.coffee:3887</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3886"><code>src&#x2F;lib&#x2F;docpad.coffee:3886</code></a>
         </p>
 
 
@@ -6777,7 +6857,7 @@ next(err,document)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3904"><code>src&#x2F;lib&#x2F;docpad.coffee:3904</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3903"><code>src&#x2F;lib&#x2F;docpad.coffee:3903</code></a>
         </p>
 
 
@@ -6851,7 +6931,7 @@ _next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3844"><code>src&#x2F;lib&#x2F;docpad.coffee:3844</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3843"><code>src&#x2F;lib&#x2F;docpad.coffee:3843</code></a>
         </p>
 
 
@@ -6909,7 +6989,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l4000"><code>src&#x2F;lib&#x2F;docpad.coffee:4000</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3999"><code>src&#x2F;lib&#x2F;docpad.coffee:3999</code></a>
         </p>
 
 
@@ -6973,7 +7053,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3187"><code>src&#x2F;lib&#x2F;docpad.coffee:3187</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3186"><code>src&#x2F;lib&#x2F;docpad.coffee:3186</code></a>
         </p>
 
 
@@ -7030,7 +7110,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2216"><code>src&#x2F;lib&#x2F;docpad.coffee:2216</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2215"><code>src&#x2F;lib&#x2F;docpad.coffee:2215</code></a>
         </p>
 
 
@@ -7096,7 +7176,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3292"><code>src&#x2F;lib&#x2F;docpad.coffee:3292</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3291"><code>src&#x2F;lib&#x2F;docpad.coffee:3291</code></a>
         </p>
 
 
@@ -7161,7 +7241,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3242"><code>src&#x2F;lib&#x2F;docpad.coffee:3242</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3241"><code>src&#x2F;lib&#x2F;docpad.coffee:3241</code></a>
         </p>
 
 
@@ -7220,7 +7300,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3735"><code>src&#x2F;lib&#x2F;docpad.coffee:3735</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3734"><code>src&#x2F;lib&#x2F;docpad.coffee:3734</code></a>
         </p>
 
 
@@ -7301,7 +7381,7 @@ next(err, files)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3540"><code>src&#x2F;lib&#x2F;docpad.coffee:3540</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3539"><code>src&#x2F;lib&#x2F;docpad.coffee:3539</code></a>
         </p>
 
 
@@ -7380,7 +7460,7 @@ next(err, files)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3528"><code>src&#x2F;lib&#x2F;docpad.coffee:3528</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3527"><code>src&#x2F;lib&#x2F;docpad.coffee:3527</code></a>
         </p>
 
 
@@ -7457,7 +7537,7 @@ next(err, files)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2153"><code>src&#x2F;lib&#x2F;docpad.coffee:2153</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2152"><code>src&#x2F;lib&#x2F;docpad.coffee:2152</code></a>
         </p>
 
 
@@ -7525,7 +7605,7 @@ next(err,docpadInstance)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5086"><code>src&#x2F;lib&#x2F;docpad.coffee:5086</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5085"><code>src&#x2F;lib&#x2F;docpad.coffee:5085</code></a>
         </p>
 
 
@@ -7595,7 +7675,7 @@ next(err,document,result)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5024"><code>src&#x2F;lib&#x2F;docpad.coffee:5024</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5023"><code>src&#x2F;lib&#x2F;docpad.coffee:5023</code></a>
         </p>
 
 
@@ -7677,7 +7757,7 @@ next(err,result)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l4982"><code>src&#x2F;lib&#x2F;docpad.coffee:4982</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4981"><code>src&#x2F;lib&#x2F;docpad.coffee:4981</code></a>
         </p>
 
 
@@ -7755,7 +7835,7 @@ next(err,result)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l4221"><code>src&#x2F;lib&#x2F;docpad.coffee:4221</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4220"><code>src&#x2F;lib&#x2F;docpad.coffee:4220</code></a>
         </p>
 
 
@@ -7828,7 +7908,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5002"><code>src&#x2F;lib&#x2F;docpad.coffee:5002</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5001"><code>src&#x2F;lib&#x2F;docpad.coffee:5001</code></a>
         </p>
 
 
@@ -7909,7 +7989,7 @@ next(err,result)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5053"><code>src&#x2F;lib&#x2F;docpad.coffee:5053</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5052"><code>src&#x2F;lib&#x2F;docpad.coffee:5052</code></a>
         </p>
 
 
@@ -7989,7 +8069,7 @@ next(err,result)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2800"><code>src&#x2F;lib&#x2F;docpad.coffee:2800</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2799"><code>src&#x2F;lib&#x2F;docpad.coffee:2799</code></a>
         </p>
 
 
@@ -8056,7 +8136,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5327"><code>src&#x2F;lib&#x2F;docpad.coffee:5327</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5326"><code>src&#x2F;lib&#x2F;docpad.coffee:5326</code></a>
         </p>
 
 
@@ -8119,7 +8199,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2127"><code>src&#x2F;lib&#x2F;docpad.coffee:2127</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2126"><code>src&#x2F;lib&#x2F;docpad.coffee:2126</code></a>
         </p>
 
 
@@ -8177,7 +8257,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5838"><code>src&#x2F;lib&#x2F;docpad.coffee:5838</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5837"><code>src&#x2F;lib&#x2F;docpad.coffee:5837</code></a>
         </p>
 
 
@@ -8245,7 +8325,7 @@ next(err,skeletonModel)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5952"><code>src&#x2F;lib&#x2F;docpad.coffee:5952</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5951"><code>src&#x2F;lib&#x2F;docpad.coffee:5951</code></a>
         </p>
 
 
@@ -8312,7 +8392,7 @@ next(err,skeletonModel)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l6153"><code>src&#x2F;lib&#x2F;docpad.coffee:6153</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l6152"><code>src&#x2F;lib&#x2F;docpad.coffee:6152</code></a>
         </p>
 
 
@@ -8386,7 +8466,7 @@ serverAfter emitted here.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l6102"><code>src&#x2F;lib&#x2F;docpad.coffee:6102</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l6101"><code>src&#x2F;lib&#x2F;docpad.coffee:6101</code></a>
         </p>
 
 
@@ -8469,7 +8549,7 @@ serverAfter emitted here.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l6129"><code>src&#x2F;lib&#x2F;docpad.coffee:6129</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l6128"><code>src&#x2F;lib&#x2F;docpad.coffee:6128</code></a>
         </p>
 
 
@@ -8559,7 +8639,7 @@ serverAfter emitted here.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l6044"><code>src&#x2F;lib&#x2F;docpad.coffee:6044</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l6043"><code>src&#x2F;lib&#x2F;docpad.coffee:6043</code></a>
         </p>
 
 
@@ -8639,7 +8719,7 @@ serverAfter emitted here.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l6071"><code>src&#x2F;lib&#x2F;docpad.coffee:6071</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l6070"><code>src&#x2F;lib&#x2F;docpad.coffee:6070</code></a>
         </p>
 
 
@@ -8934,7 +9014,7 @@ A collection can have multiple names</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2258"><code>src&#x2F;lib&#x2F;docpad.coffee:2258</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2257"><code>src&#x2F;lib&#x2F;docpad.coffee:2257</code></a>
         </p>
 
 
@@ -9002,7 +9082,7 @@ next(err,config)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2241"><code>src&#x2F;lib&#x2F;docpad.coffee:2241</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2240"><code>src&#x2F;lib&#x2F;docpad.coffee:2240</code></a>
         </p>
 
 
@@ -9123,7 +9203,7 @@ with the existing DocPad instanceConfig object</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3037"><code>src&#x2F;lib&#x2F;docpad.coffee:3037</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3036"><code>src&#x2F;lib&#x2F;docpad.coffee:3036</code></a>
         </p>
 
 
@@ -9234,7 +9314,7 @@ to bind to DocPad</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5893"><code>src&#x2F;lib&#x2F;docpad.coffee:5893</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5892"><code>src&#x2F;lib&#x2F;docpad.coffee:5892</code></a>
         </p>
 
 
@@ -9302,7 +9382,7 @@ with the basic skeleton.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5866"><code>src&#x2F;lib&#x2F;docpad.coffee:5866</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5865"><code>src&#x2F;lib&#x2F;docpad.coffee:5865</code></a>
         </p>
 
 
@@ -9366,7 +9446,7 @@ with the basic skeleton.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3331"><code>src&#x2F;lib&#x2F;docpad.coffee:3331</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3330"><code>src&#x2F;lib&#x2F;docpad.coffee:3330</code></a>
         </p>
 
 
@@ -9427,7 +9507,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3370"><code>src&#x2F;lib&#x2F;docpad.coffee:3370</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3369"><code>src&#x2F;lib&#x2F;docpad.coffee:3369</code></a>
         </p>
 
 
@@ -9503,7 +9583,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3218"><code>src&#x2F;lib&#x2F;docpad.coffee:3218</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3217"><code>src&#x2F;lib&#x2F;docpad.coffee:3217</code></a>
         </p>
 
 
@@ -9560,7 +9640,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5438"><code>src&#x2F;lib&#x2F;docpad.coffee:5438</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5437"><code>src&#x2F;lib&#x2F;docpad.coffee:5437</code></a>
         </p>
 
 
@@ -9628,7 +9708,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2983"><code>src&#x2F;lib&#x2F;docpad.coffee:2983</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2982"><code>src&#x2F;lib&#x2F;docpad.coffee:2982</code></a>
         </p>
 
 
@@ -9697,7 +9777,7 @@ next(err,result)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5548"><code>src&#x2F;lib&#x2F;docpad.coffee:5548</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5547"><code>src&#x2F;lib&#x2F;docpad.coffee:5547</code></a>
         </p>
 
 
@@ -9764,7 +9844,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2489"><code>src&#x2F;lib&#x2F;docpad.coffee:2489</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2488"><code>src&#x2F;lib&#x2F;docpad.coffee:2488</code></a>
         </p>
 
 
@@ -9835,7 +9915,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5528"><code>src&#x2F;lib&#x2F;docpad.coffee:5528</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5527"><code>src&#x2F;lib&#x2F;docpad.coffee:5527</code></a>
         </p>
 
 
@@ -9918,7 +9998,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5794"><code>src&#x2F;lib&#x2F;docpad.coffee:5794</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5793"><code>src&#x2F;lib&#x2F;docpad.coffee:5793</code></a>
         </p>
 
 
@@ -10007,7 +10087,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3266"><code>src&#x2F;lib&#x2F;docpad.coffee:3266</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3265"><code>src&#x2F;lib&#x2F;docpad.coffee:3265</code></a>
         </p>
 
 
@@ -10083,7 +10163,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5150"><code>src&#x2F;lib&#x2F;docpad.coffee:5150</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5149"><code>src&#x2F;lib&#x2F;docpad.coffee:5149</code></a>
         </p>
 
 
@@ -10149,7 +10229,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2139"><code>src&#x2F;lib&#x2F;docpad.coffee:2139</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2138"><code>src&#x2F;lib&#x2F;docpad.coffee:2138</code></a>
         </p>
 
 
@@ -10216,7 +10296,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l4345"><code>src&#x2F;lib&#x2F;docpad.coffee:4345</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4344"><code>src&#x2F;lib&#x2F;docpad.coffee:4344</code></a>
         </p>
 
 
@@ -10808,7 +10888,7 @@ Extension of the QueryCollection class
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l4462"><code>src&#x2F;lib&#x2F;docpad.coffee:4462</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4461"><code>src&#x2F;lib&#x2F;docpad.coffee:4461</code></a>
         </p>
 
 
@@ -10835,7 +10915,7 @@ True once the first generation has occured.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l4448"><code>src&#x2F;lib&#x2F;docpad.coffee:4448</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4447"><code>src&#x2F;lib&#x2F;docpad.coffee:4447</code></a>
         </p>
 
 
@@ -10861,7 +10941,7 @@ True once the first generation has occured.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l4441"><code>src&#x2F;lib&#x2F;docpad.coffee:4441</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4440"><code>src&#x2F;lib&#x2F;docpad.coffee:4440</code></a>
         </p>
 
 
@@ -10887,7 +10967,7 @@ True once the first generation has occured.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l4455"><code>src&#x2F;lib&#x2F;docpad.coffee:4455</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4454"><code>src&#x2F;lib&#x2F;docpad.coffee:4454</code></a>
         </p>
 
 
@@ -11094,7 +11174,7 @@ Merged into the config property</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3114"><code>src&#x2F;lib&#x2F;docpad.coffee:3114</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3113"><code>src&#x2F;lib&#x2F;docpad.coffee:3113</code></a>
         </p>
 
 
@@ -11716,7 +11796,7 @@ Merged into the config property</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5121"><code>src&#x2F;lib&#x2F;docpad.coffee:5121</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5120"><code>src&#x2F;lib&#x2F;docpad.coffee:5120</code></a>
         </p>
 
 
