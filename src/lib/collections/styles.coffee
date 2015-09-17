@@ -11,10 +11,22 @@ ElementsCollection = require('./elements')
 # =====================================
 # Classes
 
-# Styles Collection
+###*
+# Styles collection class. A DocPad
+# project's style (css) file paths
+# @class StylesCollection
+# @constructor
+# @extends require('./elements').ElementsCollection
+###
 class StylesCollection extends ElementsCollection
+
+	###*
 	# Add an element to the collection
 	# Right now we just support strings
+	# @method add
+	# @param {Array} values string array of file paths
+	# @param {Object} opts
+	###
 	add: (values,opts) ->
 		# Prepare
 		opts or= {}
