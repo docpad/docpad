@@ -27,10 +27,30 @@ docpadUtil = require('../util')
 # Classes
 
 ###*
-# Description for FileModel
+# The FileModel class is DocPad's representation
+# of a file in the file system.
+# Extends the DocPad Model class
+# https://github.com/docpad/docpad/blob/master/src/lib/base.coffee#L49.
+# FileModel manages the loading
+# of a file and parsing both the content and the metadata (if any).
+# Once loaded, the content, metadata and file stat (file info) 
+# properties of the FileModel are populated, as well
+# as a number of DocPad specific attributes and properties.
+# Typically we do not need to create FileModels ourselves as
+# DocPad handles all of that. But it is possible that a plugin
+# may need to manually create FileModels for some reason.
+#	
+#	attrs = 
+#		fullPath: 'file/path/to/somewhere'
+#	opts = {}
+#	#we only really need the path to the source file to create
+#	#a new file model
+#	model = new FileModel(attrs, opts)
+#
+# The FileModel forms the base class for the DocPad DocumentModel class.
 # @class FileModel
 # @constructor
-# @extends Model
+# @extends require('../base').Model
 ###
 class FileModel extends Model
 
@@ -38,7 +58,8 @@ class FileModel extends Model
 	# Properties
 
 	###*
-	# Base file model class
+	# The file model class. This should
+	# be overridden in any descending classes.
 	# @private
 	# @property {Object} klass
 	###
@@ -46,7 +67,8 @@ class FileModel extends Model
 
 	###*
 	# String name of the model type.
-	# In this case, 'file'.
+	# In this case, 'file'. This should
+	# be overridden in any descending classes.
 	# @private
 	# @property {String} type
 	###
@@ -89,14 +111,15 @@ class FileModel extends Model
 	buffer: null
 
 	###*
-	# Buffer time
+	# Buffer time.
 	# @property {Object} bufferTime
 	###
 	bufferTime: null
 
 	###*
-	# The parsed file meta data (header)
-	# Is a Model instance
+	# The parsed file meta data (header).
+	# Is a Model instance.
+	# @private
 	# @property {Object} meta
 	###
 	meta: null
@@ -694,7 +717,7 @@ class FileModel extends Model
 	# Get the file content. This will be
 	# the text content if loaded or the file buffer object.
 	# @method getContent
-	# @return {String || Object}
+	# @return {String or Object}
 	###
 	getContent: ->
 		return @get('content') or @getBuffer()
@@ -702,7 +725,7 @@ class FileModel extends Model
 	###*
 	# Get the file content for output.
 	# @method getOutContent
-	# @return {String || Object}
+	# @return {String or Object}
 	###
 	getOutContent: ->
 		return @getContent()
@@ -734,8 +757,13 @@ class FileModel extends Model
 		@set({url})
 		@
 
-	# Add a url
-	# Allows our file to support multiple urls
+	###*
+	# A file can have multiple urls.
+	# This method adds either a single url
+	# or an array of urls to the file model.
+	# @method addUrl
+	# @param {String or Array} url
+	###
 	addUrl: (url) ->
 		# Multiple Urls
 		if url instanceof Array
@@ -757,8 +785,12 @@ class FileModel extends Model
 		# Chain
 		@
 
-	# Remove a url
-	# Removes a url from our file
+	###*
+	# Removes a url from the file
+	# model (files can have more than one url).
+	# @method removeUrl
+	# @param {Object} userUrl the url to be removed
+	###
 	removeUrl: (userUrl) ->
 		urls = @get('urls')
 		for url,index in urls
@@ -767,9 +799,16 @@ class FileModel extends Model
 				break
 		@
 
+	###*
 	# Get a Path
-	# If the path starts with `.` then we get the path in relation to the document that is calling it
+	# If the path starts with `.` then we get the 
+	# path in relation to the document that is calling it.
 	# Otherwise we just return it as normal
+	# @method getPath
+	# @param {String} relativePath
+	# @param {String} parentPath
+	# @return {String}
+	###
 	getPath: (relativePath, parentPath) ->
 		if /^\./.test(relativePath)
 			relativeDirPath = @get('relativeDirPath')
@@ -785,12 +824,32 @@ class FileModel extends Model
 	# ---------------------------------
 	# Actions
 
-	# The action runner instance bound to docpad
+	###*
+	# The action runner instance bound to DocPad
+	# @private
+	# @property {Object} actionRunnerInstance
+	###
 	actionRunnerInstance: null
+	###*
+	# Get the action runner instance bound to DocPad
+	# @method getActionRunner
+	# @return {Object}
+	###
 	getActionRunner: -> @actionRunnerInstance
+	###*
+	# Apply an action with the supplied arguments.
+	# @method action
+	# @param {Object} args...
+	###
 	action: (args...) => docpadUtil.action.apply(@, args)
 
-	# Initialize
+	###*
+	# Initialize the file model with the passed
+	# attributes and options. Emits the init event.
+	# @method initialize
+	# @param {Object} attrs the file model attributes
+	# @param {Object} [opts={}] the file model options
+	###
 	initialize: (attrs,opts={}) ->
 		# Defaults
 		file = @
@@ -821,9 +880,15 @@ class FileModel extends Model
 		# Chain
 		@
 
-	# Load
-	# If the fullPath exists, load the file
-	# If it doesn't, then parse and normalize the file
+	###*
+	# Load the file from the file system.
+	# If the fullPath exists, load the file.
+	# If it doesn't, then parse and normalize the file.
+	# Optionally pass file options as a parameter.
+	# @method load
+	# @param {Object} [opts={}]
+	# @param {Function} next callback
+	###
 	load: (opts={},next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
@@ -891,9 +956,13 @@ class FileModel extends Model
 		# Chain
 		@
 
-	# Parse
-	# Parse our buffer and extract meaningful data from it
-	# next(err)
+	###*
+	# Parse our buffer and extract meaningful data from it.
+	# next(err).
+	# @method parse
+	# @param {Object} [opts={}]
+	# @param {Object} next callback
+	###
 	parse: (opts={},next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
@@ -962,9 +1031,15 @@ class FileModel extends Model
 		next()
 		@
 
-	# Normalize data
-	# Normalize any parsing we have done, as if a value has updates it may have consequences on another value. This will ensure everything is okay.
+	###*
+	# Normalize any parsing we have done, because if a value has 
+	# updates it may have consequences on another value.
+	# This will ensure everything is okay.
 	# next(err)
+	# @method normalize
+	# @param {Object} [opts={}]
+	# @param {Object} next callback
+	###
 	normalize: (opts={},next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
@@ -1127,9 +1202,15 @@ class FileModel extends Model
 		next()
 		@
 
-	# Contextualize data
-	# Put our data into perspective of the bigger picture. For instance, generate the url for it's rendered equivalant.
+	###*
+	# Contextualize the data. In other words,
+	# put our data into the perspective of the bigger picture of the data.
+	# For instance, generate the url for it's rendered equivalant.
 	# next(err)
+	# @method contextualize
+	# @param {Object} [opts={}]
+	# @param {Object} next callback
+	###
 	contextualize: (opts={},next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
@@ -1138,10 +1219,16 @@ class FileModel extends Model
 		next()
 		@
 
-
-	# Render
-	# Render this file
+	###*
+	# Render this file. The file model output content is
+	# returned to the passed callback in the
+	# result (2nd) parameter. The file model itself is returned
+	# in the callback's document (3rd) parameter.
 	# next(err,result,document)
+	# @method render
+	# @param {Object} [opts={}]
+	# @param {Object} next callback
+	###
 	render: (opts={},next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
@@ -1158,8 +1245,18 @@ class FileModel extends Model
 	# ---------------------------------
 	# CRUD
 
-	# Write the out file
+	###*
+	# Write the out file. The out file
+	# may be different from the input file.
+	# Often the input file is transformed in some way
+	# and saved as another file format. A common example
+	# is transforming a markdown input file to a HTML
+	# output file.
 	# next(err)
+	# @method write
+	# @param {Object} opts
+	# @param {Function} next callback
+	###
 	write: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
@@ -1208,8 +1305,15 @@ class FileModel extends Model
 		# Chain
 		@
 
-	# Write the source file
+	###*
+	# Write the source file. Optionally pass
+	# the opts parameter to modify or set the file's
+	# path, content or type.
 	# next(err)
+	# @method writeSource
+	# @param {Object} [opts]
+	# @param {Object} next callback
+	###
 	writeSource: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
@@ -1226,8 +1330,14 @@ class FileModel extends Model
 		# Chain
 		@
 
-	# Delete the out file
+	###*
+	# Delete the out file, perhaps ahead of regeneration. 
+	# Optionally pass the opts parameter to set the file path or type.
 	# next(err)
+	# @method delete
+	# @param {Object} [opts]
+	# @param {Object} next callback
+	###
 	'delete': (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
@@ -1266,8 +1376,14 @@ class FileModel extends Model
 		# Chain
 		@
 
-	# Delete the source file
+	###*
+	# Delete the source file.
+	# Optionally pass the opts parameter to set the file path or type.
 	# next(err)
+	# @method deleteSource
+	# @param {Object} [opts]
+	# @param {Object} next callback
+	###
 	deleteSource: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
