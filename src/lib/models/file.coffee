@@ -26,55 +26,126 @@ docpadUtil = require('../util')
 # =====================================
 # Classes
 
+###*
+# Description for FileModel
+# @class FileModel
+# @constructor
+# @extends Model
+###
 class FileModel extends Model
 
 	# ---------------------------------
 	# Properties
 
-	# Model Class
+	###*
+	# Base file model class
+	# @private
+	# @property {Object} klass
+	###
 	klass: FileModel
 
-	# Model Type
+	###*
+	# String name of the model type.
+	# In this case, 'file'.
+	# @private
+	# @property {String} type
+	###
 	type: 'file'
 
+	###*
 	# Task Group Class
+	# @private
+	# @property {Object} TaskGroup
+	###
 	TaskGroup: null
 
-	# The out directory path to put the relative path
+	###*
+	# The out directory path to put the relative path.
+	# @property {String} rootOutDirPath
+	###
 	rootOutDirPath: null
 
+	###*
 	# Whether or not we should detect encoding
+	# @property {Boolean} detectEncoding
+	###
 	detectEncoding: false
 
-	# Stat Object
+	###*
+	# Node.js file stat object.
+	# https://nodejs.org/api/fs.html#fs_class_fs_stats.
+	# Basically, information about a file, including file
+	# dates and size.
+	# @property {Object} stat
+	###
 	stat: null
 
-	# File buffer
+	###*
+	# File buffer. Node.js Buffer object.
+	# https://nodejs.org/api/buffer.html#buffer_class_buffer.
+	# Provides methods for dealing with binary data directly.
+	# @property {Object} buffer
+	###
 	buffer: null
 
+	###*
 	# Buffer time
+	# @property {Object} bufferTime
+	###
 	bufferTime: null
 
+	###*
 	# The parsed file meta data (header)
 	# Is a Model instance
+	# @property {Object} meta
+	###
 	meta: null
 
-	# Locale
+	###*
+	# Locale information for the file
+	# @private
+	# @property {Object} locale
+	###
 	locale: null
+	###*
+	# Get the file's locale information
+	# @method getLocale
+	# @return {Object} the locale
+	###
 	getLocale: -> @locale
 
-	# Get Options
+	###*
+	# Get Options. Returns an object containing
+	# the properties detectEncoding, rootOutDirPath
+	# locale, stat, buffer, meta and TaskGroup.
+	# @private
+	# @method getOptions
+	# @return {Object} description
+	###
 	# @TODO: why does this not use the isOption way?
 	getOptions: ->
 		return {@detectEncoding, @rootOutDirPath, @locale, @stat, @buffer, @meta, @TaskGroup}
 
-	# Is Option
+	###*
+	# Checks whether the passed key is one
+	# of the options.
+	# @private
+	# @method isOption
+	# @param {String} key
+	# @return {Boolean}
+	###
 	isOption: (key) ->
 		names = ['detectEncoding', 'rootOutDirPath', 'locale', 'stat', 'data', 'buffer', 'meta', 'TaskGroup']
 		result = key in names
 		return result
 
-	# Extract Options
+	###*
+	# Extract Options.
+	# @private
+	# @method extractOptions
+	# @param {Object} attrs
+	# @return {Object} the options object
+	###
 	extractOptions: (attrs) ->
 		# Prepare
 		result = {}
@@ -88,7 +159,11 @@ class FileModel extends Model
 		# Return
 		return result
 
-	# Set Options
+	###*
+	# Set the options for the file model.
+	# @method setOptions
+	# @param {Object} [attrs={}]
+	###
 	setOptions: (attrs={}) ->
 		# TaskGroup
 		if attrs.TaskGroup?
@@ -133,7 +208,11 @@ class FileModel extends Model
 		# Chain
 		@
 
-	# Clone
+	###*
+	# Clone the model and return the newly cloned model.
+	# @method clone
+	# @return {Object} cloned file model
+	###
 	clone: ->
 		# Fetch
 		attrs = @getAttributes()
@@ -158,6 +237,11 @@ class FileModel extends Model
 	# ---------------------------------
 	# Attributes
 
+	###*
+	# The default attributes for any file model.
+	# @private
+	# @property {Object}
+	###
 	defaults:
 
 		# ---------------------------------
@@ -303,8 +387,14 @@ class FileModel extends Model
 	# ---------------------------------
 	# Helpers
 
-	# Encode
+	###*
+	# File encoding helper
 	# opts = {path, to, from, content}
+	# @private
+	# @method encode
+	# @param {Object} opts
+	# @return {Object} encoded result
+	###
 	encode: (opts) ->
 		# Prepare
 		locale = @getLocale()
@@ -328,23 +418,43 @@ class FileModel extends Model
 		# Return
 		return result
 
-	# Set Buffer
+	###*
+	# Set the file model's buffer.
+	# Creates a new node.js buffer
+	# object if a buffer object is
+	# is not passed as the parameter
+	# @method setBuffer
+	# @param {Object} [buffer]
+	###
 	setBuffer: (buffer) ->
 		buffer = new Buffer(buffer)  unless Buffer.isBuffer(buffer)
 		@bufferTime = @get('mtime') or new Date()
 		@buffer = buffer
 		@
 
-	# Get Buffer
+	###*
+	# Get the file model's buffer object.
+	# Returns a node.js buffer object.
+	# @method getBuffer
+	# @return {Object} node.js buffer object
+	###
 	getBuffer: ->
 		return @buffer
 
+	###*
 	# Is Buffer Outdated
 	# True if there is no buffer OR the buffer time is outdated
+	# @method isBufferOutdated
+	# @return {Boolean}
+	###
 	isBufferOutdated: ->
 		return @buffer? is false or @bufferTime < (@get('mtime') or new Date())
 
-	# Set Stat
+	###*
+	# Set the node.js file stat.
+	# @method setStat
+	# @param {Object} stat
+	###
 	setStat: (stat) ->
 		@stat = stat
 		@set(
@@ -353,24 +463,58 @@ class FileModel extends Model
 		)
 		@
 
-	# Get Stat
+	###*
+	# Get the node.js file stat.
+	# @method getStat
+	# @return {Object} description
+	###
 	getStat: ->
 		return @stat
 
-	# Get Attributes
+	###*
+	# Get the file model attributes.
+	# By default the attributes will be
+	# dereferenced from the file model.
+	# To maintain a reference, pass false
+	# as the parameter. The returned object
+	# will NOT contain the file model's ID attribute.
+	# @method getAttributes
+	# @param {Object} [dereference=true]
+	# @return {Object}
+	###
+	#NOTE: will the file model's ID be deleted if
+	#dereference=false is passed??
 	getAttributes: (dereference=true) ->
 		attrs = @toJSON(dereference)
 		delete attrs.id
 		return attrs
 
-	# To JSON
+	###*
+	# Get the file model attributes.
+	# By default the attributes will
+	# maintain a reference to the file model.
+	# To return a dereferenced object, pass true
+	# as the parameter. The returned object
+	# will contain the file model's ID attribute.
+	# @method toJSON
+	# @param {Object} [dereference=false]
+	# @return {Object}
+	###
 	toJSON: (dereference=false) ->
 		data = super
 		data.meta = @getMeta().toJSON()
 		data = extendr.dereference(data)  if dereference is true
 		return data
 
-	# Get Meta
+	###*
+	# Get the file model metadata object.
+	# Optionally pass a list of metadata property
+	# names corresponding to those properties that
+	# you want returned.
+	# @method getMeta
+	# @param {Object} [args...]
+	# @return {Object}
+	###
 	getMeta: (args...) ->
 		@meta = new Model()  if @meta is null
 		if args.length
@@ -378,7 +522,13 @@ class FileModel extends Model
 		else
 			return @meta
 
-	# Set
+	###*
+	# Assign attributes to the file model.
+	# @method set
+	# @param {Object} attrs
+	# @param {Object} opts
+	# @return {Object} description
+	###
 	set: (attrs,opts) ->
 		# Check
 		if typeChecker.isString(attrs)
@@ -401,7 +551,14 @@ class FileModel extends Model
 		# Chain
 		@
 
-	# Set Defaults
+	###*
+	# Set defaults. Apply default attributes
+	# and options to the file model
+	# @method setDefaults
+	# @param {Object} attrs the attributes to be applied
+	# @param {Object} opts the options to be applied
+	# @return {Object} description
+	###
 	setDefaults: (attrs,opts) ->
 		# Prepare
 		attrs = attrs.toJSON?() ? attrs
@@ -418,7 +575,13 @@ class FileModel extends Model
 		# Chain
 		return @
 
-	# Set Meta
+	###*
+	# Set the file model meta data,
+	# attributes and options in one go.
+	# @method setMeta
+	# @param {Object} attrs the attributes to be applied
+	# @param {Object} opts the options to be applied
+	###
 	setMeta: (attrs,opts) ->
 		# Prepare
 		attrs = attrs.toJSON?() ? attrs
@@ -436,7 +599,13 @@ class FileModel extends Model
 		# Chain
 		return @
 
-	# Set Meta Defaults
+
+	###*
+	# Set the file model meta data defaults
+	# @method setMetaDefaults
+	# @param {Object} attrs the attributes to be applied
+	# @param {Object} opts the options to be applied
+	###
 	setMetaDefaults: (attrs,opts) ->
 		# Prepare
 		attrs = attrs.toJSON?() ? attrs
@@ -454,7 +623,18 @@ class FileModel extends Model
 		# Chain
 		return @
 
-	# Get Filename
+	###*
+	# Get the file name. Depending on the
+	# parameters passed this will either be
+	# the file model's filename property or,
+	# the filename determined from the fullPath
+	# or relativePath property. Valid values for
+	# the opts parameter are: fullPath, relativePath
+	# or filename. Format: {filename}
+	# @method getFilename
+	# @param {Object} [opts={}]
+	# @return {String}
+	###
 	getFilename: (opts={}) ->
 		# Prepare
 		{fullPath,relativePath,filename} = opts
@@ -469,7 +649,18 @@ class FileModel extends Model
 		# REturn
 		return result
 
-	# Get File Path
+	###*
+	# Get the file path. Depending on the
+	# parameters passed this will either be
+	# the file model's fullPath property, the
+	# relativePath property or the filename property.
+	# Valid values for the opts parameter are:
+	# fullPath, relativePath
+	# or filename. Format: {fullPath}
+	# @method getFilePath
+	# @param {Object} [opts={}]
+	# @return {String}
+	###
 	getFilePath: (opts={}) ->
 		# Prepare
 		{fullPath,relativePath,filename} = opts
@@ -480,7 +671,17 @@ class FileModel extends Model
 		# Return
 		return result
 
-	# Get Extensions
+	###*
+	# Get file extensions. Depending on the
+	# parameters passed this will either be
+	# the file model's extensions property or
+	# the extensions extracted from the file model's
+	# filename property. The opts parameter is passed
+	# in the format: {extensions,filename}.
+	# @method getExtensions
+	# @param {Object} opts
+	# @return {Array} array of extension names
+	###
 	getExtensions: ({extensions,filename}) ->
 		extensions or= @get('extensions') or null
 		if (extensions or []).length is 0
@@ -489,23 +690,45 @@ class FileModel extends Model
 				extensions = docpadUtil.getExtensions(filename)
 		return extensions or null
 
-	# Get Content
+	###*
+	# Get the file content. This will be
+	# the text content if loaded or the file buffer object.
+	# @method getContent
+	# @return {String || Object}
+	###
 	getContent: ->
 		return @get('content') or @getBuffer()
 
-	# Get Out Content
+	###*
+	# Get the file content for output.
+	# @method getOutContent
+	# @return {String || Object}
+	###
 	getOutContent: ->
 		return @getContent()
 
-	# Is Text?
+	###*
+	# Is this a text file? ie - not
+	# a binary file.
+	# @method isText
+	# @return {Boolean}
+	###
 	isText: ->
 		return @get('encoding') isnt 'binary'
 
-	# Is Binary?
+	###*
+	# Is this a binary file?
+	# @method isBinary
+	# @return {Boolean}
+	###
 	isBinary: ->
 		return @get('encoding') is 'binary'
 
+	###*
 	# Set the url for the file
+	# @method setUrl
+	# @param {String} url
+	###
 	setUrl: (url) ->
 		@addUrl(url)
 		@set({url})
