@@ -46,7 +46,7 @@ YAML = null
 #
 # 	indexDoc = @getCollection('documents').findOne({relativeOutPath: 'index.html'})
 #
-# A plugin, however, may need to create a DocumentModel, depending on its requirements.
+# A plugin, however, may need to create a DocumentModel depending on its requirements.
 # In such a case it is wise to use the built in DocPad methods to do so, in particular
 # docpad.createModel
 #
@@ -473,8 +473,8 @@ class DocumentModel extends FileModel
 	# will be the base or default layout for
 	# a project. The layout where the head and other
 	# html on all pages is defined. In some project,
-	# however, their may be more than one root layout
-	# so we can't assume their will always only be one.
+	# however, there may be more than one root layout
+	# so we can't assume there will always only be one.
 	# next(err,layout)
 	# @method getEve
 	# @param {Object} next
