@@ -168,7 +168,6 @@ class DocumentModel extends FileModel
 	# another document is updated.
 	# @method referencesOthers
 	# @param {Object} flag
-	# @return {Object} description
 	###
 	referencesOthers: (flag) ->
 		flag ?= true
@@ -478,7 +477,6 @@ class DocumentModel extends FileModel
 	# next(err,layout)
 	# @method getEve
 	# @param {Object} next
-	# @return {Object} description
 	###
 	getEve: (next) ->
 		if @hasLayout()
