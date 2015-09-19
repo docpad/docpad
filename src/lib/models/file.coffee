@@ -143,7 +143,7 @@ class FileModel extends Model
 	# locale, stat, buffer, meta and TaskGroup.
 	# @private
 	# @method getOptions
-	# @return {Object} description
+	# @return {Object}
 	###
 	# @TODO: why does this not use the isOption way?
 	getOptions: ->
@@ -184,6 +184,9 @@ class FileModel extends Model
 
 	###*
 	# Set the options for the file model.
+	# Valid properties for the attrs parameter:
+	# TaskGroup, detectEncoding, rootOutDirPath,
+	# locale, stat, data, buffer, meta.
 	# @method setOptions
 	# @param {Object} [attrs={}]
 	###
@@ -489,7 +492,7 @@ class FileModel extends Model
 	###*
 	# Get the node.js file stat.
 	# @method getStat
-	# @return {Object} description
+	# @return {Object} the file stat
 	###
 	getStat: ->
 		return @stat
@@ -546,11 +549,10 @@ class FileModel extends Model
 			return @meta
 
 	###*
-	# Assign attributes to the file model.
+	# Assign attributes and options to the file model.
 	# @method set
-	# @param {Object} attrs
-	# @param {Object} opts
-	# @return {Object} description
+	# @param {Array} attrs the attributes to be applied
+	# @param {Object} opts the options to be applied
 	###
 	set: (attrs,opts) ->
 		# Check
@@ -580,7 +582,6 @@ class FileModel extends Model
 	# @method setDefaults
 	# @param {Object} attrs the attributes to be applied
 	# @param {Object} opts the options to be applied
-	# @return {Object} description
 	###
 	setDefaults: (attrs,opts) ->
 		# Prepare
@@ -800,8 +801,8 @@ class FileModel extends Model
 		@
 
 	###*
-	# Get a Path
-	# If the path starts with `.` then we get the 
+	# Get a file path.
+	# If the relativePath parameter starts with `.` then we get the 
 	# path in relation to the document that is calling it.
 	# Otherwise we just return it as normal
 	# @method getPath
