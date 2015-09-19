@@ -26,55 +26,149 @@ docpadUtil = require('../util')
 # =====================================
 # Classes
 
+###*
+# The FileModel class is DocPad's representation
+# of a file in the file system.
+# Extends the DocPad Model class
+# https://github.com/docpad/docpad/blob/master/src/lib/base.coffee#L49.
+# FileModel manages the loading
+# of a file and parsing both the content and the metadata (if any).
+# Once loaded, the content, metadata and file stat (file info) 
+# properties of the FileModel are populated, as well
+# as a number of DocPad specific attributes and properties.
+# Typically we do not need to create FileModels ourselves as
+# DocPad handles all of that. But it is possible that a plugin
+# may need to manually create FileModels for some reason.
+#	
+#	attrs = 
+#		fullPath: 'file/path/to/somewhere'
+#	opts = {}
+#	#we only really need the path to the source file to create
+#	#a new file model
+#	model = new FileModel(attrs, opts)
+#
+# The FileModel forms the base class for the DocPad DocumentModel class.
+# @class FileModel
+# @constructor
+# @extends require('../base').Model
+###
 class FileModel extends Model
 
 	# ---------------------------------
 	# Properties
 
-	# Model Class
+	###*
+	# The file model class. This should
+	# be overridden in any descending classes.
+	# @private
+	# @property {Object} klass
+	###
 	klass: FileModel
 
-	# Model Type
+	###*
+	# String name of the model type.
+	# In this case, 'file'. This should
+	# be overridden in any descending classes.
+	# @private
+	# @property {String} type
+	###
 	type: 'file'
 
+	###*
 	# Task Group Class
+	# @private
+	# @property {Object} TaskGroup
+	###
 	TaskGroup: null
 
-	# The out directory path to put the relative path
+	###*
+	# The out directory path to put the relative path.
+	# @property {String} rootOutDirPath
+	###
 	rootOutDirPath: null
 
+	###*
 	# Whether or not we should detect encoding
+	# @property {Boolean} detectEncoding
+	###
 	detectEncoding: false
 
-	# Stat Object
+	###*
+	# Node.js file stat object.
+	# https://nodejs.org/api/fs.html#fs_class_fs_stats.
+	# Basically, information about a file, including file
+	# dates and size.
+	# @property {Object} stat
+	###
 	stat: null
 
-	# File buffer
+	###*
+	# File buffer. Node.js Buffer object.
+	# https://nodejs.org/api/buffer.html#buffer_class_buffer.
+	# Provides methods for dealing with binary data directly.
+	# @property {Object} buffer
+	###
 	buffer: null
 
-	# Buffer time
+	###*
+	# Buffer time.
+	# @property {Object} bufferTime
+	###
 	bufferTime: null
 
-	# The parsed file meta data (header)
-	# Is a Model instance
+	###*
+	# The parsed file meta data (header).
+	# Is a Model instance.
+	# @private
+	# @property {Object} meta
+	###
 	meta: null
 
-	# Locale
+	###*
+	# Locale information for the file
+	# @private
+	# @property {Object} locale
+	###
 	locale: null
+	###*
+	# Get the file's locale information
+	# @method getLocale
+	# @return {Object} the locale
+	###
 	getLocale: -> @locale
 
-	# Get Options
+	###*
+	# Get Options. Returns an object containing
+	# the properties detectEncoding, rootOutDirPath
+	# locale, stat, buffer, meta and TaskGroup.
+	# @private
+	# @method getOptions
+	# @return {Object}
+	###
 	# @TODO: why does this not use the isOption way?
 	getOptions: ->
 		return {@detectEncoding, @rootOutDirPath, @locale, @stat, @buffer, @meta, @TaskGroup}
 
-	# Is Option
+	###*
+	# Checks whether the passed key is one
+	# of the options.
+	# @private
+	# @method isOption
+	# @param {String} key
+	# @return {Boolean}
+	###
 	isOption: (key) ->
 		names = ['detectEncoding', 'rootOutDirPath', 'locale', 'stat', 'data', 'buffer', 'meta', 'TaskGroup']
 		result = key in names
 		return result
 
-	# Extract Options
+	###*
+	# Extract Options.
+	# @private
+	# @method extractOptions
+	# @param {Object} attrs
+	# @return {Object} the options object
+	###
 	extractOptions: (attrs) ->
 		# Prepare
 		result = {}
@@ -88,7 +182,14 @@ class FileModel extends Model
 		# Return
 		return result
 
-	# Set Options
+	###*
+	# Set the options for the file model.
+	# Valid properties for the attrs parameter:
+	# TaskGroup, detectEncoding, rootOutDirPath,
+	# locale, stat, data, buffer, meta.
+	# @method setOptions
+	# @param {Object} [attrs={}]
+	###
 	setOptions: (attrs={}) ->
 		# TaskGroup
 		if attrs.TaskGroup?
@@ -133,7 +234,11 @@ class FileModel extends Model
 		# Chain
 		@
 
-	# Clone
+	###*
+	# Clone the model and return the newly cloned model.
+	# @method clone
+	# @return {Object} cloned file model
+	###
 	clone: ->
 		# Fetch
 		attrs = @getAttributes()
@@ -158,6 +263,11 @@ class FileModel extends Model
 	# ---------------------------------
 	# Attributes
 
+	###*
+	# The default attributes for any file model.
+	# @private
+	# @property {Object}
+	###
 	defaults:
 
 		# ---------------------------------
@@ -303,8 +413,14 @@ class FileModel extends Model
 	# ---------------------------------
 	# Helpers
 
-	# Encode
+	###*
+	# File encoding helper
 	# opts = {path, to, from, content}
+	# @private
+	# @method encode
+	# @param {Object} opts
+	# @return {Object} encoded result
+	###
 	encode: (opts) ->
 		# Prepare
 		locale = @getLocale()
@@ -328,23 +444,43 @@ class FileModel extends Model
 		# Return
 		return result
 
-	# Set Buffer
+	###*
+	# Set the file model's buffer.
+	# Creates a new node.js buffer
+	# object if a buffer object is
+	# is not passed as the parameter
+	# @method setBuffer
+	# @param {Object} [buffer]
+	###
 	setBuffer: (buffer) ->
 		buffer = new Buffer(buffer)  unless Buffer.isBuffer(buffer)
 		@bufferTime = @get('mtime') or new Date()
 		@buffer = buffer
 		@
 
-	# Get Buffer
+	###*
+	# Get the file model's buffer object.
+	# Returns a node.js buffer object.
+	# @method getBuffer
+	# @return {Object} node.js buffer object
+	###
 	getBuffer: ->
 		return @buffer
 
+	###*
 	# Is Buffer Outdated
 	# True if there is no buffer OR the buffer time is outdated
+	# @method isBufferOutdated
+	# @return {Boolean}
+	###
 	isBufferOutdated: ->
 		return @buffer? is false or @bufferTime < (@get('mtime') or new Date())
 
-	# Set Stat
+	###*
+	# Set the node.js file stat.
+	# @method setStat
+	# @param {Object} stat
+	###
 	setStat: (stat) ->
 		@stat = stat
 		@set(
@@ -353,24 +489,58 @@ class FileModel extends Model
 		)
 		@
 
-	# Get Stat
+	###*
+	# Get the node.js file stat.
+	# @method getStat
+	# @return {Object} the file stat
+	###
 	getStat: ->
 		return @stat
 
-	# Get Attributes
+	###*
+	# Get the file model attributes.
+	# By default the attributes will be
+	# dereferenced from the file model.
+	# To maintain a reference, pass false
+	# as the parameter. The returned object
+	# will NOT contain the file model's ID attribute.
+	# @method getAttributes
+	# @param {Object} [dereference=true]
+	# @return {Object}
+	###
+	#NOTE: will the file model's ID be deleted if
+	#dereference=false is passed??
 	getAttributes: (dereference=true) ->
 		attrs = @toJSON(dereference)
 		delete attrs.id
 		return attrs
 
-	# To JSON
+	###*
+	# Get the file model attributes.
+	# By default the attributes will
+	# maintain a reference to the file model.
+	# To return a dereferenced object, pass true
+	# as the parameter. The returned object
+	# will contain the file model's ID attribute.
+	# @method toJSON
+	# @param {Object} [dereference=false]
+	# @return {Object}
+	###
 	toJSON: (dereference=false) ->
 		data = super
 		data.meta = @getMeta().toJSON()
 		data = extendr.dereference(data)  if dereference is true
 		return data
 
-	# Get Meta
+	###*
+	# Get the file model metadata object.
+	# Optionally pass a list of metadata property
+	# names corresponding to those properties that
+	# you want returned.
+	# @method getMeta
+	# @param {Object} [args...]
+	# @return {Object}
+	###
 	getMeta: (args...) ->
 		@meta = new Model()  if @meta is null
 		if args.length
@@ -378,7 +548,12 @@ class FileModel extends Model
 		else
 			return @meta
 
-	# Set
+	###*
+	# Assign attributes and options to the file model.
+	# @method set
+	# @param {Array} attrs the attributes to be applied
+	# @param {Object} opts the options to be applied
+	###
 	set: (attrs,opts) ->
 		# Check
 		if typeChecker.isString(attrs)
@@ -401,7 +576,13 @@ class FileModel extends Model
 		# Chain
 		@
 
-	# Set Defaults
+	###*
+	# Set defaults. Apply default attributes
+	# and options to the file model
+	# @method setDefaults
+	# @param {Object} attrs the attributes to be applied
+	# @param {Object} opts the options to be applied
+	###
 	setDefaults: (attrs,opts) ->
 		# Prepare
 		attrs = attrs.toJSON?() ? attrs
@@ -418,7 +599,13 @@ class FileModel extends Model
 		# Chain
 		return @
 
-	# Set Meta
+	###*
+	# Set the file model meta data,
+	# attributes and options in one go.
+	# @method setMeta
+	# @param {Object} attrs the attributes to be applied
+	# @param {Object} opts the options to be applied
+	###
 	setMeta: (attrs,opts) ->
 		# Prepare
 		attrs = attrs.toJSON?() ? attrs
@@ -436,7 +623,13 @@ class FileModel extends Model
 		# Chain
 		return @
 
-	# Set Meta Defaults
+
+	###*
+	# Set the file model meta data defaults
+	# @method setMetaDefaults
+	# @param {Object} attrs the attributes to be applied
+	# @param {Object} opts the options to be applied
+	###
 	setMetaDefaults: (attrs,opts) ->
 		# Prepare
 		attrs = attrs.toJSON?() ? attrs
@@ -454,7 +647,18 @@ class FileModel extends Model
 		# Chain
 		return @
 
-	# Get Filename
+	###*
+	# Get the file name. Depending on the
+	# parameters passed this will either be
+	# the file model's filename property or,
+	# the filename determined from the fullPath
+	# or relativePath property. Valid values for
+	# the opts parameter are: fullPath, relativePath
+	# or filename. Format: {filename}
+	# @method getFilename
+	# @param {Object} [opts={}]
+	# @return {String}
+	###
 	getFilename: (opts={}) ->
 		# Prepare
 		{fullPath,relativePath,filename} = opts
@@ -469,7 +673,18 @@ class FileModel extends Model
 		# REturn
 		return result
 
-	# Get File Path
+	###*
+	# Get the file path. Depending on the
+	# parameters passed this will either be
+	# the file model's fullPath property, the
+	# relativePath property or the filename property.
+	# Valid values for the opts parameter are:
+	# fullPath, relativePath
+	# or filename. Format: {fullPath}
+	# @method getFilePath
+	# @param {Object} [opts={}]
+	# @return {String}
+	###
 	getFilePath: (opts={}) ->
 		# Prepare
 		{fullPath,relativePath,filename} = opts
@@ -480,7 +695,17 @@ class FileModel extends Model
 		# Return
 		return result
 
-	# Get Extensions
+	###*
+	# Get file extensions. Depending on the
+	# parameters passed this will either be
+	# the file model's extensions property or
+	# the extensions extracted from the file model's
+	# filename property. The opts parameter is passed
+	# in the format: {extensions,filename}.
+	# @method getExtensions
+	# @param {Object} opts
+	# @return {Array} array of extension names
+	###
 	getExtensions: ({extensions,filename}) ->
 		extensions or= @get('extensions') or null
 		if (extensions or []).length is 0
@@ -489,30 +714,57 @@ class FileModel extends Model
 				extensions = docpadUtil.getExtensions(filename)
 		return extensions or null
 
-	# Get Content
+	###*
+	# Get the file content. This will be
+	# the text content if loaded or the file buffer object.
+	# @method getContent
+	# @return {String or Object}
+	###
 	getContent: ->
 		return @get('content') or @getBuffer()
 
-	# Get Out Content
+	###*
+	# Get the file content for output.
+	# @method getOutContent
+	# @return {String or Object}
+	###
 	getOutContent: ->
 		return @getContent()
 
-	# Is Text?
+	###*
+	# Is this a text file? ie - not
+	# a binary file.
+	# @method isText
+	# @return {Boolean}
+	###
 	isText: ->
 		return @get('encoding') isnt 'binary'
 
-	# Is Binary?
+	###*
+	# Is this a binary file?
+	# @method isBinary
+	# @return {Boolean}
+	###
 	isBinary: ->
 		return @get('encoding') is 'binary'
 
+	###*
 	# Set the url for the file
+	# @method setUrl
+	# @param {String} url
+	###
 	setUrl: (url) ->
 		@addUrl(url)
 		@set({url})
 		@
 
-	# Add a url
-	# Allows our file to support multiple urls
+	###*
+	# A file can have multiple urls.
+	# This method adds either a single url
+	# or an array of urls to the file model.
+	# @method addUrl
+	# @param {String or Array} url
+	###
 	addUrl: (url) ->
 		# Multiple Urls
 		if url instanceof Array
@@ -534,8 +786,12 @@ class FileModel extends Model
 		# Chain
 		@
 
-	# Remove a url
-	# Removes a url from our file
+	###*
+	# Removes a url from the file
+	# model (files can have more than one url).
+	# @method removeUrl
+	# @param {Object} userUrl the url to be removed
+	###
 	removeUrl: (userUrl) ->
 		urls = @get('urls')
 		for url,index in urls
@@ -544,9 +800,16 @@ class FileModel extends Model
 				break
 		@
 
-	# Get a Path
-	# If the path starts with `.` then we get the path in relation to the document that is calling it
+	###*
+	# Get a file path.
+	# If the relativePath parameter starts with `.` then we get the 
+	# path in relation to the document that is calling it.
 	# Otherwise we just return it as normal
+	# @method getPath
+	# @param {String} relativePath
+	# @param {String} parentPath
+	# @return {String}
+	###
 	getPath: (relativePath, parentPath) ->
 		if /^\./.test(relativePath)
 			relativeDirPath = @get('relativeDirPath')
@@ -562,12 +825,32 @@ class FileModel extends Model
 	# ---------------------------------
 	# Actions
 
-	# The action runner instance bound to docpad
+	###*
+	# The action runner instance bound to DocPad
+	# @private
+	# @property {Object} actionRunnerInstance
+	###
 	actionRunnerInstance: null
+	###*
+	# Get the action runner instance bound to DocPad
+	# @method getActionRunner
+	# @return {Object}
+	###
 	getActionRunner: -> @actionRunnerInstance
+	###*
+	# Apply an action with the supplied arguments.
+	# @method action
+	# @param {Object} args...
+	###
 	action: (args...) => docpadUtil.action.apply(@, args)
 
-	# Initialize
+	###*
+	# Initialize the file model with the passed
+	# attributes and options. Emits the init event.
+	# @method initialize
+	# @param {Object} attrs the file model attributes
+	# @param {Object} [opts={}] the file model options
+	###
 	initialize: (attrs,opts={}) ->
 		# Defaults
 		file = @
@@ -598,9 +881,15 @@ class FileModel extends Model
 		# Chain
 		@
 
-	# Load
-	# If the fullPath exists, load the file
-	# If it doesn't, then parse and normalize the file
+	###*
+	# Load the file from the file system.
+	# If the fullPath exists, load the file.
+	# If it doesn't, then parse and normalize the file.
+	# Optionally pass file options as a parameter.
+	# @method load
+	# @param {Object} [opts={}]
+	# @param {Function} next callback
+	###
 	load: (opts={},next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
@@ -668,9 +957,13 @@ class FileModel extends Model
 		# Chain
 		@
 
-	# Parse
-	# Parse our buffer and extract meaningful data from it
-	# next(err)
+	###*
+	# Parse our buffer and extract meaningful data from it.
+	# next(err).
+	# @method parse
+	# @param {Object} [opts={}]
+	# @param {Object} next callback
+	###
 	parse: (opts={},next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
@@ -739,9 +1032,15 @@ class FileModel extends Model
 		next()
 		@
 
-	# Normalize data
-	# Normalize any parsing we have done, as if a value has updates it may have consequences on another value. This will ensure everything is okay.
+	###*
+	# Normalize any parsing we have done, because if a value has 
+	# updates it may have consequences on another value.
+	# This will ensure everything is okay.
 	# next(err)
+	# @method normalize
+	# @param {Object} [opts={}]
+	# @param {Object} next callback
+	###
 	normalize: (opts={},next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
@@ -904,9 +1203,15 @@ class FileModel extends Model
 		next()
 		@
 
-	# Contextualize data
-	# Put our data into perspective of the bigger picture. For instance, generate the url for it's rendered equivalant.
+	###*
+	# Contextualize the data. In other words,
+	# put our data into the perspective of the bigger picture of the data.
+	# For instance, generate the url for it's rendered equivalant.
 	# next(err)
+	# @method contextualize
+	# @param {Object} [opts={}]
+	# @param {Object} next callback
+	###
 	contextualize: (opts={},next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
@@ -915,10 +1220,16 @@ class FileModel extends Model
 		next()
 		@
 
-
-	# Render
-	# Render this file
+	###*
+	# Render this file. The file model output content is
+	# returned to the passed callback in the
+	# result (2nd) parameter. The file model itself is returned
+	# in the callback's document (3rd) parameter.
 	# next(err,result,document)
+	# @method render
+	# @param {Object} [opts={}]
+	# @param {Object} next callback
+	###
 	render: (opts={},next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
@@ -935,8 +1246,18 @@ class FileModel extends Model
 	# ---------------------------------
 	# CRUD
 
-	# Write the out file
+	###*
+	# Write the out file. The out file
+	# may be different from the input file.
+	# Often the input file is transformed in some way
+	# and saved as another file format. A common example
+	# is transforming a markdown input file to a HTML
+	# output file.
 	# next(err)
+	# @method write
+	# @param {Object} opts
+	# @param {Function} next callback
+	###
 	write: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
@@ -985,8 +1306,15 @@ class FileModel extends Model
 		# Chain
 		@
 
-	# Write the source file
+	###*
+	# Write the source file. Optionally pass
+	# the opts parameter to modify or set the file's
+	# path, content or type.
 	# next(err)
+	# @method writeSource
+	# @param {Object} [opts]
+	# @param {Object} next callback
+	###
 	writeSource: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
@@ -1003,8 +1331,14 @@ class FileModel extends Model
 		# Chain
 		@
 
-	# Delete the out file
+	###*
+	# Delete the out file, perhaps ahead of regeneration. 
+	# Optionally pass the opts parameter to set the file path or type.
 	# next(err)
+	# @method delete
+	# @param {Object} [opts]
+	# @param {Object} next callback
+	###
 	'delete': (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
@@ -1043,8 +1377,14 @@ class FileModel extends Model
 		# Chain
 		@
 
-	# Delete the source file
+	###*
+	# Delete the source file.
+	# Optionally pass the opts parameter to set the file path or type.
 	# next(err)
+	# @method deleteSource
+	# @param {Object} [opts]
+	# @param {Object} next callback
+	###
 	deleteSource: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
