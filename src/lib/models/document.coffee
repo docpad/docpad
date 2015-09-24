@@ -52,7 +52,7 @@ YAML = null
 #
 # 	#check to see if the document alread exists ie its an update
 #   docModel = @docpad.getCollection('posts').findOne({slug: 'some-slug'})
-#            
+#
 #   #if so, load the existing document ready for regeneration
 #   if docModel
 #   	docModel.load()
@@ -64,7 +64,7 @@ YAML = null
 #
 # @class DocumentModel
 # @constructor
-# @extends require('./file').FileModel
+# @extends FileModel
 ###
 class DocumentModel extends FileModel
 
@@ -151,7 +151,7 @@ class DocumentModel extends FileModel
 	# will be the text content AFTER it has
 	# been through the rendering process. If
 	# this has been called before the rendering
-	# process, then the raw text content will be returned, 
+	# process, then the raw text content will be returned,
 	# or, if early enough in the process, the file buffer object.
 	# @method getOutContent
 	# @return {String or Object}
@@ -167,7 +167,7 @@ class DocumentModel extends FileModel
 	# on whether to render this document when
 	# another document is updated.
 	# @method referencesOthers
-	# @param {Object} flag
+	# @param {Boolean} flag
 	###
 	referencesOthers: (flag) ->
 		flag ?= true
@@ -343,7 +343,7 @@ class DocumentModel extends FileModel
 		@
 
 	###*
-	# Normalize any parsing we have done, because if a value has 
+	# Normalize any parsing we have done, because if a value has
 	# updates it may have consequences on another value.
 	# This will ensure everything is okay.
 	# next(err)
@@ -419,7 +419,7 @@ class DocumentModel extends FileModel
 	###*
 	# Checks if the file has a layout.
 	# @method hasLayout
-	# @return {Boolean} 
+	# @return {Boolean}
 	###
 	hasLayout: ->
 		return @get('layout')?
@@ -428,8 +428,8 @@ class DocumentModel extends FileModel
 
 	###*
 	# Get the layout object that this file references (if any).
-	# We update the layoutRelativePath as it is 
-	# used for finding what documents are used by a 
+	# We update the layoutRelativePath as it is
+	# used for finding what documents are used by a
 	# layout for when a layout changes.
 	# next(err, layout)
 	# @method getLayout
@@ -467,16 +467,20 @@ class DocumentModel extends FileModel
 		@
 
 	###*
-	# Get the most ancestoral (root) layout we 
+	# Get the most ancestoral (root) layout we
 	# have - ie, the very top one. Often this
 	# will be the base or default layout for
 	# a project. The layout where the head and other
-	# html on all pages is defined. In some project,
+	# html on all pages is defined. In some projects,
 	# however, there may be more than one root layout
 	# so we can't assume there will always only be one.
+	# This is used by the contextualize method to determine
+	# the output extension of the document. In other words
+	# the document's final output extension is determined by
+	# the root layout.
 	# next(err,layout)
 	# @method getEve
-	# @param {Object} next
+	# @param {Function} next
 	###
 	getEve: (next) ->
 		if @hasLayout()
@@ -506,7 +510,7 @@ class DocumentModel extends FileModel
 	# This will be a markdown file to be converted to HTML.
 	# However, documents can be rendered through more than
 	# one conversion. Index.html.md.eco will be rendered from
-	# eco to md and then from md to html. Two conversions. 
+	# eco to md and then from md to html. Two conversions.
 	# next(err,result)
 	# @private
 	# @method renderExtensions
@@ -671,7 +675,7 @@ class DocumentModel extends FileModel
 	# Calls the renderExtensions, renderDocument and
 	# renderLayouts methods in sequence. This is the
 	# method you want to call if you want to trigger
-	# the rendering of a document manually. 
+	# the rendering of a document manually.
 	#
 	# The rendered content is returned as the result
 	# parameter to the passed callback and the DocumentModel
