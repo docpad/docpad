@@ -19,7 +19,7 @@ typeChecker = require('typechecker')
 # In particular metadata, scripts and styles.
 # @class ElementsCollection
 # @constructor
-# @extends require('../base').Collection
+# @extends Collection
 ###
 class ElementsCollection extends Collection
 

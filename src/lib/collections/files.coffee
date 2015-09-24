@@ -28,7 +28,7 @@ FileModel = require('../models/file')
 # 		@getCollection('documents').findAllLive({relativeOutDirPath: 'posts'},[{date:-1}])
 # @class FilesCollection
 # @constructor
-# @extends require('../base').QueryCollection
+# @extends QueryCollection
 ###
 class FilesCollection extends QueryCollection
 

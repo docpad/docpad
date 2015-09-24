@@ -16,7 +16,7 @@ ElementsCollection = require('./elements')
 # project's style (css) file paths
 # @class StylesCollection
 # @constructor
-# @extends require('./elements').ElementsCollection
+# @extends ElementsCollection
 ###
 class StylesCollection extends ElementsCollection
 

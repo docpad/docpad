@@ -50,7 +50,7 @@ docpadUtil = require('../util')
 # The FileModel forms the base class for the DocPad DocumentModel class.
 # @class FileModel
 # @constructor
-# @extends require('../base').Model
+# @extends Model
 ###
 class FileModel extends Model
 

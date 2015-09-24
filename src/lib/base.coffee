@@ -31,7 +31,7 @@ emit = (args...) ->
 # http://backbonejs.org/#Events
 # @class Events
 # @constructor
-# @extends require('backbone').Events
+# @extends queryEngine.Backbone.Events
 ###
 class Events
 	log: log
@@ -44,7 +44,7 @@ extendr.extend(Events::, queryEngine.Backbone.Events)
 # http://backbonejs.org/#Model
 # @class Model
 # @constructor
-# @extends require('backbone').Model
+# @extends queryEngine.Backbone.Model
 ###
 class Model extends queryEngine.Backbone.Model
 	log: log
@@ -67,7 +67,7 @@ class Model extends queryEngine.Backbone.Model
 # http://backbonejs.org/#Collection
 # @class Collection
 # @constructor
-# @extends require('backbone').Collection
+# @extends queryEngine.Backbone.Collection
 ###
 class Collection extends queryEngine.Backbone.Collection
 	log: log
@@ -86,7 +86,7 @@ Collection::collection = Collection
 # http://github.com/bevry/query-engine
 # @class QueryCollection
 # @constructor
-# @extends require('query-engine').QueryCollection
+# @extends queryEngine.QueryCollection
 ###
 class QueryCollection extends queryEngine.QueryCollection
 	log: log

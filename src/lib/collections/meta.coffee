@@ -13,7 +13,7 @@ ElementsCollection = require('./elements')
 # document meta data strings
 # @class MetaCollection
 # @constructor
-# @extends require('./elements').ElementsCollection
+# @extends ElementsCollection
 ###
 class MetaCollection extends ElementsCollection
 

@@ -16,7 +16,7 @@ ElementsCollection = require('./elements')
 # project's script file paths
 # @class ScriptCollection
 # @constructor
-# @extends require('./elements').ElementsCollection
+# @extends ElementsCollection
 ###
 class ScriptsCollection extends ElementsCollection
 
