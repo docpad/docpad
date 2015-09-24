@@ -23,21 +23,78 @@ YAML = null
 # =====================================
 # Classes
 
+###*
+# The DocumentModel class is DocPad's representation
+# of a website or project's content files. This can be
+# individual web pages or blog posts etc. Generally, this
+# is not other website files such as css files, images, or scripts -
+# unless there is a requirement to have DocPad do transformation on
+# these files.
+# Extends the DocPad FileModel class
+# https://github.com/docpad/docpad/blob/master/src/lib/models/file.coffee
+# DocumentModel primarily handles the rendering and parsing of document files.
+# This includes merging the document with layouts and managing the rendering
+# from one file extension to another. The class inherits many of the file
+# specific operations and DocPad specific attributes from the FileModel class.
+# However, it also overrides some parsing and file output operations contained
+# in the FileModel class.
+#
+# Typically we do not need to create DocumentModels ourselves as DocPad handles
+# all of that. Most of the time when we encounter DocumentModels is when
+# querying DocPad's document collections either in the docpad.coffee file or
+# from within a template.
+#
+# 	indexDoc = @getCollection('documents').findOne({relativeOutPath: 'index.html'})
+#
+# A plugin, however, may need to create a DocumentModel depending on its requirements.
+# In such a case it is wise to use the built in DocPad methods to do so, in particular
+# docpad.createModel
+#
+# 	#check to see if the document alread exists ie its an update
+#   docModel = @docpad.getCollection('posts').findOne({slug: 'some-slug'})
+#
+#   #if so, load the existing document ready for regeneration
+#   if docModel
+#   	docModel.load()
+# 	else
+#      #if document doesn't already exist, create it and add to database
+#      docModel = @docpad.createModel({fullPath:'file/path/to/somewhere'})
+#      docModel.load()
+#      @docpad.getDatabase().add(docModel)
+#
+# @class DocumentModel
+# @constructor
+# @extends FileModel
+###
 class DocumentModel extends FileModel
 
 	# ---------------------------------
 	# Properties
 
-	# Model Class
+	###*
+	# The document model class.
+	# @private
+	# @property {Object} klass
+	###
 	klass: DocumentModel
 
-	# Model Type
+	###*
+	# String name of the model type.
+	# In this case, 'document'.
+	# @private
+	# @property {String} type
+	###
 	type: 'document'
 
 
 	# ---------------------------------
 	# Attributes
 
+	###*
+	# The default attributes for any document model.
+	# @private
+	# @property {Object}
+	###
 	defaults: extendr.extend({}, FileModel::defaults, {
 
 		# ---------------------------------
@@ -89,12 +146,29 @@ class DocumentModel extends FileModel
 	# ---------------------------------
 	# Helpers
 
-	# Get Out Content
+	###*
+	# Get the file content for output. This
+	# will be the text content AFTER it has
+	# been through the rendering process. If
+	# this has been called before the rendering
+	# process, then the raw text content will be returned,
+	# or, if early enough in the process, the file buffer object.
+	# @method getOutContent
+	# @return {String or Object}
+	###
 	getOutContent: ->
 		content = @get('contentRendered') or @getContent()
 		return content
 
-	# References Others
+	###*
+	# Set flag to indicate if the document
+	# contains references to other documents.
+	# Used in the rendering process to decide
+	# on whether to render this document when
+	# another document is updated.
+	# @method referencesOthers
+	# @param {Boolean} flag
+	###
 	referencesOthers: (flag) ->
 		flag ?= true
 		@set({referencesOthers:flag})
@@ -104,9 +178,13 @@ class DocumentModel extends FileModel
 	# ---------------------------------
 	# Actions
 
-	# Parse
-	# Parse our buffer and extract some meaningful data from it
-	# next(err)
+	###*
+	# Parse our buffer and extract meaningful data from it.
+	# next(err).
+	# @method parse
+	# @param {Object} [opts={}]
+	# @param {Object} next callback
+	###
 	parse: (opts={},next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
@@ -264,9 +342,15 @@ class DocumentModel extends FileModel
 		# Chain
 		@
 
-	# Normalize data
-	# Normalize any parsing we have done, as if a value has updates it may have consequences on another value. This will ensure everything is okay.
+	###*
+	# Normalize any parsing we have done, because if a value has
+	# updates it may have consequences on another value.
+	# This will ensure everything is okay.
 	# next(err)
+	# @method normalize
+	# @param {Object} [opts={}]
+	# @param {Object} next callback
+	###
 	normalize: (opts={},next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
@@ -288,9 +372,15 @@ class DocumentModel extends FileModel
 		# Chain
 		@
 
-	# Contextualize data
-	# Put our data into perspective of the bigger picture. For instance, generate the url for it's rendered equivalant.
+	###*
+	# Contextualize the data. In other words,
+	# put our data into the perspective of the bigger picture of the data.
+	# For instance, generate the url for it's rendered equivalant.
 	# next(err)
+	# @method contextualize
+	# @param {Object} [opts={}]
+	# @param {Object} next callback
+	###
 	contextualize: (opts={},next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
@@ -326,15 +416,25 @@ class DocumentModel extends FileModel
 	# ---------------------------------
 	# Layouts
 
-	# Has Layout
-	# Checks if the file has a layout
+	###*
+	# Checks if the file has a layout.
+	# @method hasLayout
+	# @return {Boolean}
+	###
 	hasLayout: ->
 		return @get('layout')?
 
 	# Get Layout
-	# The layout object that this file references (if any)
-	# We update the layoutRelativePath as it is used for finding what documents are used by a layout for when a layout changes
+
+	###*
+	# Get the layout object that this file references (if any).
+	# We update the layoutRelativePath as it is
+	# used for finding what documents are used by a
+	# layout for when a layout changes.
 	# next(err, layout)
+	# @method getLayout
+	# @param {Function} next callback
+	###
 	getLayout: (next) ->
 		# Prepare
 		file = @
@@ -366,9 +466,22 @@ class DocumentModel extends FileModel
 		# Chain
 		@
 
-	# Get Eve
-	# Get the most ancestoral layout we have (the very top one)
+	###*
+	# Get the most ancestoral (root) layout we
+	# have - ie, the very top one. Often this
+	# will be the base or default layout for
+	# a project. The layout where the head and other
+	# html on all pages is defined. In some projects,
+	# however, there may be more than one root layout
+	# so we can't assume there will always only be one.
+	# This is used by the contextualize method to determine
+	# the output extension of the document. In other words
+	# the document's final output extension is determined by
+	# the root layout.
 	# next(err,layout)
+	# @method getEve
+	# @param {Function} next
+	###
 	getEve: (next) ->
 		if @hasLayout()
 			@getLayout (err,layout) ->
@@ -386,8 +499,24 @@ class DocumentModel extends FileModel
 	# ---------------------------------
 	# Rendering
 
-	# Render extensions
+	###*
+	# Renders one extension to another depending
+	# on the document model's extensions property.
+	# Triggers the render event for each extension conversion.
+	# This is the point where the various templating systems listen
+	# for their extension and perform their conversions.
+	# Common extension conversion is from md to html.
+	# So the document source file maybe index.md.html.
+	# This will be a markdown file to be converted to HTML.
+	# However, documents can be rendered through more than
+	# one conversion. Index.html.md.eco will be rendered from
+	# eco to md and then from md to html. Two conversions.
 	# next(err,result)
+	# @private
+	# @method renderExtensions
+	# @param {Object} opts
+	# @param {Function} next callback
+	###
 	renderExtensions: (opts,next) ->
 		# Prepare
 		file = @
@@ -461,9 +590,16 @@ class DocumentModel extends FileModel
 		# Chain
 		@
 
-
-	# Render Document
-	# next(err,result)
+	###*
+	# Triggers the renderDocument event after
+	# all extensions have been rendered. Listeners
+	# can use this event to perform transformations
+	# on the already rendered content.
+	# @private
+	# @method renderDocument
+	# @param {Object} opts
+	# @param {Function} next callback
+	###
 	renderDocument: (opts,next) ->
 		# Prepare
 		file = @
@@ -485,8 +621,17 @@ class DocumentModel extends FileModel
 		@
 
 
-	# Render Layouts
+	###*
+	# Render and merge layout content. Merge
+	# layout metadata with document metadata.
+	# Return the resulting merged content to
+	# the callback result parameter.
 	# next(err,result)
+	# @private
+	# @method renderLayouts
+	# @param {Object} opts
+	# @param {Function} next callback
+	###
 	renderLayouts: (opts,next) ->
 		# Prepare
 		file = @
@@ -525,10 +670,21 @@ class DocumentModel extends FileModel
 			else
 				return next(null, content)
 
-
-	# Render
-	# Render this file
+	###*
+	# Triggers the render process for this document.
+	# Calls the renderExtensions, renderDocument and
+	# renderLayouts methods in sequence. This is the
+	# method you want to call if you want to trigger
+	# the rendering of a document manually.
+	#
+	# The rendered content is returned as the result
+	# parameter to the passed callback and the DocumentModel
+	# instance is returned in the document parameter.
 	# next(err,result,document)
+	# @method render
+	# @param {Object} [opts={}]
+	# @param {Function} next callback
+	###
 	render: (opts={},next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
@@ -643,8 +799,15 @@ class DocumentModel extends FileModel
 	# ---------------------------------
 	# CRUD
 
-	# Write the file
+	###*
+	# Write the source file. Optionally pass
+	# the opts parameter to modify or set the file's
+	# path, content or type.
 	# next(err)
+	# @method writeSource
+	# @param {Object} [opts]
+	# @param {Object} next callback
+	###
 	writeSource: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
