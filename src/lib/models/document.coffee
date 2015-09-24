@@ -167,7 +167,7 @@ class DocumentModel extends FileModel
 	# on whether to render this document when
 	# another document is updated.
 	# @method referencesOthers
-	# @param {Boolean} flag
+	# @param {Boolean} [flag=true]
 	###
 	referencesOthers: (flag) ->
 		flag ?= true
