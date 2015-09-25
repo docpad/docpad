@@ -116,12 +116,27 @@ isUser = docpadUtil.isUser()
 
 
 ###*
-# The DocPad Class.
 # Contains methods for managing the DocPad application.
 # This includes managing a DocPad projects files and
 # documents, watching directories, emitting events and
 # managing the node.js/express.js web server.
 # Extends https://github.com/bevry/event-emitter-grouped
+#
+# The class is instantiated in the docpad-server.js file
+# which is the entry point for a DocPad application.
+#
+# 	new DocPad(docpadConfig, function(err, docpad) {
+# 		if (err) {
+# 			return docpadUtil.writeError(err);
+# 		}
+# 		return docpad.action(action, function(err) {
+# 			if (err) {
+# 				return docpadUtil.writeError(err);
+# 			}
+# 			return console.log('OK');
+# 		});
+# 	});
+#
 # @class Docpad
 # @constructor
 # @extends EventEmitterGrouped
@@ -754,12 +769,34 @@ class DocPad extends EventEmitterGrouped
 		@
 
 	###*
-	# Set a name for a collection
+	# Set a name for a collection.
 	# A collection can have multiple names
-	# @private
+	#
+	# The partials plugin (https://github.com/docpad/docpad-plugin-partials)
+	# creates a live collection and passes this to setCollection with
+	# the name 'partials'.
+	#
+	# 	# Add our partials collection
+	#	docpad.setCollection('partials', database.createLiveChildCollection()
+	#		.setQuery('isPartial', {
+	#				$or:
+	#					isPartial: true
+	#					fullPath: $startsWith: config.partialsPath
+	#		})
+	#		.on('add', (model) ->
+	#			docpad.log('debug', util.format(locale.addingPartial, model.getFilePath()))
+	#			model.setDefaults(
+	#				isPartial: true
+	#				render: false
+	#				write: false
+	#			)
+	#		)
+	#	)
+	#
+	#
 	# @method setCollection
-	# @param {String} name
-	# @param {Object} collection
+	# @param {String} name the name to give to the collection
+	# @param {Object} collection a DocPad collection
 	###
 	setCollection: (name, collection) ->
 		if collection
@@ -3577,7 +3614,9 @@ class DocPad extends EventEmitterGrouped
 	# b/c compat functions
 
 	###*
-	# Create file model
+	# Create file model. Calls
+	# {{#crossLink "DocPad/createModel:method"}}{{/crossLink}}
+	# with the 'file' modelType.
 	# @method createFile
 	# @param {Object} [attrs={}]
 	# @param {Object} [opts={}]
@@ -3588,7 +3627,9 @@ class DocPad extends EventEmitterGrouped
 		return @createModel(attrs, opts)
 
 	###*
-	# Create document model
+	# Create document model. Calls
+	# {{#crossLink "DocPad/createModel:method"}}{{/crossLink}}
+	# with the 'document' modelType.
 	# @method createDocument
 	# @param {Object} [attrs={}]
 	# @param {Object} [opts={}]
@@ -3616,12 +3657,20 @@ class DocPad extends EventEmitterGrouped
 
 	###*
 	# Parse the documents directory and
-	# return a files collection to
-	# the passed callback
+	# return a documents collection to
+	# the passed callback.
+	#
+	# The partials plugin (https://github.com/docpad/docpad-plugin-partials)
+	# uses this method to load a collection of
+	# files from the partials directory.
+	#
+	# 	docpad.parseDocumentDirectory({path: config.partialsPath}, next)
+	#
 	# @method parseDocumentDirectory
 	# @param {Object} [opts={}]
 	# @param {String} [opts.modelType='document']
 	# @param {Object} [opts.collection=docpad.database]
+	# @param {Object} [opts.path]
 	# @param {Function} next
 	# @param {Error} next.err
 	# @param {Object} next.files files collection of documents
@@ -3637,7 +3686,7 @@ class DocPad extends EventEmitterGrouped
 
 
 	###*
-	# Attach events to document models
+	# Attach events to a document model.
 	# @private
 	# @method attachModelEvents
 	# @param {Object} model
@@ -3696,9 +3745,22 @@ class DocPad extends EventEmitterGrouped
 		@
 
 	###*
-	# Add supplied model to the DocPad database
+	# Add supplied model to the DocPad database. If the passed
+	# model definition is a plain object of properties, a new
+	# model will be created prior to adding to the database.
+	# Calls {{#crossLink "DocPad/createModel:method"}}{{/crossLink}}
+	# before adding the model to the database.
+	#
+	#	# Override the stat's mtime to now
+	#	# This is because renames will not update the mtime
+	#	fileCurrentStat?.mtime = new Date()
+	#
+	#	# Create the file object
+	#	file = docpad.addModel({fullPath:filePath, stat:fileCurrentStat})
+	#
 	# @method addModel
-	# @param {Object} model
+	# @param {Object} model either a plain object defining the required properties, in particular
+	# the file path or an actual model object
 	# @param {Object} opts
 	# @return {Object} the model
 	###
@@ -3708,9 +3770,15 @@ class DocPad extends EventEmitterGrouped
 		return model
 
 	###*
-	# Add the supplied collection of models to the DocPad database
+	# Add the supplied collection of models to the DocPad database.
+	# Calls {{#crossLink "DocPad/createModels:method"}}{{/crossLink}}
+	# before adding the models to the database.
+	#
+	# 	databaseData = JSON.parse data.toString()
+	#	models = docpad.addModels(databaseData.models)
+	#
 	# @method addModels
-	# @param {Object} models
+	# @param {Object} models DocPad collection of models
 	# @param {Object} opts
 	# @return {Object} the models
 	###
@@ -3722,10 +3790,11 @@ class DocPad extends EventEmitterGrouped
 	###*
 	# Create a collection of models from the supplied collection
 	# ensuring that the collection is suitable for adding to the
-	# DocPad database
+	# DocPad database. The method calls {{#crossLink "DocPad/createModel"}}{{/crossLink}}
+	# for each model in the models array.
 	# @private
 	# @method createModels
-	# @param {Object} models
+	# @param {Object} models DocPad collection of models
 	# @param {Object} opts
 	# @return {Object} the models
 	###
@@ -3736,12 +3805,31 @@ class DocPad extends EventEmitterGrouped
 
 	###*
 	# Creates either a file or document model.
+	# The model type to be created can be passed
+	# as an opts property, if not, the method will
+	# attempt to determing the model type by checking
+	# if the file is in one of the documents or
+	# layout paths.
+	#
 	# Ensures a duplicate model is not created
 	# and all required attributes are present and
-	# events attached
+	# events attached.
+	#
+	# Generally it is not necessary for an application
+	# to manually create a model via creatModel as DocPad
+	# will handle this process when watching a project's
+	# file and document directories. However, it is possible
+	# that a plugin might have a requirement to do so.
+	#
+	# 	model = @docpad.createModel({fullPath:fullPath})
+    #   model.load()
+    #   @docpad.getDatabase().add(model)
+	#
 	# @method createModel
 	# @param {Object} [attrs={}]
+	# @param {String} attrs.fullPath the full path to the file
 	# @param {Object} [opts={}]
+	# @param {String} opts.modelType either 'file' or 'document'
 	# @return {Object} the file or document model
 	###
 	createModel: (attrs={},opts={}) ->
