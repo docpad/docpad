@@ -686,7 +686,15 @@ class DocPad extends EventEmitterGrouped
 	collections: null
 
 	###*
-	# Get a collection by collection name or key
+	# Get a collection by collection name or key.
+	# This is often accessed within the docpad.coffee
+	# file or a layout/page via @getCollection.
+	# Because getCollection returns a docpad collection,
+	# a call to this method is often chained with a
+	# QueryEngine style query.
+	#
+	# 	@getCollection('documents').findAllLive({relativeOutDirPath: 'posts'},[{date:-1}])
+	#
 	# @method getCollection
 	# @param {String} value
 	# @return {Object} collection
@@ -904,13 +912,14 @@ class DocPad extends EventEmitterGrouped
 	getUrlPathname: (url) ->
 		return url.replace(/\?.*/,'')
 
-
-	# next(err,file)
 	###*
-	# Get a file by its route
+	# Get a file by its route and return
+	# it to the supplied callback.
 	# @method getFileByRoute
 	# @param {String} url
 	# @param {Object} next
+	# @param {Error} next.err
+	# @param {String} next.file
 	###
 	getFileByRoute: (url,next) ->
 		# Prepare
@@ -975,10 +984,12 @@ class DocPad extends EventEmitterGrouped
 
 	###*
 	# Get Skeletons
-	# Get all the available skeletons for us and their details
-	# next(err,skeletonsCollection)
+	# Get all the available skeletons with their details and
+	# return this collection to the supplied callback.
 	# @method getSkeletons
 	# @param {Function} next
+	# @param {Error} next.err
+	# @param {Object} next.skeletonsCollection DocPad collection of skeletons
 	# @return {Object} DocPad skeleton collection
 	###
 	getSkeletons: (next) ->
@@ -1684,7 +1695,24 @@ class DocPad extends EventEmitterGrouped
 	regenerateTimer: null
 
 	###*
-	# Get the Configuration
+	# Get the DocPad configuration. Commonly
+	# called within the docpad.coffee file or within
+	# plugins to access application specific configurations.
+	# 	serverExtend: (opts) ->
+			# Extract the server from the options
+			{server} = opts
+			docpad = @docpad
+
+			# As we are now running in an event,
+			# ensure we are using the latest copy of the docpad configuraiton
+			# and fetch our urls from it
+			latestConfig = docpad.getConfig()
+			oldUrls = latestConfig.templateData.site.oldUrls or []
+			newUrl = latestConfig.templateData.site.url
+
+			# Redirect any requests accessing one of our sites oldUrls to the new site url
+			server.use (req,res,next) ->
+				...
 	# @method getConfig
 	# @return {Object} the DocPad configuration object
 	###
@@ -1726,6 +1754,7 @@ class DocPad extends EventEmitterGrouped
 	# Get simple server URL (changes 0.0.0.0, ::, and ::1 to 127.0.0.1)
 	# @method getSimpleServerUrl
 	# @param {Object} [opts={}]
+	# @param {Boolean} [opts.simple=true]
 	# @return {String}
 	###
 	getSimpleServerUrl: (opts={}) ->
@@ -1741,7 +1770,8 @@ class DocPad extends EventEmitterGrouped
 	# next(err)
 	# @method constructor
 	# @param {Object} instanceConfig
-	# @param {Function} next
+	# @param {Function} next callback
+	# @param {Error} next.err
 	###
 	constructor: (instanceConfig,next) ->
 		# Prepare
@@ -1988,6 +2018,7 @@ class DocPad extends EventEmitterGrouped
 	# @method destroy
 	# @param {Object} opts
 	# @param {Function} next
+	# @param {Error} next.err
 	###
 	destroy: (opts, next) ->
 		# Prepare
@@ -2045,6 +2076,7 @@ class DocPad extends EventEmitterGrouped
 	# @param {String} eventName
 	# @param {Object} opts
 	# @param {Function} next
+	# @param {Error} next.err
 	###
 	emitSerial: (eventName, opts, next) ->
 		# Prepare
@@ -2076,6 +2108,7 @@ class DocPad extends EventEmitterGrouped
 	# @param {String} eventName
 	# @param {Object} opts
 	# @param {Function} next
+	# @param {Error} next.err
 	###
 	emitParallel: (eventName, opts, next) ->
 		# Prepare
@@ -2136,9 +2169,32 @@ class DocPad extends EventEmitterGrouped
 		return scandir(opts)
 
 	###*
-	# Watch Directory
+	# Watch Directory. Wrapper around the Bevry watchr
+	# module (https://github.com/bevry/watchr). Used
+	# internally by DocPad to watch project documents
+	# and files and then activate the regeneration process
+	# when any of those items are updated.
+	#
+	# Although it is possible to pass a range of options to watchdir
+	# in practice these options are provided as part of
+	# the DocPad config object with a number of default options
+	# specified in the DocPad config.
 	# @method watchdir
 	# @param {Object} [opts={}]
+	# @param {String} [opts.path] a single path to watch.
+	# @param {Array} [opts.paths] an array of paths to watch.
+	# @param {Function} [opts.listener] a single change listener to fire when a change occurs.
+	# @param {Array} [opts.listeners] an array of listeners.
+	# @param {Function} [opts.next] callback.
+	# @param {Object} [opts.stat] a file stat object to use for the path, instead of fetching a new one.
+	# @param {Number} [opts.interval=5007] for systems that poll to detect file changes, how often should it poll in millseconds.
+	# @param {Number} [opts.catupDelay=200] handles system swap file deletions and renaming
+	# @param {Array} [opts.preferredMethods=['watch','watchFile'] which order should we prefer our watching methods to be tried?.
+	# @param {Boolean} [opts.followLinks=true] follow symlinks, i.e. use stat rather than lstat.
+	# @param {Boolean|Array} [opts.ignorePaths=false] an array of full paths to ignore.
+	# @param {Boolean|Array} [opts.ignoreHiddenFiles=false] whether or not to ignored files which filename starts with a ".".
+	# @param {Boolean} [opts.ignoreCommonPatterns=true] whether or not to ignore common undesirable file patterns (e.g. .svn, .git, .DS_Store, thumbs.db, etc).
+	# @param {Boolean|Array} [opts.ignoreCustomPatterns=null] any custom ignore patterns that you would also like to ignore along with the common patterns.
 	# @return {Object} the watcher
 	###
 	watchdir: (opts={}) ->
@@ -2155,8 +2211,10 @@ class DocPad extends EventEmitterGrouped
 	# next(err,docpadInstance)
 	# @private
 	# @method ready
-	# @param {Object} opts
+	# @param {Object} [opts]
 	# @param {Function} next
+	# @param {Error} next.err
+	# @param {Object} next.docpadInstance
 	###
 	ready: (opts,next) ->
 		# Prepare
@@ -2264,6 +2322,8 @@ class DocPad extends EventEmitterGrouped
 	# @method setConfig
 	# @param {Object} instanceConfig
 	# @param {Object} next
+	# @param {Error} next.err
+	# @param {Object} next.config
 	###
 	setConfig: (instanceConfig,next) ->
 		# Prepare
@@ -2361,6 +2421,8 @@ class DocPad extends EventEmitterGrouped
 	# @method load
 	# @param {Object} instanceConfig
 	# @param {Function} next
+	# @param {Error} next.err
+	# @param {Object} next.config
 	###
 	load: (instanceConfig,next) ->
 		# Prepare
@@ -2490,6 +2552,7 @@ class DocPad extends EventEmitterGrouped
 	# @method updateUserConfig
 	# @param {Object} [data={}]
 	# @param {Function} next
+	# @param {Error} next.err
 	###
 	updateUserConfig: (data={},next) ->
 		# Prepare
@@ -2517,11 +2580,12 @@ class DocPad extends EventEmitterGrouped
 		@
 
 	###*
-	# Load a configuration url
-	# next(err,parsedData)
+	# Load a configuration url.
 	# @method loadConfigUrl
 	# @param {String} configUrl
 	# @param {Function} next
+	# @param {Error} next.err
+	# @param {Object} next.parsedData
 	###
 	loadConfigUrl: (configUrl,next) ->
 		# Prepare
@@ -2550,11 +2614,12 @@ class DocPad extends EventEmitterGrouped
 	# Load the configuration from a file path
 	# passed as one of the options (opts.configPath) or
 	# from DocPad's configPaths
-	# next(err,parsedData)
 	# @private
 	# @method loadConfigPath
 	# @param {Object} opts
 	# @param {Function} next
+	# @param {Error} next.err
+	# @param {Object} next.parsedData
 	###
 	loadConfigPath: (opts,next) ->
 		# Prepare
@@ -2613,11 +2678,12 @@ class DocPad extends EventEmitterGrouped
 	###*
 	# Get config paths and check that those
 	# paths exist
-	# next(err,path)
 	# @private
 	# @method getConfigPath
 	# @param {Object} opts
 	# @param {Object} next
+	# @param {Error} next.err
+	# @param {String} next.path
 	###
 	getConfigPath: (opts,next) ->
 		# Prepare
@@ -2657,10 +2723,10 @@ class DocPad extends EventEmitterGrouped
 	# standard (documents, files
 	# layouts) and special (generate, referencesOthers,
 	# hasLayout, html, stylesheet) collections. Set blocks
-	# next(err)
 	# @private
 	# @method extendCollections
 	# @param {Function} next
+	# @param {Error} next.err
 	###
 	extendCollections: (next) ->
 		# Prepare
@@ -2798,11 +2864,11 @@ class DocPad extends EventEmitterGrouped
 
 	###*
 	# Reset collections. Perform a complete clean of our collections
-	# next(err)
 	# @private
 	# @method resetCollections
 	# @param {Object} opts
 	# @param {Function} next
+	# @param {Error} next.err
 	###
 	resetCollections: (opts,next) ->
 		# Prepare
@@ -2836,11 +2902,12 @@ class DocPad extends EventEmitterGrouped
 
 	###*
 	# Initialise git repo
-	# next(err,results)
 	# @private
 	# @method initGitRepo
 	# @param {Object} opts
 	# @param {Function} next
+	# @param {Error} next.err
+	# @param {Object} next.results
 	###
 	initGitRepo: (opts,next) ->
 		# Prepare
@@ -2860,11 +2927,12 @@ class DocPad extends EventEmitterGrouped
 
 	###*
 	# Init node modules
-	# next(err,results)
 	# @private
 	# @method initNodeModules
 	# @param {Object} opts
 	# @param {Function} next
+	# @param {Error} next.err
+	# @param {Object} next.results
 	###
 	initNodeModules: (opts,next) ->
 		# Prepare
@@ -2893,12 +2961,13 @@ class DocPad extends EventEmitterGrouped
 	###*
 	# Fix node package versions
 	# Combat to https://github.com/npm/npm/issues/4587#issuecomment-35370453
-	# next(err)
 	# @private
 	# @method fixNodePackageVersions
 	# @param {Object} opts
+	# @param {Function} next
+	# @param {Error} next.err
 	###
-	fixNodePackageVersions: (opts) ->
+	fixNodePackageVersions: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
 		docpad = @
@@ -2921,13 +2990,15 @@ class DocPad extends EventEmitterGrouped
 	###*
 	# Install node module. Same as running
 	# 'npm install' through the command line
-	# next(err,result)
 	# @private
 	# @method installNodeModule
 	# @param {Array} names
 	# @param {Object} opts
+	# @param {Function} next
+	# @param {Error} next.err
+	# @param {Object} next.result
 	###
-	installNodeModule: (names,opts) ->
+	installNodeModule: (names,opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
 		docpad = @
@@ -2982,13 +3053,15 @@ class DocPad extends EventEmitterGrouped
 	###*
 	# Uninstall node module. Same as running
 	# 'npm uninstall' through the command line
-	# next(err,result)
 	# @private
 	# @method uninstallNodeModule
 	# @param {Array} names
 	# @param {Object} opts
+	# @param {Function} next
+	# @param {Error} next.err
+	# @param {Object} next.result
 	###
-	uninstallNodeModule: (names,opts) ->
+	uninstallNodeModule: (names,opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
 		docpad = @
@@ -3311,6 +3384,8 @@ class DocPad extends EventEmitterGrouped
 	# @private
 	# @method checkRequest
 	# @param {Function} next
+	# @param {Error} next.err
+	# @param {Object} next.res
 	###
 	checkRequest: (next) ->
 		next ?= @error.bind(@)
@@ -3329,10 +3404,10 @@ class DocPad extends EventEmitterGrouped
 
 	###*
 	# Subscribe to the DocPad email list.
-	# next(err)
 	# @private
 	# @method subscribe
 	# @param {Function} next
+	# @param {Error} next.err
 	###
 	subscribe: (next) ->
 		# Prepare
@@ -3368,12 +3443,12 @@ class DocPad extends EventEmitterGrouped
 
 	###*
 	# Track
-	# next(err)
 	# @private
 	# @method track
 	# @param {String} name
 	# @param {Object} [things={}]
 	# @param {Function} next
+	# @param {Error} next.err
 	###
 	track: (name,things={},next) ->
 		# Prepare
@@ -3425,10 +3500,10 @@ class DocPad extends EventEmitterGrouped
 
 	###*
 	# Identify DocPad user
-	# next(err)
 	# @private
 	# @method identify
 	# @param {Function} next
+	# @param {Error} next.err
 	###
 	identify: (next) ->
 		# Prepare
@@ -3525,11 +3600,14 @@ class DocPad extends EventEmitterGrouped
 
 
 	###*
-	# Parse the files directory
+	# Parse the files directory and
+	# return a files collection to
+	# the passed callback
 	# @method parseFileDirectory
 	# @param {Object} [opts={}]
-	# @param {Function} next
-	# @return {Object} FilesCollection
+	# @param {Function} next callback
+	# @param {Error} next.err
+	# @param {Object} next.files files collection
 	###
 	parseFileDirectory: (opts={},next) ->
 		opts.modelType ?= 'file'
@@ -3537,11 +3615,16 @@ class DocPad extends EventEmitterGrouped
 		return @parseDirectory(opts, next)
 
 	###*
-	# Parse the documents directory
+	# Parse the documents directory and
+	# return a files collection to
+	# the passed callback
 	# @method parseDocumentDirectory
 	# @param {Object} [opts={}]
+	# @param {String} [opts.modelType='document']
+	# @param {Object} [opts.collection=docpad.database]
 	# @param {Function} next
-	# @return {Object} FilesCollection of documents
+	# @param {Error} next.err
+	# @param {Object} next.files files collection of documents
 	###
 	parseDocumentDirectory: (opts={},next) ->
 		opts.modelType ?= 'document'
@@ -3734,11 +3817,11 @@ class DocPad extends EventEmitterGrouped
 	###*
 	# Parse a directory and return a
 	# files collection
-	# next(err, files)
 	# @method parseDirectory
 	# @param {Object} [opts={}]
 	# @param {Object} next
-	# @return {Object} FilesCollection
+	# @param {Error} next.err
+	# @param {Object} next.files files collection
 	###
 	parseDirectory: (opts={},next) ->
 		# Prepare
@@ -3846,6 +3929,7 @@ class DocPad extends EventEmitterGrouped
 	# @private
 	# @method loadPlugins
 	# @param {Function} next
+	# @param {Error} next.err
 	###
 	loadPlugins: (next) ->
 		# Prepare
@@ -3884,10 +3968,12 @@ class DocPad extends EventEmitterGrouped
 		@
 
 	###*
-	# Checks if a plugin was loaded succesfully
+	# Checks if a plugin was loaded succesfully.
 	# @method loadedPlugin
 	# @param {String} pluginName
 	# @param {Function} next
+	# @param {Error} next.err
+	# @param {Boolean} next.loaded
 	###
 	loadedPlugin: (pluginName,next) ->
 		# Prepare
@@ -3907,6 +3993,7 @@ class DocPad extends EventEmitterGrouped
 	# @method loadPlugin
 	# @param {String} fileFullPath
 	# @param {Function} _next
+	# @param {Error} _next.err
 	# @return {Object} description
 	###
 	loadPlugin: (fileFullPath,_next) ->
@@ -3998,11 +4085,11 @@ class DocPad extends EventEmitterGrouped
 
 	###*
 	# Load plugins from a directory path
-	# next(err)
 	# @private
 	# @method loadPluginsIn
 	# @param {String} pluginsPath
 	# @param {Function} next
+	# @param {Error} next.err
 	###
 	loadPluginsIn: (pluginsPath, next) ->
 		# Prepare
@@ -4097,6 +4184,8 @@ class DocPad extends EventEmitterGrouped
 	# @private
 	# @method getExchange
 	# @param {Function} next
+	# @param {Error} next.err
+	# @param {Object} next.exchange docpad.exchange
 	###
 	getExchange: (next) ->
 		# Prepare
@@ -4142,11 +4231,11 @@ class DocPad extends EventEmitterGrouped
 	# awareness of other documents to our document. The
 	# contextualizeBefore and contextualizeAfter events
 	# are emitted here.
-	# next(err)
 	# @private
 	# @method contextualizeFiles
 	# @param {Object} [opts={}]
 	# @param {Function} next
+	# @param {Error} next.err
 	###
 	contextualizeFiles: (opts={},next) ->
 		# Prepare
@@ -4221,11 +4310,11 @@ class DocPad extends EventEmitterGrouped
 	# Render the DocPad project's files.
 	# The renderCollectionBefore, renderCollectionAfter,
 	# renderBefore, renderAfter events are all emitted here.
-	# next(err)
 	# @private
 	# @method renderFiles
 	# @param {Object} [opts={}]
 	# @param {Function} next
+	# @param {Error} next.err
 	###
 	renderFiles: (opts={},next) ->
 		# Prepare
@@ -4344,11 +4433,11 @@ class DocPad extends EventEmitterGrouped
 	###*
 	# Write rendered files to the DocPad out directory.
 	# The writeBefore and writeAfter events are emitted here.
-	# next(err)
 	# @private
 	# @method writeFiles
 	# @param {Object} [opts={}]
 	# @param {Function} next
+	# @param {Error} next.err
 	###
 	writeFiles: (opts={},next) ->
 		# Prepare
@@ -4555,10 +4644,10 @@ class DocPad extends EventEmitterGrouped
 	# Set off DocPad's generation process.
 	# The generated, populateCollectionsBefore, populateCollections, populateCollections
 	# generateBefore and generateAfter events are emitted here
-	# next(err)
 	# @method generate
 	# @param {Object} opts
 	# @param {Function} next
+	# @param {Error} next.err
 	###
 	generate: (opts, next) ->
 		# Prepare
@@ -4937,12 +5026,13 @@ class DocPad extends EventEmitterGrouped
 
 	###*
 	# Load a document
-	# next(err,document)
 	# @private
 	# @method loadDocument
 	# @param {Object} document
 	# @param {Object} opts
 	# @param {Function} next
+	# @param {Error} next.err
+	# @param {Object} next.document
 	###
 	loadDocument: (document,opts,next) ->
 		# Prepare
@@ -4957,11 +5047,12 @@ class DocPad extends EventEmitterGrouped
 
 	###*
 	# Load and render a document
-	# next(err,document)
 	# @method loadAndRenderDocument
 	# @param {Object} document
 	# @param {Object} opts
 	# @param {Function} next
+	# @param {Error} next.err
+	# @param {Object} next.document
 	###
 	loadAndRenderDocument: (document,opts,next) ->
 		# Prepare
@@ -4980,11 +5071,13 @@ class DocPad extends EventEmitterGrouped
 
 	###*
 	# Render a document
-	# next(err,result)
 	# @method renderDocument
 	# @param {Object} document
 	# @param {Object} opts
 	# @param {Object} next
+	# @param {Error} next.err
+	# @param {Object} next.result
+	# @param {Object} next.document
 	###
 	renderDocument: (document,opts,next) ->
 		# Prepare
@@ -5005,6 +5098,8 @@ class DocPad extends EventEmitterGrouped
 	# @param {String} path
 	# @param {Object} opts
 	# @param {Function} next
+	# @param {Error} next.err
+	# @param {Object} next.result the rendered document
 	###
 	renderPath: (path,opts,next) ->
 		# Prepare
@@ -5029,6 +5124,8 @@ class DocPad extends EventEmitterGrouped
 	# @param {String} content
 	# @param {Object} opts
 	# @param {Function} next
+	# @param {Error} next.err
+	# @param {Object} next.result the rendered document
 	###
 	renderData: (content,opts,next) ->
 		# Prepare
@@ -5059,6 +5156,9 @@ class DocPad extends EventEmitterGrouped
 	# @param {String} text
 	# @param {Object} opts
 	# @param {Function} next
+	# @param {Error} next.err
+	# @param {Object} next.result the rendered content
+	# @param {Object} next.document the rendered document model
 	###
 	renderText: (text,opts,next) ->
 		# Prepare
@@ -5088,6 +5188,7 @@ class DocPad extends EventEmitterGrouped
 	# @method render
 	# @param {Object} opts
 	# @param {Function} next
+	# @param {Error} next.err
 	###
 	render: (opts,next) ->
 		# Prepare
@@ -5152,6 +5253,7 @@ class DocPad extends EventEmitterGrouped
 	# @method watch
 	# @param {Object} opts
 	# @param {Function} next
+	# @param {Error} next.err
 	###
 	watch: (opts,next) ->
 		# Prepare
@@ -5328,6 +5430,7 @@ class DocPad extends EventEmitterGrouped
 	# @method run
 	# @param {Object} opts
 	# @param {Function} next
+	# @param {Error} next.err
 	###
 	run: (opts,next) ->
 		# Prepare
@@ -5388,12 +5491,12 @@ class DocPad extends EventEmitterGrouped
 	# Skeleton
 
 	###*
-	# Initialize the skeleton install process
-	# next(err)
+	# Initialize the skeleton install process.
 	# @private
 	# @method initInstall
 	# @param {Object} opts
 	# @param {Function} next
+	# @param {Error} next.err
 	###
 	initInstall: (opts,next) ->
 		# Prepare
@@ -5436,11 +5539,11 @@ class DocPad extends EventEmitterGrouped
 
 	###*
 	# Uninstall a plugin.
-	# next(err)
 	# @private
 	# @method uninstall
 	# @param {Object} opts
 	# @param {Function} next
+	# @param {Error} next.err
 	###
 	uninstall: (opts,next) ->
 		# Prepare
@@ -5475,11 +5578,11 @@ class DocPad extends EventEmitterGrouped
 
 	###*
 	# Install a plugin
-	# next(err)
 	# @private
 	# @method install
 	# @param {Object} opts
 	# @param {Function} next
+	# @param {Error} next.err
 	###
 	install: (opts,next) ->
 		# Prepare
@@ -5526,11 +5629,11 @@ class DocPad extends EventEmitterGrouped
 
 	###*
 	# Update global NPM and DocPad
-	# next(err)
 	# @private
 	# @method upgrade
 	# @param {Object} opts
 	# @param {Object} next
+	# @param {Error} next.err
 	# @return {Object} description
 	###
 	upgrade: (opts,next) ->
@@ -5546,11 +5649,11 @@ class DocPad extends EventEmitterGrouped
 
 	###*
 	# Update the local DocPad and plugin dependencies
-	# next(err)
 	# @private
 	# @method update
 	# @param {Object} opts
 	# @param {Object} next
+	# @param {Error} next.err
 	###
 	update: (opts,next) ->
 		# Prepare
@@ -5608,12 +5711,12 @@ class DocPad extends EventEmitterGrouped
 		@
 
 	###*
-	# DocPad cleanup tasks
-	# next(err)
+	# DocPad cleanup tasks.
 	# @private
 	# @method clean
 	# @param {Object} opts
 	# @param {Object} next
+	# @param {Error} next.err
 	# @return {Object} description
 	###
 	clean: (opts,next) ->
@@ -5663,12 +5766,12 @@ class DocPad extends EventEmitterGrouped
 
 	###*
 	# Initialize a Skeleton into to a Directory
-	# next(err)
 	# @private
 	# @method initSkeleton
 	# @param {Object} skeletonModel
 	# @param {Object} opts
 	# @param {Function} next
+	# @param {Error} next.err
 	###
 	initSkeleton: (skeletonModel,opts,next) ->
 		# Prepare
@@ -5761,8 +5864,6 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-
-	# next(err)
 	###*
 	# Install a Skeleton into a Directory
 	# @private
@@ -5770,6 +5871,7 @@ class DocPad extends EventEmitterGrouped
 	# @param {Object} skeletonModel
 	# @param {Object} opts
 	# @param {Function} next
+	# @param {Error} next.err
 	###
 	installSkeleton: (skeletonModel,opts,next) ->
 		# Prepare
@@ -5792,12 +5894,12 @@ class DocPad extends EventEmitterGrouped
 
 	###*
 	# Use a Skeleton
-	# next(err)
 	# @private
 	# @method useSkeleton
 	# @param {Object} skeletonModel
 	# @param {Object} opts
 	# @param {Object} next
+	# @param {Error} next.err
 	# @return {Object} description
 	###
 	useSkeleton: (skeletonModel,opts,next) ->
@@ -5836,11 +5938,12 @@ class DocPad extends EventEmitterGrouped
 
 	###*
 	# Select a Skeleton
-	# next(err,skeletonModel)
 	# @private
 	# @method selectSkeleton
 	# @param {Object} opts
 	# @param {Function} next
+	# @param {Error} next.err
+	# @param {Error} next.skeletonModel
 	###
 	selectSkeleton: (opts,next) ->
 		# Prepare
@@ -5868,6 +5971,7 @@ class DocPad extends EventEmitterGrouped
 	# @method skeletonEmpty
 	# @param {Object} path
 	# @param {Function} next
+	# @param {Error} next.err
 	###
 	skeletonEmpty: (path, next) ->
 		# Prepare
@@ -5896,6 +6000,7 @@ class DocPad extends EventEmitterGrouped
 	# @method skeleton
 	# @param {Object} opts
 	# @param {Function} next
+	# @param {Error} next.err
 	###
 	skeleton: (opts,next) ->
 		# Prepare
@@ -5926,6 +6031,7 @@ class DocPad extends EventEmitterGrouped
 	# @method init
 	# @param {Object} opts
 	# @param {Object} next
+	# @param {Error} next.err
 	# @return {Object} description
 	###
 	init: (opts,next) ->
@@ -5954,6 +6060,7 @@ class DocPad extends EventEmitterGrouped
 	# @method serveDocument
 	# @param {Object} opts
 	# @param {Function} next
+	# @param {Error} next.err
 	###
 	serveDocument: (opts,next) ->
 		# Prepare
@@ -6074,6 +6181,7 @@ class DocPad extends EventEmitterGrouped
 	# @param {Object} req
 	# @param {Object} res
 	# @param {Function} next
+	# @param {Error} next.err
 	###
 	serverMiddlewareRouter: (req,res,next) ->
 		# Prepare
