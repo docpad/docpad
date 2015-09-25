@@ -552,8 +552,10 @@ class DocPad extends EventEmitterGrouped
 	database: null
 
 	###*
-	# Description for databaseTempCache
-	# @property {Object} databaseTempCache
+	# A FilesCollection of models updated
+	# from the DocPad database after each regeneration.
+	# @private
+	# @property {Object} databaseTempCache FileCollection of models
 	###
 	databaseTempCache: null
 
