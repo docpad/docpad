@@ -51,16 +51,16 @@ YAML = null
 # docpad.createModel
 #
 # 	#check to see if the document alread exists ie its an update
-#   docModel = @docpad.getCollection('posts').findOne({slug: 'some-slug'})
+# 	docModel = @docpad.getCollection('posts').findOne({slug: 'some-slug'})
 #
-#   #if so, load the existing document ready for regeneration
-#   if docModel
-#   	docModel.load()
+# 	#if so, load the existing document ready for regeneration
+# 	if docModel
+# 		docModel.load()
 # 	else
-#      #if document doesn't already exist, create it and add to database
-#      docModel = @docpad.createModel({fullPath:'file/path/to/somewhere'})
-#      docModel.load()
-#      @docpad.getDatabase().add(docModel)
+# 		#if document doesn't already exist, create it and add to database
+# 		docModel = @docpad.createModel({fullPath:'file/path/to/somewhere'})
+# 		docModel.load()
+# 		@docpad.getDatabase().add(docModel)
 #
 # @class DocumentModel
 # @constructor

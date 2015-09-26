@@ -1,5 +1,8 @@
 # History
 
+## v6.78.5 September 26, 2015
+- Fixed missing `next` parameter for methods `fixNodePackageVersions`, `installNodeModule` and `uninstallNodeModule`.
+
 ## v6.78.4 September 16, 2015
 - Fixed `path option is deprecated` error when cloning a skeleton
 	- Thanks to [Gabriel Ignisca](https://github.com/16nsk) for [issue #1016](https://github.com/docpad/docpad/issues/1016)
