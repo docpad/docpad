@@ -266,8 +266,9 @@ class ConsoleInterface
 		# Log Shutdown
 		docpad.log('info', locale.consoleShutdown)
 
-		# Close stdin
-		process.stdin.end()
+		# Close stdin if defined
+		if process.stdin && process.stdin.end
+			process.stdin.end()
 
 		# Destroy docpad
 		docpad.destroy (err) ->
