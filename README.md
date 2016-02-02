@@ -37,7 +37,7 @@ Discover my features below, or skip ahead to the installation instructions to ge
 
 ### Out of the box
 
-- Competely file based, meaning there are no pesky databases that need to be installed, and for version control you get to use systems like Git and SVN, which you're already used to (You can still hook in remote data sources if you want, DocPad doesn't impose any limits on you, ever)
+- Completely file based, meaning there are no pesky databases that need to be installed, and for version control you get to use systems like Git and SVN, which you're already used to (You can still hook in remote data sources if you want, DocPad doesn't impose any limits on you, ever)
 - Choose from plenty of community maintained [pre-made websites](http://docpad.org/docs/skeletons) to use for your next project instead of starting from scratch every time
 - Write your documents in any language, markup, templating engine, or pre-processor you wish (we're truly agnostic thanks to your plugin system). You can even mix and match them when needed by combining their extensions in a rails-like fashion (e.g. `coffee-with-some-eco.js.coffee.eco`)
 - Changes to your website are automatically recompiled through our built-in watch system
@@ -63,7 +63,7 @@ Discover my features below, or skip ahead to the installation instructions to ge
 - Concatenate and minify your JavaScript and CSS assets making page loads faster for your users with our Minify Plugins: [htmlmin](https://github.com/robloach/docpad-plugin-htmlmin) and [grunt](https://gist.github.com/balupton/3898915)
 - Install common javascript libraries like jQuery, Backbone and Underscore directly from the command line - (under construction, coming soon)
 - Automatically translate your entire website into other languages with our Translation Plugin - under construction, coming soon
-- Add a admin interface to your website allowing you to edit, save and preview your changes on live websites then push them back to your source repository with the [Admin Plugins](http://docpad.org/docs/plugins#admin-interfaces)
+- Add an admin interface to your website allowing you to edit, save and preview your changes on live websites then push them back to your source repository with the [Admin Plugins](http://docpad.org/docs/plugins#admin-interfaces)
 - Pretty much if DocPad doesn't already do something, it is trivial to [write a plugin](http://docpad.org/docs/extend) to do it. DocPad can accomplish anything; it never holds you back, and there are no limits.
 - [Many other plugins](http://docpad.org/docs/plugins) not listed here that are still definitely worth checking out! :)
 
