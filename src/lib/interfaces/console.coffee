@@ -94,10 +94,6 @@ class ConsoleInterface
 				locale.consoleOptionSkeleton
 			)
 			.option(
-				'--profile'
-				locale.consoleOptionProfile
-			)
-			.option(
 				'--offline'
 				locale.consoleOptionOffline
 			)

@@ -10,7 +10,6 @@ docpadUtil = require('../util')
 CSON = require('cson')
 extendr = require('extendr')
 eachr = require('eachr')
-{TaskGroup} = require('taskgroup')
 extractOptsAndCallback = require('extract-opts')
 
 # Local

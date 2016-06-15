@@ -8,7 +8,6 @@ pathUtil = require('path')
 # External
 isTextOrBinary = require('istextorbinary')
 typeChecker = require('typechecker')
-{TaskGroup} = require('taskgroup')
 safefs = require('safefs')
 mime = require('mime')
 extendr = require('extendr')
@@ -529,7 +528,7 @@ class FileModel extends Model
 	toJSON: (dereference=false) ->
 		data = super
 		data.meta = @getMeta().toJSON()
-		data = extendr.dereference(data)  if dereference is true
+		data = extendr.dereferenceJSON(data)  if dereference is true
 		return data
 
 	###*
@@ -872,7 +871,7 @@ class FileModel extends Model
 			throw new Error("Use docpad.createModel to create the file or document model")
 
 		# Create our action runner
-		@actionRunnerInstance = new @TaskGroup("file action runner").whenDone (err) ->
+		@actionRunnerInstance = new @TaskGroup("file action runner", {abortOnError: false, destroyOnceDone: false}).whenDone (err) ->
 			file.emit('error', err)  if err
 
 		# Apply

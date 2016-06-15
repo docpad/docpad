@@ -6,54 +6,13 @@
 # =====================================
 # This block *must* come first
 
+# Node 0.10 compat
+require('babel-polyfill')
+
 # Important
 pathUtil = require('path')
 lazyRequire = require('lazy-require')
 corePath = pathUtil.resolve(__dirname, '..', '..')
-
-# Profile
-if ('--profile' in process.argv)
-	# Debug
-	debugger
-
-	# Nodetime
-	if process.env.DOCPAD_PROFILER.indexOf('nodetime') isnt -1
-		throw new Error('NODETIME_KEY environment variable is undefined')  unless process.env.NODETIME_KEY
-		console.log 'Loading profiling tool: nodetime'
-		require('lazy-require').sync 'nodetime', {cwd:corePath}, (err,nodetime) ->
-			if err
-				console.log 'Failed to load profiling tool: nodetime'
-				console.log err.stack or err
-			else
-				nodetime.profile({
-					accountKey: process.env.NODETIME_KEY
-					appName: 'DocPad'
-				})
-				console.log 'Profiling with nodetime with account key:', process.env.NODETIME_KEY
-
-	# Webkit Devtools
-	if process.env.DOCPAD_PROFILER.indexOf('webkit-devtools-agent') isnt -1
-		console.log 'Loading profiling tool: webkit-devtools-agent'
-		require('lazy-require').sync 'webkit-devtools-agent', {cwd:corePath}, (err, agent) ->
-			if err
-				console.log 'Failed to load profiling tool: webkit-devtools-agent'
-				console.log err.stack or err
-			else
-				agent.start()
-				console.log "Profiling with webkit-devtools-agent on pid #{process.pid} at http://127.0.0.1:9999/"
-
-	# V8 Profiler
-	if process.env.DOCPAD_PROFILER.indexOf('v8-profiler') isnt -1
-		console.log 'Loading profiling tool: v8-profiler'
-		require('lazy-require').sync 'v8-profiler-helper', {cwd:corePath}, (err, profiler) ->
-			if err
-				console.log 'Failed to load profiling tool: v8-profiler'
-				console.log err.stack or err
-			else
-				profiler.startProfile('docpad-profile')
-				console.log "Profiling with v8-profiler"
-			process.on 'exit', ->
-				profiler.stopProfile('docpad-profile')
 
 
 # =====================================
@@ -183,6 +142,7 @@ class DocPad extends EventEmitterGrouped
 	# @property {Object} Events
 	###
 	Events: Events
+
 	###*
 	# Model class
 	# Extension of the Backbone Model class
@@ -1298,7 +1258,7 @@ class DocPad extends EventEmitterGrouped
 				safeps.getLocaleCode   config.localeCode
 				safeps.getLocaleCode   safeps.getLocaleCode()
 			]
-			locales = (@loadLocale(code)  for code in codes)
+			locales = (@loadLocale(code)  for code in codes).filter((l) -> l)
 			@locale = extendr.extend(locales...)
 
 		return @locale
@@ -1805,6 +1765,64 @@ class DocPad extends EventEmitterGrouped
 	# Initialization Functions
 
 	###*
+	# Create our own custom TaskGroup instance for DocPad.
+	# That will listen to tasks as they execute and provide debugging information.
+	# @method createTaskGroup
+	# @param {Object} opts
+	# @return {TaskGroup}
+	###
+	createTaskGroup: (opts...) =>
+		docpad = @
+		tasks = TaskGroup.create(opts...)
+
+		# Listen to executing tasks and output their progress
+		tasks.on 'running', ->
+			config = tasks.getConfig()
+			name = tasks.getNames()
+			progress = config.progress
+			if progress
+				totals = tasks.getItemTotals()
+				progress.step(name).total(totals.total).setTick(totals.completed)
+			else
+				docpad.log('debug', name+' > running')
+
+		# Listen to executing tasks and output their progress
+		tasks.on 'item.add', (item) ->
+			config = tasks.getConfig()
+			name = item.getNames()
+			progress = config.progress
+			if progress
+				totals = tasks.getItemTotals()
+				progress.step(name).total(totals.total).setTick(totals.completed)
+			else
+				docpad.log('debug', name+' > added')
+
+			# Listen to executing tasks and output their progress
+			item.on 'started', (item) ->
+				config = tasks.getConfig()
+				name = item.getNames()
+				progress = config.progress
+				if progress
+					totals = tasks.getItemTotals()
+					progress.step(name).total(totals.total).setTick(totals.completed)
+				else
+					docpad.log('debug', name+' > started')
+
+			# Listen to executing tasks and output their progress
+			item.done (err) ->
+				config = tasks.getConfig()
+				name = item.getNames()
+				progress = config.progress
+				if progress
+					totals = tasks.getItemTotals()
+					progress.step(name).total(totals.total).setTick(totals.completed)
+				else
+					docpad.log('debug', name+' > done')
+
+		# Return
+		return tasks
+
+	###*
 	# Constructor method. Sets up the DocPad instance.
 	# next(err)
 	# @method constructor
@@ -1816,61 +1834,6 @@ class DocPad extends EventEmitterGrouped
 		# Prepare
 		[instanceConfig,next] = extractOptsAndCallback(instanceConfig, next)
 		docpad = @
-
-		# Create our own custom TaskGroup class for DocPad
-		# That will listen to tasks as they execute and provide debugging information
-		@TaskGroup = class extends TaskGroup
-			constructor: ->
-				# Prepare
-				super
-				tasks = @
-
-				# Listen to executing tasks and output their progress
-				tasks.on 'started', ->
-					config = tasks.getConfig()
-					name = tasks.getNames()
-					progress = config.progress
-					if progress
-						totals = tasks.getItemTotals()
-						progress.step(name).total(totals.total).setTick(totals.completed)
-					else
-						docpad.log('debug', name+' > started')
-
-				# Listen to executing tasks and output their progress
-				tasks.on 'item.add', (item) ->
-					config = tasks.getConfig()
-					name = item.getNames()
-					progress = config.progress
-					if progress
-						totals = tasks.getItemTotals()
-						progress.step(name).total(totals.total).setTick(totals.completed)
-					else
-						docpad.log('debug', name+' > added')
-
-				# Listen to executing tasks and output their progress
-				tasks.on 'item.started', (item) ->
-					config = tasks.getConfig()
-					name = item.getNames()
-					progress = config.progress
-					if progress
-						totals = tasks.getItemTotals()
-						progress.step(name).total(totals.total).setTick(totals.completed)
-					else
-						docpad.log('debug', name+' > started')
-
-				# Listen to executing tasks and output their progress
-				tasks.on 'item.done', (item, err) ->
-					config = tasks.getConfig()
-					name = item.getNames()
-					progress = config.progress
-					if progress
-						totals = tasks.getItemTotals()
-						progress.step(name).total(totals.total).setTick(totals.completed)
-					else
-						docpad.log('debug', name+' > done')
-
-				# Chain
-				@
 
 		# Binders
 		# Using this over coffescript's => on class methods, ensures that the method length is kept
@@ -1900,11 +1863,11 @@ class DocPad extends EventEmitterGrouped
 					next()
 
 		# Create our action runner
-		@actionRunnerInstance = @TaskGroup.create('action runner').whenDone (err) ->
+		@actionRunnerInstance = @createTaskGroup('action runner', {abortOnError: false, destroyOnceDone: false}).whenDone (err) ->
 			docpad.error(err)  if err
 
 		# Create our track runner
-		@trackRunnerInstance = @TaskGroup.create('track runner').whenDone (err) ->
+		@trackRunnerInstance = @createTaskGroup('track runner', {abortOnError: false, destroyOnceDone: false}).whenDone (err) ->
 			if err and docpad.getDebugging()
 				locale = docpad.getLocale()
 				docpad.warn(locale.trackError, err)
@@ -1914,15 +1877,15 @@ class DocPad extends EventEmitterGrouped
 			delete instanceConfig.loggers
 		else
 			# Create
-			logger = new (require('caterpillar').Logger)(lineOffset: 2)
+			logger = require('caterpillar').create(lineOffset: 2)
 
 			# console
 			loggerConsole = logger
 				.pipe(
-					new (require('caterpillar-filter').Filter)
+					require('caterpillar-filter').create()
 				)
 				.pipe(
-					new (require('caterpillar-human').Human)
+					require('caterpillar-human').create()
 				)
 
 			# Apply
@@ -2028,8 +1991,8 @@ class DocPad extends EventEmitterGrouped
 				# Return safely
 				return true
 			)
-		@userConfig = extendr.dereference(@userConfig)
-		@initialConfig = extendr.dereference(@initialConfig)
+		@userConfig = extendr.dereferenceJSON(@userConfig)
+		@initialConfig = extendr.dereferenceJSON(@initialConfig)
 
 		# Extract action
 		if instanceConfig.action?
@@ -2282,7 +2245,7 @@ class DocPad extends EventEmitterGrouped
 		docpad.log 'info', util.format(locale.welcomeEnvironment, @getEnvironment())
 
 		# Prepare
-		tasks = new @TaskGroup 'ready tasks', next:(err) ->
+		tasks = @createTaskGroup 'ready tasks', next:(err) ->
 			# Error?
 			return docpad.error(err)  if err
 
@@ -2329,7 +2292,7 @@ class DocPad extends EventEmitterGrouped
 				configsToMerge.push(envConfig)  if envConfig
 
 		# Merge
-		extendr.safeDeepExtendPlainObjects(configsToMerge...)
+		extendr.deepDefaults(configsToMerge...)
 
 		# Chain
 		@
@@ -2346,8 +2309,8 @@ class DocPad extends EventEmitterGrouped
 		# Merge in the instance configurations
 		if instanceConfig
 			logLevel = @getLogLevel()
-			extendr.safeDeepExtendPlainObjects(@instanceConfig, instanceConfig)
-			extendr.safeDeepExtendPlainObjects(@config, instanceConfig)  if @config  # @TODO document why there is the if
+			extendr.deepDefaults(@instanceConfig, instanceConfig)
+			extendr.deepDefaults(@config, instanceConfig)  if @config  # @TODO document why there is the if
 			@setLogLevel(instanceConfig.logLevel)  if instanceConfig.logLevel and instanceConfig.logLevel isnt logLevel
 		@
 
@@ -2386,10 +2349,10 @@ class DocPad extends EventEmitterGrouped
 		docpad.mergeConfigurations(configPackages, configsToMerge)
 
 		# Extract and apply the server
-		@setServer extendr.safeShallowExtendPlainObjects({
+		@setServer extendr.defaults({
 			serverHttp: @config.serverHttp
 			serverExpress: @config.serverExpress
-		},  @config.server)
+		}, @config.server or {})
 
 		# Extract and apply the logger
 		@setLogLevel(@config.logLevel)
@@ -2422,7 +2385,7 @@ class DocPad extends EventEmitterGrouped
 			@on('error', @error)
 
 		# Prepare the Post Tasks
-		postTasks = new @TaskGroup 'setConfig post tasks', next:(err) ->
+		postTasks = @createTaskGroup 'setConfig post tasks', next:(err) ->
 			return next(err, docpad.config)
 
 		###
@@ -2479,7 +2442,7 @@ class DocPad extends EventEmitterGrouped
 		@setInstanceConfig(instanceConfig)
 
 		# Prepare the Load Tasks
-		preTasks = new @TaskGroup 'load tasks', next:(err) =>
+		preTasks = @createTaskGroup 'load tasks', next:(err) =>
 			return next(err)  if err
 			return @setConfig(next)
 
@@ -2735,7 +2698,7 @@ class DocPad extends EventEmitterGrouped
 		opts.configPaths ?= config.configPaths
 		opts.configPaths = [opts.configPaths]  unless typeChecker.isArray(opts.configPaths)
 
-		tasks = new @TaskGroup 'getConfigPath tasks', next:(err) ->
+		tasks = @createTaskGroup 'getConfigPath tasks', next:(err) ->
 			return next(err, result)
 
 		# Determine our configuration path
@@ -2858,7 +2821,7 @@ class DocPad extends EventEmitterGrouped
 		})
 
 		# Custom Collections Group
-		tasks = new @TaskGroup "extendCollections tasks", concurrency:0, next:(err) ->
+		tasks = @createTaskGroup "extendCollections tasks", concurrency:0, next:(err) ->
 			docpad.error(err)  if err
 			docpad.emitSerial('extendCollections', next)
 
@@ -3885,7 +3848,7 @@ class DocPad extends EventEmitterGrouped
 			detectEncoding: config.detectEncoding
 			rootOutDirPath: config.outPath
 			locale: @getLocale()
-			TaskGroup: @TaskGroup
+			TaskGroup: @createTaskGroup  # @TODO this a bit dodgy, but works well enough
 		}, opts)
 
 		if opts.modelType is 'file'
@@ -4032,7 +3995,7 @@ class DocPad extends EventEmitterGrouped
 			docpad.log 'notice', util.format(locale.pluginsSlow, Object.keys(docpad.slowPlugins).join(', '))
 
 		# Async
-		tasks = new @TaskGroup "loadPlugins tasks", concurrency:0, next:(err) ->
+		tasks = @createTaskGroup "loadPlugins tasks", concurrency:0, next:(err) ->
 			docpad.slowPlugins = {}
 			snore.clear()
 			return next(err)
@@ -4783,7 +4746,7 @@ class DocPad extends EventEmitterGrouped
 		docpad.notify (new Date()).toLocaleTimeString(), {title: locale.renderGeneratingNotification}
 
 		# Tasks
-		tasks = new @TaskGroup("generate tasks", {progress: opts.progress}).done (err) ->
+		tasks = @createTaskGroup("generate tasks", {progress: opts.progress}).done (err) ->
 			# Update generating flag
 			docpad.generating = false
 			docpad.generateEnded = new Date()
@@ -5223,7 +5186,7 @@ class DocPad extends EventEmitterGrouped
 		attributes = extendr.extend({
 			filename: opts.filename
 			data: content
-		}, opts.attributes)
+		}, opts.attributes or {})
 
 		# Handle
 		document = @createDocument(attributes)
@@ -5595,7 +5558,7 @@ class DocPad extends EventEmitterGrouped
 		config = @getConfig()
 
 		# Tasks
-		tasks = new @TaskGroup("initInstall tasks", {concurrency:0, next})
+		tasks = @createTaskGroup("initInstall tasks", {concurrency:0, next})
 
 		tasks.addTask "node modules", (complete) ->
 			path = pathUtil.join(config.rootPath, 'node_modules')
@@ -5642,7 +5605,7 @@ class DocPad extends EventEmitterGrouped
 		config = @getConfig()
 
 		# Tasks
-		tasks = new @TaskGroup("uninstall tasks", {next})
+		tasks = @createTaskGroup("uninstall tasks", {next})
 
 		# Uninstall a plugin
 		if opts.plugin
@@ -5681,7 +5644,7 @@ class DocPad extends EventEmitterGrouped
 		config = @getConfig()
 
 		# Tasks
-		tasks = new @TaskGroup("install tasks", {next})
+		tasks = @createTaskGroup("install tasks", {next})
 
 		tasks.addTask "init the installation", (complete) ->
 			docpad.initInstall(opts, complete)
@@ -5752,7 +5715,7 @@ class DocPad extends EventEmitterGrouped
 		config = @getConfig()
 
 		# Tasks
-		tasks = new @TaskGroup("update tasks", {next})
+		tasks = @createTaskGroup("update tasks", {next})
 
 		tasks.addTask "init the install", (complete) ->
 			docpad.initInstall(opts, complete)
@@ -5820,7 +5783,7 @@ class DocPad extends EventEmitterGrouped
 		docpad.log('info', locale.renderCleaning)
 
 		# Tasks
-		tasks = new @TaskGroup "clean tasks", {concurrency:0}, next:(err) ->
+		tasks = @createTaskGroup "clean tasks", {concurrency:0}, next:(err) ->
 			# Error?
 			return next(err)  if err
 
@@ -5873,7 +5836,7 @@ class DocPad extends EventEmitterGrouped
 		opts.destinationPath ?= config.rootPath
 
 		# Tasks
-		tasks = new @TaskGroup("initSkeleton tasks", {next})
+		tasks = @createTaskGroup("initSkeleton tasks", {next})
 
 		tasks.addTask "ensure the path we are writing to exists", (complete) ->
 			safefs.ensurePath(opts.destinationPath, complete)
@@ -6383,7 +6346,7 @@ class DocPad extends EventEmitterGrouped
 		# @TODO: Why do we do opts here instead of config???
 
 		# Tasks
-		tasks = new @TaskGroup("server tasks", {next})
+		tasks = @createTaskGroup("server tasks", {next})
 
 		# Before Plugin Event
 		tasks.addTask "emit serverBefore", (complete) ->

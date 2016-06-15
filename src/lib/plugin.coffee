@@ -50,7 +50,7 @@ class BasePlugin
 	# @property {Object}
 	###
 	config: {}
-	
+
 	###*
 	# The instance config.
 	# @property {Object}
@@ -79,8 +79,8 @@ class BasePlugin
 		@bindListeners()
 
 		# Swap out our configuration
-		@config = extendr.deepClone(@config)
-		@instanceConfig = extendr.deepClone(@instanceConfig)
+		@config = extendr.clone(@config)
+		@instanceConfig = extendr.clone(@instanceConfig)
 		@initialConfig = @config
 		@setConfig(config)
 
@@ -102,8 +102,8 @@ class BasePlugin
 	setInstanceConfig: (instanceConfig) ->
 		# Merge in the instance configurations
 		if instanceConfig
-			extendr.safeDeepExtendPlainObjects(@instanceConfig, instanceConfig)
-			extendr.safeDeepExtendPlainObjects(@config, instanceConfig)  if @config
+			extendr.deepDefaults(@instanceConfig, instanceConfig)
+			extendr.deepDefaults(@config, instanceConfig)  if @config
 		@
 
 	###*
