@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>QueryCollection</title>
+    <title>src/lib/collections/elements.coffee</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -92,81 +92,93 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-<h1>QueryCollection Class</h1>
-<div class="box meta">
+<h1 class="file-heading">File: src/lib/collections/elements.coffee</h1>
 
-        <div class="extends">
-            Extends queryEngine.QueryCollection
-        </div>
+<div class="file">
+    <pre class="code prettyprint linenums">
+# =====================================
+# Requires
 
-        <div class="foundat">
-            Defined in: <a href="../files/src_lib_base.coffee.html#l83"><code>src&#x2F;lib&#x2F;base.coffee:83</code></a>
-        </div>
+# External
+typeChecker = require(&#x27;typechecker&#x27;)
 
-
-</div>
-
-
-<div class="box intro">
-    <p>Base class for the DocPad query collection object
-Extends the bevry QueryEngine object
-<a href="http://github.com/bevry/query-engine">http://github.com/bevry/query-engine</a></p>
-
-</div>
-
-    <div class="constructor">
-        <h2>Constructor</h2>
-<div id="method_QueryCollection" class="method item">
-    <h3 class="name"><code>QueryCollection</code></h3>
-
-        <span class="paren">()</span>
+# Local
+{Collection,Model} = require(&#x27;../base&#x27;)
 
 
+# =====================================
+# Classes
+
+###*
+# Base class for the DocPad Elements Collection object
+# Extends the DocPad collection class
+# https://github.com/docpad/docpad/blob/master/src/lib/base.coffee#L72
+# Used as the base collection class for specific collection of file types.
+# In particular metadata, scripts and styles.
+# @class ElementsCollection
+# @constructor
+# @extends Collection
+###
+class ElementsCollection extends Collection
+
+	###*
+	# Base Model for all items in this collection
+	# @property {Object} model
+	###
+	model: Model
+
+	###*
+	# Add an element to the collection.
+	# Right now we just support strings.
+	# @method add
+	# @param {Array} values string array of values
+	# @param {Object} opts
+	###
+	add: (values,opts) -&gt;
+		# Ensure array
+		if typeChecker.isArray(values)
+			values = values.slice()
+		else if values
+			values = [values]
+		else
+			values = []
+
+		# Convert string based array properties into html
+		for value,key in values
+			if typeChecker.isString(value)
+				values[key] = new Model({html:value})
+
+		# Call the super with our values
+		super(values, opts)
+
+		# Chain
+		@
+
+	# Chain
+	set: -&gt; super; @
+	remove: -&gt; super; @
+	reset: -&gt; super; @
+
+	###*
+	# Create a way to output our elements to HTML
+	# @method toHTML
+	# @return {String}
+	###
+	toHTML: -&gt;
+		html = &#x27;&#x27;
+		@forEach (item) -&gt;
+			html += item.get(&#x27;html&#x27;) or &#x27;&#x27;
+		html
+
+	# Join alias toHTML for b/c
+	join: -&gt; @toHTML()
 
 
+# =====================================
+# Export
+module.exports = ElementsCollection
 
-
-
-
-    <div class="meta">
-                <p>
-                Defined in
-        <a href="../files/src_lib_base.coffee.html#l83"><code>src&#x2F;lib&#x2F;base.coffee:83</code></a>
-        </p>
-
-
-
-    </div>
-
-    <div class="description">
-        
-    </div>
-
-
-
-
-</div>
-    </div>
-
-<div id="classdocs" class="tabview">
-    <ul class="api-class-tabs">
-        <li class="api-class-tab index"><a href="#index">Index</a></li>
-
-    </ul>
-
-    <div>
-        <div id="index" class="api-class-tabpanel index">
-            <h2 class="off-left">Item Index</h2>
-
-
-
-
-        </div>
-
-
-
-
-    </div>
+    </pre>
 </div>
                     </div>
                 </div>

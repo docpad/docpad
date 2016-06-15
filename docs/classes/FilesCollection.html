@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>PluginTester</title>
+    <title>FilesCollection</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -92,12 +92,15 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-<h1>PluginTester Class</h1>
+<h1>FilesCollection Class</h1>
 <div class="box meta">
 
+        <div class="extends">
+            Extends <a href="../classes/QueryCollection.html" class="crosslink">QueryCollection</a>
+        </div>
 
         <div class="foundat">
-            Defined in: <a href="../files/src_lib_testers.coffee.html#l37"><code>src&#x2F;lib&#x2F;testers.coffee:37</code></a>
+            Defined in: <a href="../files/src_lib_collections_files.coffee.html#l15"><code>src&#x2F;lib&#x2F;collections&#x2F;files.coffee:15</code></a>
         </div>
 
 
@@ -105,14 +108,24 @@
 
 
 <div class="box intro">
-    <p>The Plugin Tester class</p>
+    <p>The DocPad files and documents query collection class
+Extends the DocPad QueryCollection class
+<a href="https://github.com/docpad/docpad/blob/master/src/lib/base.coffee#L91">https://github.com/docpad/docpad/blob/master/src/lib/base.coffee#L91</a>
+Used as the query collection class for DocPad files and documents.
+This differs from standard collections in that it provides backbone.js,
+noSQL style methods for querying the file system. In DocPad this
+is the various files that make up a web project. Typically this is the documents,
+css, script and image files.</p>
+<p>Most often a developer will use this class to find (and possibly sort) documents,
+such as blog posts, by some criteria.
+posts: -&gt;</p>
 
 </div>
 
     <div class="constructor">
         <h2>Constructor</h2>
-<div id="method_PluginTester" class="method item">
-    <h3 class="name"><code>PluginTester</code></h3>
+<div id="method_FilesCollection" class="method item">
+    <h3 class="name"><code>FilesCollection</code></h3>
 
         <span class="paren">()</span>
 
@@ -126,7 +139,7 @@
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_testers.coffee.html#l37"><code>src&#x2F;lib&#x2F;testers.coffee:37</code></a>
+        <a href="../files/src_lib_collections_files.coffee.html#l15"><code>src&#x2F;lib&#x2F;collections&#x2F;files.coffee:15</code></a>
         </p>
 
 
@@ -158,37 +171,13 @@
                 <div class="index-section methods">
                     <h3>Methods</h3>
 
-                    <ul class="index-list methods">
+                    <ul class="index-list methods extends">
                             <li class="index-item method">
-                                <a href="#method_constructor">constructor</a>
+                                <a href="#method_fuzzyFindOne">fuzzyFindOne</a>
 
                             </li>
-                            <li class="index-item method">
-                                <a href="#method_getConfig">getConfig</a>
-
-                            </li>
-                            <li class="index-item method">
-                                <a href="#method_getPlugin">getPlugin</a>
-
-                            </li>
-                            <li class="index-item method">
-                                <a href="#method_testCreate">testCreate</a>
-
-                            </li>
-                            <li class="index-item method">
-                                <a href="#method_"></a>
-
-                            </li>
-                            <li class="index-item method">
-                                <a href="#method_"></a>
-
-                            </li>
-                            <li class="index-item method">
-                                <a href="#method_"></a>
-
-                            </li>
-                            <li class="index-item method">
-                                <a href="#method_finish">finish</a>
+                            <li class="index-item method private">
+                                <a href="#method_initialize">initialize</a>
 
                             </li>
                     </ul>
@@ -197,17 +186,13 @@
                 <div class="index-section properties">
                     <h3>Properties</h3>
 
-                    <ul class="index-list properties">
-                            <li class="index-item property">
-                                <a href="#property_"></a>
-
-                            </li>
-                            <li class="index-item property">
-                                <a href="#property_"></a>
+                    <ul class="index-list properties extends">
+                            <li class="index-item property private">
+                                <a href="#property_collection">collection</a>
 
                             </li>
                             <li class="index-item property private">
-                                <a href="#property_"></a>
+                                <a href="#property_model">model</a>
 
                             </li>
                     </ul>
@@ -219,23 +204,26 @@
             <div id="methods" class="api-class-tabpanel">
                 <h2 class="off-left">Methods</h2>
 
-<div id="method_constructor" class="method item">
-    <h3 class="name"><code>constructor</code></h3>
+<div id="method_fuzzyFindOne" class="method item">
+    <h3 class="name"><code>fuzzyFindOne</code></h3>
 
         <div class="args">
             <span class="paren">(</span><ul class="args-list inline commas">
                 <li class="arg">
-                        <code class="optional">[config={}]</code>
+                        <code>data</code>
                 </li>
                 <li class="arg">
-                        <code class="optional">[docpadConfig={}]</code>
+                        <code>sorting</code>
                 </li>
                 <li class="arg">
-                        <code>next</code>
+                        <code>paging</code>
                 </li>
             </ul><span class="paren">)</span>
         </div>
 
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
 
 
 
@@ -246,7 +234,7 @@
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_testers.coffee.html#l88"><code>src&#x2F;lib&#x2F;testers.coffee:88</code></a>
+        <a href="../files/src_lib_collections_files.coffee.html#l61"><code>src&#x2F;lib&#x2F;collections&#x2F;files.coffee:61</code></a>
         </p>
 
 
@@ -254,7 +242,8 @@
     </div>
 
     <div class="description">
-        <p>Constructor method</p>
+        <p>Fuzzy find one
+Useful for layout searching</p>
 
     </div>
 
@@ -263,9 +252,8 @@
 
             <ul class="params-list">
                 <li class="param">
-                        <code class="param-name optional">[config={}]</code>
+                        <code class="param-name">data</code>
                         <span class="type">Object</span>
-                        <span class="flag optional" title="This parameter is optional.">optional</span>
 
 
                     <div class="param-description">
@@ -274,9 +262,8 @@
 
                 </li>
                 <li class="param">
-                        <code class="param-name optional">[docpadConfig={}]</code>
+                        <code class="param-name">sorting</code>
                         <span class="type">Object</span>
-                        <span class="flag optional" title="This parameter is optional.">optional</span>
 
 
                     <div class="param-description">
@@ -285,8 +272,85 @@
 
                 </li>
                 <li class="param">
-                        <code class="param-name">next</code>
-                        <span class="type">Function</span>
+                        <code class="param-name">paging</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">Object</span>:
+                    <p>the file, if found</p>
+
+            </div>
+        </div>
+
+
+</div>
+<div id="method_initialize" class="method item private">
+    <h3 class="name"><code>initialize</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>attrs</code>
+                </li>
+                <li class="arg">
+                        <code class="optional">[opts={}]</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+        <span class="flag private">private</span>
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_collections_files.coffee.html#l49"><code>src&#x2F;lib&#x2F;collections&#x2F;files.coffee:49</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Initialize the collection</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">attrs</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name optional">[opts={}]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
 
 
                     <div class="param-description">
@@ -300,302 +364,13 @@
 
 
 </div>
-<div id="method_getConfig" class="method item">
-    <h3 class="name"><code>getConfig</code></h3>
-
-        <span class="paren">()</span>
-
-        <span class="returns-inline">
-            <span class="type">Object</span>
-        </span>
-
-
-
-
-
-
-
-    <div class="meta">
-                <p>
-                Defined in
-        <a href="../files/src_lib_testers.coffee.html#l128"><code>src&#x2F;lib&#x2F;testers.coffee:128</code></a>
-        </p>
-
-
-
-    </div>
-
-    <div class="description">
-        <p>Get tester Configuration</p>
-
-    </div>
-
-
-        <div class="returns">
-            <h4>Returns:</h4>
-
-            <div class="returns-description">
-                        <span class="type">Object</span>:
-            </div>
-        </div>
-
-
-</div>
-<div id="method_getPlugin" class="method item">
-    <h3 class="name"><code>getPlugin</code></h3>
-
-        <span class="paren">()</span>
-
-        <span class="returns-inline">
-            <span class="type">Object</span>
-        </span>
-
-
-
-
-
-
-
-    <div class="meta">
-                <p>
-                Defined in
-        <a href="../files/src_lib_testers.coffee.html#l136"><code>src&#x2F;lib&#x2F;testers.coffee:136</code></a>
-        </p>
-
-
-
-    </div>
-
-    <div class="description">
-        <p>Get the plugin instance</p>
-
-    </div>
-
-
-        <div class="returns">
-            <h4>Returns:</h4>
-
-            <div class="returns-description">
-                        <span class="type">Object</span>:
-                    <p>the plugin</p>
-
-            </div>
-        </div>
-
-
-</div>
-<div id="method_testCreate" class="method item">
-    <h3 class="name"><code>testCreate</code></h3>
-
-        <span class="paren">()</span>
-
-
-
-
-
-
-
-
-    <div class="meta">
-                <p>
-                Defined in
-        <a href="../files/src_lib_testers.coffee.html#l145"><code>src&#x2F;lib&#x2F;testers.coffee:145</code></a>
-        </p>
-
-
-
-    </div>
-
-    <div class="description">
-        <p>Create the DocPad instance</p>
-
-    </div>
-
-
-
-
-</div>
-<div id="method_" class="method item">
-    <h3 class="name"><code></code></h3>
-
-        <span class="paren">()</span>
-
-
-
-
-
-
-
-
-    <div class="meta">
-                <p>
-                Defined in
-        <a href="../files/src_lib_testers.coffee.html#l175"><code>src&#x2F;lib&#x2F;testers.coffee:175</code></a>
-        </p>
-
-
-
-    </div>
-
-    <div class="description">
-        <p>Test Loaded</p>
-
-    </div>
-
-
-
-
-</div>
-<div id="method_" class="method item">
-    <h3 class="name"><code></code></h3>
-
-        <span class="paren">()</span>
-
-
-
-
-
-
-
-
-    <div class="meta">
-                <p>
-                Defined in
-        <a href="../files/src_lib_testers.coffee.html#l206"><code>src&#x2F;lib&#x2F;testers.coffee:206</code></a>
-        </p>
-
-
-
-    </div>
-
-    <div class="description">
-        <p>Test generate</p>
-
-    </div>
-
-
-
-
-</div>
-<div id="method_" class="method item">
-    <h3 class="name"><code></code></h3>
-
-        <span class="paren">()</span>
-
-
-
-
-
-
-
-
-    <div class="meta">
-                <p>
-                Defined in
-        <a href="../files/src_lib_testers.coffee.html#l222"><code>src&#x2F;lib&#x2F;testers.coffee:222</code></a>
-        </p>
-
-
-
-    </div>
-
-    <div class="description">
-        <p>Test everything</p>
-
-    </div>
-
-
-
-
-</div>
-<div id="method_finish" class="method item">
-    <h3 class="name"><code>finish</code></h3>
-
-        <span class="paren">()</span>
-
-
-
-
-
-
-
-
-    <div class="meta">
-                <p>
-                Defined in
-        <a href="../files/src_lib_testers.coffee.html#l243"><code>src&#x2F;lib&#x2F;testers.coffee:243</code></a>
-        </p>
-
-
-
-    </div>
-
-    <div class="description">
-        <p>Finish</p>
-
-    </div>
-
-
-
-
-</div>
             </div>
 
             <div id="properties" class="api-class-tabpanel">
                 <h2 class="off-left">Properties</h2>
 
-<div id="property_" class="property item">
-    <h3 class="name"><code></code></h3>
-    <span class="type">Object</span>
-
-
-
-
-
-    <div class="meta">
-                <p>
-                Defined in
-        <a href="../files/src_lib_testers.coffee.html#l48"><code>src&#x2F;lib&#x2F;testers.coffee:48</code></a>
-        </p>
-
-
-    </div>
-
-    <div class="description">
-        <p>Default plugin config</p>
-
-    </div>
-
-
-
-</div>
-<div id="property_" class="property item">
-    <h3 class="name"><code></code></h3>
-    <span class="type">Object</span>
-
-
-
-
-
-    <div class="meta">
-                <p>
-                Defined in
-        <a href="../files/src_lib_testers.coffee.html#l62"><code>src&#x2F;lib&#x2F;testers.coffee:62</code></a>
-        </p>
-
-
-    </div>
-
-    <div class="description">
-        <p>Default DocPad config</p>
-
-    </div>
-
-
-
-</div>
-<div id="property_" class="property item private">
-    <h3 class="name"><code></code></h3>
+<div id="property_collection" class="property item private">
+    <h3 class="name"><code>collection</code></h3>
     <span class="type">Object</span>
 
 
@@ -606,14 +381,40 @@
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_testers.coffee.html#l81"><code>src&#x2F;lib&#x2F;testers.coffee:81</code></a>
+        <a href="../files/src_lib_collections_files.coffee.html#l42"><code>src&#x2F;lib&#x2F;collections&#x2F;files.coffee:42</code></a>
         </p>
 
 
     </div>
 
     <div class="description">
-        <p>The DocPad instance</p>
+        <p>Base Collection for all child collections</p>
+
+    </div>
+
+
+
+</div>
+<div id="property_model" class="property item private">
+    <h3 class="name"><code>model</code></h3>
+    <span class="type">Object</span>
+
+
+        <span class="flag private">private</span>
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_collections_files.coffee.html#l35"><code>src&#x2F;lib&#x2F;collections&#x2F;files.coffee:35</code></a>
+        </p>
+
+
+    </div>
+
+    <div class="description">
+        <p>Base Model for all items in this collection</p>
 
     </div>
 

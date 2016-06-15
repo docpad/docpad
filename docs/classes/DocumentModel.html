@@ -1,0 +1,5414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>DocumentModel</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="icon" href="../assets/favicon.ico">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+                <h1><img src="../assets/css/logo.png" title="" width="117" height="52"></h1>
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: </em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+                    <h2 class="off-left">APIs</h2>
+                    <div id="api-tabview" class="tabview">
+                        <ul class="tabs">
+                            <li><a href="#api-classes">Classes</a></li>
+                            <li><a href="#api-modules">Modules</a></li>
+                        </ul>
+                
+                        <div id="api-tabview-filter">
+                            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+                        </div>
+                
+                        <div id="api-tabview-panel">
+                            <ul id="api-classes" class="apis classes">
+                                <li><a href="../classes/BasePlugin.html">BasePlugin</a></li>
+                                <li><a href="../classes/Collection.html">Collection</a></li>
+                                <li><a href="../classes/Docpad.html">Docpad</a></li>
+                                <li><a href="../classes/docpadUtil.html">docpadUtil</a></li>
+                                <li><a href="../classes/DocumentModel.html">DocumentModel</a></li>
+                                <li><a href="../classes/ElementsCollection.html">ElementsCollection</a></li>
+                                <li><a href="../classes/Events.html">Events</a></li>
+                                <li><a href="../classes/FileModel.html">FileModel</a></li>
+                                <li><a href="../classes/FilesCollection.html">FilesCollection</a></li>
+                                <li><a href="../classes/MetaCollection.html">MetaCollection</a></li>
+                                <li><a href="../classes/Model.html">Model</a></li>
+                                <li><a href="../classes/PluginLoader.html">PluginLoader</a></li>
+                                <li><a href="../classes/PluginTester.html">PluginTester</a></li>
+                                <li><a href="../classes/QueryCollection.html">QueryCollection</a></li>
+                                <li><a href="../classes/ScriptCollection.html">ScriptCollection</a></li>
+                                <li><a href="../classes/ServerTester.html">ServerTester</a></li>
+                                <li><a href="../classes/StylesCollection.html">StylesCollection</a></li>
+                            </ul>
+                
+                
+                            <ul id="api-modules" class="apis modules">
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+                    Show:
+                    <label for="api-show-inherited">
+                        <input type="checkbox" id="api-show-inherited" checked>
+                        Inherited
+                    </label>
+            
+                    <label for="api-show-protected">
+                        <input type="checkbox" id="api-show-protected">
+                        Protected
+                    </label>
+            
+                    <label for="api-show-private">
+                        <input type="checkbox" id="api-show-private">
+                        Private
+                    </label>
+                    <label for="api-show-deprecated">
+                        <input type="checkbox" id="api-show-deprecated">
+                        Deprecated
+                    </label>
+            
+                </div>
+            
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+<h1>DocumentModel Class</h1>
+<div class="box meta">
+
+        <div class="extends">
+            Extends <a href="../classes/FileModel.html" class="crosslink">FileModel</a>
+        </div>
+
+        <div class="foundat">
+            Defined in: <a href="../files/src_lib_models_document.coffee.html#l26"><code>src&#x2F;lib&#x2F;models&#x2F;document.coffee:26</code></a>
+        </div>
+
+
+</div>
+
+
+<div class="box intro">
+    <p>The DocumentModel class is DocPad's representation
+of a website or project's content files. This can be
+individual web pages or blog posts etc. Generally, this
+is not other website files such as css files, images, or scripts -
+unless there is a requirement to have DocPad do transformation on
+these files.
+Extends the DocPad FileModel class
+<a href="https://github.com/docpad/docpad/blob/master/src/lib/models/file.coffee">https://github.com/docpad/docpad/blob/master/src/lib/models/file.coffee</a>
+DocumentModel primarily handles the rendering and parsing of document files.
+This includes merging the document with layouts and managing the rendering
+from one file extension to another. The class inherits many of the file
+specific operations and DocPad specific attributes from the FileModel class.
+However, it also overrides some parsing and file output operations contained
+in the FileModel class.</p>
+<p>Typically we do not need to create DocumentModels ourselves as DocPad handles
+all of that. Most of the time when we encounter DocumentModels is when
+querying DocPad's document collections either in the docpad.coffee file or
+from within a template.</p>
+<pre class="code prettyprint"><code>indexDoc = @getCollection('documents').findOne({relativeOutPath: 'index.html'})
+</code></pre>
+<p>A plugin, however, may need to create a DocumentModel depending on its requirements.
+In such a case it is wise to use the built in DocPad methods to do so, in particular
+docpad.createModel</p>
+<pre class="code prettyprint"><code>#check to see if the document alread exists ie its an update
+docModel = @docpad.getCollection('posts').findOne({slug: 'some-slug'})
+
+#if so, load the existing document ready for regeneration
+if docModel
+    docModel.load()
+else
+    #if document doesn't already exist, create it and add to database
+    docModel = @docpad.createModel({fullPath:'file/path/to/somewhere'})
+    docModel.load()</code></pre>
+
+</div>
+
+    <div class="constructor">
+        <h2>Constructor</h2>
+<div id="method_DocumentModel" class="method item">
+    <h3 class="name"><code>DocumentModel</code></h3>
+
+        <span class="paren">()</span>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_document.coffee.html#l26"><code>src&#x2F;lib&#x2F;models&#x2F;document.coffee:26</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+
+
+
+</div>
+    </div>
+
+<div id="classdocs" class="tabview">
+    <ul class="api-class-tabs">
+        <li class="api-class-tab index"><a href="#index">Index</a></li>
+
+            <li class="api-class-tab methods"><a href="#methods">Methods</a></li>
+            <li class="api-class-tab properties"><a href="#properties">Properties</a></li>
+    </ul>
+
+    <div>
+        <div id="index" class="api-class-tabpanel index">
+            <h2 class="off-left">Item Index</h2>
+
+                <div class="index-section methods">
+                    <h3>Methods</h3>
+
+                    <ul class="index-list methods extends">
+                            <li class="index-item method inherited">
+                                <a href="#method_action">action</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_addUrl">addUrl</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_choose">choose</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_clean">clean</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_clone">clone</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_confirm">confirm</a>
+
+                            </li>
+                            <li class="index-item method private">
+                                <a href="#method_constructor">constructor</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_contextualize">contextualize</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_delete">delete</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_deleteSource">deleteSource</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_destroy">destroy</a>
+
+                            </li>
+                            <li class="index-item method private inherited">
+                                <a href="#method_encode">encode</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_extractConfig">extractConfig</a>
+
+                            </li>
+                            <li class="index-item method private inherited">
+                                <a href="#method_extractOptions">extractOptions</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_generate">generate</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_getActionRunner">getActionRunner</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_getAttributes">getAttributes</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_getBuffer">getBuffer</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_getCommander">getCommander</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_getContent">getContent</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_getEve">getEve</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_getExtensions">getExtensions</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_getFilename">getFilename</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_getFilePath">getFilePath</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_getLayout">getLayout</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_getLocale">getLocale</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_getMeta">getMeta</a>
+
+                            </li>
+                            <li class="index-item method private inherited">
+                                <a href="#method_getOptions">getOptions</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_getOutContent">getOutContent</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_getPath">getPath</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_getStat">getStat</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_hasLayout">hasLayout</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_help">help</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_info">info</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_init">init</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_initialize">initialize</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_install">install</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_isBinary">isBinary</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_isBufferOutdated">isBufferOutdated</a>
+
+                            </li>
+                            <li class="index-item method private inherited">
+                                <a href="#method_isOption">isOption</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_isText">isText</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_load">load</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_normalize">normalize</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_parse">parse</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_performAction">performAction</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_prompt">prompt</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_referencesOthers">referencesOthers</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_removeUrl">removeUrl</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_render">render</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_render">render</a>
+
+                            </li>
+                            <li class="index-item method private">
+                                <a href="#method_renderDocument">renderDocument</a>
+
+                            </li>
+                            <li class="index-item method private">
+                                <a href="#method_renderExtensions">renderExtensions</a>
+
+                            </li>
+                            <li class="index-item method private">
+                                <a href="#method_renderLayouts">renderLayouts</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_run">run</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_selectSkeletonCallback">selectSkeletonCallback</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_server">server</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_set">set</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_setBuffer">setBuffer</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_setDefaults">setDefaults</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_setMeta">setMeta</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_setMetaDefaults">setMetaDefaults</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_setOptions">setOptions</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_setStat">setStat</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_setUrl">setUrl</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_start">start</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_toJSON">toJSON</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_uninstall">uninstall</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_update">update</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_upgrade">upgrade</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_watch">watch</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_welcomeCallback">welcomeCallback</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_wrapAction">wrapAction</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_write">write</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_writeSource">writeSource</a>
+
+                            </li>
+                    </ul>
+                </div>
+
+                <div class="index-section properties">
+                    <h3>Properties</h3>
+
+                    <ul class="index-list properties extends">
+                            <li class="index-item property private inherited">
+                                <a href="#property_actionRunnerInstance">actionRunnerInstance</a>
+
+                            </li>
+                            <li class="index-item property inherited">
+                                <a href="#property_buffer">buffer</a>
+
+                            </li>
+                            <li class="index-item property inherited">
+                                <a href="#property_bufferTime">bufferTime</a>
+
+                            </li>
+                            <li class="index-item property inherited">
+                                <a href="#property_detectEncoding">detectEncoding</a>
+
+                            </li>
+                            <li class="index-item property private inherited">
+                                <a href="#property_"></a>
+
+                            </li>
+                            <li class="index-item property private inherited">
+                                <a href="#property_klass">klass</a>
+
+                            </li>
+                            <li class="index-item property private inherited">
+                                <a href="#property_locale">locale</a>
+
+                            </li>
+                            <li class="index-item property private inherited">
+                                <a href="#property_meta">meta</a>
+
+                            </li>
+                            <li class="index-item property inherited">
+                                <a href="#property_rootOutDirPath">rootOutDirPath</a>
+
+                            </li>
+                            <li class="index-item property inherited">
+                                <a href="#property_stat">stat</a>
+
+                            </li>
+                            <li class="index-item property private inherited">
+                                <a href="#property_TaskGroup">TaskGroup</a>
+
+                            </li>
+                            <li class="index-item property private inherited">
+                                <a href="#property_type">type</a>
+
+                            </li>
+                    </ul>
+                </div>
+
+
+        </div>
+
+            <div id="methods" class="api-class-tabpanel">
+                <h2 class="off-left">Methods</h2>
+
+<div id="method_action" class="method item">
+    <h3 class="name"><code>action</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>next</code>
+                </li>
+                <li class="arg">
+                        <code>opts</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+            <p>Inherited from
+            <a href="../classes/FileModel.html#method_action">
+                FileModel
+            </a>
+            but overwritten in
+        <a href="../files/src_lib_interfaces_console.coffee.html#l694"><code>src&#x2F;lib&#x2F;interfaces&#x2F;console.coffee:694</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Do action</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Function</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">opts</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_addUrl" class="method item inherited">
+    <h3 class="name"><code>addUrl</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>url</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#method_addUrl">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l761"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:761</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        A file can have multiple urls.
+This method adds either a single url
+or an array of urls to the file model.
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">url</code>
+                        <span class="type">String or Array</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_choose" class="method item">
+    <h3 class="name"><code>choose</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>message</code>
+                </li>
+                <li class="arg">
+                        <code>choices</code>
+                </li>
+                <li class="arg">
+                        <code class="optional">[opts={}]</code>
+                </li>
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_interfaces_console.coffee.html#l652"><code>src&#x2F;lib&#x2F;interfaces&#x2F;console.coffee:652</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Choose something</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">message</code>
+                        <span class="type">String</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">choices</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name optional">[opts={}]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Function</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_clean" class="method item">
+    <h3 class="name"><code>clean</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_interfaces_console.coffee.html#l893"><code>src&#x2F;lib&#x2F;interfaces&#x2F;console.coffee:893</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Clean method</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Function</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_clone" class="method item inherited">
+    <h3 class="name"><code>clone</code></h3>
+
+        <span class="paren">()</span>
+
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#method_clone">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l237"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:237</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        Clone the model and return the newly cloned model.
+    </div>
+
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">Object</span>:
+                    cloned file model
+            </div>
+        </div>
+
+
+</div>
+<div id="method_confirm" class="method item">
+    <h3 class="name"><code>confirm</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>message</code>
+                </li>
+                <li class="arg">
+                        <code class="optional">[opts={}]</code>
+                </li>
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_interfaces_console.coffee.html#l625"><code>src&#x2F;lib&#x2F;interfaces&#x2F;console.coffee:625</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Confirm an option</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">message</code>
+                        <span class="type">String</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name optional">[opts={}]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Function</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_constructor" class="method item private">
+    <h3 class="name"><code>constructor</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>opts</code>
+                </li>
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+        <span class="flag private">private</span>
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_interfaces_console.coffee.html#l28"><code>src&#x2F;lib&#x2F;interfaces&#x2F;console.coffee:28</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Constructor method. Setup the CLI</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">opts</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Function</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_contextualize" class="method item">
+    <h3 class="name"><code>contextualize</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code class="optional">[opts={}]</code>
+                </li>
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+            <p>Inherited from
+            <a href="../classes/FileModel.html#method_contextualize">
+                FileModel
+            </a>
+            but overwritten in
+        <a href="../files/src_lib_models_document.coffee.html#l375"><code>src&#x2F;lib&#x2F;models&#x2F;document.coffee:375</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Contextualize the data. In other words,
+put our data into the perspective of the bigger picture of the data.
+For instance, generate the url for it's rendered equivalant.
+next(err)</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name optional">[opts={}]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        <p>callback</p>
+
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_delete" class="method item inherited">
+    <h3 class="name"><code>delete</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code class="optional">[opts]</code>
+                </li>
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#method_delete">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l1334"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:1334</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        Delete the out file, perhaps ahead of regeneration.
+Optionally pass the opts parameter to set the file path or type.
+next(err)
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name optional">[opts]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        callback
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_deleteSource" class="method item inherited">
+    <h3 class="name"><code>deleteSource</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code class="optional">[opts]</code>
+                </li>
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#method_deleteSource">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l1380"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:1380</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        Delete the source file.
+Optionally pass the opts parameter to set the file path or type.
+next(err)
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name optional">[opts]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        callback
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_destroy" class="method item">
+    <h3 class="name"><code>destroy</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>err</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_interfaces_console.coffee.html#l252"><code>src&#x2F;lib&#x2F;interfaces&#x2F;console.coffee:252</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Destructor.</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">err</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_encode" class="method item private inherited">
+    <h3 class="name"><code>encode</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>opts</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+
+
+        <span class="flag private">private</span>
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#method_encode">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l416"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:416</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        File encoding helper
+opts = {path, to, from, content}
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">opts</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">Object</span>:
+                    encoded result
+            </div>
+        </div>
+
+
+</div>
+<div id="method_extractConfig" class="method item">
+    <h3 class="name"><code>extractConfig</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code class="optional">[customConfig={}]</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_interfaces_console.coffee.html#l361"><code>src&#x2F;lib&#x2F;interfaces&#x2F;console.coffee:361</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Extract Configuration</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name optional">[customConfig={}]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">Object</span>:
+                    <p>the DocPad config</p>
+
+            </div>
+        </div>
+
+
+</div>
+<div id="method_extractOptions" class="method item private inherited">
+    <h3 class="name"><code>extractOptions</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>attrs</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+
+
+        <span class="flag private">private</span>
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#method_extractOptions">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l165"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:165</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        Extract Options.
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">attrs</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">Object</span>:
+                    the options object
+            </div>
+        </div>
+
+
+</div>
+<div id="method_generate" class="method item">
+    <h3 class="name"><code>generate</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_interfaces_console.coffee.html#l715"><code>src&#x2F;lib&#x2F;interfaces&#x2F;console.coffee:715</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Generate action</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Function</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_getActionRunner" class="method item inherited">
+    <h3 class="name"><code>getActionRunner</code></h3>
+
+        <span class="paren">()</span>
+
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#method_getActionRunner">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l834"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:834</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        Get the action runner instance bound to DocPad
+    </div>
+
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">Object</span>:
+            </div>
+        </div>
+
+
+</div>
+<div id="method_getAttributes" class="method item inherited">
+    <h3 class="name"><code>getAttributes</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code class="optional">[dereference=true]</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#method_getAttributes">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l500"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:500</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        Get the file model attributes.
+By default the attributes will be
+dereferenced from the file model.
+To maintain a reference, pass false
+as the parameter. The returned object
+will NOT contain the file model's ID attribute.
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name optional">[dereference=true]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">Object</span>:
+            </div>
+        </div>
+
+
+</div>
+<div id="method_getBuffer" class="method item inherited">
+    <h3 class="name"><code>getBuffer</code></h3>
+
+        <span class="paren">()</span>
+
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#method_getBuffer">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l461"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:461</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        Get the file model's buffer object.
+Returns a node.js buffer object.
+    </div>
+
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">Object</span>:
+                    node.js buffer object
+            </div>
+        </div>
+
+
+</div>
+<div id="method_getCommander" class="method item">
+    <h3 class="name"><code>getCommander</code></h3>
+
+        <span class="paren">()</span>
+
+        <span class="returns-inline">
+            <span class="type"></span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_interfaces_console.coffee.html#l244"><code>src&#x2F;lib&#x2F;interfaces&#x2F;console.coffee:244</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Get the commander</p>
+
+    </div>
+
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                    <p>the commander instance</p>
+
+            </div>
+        </div>
+
+
+</div>
+<div id="method_getContent" class="method item inherited">
+    <h3 class="name"><code>getContent</code></h3>
+
+        <span class="paren">()</span>
+
+        <span class="returns-inline">
+            <span class="type">String or Object</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#method_getContent">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l717"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:717</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        Get the file content. This will be
+the text content if loaded or the file buffer object.
+    </div>
+
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">String or Object</span>:
+            </div>
+        </div>
+
+
+</div>
+<div id="method_getEve" class="method item">
+    <h3 class="name"><code>getEve</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_document.coffee.html#l469"><code>src&#x2F;lib&#x2F;models&#x2F;document.coffee:469</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Get the most ancestoral (root) layout we
+have - ie, the very top one. Often this
+will be the base or default layout for
+a project. The layout where the head and other
+html on all pages is defined. In some projects,
+however, there may be more than one root layout
+so we can't assume there will always only be one.
+This is used by the contextualize method to determine
+the output extension of the document. In other words
+the document's final output extension is determined by
+the root layout.
+next(err,layout)</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Function</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_getExtensions" class="method item inherited">
+    <h3 class="name"><code>getExtensions</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>opts</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+        <span class="returns-inline">
+            <span class="type">Array</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#method_getExtensions">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l698"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:698</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        Get file extensions. Depending on the
+parameters passed this will either be
+the file model's extensions property or
+the extensions extracted from the file model's
+filename property. The opts parameter is passed
+in the format: {extensions,filename}.
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">opts</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">Array</span>:
+                    array of extension names
+            </div>
+        </div>
+
+
+</div>
+<div id="method_getFilename" class="method item inherited">
+    <h3 class="name"><code>getFilename</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code class="optional">[opts={}]</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+        <span class="returns-inline">
+            <span class="type">String</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#method_getFilename">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l650"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:650</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        Get the file name. Depending on the
+parameters passed this will either be
+the file model's filename property or,
+the filename determined from the fullPath
+or relativePath property. Valid values for
+the opts parameter are: fullPath, relativePath
+or filename. Format: {filename}
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name optional">[opts={}]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">String</span>:
+            </div>
+        </div>
+
+
+</div>
+<div id="method_getFilePath" class="method item inherited">
+    <h3 class="name"><code>getFilePath</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code class="optional">[opts={}]</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+        <span class="returns-inline">
+            <span class="type">String</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#method_getFilePath">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l676"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:676</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        Get the file path. Depending on the
+parameters passed this will either be
+the file model's fullPath property, the
+relativePath property or the filename property.
+Valid values for the opts parameter are:
+fullPath, relativePath
+or filename. Format: {fullPath}
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name optional">[opts={}]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">String</span>:
+            </div>
+        </div>
+
+
+</div>
+<div id="method_getLayout" class="method item">
+    <h3 class="name"><code>getLayout</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_document.coffee.html#l429"><code>src&#x2F;lib&#x2F;models&#x2F;document.coffee:429</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Get the layout object that this file references (if any).
+We update the layoutRelativePath as it is
+used for finding what documents are used by a
+layout for when a layout changes.
+next(err, layout)</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Function</span>
+
+
+                    <div class="param-description">
+                        <p>callback</p>
+
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_getLocale" class="method item inherited">
+    <h3 class="name"><code>getLocale</code></h3>
+
+        <span class="paren">()</span>
+
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#method_getLocale">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l133"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:133</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        Get the file's locale information
+    </div>
+
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">Object</span>:
+                    the locale
+            </div>
+        </div>
+
+
+</div>
+<div id="method_getMeta" class="method item inherited">
+    <h3 class="name"><code>getMeta</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code class="optional">[args...]</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#method_getMeta">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l535"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:535</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        Get the file model metadata object.
+Optionally pass a list of metadata property
+names corresponding to those properties that
+you want returned.
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name optional">[args...]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">Object</span>:
+            </div>
+        </div>
+
+
+</div>
+<div id="method_getOptions" class="method item private inherited">
+    <h3 class="name"><code>getOptions</code></h3>
+
+        <span class="paren">()</span>
+
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+
+
+        <span class="flag private">private</span>
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#method_getOptions">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l140"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:140</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        Get Options. Returns an object containing
+the properties detectEncoding, rootOutDirPath
+locale, stat, buffer, meta and TaskGroup.
+    </div>
+
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">Object</span>:
+            </div>
+        </div>
+
+
+</div>
+<div id="method_getOutContent" class="method item">
+    <h3 class="name"><code>getOutContent</code></h3>
+
+        <span class="paren">()</span>
+
+        <span class="returns-inline">
+            <span class="type">String or Object</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+            <p>Inherited from
+            <a href="../classes/FileModel.html#method_getOutContent">
+                FileModel
+            </a>
+            but overwritten in
+        <a href="../files/src_lib_models_document.coffee.html#l149"><code>src&#x2F;lib&#x2F;models&#x2F;document.coffee:149</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Get the file content for output. This
+will be the text content AFTER it has
+been through the rendering process. If
+this has been called before the rendering
+process, then the raw text content will be returned,
+or, if early enough in the process, the file buffer object.</p>
+
+    </div>
+
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">String or Object</span>:
+            </div>
+        </div>
+
+
+</div>
+<div id="method_getPath" class="method item inherited">
+    <h3 class="name"><code>getPath</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>relativePath</code>
+                </li>
+                <li class="arg">
+                        <code>parentPath</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+        <span class="returns-inline">
+            <span class="type">String</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#method_getPath">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l803"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:803</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        Get a file path.
+If the relativePath parameter starts with <code>.</code> then we get the
+path in relation to the document that is calling it.
+Otherwise we just return it as normal
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">relativePath</code>
+                        <span class="type">String</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">parentPath</code>
+                        <span class="type">String</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">String</span>:
+            </div>
+        </div>
+
+
+</div>
+<div id="method_getStat" class="method item inherited">
+    <h3 class="name"><code>getStat</code></h3>
+
+        <span class="paren">()</span>
+
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#method_getStat">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l492"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:492</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        Get the node.js file stat.
+    </div>
+
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">Object</span>:
+                    the file stat
+            </div>
+        </div>
+
+
+</div>
+<div id="method_hasLayout" class="method item">
+    <h3 class="name"><code>hasLayout</code></h3>
+
+        <span class="paren">()</span>
+
+        <span class="returns-inline">
+            <span class="type">Boolean</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_document.coffee.html#l419"><code>src&#x2F;lib&#x2F;models&#x2F;document.coffee:419</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Checks if the file has a layout.</p>
+
+    </div>
+
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">Boolean</span>:
+            </div>
+        </div>
+
+
+</div>
+<div id="method_help" class="method item">
+    <h3 class="name"><code>help</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_interfaces_console.coffee.html#l724"><code>src&#x2F;lib&#x2F;interfaces&#x2F;console.coffee:724</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Help method</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Function</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_info" class="method item">
+    <h3 class="name"><code>info</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_interfaces_console.coffee.html#l735"><code>src&#x2F;lib&#x2F;interfaces&#x2F;console.coffee:735</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Info method</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Function</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_init" class="method item">
+    <h3 class="name"><code>init</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_interfaces_console.coffee.html#l706"><code>src&#x2F;lib&#x2F;interfaces&#x2F;console.coffee:706</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Action initialise</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Function</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_initialize" class="method item inherited">
+    <h3 class="name"><code>initialize</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>attrs</code>
+                </li>
+                <li class="arg">
+                        <code class="optional">[opts={}]</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#method_initialize">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l847"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:847</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        Initialize the file model with the passed
+attributes and options. Emits the init event.
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">attrs</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        the file model attributes
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name optional">[opts={}]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                        the file model options
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_install" class="method item">
+    <h3 class="name"><code>install</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>next</code>
+                </li>
+                <li class="arg">
+                        <code>opts</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_interfaces_console.coffee.html#l772"><code>src&#x2F;lib&#x2F;interfaces&#x2F;console.coffee:772</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Install method</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Function</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">opts</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_isBinary" class="method item inherited">
+    <h3 class="name"><code>isBinary</code></h3>
+
+        <span class="paren">()</span>
+
+        <span class="returns-inline">
+            <span class="type">Boolean</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#method_isBinary">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l743"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:743</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        Is this a binary file?
+    </div>
+
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">Boolean</span>:
+            </div>
+        </div>
+
+
+</div>
+<div id="method_isBufferOutdated" class="method item inherited">
+    <h3 class="name"><code>isBufferOutdated</code></h3>
+
+        <span class="paren">()</span>
+
+        <span class="returns-inline">
+            <span class="type">Boolean</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#method_isBufferOutdated">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l470"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:470</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        Is Buffer Outdated
+True if there is no buffer OR the buffer time is outdated
+    </div>
+
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">Boolean</span>:
+            </div>
+        </div>
+
+
+</div>
+<div id="method_isOption" class="method item private inherited">
+    <h3 class="name"><code>isOption</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>key</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+        <span class="returns-inline">
+            <span class="type">Boolean</span>
+        </span>
+
+
+        <span class="flag private">private</span>
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#method_isOption">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l152"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:152</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        Checks whether the passed key is one
+of the options.
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">key</code>
+                        <span class="type">String</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">Boolean</span>:
+            </div>
+        </div>
+
+
+</div>
+<div id="method_isText" class="method item inherited">
+    <h3 class="name"><code>isText</code></h3>
+
+        <span class="paren">()</span>
+
+        <span class="returns-inline">
+            <span class="type">Boolean</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#method_isText">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l734"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:734</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        Is this a text file? ie - not
+a binary file.
+    </div>
+
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">Boolean</span>:
+            </div>
+        </div>
+
+
+</div>
+<div id="method_load" class="method item inherited">
+    <h3 class="name"><code>load</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code class="optional">[opts={}]</code>
+                </li>
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#method_load">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l884"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:884</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        Load the file from the file system.
+If the fullPath exists, load the file.
+If it doesn't, then parse and normalize the file.
+Optionally pass file options as a parameter.
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name optional">[opts={}]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Function</span>
+
+
+                    <div class="param-description">
+                        callback
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_normalize" class="method item">
+    <h3 class="name"><code>normalize</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code class="optional">[opts={}]</code>
+                </li>
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+            <p>Inherited from
+            <a href="../classes/FileModel.html#method_normalize">
+                FileModel
+            </a>
+            but overwritten in
+        <a href="../files/src_lib_models_document.coffee.html#l345"><code>src&#x2F;lib&#x2F;models&#x2F;document.coffee:345</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Normalize any parsing we have done, because if a value has
+updates it may have consequences on another value.
+This will ensure everything is okay.
+next(err)</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name optional">[opts={}]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        <p>callback</p>
+
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_parse" class="method item">
+    <h3 class="name"><code>parse</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code class="optional">[opts={}]</code>
+                </li>
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+            <p>Inherited from
+            <a href="../classes/FileModel.html#method_parse">
+                FileModel
+            </a>
+            but overwritten in
+        <a href="../files/src_lib_models_document.coffee.html#l181"><code>src&#x2F;lib&#x2F;models&#x2F;document.coffee:181</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Parse our buffer and extract meaningful data from it.
+next(err).</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name optional">[opts={}]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        <p>callback</p>
+
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_performAction" class="method item">
+    <h3 class="name"><code>performAction</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>action</code>
+                </li>
+                <li class="arg">
+                        <code>args</code>
+                </li>
+                <li class="arg">
+                        <code class="optional">[config={}]</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_interfaces_console.coffee.html#l310"><code>src&#x2F;lib&#x2F;interfaces&#x2F;console.coffee:310</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Perform Action</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">action</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">args</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name optional">[config={}]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_prompt" class="method item">
+    <h3 class="name"><code>prompt</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>message</code>
+                </li>
+                <li class="arg">
+                        <code class="optional">[opts={}]</code>
+                </li>
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_interfaces_console.coffee.html#l601"><code>src&#x2F;lib&#x2F;interfaces&#x2F;console.coffee:601</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Prompt for input</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">message</code>
+                        <span class="type">String</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name optional">[opts={}]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Function</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_referencesOthers" class="method item">
+    <h3 class="name"><code>referencesOthers</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code class="optional">[flag=true]</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_document.coffee.html#l163"><code>src&#x2F;lib&#x2F;models&#x2F;document.coffee:163</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Set flag to indicate if the document
+contains references to other documents.
+Used in the rendering process to decide
+on whether to render this document when
+another document is updated.</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name optional">[flag=true]</code>
+                        <span class="type">Boolean</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_removeUrl" class="method item inherited">
+    <h3 class="name"><code>removeUrl</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>userUrl</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#method_removeUrl">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l789"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:789</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        Removes a url from the file
+model (files can have more than one url).
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">userUrl</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        the url to be removed
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_render" class="method item">
+    <h3 class="name"><code>render</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code class="optional">[opts={}]</code>
+                </li>
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_document.coffee.html#l673"><code>src&#x2F;lib&#x2F;models&#x2F;document.coffee:673</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Triggers the render process for this document.
+Calls the renderExtensions, renderDocument and
+renderLayouts methods in sequence. This is the
+method you want to call if you want to trigger
+the rendering of a document manually.</p>
+<p>The rendered content is returned as the result
+parameter to the passed callback and the DocumentModel
+instance is returned in the document parameter.
+next(err,result,document)</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name optional">[opts={}]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Function</span>
+
+
+                    <div class="param-description">
+                        <p>callback</p>
+
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_render" class="method item">
+    <h3 class="name"><code>render</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>next</code>
+                </li>
+                <li class="arg">
+                        <code>opts</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+            <p>Inherited from
+            <a href="../classes/FileModel.html#method_render">
+                FileModel
+            </a>
+            but overwritten in
+        <a href="../files/src_lib_interfaces_console.coffee.html#l804"><code>src&#x2F;lib&#x2F;interfaces&#x2F;console.coffee:804</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Render method</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Function</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">opts</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_renderDocument" class="method item private">
+    <h3 class="name"><code>renderDocument</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>opts</code>
+                </li>
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+        <span class="flag private">private</span>
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_document.coffee.html#l593"><code>src&#x2F;lib&#x2F;models&#x2F;document.coffee:593</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Triggers the renderDocument event after
+all extensions have been rendered. Listeners
+can use this event to perform transformations
+on the already rendered content.</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">opts</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Function</span>
+
+
+                    <div class="param-description">
+                        <p>callback</p>
+
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_renderExtensions" class="method item private">
+    <h3 class="name"><code>renderExtensions</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>opts</code>
+                </li>
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+        <span class="flag private">private</span>
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_document.coffee.html#l502"><code>src&#x2F;lib&#x2F;models&#x2F;document.coffee:502</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Renders one extension to another depending
+on the document model's extensions property.
+Triggers the render event for each extension conversion.
+This is the point where the various templating systems listen
+for their extension and perform their conversions.
+Common extension conversion is from md to html.
+So the document source file maybe index.md.html.
+This will be a markdown file to be converted to HTML.
+However, documents can be rendered through more than
+one conversion. Index.html.md.eco will be rendered from
+eco to md and then from md to html. Two conversions.
+next(err,result)</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">opts</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Function</span>
+
+
+                    <div class="param-description">
+                        <p>callback</p>
+
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_renderLayouts" class="method item private">
+    <h3 class="name"><code>renderLayouts</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>opts</code>
+                </li>
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+        <span class="flag private">private</span>
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_document.coffee.html#l624"><code>src&#x2F;lib&#x2F;models&#x2F;document.coffee:624</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Render and merge layout content. Merge
+layout metadata with document metadata.
+Return the resulting merged content to
+the callback result parameter.
+next(err,result)</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">opts</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Function</span>
+
+
+                    <div class="param-description">
+                        <p>callback</p>
+
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_run" class="method item">
+    <h3 class="name"><code>run</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_interfaces_console.coffee.html#l872"><code>src&#x2F;lib&#x2F;interfaces&#x2F;console.coffee:872</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Run method</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Function</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_selectSkeletonCallback" class="method item">
+    <h3 class="name"><code>selectSkeletonCallback</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>skeletonsCollection</code>
+                </li>
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_interfaces_console.coffee.html#l409"><code>src&#x2F;lib&#x2F;interfaces&#x2F;console.coffee:409</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Select a skeleton</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">skeletonsCollection</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Function</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_server" class="method item">
+    <h3 class="name"><code>server</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_interfaces_console.coffee.html#l884"><code>src&#x2F;lib&#x2F;interfaces&#x2F;console.coffee:884</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Server method</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Function</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_set" class="method item inherited">
+    <h3 class="name"><code>set</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>attrs</code>
+                </li>
+                <li class="arg">
+                        <code>opts</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#method_set">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l551"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:551</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        Assign attributes and options to the file model.
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">attrs</code>
+                        <span class="type">Array</span>
+
+
+                    <div class="param-description">
+                        the attributes to be applied
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">opts</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        the options to be applied
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_setBuffer" class="method item inherited">
+    <h3 class="name"><code>setBuffer</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code class="optional">[buffer]</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#method_setBuffer">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l447"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:447</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        Set the file model's buffer.
+Creates a new node.js buffer
+object if a buffer object is
+is not passed as the parameter
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name optional">[buffer]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_setDefaults" class="method item inherited">
+    <h3 class="name"><code>setDefaults</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>attrs</code>
+                </li>
+                <li class="arg">
+                        <code>opts</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#method_setDefaults">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l579"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:579</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        Set defaults. Apply default attributes
+and options to the file model
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">attrs</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        the attributes to be applied
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">opts</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        the options to be applied
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_setMeta" class="method item inherited">
+    <h3 class="name"><code>setMeta</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>attrs</code>
+                </li>
+                <li class="arg">
+                        <code>opts</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#method_setMeta">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l602"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:602</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        Set the file model meta data,
+attributes and options in one go.
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">attrs</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        the attributes to be applied
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">opts</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        the options to be applied
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_setMetaDefaults" class="method item inherited">
+    <h3 class="name"><code>setMetaDefaults</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>attrs</code>
+                </li>
+                <li class="arg">
+                        <code>opts</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#method_setMetaDefaults">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l627"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:627</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        Set the file model meta data defaults
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">attrs</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        the attributes to be applied
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">opts</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        the options to be applied
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_setOptions" class="method item inherited">
+    <h3 class="name"><code>setOptions</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code class="optional">[attrs={}]</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#method_setOptions">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l185"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:185</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        Set the options for the file model.
+Valid properties for the attrs parameter:
+TaskGroup, detectEncoding, rootOutDirPath,
+locale, stat, data, buffer, meta.
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name optional">[attrs={}]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_setStat" class="method item inherited">
+    <h3 class="name"><code>setStat</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>stat</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#method_setStat">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l479"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:479</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        Set the node.js file stat.
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">stat</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_setUrl" class="method item inherited">
+    <h3 class="name"><code>setUrl</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>url</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#method_setUrl">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l751"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:751</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        Set the url for the file
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">url</code>
+                        <span class="type">String</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_start" class="method item">
+    <h3 class="name"><code>start</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>argv</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_interfaces_console.coffee.html#l235"><code>src&#x2F;lib&#x2F;interfaces&#x2F;console.coffee:235</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Start the CLI</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">argv</code>
+                        <span class="type">Array</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_toJSON" class="method item inherited">
+    <h3 class="name"><code>toJSON</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code class="optional">[dereference=false]</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#method_toJSON">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l518"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:518</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        Get the file model attributes.
+By default the attributes will
+maintain a reference to the file model.
+To return a dereferenced object, pass true
+as the parameter. The returned object
+will contain the file model's ID attribute.
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name optional">[dereference=false]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">Object</span>:
+            </div>
+        </div>
+
+
+</div>
+<div id="method_uninstall" class="method item">
+    <h3 class="name"><code>uninstall</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>next</code>
+                </li>
+                <li class="arg">
+                        <code>opts</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_interfaces_console.coffee.html#l788"><code>src&#x2F;lib&#x2F;interfaces&#x2F;console.coffee:788</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Uninstall method</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Function</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">opts</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_update" class="method item">
+    <h3 class="name"><code>update</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>next</code>
+                </li>
+                <li class="arg">
+                        <code>opts</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_interfaces_console.coffee.html#l747"><code>src&#x2F;lib&#x2F;interfaces&#x2F;console.coffee:747</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Update method</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Function</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">opts</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_upgrade" class="method item">
+    <h3 class="name"><code>upgrade</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>next</code>
+                </li>
+                <li class="arg">
+                        <code>opts</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_interfaces_console.coffee.html#l759"><code>src&#x2F;lib&#x2F;interfaces&#x2F;console.coffee:759</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Upgrade method</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Function</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">opts</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_watch" class="method item">
+    <h3 class="name"><code>watch</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_interfaces_console.coffee.html#l902"><code>src&#x2F;lib&#x2F;interfaces&#x2F;console.coffee:902</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Watch method</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Function</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_welcomeCallback" class="method item">
+    <h3 class="name"><code>welcomeCallback</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>opts</code>
+                </li>
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_interfaces_console.coffee.html#l450"><code>src&#x2F;lib&#x2F;interfaces&#x2F;console.coffee:450</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Welcome Callback</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">opts</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Function</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_wrapAction" class="method item">
+    <h3 class="name"><code>wrapAction</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>action</code>
+                </li>
+                <li class="arg">
+                        <code>config</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_interfaces_console.coffee.html#l299"><code>src&#x2F;lib&#x2F;interfaces&#x2F;console.coffee:299</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Wrap Action</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">action</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">config</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_write" class="method item inherited">
+    <h3 class="name"><code>write</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>opts</code>
+                </li>
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#method_write">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l1249"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:1249</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        Write the out file. The out file
+may be different from the input file.
+Often the input file is transformed in some way
+and saved as another file format. A common example
+is transforming a markdown input file to a HTML
+output file.
+next(err)
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">opts</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Function</span>
+
+
+                    <div class="param-description">
+                        callback
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_writeSource" class="method item">
+    <h3 class="name"><code>writeSource</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code class="optional">[opts]</code>
+                </li>
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+            <p>Inherited from
+            <a href="../classes/FileModel.html#method_writeSource">
+                FileModel
+            </a>
+            but overwritten in
+        <a href="../files/src_lib_models_document.coffee.html#l802"><code>src&#x2F;lib&#x2F;models&#x2F;document.coffee:802</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Write the source file. Optionally pass
+the opts parameter to modify or set the file's
+path, content or type.
+next(err)</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name optional">[opts]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        <p>callback</p>
+
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+            </div>
+
+            <div id="properties" class="api-class-tabpanel">
+                <h2 class="off-left">Properties</h2>
+
+<div id="property_actionRunnerInstance" class="property item private inherited">
+    <h3 class="name"><code>actionRunnerInstance</code></h3>
+    <span class="type">Object</span>
+
+
+        <span class="flag private">private</span>
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#property_actionRunnerInstance">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l828"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:828</code></a>
+        </p>
+
+
+    </div>
+
+    <div class="description">
+        The action runner instance bound to DocPad
+    </div>
+
+
+
+</div>
+<div id="property_buffer" class="property item inherited">
+    <h3 class="name"><code>buffer</code></h3>
+    <span class="type">Object</span>
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#property_buffer">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l105"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:105</code></a>
+        </p>
+
+
+    </div>
+
+    <div class="description">
+        File buffer. Node.js Buffer object.
+https://nodejs.org/api/buffer.html#buffer_class_buffer.
+Provides methods for dealing with binary data directly.
+    </div>
+
+
+
+</div>
+<div id="property_bufferTime" class="property item inherited">
+    <h3 class="name"><code>bufferTime</code></h3>
+    <span class="type">Object</span>
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#property_bufferTime">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l113"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:113</code></a>
+        </p>
+
+
+    </div>
+
+    <div class="description">
+        Buffer time.
+    </div>
+
+
+
+</div>
+<div id="property_detectEncoding" class="property item inherited">
+    <h3 class="name"><code>detectEncoding</code></h3>
+    <span class="type">Boolean</span>
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#property_detectEncoding">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l90"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:90</code></a>
+        </p>
+
+
+    </div>
+
+    <div class="description">
+        Whether or not we should detect encoding
+    </div>
+
+
+
+</div>
+<div id="property_" class="property item private">
+    <h3 class="name"><code></code></h3>
+    <span class="type">Object</span>
+
+
+        <span class="flag private">private</span>
+
+
+
+    <div class="meta">
+            <p>Inherited from
+            <a href="../classes/FileModel.html#property_">
+                FileModel
+            </a>
+            but overwritten in
+        <a href="../files/src_lib_models_document.coffee.html#l93"><code>src&#x2F;lib&#x2F;models&#x2F;document.coffee:93</code></a>
+        </p>
+
+
+    </div>
+
+    <div class="description">
+        <p>The default attributes for any document model.</p>
+
+    </div>
+
+
+
+</div>
+<div id="property_klass" class="property item private">
+    <h3 class="name"><code>klass</code></h3>
+    <span class="type">Object</span>
+
+
+        <span class="flag private">private</span>
+
+
+
+    <div class="meta">
+            <p>Inherited from
+            <a href="../classes/FileModel.html#property_klass">
+                FileModel
+            </a>
+            but overwritten in
+        <a href="../files/src_lib_models_document.coffee.html#l74"><code>src&#x2F;lib&#x2F;models&#x2F;document.coffee:74</code></a>
+        </p>
+
+
+    </div>
+
+    <div class="description">
+        <p>The document model class.</p>
+
+    </div>
+
+
+
+</div>
+<div id="property_locale" class="property item private inherited">
+    <h3 class="name"><code>locale</code></h3>
+    <span class="type">Object</span>
+
+
+        <span class="flag private">private</span>
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#property_locale">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l127"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:127</code></a>
+        </p>
+
+
+    </div>
+
+    <div class="description">
+        Locale information for the file
+    </div>
+
+
+
+</div>
+<div id="property_meta" class="property item private inherited">
+    <h3 class="name"><code>meta</code></h3>
+    <span class="type">Object</span>
+
+
+        <span class="flag private">private</span>
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#property_meta">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l119"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:119</code></a>
+        </p>
+
+
+    </div>
+
+    <div class="description">
+        The parsed file meta data (header).
+Is a Model instance.
+    </div>
+
+
+
+</div>
+<div id="property_rootOutDirPath" class="property item inherited">
+    <h3 class="name"><code>rootOutDirPath</code></h3>
+    <span class="type">String</span>
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#property_rootOutDirPath">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l84"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:84</code></a>
+        </p>
+
+
+    </div>
+
+    <div class="description">
+        The out directory path to put the relative path.
+    </div>
+
+
+
+</div>
+<div id="property_stat" class="property item inherited">
+    <h3 class="name"><code>stat</code></h3>
+    <span class="type">Object</span>
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#property_stat">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l96"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:96</code></a>
+        </p>
+
+
+    </div>
+
+    <div class="description">
+        Node.js file stat object.
+https://nodejs.org/api/fs.html#fs_class_fs_stats.
+Basically, information about a file, including file
+dates and size.
+    </div>
+
+
+
+</div>
+<div id="property_TaskGroup" class="property item private inherited">
+    <h3 class="name"><code>TaskGroup</code></h3>
+    <span class="type">Object</span>
+
+
+        <span class="flag private">private</span>
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/FileModel.html#property_TaskGroup">FileModel</a>:
+        <a href="../files/src_lib_models_file.coffee.html#l77"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:77</code></a>
+        </p>
+
+
+    </div>
+
+    <div class="description">
+        Task Group Class
+    </div>
+
+
+
+</div>
+<div id="property_type" class="property item private">
+    <h3 class="name"><code>type</code></h3>
+    <span class="type">String</span>
+
+
+        <span class="flag private">private</span>
+
+
+
+    <div class="meta">
+            <p>Inherited from
+            <a href="../classes/FileModel.html#property_type">
+                FileModel
+            </a>
+            but overwritten in
+        <a href="../files/src_lib_models_document.coffee.html#l81"><code>src&#x2F;lib&#x2F;models&#x2F;document.coffee:81</code></a>
+        </p>
+
+
+    </div>
+
+    <div class="description">
+        <p>String name of the model type.
+In this case, 'document'.</p>
+
+    </div>
+
+
+
+</div>
+            </div>
+
+
+    </div>
+</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

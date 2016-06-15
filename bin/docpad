@@ -1,3 +1,2 @@
 #!/usr/bin/env node
-"use strict";
-require('../out/bin/docpad');
+require('../out/bin/docpad')

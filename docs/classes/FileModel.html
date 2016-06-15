@@ -1,0 +1,3280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>FileModel</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="icon" href="../assets/favicon.ico">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+                <h1><img src="../assets/css/logo.png" title="" width="117" height="52"></h1>
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: </em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+                    <h2 class="off-left">APIs</h2>
+                    <div id="api-tabview" class="tabview">
+                        <ul class="tabs">
+                            <li><a href="#api-classes">Classes</a></li>
+                            <li><a href="#api-modules">Modules</a></li>
+                        </ul>
+                
+                        <div id="api-tabview-filter">
+                            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+                        </div>
+                
+                        <div id="api-tabview-panel">
+                            <ul id="api-classes" class="apis classes">
+                                <li><a href="../classes/BasePlugin.html">BasePlugin</a></li>
+                                <li><a href="../classes/Collection.html">Collection</a></li>
+                                <li><a href="../classes/Docpad.html">Docpad</a></li>
+                                <li><a href="../classes/docpadUtil.html">docpadUtil</a></li>
+                                <li><a href="../classes/DocumentModel.html">DocumentModel</a></li>
+                                <li><a href="../classes/ElementsCollection.html">ElementsCollection</a></li>
+                                <li><a href="../classes/Events.html">Events</a></li>
+                                <li><a href="../classes/FileModel.html">FileModel</a></li>
+                                <li><a href="../classes/FilesCollection.html">FilesCollection</a></li>
+                                <li><a href="../classes/MetaCollection.html">MetaCollection</a></li>
+                                <li><a href="../classes/Model.html">Model</a></li>
+                                <li><a href="../classes/PluginLoader.html">PluginLoader</a></li>
+                                <li><a href="../classes/PluginTester.html">PluginTester</a></li>
+                                <li><a href="../classes/QueryCollection.html">QueryCollection</a></li>
+                                <li><a href="../classes/ScriptCollection.html">ScriptCollection</a></li>
+                                <li><a href="../classes/ServerTester.html">ServerTester</a></li>
+                                <li><a href="../classes/StylesCollection.html">StylesCollection</a></li>
+                            </ul>
+                
+                
+                            <ul id="api-modules" class="apis modules">
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+                    Show:
+                    <label for="api-show-inherited">
+                        <input type="checkbox" id="api-show-inherited" checked>
+                        Inherited
+                    </label>
+            
+                    <label for="api-show-protected">
+                        <input type="checkbox" id="api-show-protected">
+                        Protected
+                    </label>
+            
+                    <label for="api-show-private">
+                        <input type="checkbox" id="api-show-private">
+                        Private
+                    </label>
+                    <label for="api-show-deprecated">
+                        <input type="checkbox" id="api-show-deprecated">
+                        Deprecated
+                    </label>
+            
+                </div>
+            
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+<h1>FileModel Class</h1>
+<div class="box meta">
+
+        <div class="extends">
+            Extends <a href="../classes/Model.html" class="crosslink">Model</a>
+        </div>
+
+        <div class="foundat">
+            Defined in: <a href="../files/src_lib_models_file.coffee.html#l29"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:29</code></a>
+        </div>
+
+
+</div>
+
+
+<div class="box intro">
+    <p>The FileModel class is DocPad's representation
+of a file in the file system.
+Extends the DocPad Model class
+<a href="https://github.com/docpad/docpad/blob/master/src/lib/base.coffee#L49">https://github.com/docpad/docpad/blob/master/src/lib/base.coffee#L49</a>.
+FileModel manages the loading
+of a file and parsing both the content and the metadata (if any).
+Once loaded, the content, metadata and file stat (file info)
+properties of the FileModel are populated, as well
+as a number of DocPad specific attributes and properties.
+Typically we do not need to create FileModels ourselves as
+DocPad handles all of that. But it is possible that a plugin
+may need to manually create FileModels for some reason.</p>
+<pre class="code prettyprint"><code>attrs =
+    fullPath: 'file/path/to/somewhere'
+opts = {}
+#we only really need the path to the source file to create
+#a new file model
+model = new FileModel(attrs, opts)
+</code></pre>
+<p>The FileModel forms the base class for the DocPad DocumentModel class.</p>
+
+</div>
+
+    <div class="constructor">
+        <h2>Constructor</h2>
+<div id="method_FileModel" class="method item">
+    <h3 class="name"><code>FileModel</code></h3>
+
+        <span class="paren">()</span>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l29"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:29</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+
+
+
+</div>
+    </div>
+
+<div id="classdocs" class="tabview">
+    <ul class="api-class-tabs">
+        <li class="api-class-tab index"><a href="#index">Index</a></li>
+
+            <li class="api-class-tab methods"><a href="#methods">Methods</a></li>
+            <li class="api-class-tab properties"><a href="#properties">Properties</a></li>
+    </ul>
+
+    <div>
+        <div id="index" class="api-class-tabpanel index">
+            <h2 class="off-left">Item Index</h2>
+
+                <div class="index-section methods">
+                    <h3>Methods</h3>
+
+                    <ul class="index-list methods extends">
+                            <li class="index-item method">
+                                <a href="#method_action">action</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_addUrl">addUrl</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_clone">clone</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_contextualize">contextualize</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_delete">delete</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_deleteSource">deleteSource</a>
+
+                            </li>
+                            <li class="index-item method private">
+                                <a href="#method_encode">encode</a>
+
+                            </li>
+                            <li class="index-item method private">
+                                <a href="#method_extractOptions">extractOptions</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_getActionRunner">getActionRunner</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_getAttributes">getAttributes</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_getBuffer">getBuffer</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_getContent">getContent</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_getExtensions">getExtensions</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_getFilename">getFilename</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_getFilePath">getFilePath</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_getLocale">getLocale</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_getMeta">getMeta</a>
+
+                            </li>
+                            <li class="index-item method private">
+                                <a href="#method_getOptions">getOptions</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_getOutContent">getOutContent</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_getPath">getPath</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_getStat">getStat</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_initialize">initialize</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_isBinary">isBinary</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_isBufferOutdated">isBufferOutdated</a>
+
+                            </li>
+                            <li class="index-item method private">
+                                <a href="#method_isOption">isOption</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_isText">isText</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_load">load</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_normalize">normalize</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_parse">parse</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_removeUrl">removeUrl</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_render">render</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_set">set</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_setBuffer">setBuffer</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_setDefaults">setDefaults</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_setMeta">setMeta</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_setMetaDefaults">setMetaDefaults</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_setOptions">setOptions</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_setStat">setStat</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_setUrl">setUrl</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_toJSON">toJSON</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_write">write</a>
+
+                            </li>
+                            <li class="index-item method">
+                                <a href="#method_writeSource">writeSource</a>
+
+                            </li>
+                    </ul>
+                </div>
+
+                <div class="index-section properties">
+                    <h3>Properties</h3>
+
+                    <ul class="index-list properties extends">
+                            <li class="index-item property private">
+                                <a href="#property_actionRunnerInstance">actionRunnerInstance</a>
+
+                            </li>
+                            <li class="index-item property">
+                                <a href="#property_buffer">buffer</a>
+
+                            </li>
+                            <li class="index-item property private">
+                                <a href="#property_"></a>
+
+                            </li>
+                            <li class="index-item property">
+                                <a href="#property_bufferTime">bufferTime</a>
+
+                            </li>
+                            <li class="index-item property">
+                                <a href="#property_detectEncoding">detectEncoding</a>
+
+                            </li>
+                            <li class="index-item property private">
+                                <a href="#property_klass">klass</a>
+
+                            </li>
+                            <li class="index-item property private">
+                                <a href="#property_locale">locale</a>
+
+                            </li>
+                            <li class="index-item property private">
+                                <a href="#property_meta">meta</a>
+
+                            </li>
+                            <li class="index-item property">
+                                <a href="#property_rootOutDirPath">rootOutDirPath</a>
+
+                            </li>
+                            <li class="index-item property">
+                                <a href="#property_stat">stat</a>
+
+                            </li>
+                            <li class="index-item property private">
+                                <a href="#property_TaskGroup">TaskGroup</a>
+
+                            </li>
+                            <li class="index-item property private">
+                                <a href="#property_type">type</a>
+
+                            </li>
+                    </ul>
+                </div>
+
+
+        </div>
+
+            <div id="methods" class="api-class-tabpanel">
+                <h2 class="off-left">Methods</h2>
+
+<div id="method_action" class="method item">
+    <h3 class="name"><code>action</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>args...</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l840"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:840</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Apply an action with the supplied arguments.</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">args...</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_addUrl" class="method item">
+    <h3 class="name"><code>addUrl</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>url</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l761"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:761</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>A file can have multiple urls.
+This method adds either a single url
+or an array of urls to the file model.</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">url</code>
+                        <span class="type">String or Array</span>
+
+
+                    <div class="param-description">
+                        
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_clone" class="method item">
+    <h3 class="name"><code>clone</code></h3>
+
+        <span class="paren">()</span>
+
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l237"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:237</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Clone the model and return the newly cloned model.</p>
+
+    </div>
+
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">Object</span>:
+                    <p>cloned file model</p>
+
+            </div>
+        </div>
+
+
+</div>
+<div id="method_contextualize" class="method item">
+    <h3 class="name"><code>contextualize</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code class="optional">[opts={}]</code>
+                </li>
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l1206"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:1206</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Contextualize the data. In other words,
+put our data into the perspective of the bigger picture of the data.
+For instance, generate the url for it's rendered equivalant.
+next(err)</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name optional">[opts={}]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                        
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        <p>callback</p>
+
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_delete" class="method item">
+    <h3 class="name"><code>delete</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code class="optional">[opts]</code>
+                </li>
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l1334"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:1334</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Delete the out file, perhaps ahead of regeneration.
+Optionally pass the opts parameter to set the file path or type.
+next(err)</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name optional">[opts]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                        
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        <p>callback</p>
+
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_deleteSource" class="method item">
+    <h3 class="name"><code>deleteSource</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code class="optional">[opts]</code>
+                </li>
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l1380"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:1380</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Delete the source file.
+Optionally pass the opts parameter to set the file path or type.
+next(err)</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name optional">[opts]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                        
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        <p>callback</p>
+
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_encode" class="method item private">
+    <h3 class="name"><code>encode</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>opts</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+
+
+        <span class="flag private">private</span>
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l416"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:416</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>File encoding helper
+opts = {path, to, from, content}</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">opts</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">Object</span>:
+                    <p>encoded result</p>
+
+            </div>
+        </div>
+
+
+</div>
+<div id="method_extractOptions" class="method item private">
+    <h3 class="name"><code>extractOptions</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>attrs</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+
+
+        <span class="flag private">private</span>
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l165"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:165</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Extract Options.</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">attrs</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">Object</span>:
+                    <p>the options object</p>
+
+            </div>
+        </div>
+
+
+</div>
+<div id="method_getActionRunner" class="method item">
+    <h3 class="name"><code>getActionRunner</code></h3>
+
+        <span class="paren">()</span>
+
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l834"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:834</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Get the action runner instance bound to DocPad</p>
+
+    </div>
+
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">Object</span>:
+            </div>
+        </div>
+
+
+</div>
+<div id="method_getAttributes" class="method item">
+    <h3 class="name"><code>getAttributes</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code class="optional">[dereference=true]</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l500"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:500</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Get the file model attributes.
+By default the attributes will be
+dereferenced from the file model.
+To maintain a reference, pass false
+as the parameter. The returned object
+will NOT contain the file model's ID attribute.</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name optional">[dereference=true]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                        
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">Object</span>:
+            </div>
+        </div>
+
+
+</div>
+<div id="method_getBuffer" class="method item">
+    <h3 class="name"><code>getBuffer</code></h3>
+
+        <span class="paren">()</span>
+
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l461"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:461</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Get the file model's buffer object.
+Returns a node.js buffer object.</p>
+
+    </div>
+
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">Object</span>:
+                    <p>node.js buffer object</p>
+
+            </div>
+        </div>
+
+
+</div>
+<div id="method_getContent" class="method item">
+    <h3 class="name"><code>getContent</code></h3>
+
+        <span class="paren">()</span>
+
+        <span class="returns-inline">
+            <span class="type">String or Object</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l717"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:717</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Get the file content. This will be
+the text content if loaded or the file buffer object.</p>
+
+    </div>
+
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">String or Object</span>:
+            </div>
+        </div>
+
+
+</div>
+<div id="method_getExtensions" class="method item">
+    <h3 class="name"><code>getExtensions</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>opts</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+        <span class="returns-inline">
+            <span class="type">Array</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l698"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:698</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Get file extensions. Depending on the
+parameters passed this will either be
+the file model's extensions property or
+the extensions extracted from the file model's
+filename property. The opts parameter is passed
+in the format: {extensions,filename}.</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">opts</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">Array</span>:
+                    <p>array of extension names</p>
+
+            </div>
+        </div>
+
+
+</div>
+<div id="method_getFilename" class="method item">
+    <h3 class="name"><code>getFilename</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code class="optional">[opts={}]</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+        <span class="returns-inline">
+            <span class="type">String</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l650"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:650</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Get the file name. Depending on the
+parameters passed this will either be
+the file model's filename property or,
+the filename determined from the fullPath
+or relativePath property. Valid values for
+the opts parameter are: fullPath, relativePath
+or filename. Format: {filename}</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name optional">[opts={}]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                        
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">String</span>:
+            </div>
+        </div>
+
+
+</div>
+<div id="method_getFilePath" class="method item">
+    <h3 class="name"><code>getFilePath</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code class="optional">[opts={}]</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+        <span class="returns-inline">
+            <span class="type">String</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l676"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:676</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Get the file path. Depending on the
+parameters passed this will either be
+the file model's fullPath property, the
+relativePath property or the filename property.
+Valid values for the opts parameter are:
+fullPath, relativePath
+or filename. Format: {fullPath}</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name optional">[opts={}]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                        
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">String</span>:
+            </div>
+        </div>
+
+
+</div>
+<div id="method_getLocale" class="method item">
+    <h3 class="name"><code>getLocale</code></h3>
+
+        <span class="paren">()</span>
+
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l133"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:133</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Get the file's locale information</p>
+
+    </div>
+
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">Object</span>:
+                    <p>the locale</p>
+
+            </div>
+        </div>
+
+
+</div>
+<div id="method_getMeta" class="method item">
+    <h3 class="name"><code>getMeta</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code class="optional">[args...]</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l535"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:535</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Get the file model metadata object.
+Optionally pass a list of metadata property
+names corresponding to those properties that
+you want returned.</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name optional">[args...]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                        
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">Object</span>:
+            </div>
+        </div>
+
+
+</div>
+<div id="method_getOptions" class="method item private">
+    <h3 class="name"><code>getOptions</code></h3>
+
+        <span class="paren">()</span>
+
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+
+
+        <span class="flag private">private</span>
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l140"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:140</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Get Options. Returns an object containing
+the properties detectEncoding, rootOutDirPath
+locale, stat, buffer, meta and TaskGroup.</p>
+
+    </div>
+
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">Object</span>:
+            </div>
+        </div>
+
+
+</div>
+<div id="method_getOutContent" class="method item">
+    <h3 class="name"><code>getOutContent</code></h3>
+
+        <span class="paren">()</span>
+
+        <span class="returns-inline">
+            <span class="type">String or Object</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l726"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:726</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Get the file content for output.</p>
+
+    </div>
+
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">String or Object</span>:
+            </div>
+        </div>
+
+
+</div>
+<div id="method_getPath" class="method item">
+    <h3 class="name"><code>getPath</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>relativePath</code>
+                </li>
+                <li class="arg">
+                        <code>parentPath</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+        <span class="returns-inline">
+            <span class="type">String</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l803"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:803</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Get a file path.
+If the relativePath parameter starts with <code>.</code> then we get the
+path in relation to the document that is calling it.
+Otherwise we just return it as normal</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">relativePath</code>
+                        <span class="type">String</span>
+
+
+                    <div class="param-description">
+                        
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">parentPath</code>
+                        <span class="type">String</span>
+
+
+                    <div class="param-description">
+                        
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">String</span>:
+            </div>
+        </div>
+
+
+</div>
+<div id="method_getStat" class="method item">
+    <h3 class="name"><code>getStat</code></h3>
+
+        <span class="paren">()</span>
+
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l492"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:492</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Get the node.js file stat.</p>
+
+    </div>
+
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">Object</span>:
+                    <p>the file stat</p>
+
+            </div>
+        </div>
+
+
+</div>
+<div id="method_initialize" class="method item">
+    <h3 class="name"><code>initialize</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>attrs</code>
+                </li>
+                <li class="arg">
+                        <code class="optional">[opts={}]</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l847"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:847</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Initialize the file model with the passed
+attributes and options. Emits the init event.</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">attrs</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        <p>the file model attributes</p>
+
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name optional">[opts={}]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                        <p>the file model options</p>
+
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_isBinary" class="method item">
+    <h3 class="name"><code>isBinary</code></h3>
+
+        <span class="paren">()</span>
+
+        <span class="returns-inline">
+            <span class="type">Boolean</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l743"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:743</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Is this a binary file?</p>
+
+    </div>
+
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">Boolean</span>:
+            </div>
+        </div>
+
+
+</div>
+<div id="method_isBufferOutdated" class="method item">
+    <h3 class="name"><code>isBufferOutdated</code></h3>
+
+        <span class="paren">()</span>
+
+        <span class="returns-inline">
+            <span class="type">Boolean</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l470"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:470</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Is Buffer Outdated
+True if there is no buffer OR the buffer time is outdated</p>
+
+    </div>
+
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">Boolean</span>:
+            </div>
+        </div>
+
+
+</div>
+<div id="method_isOption" class="method item private">
+    <h3 class="name"><code>isOption</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>key</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+        <span class="returns-inline">
+            <span class="type">Boolean</span>
+        </span>
+
+
+        <span class="flag private">private</span>
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l152"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:152</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Checks whether the passed key is one
+of the options.</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">key</code>
+                        <span class="type">String</span>
+
+
+                    <div class="param-description">
+                        
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">Boolean</span>:
+            </div>
+        </div>
+
+
+</div>
+<div id="method_isText" class="method item">
+    <h3 class="name"><code>isText</code></h3>
+
+        <span class="paren">()</span>
+
+        <span class="returns-inline">
+            <span class="type">Boolean</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l734"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:734</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Is this a text file? ie - not
+a binary file.</p>
+
+    </div>
+
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">Boolean</span>:
+            </div>
+        </div>
+
+
+</div>
+<div id="method_load" class="method item">
+    <h3 class="name"><code>load</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code class="optional">[opts={}]</code>
+                </li>
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l884"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:884</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Load the file from the file system.
+If the fullPath exists, load the file.
+If it doesn't, then parse and normalize the file.
+Optionally pass file options as a parameter.</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name optional">[opts={}]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                        
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Function</span>
+
+
+                    <div class="param-description">
+                        <p>callback</p>
+
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_normalize" class="method item">
+    <h3 class="name"><code>normalize</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code class="optional">[opts={}]</code>
+                </li>
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l1035"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:1035</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Normalize any parsing we have done, because if a value has
+updates it may have consequences on another value.
+This will ensure everything is okay.
+next(err)</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name optional">[opts={}]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                        
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        <p>callback</p>
+
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_parse" class="method item">
+    <h3 class="name"><code>parse</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code class="optional">[opts={}]</code>
+                </li>
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l960"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:960</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Parse our buffer and extract meaningful data from it.
+next(err).</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name optional">[opts={}]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                        
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        <p>callback</p>
+
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_removeUrl" class="method item">
+    <h3 class="name"><code>removeUrl</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>userUrl</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l789"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:789</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Removes a url from the file
+model (files can have more than one url).</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">userUrl</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        <p>the url to be removed</p>
+
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_render" class="method item">
+    <h3 class="name"><code>render</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code class="optional">[opts={}]</code>
+                </li>
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l1223"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:1223</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Render this file. The file model output content is
+returned to the passed callback in the
+result (2nd) parameter. The file model itself is returned
+in the callback's document (3rd) parameter.
+next(err,result,document)</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name optional">[opts={}]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                        
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        <p>callback</p>
+
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_set" class="method item">
+    <h3 class="name"><code>set</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>attrs</code>
+                </li>
+                <li class="arg">
+                        <code>opts</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l551"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:551</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Assign attributes and options to the file model.</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">attrs</code>
+                        <span class="type">Array</span>
+
+
+                    <div class="param-description">
+                        <p>the attributes to be applied</p>
+
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">opts</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        <p>the options to be applied</p>
+
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_setBuffer" class="method item">
+    <h3 class="name"><code>setBuffer</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code class="optional">[buffer]</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l447"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:447</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Set the file model's buffer.
+Creates a new node.js buffer
+object if a buffer object is
+is not passed as the parameter</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name optional">[buffer]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                        
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_setDefaults" class="method item">
+    <h3 class="name"><code>setDefaults</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>attrs</code>
+                </li>
+                <li class="arg">
+                        <code>opts</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l579"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:579</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Set defaults. Apply default attributes
+and options to the file model</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">attrs</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        <p>the attributes to be applied</p>
+
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">opts</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        <p>the options to be applied</p>
+
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_setMeta" class="method item">
+    <h3 class="name"><code>setMeta</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>attrs</code>
+                </li>
+                <li class="arg">
+                        <code>opts</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l602"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:602</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Set the file model meta data,
+attributes and options in one go.</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">attrs</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        <p>the attributes to be applied</p>
+
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">opts</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        <p>the options to be applied</p>
+
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_setMetaDefaults" class="method item">
+    <h3 class="name"><code>setMetaDefaults</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>attrs</code>
+                </li>
+                <li class="arg">
+                        <code>opts</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l627"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:627</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Set the file model meta data defaults</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">attrs</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        <p>the attributes to be applied</p>
+
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">opts</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        <p>the options to be applied</p>
+
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_setOptions" class="method item">
+    <h3 class="name"><code>setOptions</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code class="optional">[attrs={}]</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l185"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:185</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Set the options for the file model.
+Valid properties for the attrs parameter:
+TaskGroup, detectEncoding, rootOutDirPath,
+locale, stat, data, buffer, meta.</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name optional">[attrs={}]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                        
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_setStat" class="method item">
+    <h3 class="name"><code>setStat</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>stat</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l479"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:479</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Set the node.js file stat.</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">stat</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_setUrl" class="method item">
+    <h3 class="name"><code>setUrl</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>url</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l751"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:751</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Set the url for the file</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">url</code>
+                        <span class="type">String</span>
+
+
+                    <div class="param-description">
+                        
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_toJSON" class="method item">
+    <h3 class="name"><code>toJSON</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code class="optional">[dereference=false]</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l518"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:518</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Get the file model attributes.
+By default the attributes will
+maintain a reference to the file model.
+To return a dereferenced object, pass true
+as the parameter. The returned object
+will contain the file model's ID attribute.</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name optional">[dereference=false]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                        
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">Object</span>:
+            </div>
+        </div>
+
+
+</div>
+<div id="method_write" class="method item">
+    <h3 class="name"><code>write</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>opts</code>
+                </li>
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l1249"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:1249</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Write the out file. The out file
+may be different from the input file.
+Often the input file is transformed in some way
+and saved as another file format. A common example
+is transforming a markdown input file to a HTML
+output file.
+next(err)</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">opts</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Function</span>
+
+
+                    <div class="param-description">
+                        <p>callback</p>
+
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_writeSource" class="method item">
+    <h3 class="name"><code>writeSource</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code class="optional">[opts]</code>
+                </li>
+                <li class="arg">
+                        <code>next</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l1309"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:1309</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Write the source file. Optionally pass
+the opts parameter to modify or set the file's
+path, content or type.
+next(err)</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name optional">[opts]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+
+
+                    <div class="param-description">
+                        
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                        <p>callback</p>
+
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+            </div>
+
+            <div id="properties" class="api-class-tabpanel">
+                <h2 class="off-left">Properties</h2>
+
+<div id="property_actionRunnerInstance" class="property item private">
+    <h3 class="name"><code>actionRunnerInstance</code></h3>
+    <span class="type">Object</span>
+
+
+        <span class="flag private">private</span>
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l828"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:828</code></a>
+        </p>
+
+
+    </div>
+
+    <div class="description">
+        <p>The action runner instance bound to DocPad</p>
+
+    </div>
+
+
+
+</div>
+<div id="property_buffer" class="property item">
+    <h3 class="name"><code>buffer</code></h3>
+    <span class="type">Object</span>
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l105"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:105</code></a>
+        </p>
+
+
+    </div>
+
+    <div class="description">
+        <p>File buffer. Node.js Buffer object.
+<a href="https://nodejs.org/api/buffer.html#buffer_class_buffer">https://nodejs.org/api/buffer.html#buffer_class_buffer</a>.
+Provides methods for dealing with binary data directly.</p>
+
+    </div>
+
+
+
+</div>
+<div id="property_" class="property item private">
+    <h3 class="name"><code></code></h3>
+    <span class="type">Object</span>
+
+
+        <span class="flag private">private</span>
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l266"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:266</code></a>
+        </p>
+
+
+    </div>
+
+    <div class="description">
+        <p>The default attributes for any file model.</p>
+
+    </div>
+
+
+
+</div>
+<div id="property_bufferTime" class="property item">
+    <h3 class="name"><code>bufferTime</code></h3>
+    <span class="type">Object</span>
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l113"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:113</code></a>
+        </p>
+
+
+    </div>
+
+    <div class="description">
+        <p>Buffer time.</p>
+
+    </div>
+
+
+
+</div>
+<div id="property_detectEncoding" class="property item">
+    <h3 class="name"><code>detectEncoding</code></h3>
+    <span class="type">Boolean</span>
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l90"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:90</code></a>
+        </p>
+
+
+    </div>
+
+    <div class="description">
+        <p>Whether or not we should detect encoding</p>
+
+    </div>
+
+
+
+</div>
+<div id="property_klass" class="property item private">
+    <h3 class="name"><code>klass</code></h3>
+    <span class="type">Object</span>
+
+
+        <span class="flag private">private</span>
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l60"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:60</code></a>
+        </p>
+
+
+    </div>
+
+    <div class="description">
+        <p>The file model class. This should
+be overridden in any descending classes.</p>
+
+    </div>
+
+
+
+</div>
+<div id="property_locale" class="property item private">
+    <h3 class="name"><code>locale</code></h3>
+    <span class="type">Object</span>
+
+
+        <span class="flag private">private</span>
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l127"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:127</code></a>
+        </p>
+
+
+    </div>
+
+    <div class="description">
+        <p>Locale information for the file</p>
+
+    </div>
+
+
+
+</div>
+<div id="property_meta" class="property item private">
+    <h3 class="name"><code>meta</code></h3>
+    <span class="type">Object</span>
+
+
+        <span class="flag private">private</span>
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l119"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:119</code></a>
+        </p>
+
+
+    </div>
+
+    <div class="description">
+        <p>The parsed file meta data (header).
+Is a Model instance.</p>
+
+    </div>
+
+
+
+</div>
+<div id="property_rootOutDirPath" class="property item">
+    <h3 class="name"><code>rootOutDirPath</code></h3>
+    <span class="type">String</span>
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l84"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:84</code></a>
+        </p>
+
+
+    </div>
+
+    <div class="description">
+        <p>The out directory path to put the relative path.</p>
+
+    </div>
+
+
+
+</div>
+<div id="property_stat" class="property item">
+    <h3 class="name"><code>stat</code></h3>
+    <span class="type">Object</span>
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l96"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:96</code></a>
+        </p>
+
+
+    </div>
+
+    <div class="description">
+        <p>Node.js file stat object.
+<a href="https://nodejs.org/api/fs.html#fs_class_fs_stats">https://nodejs.org/api/fs.html#fs_class_fs_stats</a>.
+Basically, information about a file, including file
+dates and size.</p>
+
+    </div>
+
+
+
+</div>
+<div id="property_TaskGroup" class="property item private">
+    <h3 class="name"><code>TaskGroup</code></h3>
+    <span class="type">Object</span>
+
+
+        <span class="flag private">private</span>
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l77"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:77</code></a>
+        </p>
+
+
+    </div>
+
+    <div class="description">
+        <p>Task Group Class</p>
+
+    </div>
+
+
+
+</div>
+<div id="property_type" class="property item private">
+    <h3 class="name"><code>type</code></h3>
+    <span class="type">String</span>
+
+
+        <span class="flag private">private</span>
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_lib_models_file.coffee.html#l68"><code>src&#x2F;lib&#x2F;models&#x2F;file.coffee:68</code></a>
+        </p>
+
+
+    </div>
+
+    <div class="description">
+        <p>String name of the model type.
+In this case, 'file'. This should
+be overridden in any descending classes.</p>
+
+    </div>
+
+
+
+</div>
+            </div>
+
+
+    </div>
+</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

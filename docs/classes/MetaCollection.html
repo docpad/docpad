@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>QueryCollection</title>
+    <title>MetaCollection</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -92,15 +92,15 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-<h1>QueryCollection Class</h1>
+<h1>MetaCollection Class</h1>
 <div class="box meta">
 
         <div class="extends">
-            Extends queryEngine.QueryCollection
+            Extends <a href="../classes/ElementsCollection.html" class="crosslink">ElementsCollection</a>
         </div>
 
         <div class="foundat">
-            Defined in: <a href="../files/src_lib_base.coffee.html#l83"><code>src&#x2F;lib&#x2F;base.coffee:83</code></a>
+            Defined in: <a href="../files/src_lib_collections_meta.coffee.html#l11"><code>src&#x2F;lib&#x2F;collections&#x2F;meta.coffee:11</code></a>
         </div>
 
 
@@ -108,16 +108,15 @@
 
 
 <div class="box intro">
-    <p>Base class for the DocPad query collection object
-Extends the bevry QueryEngine object
-<a href="http://github.com/bevry/query-engine">http://github.com/bevry/query-engine</a></p>
+    <p>Meta collection class. Collection of
+document meta data strings</p>
 
 </div>
 
     <div class="constructor">
         <h2>Constructor</h2>
-<div id="method_QueryCollection" class="method item">
-    <h3 class="name"><code>QueryCollection</code></h3>
+<div id="method_MetaCollection" class="method item">
+    <h3 class="name"><code>MetaCollection</code></h3>
 
         <span class="paren">()</span>
 
@@ -131,7 +130,7 @@ Extends the bevry QueryEngine object
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_base.coffee.html#l83"><code>src&#x2F;lib&#x2F;base.coffee:83</code></a>
+        <a href="../files/src_lib_collections_meta.coffee.html#l11"><code>src&#x2F;lib&#x2F;collections&#x2F;meta.coffee:11</code></a>
         </p>
 
 
@@ -152,18 +151,186 @@ Extends the bevry QueryEngine object
     <ul class="api-class-tabs">
         <li class="api-class-tab index"><a href="#index">Index</a></li>
 
+            <li class="api-class-tab methods"><a href="#methods">Methods</a></li>
+            <li class="api-class-tab properties"><a href="#properties">Properties</a></li>
     </ul>
 
     <div>
         <div id="index" class="api-class-tabpanel index">
             <h2 class="off-left">Item Index</h2>
 
+                <div class="index-section methods">
+                    <h3>Methods</h3>
 
+                    <ul class="index-list methods extends">
+                            <li class="index-item method inherited">
+                                <a href="#method_add">add</a>
+
+                            </li>
+                            <li class="index-item method inherited">
+                                <a href="#method_toHTML">toHTML</a>
+
+                            </li>
+                    </ul>
+                </div>
+
+                <div class="index-section properties">
+                    <h3>Properties</h3>
+
+                    <ul class="index-list properties extends">
+                            <li class="index-item property inherited">
+                                <a href="#property_model">model</a>
+
+                            </li>
+                    </ul>
+                </div>
 
 
         </div>
 
+            <div id="methods" class="api-class-tabpanel">
+                <h2 class="off-left">Methods</h2>
 
+<div id="method_add" class="method item inherited">
+    <h3 class="name"><code>add</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>values</code>
+                </li>
+                <li class="arg">
+                        <code>opts</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/ElementsCollection.html#method_add">ElementsCollection</a>:
+        <a href="../files/src_lib_collections_elements.coffee.html#l32"><code>src&#x2F;lib&#x2F;collections&#x2F;elements.coffee:32</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Add an element to the collection.
+Right now we just support strings.</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">values</code>
+                        <span class="type">Array</span>
+
+
+                    <div class="param-description">
+                        <p>string array of values</p>
+
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">opts</code>
+                        <span class="type">Object</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
+<div id="method_toHTML" class="method item inherited">
+    <h3 class="name"><code>toHTML</code></h3>
+
+        <span class="paren">()</span>
+
+        <span class="returns-inline">
+            <span class="type">String</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/ElementsCollection.html#method_toHTML">ElementsCollection</a>:
+        <a href="../files/src_lib_collections_elements.coffee.html#l64"><code>src&#x2F;lib&#x2F;collections&#x2F;elements.coffee:64</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Create a way to output our elements to HTML</p>
+
+    </div>
+
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">String</span>:
+            </div>
+        </div>
+
+
+</div>
+            </div>
+
+            <div id="properties" class="api-class-tabpanel">
+                <h2 class="off-left">Properties</h2>
+
+<div id="property_model" class="property item inherited">
+    <h3 class="name"><code>model</code></h3>
+    <span class="type">Object</span>
+
+
+
+
+
+    <div class="meta">
+                <p>Inherited from
+                <a href="../classes/ElementsCollection.html#property_model">ElementsCollection</a>:
+        <a href="../files/src_lib_collections_elements.coffee.html#l26"><code>src&#x2F;lib&#x2F;collections&#x2F;elements.coffee:26</code></a>
+        </p>
+
+
+    </div>
+
+    <div class="description">
+        <p>Base Model for all items in this collection</p>
+
+    </div>
+
+
+
+</div>
+            </div>
 
 
     </div>

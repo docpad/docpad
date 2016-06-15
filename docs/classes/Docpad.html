@@ -42,12 +42,19 @@
                                 <li><a href="../classes/Collection.html">Collection</a></li>
                                 <li><a href="../classes/Docpad.html">Docpad</a></li>
                                 <li><a href="../classes/docpadUtil.html">docpadUtil</a></li>
+                                <li><a href="../classes/DocumentModel.html">DocumentModel</a></li>
+                                <li><a href="../classes/ElementsCollection.html">ElementsCollection</a></li>
                                 <li><a href="../classes/Events.html">Events</a></li>
+                                <li><a href="../classes/FileModel.html">FileModel</a></li>
+                                <li><a href="../classes/FilesCollection.html">FilesCollection</a></li>
+                                <li><a href="../classes/MetaCollection.html">MetaCollection</a></li>
                                 <li><a href="../classes/Model.html">Model</a></li>
                                 <li><a href="../classes/PluginLoader.html">PluginLoader</a></li>
                                 <li><a href="../classes/PluginTester.html">PluginTester</a></li>
                                 <li><a href="../classes/QueryCollection.html">QueryCollection</a></li>
+                                <li><a href="../classes/ScriptCollection.html">ScriptCollection</a></li>
                                 <li><a href="../classes/ServerTester.html">ServerTester</a></li>
+                                <li><a href="../classes/StylesCollection.html">StylesCollection</a></li>
                             </ul>
                 
                 
@@ -101,12 +108,24 @@
 
 
 <div class="box intro">
-    <p>The DocPad Class.
-Contains methods for managing the DocPad application.
+    <p>Contains methods for managing the DocPad application.
 This includes managing a DocPad projects files and
 documents, watching directories, emitting events and
 managing the node.js/express.js web server.
 Extends <a href="https://github.com/bevry/event-emitter-grouped">https://github.com/bevry/event-emitter-grouped</a></p>
+<p>The class is instantiated in the docpad-server.js file
+which is the entry point for a DocPad application.</p>
+<pre class="code prettyprint"><code>new DocPad(docpadConfig, function(err, docpad) {
+    if (err) {
+        return docpadUtil.writeError(err);
+    }
+    return docpad.action(action, function(err) {
+        if (err) {
+            return docpadUtil.writeError(err);
+        }
+        return console.log('OK');
+    });
+});</code></pre>
 
 </div>
 
@@ -668,7 +687,7 @@ Extends <a href="https://github.com/bevry/event-emitter-grouped">https://github.
                                 <a href="#method_setBlocks">setBlocks</a>
 
                             </li>
-                            <li class="index-item method private">
+                            <li class="index-item method">
                                 <a href="#method_setCollection">setCollection</a>
 
                             </li>
@@ -795,8 +814,8 @@ Extends <a href="https://github.com/bevry/event-emitter-grouped">https://github.
                                 <a href="#property_database">database</a>
 
                             </li>
-                            <li class="index-item property">
-                                <a href="#property_databaseTempCache">databaseTempCache</a>
+                            <li class="index-item property private">
+                                <a href="#property_databaseTempCache FileCollection of models">databaseTempCache FileCollection of models</a>
 
                             </li>
                             <li class="index-item property">
@@ -1024,7 +1043,7 @@ Extends <a href="https://github.com/bevry/event-emitter-grouped">https://github.
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l446"><code>src&#x2F;lib&#x2F;docpad.coffee:446</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l461"><code>src&#x2F;lib&#x2F;docpad.coffee:461</code></a>
         </p>
 
 
@@ -1084,7 +1103,7 @@ Extends <a href="https://github.com/bevry/event-emitter-grouped">https://github.
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l738"><code>src&#x2F;lib&#x2F;docpad.coffee:738</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l763"><code>src&#x2F;lib&#x2F;docpad.coffee:763</code></a>
         </p>
 
 
@@ -1143,7 +1162,7 @@ Extends <a href="https://github.com/bevry/event-emitter-grouped">https://github.
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3615"><code>src&#x2F;lib&#x2F;docpad.coffee:3615</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3749"><code>src&#x2F;lib&#x2F;docpad.coffee:3749</code></a>
         </p>
 
 
@@ -1151,7 +1170,17 @@ Extends <a href="https://github.com/bevry/event-emitter-grouped">https://github.
     </div>
 
     <div class="description">
-        <p>Add supplied model to the DocPad database</p>
+        <p>Add supplied model to the DocPad database. If the passed
+model definition is a plain object of properties, a new
+model will be created prior to adding to the database.
+Calls DocPad/createModel:method
+before adding the model to the database.</p>
+<pre class="code prettyprint"><code># Override the stat's mtime to now
+# This is because renames will not update the mtime
+fileCurrentStat?.mtime = new Date()
+
+# Create the file object
+file = docpad.addModel({fullPath:filePath, stat:fileCurrentStat})</code></pre>
 
     </div>
 
@@ -1165,7 +1194,9 @@ Extends <a href="https://github.com/bevry/event-emitter-grouped">https://github.
 
 
                     <div class="param-description">
-                         
+                        <p>either a plain object defining the required properties, in particular
+the file path or an actual model object</p>
+
                     </div>
 
                 </li>
@@ -1221,7 +1252,7 @@ Extends <a href="https://github.com/bevry/event-emitter-grouped">https://github.
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3627"><code>src&#x2F;lib&#x2F;docpad.coffee:3627</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3774"><code>src&#x2F;lib&#x2F;docpad.coffee:3774</code></a>
         </p>
 
 
@@ -1229,7 +1260,11 @@ Extends <a href="https://github.com/bevry/event-emitter-grouped">https://github.
     </div>
 
     <div class="description">
-        <p>Add the supplied collection of models to the DocPad database</p>
+        <p>Add the supplied collection of models to the DocPad database.
+Calls DocPad/createModels:method
+before adding the models to the database.</p>
+<pre class="code prettyprint"><code>databaseData = JSON.parse data.toString()
+models = docpad.addModels(databaseData.models)</code></pre>
 
     </div>
 
@@ -1243,7 +1278,8 @@ Extends <a href="https://github.com/bevry/event-emitter-grouped">https://github.
 
 
                     <div class="param-description">
-                         
+                        <p>DocPad collection of models</p>
+
                     </div>
 
                 </li>
@@ -1294,7 +1330,7 @@ Extends <a href="https://github.com/bevry/event-emitter-grouped">https://github.
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3556"><code>src&#x2F;lib&#x2F;docpad.coffee:3556</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3690"><code>src&#x2F;lib&#x2F;docpad.coffee:3690</code></a>
         </p>
 
 
@@ -1302,7 +1338,7 @@ Extends <a href="https://github.com/bevry/event-emitter-grouped">https://github.
     </div>
 
     <div class="description">
-        <p>Attach events to document models</p>
+        <p>Attach events to a document model.</p>
 
     </div>
 
@@ -1348,7 +1384,7 @@ Extends <a href="https://github.com/bevry/event-emitter-grouped">https://github.
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3309"><code>src&#x2F;lib&#x2F;docpad.coffee:3309</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3421"><code>src&#x2F;lib&#x2F;docpad.coffee:3421</code></a>
         </p>
 
 
@@ -1373,6 +1409,26 @@ Extends <a href="https://github.com/bevry/event-emitter-grouped">https://github.
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name">res</code>
+                                    <span class="type">Object</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -1408,7 +1464,7 @@ Extends <a href="https://github.com/bevry/event-emitter-grouped">https://github.
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5610"><code>src&#x2F;lib&#x2F;docpad.coffee:5610</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5803"><code>src&#x2F;lib&#x2F;docpad.coffee:5803</code></a>
         </p>
 
 
@@ -1416,8 +1472,7 @@ Extends <a href="https://github.com/bevry/event-emitter-grouped">https://github.
     </div>
 
     <div class="description">
-        <p>DocPad cleanup tasks
-next(err)</p>
+        <p>DocPad cleanup tasks.</p>
 
     </div>
 
@@ -1444,6 +1499,17 @@ next(err)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -1476,7 +1542,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l4054"><code>src&#x2F;lib&#x2F;docpad.coffee:4054</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4231"><code>src&#x2F;lib&#x2F;docpad.coffee:4231</code></a>
         </p>
 
 
@@ -1518,7 +1584,7 @@ Used at startup.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l1739"><code>src&#x2F;lib&#x2F;docpad.coffee:1739</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l1807"><code>src&#x2F;lib&#x2F;docpad.coffee:1807</code></a>
         </p>
 
 
@@ -1551,9 +1617,21 @@ next(err)</p>
 
 
                     <div class="param-description">
-                         
+                        <p>callback</p>
+
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -1586,7 +1664,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l4139"><code>src&#x2F;lib&#x2F;docpad.coffee:4139</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4318"><code>src&#x2F;lib&#x2F;docpad.coffee:4318</code></a>
         </p>
 
 
@@ -1598,8 +1676,7 @@ next(err)</p>
 Contextualizing is the process of adding layouts and
 awareness of other documents to our document. The
 contextualizeBefore and contextualizeAfter events
-are emitted here.
-next(err)</p>
+are emitted here.</p>
 
     </div>
 
@@ -1627,6 +1704,17 @@ next(err)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -1661,7 +1749,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3515"><code>src&#x2F;lib&#x2F;docpad.coffee:3515</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3631"><code>src&#x2F;lib&#x2F;docpad.coffee:3631</code></a>
         </p>
 
 
@@ -1669,7 +1757,9 @@ next(err)</p>
     </div>
 
     <div class="description">
-        <p>Create document model</p>
+        <p>Create document model. Calls
+DocPad/createModel:method
+with the 'document' modelType.</p>
 
     </div>
 
@@ -1741,7 +1831,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3127"><code>src&#x2F;lib&#x2F;docpad.coffee:3127</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3239"><code>src&#x2F;lib&#x2F;docpad.coffee:3239</code></a>
         </p>
 
 
@@ -1819,7 +1909,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3504"><code>src&#x2F;lib&#x2F;docpad.coffee:3504</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3618"><code>src&#x2F;lib&#x2F;docpad.coffee:3618</code></a>
         </p>
 
 
@@ -1827,7 +1917,9 @@ next(err)</p>
     </div>
 
     <div class="description">
-        <p>Create file model</p>
+        <p>Create file model. Calls
+DocPad/createModel:method
+with the 'file' modelType.</p>
 
     </div>
 
@@ -1899,7 +1991,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3654"><code>src&#x2F;lib&#x2F;docpad.coffee:3654</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3808"><code>src&#x2F;lib&#x2F;docpad.coffee:3808</code></a>
         </p>
 
 
@@ -1908,9 +2000,22 @@ next(err)</p>
 
     <div class="description">
         <p>Creates either a file or document model.
-Ensures a duplicate model is not created
+The model type to be created can be passed
+as an opts property, if not, the method will
+attempt to determing the model type by checking
+if the file is in one of the documents or
+layout paths.</p>
+<p>Ensures a duplicate model is not created
 and all required attributes are present and
-events attached</p>
+events attached.</p>
+<p>Generally it is not necessary for an application
+to manually create a model via creatModel as DocPad
+will handle this process when watching a project's
+file and document directories. However, it is possible
+that a plugin might have a requirement to do so.</p>
+<pre class="code prettyprint"><code>model = @docpad.createModel({fullPath:fullPath})
+</code></pre>
+<p>model.load()</p>
 
     </div>
 
@@ -1928,6 +2033,18 @@ events attached</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">fullPath</code>
+                                    <span class="type">String</span>
+
+                                <div class="param-description">
+                                    <p>the full path to the file</p>
+
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
                 <li class="param">
                         <code class="param-name optional">[opts={}]</code>
@@ -1939,6 +2056,18 @@ events attached</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">modelType</code>
+                                    <span class="type">String</span>
+
+                                <div class="param-description">
+                                    <p>either 'file' or 'document'</p>
+
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -1983,7 +2112,7 @@ events attached</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3639"><code>src&#x2F;lib&#x2F;docpad.coffee:3639</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3792"><code>src&#x2F;lib&#x2F;docpad.coffee:3792</code></a>
         </p>
 
 
@@ -1993,7 +2122,8 @@ events attached</p>
     <div class="description">
         <p>Create a collection of models from the supplied collection
 ensuring that the collection is suitable for adding to the
-DocPad database</p>
+DocPad database. The method calls DocPad/createModel
+for each model in the models array.</p>
 
     </div>
 
@@ -2007,7 +2137,8 @@ DocPad database</p>
 
 
                     <div class="param-description">
-                         
+                        <p>DocPad collection of models</p>
+
                     </div>
 
                 </li>
@@ -2055,7 +2186,7 @@ DocPad database</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l4469"><code>src&#x2F;lib&#x2F;docpad.coffee:4469</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4648"><code>src&#x2F;lib&#x2F;docpad.coffee:4648</code></a>
         </p>
 
 
@@ -2099,7 +2230,7 @@ and the log level is 6 (default)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l4531"><code>src&#x2F;lib&#x2F;docpad.coffee:4531</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4710"><code>src&#x2F;lib&#x2F;docpad.coffee:4710</code></a>
         </p>
 
 
@@ -2139,7 +2270,7 @@ and the log level is 6 (default)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l1984"><code>src&#x2F;lib&#x2F;docpad.coffee:1984</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2053"><code>src&#x2F;lib&#x2F;docpad.coffee:2053</code></a>
         </p>
 
 
@@ -2176,6 +2307,17 @@ E.g. docpad.action('destroy', next)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -2199,7 +2341,7 @@ E.g. docpad.action('destroy', next)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l669"><code>src&#x2F;lib&#x2F;docpad.coffee:669</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l686"><code>src&#x2F;lib&#x2F;docpad.coffee:686</code></a>
         </p>
 
 
@@ -2239,7 +2381,7 @@ E.g. docpad.action('destroy', next)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l712"><code>src&#x2F;lib&#x2F;docpad.coffee:712</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l737"><code>src&#x2F;lib&#x2F;docpad.coffee:737</code></a>
         </p>
 
 
@@ -2296,7 +2438,7 @@ E.g. docpad.action('destroy', next)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l798"><code>src&#x2F;lib&#x2F;docpad.coffee:798</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l845"><code>src&#x2F;lib&#x2F;docpad.coffee:845</code></a>
         </p>
 
 
@@ -2328,7 +2470,7 @@ E.g. docpad.action('destroy', next)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l560"><code>src&#x2F;lib&#x2F;docpad.coffee:560</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l577"><code>src&#x2F;lib&#x2F;docpad.coffee:577</code></a>
         </p>
 
 
@@ -2360,7 +2502,7 @@ E.g. docpad.action('destroy', next)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l421"><code>src&#x2F;lib&#x2F;docpad.coffee:421</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l436"><code>src&#x2F;lib&#x2F;docpad.coffee:436</code></a>
         </p>
 
 
@@ -2392,7 +2534,7 @@ E.g. docpad.action('destroy', next)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3832"><code>src&#x2F;lib&#x2F;docpad.coffee:3832</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4005"><code>src&#x2F;lib&#x2F;docpad.coffee:4005</code></a>
         </p>
 
 
@@ -2433,7 +2575,7 @@ E.g. docpad.action('destroy', next)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l4498"><code>src&#x2F;lib&#x2F;docpad.coffee:4498</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4677"><code>src&#x2F;lib&#x2F;docpad.coffee:4677</code></a>
         </p>
 
 
@@ -2490,7 +2632,7 @@ E.g. docpad.action('destroy', next)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l4514"><code>src&#x2F;lib&#x2F;docpad.coffee:4514</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4693"><code>src&#x2F;lib&#x2F;docpad.coffee:4693</code></a>
         </p>
 
 
@@ -2522,7 +2664,7 @@ E.g. docpad.action('destroy', next)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l374"><code>src&#x2F;lib&#x2F;docpad.coffee:374</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l389"><code>src&#x2F;lib&#x2F;docpad.coffee:389</code></a>
         </p>
 
 
@@ -2554,7 +2696,7 @@ E.g. docpad.action('destroy', next)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5127"><code>src&#x2F;lib&#x2F;docpad.coffee:5127</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5318"><code>src&#x2F;lib&#x2F;docpad.coffee:5318</code></a>
         </p>
 
 
@@ -2592,7 +2734,7 @@ by DocPad</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l660"><code>src&#x2F;lib&#x2F;docpad.coffee:660</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l677"><code>src&#x2F;lib&#x2F;docpad.coffee:677</code></a>
         </p>
 
 
@@ -2645,7 +2787,7 @@ by DocPad</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l787"><code>src&#x2F;lib&#x2F;docpad.coffee:787</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l834"><code>src&#x2F;lib&#x2F;docpad.coffee:834</code></a>
         </p>
 
 
@@ -2705,7 +2847,7 @@ by DocPad</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2072"><code>src&#x2F;lib&#x2F;docpad.coffee:2072</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2143"><code>src&#x2F;lib&#x2F;docpad.coffee:2143</code></a>
         </p>
 
 
@@ -2750,6 +2892,17 @@ by DocPad</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -2785,7 +2938,7 @@ by DocPad</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2041"><code>src&#x2F;lib&#x2F;docpad.coffee:2041</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2111"><code>src&#x2F;lib&#x2F;docpad.coffee:2111</code></a>
         </p>
 
 
@@ -2830,6 +2983,17 @@ by DocPad</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -2861,7 +3025,7 @@ by DocPad</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3161"><code>src&#x2F;lib&#x2F;docpad.coffee:3161</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3273"><code>src&#x2F;lib&#x2F;docpad.coffee:3273</code></a>
         </p>
 
 
@@ -2926,7 +3090,7 @@ by DocPad</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2655"><code>src&#x2F;lib&#x2F;docpad.coffee:2655</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2760"><code>src&#x2F;lib&#x2F;docpad.coffee:2760</code></a>
         </p>
 
 
@@ -2937,8 +3101,7 @@ by DocPad</p>
         <p>Extend collecitons. Create DocPad's
 standard (documents, files
 layouts) and special (generate, referencesOthers,
-hasLayout, html, stylesheet) collections. Set blocks
-next(err)</p>
+hasLayout, html, stylesheet) collections. Set blocks</p>
 
     </div>
 
@@ -2955,6 +3118,17 @@ next(err)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -2984,7 +3158,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3073"><code>src&#x2F;lib&#x2F;docpad.coffee:3073</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3185"><code>src&#x2F;lib&#x2F;docpad.coffee:3185</code></a>
         </p>
 
 
@@ -3024,6 +3198,9 @@ next(err)</p>
                 <li class="arg">
                         <code>opts</code>
                 </li>
+                <li class="arg">
+                        <code>next</code>
+                </li>
             </ul><span class="paren">)</span>
         </div>
 
@@ -3038,7 +3215,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2893"><code>src&#x2F;lib&#x2F;docpad.coffee:2893</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3000"><code>src&#x2F;lib&#x2F;docpad.coffee:3000</code></a>
         </p>
 
 
@@ -3047,8 +3224,7 @@ next(err)</p>
 
     <div class="description">
         <p>Fix node package versions
-Combat to <a href="https://github.com/npm/npm/issues/4587#issuecomment-35370453">https://github.com/npm/npm/issues/4587#issuecomment-35370453</a>
-next(err)</p>
+Combat to <a href="https://github.com/npm/npm/issues/4587#issuecomment-35370453">https://github.com/npm/npm/issues/4587#issuecomment-35370453</a></p>
 
     </div>
 
@@ -3065,6 +3241,27 @@ next(err)</p>
                          
                     </div>
 
+                </li>
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Function</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -3096,7 +3293,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l4554"><code>src&#x2F;lib&#x2F;docpad.coffee:4554</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4733"><code>src&#x2F;lib&#x2F;docpad.coffee:4733</code></a>
         </p>
 
 
@@ -3106,8 +3303,7 @@ next(err)</p>
     <div class="description">
         <p>Set off DocPad's generation process.
 The generated, populateCollectionsBefore, populateCollections, populateCollections
-generateBefore and generateAfter events are emitted here
-next(err)</p>
+generateBefore and generateAfter events are emitted here</p>
 
     </div>
 
@@ -3134,6 +3330,17 @@ next(err)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -3159,7 +3366,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l439"><code>src&#x2F;lib&#x2F;docpad.coffee:439</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l454"><code>src&#x2F;lib&#x2F;docpad.coffee:454</code></a>
         </p>
 
 
@@ -3211,7 +3418,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l612"><code>src&#x2F;lib&#x2F;docpad.coffee:612</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l629"><code>src&#x2F;lib&#x2F;docpad.coffee:629</code></a>
         </p>
 
 
@@ -3281,7 +3488,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l643"><code>src&#x2F;lib&#x2F;docpad.coffee:643</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l660"><code>src&#x2F;lib&#x2F;docpad.coffee:660</code></a>
         </p>
 
 
@@ -3330,7 +3537,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l688"><code>src&#x2F;lib&#x2F;docpad.coffee:688</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l705"><code>src&#x2F;lib&#x2F;docpad.coffee:705</code></a>
         </p>
 
 
@@ -3338,7 +3545,12 @@ next(err)</p>
     </div>
 
     <div class="description">
-        <p>Get a collection by collection name or key</p>
+        <p>Get a collection by collection name or key.
+This is often accessed within the docpad.coffee
+file or a layout/page via @getCollection.
+Because getCollection returns a docpad collection,
+a call to this method is often chained with a
+QueryEngine style query.</p>
 
     </div>
 
@@ -3389,7 +3601,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l766"><code>src&#x2F;lib&#x2F;docpad.coffee:766</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l813"><code>src&#x2F;lib&#x2F;docpad.coffee:813</code></a>
         </p>
 
 
@@ -3432,7 +3644,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l1686"><code>src&#x2F;lib&#x2F;docpad.coffee:1686</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l1736"><code>src&#x2F;lib&#x2F;docpad.coffee:1736</code></a>
         </p>
 
 
@@ -3440,7 +3652,22 @@ next(err)</p>
     </div>
 
     <div class="description">
-        <p>Get the Configuration</p>
+        <p>Get the DocPad configuration. Commonly
+called within the docpad.coffee file or within
+plugins to access application specific configurations.
+serverExtend: (opts) -&gt;
+Extract the server from the options
+{server} = opts
+docpad = @docpad</p>
+<p>As we are now running in an event,
+ensure we are using the latest copy of the docpad configuraiton
+and fetch our urls from it
+latestConfig = docpad.getConfig()
+oldUrls = latestConfig.templateData.site.oldUrls or []
+newUrl = latestConfig.templateData.site.url</p>
+<p>Redirect any requests accessing one of our sites oldUrls to the new site url
+server.use (req,res,next) -&gt;
+...</p>
 
     </div>
 
@@ -3482,7 +3709,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2613"><code>src&#x2F;lib&#x2F;docpad.coffee:2613</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2717"><code>src&#x2F;lib&#x2F;docpad.coffee:2717</code></a>
         </p>
 
 
@@ -3491,8 +3718,7 @@ next(err)</p>
 
     <div class="description">
         <p>Get config paths and check that those
-paths exist
-next(err,path)</p>
+paths exist</p>
 
     </div>
 
@@ -3519,6 +3745,26 @@ next(err,path)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name">path</code>
+                                    <span class="type">String</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -3541,7 +3787,7 @@ next(err,path)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l545"><code>src&#x2F;lib&#x2F;docpad.coffee:545</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l562"><code>src&#x2F;lib&#x2F;docpad.coffee:562</code></a>
         </p>
 
 
@@ -3575,7 +3821,7 @@ next(err,path)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l551"><code>src&#x2F;lib&#x2F;docpad.coffee:551</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l568"><code>src&#x2F;lib&#x2F;docpad.coffee:568</code></a>
         </p>
 
 
@@ -3618,7 +3864,7 @@ database cache</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3064"><code>src&#x2F;lib&#x2F;docpad.coffee:3064</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3176"><code>src&#x2F;lib&#x2F;docpad.coffee:3176</code></a>
         </p>
 
 
@@ -3659,7 +3905,7 @@ database cache</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l1285"><code>src&#x2F;lib&#x2F;docpad.coffee:1285</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l1335"><code>src&#x2F;lib&#x2F;docpad.coffee:1335</code></a>
         </p>
 
 
@@ -3703,7 +3949,7 @@ production or static</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l1295"><code>src&#x2F;lib&#x2F;docpad.coffee:1295</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l1345"><code>src&#x2F;lib&#x2F;docpad.coffee:1345</code></a>
         </p>
 
 
@@ -3746,7 +3992,7 @@ production or static</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l461"><code>src&#x2F;lib&#x2F;docpad.coffee:461</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l476"><code>src&#x2F;lib&#x2F;docpad.coffee:476</code></a>
         </p>
 
 
@@ -3789,7 +4035,7 @@ production or static</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l518"><code>src&#x2F;lib&#x2F;docpad.coffee:518</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l533"><code>src&#x2F;lib&#x2F;docpad.coffee:533</code></a>
         </p>
 
 
@@ -3836,7 +4082,7 @@ production or static</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l4093"><code>src&#x2F;lib&#x2F;docpad.coffee:4093</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4270"><code>src&#x2F;lib&#x2F;docpad.coffee:4270</code></a>
         </p>
 
 
@@ -3863,6 +4109,27 @@ next(err,exchange)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name">exchange</code>
+                                    <span class="type">Object</span>
+
+                                <div class="param-description">
+                                    <p>docpad.exchange</p>
+
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -3900,7 +4167,7 @@ next(err,exchange)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l832"><code>src&#x2F;lib&#x2F;docpad.coffee:832</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l879"><code>src&#x2F;lib&#x2F;docpad.coffee:879</code></a>
         </p>
 
 
@@ -3991,7 +4258,7 @@ next(err,exchange)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l857"><code>src&#x2F;lib&#x2F;docpad.coffee:857</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l904"><code>src&#x2F;lib&#x2F;docpad.coffee:904</code></a>
         </p>
 
 
@@ -4079,7 +4346,7 @@ next(err,exchange)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l884"><code>src&#x2F;lib&#x2F;docpad.coffee:884</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l931"><code>src&#x2F;lib&#x2F;docpad.coffee:931</code></a>
         </p>
 
 
@@ -4155,7 +4422,7 @@ next(err,exchange)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l909"><code>src&#x2F;lib&#x2F;docpad.coffee:909</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l954"><code>src&#x2F;lib&#x2F;docpad.coffee:954</code></a>
         </p>
 
 
@@ -4163,7 +4430,8 @@ next(err,exchange)</p>
     </div>
 
     <div class="description">
-        <p>Get a file by its route</p>
+        <p>Get a file by its route and return
+it to the supplied callback.</p>
 
     </div>
 
@@ -4190,6 +4458,26 @@ next(err,exchange)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name">file</code>
+                                    <span class="type">String</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -4224,7 +4512,7 @@ next(err,exchange)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l948"><code>src&#x2F;lib&#x2F;docpad.coffee:948</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l996"><code>src&#x2F;lib&#x2F;docpad.coffee:996</code></a>
         </p>
 
 
@@ -4303,7 +4591,7 @@ next(err,exchange)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l871"><code>src&#x2F;lib&#x2F;docpad.coffee:871</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l918"><code>src&#x2F;lib&#x2F;docpad.coffee:918</code></a>
         </p>
 
 
@@ -4385,7 +4673,7 @@ next(err,exchange)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l814"><code>src&#x2F;lib&#x2F;docpad.coffee:814</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l861"><code>src&#x2F;lib&#x2F;docpad.coffee:861</code></a>
         </p>
 
 
@@ -4476,7 +4764,7 @@ next(err,exchange)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l844"><code>src&#x2F;lib&#x2F;docpad.coffee:844</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l891"><code>src&#x2F;lib&#x2F;docpad.coffee:891</code></a>
         </p>
 
 
@@ -4555,7 +4843,7 @@ next(err,exchange)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l1702"><code>src&#x2F;lib&#x2F;docpad.coffee:1702</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l1769"><code>src&#x2F;lib&#x2F;docpad.coffee:1769</code></a>
         </p>
 
 
@@ -4596,7 +4884,7 @@ next(err,exchange)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2107"><code>src&#x2F;lib&#x2F;docpad.coffee:2107</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2179"><code>src&#x2F;lib&#x2F;docpad.coffee:2179</code></a>
         </p>
 
 
@@ -4639,7 +4927,7 @@ next(err,exchange)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l1236"><code>src&#x2F;lib&#x2F;docpad.coffee:1236</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l1286"><code>src&#x2F;lib&#x2F;docpad.coffee:1286</code></a>
         </p>
 
 
@@ -4682,7 +4970,7 @@ next(err,exchange)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l392"><code>src&#x2F;lib&#x2F;docpad.coffee:392</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l407"><code>src&#x2F;lib&#x2F;docpad.coffee:407</code></a>
         </p>
 
 
@@ -4725,7 +5013,7 @@ next(err,exchange)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l399"><code>src&#x2F;lib&#x2F;docpad.coffee:399</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l414"><code>src&#x2F;lib&#x2F;docpad.coffee:414</code></a>
         </p>
 
 
@@ -4768,7 +5056,7 @@ next(err,exchange)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3056"><code>src&#x2F;lib&#x2F;docpad.coffee:3056</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3168"><code>src&#x2F;lib&#x2F;docpad.coffee:3168</code></a>
         </p>
 
 
@@ -4817,7 +5105,7 @@ next(err,exchange)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3814"><code>src&#x2F;lib&#x2F;docpad.coffee:3814</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3987"><code>src&#x2F;lib&#x2F;docpad.coffee:3987</code></a>
         </p>
 
 
@@ -4876,7 +5164,7 @@ next(err,exchange)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l1694"><code>src&#x2F;lib&#x2F;docpad.coffee:1694</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l1761"><code>src&#x2F;lib&#x2F;docpad.coffee:1761</code></a>
         </p>
 
 
@@ -4919,7 +5207,7 @@ next(err,exchange)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l313"><code>src&#x2F;lib&#x2F;docpad.coffee:313</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l328"><code>src&#x2F;lib&#x2F;docpad.coffee:328</code></a>
         </p>
 
 
@@ -4960,7 +5248,7 @@ next(err,exchange)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l320"><code>src&#x2F;lib&#x2F;docpad.coffee:320</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l335"><code>src&#x2F;lib&#x2F;docpad.coffee:335</code></a>
         </p>
 
 
@@ -5007,7 +5295,7 @@ next(err,exchange)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l343"><code>src&#x2F;lib&#x2F;docpad.coffee:343</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l358"><code>src&#x2F;lib&#x2F;docpad.coffee:358</code></a>
         </p>
 
 
@@ -5072,7 +5360,7 @@ the node.js https server instance</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l1710"><code>src&#x2F;lib&#x2F;docpad.coffee:1710</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l1777"><code>src&#x2F;lib&#x2F;docpad.coffee:1777</code></a>
         </p>
 
 
@@ -5136,7 +5424,7 @@ the node.js https server instance</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l1725"><code>src&#x2F;lib&#x2F;docpad.coffee:1725</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l1792"><code>src&#x2F;lib&#x2F;docpad.coffee:1792</code></a>
         </p>
 
 
@@ -5162,6 +5450,18 @@ the node.js https server instance</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name optional">[simple=true]</code>
+                                    <span class="type">Boolean</span>
+                                    <span class="flag optional" title="This parameter is optional.">optional</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -5200,7 +5500,7 @@ the node.js https server instance</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l976"><code>src&#x2F;lib&#x2F;docpad.coffee:976</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l1024"><code>src&#x2F;lib&#x2F;docpad.coffee:1024</code></a>
         </p>
 
 
@@ -5209,8 +5509,8 @@ the node.js https server instance</p>
 
     <div class="description">
         <p>Get Skeletons
-Get all the available skeletons for us and their details
-next(err,skeletonsCollection)</p>
+Get all the available skeletons with their details and
+return this collection to the supplied callback.</p>
 
     </div>
 
@@ -5227,6 +5527,27 @@ next(err,skeletonsCollection)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name">skeletonsCollection</code>
+                                    <span class="type">Object</span>
+
+                                <div class="param-description">
+                                    <p>DocPad collection of skeletons</p>
+
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -5267,7 +5588,7 @@ next(err,skeletonsCollection)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l1111"><code>src&#x2F;lib&#x2F;docpad.coffee:1111</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l1161"><code>src&#x2F;lib&#x2F;docpad.coffee:1161</code></a>
         </p>
 
 
@@ -5326,7 +5647,7 @@ next(err,skeletonsCollection)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l475"><code>src&#x2F;lib&#x2F;docpad.coffee:475</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l490"><code>src&#x2F;lib&#x2F;docpad.coffee:490</code></a>
         </p>
 
 
@@ -5375,7 +5696,7 @@ next(err,skeletonsCollection)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l897"><code>src&#x2F;lib&#x2F;docpad.coffee:897</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l944"><code>src&#x2F;lib&#x2F;docpad.coffee:944</code></a>
         </p>
 
 
@@ -5433,7 +5754,7 @@ Pathname convention taken from document.location.pathname</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l286"><code>src&#x2F;lib&#x2F;docpad.coffee:286</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l301"><code>src&#x2F;lib&#x2F;docpad.coffee:301</code></a>
         </p>
 
 
@@ -5474,7 +5795,7 @@ Pathname convention taken from document.location.pathname</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l295"><code>src&#x2F;lib&#x2F;docpad.coffee:295</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l310"><code>src&#x2F;lib&#x2F;docpad.coffee:310</code></a>
         </p>
 
 
@@ -5515,7 +5836,7 @@ Pathname convention taken from document.location.pathname</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3824"><code>src&#x2F;lib&#x2F;docpad.coffee:3824</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3997"><code>src&#x2F;lib&#x2F;docpad.coffee:3997</code></a>
         </p>
 
 
@@ -5560,7 +5881,7 @@ Pathname convention taken from document.location.pathname</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3426"><code>src&#x2F;lib&#x2F;docpad.coffee:3426</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3540"><code>src&#x2F;lib&#x2F;docpad.coffee:3540</code></a>
         </p>
 
 
@@ -5568,8 +5889,7 @@ Pathname convention taken from document.location.pathname</p>
     </div>
 
     <div class="description">
-        <p>Identify DocPad user
-next(err)</p>
+        <p>Identify DocPad user</p>
 
     </div>
 
@@ -5586,6 +5906,17 @@ next(err)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -5621,7 +5952,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5922"><code>src&#x2F;lib&#x2F;docpad.coffee:5922</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l6117"><code>src&#x2F;lib&#x2F;docpad.coffee:6117</code></a>
         </p>
 
 
@@ -5657,6 +5988,17 @@ with the basic skeleton.</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -5698,7 +6040,7 @@ with the basic skeleton.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2837"><code>src&#x2F;lib&#x2F;docpad.coffee:2837</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2942"><code>src&#x2F;lib&#x2F;docpad.coffee:2942</code></a>
         </p>
 
 
@@ -5706,8 +6048,7 @@ with the basic skeleton.</p>
     </div>
 
     <div class="description">
-        <p>Initialise git repo
-next(err,results)</p>
+        <p>Initialise git repo</p>
 
     </div>
 
@@ -5734,6 +6075,26 @@ next(err,results)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name">results</code>
+                                    <span class="type">Object</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -5766,7 +6127,7 @@ next(err,results)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5390"><code>src&#x2F;lib&#x2F;docpad.coffee:5390</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5583"><code>src&#x2F;lib&#x2F;docpad.coffee:5583</code></a>
         </p>
 
 
@@ -5774,8 +6135,7 @@ next(err,results)</p>
     </div>
 
     <div class="description">
-        <p>Initialize the skeleton install process
-next(err)</p>
+        <p>Initialize the skeleton install process.</p>
 
     </div>
 
@@ -5802,6 +6162,17 @@ next(err)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -5834,7 +6205,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2861"><code>src&#x2F;lib&#x2F;docpad.coffee:2861</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2967"><code>src&#x2F;lib&#x2F;docpad.coffee:2967</code></a>
         </p>
 
 
@@ -5842,8 +6213,7 @@ next(err)</p>
     </div>
 
     <div class="description">
-        <p>Init node modules
-next(err,results)</p>
+        <p>Init node modules</p>
 
     </div>
 
@@ -5870,6 +6240,26 @@ next(err,results)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name">results</code>
+                                    <span class="type">Object</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -5905,7 +6295,7 @@ next(err,results)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5664"><code>src&#x2F;lib&#x2F;docpad.coffee:5664</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5857"><code>src&#x2F;lib&#x2F;docpad.coffee:5857</code></a>
         </p>
 
 
@@ -5913,8 +6303,7 @@ next(err,results)</p>
     </div>
 
     <div class="description">
-        <p>Initialize a Skeleton into to a Directory
-next(err)</p>
+        <p>Initialize a Skeleton into to a Directory</p>
 
     </div>
 
@@ -5951,6 +6340,17 @@ next(err)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -5985,7 +6385,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3100"><code>src&#x2F;lib&#x2F;docpad.coffee:3100</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3212"><code>src&#x2F;lib&#x2F;docpad.coffee:3212</code></a>
         </p>
 
 
@@ -6062,7 +6462,7 @@ Can't use the inspect namespace as for some silly reason it destroys everything<
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5476"><code>src&#x2F;lib&#x2F;docpad.coffee:5476</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5669"><code>src&#x2F;lib&#x2F;docpad.coffee:5669</code></a>
         </p>
 
 
@@ -6070,8 +6470,7 @@ Can't use the inspect namespace as for some silly reason it destroys everything<
     </div>
 
     <div class="description">
-        <p>Install a plugin
-next(err)</p>
+        <p>Install a plugin</p>
 
     </div>
 
@@ -6098,6 +6497,17 @@ next(err)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -6116,6 +6526,9 @@ next(err)</p>
                 <li class="arg">
                         <code>opts</code>
                 </li>
+                <li class="arg">
+                        <code>next</code>
+                </li>
             </ul><span class="paren">)</span>
         </div>
 
@@ -6130,7 +6543,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2921"><code>src&#x2F;lib&#x2F;docpad.coffee:2921</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3029"><code>src&#x2F;lib&#x2F;docpad.coffee:3029</code></a>
         </p>
 
 
@@ -6139,8 +6552,7 @@ next(err)</p>
 
     <div class="description">
         <p>Install node module. Same as running
-'npm install' through the command line
-next(err,result)</p>
+'npm install' through the command line</p>
 
     </div>
 
@@ -6167,6 +6579,36 @@ next(err,result)</p>
                          
                     </div>
 
+                </li>
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Function</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name">result</code>
+                                    <span class="type">Object</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -6202,7 +6644,7 @@ next(err,result)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5766"><code>src&#x2F;lib&#x2F;docpad.coffee:5766</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5957"><code>src&#x2F;lib&#x2F;docpad.coffee:5957</code></a>
         </p>
 
 
@@ -6247,6 +6689,17 @@ next(err,result)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -6281,7 +6734,7 @@ next(err,result)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2115"><code>src&#x2F;lib&#x2F;docpad.coffee:2115</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2187"><code>src&#x2F;lib&#x2F;docpad.coffee:2187</code></a>
         </p>
 
 
@@ -6356,7 +6809,7 @@ next(err,result)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2356"><code>src&#x2F;lib&#x2F;docpad.coffee:2356</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2455"><code>src&#x2F;lib&#x2F;docpad.coffee:2455</code></a>
         </p>
 
 
@@ -6393,6 +6846,26 @@ next(err,config)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name">config</code>
+                                    <span class="type">Object</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -6427,7 +6900,7 @@ next(err,config)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l4958"><code>src&#x2F;lib&#x2F;docpad.coffee:4958</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5138"><code>src&#x2F;lib&#x2F;docpad.coffee:5138</code></a>
         </p>
 
 
@@ -6435,8 +6908,7 @@ next(err,config)</p>
     </div>
 
     <div class="description">
-        <p>Load and render a document
-next(err,document)</p>
+        <p>Load and render a document</p>
 
     </div>
 
@@ -6473,6 +6945,26 @@ next(err,document)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name">document</code>
+                                    <span class="type">Object</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -6505,7 +6997,7 @@ next(err,document)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2549"><code>src&#x2F;lib&#x2F;docpad.coffee:2549</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2652"><code>src&#x2F;lib&#x2F;docpad.coffee:2652</code></a>
         </p>
 
 
@@ -6515,8 +7007,7 @@ next(err,document)</p>
     <div class="description">
         <p>Load the configuration from a file path
 passed as one of the options (opts.configPath) or
-from DocPad's configPaths
-next(err,parsedData)</p>
+from DocPad's configPaths</p>
 
     </div>
 
@@ -6543,6 +7034,26 @@ next(err,parsedData)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name">parsedData</code>
+                                    <span class="type">Object</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -6574,7 +7085,7 @@ next(err,parsedData)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2519"><code>src&#x2F;lib&#x2F;docpad.coffee:2519</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2621"><code>src&#x2F;lib&#x2F;docpad.coffee:2621</code></a>
         </p>
 
 
@@ -6582,8 +7093,7 @@ next(err,parsedData)</p>
     </div>
 
     <div class="description">
-        <p>Load a configuration url
-next(err,parsedData)</p>
+        <p>Load a configuration url.</p>
 
     </div>
 
@@ -6610,6 +7120,26 @@ next(err,parsedData)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name">parsedData</code>
+                                    <span class="type">Object</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -6645,7 +7175,7 @@ next(err,parsedData)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l4938"><code>src&#x2F;lib&#x2F;docpad.coffee:4938</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5117"><code>src&#x2F;lib&#x2F;docpad.coffee:5117</code></a>
         </p>
 
 
@@ -6653,8 +7183,7 @@ next(err,parsedData)</p>
     </div>
 
     <div class="description">
-        <p>Load a document
-next(err,document)</p>
+        <p>Load a document</p>
 
     </div>
 
@@ -6691,6 +7220,26 @@ next(err,document)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name">document</code>
+                                    <span class="type">Object</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -6722,7 +7271,7 @@ next(err,document)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3886"><code>src&#x2F;lib&#x2F;docpad.coffee:3886</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4060"><code>src&#x2F;lib&#x2F;docpad.coffee:4060</code></a>
         </p>
 
 
@@ -6730,7 +7279,7 @@ next(err,document)</p>
     </div>
 
     <div class="description">
-        <p>Checks if a plugin was loaded succesfully</p>
+        <p>Checks if a plugin was loaded succesfully.</p>
 
     </div>
 
@@ -6757,6 +7306,26 @@ next(err,document)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name">loaded</code>
+                                    <span class="type">Boolean</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -6788,7 +7357,7 @@ next(err,document)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l1256"><code>src&#x2F;lib&#x2F;docpad.coffee:1256</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l1306"><code>src&#x2F;lib&#x2F;docpad.coffee:1306</code></a>
         </p>
 
 
@@ -6857,7 +7426,7 @@ next(err,document)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3903"><code>src&#x2F;lib&#x2F;docpad.coffee:3903</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4079"><code>src&#x2F;lib&#x2F;docpad.coffee:4079</code></a>
         </p>
 
 
@@ -6893,6 +7462,17 @@ _next(err)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -6931,7 +7511,7 @@ _next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3843"><code>src&#x2F;lib&#x2F;docpad.coffee:3843</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4016"><code>src&#x2F;lib&#x2F;docpad.coffee:4016</code></a>
         </p>
 
 
@@ -6957,6 +7537,17 @@ next(err)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -6989,7 +7580,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3999"><code>src&#x2F;lib&#x2F;docpad.coffee:3999</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4176"><code>src&#x2F;lib&#x2F;docpad.coffee:4176</code></a>
         </p>
 
 
@@ -6997,8 +7588,7 @@ next(err)</p>
     </div>
 
     <div class="description">
-        <p>Load plugins from a directory path
-next(err)</p>
+        <p>Load plugins from a directory path</p>
 
     </div>
 
@@ -7025,6 +7615,17 @@ next(err)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -7053,7 +7654,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3186"><code>src&#x2F;lib&#x2F;docpad.coffee:3186</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3298"><code>src&#x2F;lib&#x2F;docpad.coffee:3298</code></a>
         </p>
 
 
@@ -7110,7 +7711,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2215"><code>src&#x2F;lib&#x2F;docpad.coffee:2215</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2312"><code>src&#x2F;lib&#x2F;docpad.coffee:2312</code></a>
         </p>
 
 
@@ -7176,7 +7777,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3291"><code>src&#x2F;lib&#x2F;docpad.coffee:3291</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3403"><code>src&#x2F;lib&#x2F;docpad.coffee:3403</code></a>
         </p>
 
 
@@ -7241,7 +7842,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3241"><code>src&#x2F;lib&#x2F;docpad.coffee:3241</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3353"><code>src&#x2F;lib&#x2F;docpad.coffee:3353</code></a>
         </p>
 
 
@@ -7287,9 +7888,6 @@ next(err)</p>
             </ul><span class="paren">)</span>
         </div>
 
-        <span class="returns-inline">
-            <span class="type">Object</span>
-        </span>
 
 
 
@@ -7300,7 +7898,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3734"><code>src&#x2F;lib&#x2F;docpad.coffee:3734</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3907"><code>src&#x2F;lib&#x2F;docpad.coffee:3907</code></a>
         </p>
 
 
@@ -7309,8 +7907,7 @@ next(err)</p>
 
     <div class="description">
         <p>Parse a directory and return a
-files collection
-next(err, files)</p>
+files collection</p>
 
     </div>
 
@@ -7338,19 +7935,31 @@ next(err, files)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name">files</code>
+                                    <span class="type">Object</span>
+
+                                <div class="param-description">
+                                    <p>files collection</p>
+
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
 
-        <div class="returns">
-            <h4>Returns:</h4>
-
-            <div class="returns-description">
-                        <span class="type">Object</span>:
-                    <p>FilesCollection</p>
-
-            </div>
-        </div>
 
 
 </div>
@@ -7368,9 +7977,6 @@ next(err, files)</p>
             </ul><span class="paren">)</span>
         </div>
 
-        <span class="returns-inline">
-            <span class="type">Object</span>
-        </span>
 
 
 
@@ -7381,7 +7987,7 @@ next(err, files)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3539"><code>src&#x2F;lib&#x2F;docpad.coffee:3539</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3660"><code>src&#x2F;lib&#x2F;docpad.coffee:3660</code></a>
         </p>
 
 
@@ -7389,7 +7995,13 @@ next(err, files)</p>
     </div>
 
     <div class="description">
-        <p>Parse the documents directory</p>
+        <p>Parse the documents directory and
+return a documents collection to
+the passed callback.</p>
+<p>The partials plugin (<a href="https://github.com/docpad/docpad-plugin-partials">https://github.com/docpad/docpad-plugin-partials</a>)
+uses this method to load a collection of
+files from the partials directory.</p>
+<pre class="code prettyprint"><code>docpad.parseDocumentDirectory({path: config.partialsPath}, next)</code></pre>
 
     </div>
 
@@ -7407,6 +8019,38 @@ next(err, files)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name optional">[modelType=&#x27;document&#x27;]</code>
+                                    <span class="type">String</span>
+                                    <span class="flag optional" title="This parameter is optional.">optional</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name optional">[collection=docpad.database]</code>
+                                    <span class="type">Object</span>
+                                    <span class="flag optional" title="This parameter is optional.">optional</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name optional">[path]</code>
+                                    <span class="type">Object</span>
+                                    <span class="flag optional" title="This parameter is optional.">optional</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
                 <li class="param">
                         <code class="param-name">next</code>
@@ -7417,19 +8061,31 @@ next(err, files)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name">files</code>
+                                    <span class="type">Object</span>
+
+                                <div class="param-description">
+                                    <p>files collection of documents</p>
+
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
 
-        <div class="returns">
-            <h4>Returns:</h4>
-
-            <div class="returns-description">
-                        <span class="type">Object</span>:
-                    <p>FilesCollection of documents</p>
-
-            </div>
-        </div>
 
 
 </div>
@@ -7447,9 +8103,6 @@ next(err, files)</p>
             </ul><span class="paren">)</span>
         </div>
 
-        <span class="returns-inline">
-            <span class="type">Object</span>
-        </span>
 
 
 
@@ -7460,7 +8113,7 @@ next(err, files)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3527"><code>src&#x2F;lib&#x2F;docpad.coffee:3527</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3645"><code>src&#x2F;lib&#x2F;docpad.coffee:3645</code></a>
         </p>
 
 
@@ -7468,7 +8121,9 @@ next(err, files)</p>
     </div>
 
     <div class="description">
-        <p>Parse the files directory</p>
+        <p>Parse the files directory and
+return a files collection to
+the passed callback</p>
 
     </div>
 
@@ -7493,22 +8148,35 @@ next(err, files)</p>
 
 
                     <div class="param-description">
-                         
+                        <p>callback</p>
+
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name">files</code>
+                                    <span class="type">Object</span>
+
+                                <div class="param-description">
+                                    <p>files collection</p>
+
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
 
-        <div class="returns">
-            <h4>Returns:</h4>
-
-            <div class="returns-description">
-                        <span class="type">Object</span>:
-                    <p>FilesCollection</p>
-
-            </div>
-        </div>
 
 
 </div>
@@ -7518,7 +8186,7 @@ next(err, files)</p>
         <div class="args">
             <span class="paren">(</span><ul class="args-list inline commas">
                 <li class="arg">
-                        <code>opts</code>
+                        <code class="optional">[opts]</code>
                 </li>
                 <li class="arg">
                         <code>next</code>
@@ -7537,7 +8205,7 @@ next(err, files)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2152"><code>src&#x2F;lib&#x2F;docpad.coffee:2152</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2247"><code>src&#x2F;lib&#x2F;docpad.coffee:2247</code></a>
         </p>
 
 
@@ -7556,8 +8224,9 @@ next(err,docpadInstance)</p>
 
             <ul class="params-list">
                 <li class="param">
-                        <code class="param-name">opts</code>
+                        <code class="param-name optional">[opts]</code>
                         <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
 
 
                     <div class="param-description">
@@ -7574,6 +8243,26 @@ next(err,docpadInstance)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name">docpadInstance</code>
+                                    <span class="type">Object</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -7605,7 +8294,7 @@ next(err,docpadInstance)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5085"><code>src&#x2F;lib&#x2F;docpad.coffee:5085</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5275"><code>src&#x2F;lib&#x2F;docpad.coffee:5275</code></a>
         </p>
 
 
@@ -7641,6 +8330,17 @@ next(err,document,result)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -7675,7 +8375,7 @@ next(err,document,result)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5023"><code>src&#x2F;lib&#x2F;docpad.coffee:5023</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5208"><code>src&#x2F;lib&#x2F;docpad.coffee:5208</code></a>
         </p>
 
 
@@ -7723,6 +8423,27 @@ next(err,result)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name">result</code>
+                                    <span class="type">Object</span>
+
+                                <div class="param-description">
+                                    <p>the rendered document</p>
+
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -7757,7 +8478,7 @@ next(err,result)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l4981"><code>src&#x2F;lib&#x2F;docpad.coffee:4981</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5162"><code>src&#x2F;lib&#x2F;docpad.coffee:5162</code></a>
         </p>
 
 
@@ -7765,8 +8486,7 @@ next(err,result)</p>
     </div>
 
     <div class="description">
-        <p>Render a document
-next(err,result)</p>
+        <p>Render a document</p>
 
     </div>
 
@@ -7803,6 +8523,35 @@ next(err,result)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name">result</code>
+                                    <span class="type">Object</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name">document</code>
+                                    <span class="type">Object</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -7835,7 +8584,7 @@ next(err,result)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l4220"><code>src&#x2F;lib&#x2F;docpad.coffee:4220</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4399"><code>src&#x2F;lib&#x2F;docpad.coffee:4399</code></a>
         </p>
 
 
@@ -7845,8 +8594,7 @@ next(err,result)</p>
     <div class="description">
         <p>Render the DocPad project's files.
 The renderCollectionBefore, renderCollectionAfter,
-renderBefore, renderAfter events are all emitted here.
-next(err)</p>
+renderBefore, renderAfter events are all emitted here.</p>
 
     </div>
 
@@ -7874,6 +8622,17 @@ next(err)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -7908,7 +8667,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5001"><code>src&#x2F;lib&#x2F;docpad.coffee:5001</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5184"><code>src&#x2F;lib&#x2F;docpad.coffee:5184</code></a>
         </p>
 
 
@@ -7954,6 +8713,27 @@ next(err,result)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name">result</code>
+                                    <span class="type">Object</span>
+
+                                <div class="param-description">
+                                    <p>the rendered document</p>
+
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -7989,7 +8769,7 @@ next(err,result)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5052"><code>src&#x2F;lib&#x2F;docpad.coffee:5052</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5239"><code>src&#x2F;lib&#x2F;docpad.coffee:5239</code></a>
         </p>
 
 
@@ -8037,6 +8817,37 @@ next(err,result)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name">result</code>
+                                    <span class="type">Object</span>
+
+                                <div class="param-description">
+                                    <p>the rendered content</p>
+
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name">document</code>
+                                    <span class="type">Object</span>
+
+                                <div class="param-description">
+                                    <p>the rendered document model</p>
+
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -8069,7 +8880,7 @@ next(err,result)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2799"><code>src&#x2F;lib&#x2F;docpad.coffee:2799</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2904"><code>src&#x2F;lib&#x2F;docpad.coffee:2904</code></a>
         </p>
 
 
@@ -8077,8 +8888,7 @@ next(err,result)</p>
     </div>
 
     <div class="description">
-        <p>Reset collections. Perform a complete clean of our collections
-next(err)</p>
+        <p>Reset collections. Perform a complete clean of our collections</p>
 
     </div>
 
@@ -8105,6 +8915,17 @@ next(err)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -8136,7 +8957,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5326"><code>src&#x2F;lib&#x2F;docpad.coffee:5326</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5518"><code>src&#x2F;lib&#x2F;docpad.coffee:5518</code></a>
         </p>
 
 
@@ -8171,6 +8992,17 @@ next(err)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -8199,7 +9031,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2126"><code>src&#x2F;lib&#x2F;docpad.coffee:2126</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2198"><code>src&#x2F;lib&#x2F;docpad.coffee:2198</code></a>
         </p>
 
 
@@ -8257,7 +9089,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5837"><code>src&#x2F;lib&#x2F;docpad.coffee:5837</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l6029"><code>src&#x2F;lib&#x2F;docpad.coffee:6029</code></a>
         </p>
 
 
@@ -8265,8 +9097,7 @@ next(err)</p>
     </div>
 
     <div class="description">
-        <p>Select a Skeleton
-next(err,skeletonModel)</p>
+        <p>Select a Skeleton</p>
 
     </div>
 
@@ -8293,6 +9124,26 @@ next(err,skeletonModel)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name">skeletonModel</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -8325,7 +9176,7 @@ next(err,skeletonModel)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5951"><code>src&#x2F;lib&#x2F;docpad.coffee:5951</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l6147"><code>src&#x2F;lib&#x2F;docpad.coffee:6147</code></a>
         </p>
 
 
@@ -8360,6 +9211,17 @@ next(err,skeletonModel)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -8392,7 +9254,7 @@ next(err,skeletonModel)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l6152"><code>src&#x2F;lib&#x2F;docpad.coffee:6152</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l6350"><code>src&#x2F;lib&#x2F;docpad.coffee:6350</code></a>
         </p>
 
 
@@ -8466,7 +9328,7 @@ serverAfter emitted here.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l6101"><code>src&#x2F;lib&#x2F;docpad.coffee:6101</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l6299"><code>src&#x2F;lib&#x2F;docpad.coffee:6299</code></a>
         </p>
 
 
@@ -8549,7 +9411,7 @@ serverAfter emitted here.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l6128"><code>src&#x2F;lib&#x2F;docpad.coffee:6128</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l6326"><code>src&#x2F;lib&#x2F;docpad.coffee:6326</code></a>
         </p>
 
 
@@ -8639,7 +9501,7 @@ serverAfter emitted here.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l6043"><code>src&#x2F;lib&#x2F;docpad.coffee:6043</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l6240"><code>src&#x2F;lib&#x2F;docpad.coffee:6240</code></a>
         </p>
 
 
@@ -8719,7 +9581,7 @@ serverAfter emitted here.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l6070"><code>src&#x2F;lib&#x2F;docpad.coffee:6070</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l6267"><code>src&#x2F;lib&#x2F;docpad.coffee:6267</code></a>
         </p>
 
 
@@ -8764,6 +9626,17 @@ serverAfter emitted here.</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -8795,7 +9668,7 @@ serverAfter emitted here.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l626"><code>src&#x2F;lib&#x2F;docpad.coffee:626</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l643"><code>src&#x2F;lib&#x2F;docpad.coffee:643</code></a>
         </p>
 
 
@@ -8858,7 +9731,7 @@ serverAfter emitted here.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l650"><code>src&#x2F;lib&#x2F;docpad.coffee:650</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l667"><code>src&#x2F;lib&#x2F;docpad.coffee:667</code></a>
         </p>
 
 
@@ -8890,7 +9763,7 @@ serverAfter emitted here.</p>
 
 
 </div>
-<div id="method_setCollection" class="method item private">
+<div id="method_setCollection" class="method item">
     <h3 class="name"><code>setCollection</code></h3>
 
         <div class="args">
@@ -8906,7 +9779,6 @@ serverAfter emitted here.</p>
 
 
 
-        <span class="flag private">private</span>
 
 
 
@@ -8915,7 +9787,7 @@ serverAfter emitted here.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l748"><code>src&#x2F;lib&#x2F;docpad.coffee:748</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l773"><code>src&#x2F;lib&#x2F;docpad.coffee:773</code></a>
         </p>
 
 
@@ -8923,8 +9795,27 @@ serverAfter emitted here.</p>
     </div>
 
     <div class="description">
-        <p>Set a name for a collection
+        <p>Set a name for a collection.
 A collection can have multiple names</p>
+<p>The partials plugin (<a href="https://github.com/docpad/docpad-plugin-partials">https://github.com/docpad/docpad-plugin-partials</a>)
+creates a live collection and passes this to setCollection with
+the name 'partials'.</p>
+<pre class="code prettyprint"><code># Add our partials collection
+docpad.setCollection('partials', database.createLiveChildCollection()
+    .setQuery('isPartial', {
+            $or:
+                isPartial: true
+                fullPath: $startsWith: config.partialsPath
+    })
+    .on('add', (model) -&gt;
+        docpad.log('debug', util.format(locale.addingPartial, model.getFilePath()))
+        model.setDefaults(
+            isPartial: true
+            render: false
+            write: false
+        )
+    )
+)</code></pre>
 
     </div>
 
@@ -8938,7 +9829,8 @@ A collection can have multiple names</p>
 
 
                     <div class="param-description">
-                         
+                        <p>the name to give to the collection</p>
+
                     </div>
 
                 </li>
@@ -8948,7 +9840,8 @@ A collection can have multiple names</p>
 
 
                     <div class="param-description">
-                         
+                        <p>a DocPad collection</p>
+
                     </div>
 
                 </li>
@@ -8973,7 +9866,7 @@ A collection can have multiple names</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l774"><code>src&#x2F;lib&#x2F;docpad.coffee:774</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l821"><code>src&#x2F;lib&#x2F;docpad.coffee:821</code></a>
         </p>
 
 
@@ -9014,7 +9907,7 @@ A collection can have multiple names</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2257"><code>src&#x2F;lib&#x2F;docpad.coffee:2257</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2354"><code>src&#x2F;lib&#x2F;docpad.coffee:2354</code></a>
         </p>
 
 
@@ -9053,6 +9946,26 @@ next(err,config)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name">config</code>
+                                    <span class="type">Object</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -9082,7 +9995,7 @@ next(err,config)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2240"><code>src&#x2F;lib&#x2F;docpad.coffee:2240</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2337"><code>src&#x2F;lib&#x2F;docpad.coffee:2337</code></a>
         </p>
 
 
@@ -9140,7 +10053,7 @@ with the existing DocPad instanceConfig object</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l406"><code>src&#x2F;lib&#x2F;docpad.coffee:406</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l421"><code>src&#x2F;lib&#x2F;docpad.coffee:421</code></a>
         </p>
 
 
@@ -9203,7 +10116,7 @@ with the existing DocPad instanceConfig object</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3036"><code>src&#x2F;lib&#x2F;docpad.coffee:3036</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3148"><code>src&#x2F;lib&#x2F;docpad.coffee:3148</code></a>
         </p>
 
 
@@ -9256,7 +10169,7 @@ with the existing DocPad instanceConfig object</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l357"><code>src&#x2F;lib&#x2F;docpad.coffee:357</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l372"><code>src&#x2F;lib&#x2F;docpad.coffee:372</code></a>
         </p>
 
 
@@ -9314,7 +10227,7 @@ to bind to DocPad</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5892"><code>src&#x2F;lib&#x2F;docpad.coffee:5892</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l6086"><code>src&#x2F;lib&#x2F;docpad.coffee:6086</code></a>
         </p>
 
 
@@ -9350,6 +10263,17 @@ with the basic skeleton.</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -9382,7 +10306,7 @@ with the basic skeleton.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5865"><code>src&#x2F;lib&#x2F;docpad.coffee:5865</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l6058"><code>src&#x2F;lib&#x2F;docpad.coffee:6058</code></a>
         </p>
 
 
@@ -9417,6 +10341,17 @@ with the basic skeleton.</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -9446,7 +10381,7 @@ with the basic skeleton.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3330"><code>src&#x2F;lib&#x2F;docpad.coffee:3330</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3444"><code>src&#x2F;lib&#x2F;docpad.coffee:3444</code></a>
         </p>
 
 
@@ -9454,8 +10389,7 @@ with the basic skeleton.</p>
     </div>
 
     <div class="description">
-        <p>Subscribe to the DocPad email list.
-next(err)</p>
+        <p>Subscribe to the DocPad email list.</p>
 
     </div>
 
@@ -9472,6 +10406,17 @@ next(err)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -9507,7 +10452,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3369"><code>src&#x2F;lib&#x2F;docpad.coffee:3369</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3483"><code>src&#x2F;lib&#x2F;docpad.coffee:3483</code></a>
         </p>
 
 
@@ -9515,8 +10460,7 @@ next(err)</p>
     </div>
 
     <div class="description">
-        <p>Track
-next(err)</p>
+        <p>Track</p>
 
     </div>
 
@@ -9554,6 +10498,17 @@ next(err)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -9583,7 +10538,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3217"><code>src&#x2F;lib&#x2F;docpad.coffee:3217</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3329"><code>src&#x2F;lib&#x2F;docpad.coffee:3329</code></a>
         </p>
 
 
@@ -9640,7 +10595,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5437"><code>src&#x2F;lib&#x2F;docpad.coffee:5437</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5630"><code>src&#x2F;lib&#x2F;docpad.coffee:5630</code></a>
         </p>
 
 
@@ -9648,8 +10603,7 @@ next(err)</p>
     </div>
 
     <div class="description">
-        <p>Uninstall a plugin.
-next(err)</p>
+        <p>Uninstall a plugin.</p>
 
     </div>
 
@@ -9676,6 +10630,17 @@ next(err)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -9694,6 +10659,9 @@ next(err)</p>
                 <li class="arg">
                         <code>opts</code>
                 </li>
+                <li class="arg">
+                        <code>next</code>
+                </li>
             </ul><span class="paren">)</span>
         </div>
 
@@ -9708,7 +10676,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2982"><code>src&#x2F;lib&#x2F;docpad.coffee:2982</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3092"><code>src&#x2F;lib&#x2F;docpad.coffee:3092</code></a>
         </p>
 
 
@@ -9717,8 +10685,7 @@ next(err)</p>
 
     <div class="description">
         <p>Uninstall node module. Same as running
-'npm uninstall' through the command line
-next(err,result)</p>
+'npm uninstall' through the command line</p>
 
     </div>
 
@@ -9745,6 +10712,36 @@ next(err,result)</p>
                          
                     </div>
 
+                </li>
+                <li class="param">
+                        <code class="param-name">next</code>
+                        <span class="type">Function</span>
+
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name">result</code>
+                                    <span class="type">Object</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -9777,7 +10774,7 @@ next(err,result)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5547"><code>src&#x2F;lib&#x2F;docpad.coffee:5547</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5740"><code>src&#x2F;lib&#x2F;docpad.coffee:5740</code></a>
         </p>
 
 
@@ -9785,8 +10782,7 @@ next(err,result)</p>
     </div>
 
     <div class="description">
-        <p>Update the local DocPad and plugin dependencies
-next(err)</p>
+        <p>Update the local DocPad and plugin dependencies</p>
 
     </div>
 
@@ -9813,6 +10809,17 @@ next(err)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -9844,7 +10851,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2488"><code>src&#x2F;lib&#x2F;docpad.coffee:2488</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2589"><code>src&#x2F;lib&#x2F;docpad.coffee:2589</code></a>
         </p>
 
 
@@ -9880,6 +10887,17 @@ next(err)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -9915,7 +10933,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5527"><code>src&#x2F;lib&#x2F;docpad.coffee:5527</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5720"><code>src&#x2F;lib&#x2F;docpad.coffee:5720</code></a>
         </p>
 
 
@@ -9923,8 +10941,7 @@ next(err)</p>
     </div>
 
     <div class="description">
-        <p>Update global NPM and DocPad
-next(err)</p>
+        <p>Update global NPM and DocPad</p>
 
     </div>
 
@@ -9951,6 +10968,17 @@ next(err)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -9998,7 +11026,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5793"><code>src&#x2F;lib&#x2F;docpad.coffee:5793</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5985"><code>src&#x2F;lib&#x2F;docpad.coffee:5985</code></a>
         </p>
 
 
@@ -10006,8 +11034,7 @@ next(err)</p>
     </div>
 
     <div class="description">
-        <p>Use a Skeleton
-next(err)</p>
+        <p>Use a Skeleton</p>
 
     </div>
 
@@ -10044,6 +11071,17 @@ next(err)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -10087,7 +11125,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3265"><code>src&#x2F;lib&#x2F;docpad.coffee:3265</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3377"><code>src&#x2F;lib&#x2F;docpad.coffee:3377</code></a>
         </p>
 
 
@@ -10163,7 +11201,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5149"><code>src&#x2F;lib&#x2F;docpad.coffee:5149</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5340"><code>src&#x2F;lib&#x2F;docpad.coffee:5340</code></a>
         </p>
 
 
@@ -10198,6 +11236,17 @@ next(err)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -10229,7 +11278,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l2138"><code>src&#x2F;lib&#x2F;docpad.coffee:2138</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l2210"><code>src&#x2F;lib&#x2F;docpad.coffee:2210</code></a>
         </p>
 
 
@@ -10237,7 +11286,15 @@ next(err)</p>
     </div>
 
     <div class="description">
-        <p>Watch Directory</p>
+        <p>Watch Directory. Wrapper around the Bevry watchr
+module (<a href="https://github.com/bevry/watchr">https://github.com/bevry/watchr</a>). Used
+internally by DocPad to watch project documents
+and files and then activate the regeneration process
+when any of those items are updated.</p>
+<p>Although it is possible to pass a range of options to watchdir
+in practice these options are provided as part of
+the DocPad config object with a number of default options
+specified in the DocPad config.</p>
 
     </div>
 
@@ -10255,6 +11312,162 @@ next(err)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name optional">[path]</code>
+                                    <span class="type">String</span>
+                                    <span class="flag optional" title="This parameter is optional.">optional</span>
+
+                                <div class="param-description">
+                                    <p>a single path to watch.</p>
+
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name optional">[paths]</code>
+                                    <span class="type">Array</span>
+                                    <span class="flag optional" title="This parameter is optional.">optional</span>
+
+                                <div class="param-description">
+                                    <p>an array of paths to watch.</p>
+
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name optional">[listener]</code>
+                                    <span class="type">Function</span>
+                                    <span class="flag optional" title="This parameter is optional.">optional</span>
+
+                                <div class="param-description">
+                                    <p>a single change listener to fire when a change occurs.</p>
+
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name optional">[listeners]</code>
+                                    <span class="type">Array</span>
+                                    <span class="flag optional" title="This parameter is optional.">optional</span>
+
+                                <div class="param-description">
+                                    <p>an array of listeners.</p>
+
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name optional">[next]</code>
+                                    <span class="type">Function</span>
+                                    <span class="flag optional" title="This parameter is optional.">optional</span>
+
+                                <div class="param-description">
+                                    <p>callback.</p>
+
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name optional">[stat]</code>
+                                    <span class="type">Object</span>
+                                    <span class="flag optional" title="This parameter is optional.">optional</span>
+
+                                <div class="param-description">
+                                    <p>a file stat object to use for the path, instead of fetching a new one.</p>
+
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name optional">[interval=5007]</code>
+                                    <span class="type">Number</span>
+                                    <span class="flag optional" title="This parameter is optional.">optional</span>
+
+                                <div class="param-description">
+                                    <p>for systems that poll to detect file changes, how often should it poll in millseconds.</p>
+
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name optional">[catupDelay=200]</code>
+                                    <span class="type">Number</span>
+                                    <span class="flag optional" title="This parameter is optional.">optional</span>
+
+                                <div class="param-description">
+                                    <p>handles system swap file deletions and renaming</p>
+
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name optional">[preferredMethods=[&#x27;watch&#x27;,&#x27;watchFile&#x27;]</code>
+                                    <span class="type">Array</span>
+                                    <span class="flag optional" title="This parameter is optional.">optional</span>
+
+                                <div class="param-description">
+                                    <p>which order should we prefer our watching methods to be tried?.</p>
+
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name optional">[followLinks=true]</code>
+                                    <span class="type">Boolean</span>
+                                    <span class="flag optional" title="This parameter is optional.">optional</span>
+
+                                <div class="param-description">
+                                    <p>follow symlinks, i.e. use stat rather than lstat.</p>
+
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name optional">[ignorePaths=false]</code>
+                                    <span class="type">Boolean | Array</span>
+                                    <span class="flag optional" title="This parameter is optional.">optional</span>
+
+                                <div class="param-description">
+                                    <p>an array of full paths to ignore.</p>
+
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name optional">[ignoreHiddenFiles=false]</code>
+                                    <span class="type">Boolean | Array</span>
+                                    <span class="flag optional" title="This parameter is optional.">optional</span>
+
+                                <div class="param-description">
+                                    <p>whether or not to ignored files which filename starts with a &quot;.&quot;.</p>
+
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name optional">[ignoreCommonPatterns=true]</code>
+                                    <span class="type">Boolean</span>
+                                    <span class="flag optional" title="This parameter is optional.">optional</span>
+
+                                <div class="param-description">
+                                    <p>whether or not to ignore common undesirable file patterns (e.g. .svn, .git, .DS_Store, thumbs.db, etc).</p>
+
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name optional">[ignoreCustomPatterns=null]</code>
+                                    <span class="type">Boolean | Array</span>
+                                    <span class="flag optional" title="This parameter is optional.">optional</span>
+
+                                <div class="param-description">
+                                    <p>any custom ignore patterns that you would also like to ignore along with the common patterns.</p>
+
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -10296,7 +11509,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l4344"><code>src&#x2F;lib&#x2F;docpad.coffee:4344</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4523"><code>src&#x2F;lib&#x2F;docpad.coffee:4523</code></a>
         </p>
 
 
@@ -10305,8 +11518,7 @@ next(err)</p>
 
     <div class="description">
         <p>Write rendered files to the DocPad out directory.
-The writeBefore and writeAfter events are emitted here.
-next(err)</p>
+The writeBefore and writeAfter events are emitted here.</p>
 
     </div>
 
@@ -10334,6 +11546,17 @@ next(err)</p>
                          
                     </div>
 
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">err</code>
+                                    <span class="type">Error</span>
+
+                                <div class="param-description">
+                                    
+                                </div>
+
+                            </li>
+                        </ul>
                 </li>
             </ul>
         </div>
@@ -10358,7 +11581,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l432"><code>src&#x2F;lib&#x2F;docpad.coffee:432</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l447"><code>src&#x2F;lib&#x2F;docpad.coffee:447</code></a>
         </p>
 
 
@@ -10383,7 +11606,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l269"><code>src&#x2F;lib&#x2F;docpad.coffee:269</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l284"><code>src&#x2F;lib&#x2F;docpad.coffee:284</code></a>
         </p>
 
 
@@ -10410,7 +11633,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l595"><code>src&#x2F;lib&#x2F;docpad.coffee:595</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l612"><code>src&#x2F;lib&#x2F;docpad.coffee:612</code></a>
         </p>
 
 
@@ -10435,7 +11658,7 @@ next(err)</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l180"><code>src&#x2F;lib&#x2F;docpad.coffee:180</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l195"><code>src&#x2F;lib&#x2F;docpad.coffee:195</code></a>
         </p>
 
 
@@ -10464,7 +11687,7 @@ Extension of the Backbone Collection class
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l681"><code>src&#x2F;lib&#x2F;docpad.coffee:681</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l698"><code>src&#x2F;lib&#x2F;docpad.coffee:698</code></a>
         </p>
 
 
@@ -10490,7 +11713,7 @@ Extension of the Backbone Collection class
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l1324"><code>src&#x2F;lib&#x2F;docpad.coffee:1324</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l1374"><code>src&#x2F;lib&#x2F;docpad.coffee:1374</code></a>
         </p>
 
 
@@ -10524,7 +11747,7 @@ Use getConfig to retrieve this value</li>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l1050"><code>src&#x2F;lib&#x2F;docpad.coffee:1050</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l1100"><code>src&#x2F;lib&#x2F;docpad.coffee:1100</code></a>
         </p>
 
 
@@ -10550,7 +11773,7 @@ Use getConfig to retrieve this value</li>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l532"><code>src&#x2F;lib&#x2F;docpad.coffee:532</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l547"><code>src&#x2F;lib&#x2F;docpad.coffee:547</code></a>
         </p>
 
 
@@ -10564,25 +11787,27 @@ Use getConfig to retrieve this value</li>
 
 
 </div>
-<div id="property_databaseTempCache" class="property item">
-    <h3 class="name"><code>databaseTempCache</code></h3>
+<div id="property_databaseTempCache FileCollection of models" class="property item private">
+    <h3 class="name"><code>databaseTempCache FileCollection of models</code></h3>
     <span class="type">Object</span>
 
 
+        <span class="flag private">private</span>
 
 
 
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l539"><code>src&#x2F;lib&#x2F;docpad.coffee:539</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l554"><code>src&#x2F;lib&#x2F;docpad.coffee:554</code></a>
         </p>
 
 
     </div>
 
     <div class="description">
-        <p>Description for databaseTempCache</p>
+        <p>A FilesCollection of models updated
+from the DocPad database after each regeneration.</p>
 
     </div>
 
@@ -10600,7 +11825,7 @@ Use getConfig to retrieve this value</li>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l1081"><code>src&#x2F;lib&#x2F;docpad.coffee:1081</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l1131"><code>src&#x2F;lib&#x2F;docpad.coffee:1131</code></a>
         </p>
 
 
@@ -10625,7 +11850,7 @@ Use getConfig to retrieve this value</li>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l209"><code>src&#x2F;lib&#x2F;docpad.coffee:209</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l224"><code>src&#x2F;lib&#x2F;docpad.coffee:224</code></a>
         </p>
 
 
@@ -10652,7 +11877,7 @@ Extension of the File Model class
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l228"><code>src&#x2F;lib&#x2F;docpad.coffee:228</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l243"><code>src&#x2F;lib&#x2F;docpad.coffee:243</code></a>
         </p>
 
 
@@ -10679,7 +11904,7 @@ Extension of the Collection class
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l455"><code>src&#x2F;lib&#x2F;docpad.coffee:455</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l470"><code>src&#x2F;lib&#x2F;docpad.coffee:470</code></a>
         </p>
 
 
@@ -10704,7 +11929,7 @@ Extension of the Collection class
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l165"><code>src&#x2F;lib&#x2F;docpad.coffee:165</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l180"><code>src&#x2F;lib&#x2F;docpad.coffee:180</code></a>
         </p>
 
 
@@ -10730,7 +11955,7 @@ Extension of the Collection class
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l1041"><code>src&#x2F;lib&#x2F;docpad.coffee:1041</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l1091"><code>src&#x2F;lib&#x2F;docpad.coffee:1091</code></a>
         </p>
 
 
@@ -10755,7 +11980,7 @@ Extension of the Collection class
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l201"><code>src&#x2F;lib&#x2F;docpad.coffee:201</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l216"><code>src&#x2F;lib&#x2F;docpad.coffee:216</code></a>
         </p>
 
 
@@ -10783,7 +12008,7 @@ Extension of the Model class
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l588"><code>src&#x2F;lib&#x2F;docpad.coffee:588</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l605"><code>src&#x2F;lib&#x2F;docpad.coffee:605</code></a>
         </p>
 
 
@@ -10809,7 +12034,7 @@ Extension of the Model class
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l581"><code>src&#x2F;lib&#x2F;docpad.coffee:581</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l598"><code>src&#x2F;lib&#x2F;docpad.coffee:598</code></a>
         </p>
 
 
@@ -10835,7 +12060,7 @@ Extension of the Model class
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l574"><code>src&#x2F;lib&#x2F;docpad.coffee:574</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l591"><code>src&#x2F;lib&#x2F;docpad.coffee:591</code></a>
         </p>
 
 
@@ -10860,7 +12085,7 @@ Extension of the Model class
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l220"><code>src&#x2F;lib&#x2F;docpad.coffee:220</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l235"><code>src&#x2F;lib&#x2F;docpad.coffee:235</code></a>
         </p>
 
 
@@ -10888,7 +12113,7 @@ Extension of the QueryCollection class
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l4461"><code>src&#x2F;lib&#x2F;docpad.coffee:4461</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4640"><code>src&#x2F;lib&#x2F;docpad.coffee:4640</code></a>
         </p>
 
 
@@ -10915,7 +12140,7 @@ True once the first generation has occured.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l4447"><code>src&#x2F;lib&#x2F;docpad.coffee:4447</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4626"><code>src&#x2F;lib&#x2F;docpad.coffee:4626</code></a>
         </p>
 
 
@@ -10941,7 +12166,7 @@ True once the first generation has occured.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l4440"><code>src&#x2F;lib&#x2F;docpad.coffee:4440</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4619"><code>src&#x2F;lib&#x2F;docpad.coffee:4619</code></a>
         </p>
 
 
@@ -10967,7 +12192,7 @@ True once the first generation has occured.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l4454"><code>src&#x2F;lib&#x2F;docpad.coffee:4454</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l4633"><code>src&#x2F;lib&#x2F;docpad.coffee:4633</code></a>
         </p>
 
 
@@ -10993,7 +12218,7 @@ True once the first generation has occured.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l1384"><code>src&#x2F;lib&#x2F;docpad.coffee:1384</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l1434"><code>src&#x2F;lib&#x2F;docpad.coffee:1434</code></a>
         </p>
 
 
@@ -11021,7 +12246,7 @@ Merged into the config property</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l1097"><code>src&#x2F;lib&#x2F;docpad.coffee:1097</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l1147"><code>src&#x2F;lib&#x2F;docpad.coffee:1147</code></a>
         </p>
 
 
@@ -11047,7 +12272,7 @@ Merged into the config property</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l1339"><code>src&#x2F;lib&#x2F;docpad.coffee:1339</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l1389"><code>src&#x2F;lib&#x2F;docpad.coffee:1389</code></a>
         </p>
 
 
@@ -11073,7 +12298,7 @@ Merged into the config property</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l1056"><code>src&#x2F;lib&#x2F;docpad.coffee:1056</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l1106"><code>src&#x2F;lib&#x2F;docpad.coffee:1106</code></a>
         </p>
 
 
@@ -11098,7 +12323,7 @@ Merged into the config property</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l1035"><code>src&#x2F;lib&#x2F;docpad.coffee:1035</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l1085"><code>src&#x2F;lib&#x2F;docpad.coffee:1085</code></a>
         </p>
 
 
@@ -11124,7 +12349,7 @@ Merged into the config property</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l1228"><code>src&#x2F;lib&#x2F;docpad.coffee:1228</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l1278"><code>src&#x2F;lib&#x2F;docpad.coffee:1278</code></a>
         </p>
 
 
@@ -11149,7 +12374,7 @@ Merged into the config property</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l1075"><code>src&#x2F;lib&#x2F;docpad.coffee:1075</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l1125"><code>src&#x2F;lib&#x2F;docpad.coffee:1125</code></a>
         </p>
 
 
@@ -11174,7 +12399,7 @@ Merged into the config property</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l3113"><code>src&#x2F;lib&#x2F;docpad.coffee:3113</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l3225"><code>src&#x2F;lib&#x2F;docpad.coffee:3225</code></a>
         </p>
 
 
@@ -11213,7 +12438,7 @@ Merged into the config property</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l385"><code>src&#x2F;lib&#x2F;docpad.coffee:385</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l400"><code>src&#x2F;lib&#x2F;docpad.coffee:400</code></a>
         </p>
 
 
@@ -11238,7 +12463,7 @@ Merged into the config property</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l1063"><code>src&#x2F;lib&#x2F;docpad.coffee:1063</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l1113"><code>src&#x2F;lib&#x2F;docpad.coffee:1113</code></a>
         </p>
 
 
@@ -11263,7 +12488,7 @@ Merged into the config property</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l236"><code>src&#x2F;lib&#x2F;docpad.coffee:236</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l251"><code>src&#x2F;lib&#x2F;docpad.coffee:251</code></a>
         </p>
 
 
@@ -11290,7 +12515,7 @@ Extension of the ElementsCollection class
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l171"><code>src&#x2F;lib&#x2F;docpad.coffee:171</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l186"><code>src&#x2F;lib&#x2F;docpad.coffee:186</code></a>
         </p>
 
 
@@ -11318,7 +12543,7 @@ Extension of the Backbone Model class
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l1069"><code>src&#x2F;lib&#x2F;docpad.coffee:1069</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l1119"><code>src&#x2F;lib&#x2F;docpad.coffee:1119</code></a>
         </p>
 
 
@@ -11343,7 +12568,7 @@ Extension of the Backbone Model class
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l260"><code>src&#x2F;lib&#x2F;docpad.coffee:260</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l275"><code>src&#x2F;lib&#x2F;docpad.coffee:275</code></a>
         </p>
 
 
@@ -11372,7 +12597,7 @@ a DocPad project</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l1104"><code>src&#x2F;lib&#x2F;docpad.coffee:1104</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l1154"><code>src&#x2F;lib&#x2F;docpad.coffee:1154</code></a>
         </p>
 
 
@@ -11397,7 +12622,7 @@ a DocPad project</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l306"><code>src&#x2F;lib&#x2F;docpad.coffee:306</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l321"><code>src&#x2F;lib&#x2F;docpad.coffee:321</code></a>
         </p>
 
 
@@ -11422,7 +12647,7 @@ a DocPad project</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l189"><code>src&#x2F;lib&#x2F;docpad.coffee:189</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l204"><code>src&#x2F;lib&#x2F;docpad.coffee:204</code></a>
         </p>
 
 
@@ -11451,7 +12676,7 @@ Extension of the Query Engine QueryCollection class
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l1678"><code>src&#x2F;lib&#x2F;docpad.coffee:1678</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l1728"><code>src&#x2F;lib&#x2F;docpad.coffee:1728</code></a>
         </p>
 
 
@@ -11477,7 +12702,7 @@ When config.regenerateEvery is set to a value, we create a timer here</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l244"><code>src&#x2F;lib&#x2F;docpad.coffee:244</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l259"><code>src&#x2F;lib&#x2F;docpad.coffee:259</code></a>
         </p>
 
 
@@ -11505,7 +12730,7 @@ Extension of the ElementsCollection class
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l327"><code>src&#x2F;lib&#x2F;docpad.coffee:327</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l342"><code>src&#x2F;lib&#x2F;docpad.coffee:342</code></a>
         </p>
 
 
@@ -11532,7 +12757,7 @@ Extension of the ElementsCollection class
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l335"><code>src&#x2F;lib&#x2F;docpad.coffee:335</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l350"><code>src&#x2F;lib&#x2F;docpad.coffee:350</code></a>
         </p>
 
 
@@ -11559,7 +12784,7 @@ Extension of the ElementsCollection class
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l969"><code>src&#x2F;lib&#x2F;docpad.coffee:969</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l1017"><code>src&#x2F;lib&#x2F;docpad.coffee:1017</code></a>
         </p>
 
 
@@ -11584,7 +12809,7 @@ Extension of the ElementsCollection class
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l1029"><code>src&#x2F;lib&#x2F;docpad.coffee:1029</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l1079"><code>src&#x2F;lib&#x2F;docpad.coffee:1079</code></a>
         </p>
 
 
@@ -11610,7 +12835,7 @@ Extension of the ElementsCollection class
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l483"><code>src&#x2F;lib&#x2F;docpad.coffee:483</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l498"><code>src&#x2F;lib&#x2F;docpad.coffee:498</code></a>
         </p>
 
 
@@ -11638,7 +12863,7 @@ Whenever an event is created, it must be applied here to be available to plugins
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l1309"><code>src&#x2F;lib&#x2F;docpad.coffee:1309</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l1359"><code>src&#x2F;lib&#x2F;docpad.coffee:1359</code></a>
         </p>
 
 
@@ -11664,7 +12889,7 @@ The key that we use to hash some data before sending it to our statistic server<
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l252"><code>src&#x2F;lib&#x2F;docpad.coffee:252</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l267"><code>src&#x2F;lib&#x2F;docpad.coffee:267</code></a>
         </p>
 
 
@@ -11692,7 +12917,7 @@ Extension of the ElementsCollection class
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l468"><code>src&#x2F;lib&#x2F;docpad.coffee:468</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l483"><code>src&#x2F;lib&#x2F;docpad.coffee:483</code></a>
         </p>
 
 
@@ -11718,7 +12943,7 @@ Extension of the ElementsCollection class
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l1355"><code>src&#x2F;lib&#x2F;docpad.coffee:1355</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l1405"><code>src&#x2F;lib&#x2F;docpad.coffee:1405</code></a>
         </p>
 
 
@@ -11744,7 +12969,7 @@ Merged into the config property</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l1087"><code>src&#x2F;lib&#x2F;docpad.coffee:1087</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l1137"><code>src&#x2F;lib&#x2F;docpad.coffee:1137</code></a>
         </p>
 
 
@@ -11770,7 +12995,7 @@ Merged into the config property</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l279"><code>src&#x2F;lib&#x2F;docpad.coffee:279</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l294"><code>src&#x2F;lib&#x2F;docpad.coffee:294</code></a>
         </p>
 
 
@@ -11796,7 +13021,7 @@ Merged into the config property</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l5120"><code>src&#x2F;lib&#x2F;docpad.coffee:5120</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l5311"><code>src&#x2F;lib&#x2F;docpad.coffee:5311</code></a>
         </p>
 
 
@@ -11822,7 +13047,7 @@ Merged into the config property</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l1347"><code>src&#x2F;lib&#x2F;docpad.coffee:1347</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l1397"><code>src&#x2F;lib&#x2F;docpad.coffee:1397</code></a>
         </p>
 
 
@@ -11849,7 +13074,7 @@ Merged into the config property</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_lib_docpad.coffee.html#l1317"><code>src&#x2F;lib&#x2F;docpad.coffee:1317</code></a>
+        <a href="../files/src_lib_docpad.coffee.html#l1367"><code>src&#x2F;lib&#x2F;docpad.coffee:1367</code></a>
         </p>
 
 

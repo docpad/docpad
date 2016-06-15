@@ -1,7 +1,7 @@
 {
   "title": "DocPad. Streamlined web development.",
   "name": "docpad",
-  "version": "6.78.4",
+  "version": "6.78.5",
   "description": "DocPad is a dynamic static site generator. Write your content as files, or import your content from other external sources. Render the content with plugins. And deploy your static or dynamic website to your favourite hosting provider.",
   "homepage": "http://docpad.org",
   "installUrl": "http://docpad.org/install",
@@ -76,7 +76,7 @@
   ],
   "maintainers": [
     "Benjamin Lupton <b@lupton.cc> (http://balupton.com)",
-    "Michael Duane Mooring <mike@mdm.cc> (http://mikeum.us)",
+    "Michael Duane Mooring <Mike@mdm.cc> (http://mikeum.us)",
     "Rob Loach <robloach@gmail.com> (http://robloach.net)"
   ],
   "contributors": [
@@ -101,16 +101,16 @@
     "JT Turner (http://www.jtwebman.com)",
     "Bahtiar `kalkin-` Gadimov (http://blog.blase16.de/)",
     "Luke Hagan (lukehagan.com)",
-    "Michael Duane Mooring <mike@mdm.cc> (http://mikeum.us)",
+    "Michael Duane Mooring <Mike@mdm.cc> (http://mikeum.us)",
     "Neil Taylor <neil.t@myplanetdigital.com> (www.myplanetdigital.com)",
-    "Nathan Friedly <first name @ website> (nfriedly.com)",
+    "Nathan Friedly <first name @ website> (http://nfriedly.com/)",
     "Nick Crohn <nick.crohn+github@gmail.com> (http://nickcrohn.com/)",
     "Olivier Bazoud (https://github.com/obazoud)",
     "Paul Armstrong <paul@paularmstrongdesigns.com> (http://paularmstrongdesigns.com/)",
     "pavangupta (https://github.com/pavangupta)",
-    "Pavan Gupta <pg8p@virginia.edu> (https://pavgup.io)",
+    "Pavan Gupta <pg8p@virginia.edu> (http://pavgup.io)",
     "Peter Flannery (https://github.com/pflannery)",
-    "Dario <dario@alolo.co> (http://www.alolo.co)",
+    "Darío Villanueva <dario@alolo.co> (http://www.alolo.co)",
     "Richard A <richard@antecki.id.au> (https://github.com/rantecki)",
     "Rob Loach <robloach@gmail.com> (http://robloach.net)",
     "RueMic <rumicdesign@gmail.com> (http://www.ruemic.com)",
@@ -125,14 +125,21 @@
     "Vladislav Botvin <darkvlados@me.com> (https://github.com/darrrk)",
     "vsopvsop (https://github.com/vsopvsop)",
     "Zearin (https://github.com/Zearin)",
-    "Firede <firede@firede.us> (http://firede.us)"
+    "Firede <firede@firede.us> (http://firede.us)",
+    "JT Turner <jtwebman@gmail.com> (https://github.com/jtwebman)",
+    "Anton Wilhelm (https://github.com/timaschew)",
+    "Bahtiar Gadimov <bahtiar@gadimov.de> (http://bahtiar.gadimov.de/)",
+    "Ke Zhu (http://blog.shawnzhu.com)",
+    "Morgan Larosa (https://github.com/chaos95)",
+    "Paul Armstrong (https://github.com/paularmstrong)",
+    "Prayag Verma <prayag.verma@gmail.com> (http://www.prayagverma.com/)"
   ],
   "bugs": {
     "url": "https://github.com/docpad/docpad/issues"
   },
   "repository": {
     "type": "git",
-    "url": "http://github.com/docpad/docpad.git"
+    "url": "https://github.com/docpad/docpad.git"
   },
   "engines": {
     "node": ">=0.10",
@@ -180,22 +187,40 @@
   },
   "optionalDependencies": {},
   "devDependencies": {
-    "assert-helpers": "^3.0.0",
-    "babel-eslint": "^4.0.10",
-    "coffee-script": "^1.9.1",
+    "assert-helpers": "^4.4.0",
+    "coffee-script": "^1.10.0",
+    "coffeelint": "^1.15.7",
     "docpad-plugin-coffeekup": "2",
     "docpad-plugin-eco": "2",
     "docpad-plugin-marked": "2",
-    "eslint": "^1.2.1",
-    "joe": "^1.6.0",
+    "joe": "^1.8.0",
     "joe-reporter-console": "^1.2.1",
-    "moment": "^2.9.0",
-    "projectz": "^1.0.1",
-    "yuidocjs": "^0.9.0"
+    "moment": "^2.13.0",
+    "projectz": "^1.1.6",
+    "yuidocjs": "^0.10.1"
   },
-  "directories": {
-    "lib": "./out/lib"
-  },
+  "editions": [
+    {
+      "description": "Source + CoffeeScript + Require",
+      "entry": "src/lib/docpad.coffee",
+      "directory": "src",
+      "syntaxes": [
+        "coffeescript",
+        "require"
+      ]
+    },
+    {
+      "description": "CoffeeScript Compiled JavaScript + ES5 + Require",
+      "entry": "out/lib/docpad.js",
+      "directory": "out",
+      "syntaxes": [
+        "javascript",
+        "es5",
+        "require"
+      ]
+    }
+  ],
+  "main": "out/lib/docpad.js",
   "bin": {
     "docpad": "./bin/docpad",
     "docpad-compile": "./bin/docpad-compile",
@@ -204,20 +229,20 @@
     "docpad-trace": "./bin/docpad-trace"
   },
   "scripts": {
-    "clean": "node --harmony nakefile.js clean",
-    "setup": "node --harmony nakefile.js setup",
-    "compile": "node --harmony nakefile.js compile",
-    "watch": "node --harmony nakefile.js watch",
-    "verify": "node --harmony nakefile.js verify",
-    "meta": "node --harmony nakefile.js meta",
-    "prepare": "node --harmony nakefile.js prepare",
-    "release": "node --harmony nakefile.js release",
-    "test": "node ./out/test/everything-test.js"
-  },
-  "main": "./out/lib/docpad.js",
-  "nakeConfiguration": {
-    "COFFEE_SRC_PATH": "src",
-    "YUIDOC_SRC_PATH": "src",
-    "YUIDOC_SYNTAX": "coffee"
+    "setup": "npm install",
+    "clean": "rm -Rf ./docs ./out",
+    "compile": "npm run compile:coffeescript",
+    "compile:coffeescript": "coffee -bco ./out ./src",
+    "meta": "npm run meta:docs && npm run meta:projectz",
+    "meta:docs": "yuidoc -o ./docs --syntaxtype coffee -e .coffee ./src",
+    "meta:projectz": "projectz compile",
+    "prepare": "npm run compile && npm run test && npm run meta",
+    "release": "npm run prepare && npm run release:publish && npm run release:tag && npm run release:push",
+    "release:publish": "npm publish",
+    "release:tag": "git tag v$npm_package_version -a",
+    "release:push": "git push origin master && git push origin --tags",
+    "pretest": "npm run test:coffeelint",
+    "test:coffeelint": "coffeelint ./src",
+    "test": "node --harmony ./out/test/everything-test.js"
   }
 }

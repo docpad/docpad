@@ -1,33 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>src/lib/models/file.coffee</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="icon" href="../assets/favicon.ico">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+                <h1><img src="../assets/css/logo.png" title="" width="117" height="52"></h1>
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: </em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+                    <h2 class="off-left">APIs</h2>
+                    <div id="api-tabview" class="tabview">
+                        <ul class="tabs">
+                            <li><a href="#api-classes">Classes</a></li>
+                            <li><a href="#api-modules">Modules</a></li>
+                        </ul>
+                
+                        <div id="api-tabview-filter">
+                            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+                        </div>
+                
+                        <div id="api-tabview-panel">
+                            <ul id="api-classes" class="apis classes">
+                                <li><a href="../classes/BasePlugin.html">BasePlugin</a></li>
+                                <li><a href="../classes/Collection.html">Collection</a></li>
+                                <li><a href="../classes/Docpad.html">Docpad</a></li>
+                                <li><a href="../classes/docpadUtil.html">docpadUtil</a></li>
+                                <li><a href="../classes/DocumentModel.html">DocumentModel</a></li>
+                                <li><a href="../classes/ElementsCollection.html">ElementsCollection</a></li>
+                                <li><a href="../classes/Events.html">Events</a></li>
+                                <li><a href="../classes/FileModel.html">FileModel</a></li>
+                                <li><a href="../classes/FilesCollection.html">FilesCollection</a></li>
+                                <li><a href="../classes/MetaCollection.html">MetaCollection</a></li>
+                                <li><a href="../classes/Model.html">Model</a></li>
+                                <li><a href="../classes/PluginLoader.html">PluginLoader</a></li>
+                                <li><a href="../classes/PluginTester.html">PluginTester</a></li>
+                                <li><a href="../classes/QueryCollection.html">QueryCollection</a></li>
+                                <li><a href="../classes/ScriptCollection.html">ScriptCollection</a></li>
+                                <li><a href="../classes/ServerTester.html">ServerTester</a></li>
+                                <li><a href="../classes/StylesCollection.html">StylesCollection</a></li>
+                            </ul>
+                
+                
+                            <ul id="api-modules" class="apis modules">
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+                    Show:
+                    <label for="api-show-inherited">
+                        <input type="checkbox" id="api-show-inherited" checked>
+                        Inherited
+                    </label>
+            
+                    <label for="api-show-protected">
+                        <input type="checkbox" id="api-show-protected">
+                        Protected
+                    </label>
+            
+                    <label for="api-show-private">
+                        <input type="checkbox" id="api-show-private">
+                        Private
+                    </label>
+                    <label for="api-show-deprecated">
+                        <input type="checkbox" id="api-show-deprecated">
+                        Deprecated
+                    </label>
+            
+                </div>
+            
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+<h1 class="file-heading">File: src/lib/models/file.coffee</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
 # =====================================
 # Requires
 
 # Standard Library
-util = require('util')
-pathUtil = require('path')
+util = require(&#x27;util&#x27;)
+pathUtil = require(&#x27;path&#x27;)
 
 # External
-isTextOrBinary = require('istextorbinary')
-typeChecker = require('typechecker')
-{TaskGroup} = require('taskgroup')
-safefs = require('safefs')
-mime = require('mime')
-extendr = require('extendr')
-extractOptsAndCallback = require('extract-opts')
+isTextOrBinary = require(&#x27;istextorbinary&#x27;)
+typeChecker = require(&#x27;typechecker&#x27;)
+{TaskGroup} = require(&#x27;taskgroup&#x27;)
+safefs = require(&#x27;safefs&#x27;)
+mime = require(&#x27;mime&#x27;)
+extendr = require(&#x27;extendr&#x27;)
+extractOptsAndCallback = require(&#x27;extract-opts&#x27;)
 
 # Optional
 jschardet = null
 encodingUtil = null
 
 # Local
-{Model} = require('../base')
-docpadUtil = require('../util')
+{Model} = require(&#x27;../base&#x27;)
+docpadUtil = require(&#x27;../util&#x27;)
 
 
 # =====================================
 # Classes
 
 ###*
-# The FileModel class is DocPad's representation
+# The FileModel class is DocPad&#x27;s representation
 # of a file in the file system.
 # Extends the DocPad Model class
 # https://github.com/docpad/docpad/blob/master/src/lib/base.coffee#L49.
@@ -41,7 +139,7 @@ docpadUtil = require('../util')
 # may need to manually create FileModels for some reason.
 #
 #	attrs =
-#		fullPath: 'file/path/to/somewhere'
+#		fullPath: &#x27;file/path/to/somewhere&#x27;
 #	opts = {}
 #	#we only really need the path to the source file to create
 #	#a new file model
@@ -67,12 +165,12 @@ class FileModel extends Model
 
 	###*
 	# String name of the model type.
-	# In this case, 'file'. This should
+	# In this case, &#x27;file&#x27;. This should
 	# be overridden in any descending classes.
 	# @private
 	# @property {String} type
 	###
-	type: 'file'
+	type: &#x27;file&#x27;
 
 	###*
 	# Task Group Class
@@ -131,11 +229,11 @@ class FileModel extends Model
 	###
 	locale: null
 	###*
-	# Get the file's locale information
+	# Get the file&#x27;s locale information
 	# @method getLocale
 	# @return {Object} the locale
 	###
-	getLocale: -> @locale
+	getLocale: -&gt; @locale
 
 	###*
 	# Get Options. Returns an object containing
@@ -146,7 +244,7 @@ class FileModel extends Model
 	# @return {Object}
 	###
 	# @TODO: why does this not use the isOption way?
-	getOptions: ->
+	getOptions: -&gt;
 		return {@detectEncoding, @rootOutDirPath, @locale, @stat, @buffer, @meta, @TaskGroup}
 
 	###*
@@ -157,8 +255,8 @@ class FileModel extends Model
 	# @param {String} key
 	# @return {Boolean}
 	###
-	isOption: (key) ->
-		names = ['detectEncoding', 'rootOutDirPath', 'locale', 'stat', 'data', 'buffer', 'meta', 'TaskGroup']
+	isOption: (key) -&gt;
+		names = [&#x27;detectEncoding&#x27;, &#x27;rootOutDirPath&#x27;, &#x27;locale&#x27;, &#x27;stat&#x27;, &#x27;data&#x27;, &#x27;buffer&#x27;, &#x27;meta&#x27;, &#x27;TaskGroup&#x27;]
 		result = key in names
 		return result
 
@@ -169,7 +267,7 @@ class FileModel extends Model
 	# @param {Object} attrs
 	# @return {Object} the options object
 	###
-	extractOptions: (attrs) ->
+	extractOptions: (attrs) -&gt;
 		# Prepare
 		result = {}
 
@@ -190,7 +288,7 @@ class FileModel extends Model
 	# @method setOptions
 	# @param {Object} [attrs={}]
 	###
-	setOptions: (attrs={}) ->
+	setOptions: (attrs={}) -&gt;
 		# TaskGroup
 		if attrs.TaskGroup?
 			@TaskGroup = attrs.TaskGroup
@@ -239,7 +337,7 @@ class FileModel extends Model
 	# @method clone
 	# @return {Object} cloned file model
 	###
-	clone: ->
+	clone: -&gt;
 		# Fetch
 		attrs = @getAttributes()
 		opts = @getOptions()
@@ -254,7 +352,7 @@ class FileModel extends Model
 		clonedModel = new @klass(attrs, opts)
 
 		# Emit clone event so parent can re-attach listeners
-		@emit('clone', clonedModel)
+		@emit(&#x27;clone&#x27;, clonedModel)
 
 		# Return
 		return clonedModel
@@ -276,24 +374,24 @@ class FileModel extends Model
 		# The unique document identifier
 		id: null
 
-		# The file's name without the extension
+		# The file&#x27;s name without the extension
 		basename: null
 
-		# The out file's name without the extension
+		# The out file&#x27;s name without the extension
 		outBasename: null
 
-		# The file's last extension
-		# "hello.md.eco" -> "eco"
+		# The file&#x27;s last extension
+		# &quot;hello.md.eco&quot; -&gt; &quot;eco&quot;
 		extension: null
 
 		# The extension used for our output file
 		outExtension: null
 
-		# The file's extensions as an array
-		# "hello.md.eco" -> ["md","eco"]
+		# The file&#x27;s extensions as an array
+		# &quot;hello.md.eco&quot; -&gt; [&quot;md&quot;,&quot;eco&quot;]
 		extensions: null  # Array
 
-		# The file's name with the extension
+		# The file&#x27;s name with the extension
 		filename: null
 
 		# The full path of our source file, only necessary if called by @load
@@ -305,10 +403,10 @@ class FileModel extends Model
 		# The output path of our file
 		outPath: null
 
-		# The output path of our file's directory
+		# The output path of our file&#x27;s directory
 		outDirPath: null
 
-		# The file's name with the rendered extension
+		# The file&#x27;s name with the rendered extension
 		outFilename: null
 
 		# The relative path of our source file (with extensions)
@@ -320,7 +418,7 @@ class FileModel extends Model
 		# The relative directory path of our source file
 		relativeDirPath: null
 
-		# The relative output path of our file's directory
+		# The relative output path of our file&#x27;s directory
 		relativeOutDirPath: null
 
 		# The relative base of our source file (no extension)
@@ -421,50 +519,50 @@ class FileModel extends Model
 	# @param {Object} opts
 	# @return {Object} encoded result
 	###
-	encode: (opts) ->
+	encode: (opts) -&gt;
 		# Prepare
 		locale = @getLocale()
 		result = opts.content
-		opts.to ?= 'utf8'
-		opts.from ?= 'utf8'
+		opts.to ?= &#x27;utf8&#x27;
+		opts.from ?= &#x27;utf8&#x27;
 
 		# Import optional dependencies
-		try encodingUtil ?= require('encoding')
+		try encodingUtil ?= require(&#x27;encoding&#x27;)
 
 		# Convert
 		if encodingUtil?
-			@log 'info', util.format(locale.fileEncode, opts.to, opts.from, opts.path)
+			@log &#x27;info&#x27;, util.format(locale.fileEncode, opts.to, opts.from, opts.path)
 			try
 				result = encodingUtil.convert(opts.content, opts.to, opts.from)
 			catch err
-				@log 'warn', util.format(locale.fileEncodeConvertError, opts.to, opts.from, opts.path)
+				@log &#x27;warn&#x27;, util.format(locale.fileEncodeConvertError, opts.to, opts.from, opts.path)
 		else
-			@log 'warn', util.format(locale.fileEncodeConvertError, opts.to, opts.from, opts.path)
+			@log &#x27;warn&#x27;, util.format(locale.fileEncodeConvertError, opts.to, opts.from, opts.path)
 
 		# Return
 		return result
 
 	###*
-	# Set the file model's buffer.
+	# Set the file model&#x27;s buffer.
 	# Creates a new node.js buffer
 	# object if a buffer object is
 	# is not passed as the parameter
 	# @method setBuffer
 	# @param {Object} [buffer]
 	###
-	setBuffer: (buffer) ->
+	setBuffer: (buffer) -&gt;
 		buffer = new Buffer(buffer)  unless Buffer.isBuffer(buffer)
-		@bufferTime = @get('mtime') or new Date()
+		@bufferTime = @get(&#x27;mtime&#x27;) or new Date()
 		@buffer = buffer
 		@
 
 	###*
-	# Get the file model's buffer object.
+	# Get the file model&#x27;s buffer object.
 	# Returns a node.js buffer object.
 	# @method getBuffer
 	# @return {Object} node.js buffer object
 	###
-	getBuffer: ->
+	getBuffer: -&gt;
 		return @buffer
 
 	###*
@@ -473,15 +571,15 @@ class FileModel extends Model
 	# @method isBufferOutdated
 	# @return {Boolean}
 	###
-	isBufferOutdated: ->
-		return @buffer? is false or @bufferTime < (@get('mtime') or new Date())
+	isBufferOutdated: -&gt;
+		return @buffer? is false or @bufferTime &lt; (@get(&#x27;mtime&#x27;) or new Date())
 
 	###*
 	# Set the node.js file stat.
 	# @method setStat
 	# @param {Object} stat
 	###
-	setStat: (stat) ->
+	setStat: (stat) -&gt;
 		@stat = stat
 		@set(
 			ctime: new Date(stat.ctime)
@@ -494,7 +592,7 @@ class FileModel extends Model
 	# @method getStat
 	# @return {Object} the file stat
 	###
-	getStat: ->
+	getStat: -&gt;
 		return @stat
 
 	###*
@@ -503,14 +601,14 @@ class FileModel extends Model
 	# dereferenced from the file model.
 	# To maintain a reference, pass false
 	# as the parameter. The returned object
-	# will NOT contain the file model's ID attribute.
+	# will NOT contain the file model&#x27;s ID attribute.
 	# @method getAttributes
 	# @param {Object} [dereference=true]
 	# @return {Object}
 	###
-	#NOTE: will the file model's ID be deleted if
+	#NOTE: will the file model&#x27;s ID be deleted if
 	#dereference=false is passed??
-	getAttributes: (dereference=true) ->
+	getAttributes: (dereference=true) -&gt;
 		attrs = @toJSON(dereference)
 		delete attrs.id
 		return attrs
@@ -521,12 +619,12 @@ class FileModel extends Model
 	# maintain a reference to the file model.
 	# To return a dereferenced object, pass true
 	# as the parameter. The returned object
-	# will contain the file model's ID attribute.
+	# will contain the file model&#x27;s ID attribute.
 	# @method toJSON
 	# @param {Object} [dereference=false]
 	# @return {Object}
 	###
-	toJSON: (dereference=false) ->
+	toJSON: (dereference=false) -&gt;
 		data = super
 		data.meta = @getMeta().toJSON()
 		data = extendr.dereference(data)  if dereference is true
@@ -541,7 +639,7 @@ class FileModel extends Model
 	# @param {Object} [args...]
 	# @return {Object}
 	###
-	getMeta: (args...) ->
+	getMeta: (args...) -&gt;
 		@meta = new Model()  if @meta is null
 		if args.length
 			return @meta.get(args...)
@@ -554,7 +652,7 @@ class FileModel extends Model
 	# @param {Array} attrs the attributes to be applied
 	# @param {Object} opts the options to be applied
 	###
-	set: (attrs,opts) ->
+	set: (attrs,opts) -&gt;
 		# Check
 		if typeChecker.isString(attrs)
 			newAttrs = {}
@@ -583,7 +681,7 @@ class FileModel extends Model
 	# @param {Object} attrs the attributes to be applied
 	# @param {Object} opts the options to be applied
 	###
-	setDefaults: (attrs,opts) ->
+	setDefaults: (attrs,opts) -&gt;
 		# Prepare
 		attrs = attrs.toJSON?() ? attrs
 
@@ -606,7 +704,7 @@ class FileModel extends Model
 	# @param {Object} attrs the attributes to be applied
 	# @param {Object} opts the options to be applied
 	###
-	setMeta: (attrs,opts) ->
+	setMeta: (attrs,opts) -&gt;
 		# Prepare
 		attrs = attrs.toJSON?() ? attrs
 
@@ -630,7 +728,7 @@ class FileModel extends Model
 	# @param {Object} attrs the attributes to be applied
 	# @param {Object} opts the options to be applied
 	###
-	setMetaDefaults: (attrs,opts) ->
+	setMetaDefaults: (attrs,opts) -&gt;
 		# Prepare
 		attrs = attrs.toJSON?() ? attrs
 
@@ -650,7 +748,7 @@ class FileModel extends Model
 	###*
 	# Get the file name. Depending on the
 	# parameters passed this will either be
-	# the file model's filename property or,
+	# the file model&#x27;s filename property or,
 	# the filename determined from the fullPath
 	# or relativePath property. Valid values for
 	# the opts parameter are: fullPath, relativePath
@@ -659,14 +757,14 @@ class FileModel extends Model
 	# @param {Object} [opts={}]
 	# @return {String}
 	###
-	getFilename: (opts={}) ->
+	getFilename: (opts={}) -&gt;
 		# Prepare
 		{fullPath,relativePath,filename} = opts
 
 		# Determine
-		result = (filename ? @get('filename'))
+		result = (filename ? @get(&#x27;filename&#x27;))
 		if !result
-			result = (fullPath ? @get('fullPath')) or (relativePath ? @get('relativePath'))
+			result = (fullPath ? @get(&#x27;fullPath&#x27;)) or (relativePath ? @get(&#x27;relativePath&#x27;))
 			result = pathUtil.basename(result)  if result
 		result or= null
 
@@ -676,7 +774,7 @@ class FileModel extends Model
 	###*
 	# Get the file path. Depending on the
 	# parameters passed this will either be
-	# the file model's fullPath property, the
+	# the file model&#x27;s fullPath property, the
 	# relativePath property or the filename property.
 	# Valid values for the opts parameter are:
 	# fullPath, relativePath
@@ -685,12 +783,12 @@ class FileModel extends Model
 	# @param {Object} [opts={}]
 	# @return {String}
 	###
-	getFilePath: (opts={}) ->
+	getFilePath: (opts={}) -&gt;
 		# Prepare
 		{fullPath,relativePath,filename} = opts
 
 		# Determine
-		result = (fullPath ? @get('fullPath')) or (relativePath ? @get('relativePath')) or (filename ? @get('filename')) or null
+		result = (fullPath ? @get(&#x27;fullPath&#x27;)) or (relativePath ? @get(&#x27;relativePath&#x27;)) or (filename ? @get(&#x27;filename&#x27;)) or null
 
 		# Return
 		return result
@@ -698,16 +796,16 @@ class FileModel extends Model
 	###*
 	# Get file extensions. Depending on the
 	# parameters passed this will either be
-	# the file model's extensions property or
-	# the extensions extracted from the file model's
+	# the file model&#x27;s extensions property or
+	# the extensions extracted from the file model&#x27;s
 	# filename property. The opts parameter is passed
 	# in the format: {extensions,filename}.
 	# @method getExtensions
 	# @param {Object} opts
 	# @return {Array} array of extension names
 	###
-	getExtensions: ({extensions,filename}) ->
-		extensions or= @get('extensions') or null
+	getExtensions: ({extensions,filename}) -&gt;
+		extensions or= @get(&#x27;extensions&#x27;) or null
 		if (extensions or []).length is 0
 			filename = @getFilename({filename})
 			if filename
@@ -720,15 +818,15 @@ class FileModel extends Model
 	# @method getContent
 	# @return {String or Object}
 	###
-	getContent: ->
-		return @get('content') or @getBuffer()
+	getContent: -&gt;
+		return @get(&#x27;content&#x27;) or @getBuffer()
 
 	###*
 	# Get the file content for output.
 	# @method getOutContent
 	# @return {String or Object}
 	###
-	getOutContent: ->
+	getOutContent: -&gt;
 		return @getContent()
 
 	###*
@@ -737,23 +835,23 @@ class FileModel extends Model
 	# @method isText
 	# @return {Boolean}
 	###
-	isText: ->
-		return @get('encoding') isnt 'binary'
+	isText: -&gt;
+		return @get(&#x27;encoding&#x27;) isnt &#x27;binary&#x27;
 
 	###*
 	# Is this a binary file?
 	# @method isBinary
 	# @return {Boolean}
 	###
-	isBinary: ->
-		return @get('encoding') is 'binary'
+	isBinary: -&gt;
+		return @get(&#x27;encoding&#x27;) is &#x27;binary&#x27;
 
 	###*
 	# Set the url for the file
 	# @method setUrl
 	# @param {String} url
 	###
-	setUrl: (url) ->
+	setUrl: (url) -&gt;
 		@addUrl(url)
 		@set({url})
 		@
@@ -765,7 +863,7 @@ class FileModel extends Model
 	# @method addUrl
 	# @param {String or Array} url
 	###
-	addUrl: (url) ->
+	addUrl: (url) -&gt;
 		# Multiple Urls
 		if url instanceof Array
 			for newUrl in url
@@ -774,14 +872,14 @@ class FileModel extends Model
 		# Single Url
 		else if url
 			found = false
-			urls = @get('urls')
+			urls = @get(&#x27;urls&#x27;)
 			for existingUrl in urls
 				if existingUrl is url
 					found = true
 					break
 			urls.push(url)  if not found
-			@trigger('change:urls', @, urls, {})
-			@trigger('change', @, {})
+			@trigger(&#x27;change:urls&#x27;, @, urls, {})
+			@trigger(&#x27;change&#x27;, @, {})
 
 		# Chain
 		@
@@ -792,8 +890,8 @@ class FileModel extends Model
 	# @method removeUrl
 	# @param {Object} userUrl the url to be removed
 	###
-	removeUrl: (userUrl) ->
-		urls = @get('urls')
+	removeUrl: (userUrl) -&gt;
+		urls = @get(&#x27;urls&#x27;)
 		for url,index in urls
 			if url is userUrl
 				urls.splice(index,1)
@@ -802,7 +900,7 @@ class FileModel extends Model
 
 	###*
 	# Get a file path.
-	# If the relativePath parameter starts with `.` then we get the
+	# If the relativePath parameter starts with &#x60;.&#x60; then we get the
 	# path in relation to the document that is calling it.
 	# Otherwise we just return it as normal
 	# @method getPath
@@ -810,9 +908,9 @@ class FileModel extends Model
 	# @param {String} parentPath
 	# @return {String}
 	###
-	getPath: (relativePath, parentPath) ->
+	getPath: (relativePath, parentPath) -&gt;
 		if /^\./.test(relativePath)
-			relativeDirPath = @get('relativeDirPath')
+			relativeDirPath = @get(&#x27;relativeDirPath&#x27;)
 			path = pathUtil.join(relativeDirPath, relativePath)
 		else
 			if parentPath
@@ -836,13 +934,13 @@ class FileModel extends Model
 	# @method getActionRunner
 	# @return {Object}
 	###
-	getActionRunner: -> @actionRunnerInstance
+	getActionRunner: -&gt; @actionRunnerInstance
 	###*
 	# Apply an action with the supplied arguments.
 	# @method action
 	# @param {Object} args...
 	###
-	action: (args...) => docpadUtil.action.apply(@, args)
+	action: (args...) =&gt; docpadUtil.action.apply(@, args)
 
 	###*
 	# Initialize the file model with the passed
@@ -851,7 +949,7 @@ class FileModel extends Model
 	# @param {Object} attrs the file model attributes
 	# @param {Object} [opts={}] the file model options
 	###
-	initialize: (attrs,opts={}) ->
+	initialize: (attrs,opts={}) -&gt;
 		# Defaults
 		file = @
 		@attributes ?= {}
@@ -869,14 +967,14 @@ class FileModel extends Model
 
 		# Error
 		if @rootOutDirPath? is false or @locale? is false
-			throw new Error("Use docpad.createModel to create the file or document model")
+			throw new Error(&quot;Use docpad.createModel to create the file or document model&quot;)
 
 		# Create our action runner
-		@actionRunnerInstance = new @TaskGroup("file action runner").whenDone (err) ->
-			file.emit('error', err)  if err
+		@actionRunnerInstance = new @TaskGroup(&quot;file action runner&quot;).whenDone (err) -&gt;
+			file.emit(&#x27;error&#x27;, err)  if err
 
 		# Apply
-		@emit('init')
+		@emit(&#x27;init&#x27;)
 
 		# Chain
 		@
@@ -884,20 +982,20 @@ class FileModel extends Model
 	###*
 	# Load the file from the file system.
 	# If the fullPath exists, load the file.
-	# If it doesn't, then parse and normalize the file.
+	# If it doesn&#x27;t, then parse and normalize the file.
 	# Optionally pass file options as a parameter.
 	# @method load
 	# @param {Object} [opts={}]
 	# @param {Function} next callback
 	###
-	load: (opts={},next) ->
+	load: (opts={},next) -&gt;
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 		file = @
 		opts.exists ?= null
 
 		# Fetch
-		fullPath = @get('fullPath')
+		fullPath = @get(&#x27;fullPath&#x27;)
 		filePath = @getFilePath({fullPath})
 
 		# Apply options
@@ -906,25 +1004,25 @@ class FileModel extends Model
 		file.setBuffer(opts.buffer)    if opts.buffer?
 
 		# Tasks
-		tasks = new @TaskGroup("load tasks for file: #{filePath}", {next})
-			.on('item.run', (item) ->
-				file.log("debug", "#{item.getConfig().name}: #{file.type}: #{filePath}")
+		tasks = new @TaskGroup(&quot;load tasks for file: #{filePath}&quot;, {next})
+			.on(&#x27;item.run&#x27;, (item) -&gt;
+				file.log(&quot;debug&quot;, &quot;#{item.getConfig().name}: #{file.type}: #{filePath}&quot;)
 			)
 
 		# Detect the file
-		tasks.addTask "Detect the file", (complete) ->
+		tasks.addTask &quot;Detect the file&quot;, (complete) -&gt;
 			if fullPath and opts.exists is null
-				safefs.exists fullPath, (exists) ->
+				safefs.exists fullPath, (exists) -&gt;
 					opts.exists = exists
 					file.set(exists: opts.exists)
 					return complete()
 			else
 				return complete()
 
-		tasks.addTask "Stat the file and cache the result", (complete) ->
+		tasks.addTask &quot;Stat the file and cache the result&quot;, (complete) -&gt;
 			# Otherwise fetch new stat
 			if fullPath and opts.exists and opts.stat? is false
-				return safefs.stat fullPath, (err,fileStat) ->
+				return safefs.stat fullPath, (err,fileStat) -&gt;
 					return complete(err)  if err
 					file.setStat(fileStat)
 					return complete()
@@ -932,23 +1030,23 @@ class FileModel extends Model
 				return complete()
 
 		# Process the file
-		tasks.addTask "Read the file and cache the result", (complete) ->
+		tasks.addTask &quot;Read the file and cache the result&quot;, (complete) -&gt;
 			# Otherwise fetch new buffer
 			if fullPath and opts.exists and opts.buffer? is false and file.isBufferOutdated()
-				return safefs.readFile fullPath, (err,buffer) ->
+				return safefs.readFile fullPath, (err,buffer) -&gt;
 					return complete(err)  if err
 					file.setBuffer(buffer)
 					return complete()
 			else
 				return complete()
 
-		tasks.addTask "Load -> Parse", (complete) ->
+		tasks.addTask &quot;Load -&gt; Parse&quot;, (complete) -&gt;
 			file.parse(complete)
 
-		tasks.addTask "Parse -> Normalize", (complete) ->
+		tasks.addTask &quot;Parse -&gt; Normalize&quot;, (complete) -&gt;
 			file.normalize(complete)
 
-		tasks.addTask "Normalize -> Contextualize", (complete) ->
+		tasks.addTask &quot;Normalize -&gt; Contextualize&quot;, (complete) -&gt;
 			file.contextualize(complete)
 
 		# Run the tasks
@@ -964,12 +1062,12 @@ class FileModel extends Model
 	# @param {Object} [opts={}]
 	# @param {Object} next callback
 	###
-	parse: (opts={},next) ->
+	parse: (opts={},next) -&gt;
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
 		buffer = @getBuffer()
-		relativePath = @get('relativePath')
-		encoding = opts.encoding or @get('encoding') or null
+		relativePath = @get(&#x27;relativePath&#x27;)
+		encoding = opts.encoding or @get(&#x27;encoding&#x27;) or null
 		changes = {}
 
 		# Detect Encoding
@@ -980,17 +1078,17 @@ class FileModel extends Model
 			if isText is true
 				# Detect source encoding if not manually specified
 				if @detectEncoding
-					jschardet ?= require('jschardet')
+					jschardet ?= require(&#x27;jschardet&#x27;)
 					encoding ?= jschardet.detect(buffer)?.encoding
 
 				# Default the encoding
-				encoding or= 'utf8'
+				encoding or= &#x27;utf8&#x27;
 
 				# Convert into utf8
 				if docpadUtil.isStandardEncoding(encoding) is false
 					buffer = @encode({
 						path: relativePath
-						to: 'utf8'
+						to: &#x27;utf8&#x27;
 						from: encoding
 						content: buffer
 					})
@@ -1001,12 +1099,12 @@ class FileModel extends Model
 			# Binary
 			else
 				# Set
-				encoding = changes.encoding = 'binary'
+				encoding = changes.encoding = &#x27;binary&#x27;
 
 		# Binary
-		if encoding is 'binary'
+		if encoding is &#x27;binary&#x27;
 			# Set
-			content = source = ''
+			content = source = &#x27;&#x27;
 
 			# Apply
 			changes.content = content
@@ -1015,10 +1113,10 @@ class FileModel extends Model
 		# Text
 		else
 			# Default
-			encoding = changes.encoding = 'utf8'  if encoding? is false
+			encoding = changes.encoding = &#x27;utf8&#x27;  if encoding? is false
 
 			# Set
-			source = buffer?.toString('utf8') or ''
+			source = buffer?.toString(&#x27;utf8&#x27;) or &#x27;&#x27;
 			content = source
 
 			# Apply
@@ -1041,7 +1139,7 @@ class FileModel extends Model
 	# @param {Object} [opts={}]
 	# @param {Object} next callback
 	###
-	normalize: (opts={},next) ->
+	normalize: (opts={},next) -&gt;
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 		changes = {}
@@ -1049,22 +1147,22 @@ class FileModel extends Model
 		locale = @getLocale()
 
 		# App specified
-		filename = opts.filename or @get('filename') or null
-		relativePath = opts.relativePath or @get('relativePath') or null
-		fullPath = opts.fullPath or @get('fullPath') or null
-		mtime = opts.mtime or @get('mtime') or null
+		filename = opts.filename or @get(&#x27;filename&#x27;) or null
+		relativePath = opts.relativePath or @get(&#x27;relativePath&#x27;) or null
+		fullPath = opts.fullPath or @get(&#x27;fullPath&#x27;) or null
+		mtime = opts.mtime or @get(&#x27;mtime&#x27;) or null
 
 		# User specified
-		tags = opts.tags or meta.get('tags') or null
-		date = opts.date or meta.get('date') or null
-		name = opts.name or meta.get('name') or null
-		slug = opts.slug or meta.get('slug') or null
-		url = opts.url or meta.get('url') or null
-		contentType = opts.contentType or meta.get('contentType') or null
-		outContentType = opts.outContentType or meta.get('outContentType') or null
-		outFilename = opts.outFilename or meta.get('outFilename') or null
-		outExtension = opts.outExtension or meta.get('outExtension') or null
-		outPath = opts.outPath or meta.get('outPath') or null
+		tags = opts.tags or meta.get(&#x27;tags&#x27;) or null
+		date = opts.date or meta.get(&#x27;date&#x27;) or null
+		name = opts.name or meta.get(&#x27;name&#x27;) or null
+		slug = opts.slug or meta.get(&#x27;slug&#x27;) or null
+		url = opts.url or meta.get(&#x27;url&#x27;) or null
+		contentType = opts.contentType or meta.get(&#x27;contentType&#x27;) or null
+		outContentType = opts.outContentType or meta.get(&#x27;outContentType&#x27;) or null
+		outFilename = opts.outFilename or meta.get(&#x27;outFilename&#x27;) or null
+		outExtension = opts.outExtension or meta.get(&#x27;outExtension&#x27;) or null
+		outPath = opts.outPath or meta.get(&#x27;outPath&#x27;) or null
 
 		# Force specifeid
 		extensions = null
@@ -1124,11 +1222,11 @@ class FileModel extends Model
 
 		# force date
 		if !date
-			changes.date = date = mtime or @get('date') or new Date()
+			changes.date = date = mtime or @get(&#x27;date&#x27;) or new Date()
 
 		# force outFilename
 		if !outFilename and !outPath
-			changes.outFilename = outFilename = docpadUtil.getOutFilename(basename, outExtension or extensions.join('.'))
+			changes.outFilename = outFilename = docpadUtil.getOutFilename(basename, outExtension or extensions.join(&#x27;.&#x27;))
 
 		# force outPath
 		if !outPath
@@ -1159,7 +1257,7 @@ class FileModel extends Model
 		# force relativeOutPath
 		changes.relativeOutPath = relativeOutPath =
 			if outPath
-				outPath.replace(@rootOutDirPath, '').replace(/^[\/\\]/, '')
+				outPath.replace(@rootOutDirPath, &#x27;&#x27;).replace(/^[\/\\]/, &#x27;&#x27;)
 			else
 				pathUtil.join(relativeDirPath, outFilename)
 
@@ -1190,11 +1288,11 @@ class FileModel extends Model
 			changes.slug = slug = docpadUtil.getSlug(relativeOutBase)
 
 		# Force date objects
-		changes.wtime = wtime = new Date(wtime)  if typeof wtime is 'string'
-		changes.rtime = rtime = new Date(rtime)  if typeof rtime is 'string'
-		changes.ctime = ctime = new Date(ctime)  if typeof ctime is 'string'
-		changes.mtime = mtime = new Date(mtime)  if typeof mtime is 'string'
-		changes.date  = date  = new Date(date)   if typeof date is 'string'
+		changes.wtime = wtime = new Date(wtime)  if typeof wtime is &#x27;string&#x27;
+		changes.rtime = rtime = new Date(rtime)  if typeof rtime is &#x27;string&#x27;
+		changes.ctime = ctime = new Date(ctime)  if typeof ctime is &#x27;string&#x27;
+		changes.mtime = mtime = new Date(mtime)  if typeof mtime is &#x27;string&#x27;
+		changes.date  = date  = new Date(date)   if typeof date is &#x27;string&#x27;
 
 		# Apply
 		@set(changes)
@@ -1206,13 +1304,13 @@ class FileModel extends Model
 	###*
 	# Contextualize the data. In other words,
 	# put our data into the perspective of the bigger picture of the data.
-	# For instance, generate the url for it's rendered equivalant.
+	# For instance, generate the url for it&#x27;s rendered equivalant.
 	# next(err)
 	# @method contextualize
 	# @param {Object} [opts={}]
 	# @param {Object} next callback
 	###
-	contextualize: (opts={},next) ->
+	contextualize: (opts={},next) -&gt;
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 
@@ -1224,13 +1322,13 @@ class FileModel extends Model
 	# Render this file. The file model output content is
 	# returned to the passed callback in the
 	# result (2nd) parameter. The file model itself is returned
-	# in the callback's document (3rd) parameter.
+	# in the callback&#x27;s document (3rd) parameter.
 	# next(err,result,document)
 	# @method render
 	# @param {Object} [opts={}]
 	# @param {Object} next callback
 	###
-	render: (opts={},next) ->
+	render: (opts={},next) -&gt;
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
 		file = @
@@ -1258,17 +1356,17 @@ class FileModel extends Model
 	# @param {Object} opts
 	# @param {Function} next callback
 	###
-	write: (opts,next) ->
+	write: (opts,next) -&gt;
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
 		file = @
 		locale = @getLocale()
 
 		# Fetch
-		opts.path      or= file.get('outPath')
-		opts.encoding  or= file.get('encoding') or 'utf8'
+		opts.path      or= file.get(&#x27;outPath&#x27;)
+		opts.encoding  or= file.get(&#x27;encoding&#x27;) or &#x27;utf8&#x27;
 		opts.content   or= file.getOutContent()
-		opts.type      or= 'out file'
+		opts.type      or= &#x27;out file&#x27;
 
 		# Check
 		# Sometimes the out path could not be set if we are early on in the process
@@ -1277,28 +1375,28 @@ class FileModel extends Model
 			return @
 
 		# Convert utf8 to original encoding
-		unless opts.encoding.toLowerCase() in ['ascii','utf8','utf-8','binary']
+		unless opts.encoding.toLowerCase() in [&#x27;ascii&#x27;,&#x27;utf8&#x27;,&#x27;utf-8&#x27;,&#x27;binary&#x27;]
 			opts.content = @encode({
 				path: opts.path
 				to: opts.encoding
-				from: 'utf8'
+				from: &#x27;utf8&#x27;
 				content: opts.content
 			})
 
 		# Log
-		file.log 'debug', util.format(locale.fileWrite, opts.type, opts.path, opts.encoding)
+		file.log &#x27;debug&#x27;, util.format(locale.fileWrite, opts.type, opts.path, opts.encoding)
 
 		# Write data
-		safefs.writeFile opts.path, opts.content, (err) ->
+		safefs.writeFile opts.path, opts.content, (err) -&gt;
 			# Check
 			return next(err)  if err
 
 			# Update the wtime
-			if opts.type is 'out file'
+			if opts.type is &#x27;out file&#x27;
 				file.attributes.wtime = new Date()
 
 			# Log
-			file.log 'debug',  util.format(locale.fileWrote, opts.type, opts.path, opts.encoding)
+			file.log &#x27;debug&#x27;,  util.format(locale.fileWrote, opts.type, opts.path, opts.encoding)
 
 			# Next
 			return next()
@@ -1308,22 +1406,22 @@ class FileModel extends Model
 
 	###*
 	# Write the source file. Optionally pass
-	# the opts parameter to modify or set the file's
+	# the opts parameter to modify or set the file&#x27;s
 	# path, content or type.
 	# next(err)
 	# @method writeSource
 	# @param {Object} [opts]
 	# @param {Object} next callback
 	###
-	writeSource: (opts,next) ->
+	writeSource: (opts,next) -&gt;
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
 		file = @
 
 		# Fetch
-		opts.path      or= file.get('fullPath')
-		opts.content   or= (file.getContent() or '').toString('')
-		opts.type      or= 'source file'
+		opts.path      or= file.get(&#x27;fullPath&#x27;)
+		opts.content   or= (file.getContent() or &#x27;&#x27;).toString(&#x27;&#x27;)
+		opts.type      or= &#x27;source file&#x27;
 
 		# Write data
 		@write(opts, next)
@@ -1339,15 +1437,15 @@ class FileModel extends Model
 	# @param {Object} [opts]
 	# @param {Object} next callback
 	###
-	'delete': (opts,next) ->
+	&#x27;delete&#x27;: (opts,next) -&gt;
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
 		file = @
 		locale = @getLocale()
 
 		# Fetch
-		opts.path      or= file.get('outPath')
-		opts.type      or= 'out file'
+		opts.path      or= file.get(&#x27;outPath&#x27;)
+		opts.type      or= &#x27;out file&#x27;
 
 		# Check
 		# Sometimes the out path could not be set if we are early on in the process
@@ -1356,20 +1454,20 @@ class FileModel extends Model
 			return @
 
 		# Log
-		file.log 'debug',  util.format(locale.fileDelete, opts.type, opts.path)
+		file.log &#x27;debug&#x27;,  util.format(locale.fileDelete, opts.type, opts.path)
 
 		# Check existance
-		safefs.exists opts.path, (exists) ->
-			# Exit if it doesn't exist
+		safefs.exists opts.path, (exists) -&gt;
+			# Exit if it doesn&#x27;t exist
 			return next()  unless exists
 
 			# If it does exist delete it
-			safefs.unlink opts.path, (err) ->
+			safefs.unlink opts.path, (err) -&gt;
 				# Check
 				return next(err)  if err
 
 				# Log
-				file.log 'debug', util.format(locale.fileDeleted, opts.type, opts.path)
+				file.log &#x27;debug&#x27;, util.format(locale.fileDeleted, opts.type, opts.path)
 
 				# Next
 				next()
@@ -1385,14 +1483,14 @@ class FileModel extends Model
 	# @param {Object} [opts]
 	# @param {Object} next callback
 	###
-	deleteSource: (opts,next) ->
+	deleteSource: (opts,next) -&gt;
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
 		file = @
 
 		# Fetch
-		opts.path      or= file.get('fullPath')
-		opts.type      or= 'source file'
+		opts.path      or= file.get(&#x27;fullPath&#x27;)
+		opts.type      or= &#x27;source file&#x27;
 
 		# Write data
 		@delete(opts, next)
@@ -1404,3 +1502,22 @@ class FileModel extends Model
 # ---------------------------------
 # Export
 module.exports = FileModel
+
+    </pre>
+</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

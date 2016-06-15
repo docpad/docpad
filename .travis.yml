@@ -1,4 +1,4 @@
-# 9 September 2015
+# 2016 April 27
 # https://github.com/bevry/base
 
 # Use the latest travis infrastructure
@@ -9,6 +9,8 @@ language: node_js
 node_js:
   - "0.12"
   - "4"
+  - "5"
+  - "6"
 cache:
   directories:
     - node_modules
@@ -23,11 +25,8 @@ script: "npm test"
 
 # Custom notifications
 notifications:
-  # Nofity email travisci@bevry.me
+  slack:
+    secure: hYTEHwzc03LIgAC08QvXU5yvhMwDM00rUtk7r0j5Qr1aD04PaKFVTRlBcvvy8YkNoMrtUWizPqmSZ4RamliXt+kioI6A/Phf6r6V3/tupEVBcvVzTi8LamzUomj3vYXOwJNN4IVWjdoCf0kZTB8Sz7xwXsvGnEkAlhRJD7ZEG2s=
   email:
     recipients:
-      - travisci@bevry.me
-
-  # Notify slack #updates channel on https://bevry.slack.com
-  slack:
-    secure: dEy5aysTFomqygrsjUz58mu65pOZUGW+a+IXwMwlbqAZGetevUy1dMVBXnJYFV+oijBLOgctCF1niKBvbQ7WCsEvM9GjTf6jb+g3aswM6xEqDve8nriS9y+T/6YR2EgpRpN9gVFFsxPrgtieg/cLZUJrTwwNfEoAC/WLJXfzHhM=
+      secure: jvtlCYaUCPzvE985LlJpEGIIgVzhkEUi/ImAa4fLxyGKAmTG1JsykDznwquggN5UbTFlOYS+i+rFmPLm4hLJf9bGUtl/yk90KN0NlHZfZ+x7EE/nTIpr6iaK8TqdrmaMNnwuj87/6zBdl9iKjzU/1lrBnz1hanUABU96kbWFFJE=

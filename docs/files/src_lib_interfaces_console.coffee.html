@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>src/lib/interfaces/console.coffee</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="icon" href="../assets/favicon.ico">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+                <h1><img src="../assets/css/logo.png" title="" width="117" height="52"></h1>
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: </em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+                    <h2 class="off-left">APIs</h2>
+                    <div id="api-tabview" class="tabview">
+                        <ul class="tabs">
+                            <li><a href="#api-classes">Classes</a></li>
+                            <li><a href="#api-modules">Modules</a></li>
+                        </ul>
+                
+                        <div id="api-tabview-filter">
+                            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+                        </div>
+                
+                        <div id="api-tabview-panel">
+                            <ul id="api-classes" class="apis classes">
+                                <li><a href="../classes/BasePlugin.html">BasePlugin</a></li>
+                                <li><a href="../classes/Collection.html">Collection</a></li>
+                                <li><a href="../classes/Docpad.html">Docpad</a></li>
+                                <li><a href="../classes/docpadUtil.html">docpadUtil</a></li>
+                                <li><a href="../classes/DocumentModel.html">DocumentModel</a></li>
+                                <li><a href="../classes/ElementsCollection.html">ElementsCollection</a></li>
+                                <li><a href="../classes/Events.html">Events</a></li>
+                                <li><a href="../classes/FileModel.html">FileModel</a></li>
+                                <li><a href="../classes/FilesCollection.html">FilesCollection</a></li>
+                                <li><a href="../classes/MetaCollection.html">MetaCollection</a></li>
+                                <li><a href="../classes/Model.html">Model</a></li>
+                                <li><a href="../classes/PluginLoader.html">PluginLoader</a></li>
+                                <li><a href="../classes/PluginTester.html">PluginTester</a></li>
+                                <li><a href="../classes/QueryCollection.html">QueryCollection</a></li>
+                                <li><a href="../classes/ScriptCollection.html">ScriptCollection</a></li>
+                                <li><a href="../classes/ServerTester.html">ServerTester</a></li>
+                                <li><a href="../classes/StylesCollection.html">StylesCollection</a></li>
+                            </ul>
+                
+                
+                            <ul id="api-modules" class="apis modules">
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+                    Show:
+                    <label for="api-show-inherited">
+                        <input type="checkbox" id="api-show-inherited" checked>
+                        Inherited
+                    </label>
+            
+                    <label for="api-show-protected">
+                        <input type="checkbox" id="api-show-protected">
+                        Protected
+                    </label>
+            
+                    <label for="api-show-private">
+                        <input type="checkbox" id="api-show-private">
+                        Private
+                    </label>
+                    <label for="api-show-deprecated">
+                        <input type="checkbox" id="api-show-deprecated">
+                        Deprecated
+                    </label>
+            
+                </div>
+            
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+<h1 class="file-heading">File: src/lib/interfaces/console.coffee</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+# =====================================
+# Requires
+
+# Standard Library
+pathUtil = require(&#x27;path&#x27;)
+
+# External
+safefs = require(&#x27;safefs&#x27;)
+safeps = require(&#x27;safeps&#x27;)
+{TaskGroup} = require(&#x27;taskgroup&#x27;)
+extendr = require(&#x27;extendr&#x27;)
+promptly = require(&#x27;promptly&#x27;)
+
+# Local
+docpadUtil = require(&#x27;../util&#x27;)
+
+
+# =====================================
+# Classes
+
+###*
+# Console Interface
+# @constructor
+###
+class ConsoleInterface
+
+
+	###*
+	# Constructor method. Setup the CLI
+	# @private
+	# @method constructor
+	# @param {Object} opts
+	# @param {Function} next
+	###
+	constructor: (opts,next) -&gt;
+		# Prepare
+		consoleInterface = @
+		@docpad = docpad = opts.docpad
+		@commander = commander = require(&#x27;commander&#x27;)
+		locale = docpad.getLocale()
+
+
+		# -----------------------------
+		# Global config
+
+		commander
+			.version(
+				docpad.getVersionString()
+			)
+			.option(
+				&#x27;-o, --out &lt;outPath&gt;&#x27;
+				locale.consoleOptionOut
+			)
+			.option(
+				&#x27;-c, --config &lt;configPath&gt;&#x27;
+				locale.consoleOptionConfig
+			)
+			.option(
+				&#x27;-e, --env &lt;environment&gt;&#x27;
+				locale.consoleOptionEnv
+			)
+			.option(
+				&#x27;-d, --debug [logLevel]&#x27;
+				locale.consoleOptionDebug
+				parseInt
+			)
+			.option(
+				&#x27;-g, --global&#x27;
+				locale.consoleOptionGlobal
+			)
+			.option(
+				&#x27;-f, --force&#x27;
+				locale.consoleOptionForce
+			)
+			.option(
+				&#x27;--no-color&#x27;  # commander translates this to the &#x60;color&#x60; option for us
+				locale.consoleOptionNoColor
+			)
+			.option(
+				&#x27;-p, --port &lt;port&gt;&#x27;
+				locale.consoleOptionPort
+				parseInt
+			)
+			.option(
+				&#x27;--cache&#x27;
+				locale.consoleOptionCache
+			)
+			.option(
+				&#x27;--silent&#x27;
+				locale.consoleOptionSilent
+			)
+			.option(
+				&#x27;--skeleton &lt;skeleton&gt;&#x27;
+				locale.consoleOptionSkeleton
+			)
+			.option(
+				&#x27;--profile&#x27;
+				locale.consoleOptionProfile
+			)
+			.option(
+				&#x27;--offline&#x27;
+				locale.consoleOptionOffline
+			)
+
+
+		# -----------------------------
+		# Commands
+
+		# actions
+		commander
+			.command(&#x27;action &lt;actions&gt;&#x27;)
+			.description(locale.consoleDescriptionRun)
+			.action(consoleInterface.wrapAction(consoleInterface.action))
+
+		# init
+		commander
+			.command(&#x27;init&#x27;)
+			.description(locale.consoleDescriptionInit)
+			.action(consoleInterface.wrapAction(consoleInterface.init))
+
+		# run
+		commander
+			.command(&#x27;run&#x27;)
+			.description(locale.consoleDescriptionRun)
+			.action(consoleInterface.wrapAction(consoleInterface.run, {
+				_stayAlive: true
+			}))
+
+		# server
+		commander
+			.command(&#x27;server&#x27;)
+			.description(locale.consoleDescriptionServer)
+			.action(consoleInterface.wrapAction(consoleInterface.server, {
+				_stayAlive: true
+			}))
+
+		# render
+		commander
+			.command(&#x27;render [path]&#x27;)
+			.description(locale.consoleDescriptionRender)
+			.action(consoleInterface.wrapAction(consoleInterface.render, {
+				# Disable anything unnecessary or that could cause extra output we don&#x27;t want
+				logLevel: 3  # 3:error, 2:critical, 1:alert, 0:emergency
+				checkVersion: false
+				welcome: false
+				prompts: false
+			}))
+
+		# generate
+		commander
+			.command(&#x27;generate&#x27;)
+			.description(locale.consoleDescriptionGenerate)
+			.action(consoleInterface.wrapAction(consoleInterface.generate))
+
+		# watch
+		commander
+			.command(&#x27;watch&#x27;)
+			.description(locale.consoleDescriptionWatch)
+			.action(consoleInterface.wrapAction(consoleInterface.watch, {
+				_stayAlive: true
+			}))
+
+		# update
+		commander
+			.command(&#x27;update&#x27;)
+			.description(locale.consoleDescriptionUpdate)
+			.action(consoleInterface.wrapAction(consoleInterface.update))
+
+		# upgrade
+		commander
+			.command(&#x27;upgrade&#x27;)
+			.description(locale.consoleDescriptionUpgrade)
+			.action(consoleInterface.wrapAction(consoleInterface.upgrade))
+
+		# install
+		commander
+			.command(&#x27;install [pluginName]&#x27;)
+			.description(locale.consoleDescriptionInstall)
+			.action(consoleInterface.wrapAction(consoleInterface.install))
+
+		# uninstall
+		commander
+			.command(&#x27;uninstall &lt;pluginName&gt;&#x27;)
+			.description(locale.consoleDescriptionUninstall)
+			.action(consoleInterface.wrapAction(consoleInterface.uninstall))
+
+		# clean
+		commander
+			.command(&#x27;clean&#x27;)
+			.description(locale.consoleDescriptionClean)
+			.action(consoleInterface.wrapAction(consoleInterface.clean))
+
+		# info
+		commander
+			.command(&#x27;info&#x27;)
+			.description(locale.consoleDescriptionInfo)
+			.action(consoleInterface.wrapAction(consoleInterface.info))
+
+		# help
+		commander
+			.command(&#x27;help&#x27;)
+			.description(locale.consoleDescriptionHelp)
+			.action(consoleInterface.wrapAction(consoleInterface.help))
+
+		# unknown
+		commander
+			.command(&#x27;*&#x27;)
+			.description(locale.consoleDescriptionUnknown)
+			.action(consoleInterface.wrapAction(consoleInterface.help))
+
+
+		# -----------------------------
+		# DocPad Listeners
+
+		# Welcome
+		docpad.on &#x27;welcome&#x27;, (data,next) -&gt;
+			return consoleInterface.welcomeCallback(data,next)
+
+
+		# -----------------------------
+		# Finish Up
+
+		# Plugins
+		docpad.emitSerial &#x27;consoleSetup&#x27;, {consoleInterface,commander}, (err) -&gt;
+			return consoleInterface.destroyWithError(err)  if err
+			return next(null, consoleInterface)
+
+		# Chain
+		@
+
+
+	# =================================
+	# Helpers
+
+	###*
+	# Start the CLI
+	# @method start
+	# @param {Array} argv
+	###
+	start: (argv) =&gt;
+		@commander.parse(argv or process.argv)
+		@
+
+	###*
+	# Get the commander
+	# @method getCommander
+	# @return the commander instance
+	###
+	getCommander: =&gt;
+		@commander
+
+	###*
+	# Destructor.
+	# @method destroy
+	# @param {Object} err
+	###
+	destroy: (err) =&gt;
+		# Prepare
+		docpad = @docpad
+		locale = docpad.getLocale()
+		logLevel = docpad.getLogLevel()
+
+		# Error?
+		docpadUtil.writeError(err)  if err
+
+		# Log Shutdown
+		docpad.log(&#x27;info&#x27;, locale.consoleShutdown)
+
+		# Close stdin
+		process.stdin.end()
+
+		# Destroy docpad
+		docpad.destroy (err) -&gt;
+			# Error?
+			docpadUtil.writeError(err)  if err
+
+			# Output if we are not in silent mode
+			if 6 &lt;= logLevel
+				# Note any requests that are still active
+				activeRequests = process._getActiveRequests()
+				if activeRequests?.length
+					console.log &quot;&quot;&quot;
+						Waiting on the requests:
+						#{docpadUtil.inspect activeRequests}
+						&quot;&quot;&quot;
+
+				# Note any handles that are still active
+				activeHandles = process._getActiveHandles()
+				if activeHandles?.length
+					console.log &quot;&quot;&quot;
+						Waiting on the handles:
+						#{docpadUtil.inspect activeHandles}
+						&quot;&quot;&quot;
+
+		# Chain
+		@
+
+
+	###*
+	# Wrap Action
+	# @method wrapAction
+	# @param {Object} action
+	# @param {Object} config
+	###
+	wrapAction: (action,config) =&gt;
+		consoleInterface = @
+		return (args...) -&gt;
+			consoleInterface.performAction(action, args, config)
+
+	###*
+	# Perform Action
+	# @method performAction
+	# @param {Object} action
+	# @param {Object} args
+	# @param {Object} [config={}]
+	###
+	performAction: (action,args,config={}) =&gt;
+		# Prepare
+		consoleInterface = @
+		docpad = @docpad
+
+		# Special Opts
+		stayAlive = false
+		if config._stayAlive
+			stayAlive = config._stayAlive
+			delete config._stayAlive
+
+		# Create
+		opts = {}
+		opts.commander = args[-1...][0]
+		opts.args = args[...-1]
+		opts.instanceConfig = extendr.safeDeepExtendPlainObjects({}, @extractConfig(opts.commander), config)
+
+		# Complete Action
+		completeAction = (err) -&gt;
+			# Prepare
+			locale = docpad.getLocale()
+
+			# Handle the error
+			if err
+				docpad.log(&#x27;error&#x27;, locale.consoleSuccess)
+				return docpad.fatal(err)
+
+			# Success
+			docpad.log(&#x27;info&#x27;, locale.consoleSuccess)
+
+			# Shutdown
+			return consoleInterface.destroy()  if stayAlive is false
+
+		# Load
+		docpad.action &#x27;load ready&#x27;, opts.instanceConfig, (err) -&gt;
+			# Check
+			return completeAction(err)  if err
+
+			# Action
+			return action(completeAction, opts)  # this order for interface actions for b/c
+
+		# Chain
+		@
+
+	###*
+	# Extract Configuration
+	# @method extractConfig
+	# @param {Object} [customConfig={}]
+	# @return {Object} the DocPad config
+	###
+	extractConfig: (customConfig={}) =&gt;
+		# Prepare
+		config = {}
+		commanderConfig = @commander
+		sourceConfig = @docpad.initialConfig
+
+		# debug -&gt; logLevel
+		if commanderConfig.debug
+			commanderConfig.debug = 7  if commanderConfig.debug is true
+			commanderConfig.logLevel = commanderConfig.debug
+
+		# silent -&gt; prompt
+		if commanderConfig.silent?
+			commanderConfig.prompts = !(commanderConfig.silent)
+
+		# cache -&gt; databaseCache
+		if commanderConfig.silent?
+			commanderConfig.databaseCache = commanderConfig.cache
+
+		# config -&gt; configPaths
+		if commanderConfig.config
+			configPath = pathUtil.resolve(process.cwd(),commanderConfig.config)
+			commanderConfig.configPaths = [configPath]
+
+		# out -&gt; outPath
+		if commanderConfig.out
+			outPath = pathUtil.resolve(process.cwd(),commanderConfig.out)
+			commanderConfig.outPath = outPath
+
+		# Apply global configuration
+		for own key, value of commanderConfig
+			if typeof sourceConfig[key] isnt &#x27;undefined&#x27;
+				config[key] = value
+
+		# Apply custom configuration
+		for own key, value of customConfig
+			if typeof sourceConfig[key] isnt &#x27;undefined&#x27;
+				config[key] = value
+
+		# Return config object
+		config
+
+	###*
+	# Select a skeleton
+	# @method selectSkeletonCallback
+	# @param {Object} skeletonsCollection
+	# @param {Function} next
+	###
+	selectSkeletonCallback: (skeletonsCollection,next) =&gt;
+		# Prepare
+		consoleInterface = @
+		commander = @commander
+		docpad = @docpad
+		locale = docpad.getLocale()
+		skeletonNames = []
+
+		# Already selected?
+		if @commander.skeleton
+			skeletonModel = skeletonsCollection.get(@commander.skeleton)
+			if skeletonModel
+				next(null, skeletonModel)
+			else
+				err = new Error(&quot;Couldn&#x27;t fetch the skeleton with id #{@commander.skeleton}&quot;)
+				next(err)
+			return @
+
+		# Show
+		docpad.log &#x27;info&#x27;, locale.skeletonSelectionIntroduction+&#x27;\n&#x27;
+		skeletonsCollection.forEach (skeletonModel) -&gt;
+			skeletonName = skeletonModel.get(&#x27;name&#x27;)
+			skeletonDescription = skeletonModel.get(&#x27;description&#x27;).replace(/\n/g,&#x27;\n\t&#x27;)
+			skeletonNames.push(skeletonName)
+			console.log &quot;  #{skeletonModel.get(&#x27;position&#x27;)+1}.\t#{skeletonName}\n  \t#{skeletonDescription}\n&quot;
+
+		# Select
+		consoleInterface.choose locale.skeletonSelectionPrompt, skeletonNames, null, (err, choice) -&gt;
+			return next(err)  if err
+			index = skeletonNames.indexOf(choice)
+			return next(null, skeletonsCollection.at(index))
+
+		# Chain
+		@
+
+	###*
+	# Welcome Callback
+	# @method welcomeCallback
+	# @param {Object} opts
+	# @param {Function} next
+	###
+	welcomeCallback: (opts,next) =&gt;
+		# Prepare
+		consoleInterface = @
+		commander = @commander
+		docpad = @docpad
+		locale = docpad.getLocale()
+		userConfig = docpad.userConfig
+		welcomeTasks = new TaskGroup(&#x27;welcome tasks&#x27;).done(next)
+
+		# TOS
+		welcomeTasks.addTask &#x27;tos&#x27;, (complete) -&gt;
+			return complete()  if docpad.config.prompts is false or userConfig.tos is true
+
+			# Ask the user if they agree to the TOS
+			consoleInterface.confirm locale.tosPrompt, {default:true}, (err, ok) -&gt;
+				# Check
+				return complete(err)  if err
+
+				# Track
+				docpad.track &#x27;tos&#x27;, {ok}, (err) -&gt;
+					# Check
+					if ok
+						userConfig.tos = true
+						console.log locale.tosAgree
+						docpad.updateUserConfig(complete)
+						return
+					else
+						console.log locale.tosDisagree
+						process.exit()
+						return
+
+		# Newsletter
+		welcomeTasks.addTask (complete) -&gt;
+			return complete()  if docpad.config.prompts is false or userConfig.subscribed? or (userConfig.subscribeTryAgain? and (new Date()) &gt; (new Date(userConfig.subscribeTryAgain)))
+
+			# Ask the user if they want to subscribe to the newsletter
+			consoleInterface.confirm locale.subscribePrompt, {default:true}, (err, ok) -&gt;
+				# Check
+				return complete(err)  if err
+
+				# Track
+				docpad.track &#x27;subscribe&#x27;, {ok}, (err) -&gt;
+					# If they don&#x27;t want to, that&#x27;s okay
+					unless ok
+						# Inform the user that we received their preference
+						console.log locale.subscribeIgnore
+
+						# Save their preference in the user configuration
+						userConfig.subscribed = false
+						docpad.updateUserConfig (err) -&gt;
+							return complete(err)  if err
+							setTimeout(complete, 2000)
+						return
+
+					# Scan configuration to speed up the process
+					commands = [
+						[&#x27;config&#x27;,&#x27;--get&#x27;,&#x27;user.name&#x27;]
+						[&#x27;config&#x27;,&#x27;--get&#x27;,&#x27;user.email&#x27;]
+						[&#x27;config&#x27;,&#x27;--get&#x27;,&#x27;github.user&#x27;]
+					]
+					safeps.spawnCommands &#x27;git&#x27;, commands, (err,results) -&gt;
+						# Ignore error as it just means a config value wasn&#x27;t defined
+
+						# Fetch
+						# The or to &#x27;&#x27; is there because otherwise we will get &quot;undefined&quot; as a string if the value doesn&#x27;t exist
+						userConfig.name = String(results?[0]?[1] or &#x27;&#x27;).toString().trim() or null
+						userConfig.email = String(results?[1]?[1] or &#x27;&#x27;).toString().trim() or null
+						userConfig.username = String(results?[2]?[1] or &#x27;&#x27;).toString().trim() or null
+
+						# Let the user know we scanned their configuration if we got anything useful
+						if userConfig.name or userConfig.email or userConfig.username
+							console.log locale.subscribeConfigNotify
+
+						# Tasks
+						subscribeTasks = new TaskGroup(&#x27;subscribe tasks&#x27;).done (err) -&gt;
+							# Error?
+							if err
+								# Inform the user
+								console.log locale.subscribeError
+
+								# Save a time when we should try to subscribe again
+								userConfig.subscribeTryAgain = new Date().getTime() + 1000*60*60*24  # tomorrow
+
+							# Success
+							else
+								# Inform the user
+								console.log locale.subscribeSuccess
+
+								# Save the updated subscription status, and continue to what is next
+								userConfig.subscribed = true
+								userConfig.subscribeTryAgain = null
+
+							# Save the new user configuration changes, and forward to the next task
+							docpad.updateUserConfig(userConfig, complete)
+
+						# Name Fallback
+						subscribeTasks.addTask &#x27;name fallback&#x27;, (complete) -&gt;
+							consoleInterface.prompt locale.subscribeNamePrompt, {default: userConfig.name}, (err, result) -&gt;
+								return complete(err)  if err
+								userConfig.name = result
+								return complete()
+
+						# Email Fallback
+						subscribeTasks.addTask &#x27;email fallback&#x27;, (complete) -&gt;
+							consoleInterface.prompt locale.subscribeEmailPrompt, {default: userConfig.email}, (err, result) -&gt;
+								return complete(err)  if err
+								userConfig.email = result
+								return complete()
+
+						# Username Fallback
+						subscribeTasks.addTask &#x27;username fallback&#x27;, (complete) -&gt;
+							consoleInterface.prompt locale.subscribeUsernamePrompt, {default: userConfig.username}, (err, result) -&gt;
+								return complete(err)  if err
+								userConfig.username = result
+								return complete()
+
+						# Save the details
+						subscribeTasks.addTask &#x27;save defaults&#x27;, (complete) -&gt;
+							return docpad.updateUserConfig(complete)
+
+						# Perform the subscribe
+						subscribeTasks.addTask &#x27;subscribe&#x27;, (complete) -&gt;
+							# Inform the user
+							console.log locale.subscribeProgress
+
+							# Forward
+							docpad.subscribe (err,res) -&gt;
+								# Check
+								if err
+									docpad.log &#x27;debug&#x27;, locale.subscribeRequestError, err.message
+									return complete(err)
+
+								# Success
+								docpad.log &#x27;debug&#x27;, locale.subscribeRequestData, res.text
+								return complete()
+
+						# Run
+						subscribeTasks.run()
+
+		# Run
+		welcomeTasks.run()
+
+		# Chain
+		@
+
+	###*
+	# Prompt for input
+	# @method prompt
+	# @param {String} message
+	# @param {Object} [opts={}]
+	# @param {Function} next
+	###
+	prompt: (message, opts={}, next) -&gt;
+		# Default
+		message += &quot; [#{opts.default}]&quot;  if opts.default
+
+		# Options
+		opts = extendr.extend({
+			trim: true
+			retry: true
+			silent: false
+		}, opts)
+
+		# Log
+		promptly.prompt(message, opts, next)
+
+		# Chain
+		@
+
+	###*
+	# Confirm an option
+	# @method confirm
+	# @param {String} message
+	# @param {Object} [opts={}]
+	# @param {Function} next
+	###
+	confirm: (message, opts={}, next) -&gt;
+		# Default
+		if opts.default is true
+			message += &quot; [Y/n]&quot;
+		else if opts.default is false
+			message += &quot; [y/N]&quot;
+
+		# Options
+		opts = extendr.extend({
+			trim: true
+			retry: true
+			silent: false
+		}, opts)
+
+		# Log
+		promptly.confirm(message, opts, next)
+
+		# Chain
+		@
+
+	###*
+	# Choose something
+	# @method choose
+	# @param {String} message
+	# @param {Object} choices
+	# @param {Object} [opts={}]
+	# @param {Function} next
+	###
+	choose: (message, choices, opts={}, next) -&gt;
+		# Default
+		message += &quot; [1-#{choices.length}]&quot;
+		indexes = []
+		for choice,i in choices
+			index = i+1
+			indexes.push(index)
+			message += &quot;\n  #{index}.\t#{choice}&quot;
+
+		# Options
+		opts = extendr.extend({
+			trim: true
+			retry: true
+			silent: false
+		}, opts)
+
+		# Prompt
+		prompt = &#x27;&gt; &#x27;
+		prompt += &quot; [#{opts.default}]&quot;  if opts.default
+
+		# Log
+		console.log(message)
+		promptly.choose prompt, indexes, opts, (err, index) -&gt;
+			return next(err)  if err
+			choice = choices[index-1]
+			return next(null, choice)
+
+		# Chain
+		@
+
+
+	# =================================
+	# Actions
+
+	###*
+	# Do action
+	# @method action
+	# @param {Function} next
+	# @param {Object} opts
+	###
+	action: (next,opts) =&gt;
+		actions = opts.args[0]
+		@docpad.log &#x27;info&#x27;, &#x27;Performing the actions:&#x27;, actions
+		@docpad.action(actions, next)
+		@
+
+	###*
+	# Action initialise
+	# @method init
+	# @param {Function} next
+	###
+	init: (next) =&gt;
+		@docpad.action(&#x27;init&#x27;, next)
+		@
+
+	###*
+	# Generate action
+	# @method generate
+	# @param {Function} next
+	###
+	generate: (next) =&gt;
+		@docpad.action(&#x27;generate&#x27;, next)
+		@
+
+	###*
+	# Help method
+	# @method help
+	# @param {Function} next
+	###
+	help: (next) =&gt;
+		help = @commander.helpInformation()
+		console.log(help)
+		next()
+		@
+
+	###*
+	# Info method
+	# @method info
+	# @param {Function} next
+	###
+	info: (next) =&gt;
+		docpad = @docpad
+		info = docpad.inspector(docpad.config)
+		console.log(info)
+		next()
+		@
+
+	###*
+	# Update method
+	# @method update
+	# @param {Function} next
+	# @param {Object} opts
+	###
+	update: (next,opts) =&gt;
+		# Act
+		@docpad.action(&#x27;clean update&#x27;, next)
+
+		# Chain
+		@
+	###*
+	# Upgrade method
+	# @method upgrade
+	# @param {Function} next
+	# @param {Object} opts
+	###
+	upgrade: (next,opts) =&gt;
+		# Act
+		@docpad.action(&#x27;upgrade&#x27;, next)
+
+		# Chain
+		@
+
+	###*
+	# Install method
+	# @method install
+	# @param {Function} next
+	# @param {Object} opts
+	###
+	install: (next,opts) =&gt;
+		# Extract
+		plugin = opts.args[0] or null
+
+		# Act
+		@docpad.action(&#x27;install&#x27;, {plugin}, next)
+
+		# Chain
+		@
+
+	###*
+	# Uninstall method
+	# @method uninstall
+	# @param {Function} next
+	# @param {Object} opts
+	###
+	uninstall: (next,opts) =&gt;
+		# Extract
+		plugin = opts.args[0] or null
+
+		# Act
+		@docpad.action(&#x27;uninstall&#x27;, {plugin}, next)
+
+		# Chain
+		@
+
+	###*
+	# Render method
+	# @method render
+	# @param {Function} next
+	# @param {Object} opts
+	###
+	render: (next,opts) =&gt;
+		# Prepare
+		docpad = @docpad
+		commander = @commander
+		renderOpts = {}
+
+		# Extract
+		filename = opts.args[0] or null
+		basename = pathUtil.basename(filename)
+		renderOpts.filename = filename
+		renderOpts.renderSingleExtensions = &#x27;auto&#x27;
+
+		# Prepare text
+		data = &#x27;&#x27;
+
+		# Render
+		useStdin = true
+		renderDocument = (complete) -&gt;
+			# Perform the render
+			docpad.action &#x27;render&#x27;, renderOpts, (err,result) -&gt;
+				return complete(err)  if err
+
+				# Path
+				if commander.out?
+					safefs.writeFile(commander.out, result, complete)
+
+				# Stdout
+				else
+					process.stdout.write(result)
+					return complete()
+
+		# Timeout if we don&#x27;t have stdin
+		timeout = docpadUtil.wait 1000, -&gt;
+			# Clear timeout
+			timeout = null
+
+			# Skip if we are using stdin
+			return next()  if data.replace(/\s+/,&#x27;&#x27;)
+
+			# Close stdin as we are not using it
+			useStdin = false
+			stdin.pause()
+
+			# Render the document
+			renderDocument(next)
+
+		# Read stdin
+		stdin = process.stdin
+		stdin.resume()
+		stdin.setEncoding(&#x27;utf8&#x27;)
+		stdin.on &#x27;data&#x27;, (_data) -&gt;
+			data += _data.toString()
+		process.stdin.on &#x27;end&#x27;, -&gt;
+			return  unless useStdin
+			if timeout
+				clearTimeout(timeout)
+				timeout = null
+			renderOpts.data = data
+			renderDocument(next)
+
+		@
+
+	###*
+	# Run method
+	# @method run
+	# @param {Function} next
+	###
+	run: (next) =&gt;
+		@docpad.action(&#x27;run&#x27;, {
+			selectSkeletonCallback: @selectSkeletonCallback
+			next: next
+		})
+		@
+
+	###*
+	# Server method
+	# @method server
+	# @param {Function} next
+	###
+	server: (next) =&gt;
+		@docpad.action(&#x27;server generate&#x27;, next)
+		@
+
+	###*
+	# Clean method
+	# @method clean
+	# @param {Function} next
+	###
+	clean: (next) =&gt;
+		@docpad.action(&#x27;clean&#x27;, next)
+		@
+
+	###*
+	# Watch method
+	# @method watch
+	# @param {Function} next
+	###
+	watch: (next) =&gt;
+		@docpad.action(&#x27;generate watch&#x27;, next)
+		@
+
+
+# =====================================
+# Export
+module.exports = ConsoleInterface
+
+    </pre>
+</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

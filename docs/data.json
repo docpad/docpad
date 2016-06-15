@@ -1,6 +1,76 @@
 {
     "project": {},
     "files": {
+        "src/lib/collections/elements.coffee": {
+            "name": "src/lib/collections/elements.coffee",
+            "modules": {},
+            "classes": {
+                "ElementsCollection": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src/lib/collections/files.coffee": {
+            "name": "src/lib/collections/files.coffee",
+            "modules": {},
+            "classes": {
+                "FilesCollection": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src/lib/collections/meta.coffee": {
+            "name": "src/lib/collections/meta.coffee",
+            "modules": {},
+            "classes": {
+                "MetaCollection": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src/lib/collections/scripts.coffee": {
+            "name": "src/lib/collections/scripts.coffee",
+            "modules": {},
+            "classes": {
+                "ScriptCollection": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src/lib/collections/styles.coffee": {
+            "name": "src/lib/collections/styles.coffee",
+            "modules": {},
+            "classes": {
+                "StylesCollection": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src/lib/interfaces/console.coffee": {
+            "name": "src/lib/interfaces/console.coffee",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "src/lib/models/document.coffee": {
+            "name": "src/lib/models/document.coffee",
+            "modules": {},
+            "classes": {
+                "DocumentModel": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src/lib/models/file.coffee": {
+            "name": "src/lib/models/file.coffee",
+            "modules": {},
+            "classes": {
+                "FileModel": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
         "src/lib/base.coffee": {
             "name": "src/lib/base.coffee",
             "modules": {},
@@ -62,6 +132,106 @@
     },
     "modules": {},
     "classes": {
+        "ElementsCollection": {
+            "name": "ElementsCollection",
+            "shortname": "ElementsCollection",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "src/lib/collections/elements.coffee",
+            "line": 14,
+            "description": "Base class for the DocPad Elements Collection object\nExtends the DocPad collection class\nhttps://github.com/docpad/docpad/blob/master/src/lib/base.coffee#L72\nUsed as the base collection class for specific collection of file types.\nIn particular metadata, scripts and styles.",
+            "is_constructor": 1,
+            "extends": "Collection"
+        },
+        "FilesCollection": {
+            "name": "FilesCollection",
+            "shortname": "FilesCollection",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "src/lib/collections/files.coffee",
+            "line": 15,
+            "description": "The DocPad files and documents query collection class\nExtends the DocPad QueryCollection class\nhttps://github.com/docpad/docpad/blob/master/src/lib/base.coffee#L91\nUsed as the query collection class for DocPad files and documents.\nThis differs from standard collections in that it provides backbone.js,\nnoSQL style methods for querying the file system. In DocPad this\nis the various files that make up a web project. Typically this is the documents,\ncss, script and image files.\n\nMost often a developer will use this class to find (and possibly sort) documents,\nsuch as blog posts, by some criteria.\n\tposts: ->",
+            "getcollection": "('documents').findAllLive({relativeOutDirPath: 'posts'},[{date:-1}])",
+            "is_constructor": 1,
+            "extends": "QueryCollection"
+        },
+        "MetaCollection": {
+            "name": "MetaCollection",
+            "shortname": "MetaCollection",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "src/lib/collections/meta.coffee",
+            "line": 11,
+            "description": "Meta collection class. Collection of\ndocument meta data strings",
+            "is_constructor": 1,
+            "extends": "ElementsCollection"
+        },
+        "ScriptCollection": {
+            "name": "ScriptCollection",
+            "shortname": "ScriptCollection",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "src/lib/collections/scripts.coffee",
+            "line": 14,
+            "description": "Scripts collection class. A DocPad\nproject's script file paths",
+            "is_constructor": 1,
+            "extends": "ElementsCollection"
+        },
+        "StylesCollection": {
+            "name": "StylesCollection",
+            "shortname": "StylesCollection",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "src/lib/collections/styles.coffee",
+            "line": 14,
+            "description": "Styles collection class. A DocPad\nproject's style (css) file paths",
+            "is_constructor": 1,
+            "extends": "ElementsCollection"
+        },
+        "DocumentModel": {
+            "name": "DocumentModel",
+            "shortname": "DocumentModel",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "src/lib/models/document.coffee",
+            "line": 26,
+            "description": "The DocumentModel class is DocPad's representation\nof a website or project's content files. This can be\nindividual web pages or blog posts etc. Generally, this\nis not other website files such as css files, images, or scripts -\nunless there is a requirement to have DocPad do transformation on\nthese files.\nExtends the DocPad FileModel class\nhttps://github.com/docpad/docpad/blob/master/src/lib/models/file.coffee\nDocumentModel primarily handles the rendering and parsing of document files.\nThis includes merging the document with layouts and managing the rendering\nfrom one file extension to another. The class inherits many of the file\nspecific operations and DocPad specific attributes from the FileModel class.\nHowever, it also overrides some parsing and file output operations contained\nin the FileModel class.\n\nTypically we do not need to create DocumentModels ourselves as DocPad handles\nall of that. Most of the time when we encounter DocumentModels is when\nquerying DocPad's document collections either in the docpad.coffee file or\nfrom within a template.\n\n\tindexDoc = @getCollection('documents').findOne({relativeOutPath: 'index.html'})\n\nA plugin, however, may need to create a DocumentModel depending on its requirements.\nIn such a case it is wise to use the built in DocPad methods to do so, in particular\ndocpad.createModel\n\n\t#check to see if the document alread exists ie its an update\n\tdocModel = @docpad.getCollection('posts').findOne({slug: 'some-slug'})\n\n\t#if so, load the existing document ready for regeneration\n\tif docModel\n\t\tdocModel.load()\n\telse\n\t\t#if document doesn't already exist, create it and add to database\n\t\tdocModel = @docpad.createModel({fullPath:'file/path/to/somewhere'})\n\t\tdocModel.load()",
+            "docpad": ".getDatabase().add(docModel)",
+            "is_constructor": 1,
+            "extends": "FileModel"
+        },
+        "FileModel": {
+            "name": "FileModel",
+            "shortname": "FileModel",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "src/lib/models/file.coffee",
+            "line": 29,
+            "description": "The FileModel class is DocPad's representation\nof a file in the file system.\nExtends the DocPad Model class\nhttps://github.com/docpad/docpad/blob/master/src/lib/base.coffee#L49.\nFileModel manages the loading\nof a file and parsing both the content and the metadata (if any).\nOnce loaded, the content, metadata and file stat (file info)\nproperties of the FileModel are populated, as well\nas a number of DocPad specific attributes and properties.\nTypically we do not need to create FileModels ourselves as\nDocPad handles all of that. But it is possible that a plugin\nmay need to manually create FileModels for some reason.\n\n\tattrs =\n\t\tfullPath: 'file/path/to/somewhere'\n\topts = {}\n\t#we only really need the path to the source file to create\n\t#a new file model\n\tmodel = new FileModel(attrs, opts)\n\nThe FileModel forms the base class for the DocPad DocumentModel class.",
+            "is_constructor": 1,
+            "extends": "Model"
+        },
         "Events": {
             "name": "Events",
             "shortname": "Events",
@@ -74,7 +244,7 @@
             "line": 28,
             "description": "Base class for the DocPad Events object\nExtends the backbone.js events object\nhttp://backbonejs.org/#Events",
             "is_constructor": 1,
-            "extends": "require('backbone').Events"
+            "extends": "queryEngine.Backbone.Events"
         },
         "Model": {
             "name": "Model",
@@ -88,7 +258,7 @@
             "line": 41,
             "description": "Base class for the DocPad file and document model\nExtends the backbone.js model\nhttp://backbonejs.org/#Model",
             "is_constructor": 1,
-            "extends": "require('backbone').Model"
+            "extends": "queryEngine.Backbone.Model"
         },
         "Collection": {
             "name": "Collection",
@@ -102,7 +272,7 @@
             "line": 64,
             "description": "Base class for the DocPad collection object\nExtends the backbone.js collection object\nhttp://backbonejs.org/#Collection",
             "is_constructor": 1,
-            "extends": "require('backbone').Collection"
+            "extends": "queryEngine.Backbone.Collection"
         },
         "QueryCollection": {
             "name": "QueryCollection",
@@ -116,7 +286,7 @@
             "line": 83,
             "description": "Base class for the DocPad query collection object\nExtends the bevry QueryEngine object\nhttp://github.com/bevry/query-engine",
             "is_constructor": 1,
-            "extends": "require('query-engine').QueryCollection"
+            "extends": "queryEngine.QueryCollection"
         },
         "Docpad": {
             "name": "Docpad",
@@ -128,7 +298,7 @@
             "extension_for": [],
             "file": "src/lib/docpad.coffee",
             "line": 118,
-            "description": "The DocPad Class.\nContains methods for managing the DocPad application.\nThis includes managing a DocPad projects files and\ndocuments, watching directories, emitting events and\nmanaging the node.js/express.js web server.\nExtends https://github.com/bevry/event-emitter-grouped",
+            "description": "Contains methods for managing the DocPad application.\nThis includes managing a DocPad projects files and\ndocuments, watching directories, emitting events and\nmanaging the node.js/express.js web server.\nExtends https://github.com/bevry/event-emitter-grouped\n\nThe class is instantiated in the docpad-server.js file\nwhich is the entry point for a DocPad application.\n\n\tnew DocPad(docpadConfig, function(err, docpad) {\n\t\tif (err) {\n\t\t\treturn docpadUtil.writeError(err);\n\t\t}\n\t\treturn docpad.action(action, function(err) {\n\t\t\tif (err) {\n\t\t\t\treturn docpadUtil.writeError(err);\n\t\t\t}\n\t\t\treturn console.log('OK');\n\t\t});\n\t});",
             "is_constructor": 1,
             "extends": "EventEmitterGrouped"
         },
@@ -203,8 +373,1816 @@
     "elements": {},
     "classitems": [
         {
-            "file": "src/lib/docpad.coffee",
+            "file": "src/lib/collections/elements.coffee",
+            "line": 26,
+            "description": "Base Model for all items in this collection",
+            "itemtype": "property",
+            "name": "model",
+            "type": "Object",
+            "class": "ElementsCollection"
+        },
+        {
+            "file": "src/lib/collections/elements.coffee",
+            "line": 32,
+            "description": "Add an element to the collection.\nRight now we just support strings.",
+            "itemtype": "method",
+            "name": "add",
+            "params": [
+                {
+                    "name": "values",
+                    "description": "string array of values",
+                    "type": "Array"
+                },
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "class": "ElementsCollection"
+        },
+        {
+            "file": "src/lib/collections/elements.coffee",
+            "line": 64,
+            "description": "Create a way to output our elements to HTML",
+            "itemtype": "method",
+            "name": "toHTML",
+            "return": {
+                "description": "",
+                "type": "String"
+            },
+            "class": "ElementsCollection"
+        },
+        {
+            "file": "src/lib/collections/files.coffee",
+            "line": 35,
+            "description": "Base Model for all items in this collection",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "property",
+            "name": "model",
+            "type": "Object",
+            "class": "FilesCollection"
+        },
+        {
+            "file": "src/lib/collections/files.coffee",
+            "line": 42,
+            "description": "Base Collection for all child collections",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "property",
+            "name": "collection",
+            "type": "Object",
+            "class": "FilesCollection"
+        },
+        {
+            "file": "src/lib/collections/files.coffee",
+            "line": 49,
+            "description": "Initialize the collection",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "initialize",
+            "params": [
+                {
+                    "name": "attrs",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object",
+                    "optional": true,
+                    "optdefault": "{}"
+                }
+            ],
+            "class": "FilesCollection"
+        },
+        {
+            "file": "src/lib/collections/files.coffee",
+            "line": 61,
+            "description": "Fuzzy find one\nUseful for layout searching",
+            "itemtype": "method",
+            "name": "fuzzyFindOne",
+            "params": [
+                {
+                    "name": "data",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "sorting",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "paging",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "the file, if found",
+                "type": "Object"
+            },
+            "class": "FilesCollection"
+        },
+        {
+            "file": "src/lib/collections/scripts.coffee",
+            "line": 23,
+            "description": "Add an element to the collection\nRight now we just support strings",
+            "itemtype": "method",
+            "name": "add",
+            "params": [
+                {
+                    "name": "values",
+                    "description": "string array of file paths",
+                    "type": "Array"
+                },
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "class": "ScriptCollection"
+        },
+        {
+            "file": "src/lib/collections/styles.coffee",
+            "line": 23,
+            "description": "Add an element to the collection\nRight now we just support strings",
+            "itemtype": "method",
+            "name": "add",
+            "params": [
+                {
+                    "name": "values",
+                    "description": "string array of file paths",
+                    "type": "Array"
+                },
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "class": "StylesCollection"
+        },
+        {
+            "file": "src/lib/interfaces/console.coffee",
+            "line": 21,
+            "description": "Console Interface",
+            "is_constructor": 1,
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/interfaces/console.coffee",
+            "line": 28,
+            "description": "Constructor method. Setup the CLI",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "constructor",
+            "params": [
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "next",
+                    "description": "",
+                    "type": "Function"
+                }
+            ],
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/interfaces/console.coffee",
+            "line": 235,
+            "description": "Start the CLI",
+            "itemtype": "method",
+            "name": "start",
+            "params": [
+                {
+                    "name": "argv",
+                    "description": "",
+                    "type": "Array"
+                }
+            ],
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/interfaces/console.coffee",
+            "line": 244,
+            "description": "Get the commander",
+            "itemtype": "method",
+            "name": "getCommander",
+            "return": {
+                "description": "the commander instance"
+            },
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/interfaces/console.coffee",
+            "line": 252,
+            "description": "Destructor.",
+            "itemtype": "method",
+            "name": "destroy",
+            "params": [
+                {
+                    "name": "err",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/interfaces/console.coffee",
+            "line": 299,
+            "description": "Wrap Action",
+            "itemtype": "method",
+            "name": "wrapAction",
+            "params": [
+                {
+                    "name": "action",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "config",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/interfaces/console.coffee",
+            "line": 310,
+            "description": "Perform Action",
+            "itemtype": "method",
+            "name": "performAction",
+            "params": [
+                {
+                    "name": "action",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "args",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "config",
+                    "description": "",
+                    "type": "Object",
+                    "optional": true,
+                    "optdefault": "{}"
+                }
+            ],
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/interfaces/console.coffee",
+            "line": 361,
+            "description": "Extract Configuration",
+            "itemtype": "method",
+            "name": "extractConfig",
+            "params": [
+                {
+                    "name": "customConfig",
+                    "description": "",
+                    "type": "Object",
+                    "optional": true,
+                    "optdefault": "{}"
+                }
+            ],
+            "return": {
+                "description": "the DocPad config",
+                "type": "Object"
+            },
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/interfaces/console.coffee",
+            "line": 409,
+            "description": "Select a skeleton",
+            "itemtype": "method",
+            "name": "selectSkeletonCallback",
+            "params": [
+                {
+                    "name": "skeletonsCollection",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "next",
+                    "description": "",
+                    "type": "Function"
+                }
+            ],
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/interfaces/console.coffee",
+            "line": 450,
+            "description": "Welcome Callback",
+            "itemtype": "method",
+            "name": "welcomeCallback",
+            "params": [
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "next",
+                    "description": "",
+                    "type": "Function"
+                }
+            ],
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/interfaces/console.coffee",
+            "line": 601,
+            "description": "Prompt for input",
+            "itemtype": "method",
+            "name": "prompt",
+            "params": [
+                {
+                    "name": "message",
+                    "description": "",
+                    "type": "String"
+                },
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object",
+                    "optional": true,
+                    "optdefault": "{}"
+                },
+                {
+                    "name": "next",
+                    "description": "",
+                    "type": "Function"
+                }
+            ],
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/interfaces/console.coffee",
+            "line": 625,
+            "description": "Confirm an option",
+            "itemtype": "method",
+            "name": "confirm",
+            "params": [
+                {
+                    "name": "message",
+                    "description": "",
+                    "type": "String"
+                },
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object",
+                    "optional": true,
+                    "optdefault": "{}"
+                },
+                {
+                    "name": "next",
+                    "description": "",
+                    "type": "Function"
+                }
+            ],
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/interfaces/console.coffee",
+            "line": 652,
+            "description": "Choose something",
+            "itemtype": "method",
+            "name": "choose",
+            "params": [
+                {
+                    "name": "message",
+                    "description": "",
+                    "type": "String"
+                },
+                {
+                    "name": "choices",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object",
+                    "optional": true,
+                    "optdefault": "{}"
+                },
+                {
+                    "name": "next",
+                    "description": "",
+                    "type": "Function"
+                }
+            ],
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/interfaces/console.coffee",
+            "line": 694,
+            "description": "Do action",
+            "itemtype": "method",
+            "name": "action",
+            "params": [
+                {
+                    "name": "next",
+                    "description": "",
+                    "type": "Function"
+                },
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/interfaces/console.coffee",
+            "line": 706,
+            "description": "Action initialise",
+            "itemtype": "method",
+            "name": "init",
+            "params": [
+                {
+                    "name": "next",
+                    "description": "",
+                    "type": "Function"
+                }
+            ],
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/interfaces/console.coffee",
+            "line": 715,
+            "description": "Generate action",
+            "itemtype": "method",
+            "name": "generate",
+            "params": [
+                {
+                    "name": "next",
+                    "description": "",
+                    "type": "Function"
+                }
+            ],
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/interfaces/console.coffee",
+            "line": 724,
+            "description": "Help method",
+            "itemtype": "method",
+            "name": "help",
+            "params": [
+                {
+                    "name": "next",
+                    "description": "",
+                    "type": "Function"
+                }
+            ],
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/interfaces/console.coffee",
+            "line": 735,
+            "description": "Info method",
+            "itemtype": "method",
+            "name": "info",
+            "params": [
+                {
+                    "name": "next",
+                    "description": "",
+                    "type": "Function"
+                }
+            ],
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/interfaces/console.coffee",
+            "line": 747,
+            "description": "Update method",
+            "itemtype": "method",
+            "name": "update",
+            "params": [
+                {
+                    "name": "next",
+                    "description": "",
+                    "type": "Function"
+                },
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/interfaces/console.coffee",
+            "line": 759,
+            "description": "Upgrade method",
+            "itemtype": "method",
+            "name": "upgrade",
+            "params": [
+                {
+                    "name": "next",
+                    "description": "",
+                    "type": "Function"
+                },
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/interfaces/console.coffee",
+            "line": 772,
+            "description": "Install method",
+            "itemtype": "method",
+            "name": "install",
+            "params": [
+                {
+                    "name": "next",
+                    "description": "",
+                    "type": "Function"
+                },
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/interfaces/console.coffee",
+            "line": 788,
+            "description": "Uninstall method",
+            "itemtype": "method",
+            "name": "uninstall",
+            "params": [
+                {
+                    "name": "next",
+                    "description": "",
+                    "type": "Function"
+                },
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/interfaces/console.coffee",
+            "line": 804,
+            "description": "Render method",
+            "itemtype": "method",
+            "name": "render",
+            "params": [
+                {
+                    "name": "next",
+                    "description": "",
+                    "type": "Function"
+                },
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/interfaces/console.coffee",
+            "line": 872,
+            "description": "Run method",
+            "itemtype": "method",
+            "name": "run",
+            "params": [
+                {
+                    "name": "next",
+                    "description": "",
+                    "type": "Function"
+                }
+            ],
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/interfaces/console.coffee",
+            "line": 884,
+            "description": "Server method",
+            "itemtype": "method",
+            "name": "server",
+            "params": [
+                {
+                    "name": "next",
+                    "description": "",
+                    "type": "Function"
+                }
+            ],
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/interfaces/console.coffee",
+            "line": 893,
+            "description": "Clean method",
+            "itemtype": "method",
+            "name": "clean",
+            "params": [
+                {
+                    "name": "next",
+                    "description": "",
+                    "type": "Function"
+                }
+            ],
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/interfaces/console.coffee",
+            "line": 902,
+            "description": "Watch method",
+            "itemtype": "method",
+            "name": "watch",
+            "params": [
+                {
+                    "name": "next",
+                    "description": "",
+                    "type": "Function"
+                }
+            ],
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/models/document.coffee",
+            "line": 74,
+            "description": "The document model class.",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "property",
+            "name": "klass",
+            "type": "Object",
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/models/document.coffee",
+            "line": 81,
+            "description": "String name of the model type.\nIn this case, 'document'.",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "property",
+            "name": "type",
+            "type": "String",
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/models/document.coffee",
+            "line": 93,
+            "description": "The default attributes for any document model.",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "property",
+            "name": "",
+            "type": "Object",
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/models/document.coffee",
+            "line": 149,
+            "description": "Get the file content for output. This\nwill be the text content AFTER it has\nbeen through the rendering process. If\nthis has been called before the rendering\nprocess, then the raw text content will be returned,\nor, if early enough in the process, the file buffer object.",
+            "itemtype": "method",
+            "name": "getOutContent",
+            "return": {
+                "description": "",
+                "type": "String or Object"
+            },
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/models/document.coffee",
+            "line": 163,
+            "description": "Set flag to indicate if the document\ncontains references to other documents.\nUsed in the rendering process to decide\non whether to render this document when\nanother document is updated.",
+            "itemtype": "method",
+            "name": "referencesOthers",
+            "params": [
+                {
+                    "name": "flag",
+                    "description": "",
+                    "type": "Boolean",
+                    "optional": true,
+                    "optdefault": "true"
+                }
+            ],
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/models/document.coffee",
+            "line": 181,
+            "description": "Parse our buffer and extract meaningful data from it.\nnext(err).",
+            "itemtype": "method",
+            "name": "parse",
+            "params": [
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object",
+                    "optional": true,
+                    "optdefault": "{}"
+                },
+                {
+                    "name": "next",
+                    "description": "callback",
+                    "type": "Object"
+                }
+            ],
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/models/document.coffee",
+            "line": 345,
+            "description": "Normalize any parsing we have done, because if a value has\nupdates it may have consequences on another value.\nThis will ensure everything is okay.\nnext(err)",
+            "itemtype": "method",
+            "name": "normalize",
+            "params": [
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object",
+                    "optional": true,
+                    "optdefault": "{}"
+                },
+                {
+                    "name": "next",
+                    "description": "callback",
+                    "type": "Object"
+                }
+            ],
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/models/document.coffee",
+            "line": 375,
+            "description": "Contextualize the data. In other words,\nput our data into the perspective of the bigger picture of the data.\nFor instance, generate the url for it's rendered equivalant.\nnext(err)",
+            "itemtype": "method",
+            "name": "contextualize",
+            "params": [
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object",
+                    "optional": true,
+                    "optdefault": "{}"
+                },
+                {
+                    "name": "next",
+                    "description": "callback",
+                    "type": "Object"
+                }
+            ],
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/models/document.coffee",
+            "line": 419,
+            "description": "Checks if the file has a layout.",
+            "itemtype": "method",
+            "name": "hasLayout",
+            "return": {
+                "description": "",
+                "type": "Boolean"
+            },
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/models/document.coffee",
+            "line": 429,
+            "description": "Get the layout object that this file references (if any).\nWe update the layoutRelativePath as it is\nused for finding what documents are used by a\nlayout for when a layout changes.\nnext(err, layout)",
+            "itemtype": "method",
+            "name": "getLayout",
+            "params": [
+                {
+                    "name": "next",
+                    "description": "callback",
+                    "type": "Function"
+                }
+            ],
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/models/document.coffee",
+            "line": 469,
+            "description": "Get the most ancestoral (root) layout we\nhave - ie, the very top one. Often this\nwill be the base or default layout for\na project. The layout where the head and other\nhtml on all pages is defined. In some projects,\nhowever, there may be more than one root layout\nso we can't assume there will always only be one.\nThis is used by the contextualize method to determine\nthe output extension of the document. In other words\nthe document's final output extension is determined by\nthe root layout.\nnext(err,layout)",
+            "itemtype": "method",
+            "name": "getEve",
+            "params": [
+                {
+                    "name": "next",
+                    "description": "",
+                    "type": "Function"
+                }
+            ],
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/models/document.coffee",
+            "line": 502,
+            "description": "Renders one extension to another depending\non the document model's extensions property.\nTriggers the render event for each extension conversion.\nThis is the point where the various templating systems listen\nfor their extension and perform their conversions.\nCommon extension conversion is from md to html.\nSo the document source file maybe index.md.html.\nThis will be a markdown file to be converted to HTML.\nHowever, documents can be rendered through more than\none conversion. Index.html.md.eco will be rendered from\neco to md and then from md to html. Two conversions.\nnext(err,result)",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "renderExtensions",
+            "params": [
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "next",
+                    "description": "callback",
+                    "type": "Function"
+                }
+            ],
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/models/document.coffee",
+            "line": 593,
+            "description": "Triggers the renderDocument event after\nall extensions have been rendered. Listeners\ncan use this event to perform transformations\non the already rendered content.",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "renderDocument",
+            "params": [
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "next",
+                    "description": "callback",
+                    "type": "Function"
+                }
+            ],
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/models/document.coffee",
+            "line": 624,
+            "description": "Render and merge layout content. Merge\nlayout metadata with document metadata.\nReturn the resulting merged content to\nthe callback result parameter.\nnext(err,result)",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "renderLayouts",
+            "params": [
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "next",
+                    "description": "callback",
+                    "type": "Function"
+                }
+            ],
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/models/document.coffee",
+            "line": 673,
+            "description": "Triggers the render process for this document.\nCalls the renderExtensions, renderDocument and\nrenderLayouts methods in sequence. This is the\nmethod you want to call if you want to trigger\nthe rendering of a document manually.\n\nThe rendered content is returned as the result\nparameter to the passed callback and the DocumentModel\ninstance is returned in the document parameter.\nnext(err,result,document)",
+            "itemtype": "method",
+            "name": "render",
+            "params": [
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object",
+                    "optional": true,
+                    "optdefault": "{}"
+                },
+                {
+                    "name": "next",
+                    "description": "callback",
+                    "type": "Function"
+                }
+            ],
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/models/document.coffee",
+            "line": 802,
+            "description": "Write the source file. Optionally pass\nthe opts parameter to modify or set the file's\npath, content or type.\nnext(err)",
+            "itemtype": "method",
+            "name": "writeSource",
+            "params": [
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object",
+                    "optional": true
+                },
+                {
+                    "name": "next",
+                    "description": "callback",
+                    "type": "Object"
+                }
+            ],
+            "class": "DocumentModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 60,
+            "description": "The file model class. This should\nbe overridden in any descending classes.",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "property",
+            "name": "klass",
+            "type": "Object",
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 68,
+            "description": "String name of the model type.\nIn this case, 'file'. This should\nbe overridden in any descending classes.",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "property",
+            "name": "type",
+            "type": "String",
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 77,
+            "description": "Task Group Class",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "property",
+            "name": "TaskGroup",
+            "type": "Object",
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 84,
+            "description": "The out directory path to put the relative path.",
+            "itemtype": "property",
+            "name": "rootOutDirPath",
+            "type": "String",
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 90,
+            "description": "Whether or not we should detect encoding",
+            "itemtype": "property",
+            "name": "detectEncoding",
+            "type": "Boolean",
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 96,
+            "description": "Node.js file stat object.\nhttps://nodejs.org/api/fs.html#fs_class_fs_stats.\nBasically, information about a file, including file\ndates and size.",
+            "itemtype": "property",
+            "name": "stat",
+            "type": "Object",
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 105,
+            "description": "File buffer. Node.js Buffer object.\nhttps://nodejs.org/api/buffer.html#buffer_class_buffer.\nProvides methods for dealing with binary data directly.",
+            "itemtype": "property",
+            "name": "buffer",
+            "type": "Object",
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 113,
+            "description": "Buffer time.",
+            "itemtype": "property",
+            "name": "bufferTime",
+            "type": "Object",
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 119,
+            "description": "The parsed file meta data (header).\nIs a Model instance.",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "property",
+            "name": "meta",
+            "type": "Object",
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 127,
+            "description": "Locale information for the file",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "property",
+            "name": "locale",
+            "type": "Object",
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 133,
+            "description": "Get the file's locale information",
+            "itemtype": "method",
+            "name": "getLocale",
+            "return": {
+                "description": "the locale",
+                "type": "Object"
+            },
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 140,
+            "description": "Get Options. Returns an object containing\nthe properties detectEncoding, rootOutDirPath\nlocale, stat, buffer, meta and TaskGroup.",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "getOptions",
+            "return": {
+                "description": "",
+                "type": "Object"
+            },
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 152,
+            "description": "Checks whether the passed key is one\nof the options.",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "isOption",
+            "params": [
+                {
+                    "name": "key",
+                    "description": "",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Boolean"
+            },
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
             "line": 165,
+            "description": "Extract Options.",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "extractOptions",
+            "params": [
+                {
+                    "name": "attrs",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "the options object",
+                "type": "Object"
+            },
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 185,
+            "description": "Set the options for the file model.\nValid properties for the attrs parameter:\nTaskGroup, detectEncoding, rootOutDirPath,\nlocale, stat, data, buffer, meta.",
+            "itemtype": "method",
+            "name": "setOptions",
+            "params": [
+                {
+                    "name": "attrs",
+                    "description": "",
+                    "type": "Object",
+                    "optional": true,
+                    "optdefault": "{}"
+                }
+            ],
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 237,
+            "description": "Clone the model and return the newly cloned model.",
+            "itemtype": "method",
+            "name": "clone",
+            "return": {
+                "description": "cloned file model",
+                "type": "Object"
+            },
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 266,
+            "description": "The default attributes for any file model.",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "property",
+            "name": "",
+            "type": "Object",
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 416,
+            "description": "File encoding helper\nopts = {path, to, from, content}",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "encode",
+            "params": [
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "encoded result",
+                "type": "Object"
+            },
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 447,
+            "description": "Set the file model's buffer.\nCreates a new node.js buffer\nobject if a buffer object is\nis not passed as the parameter",
+            "itemtype": "method",
+            "name": "setBuffer",
+            "params": [
+                {
+                    "name": "buffer",
+                    "description": "",
+                    "type": "Object",
+                    "optional": true
+                }
+            ],
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 461,
+            "description": "Get the file model's buffer object.\nReturns a node.js buffer object.",
+            "itemtype": "method",
+            "name": "getBuffer",
+            "return": {
+                "description": "node.js buffer object",
+                "type": "Object"
+            },
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 470,
+            "description": "Is Buffer Outdated\nTrue if there is no buffer OR the buffer time is outdated",
+            "itemtype": "method",
+            "name": "isBufferOutdated",
+            "return": {
+                "description": "",
+                "type": "Boolean"
+            },
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 479,
+            "description": "Set the node.js file stat.",
+            "itemtype": "method",
+            "name": "setStat",
+            "params": [
+                {
+                    "name": "stat",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 492,
+            "description": "Get the node.js file stat.",
+            "itemtype": "method",
+            "name": "getStat",
+            "return": {
+                "description": "the file stat",
+                "type": "Object"
+            },
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 500,
+            "description": "Get the file model attributes.\nBy default the attributes will be\ndereferenced from the file model.\nTo maintain a reference, pass false\nas the parameter. The returned object\nwill NOT contain the file model's ID attribute.",
+            "itemtype": "method",
+            "name": "getAttributes",
+            "params": [
+                {
+                    "name": "dereference",
+                    "description": "",
+                    "type": "Object",
+                    "optional": true,
+                    "optdefault": "true"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Object"
+            },
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 518,
+            "description": "Get the file model attributes.\nBy default the attributes will\nmaintain a reference to the file model.\nTo return a dereferenced object, pass true\nas the parameter. The returned object\nwill contain the file model's ID attribute.",
+            "itemtype": "method",
+            "name": "toJSON",
+            "params": [
+                {
+                    "name": "dereference",
+                    "description": "",
+                    "type": "Object",
+                    "optional": true,
+                    "optdefault": "false"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Object"
+            },
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 535,
+            "description": "Get the file model metadata object.\nOptionally pass a list of metadata property\nnames corresponding to those properties that\nyou want returned.",
+            "itemtype": "method",
+            "name": "getMeta",
+            "params": [
+                {
+                    "name": "args...",
+                    "description": "",
+                    "type": "Object",
+                    "optional": true
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Object"
+            },
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 551,
+            "description": "Assign attributes and options to the file model.",
+            "itemtype": "method",
+            "name": "set",
+            "params": [
+                {
+                    "name": "attrs",
+                    "description": "the attributes to be applied",
+                    "type": "Array"
+                },
+                {
+                    "name": "opts",
+                    "description": "the options to be applied",
+                    "type": "Object"
+                }
+            ],
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 579,
+            "description": "Set defaults. Apply default attributes\nand options to the file model",
+            "itemtype": "method",
+            "name": "setDefaults",
+            "params": [
+                {
+                    "name": "attrs",
+                    "description": "the attributes to be applied",
+                    "type": "Object"
+                },
+                {
+                    "name": "opts",
+                    "description": "the options to be applied",
+                    "type": "Object"
+                }
+            ],
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 602,
+            "description": "Set the file model meta data,\nattributes and options in one go.",
+            "itemtype": "method",
+            "name": "setMeta",
+            "params": [
+                {
+                    "name": "attrs",
+                    "description": "the attributes to be applied",
+                    "type": "Object"
+                },
+                {
+                    "name": "opts",
+                    "description": "the options to be applied",
+                    "type": "Object"
+                }
+            ],
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 627,
+            "description": "Set the file model meta data defaults",
+            "itemtype": "method",
+            "name": "setMetaDefaults",
+            "params": [
+                {
+                    "name": "attrs",
+                    "description": "the attributes to be applied",
+                    "type": "Object"
+                },
+                {
+                    "name": "opts",
+                    "description": "the options to be applied",
+                    "type": "Object"
+                }
+            ],
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 650,
+            "description": "Get the file name. Depending on the\nparameters passed this will either be\nthe file model's filename property or,\nthe filename determined from the fullPath\nor relativePath property. Valid values for\nthe opts parameter are: fullPath, relativePath\nor filename. Format: {filename}",
+            "itemtype": "method",
+            "name": "getFilename",
+            "params": [
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object",
+                    "optional": true,
+                    "optdefault": "{}"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "String"
+            },
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 676,
+            "description": "Get the file path. Depending on the\nparameters passed this will either be\nthe file model's fullPath property, the\nrelativePath property or the filename property.\nValid values for the opts parameter are:\nfullPath, relativePath\nor filename. Format: {fullPath}",
+            "itemtype": "method",
+            "name": "getFilePath",
+            "params": [
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object",
+                    "optional": true,
+                    "optdefault": "{}"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "String"
+            },
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 698,
+            "description": "Get file extensions. Depending on the\nparameters passed this will either be\nthe file model's extensions property or\nthe extensions extracted from the file model's\nfilename property. The opts parameter is passed\nin the format: {extensions,filename}.",
+            "itemtype": "method",
+            "name": "getExtensions",
+            "params": [
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "array of extension names",
+                "type": "Array"
+            },
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 717,
+            "description": "Get the file content. This will be\nthe text content if loaded or the file buffer object.",
+            "itemtype": "method",
+            "name": "getContent",
+            "return": {
+                "description": "",
+                "type": "String or Object"
+            },
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 726,
+            "description": "Get the file content for output.",
+            "itemtype": "method",
+            "name": "getOutContent",
+            "return": {
+                "description": "",
+                "type": "String or Object"
+            },
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 734,
+            "description": "Is this a text file? ie - not\na binary file.",
+            "itemtype": "method",
+            "name": "isText",
+            "return": {
+                "description": "",
+                "type": "Boolean"
+            },
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 743,
+            "description": "Is this a binary file?",
+            "itemtype": "method",
+            "name": "isBinary",
+            "return": {
+                "description": "",
+                "type": "Boolean"
+            },
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 751,
+            "description": "Set the url for the file",
+            "itemtype": "method",
+            "name": "setUrl",
+            "params": [
+                {
+                    "name": "url",
+                    "description": "",
+                    "type": "String"
+                }
+            ],
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 761,
+            "description": "A file can have multiple urls.\nThis method adds either a single url\nor an array of urls to the file model.",
+            "itemtype": "method",
+            "name": "addUrl",
+            "params": [
+                {
+                    "name": "url",
+                    "description": "",
+                    "type": "String or Array"
+                }
+            ],
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 789,
+            "description": "Removes a url from the file\nmodel (files can have more than one url).",
+            "itemtype": "method",
+            "name": "removeUrl",
+            "params": [
+                {
+                    "name": "userUrl",
+                    "description": "the url to be removed",
+                    "type": "Object"
+                }
+            ],
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 803,
+            "description": "Get a file path.\nIf the relativePath parameter starts with `.` then we get the\npath in relation to the document that is calling it.\nOtherwise we just return it as normal",
+            "itemtype": "method",
+            "name": "getPath",
+            "params": [
+                {
+                    "name": "relativePath",
+                    "description": "",
+                    "type": "String"
+                },
+                {
+                    "name": "parentPath",
+                    "description": "",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "String"
+            },
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 828,
+            "description": "The action runner instance bound to DocPad",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "property",
+            "name": "actionRunnerInstance",
+            "type": "Object",
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 834,
+            "description": "Get the action runner instance bound to DocPad",
+            "itemtype": "method",
+            "name": "getActionRunner",
+            "return": {
+                "description": "",
+                "type": "Object"
+            },
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 840,
+            "description": "Apply an action with the supplied arguments.",
+            "itemtype": "method",
+            "name": "action",
+            "params": [
+                {
+                    "name": "args...",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 847,
+            "description": "Initialize the file model with the passed\nattributes and options. Emits the init event.",
+            "itemtype": "method",
+            "name": "initialize",
+            "params": [
+                {
+                    "name": "attrs",
+                    "description": "the file model attributes",
+                    "type": "Object"
+                },
+                {
+                    "name": "opts",
+                    "description": "the file model options",
+                    "type": "Object",
+                    "optional": true,
+                    "optdefault": "{}"
+                }
+            ],
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 884,
+            "description": "Load the file from the file system.\nIf the fullPath exists, load the file.\nIf it doesn't, then parse and normalize the file.\nOptionally pass file options as a parameter.",
+            "itemtype": "method",
+            "name": "load",
+            "params": [
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object",
+                    "optional": true,
+                    "optdefault": "{}"
+                },
+                {
+                    "name": "next",
+                    "description": "callback",
+                    "type": "Function"
+                }
+            ],
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 960,
+            "description": "Parse our buffer and extract meaningful data from it.\nnext(err).",
+            "itemtype": "method",
+            "name": "parse",
+            "params": [
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object",
+                    "optional": true,
+                    "optdefault": "{}"
+                },
+                {
+                    "name": "next",
+                    "description": "callback",
+                    "type": "Object"
+                }
+            ],
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 1035,
+            "description": "Normalize any parsing we have done, because if a value has\nupdates it may have consequences on another value.\nThis will ensure everything is okay.\nnext(err)",
+            "itemtype": "method",
+            "name": "normalize",
+            "params": [
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object",
+                    "optional": true,
+                    "optdefault": "{}"
+                },
+                {
+                    "name": "next",
+                    "description": "callback",
+                    "type": "Object"
+                }
+            ],
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 1206,
+            "description": "Contextualize the data. In other words,\nput our data into the perspective of the bigger picture of the data.\nFor instance, generate the url for it's rendered equivalant.\nnext(err)",
+            "itemtype": "method",
+            "name": "contextualize",
+            "params": [
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object",
+                    "optional": true,
+                    "optdefault": "{}"
+                },
+                {
+                    "name": "next",
+                    "description": "callback",
+                    "type": "Object"
+                }
+            ],
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 1223,
+            "description": "Render this file. The file model output content is\nreturned to the passed callback in the\nresult (2nd) parameter. The file model itself is returned\nin the callback's document (3rd) parameter.\nnext(err,result,document)",
+            "itemtype": "method",
+            "name": "render",
+            "params": [
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object",
+                    "optional": true,
+                    "optdefault": "{}"
+                },
+                {
+                    "name": "next",
+                    "description": "callback",
+                    "type": "Object"
+                }
+            ],
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 1249,
+            "description": "Write the out file. The out file\nmay be different from the input file.\nOften the input file is transformed in some way\nand saved as another file format. A common example\nis transforming a markdown input file to a HTML\noutput file.\nnext(err)",
+            "itemtype": "method",
+            "name": "write",
+            "params": [
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "next",
+                    "description": "callback",
+                    "type": "Function"
+                }
+            ],
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 1309,
+            "description": "Write the source file. Optionally pass\nthe opts parameter to modify or set the file's\npath, content or type.\nnext(err)",
+            "itemtype": "method",
+            "name": "writeSource",
+            "params": [
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object",
+                    "optional": true
+                },
+                {
+                    "name": "next",
+                    "description": "callback",
+                    "type": "Object"
+                }
+            ],
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 1334,
+            "description": "Delete the out file, perhaps ahead of regeneration.\nOptionally pass the opts parameter to set the file path or type.\nnext(err)",
+            "itemtype": "method",
+            "name": "delete",
+            "params": [
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object",
+                    "optional": true
+                },
+                {
+                    "name": "next",
+                    "description": "callback",
+                    "type": "Object"
+                }
+            ],
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/models/file.coffee",
+            "line": 1380,
+            "description": "Delete the source file.\nOptionally pass the opts parameter to set the file path or type.\nnext(err)",
+            "itemtype": "method",
+            "name": "deleteSource",
+            "params": [
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object",
+                    "optional": true
+                },
+                {
+                    "name": "next",
+                    "description": "callback",
+                    "type": "Object"
+                }
+            ],
+            "class": "FileModel"
+        },
+        {
+            "file": "src/lib/docpad.coffee",
+            "line": 180,
             "description": "Events class\nhttps://github.com/docpad/docpad/blob/master/src/lib/base.coffee",
             "itemtype": "property",
             "name": "Events",
@@ -213,7 +2191,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 171,
+            "line": 186,
             "description": "Model class\nExtension of the Backbone Model class\nhttp://backbonejs.org/#Model\nhttps://github.com/docpad/docpad/blob/master/src/lib/base.coffee",
             "itemtype": "property",
             "name": "Model",
@@ -222,7 +2200,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 180,
+            "line": 195,
             "description": "Collection class\nExtension of the Backbone Collection class\nhttps://github.com/docpad/docpad/blob/master/src/lib/base.coffee\nhttp://backbonejs.org/#Collection",
             "itemtype": "property",
             "name": "Collection",
@@ -231,7 +2209,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 189,
+            "line": 204,
             "description": "QueryCollection class\nExtension of the Query Engine QueryCollection class\nhttps://github.com/docpad/docpad/blob/master/src/lib/base.coffee\nhttps://github.com/bevry/query-engine/blob/master/src/documents/lib/query-engine.js.coffee",
             "itemtype": "property",
             "name": "QueryCollection",
@@ -240,7 +2218,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 201,
+            "line": 216,
             "description": "File Model class\nExtension of the Model class\nhttps://github.com/docpad/docpad/blob/master/src/lib/models/file.coffee",
             "itemtype": "property",
             "name": "FileModel",
@@ -249,7 +2227,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 209,
+            "line": 224,
             "description": "Document Model class\nExtension of the File Model class\nhttps://github.com/docpad/docpad/blob/master/src/lib/models/document.coffee",
             "itemtype": "property",
             "name": "DocumentModel",
@@ -258,7 +2236,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 220,
+            "line": 235,
             "description": "Collection of files in a DocPad project\nExtension of the QueryCollection class\nhttps://github.com/docpad/docpad/blob/master/src/lib/collections/files.coffee",
             "itemtype": "property",
             "name": "FilesCollection",
@@ -267,7 +2245,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 228,
+            "line": 243,
             "description": "Collection of elements in a DocPad project\nExtension of the Collection class\nhttps://github.com/docpad/docpad/blob/master/src/lib/collections/elements.coffee",
             "itemtype": "property",
             "name": "ElementsCollection",
@@ -276,7 +2254,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 236,
+            "line": 251,
             "description": "Collection of metadata in a DocPad project\nExtension of the ElementsCollection class\nhttps://github.com/docpad/docpad/blob/master/src/lib/collections/meta.coffee",
             "itemtype": "property",
             "name": "MetaCollection",
@@ -285,7 +2263,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 244,
+            "line": 259,
             "description": "Collection of JS script files in a DocPad project\nExtension of the ElementsCollection class\nhttps://github.com/docpad/docpad/blob/master/src/lib/collections/scripts.coffee",
             "itemtype": "property",
             "name": "ScriptsCollection",
@@ -294,7 +2272,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 252,
+            "line": 267,
             "description": "Collection of CSS style files in a DocPad project\nExtension of the ElementsCollection class\nhttps://github.com/docpad/docpad/blob/master/src/lib/collections/styles.coffee",
             "itemtype": "property",
             "name": "StylesCollection",
@@ -303,7 +2281,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 260,
+            "line": 275,
             "description": "Plugin Loader class\nhttps://github.com/docpad/docpad/blob/master/src/lib/plugin-loader.coffee\nLoads the DocPad plugins from the file system into\na DocPad project",
             "itemtype": "property",
             "name": "PluginLoader",
@@ -312,7 +2290,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 269,
+            "line": 284,
             "description": "Base class for all DocPad plugins\nhttps://github.com/docpad/docpad/blob/master/src/lib/plugin.coffee",
             "itemtype": "property",
             "name": "BasePlugin",
@@ -321,7 +2299,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 279,
+            "line": 294,
             "description": "DocPad's version number",
             "access": "private",
             "tagname": "",
@@ -332,7 +2310,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 286,
+            "line": 301,
             "description": "Get the DocPad version number",
             "itemtype": "method",
             "name": "getVersion",
@@ -344,7 +2322,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 295,
+            "line": 310,
             "description": "Get the DocPad version string",
             "itemtype": "method",
             "name": "getVersionString",
@@ -356,7 +2334,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 306,
+            "line": 321,
             "description": "The plugin version requirements",
             "itemtype": "property",
             "name": "pluginVersion",
@@ -365,7 +2343,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 313,
+            "line": 328,
             "description": "Get the process platform",
             "itemtype": "method",
             "name": "getProcessPlatform",
@@ -377,7 +2355,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 320,
+            "line": 335,
             "description": "Get the process version string",
             "itemtype": "method",
             "name": "getProcessVersion",
@@ -389,7 +2367,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 327,
+            "line": 342,
             "description": "The express.js server instance bound to DocPad.\nhttp://expressjs.com",
             "access": "private",
             "tagname": "",
@@ -400,7 +2378,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 335,
+            "line": 350,
             "description": "The Node.js http server instance bound to DocPad\nhttps://nodejs.org/api/http.html",
             "access": "private",
             "tagname": "",
@@ -411,7 +2389,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 343,
+            "line": 358,
             "description": "Get the DocPad express.js server instance and, optionally,\nthe node.js https server instance",
             "itemtype": "method",
             "name": "getServer",
@@ -432,7 +2410,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 357,
+            "line": 372,
             "description": "Set the express.js server and node.js http server\nto bind to DocPad",
             "itemtype": "method",
             "name": "setServer",
@@ -447,7 +2425,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 374,
+            "line": 389,
             "description": "Destructor. Close and destroy the node.js http server",
             "access": "private",
             "tagname": "",
@@ -457,7 +2435,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 385,
+            "line": 400,
             "description": "Internal property. The caterpillar logger instances bound to DocPad",
             "access": "private",
             "tagname": "",
@@ -468,7 +2446,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 392,
+            "line": 407,
             "description": "Get the caterpillar logger instance bound to DocPad",
             "itemtype": "method",
             "name": "getLogger",
@@ -480,7 +2458,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 399,
+            "line": 414,
             "description": "Get all the caterpillar logger instances bound to DocPad",
             "itemtype": "method",
             "name": "getLoggers",
@@ -492,7 +2470,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 406,
+            "line": 421,
             "description": "Sets the caterpillar logger instances bound to DocPad",
             "itemtype": "method",
             "name": "setLoggers",
@@ -511,7 +2489,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 421,
+            "line": 436,
             "description": "Destructor. Destroy the caterpillar logger instances bound to DocPad",
             "access": "private",
             "tagname": "",
@@ -522,7 +2500,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 432,
+            "line": 447,
             "description": "The action runner instance bound to docpad",
             "access": "private",
             "tagname": "",
@@ -533,7 +2511,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 439,
+            "line": 454,
             "description": "Get the action runner instance bound to docpad",
             "itemtype": "method",
             "name": "getActionRunner",
@@ -545,7 +2523,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 446,
+            "line": 461,
             "description": "Apply the passed DocPad action arguments",
             "itemtype": "method",
             "name": "action",
@@ -565,7 +2543,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 455,
+            "line": 470,
             "description": "The error runner instance bound to DocPad",
             "itemtype": "property",
             "name": "errorRunnerInstance",
@@ -574,7 +2552,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 461,
+            "line": 476,
             "description": "Get the error runner instance",
             "itemtype": "method",
             "name": "getErrorRunner",
@@ -587,7 +2565,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 468,
+            "line": 483,
             "description": "The track runner instance bound to DocPad",
             "access": "private",
             "tagname": "",
@@ -598,7 +2576,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 475,
+            "line": 490,
             "description": "Get the track runner instance",
             "itemtype": "method",
             "name": "getTrackRunner",
@@ -610,7 +2588,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 483,
+            "line": 498,
             "description": "Event Listing. String array of event names.\nWhenever an event is created, it must be applied here to be available to plugins and configuration files\nhttps://github.com/bevry/docpad/wiki/Events",
             "access": "private",
             "tagname": "",
@@ -621,7 +2599,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 518,
+            "line": 533,
             "description": "Get the list of available events",
             "itemtype": "method",
             "name": "getEvents",
@@ -633,7 +2611,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 532,
+            "line": 547,
             "description": "QueryEngine collection",
             "access": "private",
             "tagname": "",
@@ -644,16 +2622,18 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 539,
-            "description": "Description for databaseTempCache",
+            "line": 554,
+            "description": "A FilesCollection of models updated\nfrom the DocPad database after each regeneration.",
+            "access": "private",
+            "tagname": "",
             "itemtype": "property",
-            "name": "databaseTempCache",
+            "name": "databaseTempCache FileCollection of models",
             "type": "Object",
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 545,
+            "line": 562,
             "description": "Description for getDatabase",
             "itemtype": "method",
             "name": "getDatabase",
@@ -662,7 +2642,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 551,
+            "line": 568,
             "description": "Safe method for retrieving the database by\neither returning the database itself or the temporary\ndatabase cache",
             "itemtype": "method",
             "name": "getDatabaseSafe",
@@ -674,7 +2654,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 560,
+            "line": 577,
             "description": "Destructor. Destroy the DocPad database",
             "access": "private",
             "tagname": "",
@@ -684,7 +2664,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 574,
+            "line": 591,
             "description": "Files by url. Used to speed up fetching",
             "access": "private",
             "tagname": "",
@@ -695,7 +2675,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 581,
+            "line": 598,
             "description": "Files by Selector. Used to speed up fetching",
             "access": "private",
             "tagname": "",
@@ -706,7 +2686,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 588,
+            "line": 605,
             "description": "Files by Out Path. Used to speed up conflict detection. Do not use for anything else",
             "access": "private",
             "tagname": "",
@@ -717,7 +2697,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 595,
+            "line": 612,
             "description": "Blocks",
             "access": "private",
             "tagname": "",
@@ -728,7 +2708,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 612,
+            "line": 629,
             "description": "Get a block by block name. Optionally clone block.",
             "itemtype": "method",
             "name": "getBlock",
@@ -753,7 +2733,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 626,
+            "line": 643,
             "description": "Set a block by name and value",
             "itemtype": "method",
             "name": "setBlock",
@@ -773,7 +2753,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 643,
+            "line": 660,
             "description": "Get all blocks",
             "itemtype": "method",
             "name": "getBlocks",
@@ -785,7 +2765,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 650,
+            "line": 667,
             "description": "Set all blocks",
             "itemtype": "method",
             "name": "setBlocks",
@@ -800,7 +2780,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 660,
+            "line": 677,
             "description": "Apply the passed function to each block",
             "itemtype": "method",
             "name": "eachBlock",
@@ -815,7 +2795,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 669,
+            "line": 686,
             "description": "Destructor. Destroy all blocks",
             "access": "private",
             "tagname": "",
@@ -825,7 +2805,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 681,
+            "line": 698,
             "description": "The DocPad collections",
             "access": "private",
             "tagname": "",
@@ -836,8 +2816,9 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 688,
-            "description": "Get a collection by collection name or key",
+            "line": 705,
+            "description": "Get a collection by collection name or key.\nThis is often accessed within the docpad.coffee\nfile or a layout/page via @getCollection.\nBecause getCollection returns a docpad collection,\na call to this method is often chained with a\nQueryEngine style query.",
+            "getcollection": "('documents').findAllLive({relativeOutDirPath: 'posts'},[{date:-1}])",
             "itemtype": "method",
             "name": "getCollection",
             "params": [
@@ -855,7 +2836,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 712,
+            "line": 737,
             "description": "Destroy a collection by collection name or key",
             "itemtype": "method",
             "name": "destroyCollection",
@@ -874,7 +2855,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 738,
+            "line": 763,
             "description": "Add a collection",
             "itemtype": "method",
             "name": "addCollection",
@@ -889,21 +2870,19 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 748,
-            "description": "Set a name for a collection\nA collection can have multiple names",
-            "access": "private",
-            "tagname": "",
+            "line": 773,
+            "description": "Set a name for a collection.\nA collection can have multiple names\n\nThe partials plugin (https://github.com/docpad/docpad-plugin-partials)\ncreates a live collection and passes this to setCollection with\nthe name 'partials'.\n\n\t# Add our partials collection\n\tdocpad.setCollection('partials', database.createLiveChildCollection()\n\t\t.setQuery('isPartial', {\n\t\t\t\t$or:\n\t\t\t\t\tisPartial: true\n\t\t\t\t\tfullPath: $startsWith: config.partialsPath\n\t\t})\n\t\t.on('add', (model) ->\n\t\t\tdocpad.log('debug', util.format(locale.addingPartial, model.getFilePath()))\n\t\t\tmodel.setDefaults(\n\t\t\t\tisPartial: true\n\t\t\t\trender: false\n\t\t\t\twrite: false\n\t\t\t)\n\t\t)\n\t)",
             "itemtype": "method",
             "name": "setCollection",
             "params": [
                 {
                     "name": "name",
-                    "description": "",
+                    "description": "the name to give to the collection",
                     "type": "String"
                 },
                 {
                     "name": "collection",
-                    "description": "",
+                    "description": "a DocPad collection",
                     "type": "Object"
                 }
             ],
@@ -911,7 +2890,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 766,
+            "line": 813,
             "description": "Get the DocPad project's collections",
             "itemtype": "method",
             "name": "getCollections",
@@ -923,7 +2902,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 774,
+            "line": 821,
             "description": "Set the DocPad project's collections",
             "itemtype": "method",
             "name": "setCollections",
@@ -931,7 +2910,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 787,
+            "line": 834,
             "description": "Apply the passed function to each collection",
             "itemtype": "method",
             "name": "eachCollection",
@@ -946,7 +2925,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 798,
+            "line": 845,
             "description": "Destructor. Destroy the DocPad project's collections.",
             "access": "private",
             "tagname": "",
@@ -956,7 +2935,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 814,
+            "line": 861,
             "description": "Get all the files in the DocPad database (will use live collections)",
             "itemtype": "method",
             "name": "getFiles",
@@ -985,7 +2964,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 832,
+            "line": 879,
             "description": "Get a single file based on a query",
             "itemtype": "method",
             "name": "getFile",
@@ -1014,7 +2993,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 844,
+            "line": 891,
             "description": "Get files at a path",
             "itemtype": "method",
             "name": "getFilesAtPath",
@@ -1043,7 +3022,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 857,
+            "line": 904,
             "description": "Get a file at a relative or absolute path or url",
             "itemtype": "method",
             "name": "getFileAtPath",
@@ -1072,7 +3051,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 871,
+            "line": 918,
             "description": "Get a file by its url",
             "itemtype": "method",
             "name": "getFileByUrl",
@@ -1098,7 +3077,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 884,
+            "line": 931,
             "description": "Get a file by its id",
             "itemtype": "method",
             "name": "getFileById",
@@ -1124,7 +3103,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 897,
+            "line": 944,
             "description": "Remove the query string from a url\nPathname convention taken from document.location.pathname",
             "itemtype": "method",
             "name": "getUrlPathname",
@@ -1143,8 +3122,8 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 909,
-            "description": "Get a file by its route",
+            "line": 954,
+            "description": "Get a file by its route and return\nit to the supplied callback.",
             "itemtype": "method",
             "name": "getFileByRoute",
             "params": [
@@ -1156,14 +3135,26 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Object"
+                    "type": "Object",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        },
+                        {
+                            "name": "file",
+                            "description": "",
+                            "type": "String"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 948,
+            "line": 996,
             "description": "Get a file by its selector",
             "itemtype": "method",
             "name": "getFileBySelector",
@@ -1189,7 +3180,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 969,
+            "line": 1017,
             "description": "Skeletons Collection",
             "access": "private",
             "tagname": "",
@@ -1200,15 +3191,27 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 976,
-            "description": "Get Skeletons\nGet all the available skeletons for us and their details\nnext(err,skeletonsCollection)",
+            "line": 1024,
+            "description": "Get Skeletons\nGet all the available skeletons with their details and\nreturn this collection to the supplied callback.",
             "itemtype": "method",
             "name": "getSkeletons",
             "params": [
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        },
+                        {
+                            "name": "skeletonsCollection",
+                            "description": "DocPad collection of skeletons",
+                            "type": "Object"
+                        }
+                    ]
                 }
             ],
             "return": {
@@ -1219,7 +3222,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1029,
+            "line": 1079,
             "description": "Plugins that are loading really slow",
             "itemtype": "property",
             "name": "slowPlugins",
@@ -1228,7 +3231,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1035,
+            "line": 1085,
             "description": "Loaded plugins indexed by name",
             "itemtype": "property",
             "name": "loadedPlugins",
@@ -1237,7 +3240,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1041,
+            "line": 1091,
             "description": "A listing of all the available extensions for DocPad",
             "itemtype": "property",
             "name": "exchange",
@@ -1246,7 +3249,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1050,
+            "line": 1100,
             "description": "The DocPad directory",
             "itemtype": "property",
             "name": "corePath",
@@ -1255,7 +3258,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1056,
+            "line": 1106,
             "description": "The DocPad library directory",
             "access": "private",
             "tagname": "",
@@ -1266,7 +3269,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1063,
+            "line": 1113,
             "description": "The main DocPad file",
             "itemtype": "property",
             "name": "mainPath",
@@ -1275,7 +3278,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1069,
+            "line": 1119,
             "description": "The DocPad package.json path",
             "itemtype": "property",
             "name": "packagePath",
@@ -1284,7 +3287,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1075,
+            "line": 1125,
             "description": "The DocPad locale path",
             "itemtype": "property",
             "name": "localePath",
@@ -1293,7 +3296,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1081,
+            "line": 1131,
             "description": "The DocPad debug log path (docpad-debug.log)",
             "itemtype": "property",
             "name": "debugLogPath",
@@ -1302,7 +3305,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1087,
+            "line": 1137,
             "description": "The User's configuration path (.docpad.cson)",
             "itemtype": "property",
             "name": "userConfigPath",
@@ -1311,7 +3314,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1097,
+            "line": 1147,
             "description": "Description for initialTemplateData",
             "access": "private",
             "tagname": "",
@@ -1322,7 +3325,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1104,
+            "line": 1154,
             "description": "Plugin's Extended Template Data",
             "access": "private",
             "tagname": "",
@@ -1333,7 +3336,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1111,
+            "line": 1161,
             "description": "Get Complete Template Data",
             "itemtype": "method",
             "name": "getTemplateData",
@@ -1352,7 +3355,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1228,
+            "line": 1278,
             "description": "Determined locale",
             "access": "private",
             "tagname": "",
@@ -1363,7 +3366,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1236,
+            "line": 1286,
             "description": "Get the locale (language code and locale code)",
             "itemtype": "method",
             "name": "getLocale",
@@ -1375,7 +3378,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1256,
+            "line": 1306,
             "description": "Load the locale",
             "itemtype": "method",
             "name": "loadLocale",
@@ -1394,7 +3397,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1285,
+            "line": 1335,
             "description": "Get the DocPad environment, eg: development,\nproduction or static",
             "itemtype": "method",
             "name": "getEnvironment",
@@ -1406,7 +3409,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1295,
+            "line": 1345,
             "description": "Get the environments",
             "itemtype": "method",
             "name": "getEnvironments",
@@ -1418,7 +3421,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1309,
+            "line": 1359,
             "description": "Hash Key\nThe key that we use to hash some data before sending it to our statistic server",
             "access": "private",
             "tagname": "",
@@ -1429,7 +3432,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1317,
+            "line": 1367,
             "description": "Website Package Configuration",
             "access": "private",
             "tagname": "",
@@ -1440,7 +3443,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1324,
+            "line": 1374,
             "description": "Merged Configuration\nMerged in the order of:\n- initialConfig\n- userConfig\n- websiteConfig\n- instanceConfig\n- environmentConfig\nUse getConfig to retrieve this value",
             "access": "private",
             "tagname": "",
@@ -1451,7 +3454,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1339,
+            "line": 1389,
             "description": "Instance Configuration",
             "access": "private",
             "tagname": "",
@@ -1462,7 +3465,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1347,
+            "line": 1397,
             "description": "Website Configuration\nMerged into the config property",
             "access": "private",
             "tagname": "",
@@ -1473,7 +3476,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1355,
+            "line": 1405,
             "description": "User Configuraiton\nMerged into the config property",
             "access": "private",
             "tagname": "",
@@ -1484,7 +3487,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1384,
+            "line": 1434,
             "description": "Initial Configuration. The default docpadConfig\nsettings that can be overridden in a project's docpad.coffee file.\nMerged into the config property",
             "access": "private",
             "tagname": "",
@@ -1495,7 +3498,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1678,
+            "line": 1728,
             "description": "Regenerate Timer\nWhen config.regenerateEvery is set to a value, we create a timer here",
             "access": "private",
             "tagname": "",
@@ -1506,8 +3509,8 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1686,
-            "description": "Get the Configuration",
+            "line": 1736,
+            "description": "Get the DocPad configuration. Commonly\ncalled within the docpad.coffee file or within\nplugins to access application specific configurations.\n\tserverExtend: (opts) ->\nExtract the server from the options\n\t\t\t{server} = opts\n\t\t\tdocpad = @docpad\n\nAs we are now running in an event,\nensure we are using the latest copy of the docpad configuraiton\nand fetch our urls from it\n\t\t\tlatestConfig = docpad.getConfig()\n\t\t\toldUrls = latestConfig.templateData.site.oldUrls or []\n\t\t\tnewUrl = latestConfig.templateData.site.url\n\nRedirect any requests accessing one of our sites oldUrls to the new site url\n\t\t\tserver.use (req,res,next) ->\n\t\t\t\t...",
             "itemtype": "method",
             "name": "getConfig",
             "return": {
@@ -1518,7 +3521,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1694,
+            "line": 1761,
             "description": "Get the port that DocPad is listening on (eg 9778)",
             "itemtype": "method",
             "name": "getPort",
@@ -1530,7 +3533,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1702,
+            "line": 1769,
             "description": "Get the Hostname",
             "itemtype": "method",
             "name": "getHostname",
@@ -1542,7 +3545,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1710,
+            "line": 1777,
             "description": "Get address",
             "itemtype": "method",
             "name": "getServerUrl",
@@ -1563,7 +3566,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1725,
+            "line": 1792,
             "description": "Get simple server URL (changes 0.0.0.0, ::, and ::1 to 127.0.0.1)",
             "itemtype": "method",
             "name": "getSimpleServerUrl",
@@ -1573,7 +3576,16 @@
                     "description": "",
                     "type": "Object",
                     "optional": true,
-                    "optdefault": "{}"
+                    "optdefault": "{}",
+                    "props": [
+                        {
+                            "name": "simple",
+                            "description": "",
+                            "type": "Boolean",
+                            "optional": true,
+                            "optdefault": "true"
+                        }
+                    ]
                 }
             ],
             "return": {
@@ -1584,7 +3596,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1739,
+            "line": 1807,
             "description": "Constructor method. Sets up the DocPad instance.\nnext(err)",
             "itemtype": "method",
             "name": "constructor",
@@ -1596,15 +3608,22 @@
                 },
                 {
                     "name": "next",
-                    "description": "",
-                    "type": "Function"
+                    "description": "callback",
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1984,
+            "line": 2053,
             "description": "Destructor. Destroy the DocPad instance\nThis is an action, and should be called as such\nE.g. docpad.action('destroy', next)",
             "itemtype": "method",
             "name": "destroy",
@@ -1617,14 +3636,21 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2041,
+            "line": 2111,
             "description": "Emit event, serial",
             "access": "private",
             "tagname": "",
@@ -1644,14 +3670,21 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2072,
+            "line": 2143,
             "description": "Emit event, parallel",
             "access": "private",
             "tagname": "",
@@ -1671,14 +3704,21 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2107,
+            "line": 2179,
             "description": "Get the ignore options for the DocPad project",
             "itemtype": "method",
             "name": "getIgnoreOpts",
@@ -1690,7 +3730,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2115,
+            "line": 2187,
             "description": "Is the supplied path ignored?",
             "itemtype": "method",
             "name": "isIgnoredPath",
@@ -1716,7 +3756,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2126,
+            "line": 2198,
             "description": "Scan directory",
             "itemtype": "method",
             "name": "scandir",
@@ -1733,8 +3773,8 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2138,
-            "description": "Watch Directory",
+            "line": 2210,
+            "description": "Watch Directory. Wrapper around the Bevry watchr\nmodule (https://github.com/bevry/watchr). Used\ninternally by DocPad to watch project documents\nand files and then activate the regeneration process\nwhen any of those items are updated.\n\nAlthough it is possible to pass a range of options to watchdir\nin practice these options are provided as part of\nthe DocPad config object with a number of default options\nspecified in the DocPad config.",
             "itemtype": "method",
             "name": "watchdir",
             "params": [
@@ -1743,7 +3783,101 @@
                     "description": "",
                     "type": "Object",
                     "optional": true,
-                    "optdefault": "{}"
+                    "optdefault": "{}",
+                    "props": [
+                        {
+                            "name": "path",
+                            "description": "a single path to watch.",
+                            "type": "String",
+                            "optional": true
+                        },
+                        {
+                            "name": "paths",
+                            "description": "an array of paths to watch.",
+                            "type": "Array",
+                            "optional": true
+                        },
+                        {
+                            "name": "listener",
+                            "description": "a single change listener to fire when a change occurs.",
+                            "type": "Function",
+                            "optional": true
+                        },
+                        {
+                            "name": "listeners",
+                            "description": "an array of listeners.",
+                            "type": "Array",
+                            "optional": true
+                        },
+                        {
+                            "name": "next",
+                            "description": "callback.",
+                            "type": "Function",
+                            "optional": true
+                        },
+                        {
+                            "name": "stat",
+                            "description": "a file stat object to use for the path, instead of fetching a new one.",
+                            "type": "Object",
+                            "optional": true
+                        },
+                        {
+                            "name": "interval",
+                            "description": "for systems that poll to detect file changes, how often should it poll in millseconds.",
+                            "type": "Number",
+                            "optional": true,
+                            "optdefault": "5007"
+                        },
+                        {
+                            "name": "catupDelay",
+                            "description": "handles system swap file deletions and renaming",
+                            "type": "Number",
+                            "optional": true,
+                            "optdefault": "200"
+                        },
+                        {
+                            "name": "preferredMethods",
+                            "description": "which order should we prefer our watching methods to be tried?.",
+                            "type": "Array",
+                            "optional": true,
+                            "optdefault": "['watch','watchFile'"
+                        },
+                        {
+                            "name": "followLinks",
+                            "description": "follow symlinks, i.e. use stat rather than lstat.",
+                            "type": "Boolean",
+                            "optional": true,
+                            "optdefault": "true"
+                        },
+                        {
+                            "name": "ignorePaths",
+                            "description": "an array of full paths to ignore.",
+                            "type": "Boolean|Array",
+                            "optional": true,
+                            "optdefault": "false"
+                        },
+                        {
+                            "name": "ignoreHiddenFiles",
+                            "description": "whether or not to ignored files which filename starts with a \".\".",
+                            "type": "Boolean|Array",
+                            "optional": true,
+                            "optdefault": "false"
+                        },
+                        {
+                            "name": "ignoreCommonPatterns",
+                            "description": "whether or not to ignore common undesirable file patterns (e.g. .svn, .git, .DS_Store, thumbs.db, etc).",
+                            "type": "Boolean",
+                            "optional": true,
+                            "optdefault": "true"
+                        },
+                        {
+                            "name": "ignoreCustomPatterns",
+                            "description": "any custom ignore patterns that you would also like to ignore along with the common patterns.",
+                            "type": "Boolean|Array",
+                            "optional": true,
+                            "optdefault": "null"
+                        }
+                    ]
                 }
             ],
             "return": {
@@ -1754,7 +3888,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2152,
+            "line": 2247,
             "description": "DocPad is ready. Peforms the tasks needed after DocPad construction\nand DocPad has loaded. Triggers the docpadReady event.\nnext(err,docpadInstance)",
             "access": "private",
             "tagname": "",
@@ -1764,19 +3898,32 @@
                 {
                     "name": "opts",
                     "description": "",
-                    "type": "Object"
+                    "type": "Object",
+                    "optional": true
                 },
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        },
+                        {
+                            "name": "docpadInstance",
+                            "description": "",
+                            "type": "Object"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2215,
+            "line": 2312,
             "description": "Performs the merging of the passed configuration objects",
             "access": "private",
             "tagname": "",
@@ -1798,7 +3945,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2240,
+            "line": 2337,
             "description": "Set the instance configuration\nby merging the properties of the passed object\nwith the existing DocPad instanceConfig object",
             "access": "private",
             "tagname": "",
@@ -1815,7 +3962,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2257,
+            "line": 2354,
             "description": "Set the DocPad configuration object.\nPerforms a number of tasks, including\nmerging the pass instanceConfig with DocPad's\nother config objects.\nnext(err,config)",
             "access": "private",
             "tagname": "",
@@ -1830,14 +3977,26 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Object"
+                    "type": "Object",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        },
+                        {
+                            "name": "config",
+                            "description": "",
+                            "type": "Object"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2356,
+            "line": 2455,
             "description": "Load the various configuration files from the\nfile system. Set the instanceConfig.\nnext(err,config)",
             "access": "private",
             "tagname": "",
@@ -1852,14 +4011,26 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        },
+                        {
+                            "name": "config",
+                            "description": "",
+                            "type": "Object"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2488,
+            "line": 2589,
             "description": "Update user configuration with the passed data",
             "itemtype": "method",
             "name": "updateUserConfig",
@@ -1874,15 +4045,22 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2519,
-            "description": "Load a configuration url\nnext(err,parsedData)",
+            "line": 2621,
+            "description": "Load a configuration url.",
             "itemtype": "method",
             "name": "loadConfigUrl",
             "params": [
@@ -1894,15 +4072,27 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        },
+                        {
+                            "name": "parsedData",
+                            "description": "",
+                            "type": "Object"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2549,
-            "description": "Load the configuration from a file path\npassed as one of the options (opts.configPath) or\nfrom DocPad's configPaths\nnext(err,parsedData)",
+            "line": 2652,
+            "description": "Load the configuration from a file path\npassed as one of the options (opts.configPath) or\nfrom DocPad's configPaths",
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -1916,15 +4106,27 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        },
+                        {
+                            "name": "parsedData",
+                            "description": "",
+                            "type": "Object"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2613,
-            "description": "Get config paths and check that those\npaths exist\nnext(err,path)",
+            "line": 2717,
+            "description": "Get config paths and check that those\npaths exist",
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -1938,15 +4140,27 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Object"
+                    "type": "Object",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        },
+                        {
+                            "name": "path",
+                            "description": "",
+                            "type": "String"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2655,
-            "description": "Extend collecitons. Create DocPad's\nstandard (documents, files\nlayouts) and special (generate, referencesOthers,\nhasLayout, html, stylesheet) collections. Set blocks\nnext(err)",
+            "line": 2760,
+            "description": "Extend collecitons. Create DocPad's\nstandard (documents, files\nlayouts) and special (generate, referencesOthers,\nhasLayout, html, stylesheet) collections. Set blocks",
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -1955,15 +4169,22 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2799,
-            "description": "Reset collections. Perform a complete clean of our collections\nnext(err)",
+            "line": 2904,
+            "description": "Reset collections. Perform a complete clean of our collections",
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -1977,15 +4198,22 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2837,
-            "description": "Initialise git repo\nnext(err,results)",
+            "line": 2942,
+            "description": "Initialise git repo",
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -1999,15 +4227,27 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        },
+                        {
+                            "name": "results",
+                            "description": "",
+                            "type": "Object"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2861,
-            "description": "Init node modules\nnext(err,results)",
+            "line": 2967,
+            "description": "Init node modules",
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -2021,15 +4261,27 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        },
+                        {
+                            "name": "results",
+                            "description": "",
+                            "type": "Object"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2893,
-            "description": "Fix node package versions\nCombat to https://github.com/npm/npm/issues/4587#issuecomment-35370453\nnext(err)",
+            "line": 3000,
+            "description": "Fix node package versions\nCombat to https://github.com/npm/npm/issues/4587#issuecomment-35370453",
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -2039,14 +4291,26 @@
                     "name": "opts",
                     "description": "",
                     "type": "Object"
+                },
+                {
+                    "name": "next",
+                    "description": "",
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2921,
-            "description": "Install node module. Same as running\n'npm install' through the command line\nnext(err,result)",
+            "line": 3029,
+            "description": "Install node module. Same as running\n'npm install' through the command line",
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -2061,14 +4325,31 @@
                     "name": "opts",
                     "description": "",
                     "type": "Object"
+                },
+                {
+                    "name": "next",
+                    "description": "",
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        },
+                        {
+                            "name": "result",
+                            "description": "",
+                            "type": "Object"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2982,
-            "description": "Uninstall node module. Same as running\n'npm uninstall' through the command line\nnext(err,result)",
+            "line": 3092,
+            "description": "Uninstall node module. Same as running\n'npm uninstall' through the command line",
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -2083,13 +4364,30 @@
                     "name": "opts",
                     "description": "",
                     "type": "Object"
+                },
+                {
+                    "name": "next",
+                    "description": "",
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        },
+                        {
+                            "name": "result",
+                            "description": "",
+                            "type": "Object"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3036,
+            "line": 3148,
             "description": "Set the log level",
             "access": "private",
             "tagname": "",
@@ -2106,7 +4404,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3056,
+            "line": 3168,
             "description": "Get the log level",
             "itemtype": "method",
             "name": "getLogLevel",
@@ -2118,7 +4416,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3064,
+            "line": 3176,
             "description": "Are we debugging?",
             "itemtype": "method",
             "name": "getDebugging",
@@ -2130,7 +4428,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3073,
+            "line": 3185,
             "description": "Handle a fatal error",
             "access": "private",
             "tagname": "",
@@ -2147,7 +4445,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3100,
+            "line": 3212,
             "description": "Inspect. Converts object to JSON string. Wrapper around nodes util.inspect method.\nCan't use the inspect namespace as for some silly reason it destroys everything",
             "itemtype": "method",
             "name": "inspector",
@@ -2171,7 +4469,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3113,
+            "line": 3225,
             "description": "Log arguments",
             "itemtype": "property",
             "name": "log",
@@ -2187,7 +4485,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3127,
+            "line": 3239,
             "description": "Create an error object",
             "itemtype": "method",
             "name": "createError",
@@ -2211,7 +4509,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3161,
+            "line": 3273,
             "description": "Create an error (tracks it) and log it",
             "itemtype": "method",
             "name": "error",
@@ -2233,7 +4531,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3186,
+            "line": 3298,
             "description": "Log an error",
             "itemtype": "method",
             "name": "logError",
@@ -2248,7 +4546,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3217,
+            "line": 3329,
             "description": "Track an error in the background",
             "access": "private",
             "tagname": "",
@@ -2265,7 +4563,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3241,
+            "line": 3353,
             "description": "Notify error",
             "access": "private",
             "tagname": "",
@@ -2282,7 +4580,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3265,
+            "line": 3377,
             "description": "Log an error of level 'warn'",
             "itemtype": "method",
             "name": "warn",
@@ -2306,7 +4604,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3291,
+            "line": 3403,
             "description": "Send a notify event to plugins (like growl)",
             "itemtype": "method",
             "name": "notify",
@@ -2328,7 +4626,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3309,
+            "line": 3421,
             "description": "Check Request",
             "access": "private",
             "tagname": "",
@@ -2338,15 +4636,27 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        },
+                        {
+                            "name": "res",
+                            "description": "",
+                            "type": "Object"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3330,
-            "description": "Subscribe to the DocPad email list.\nnext(err)",
+            "line": 3444,
+            "description": "Subscribe to the DocPad email list.",
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -2355,15 +4665,22 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3369,
-            "description": "Track\nnext(err)",
+            "line": 3483,
+            "description": "Track",
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -2384,15 +4701,22 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3426,
-            "description": "Identify DocPad user\nnext(err)",
+            "line": 3540,
+            "description": "Identify DocPad user",
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -2401,15 +4725,22 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3504,
-            "description": "Create file model",
+            "line": 3618,
+            "description": "Create file model. Calls\n{{#crossLink \"DocPad/createModel:method\"}}{{/crossLink}}\nwith the 'file' modelType.",
             "itemtype": "method",
             "name": "createFile",
             "params": [
@@ -2436,8 +4767,8 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3515,
-            "description": "Create document model",
+            "line": 3631,
+            "description": "Create document model. Calls\n{{#crossLink \"DocPad/createModel:method\"}}{{/crossLink}}\nwith the 'document' modelType.",
             "itemtype": "method",
             "name": "createDocument",
             "params": [
@@ -2464,8 +4795,8 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3527,
-            "description": "Parse the files directory",
+            "line": 3645,
+            "description": "Parse the files directory and\nreturn a files collection to\nthe passed callback",
             "itemtype": "method",
             "name": "parseFileDirectory",
             "params": [
@@ -2478,20 +4809,28 @@
                 },
                 {
                     "name": "next",
-                    "description": "",
-                    "type": "Function"
+                    "description": "callback",
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        },
+                        {
+                            "name": "files",
+                            "description": "files collection",
+                            "type": "Object"
+                        }
+                    ]
                 }
             ],
-            "return": {
-                "description": "FilesCollection",
-                "type": "Object"
-            },
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3539,
-            "description": "Parse the documents directory",
+            "line": 3660,
+            "description": "Parse the documents directory and\nreturn a documents collection to\nthe passed callback.\n\nThe partials plugin (https://github.com/docpad/docpad-plugin-partials)\nuses this method to load a collection of\nfiles from the partials directory.\n\n\tdocpad.parseDocumentDirectory({path: config.partialsPath}, next)",
             "itemtype": "method",
             "name": "parseDocumentDirectory",
             "params": [
@@ -2500,24 +4839,54 @@
                     "description": "",
                     "type": "Object",
                     "optional": true,
-                    "optdefault": "{}"
+                    "optdefault": "{}",
+                    "props": [
+                        {
+                            "name": "modelType",
+                            "description": "",
+                            "type": "String",
+                            "optional": true,
+                            "optdefault": "'document'"
+                        },
+                        {
+                            "name": "collection",
+                            "description": "",
+                            "type": "Object",
+                            "optional": true,
+                            "optdefault": "docpad.database"
+                        },
+                        {
+                            "name": "path",
+                            "description": "",
+                            "type": "Object",
+                            "optional": true
+                        }
+                    ]
                 },
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        },
+                        {
+                            "name": "files",
+                            "description": "files collection of documents",
+                            "type": "Object"
+                        }
+                    ]
                 }
             ],
-            "return": {
-                "description": "FilesCollection of documents",
-                "type": "Object"
-            },
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3556,
-            "description": "Attach events to document models",
+            "line": 3690,
+            "description": "Attach events to a document model.",
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -2533,14 +4902,14 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3615,
-            "description": "Add supplied model to the DocPad database",
+            "line": 3749,
+            "description": "Add supplied model to the DocPad database. If the passed\nmodel definition is a plain object of properties, a new\nmodel will be created prior to adding to the database.\nCalls {{#crossLink \"DocPad/createModel:method\"}}{{/crossLink}}\nbefore adding the model to the database.\n\n\t# Override the stat's mtime to now\n\t# This is because renames will not update the mtime\n\tfileCurrentStat?.mtime = new Date()\n\n\t# Create the file object\n\tfile = docpad.addModel({fullPath:filePath, stat:fileCurrentStat})",
             "itemtype": "method",
             "name": "addModel",
             "params": [
                 {
                     "name": "model",
-                    "description": "",
+                    "description": "either a plain object defining the required properties, in particular\nthe file path or an actual model object",
                     "type": "Object"
                 },
                 {
@@ -2557,14 +4926,14 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3627,
-            "description": "Add the supplied collection of models to the DocPad database",
+            "line": 3774,
+            "description": "Add the supplied collection of models to the DocPad database.\nCalls {{#crossLink \"DocPad/createModels:method\"}}{{/crossLink}}\nbefore adding the models to the database.\n\n\tdatabaseData = JSON.parse data.toString()\n\tmodels = docpad.addModels(databaseData.models)",
             "itemtype": "method",
             "name": "addModels",
             "params": [
                 {
                     "name": "models",
-                    "description": "",
+                    "description": "DocPad collection of models",
                     "type": "Object"
                 },
                 {
@@ -2581,8 +4950,8 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3639,
-            "description": "Create a collection of models from the supplied collection\nensuring that the collection is suitable for adding to the\nDocPad database",
+            "line": 3792,
+            "description": "Create a collection of models from the supplied collection\nensuring that the collection is suitable for adding to the\nDocPad database. The method calls {{#crossLink \"DocPad/createModel\"}}{{/crossLink}}\nfor each model in the models array.",
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -2590,7 +4959,7 @@
             "params": [
                 {
                     "name": "models",
-                    "description": "",
+                    "description": "DocPad collection of models",
                     "type": "Object"
                 },
                 {
@@ -2607,8 +4976,9 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3654,
-            "description": "Creates either a file or document model.\nEnsures a duplicate model is not created\nand all required attributes are present and\nevents attached",
+            "line": 3808,
+            "description": "Creates either a file or document model.\nThe model type to be created can be passed\nas an opts property, if not, the method will\nattempt to determing the model type by checking\nif the file is in one of the documents or\nlayout paths.\n\nEnsures a duplicate model is not created\nand all required attributes are present and\nevents attached.\n\nGenerally it is not necessary for an application\nto manually create a model via creatModel as DocPad\nwill handle this process when watching a project's\nfile and document directories. However, it is possible\nthat a plugin might have a requirement to do so.\n\n\tmodel = @docpad.createModel({fullPath:fullPath})\n  model.load()",
+            "docpad": ".getDatabase().add(model)",
             "itemtype": "method",
             "name": "createModel",
             "params": [
@@ -2617,14 +4987,28 @@
                     "description": "",
                     "type": "Object",
                     "optional": true,
-                    "optdefault": "{}"
+                    "optdefault": "{}",
+                    "props": [
+                        {
+                            "name": "fullPath",
+                            "description": "the full path to the file",
+                            "type": "String"
+                        }
+                    ]
                 },
                 {
                     "name": "opts",
                     "description": "",
                     "type": "Object",
                     "optional": true,
-                    "optdefault": "{}"
+                    "optdefault": "{}",
+                    "props": [
+                        {
+                            "name": "modelType",
+                            "description": "either 'file' or 'document'",
+                            "type": "String"
+                        }
+                    ]
                 }
             ],
             "return": {
@@ -2635,8 +5019,8 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3734,
-            "description": "Parse a directory and return a\nfiles collection\nnext(err, files)",
+            "line": 3907,
+            "description": "Parse a directory and return a\nfiles collection",
             "itemtype": "method",
             "name": "parseDirectory",
             "params": [
@@ -2650,18 +5034,26 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Object"
+                    "type": "Object",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        },
+                        {
+                            "name": "files",
+                            "description": "files collection",
+                            "type": "Object"
+                        }
+                    ]
                 }
             ],
-            "return": {
-                "description": "FilesCollection",
-                "type": "Object"
-            },
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3814,
+            "line": 3987,
             "description": "Get a plugin by it's name",
             "itemtype": "method",
             "name": "getPlugin",
@@ -2680,7 +5072,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3824,
+            "line": 3997,
             "description": "Check if we have any plugins",
             "itemtype": "method",
             "name": "hasPlugins",
@@ -2692,7 +5084,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3832,
+            "line": 4005,
             "description": "Destructor. Destroy plugins",
             "access": "private",
             "tagname": "",
@@ -2702,7 +5094,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3843,
+            "line": 4016,
             "description": "Load plugins from the file system\nnext(err)",
             "access": "private",
             "tagname": "",
@@ -2712,15 +5104,22 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3886,
-            "description": "Checks if a plugin was loaded succesfully",
+            "line": 4060,
+            "description": "Checks if a plugin was loaded succesfully.",
             "itemtype": "method",
             "name": "loadedPlugin",
             "params": [
@@ -2732,14 +5131,26 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        },
+                        {
+                            "name": "loaded",
+                            "description": "",
+                            "type": "Boolean"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3903,
+            "line": 4079,
             "description": "Load a plugin from its full file path\n_next(err)",
             "access": "private",
             "tagname": "",
@@ -2754,7 +5165,14 @@
                 {
                     "name": "_next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "return": {
@@ -2765,8 +5183,8 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3999,
-            "description": "Load plugins from a directory path\nnext(err)",
+            "line": 4176,
+            "description": "Load plugins from a directory path",
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -2780,14 +5198,21 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4054,
+            "line": 4231,
             "description": "Compare current DocPad version to the latest\nand print out the result to the console.\nUsed at startup.",
             "access": "private",
             "tagname": "",
@@ -2797,7 +5222,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4093,
+            "line": 4270,
             "description": "Get DocPad's exchange data\nRequires internet access\nnext(err,exchange)",
             "access": "private",
             "tagname": "",
@@ -2807,15 +5232,27 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        },
+                        {
+                            "name": "exchange",
+                            "description": "docpad.exchange",
+                            "type": "Object"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4139,
-            "description": "Contextualize files.\nContextualizing is the process of adding layouts and\nawareness of other documents to our document. The\ncontextualizeBefore and contextualizeAfter events\nare emitted here.\nnext(err)",
+            "line": 4318,
+            "description": "Contextualize files.\nContextualizing is the process of adding layouts and\nawareness of other documents to our document. The\ncontextualizeBefore and contextualizeAfter events\nare emitted here.",
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -2831,15 +5268,22 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4220,
-            "description": "Render the DocPad project's files.\nThe renderCollectionBefore, renderCollectionAfter,\nrenderBefore, renderAfter events are all emitted here.\nnext(err)",
+            "line": 4399,
+            "description": "Render the DocPad project's files.\nThe renderCollectionBefore, renderCollectionAfter,\nrenderBefore, renderAfter events are all emitted here.",
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -2855,15 +5299,22 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4344,
-            "description": "Write rendered files to the DocPad out directory.\nThe writeBefore and writeAfter events are emitted here.\nnext(err)",
+            "line": 4523,
+            "description": "Write rendered files to the DocPad out directory.\nThe writeBefore and writeAfter events are emitted here.",
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -2879,14 +5330,21 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4440,
+            "line": 4619,
             "description": "Has DocPad's generation process started?",
             "access": "private",
             "tagname": "",
@@ -2897,7 +5355,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4447,
+            "line": 4626,
             "description": "Has DocPad's generation process ended?",
             "access": "private",
             "tagname": "",
@@ -2908,7 +5366,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4454,
+            "line": 4633,
             "description": "Is DocPad currently generating?",
             "access": "private",
             "tagname": "",
@@ -2919,7 +5377,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4461,
+            "line": 4640,
             "description": "Has DocPad done at least one generation?\nTrue once the first generation has occured.",
             "access": "private",
             "tagname": "",
@@ -2930,7 +5388,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4469,
+            "line": 4648,
             "description": "Create the console progress bar.\nProgress only shown if the DocPad config 'progress'\noption is true, the DocPad config 'prompts' option is true\nand the log level is 6 (default)",
             "access": "private",
             "tagname": "",
@@ -2944,7 +5402,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4498,
+            "line": 4677,
             "description": "Destructor. Destroy the progress object",
             "access": "private",
             "tagname": "",
@@ -2965,7 +5423,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4514,
+            "line": 4693,
             "description": "Destructor. Destroy the regeneration timer.",
             "access": "private",
             "tagname": "",
@@ -2975,7 +5433,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4531,
+            "line": 4710,
             "description": "Create the regeneration timer",
             "access": "private",
             "tagname": "",
@@ -2985,8 +5443,8 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4554,
-            "description": "Set off DocPad's generation process.\nThe generated, populateCollectionsBefore, populateCollections, populateCollections\ngenerateBefore and generateAfter events are emitted here\nnext(err)",
+            "line": 4733,
+            "description": "Set off DocPad's generation process.\nThe generated, populateCollectionsBefore, populateCollections, populateCollections\ngenerateBefore and generateAfter events are emitted here",
             "itemtype": "method",
             "name": "generate",
             "params": [
@@ -2998,15 +5456,22 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4938,
-            "description": "Load a document\nnext(err,document)",
+            "line": 5117,
+            "description": "Load a document",
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -3025,15 +5490,27 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        },
+                        {
+                            "name": "document",
+                            "description": "",
+                            "type": "Object"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4958,
-            "description": "Load and render a document\nnext(err,document)",
+            "line": 5138,
+            "description": "Load and render a document",
             "itemtype": "method",
             "name": "loadAndRenderDocument",
             "params": [
@@ -3050,15 +5527,27 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        },
+                        {
+                            "name": "document",
+                            "description": "",
+                            "type": "Object"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4981,
-            "description": "Render a document\nnext(err,result)",
+            "line": 5162,
+            "description": "Render a document",
             "itemtype": "method",
             "name": "renderDocument",
             "params": [
@@ -3075,14 +5564,31 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Object"
+                    "type": "Object",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        },
+                        {
+                            "name": "result",
+                            "description": "",
+                            "type": "Object"
+                        },
+                        {
+                            "name": "document",
+                            "description": "",
+                            "type": "Object"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5001,
+            "line": 5184,
             "description": "Render a document at a file path\nnext(err,result)",
             "itemtype": "method",
             "name": "renderPath",
@@ -3100,14 +5606,26 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        },
+                        {
+                            "name": "result",
+                            "description": "the rendered document",
+                            "type": "Object"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5023,
+            "line": 5208,
             "description": "Render the passed content data as a\ndocument. Required option, filename\n(opts.filename)\nnext(err,result)",
             "itemtype": "method",
             "name": "renderData",
@@ -3125,14 +5643,26 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        },
+                        {
+                            "name": "result",
+                            "description": "the rendered document",
+                            "type": "Object"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5052,
+            "line": 5239,
             "description": "Render the passed text data as a\ndocument. Required option, filename\n(opts.filename)\nnext(err,result)",
             "access": "private",
             "tagname": "",
@@ -3152,14 +5682,31 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        },
+                        {
+                            "name": "result",
+                            "description": "the rendered content",
+                            "type": "Object"
+                        },
+                        {
+                            "name": "document",
+                            "description": "the rendered document model",
+                            "type": "Object"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5085,
+            "line": 5275,
             "description": "Render action\nnext(err,document,result)",
             "itemtype": "method",
             "name": "render",
@@ -3172,14 +5719,21 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5120,
+            "line": 5311,
             "description": "Array of file watchers",
             "access": "private",
             "tagname": "",
@@ -3190,7 +5744,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5127,
+            "line": 5318,
             "description": "Destructor. Destroy the watchers used\nby DocPad",
             "access": "private",
             "tagname": "",
@@ -3200,7 +5754,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5149,
+            "line": 5340,
             "description": "Start up file watchers used by DocPad",
             "access": "private",
             "tagname": "",
@@ -3215,14 +5769,21 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5326,
+            "line": 5518,
             "description": "Run an action",
             "itemtype": "method",
             "name": "run",
@@ -3235,15 +5796,22 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5390,
-            "description": "Initialize the skeleton install process\nnext(err)",
+            "line": 5583,
+            "description": "Initialize the skeleton install process.",
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -3257,15 +5825,22 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5437,
-            "description": "Uninstall a plugin.\nnext(err)",
+            "line": 5630,
+            "description": "Uninstall a plugin.",
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -3279,15 +5854,22 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5476,
-            "description": "Install a plugin\nnext(err)",
+            "line": 5669,
+            "description": "Install a plugin",
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -3301,15 +5883,22 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5527,
-            "description": "Update global NPM and DocPad\nnext(err)",
+            "line": 5720,
+            "description": "Update global NPM and DocPad",
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -3323,7 +5912,14 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Object"
+                    "type": "Object",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "return": {
@@ -3334,8 +5930,8 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5547,
-            "description": "Update the local DocPad and plugin dependencies\nnext(err)",
+            "line": 5740,
+            "description": "Update the local DocPad and plugin dependencies",
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -3349,15 +5945,22 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Object"
+                    "type": "Object",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5610,
-            "description": "DocPad cleanup tasks\nnext(err)",
+            "line": 5803,
+            "description": "DocPad cleanup tasks.",
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -3371,7 +5974,14 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Object"
+                    "type": "Object",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "return": {
@@ -3382,8 +5992,8 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5664,
-            "description": "Initialize a Skeleton into to a Directory\nnext(err)",
+            "line": 5857,
+            "description": "Initialize a Skeleton into to a Directory",
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -3402,14 +6012,21 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5766,
+            "line": 5957,
             "description": "Install a Skeleton into a Directory",
             "access": "private",
             "tagname": "",
@@ -3429,15 +6046,22 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5793,
-            "description": "Use a Skeleton\nnext(err)",
+            "line": 5985,
+            "description": "Use a Skeleton",
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -3456,7 +6080,14 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Object"
+                    "type": "Object",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "return": {
@@ -3467,8 +6098,8 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5837,
-            "description": "Select a Skeleton\nnext(err,skeletonModel)",
+            "line": 6029,
+            "description": "Select a Skeleton",
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -3482,14 +6113,26 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        },
+                        {
+                            "name": "skeletonModel",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5865,
+            "line": 6058,
             "description": "Skeleton Empty?",
             "access": "private",
             "tagname": "",
@@ -3504,14 +6147,21 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5892,
+            "line": 6086,
             "description": "Initialize the project directory\nwith the basic skeleton.",
             "access": "private",
             "tagname": "",
@@ -3526,14 +6176,21 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5922,
+            "line": 6117,
             "description": "Initialize the project directory\nwith the basic skeleton.",
             "access": "private",
             "tagname": "",
@@ -3548,7 +6205,14 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Object"
+                    "type": "Object",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "return": {
@@ -3559,7 +6223,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5951,
+            "line": 6147,
             "description": "Serve a document",
             "access": "private",
             "tagname": "",
@@ -3574,14 +6238,21 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 6043,
+            "line": 6240,
             "description": "Server Middleware: Header",
             "access": "private",
             "tagname": "",
@@ -3608,7 +6279,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 6070,
+            "line": 6267,
             "description": "Server Middleware: Router",
             "access": "private",
             "tagname": "",
@@ -3628,14 +6299,21 @@
                 {
                     "name": "next",
                     "description": "",
-                    "type": "Function"
+                    "type": "Function",
+                    "props": [
+                        {
+                            "name": "err",
+                            "description": "",
+                            "type": "Error"
+                        }
+                    ]
                 }
             ],
             "class": "Docpad"
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 6101,
+            "line": 6299,
             "description": "Server Middleware: 404",
             "access": "private",
             "tagname": "",
@@ -3662,7 +6340,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 6128,
+            "line": 6326,
             "description": "Server Middleware: 500",
             "access": "private",
             "tagname": "",
@@ -3694,7 +6372,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 6152,
+            "line": 6350,
             "description": "Configure and start up the DocPad web server.\nHttp and express server is created, extended with\nmiddleware, started up and begins listening.\nThe events serverBefore, serverExtend and\nserverAfter emitted here.",
             "access": "private",
             "tagname": "",
@@ -4671,5 +7349,26 @@
             "class": "docpadUtil"
         }
     ],
-    "warnings": []
+    "warnings": [
+        {
+            "message": "unknown tag: getcollection",
+            "line": " src/lib/collections/files.coffee:15"
+        },
+        {
+            "message": "unknown tag: docpad",
+            "line": " src/lib/models/document.coffee:26"
+        },
+        {
+            "message": "unknown tag: getcollection",
+            "line": " src/lib/docpad.coffee:705"
+        },
+        {
+            "message": "unknown tag: docpad",
+            "line": " src/lib/docpad.coffee:3808"
+        },
+        {
+            "message": "Missing item type\nConsole Interface",
+            "line": " src/lib/interfaces/console.coffee:21"
+        }
+    ]
 }

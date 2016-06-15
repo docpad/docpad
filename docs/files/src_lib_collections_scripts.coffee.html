@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>QueryCollection</title>
+    <title>src/lib/collections/scripts.coffee</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -92,81 +92,81 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-<h1>QueryCollection Class</h1>
-<div class="box meta">
+<h1 class="file-heading">File: src/lib/collections/scripts.coffee</h1>
 
-        <div class="extends">
-            Extends queryEngine.QueryCollection
-        </div>
+<div class="file">
+    <pre class="code prettyprint linenums">
+# =====================================
+# Requires
 
-        <div class="foundat">
-            Defined in: <a href="../files/src_lib_base.coffee.html#l83"><code>src&#x2F;lib&#x2F;base.coffee:83</code></a>
-        </div>
+# External
+typeChecker = require(&#x27;typechecker&#x27;)
 
-
-</div>
-
-
-<div class="box intro">
-    <p>Base class for the DocPad query collection object
-Extends the bevry QueryEngine object
-<a href="http://github.com/bevry/query-engine">http://github.com/bevry/query-engine</a></p>
-
-</div>
-
-    <div class="constructor">
-        <h2>Constructor</h2>
-<div id="method_QueryCollection" class="method item">
-    <h3 class="name"><code>QueryCollection</code></h3>
-
-        <span class="paren">()</span>
+# Local
+ElementsCollection = require(&#x27;./elements&#x27;)
 
 
+# =====================================
+# Classes
+
+###*
+# Scripts collection class. A DocPad
+# project&#x27;s script file paths
+# @class ScriptCollection
+# @constructor
+# @extends ElementsCollection
+###
+class ScriptsCollection extends ElementsCollection
+
+	###*
+	# Add an element to the collection
+	# Right now we just support strings
+	# @method add
+	# @param {Array} values string array of file paths
+	# @param {Object} opts
+	###
+	add: (values,opts) -&gt;
+		# Prepare
+		opts or= {}
+		opts.defer ?= true
+		opts.async ?= false
+		opts.attrs or= &#x27;&#x27;
+		if typeChecker.isArray(values)
+			values = values.slice()
+		else if values
+			values = [values]
+		else
+			values = []
+
+		# Build attrs
+		opts.attrs += &quot;&quot;&quot;defer=&quot;defer&quot; &quot;&quot;&quot;  if opts.defer
+		opts.attrs += &quot;&quot;&quot;async=&quot;async&quot; &quot;&quot;&quot;  if opts.async
+
+		# Convert urls into script element html
+		for value,key in values
+			if typeChecker.isString(value)
+				if value[0] is &#x27;&lt;&#x27;
+					continue  # we are an element already, don&#x27;t bother doing anything
+				else if value.indexOf(&#x27; &#x27;) is -1
+					# we are a url
+					values[key] = &quot;&quot;&quot;
+						&lt;script #{opts.attrs} src=&quot;#{value}&quot;&gt;&lt;/script&gt;
+						&quot;&quot;&quot;
+				else
+					# we are inline
+					values[key] = &quot;&quot;&quot;
+						&lt;script #{opts.attrs}&gt;#{value}&lt;/script&gt;
+						&quot;&quot;&quot;
+
+		# Call the super with our values
+		super(values, opts)
 
 
+# =====================================
+# Export
+module.exports = ScriptsCollection
 
-
-
-
-    <div class="meta">
-                <p>
-                Defined in
-        <a href="../files/src_lib_base.coffee.html#l83"><code>src&#x2F;lib&#x2F;base.coffee:83</code></a>
-        </p>
-
-
-
-    </div>
-
-    <div class="description">
-        
-    </div>
-
-
-
-
-</div>
-    </div>
-
-<div id="classdocs" class="tabview">
-    <ul class="api-class-tabs">
-        <li class="api-class-tab index"><a href="#index">Index</a></li>
-
-    </ul>
-
-    <div>
-        <div id="index" class="api-class-tabpanel index">
-            <h2 class="off-left">Item Index</h2>
-
-
-
-
-        </div>
-
-
-
-
-    </div>
+    </pre>
 </div>
                     </div>
                 </div>

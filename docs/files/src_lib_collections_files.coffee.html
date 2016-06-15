@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>QueryCollection</title>
+    <title>src/lib/collections/files.coffee</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -92,81 +92,105 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-<h1>QueryCollection Class</h1>
-<div class="box meta">
+<h1 class="file-heading">File: src/lib/collections/files.coffee</h1>
 
-        <div class="extends">
-            Extends queryEngine.QueryCollection
-        </div>
+<div class="file">
+    <pre class="code prettyprint linenums">
+# =====================================
+# Requires
 
-        <div class="foundat">
-            Defined in: <a href="../files/src_lib_base.coffee.html#l83"><code>src&#x2F;lib&#x2F;base.coffee:83</code></a>
-        </div>
+# Standard Library
+pathUtil = require(&#x27;path&#x27;)
 
-
-</div>
-
-
-<div class="box intro">
-    <p>Base class for the DocPad query collection object
-Extends the bevry QueryEngine object
-<a href="http://github.com/bevry/query-engine">http://github.com/bevry/query-engine</a></p>
-
-</div>
-
-    <div class="constructor">
-        <h2>Constructor</h2>
-<div id="method_QueryCollection" class="method item">
-    <h3 class="name"><code>QueryCollection</code></h3>
-
-        <span class="paren">()</span>
+# Local
+{QueryCollection,Model} = require(&#x27;../base&#x27;)
+FileModel = require(&#x27;../models/file&#x27;)
 
 
+# =====================================
+# Classes
+
+###*
+# The DocPad files and documents query collection class
+# Extends the DocPad QueryCollection class
+# https://github.com/docpad/docpad/blob/master/src/lib/base.coffee#L91
+# Used as the query collection class for DocPad files and documents.
+# This differs from standard collections in that it provides backbone.js,
+# noSQL style methods for querying the file system. In DocPad this
+# is the various files that make up a web project. Typically this is the documents,
+# css, script and image files.
+#
+# Most often a developer will use this class to find (and possibly sort) documents,
+# such as blog posts, by some criteria.
+# 	posts: -&gt;
+# 		@getCollection(&#x27;documents&#x27;).findAllLive({relativeOutDirPath: &#x27;posts&#x27;},[{date:-1}])
+# @class FilesCollection
+# @constructor
+# @extends QueryCollection
+###
+class FilesCollection extends QueryCollection
+
+	###*
+	# Base Model for all items in this collection
+	# @private
+	# @property {Object} model
+	###
+	model: FileModel
+
+	###*
+	# Base Collection for all child collections
+	# @private
+	# @property {Object} collection
+	###
+	collection: FilesCollection
+
+	###*
+	# Initialize the collection
+	# @private
+	# @method initialize
+	# @param {Object} attrs
+	# @param {Object} [opts={}]
+	###
+	initialize: (attrs,opts={}) -&gt;
+		@options ?= {}
+		@options.name ?= opts.name or null
+		super
+
+	###*
+	# Fuzzy find one
+	# Useful for layout searching
+	# @method fuzzyFindOne
+	# @param {Object} data
+	# @param {Object} sorting
+	# @param {Object} paging
+	# @return {Object} the file, if found
+	###
+	fuzzyFindOne: (data,sorting,paging) -&gt;
+		# Prepare
+		escapedData = data?.replace(/[\/]/g, pathUtil.sep)
+		queries = [
+			{relativePath: escapedData}
+			{relativeBase: escapedData}
+			{url: data}
+			{relativePath: $startsWith: escapedData}
+			{fullPath: $startsWith: escapedData}
+			{url: $startsWith: data}
+		]
+
+		# Try the queries
+		for query in queries
+			file = @findOne(query, sorting, paging)
+			return file  if file
+
+		# Didn&#x27;t find a file
+		return null
 
 
+# =====================================
+# Export
+module.exports = FilesCollection
 
-
-
-
-    <div class="meta">
-                <p>
-                Defined in
-        <a href="../files/src_lib_base.coffee.html#l83"><code>src&#x2F;lib&#x2F;base.coffee:83</code></a>
-        </p>
-
-
-
-    </div>
-
-    <div class="description">
-        
-    </div>
-
-
-
-
-</div>
-    </div>
-
-<div id="classdocs" class="tabview">
-    <ul class="api-class-tabs">
-        <li class="api-class-tab index"><a href="#index">Index</a></li>
-
-    </ul>
-
-    <div>
-        <div id="index" class="api-class-tabpanel index">
-            <h2 class="off-left">Item Index</h2>
-
-
-
-
-        </div>
-
-
-
-
-    </div>
+    </pre>
 </div>
                     </div>
                 </div>
