@@ -1,5 +1,8 @@
 # History
 
+## v6.78.6 2016 June 27
+- Set joe version to fixed 1.6.0 and event-emitter-grouped to 2.4.3 to handle issue 1047
+
 ## v6.78.5 2016 June 15
 - Recompiled with latest dev dependencies
 
