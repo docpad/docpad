@@ -208,7 +208,8 @@ These amazing people have contributed code to this project:
 <li><a href="http://blog.shawnzhu.com">Ke Zhu</a> — <a href="https://github.com/docpad/docpad/commits?author=shawnzhu" title="View the GitHub contributions of Ke Zhu on repository docpad/docpad">view contributions</a></li>
 <li><a href="https://github.com/chaos95">Morgan Larosa</a> — <a href="https://github.com/docpad/docpad/commits?author=chaos95" title="View the GitHub contributions of Morgan Larosa on repository docpad/docpad">view contributions</a></li>
 <li><a href="https://github.com/paularmstrong">Paul Armstrong</a> — <a href="https://github.com/docpad/docpad/commits?author=paularmstrong" title="View the GitHub contributions of Paul Armstrong on repository docpad/docpad">view contributions</a></li>
-<li><a href="http://www.prayagverma.com/">Prayag Verma</a> — <a href="https://github.com/docpad/docpad/commits?author=pra85" title="View the GitHub contributions of Prayag Verma on repository docpad/docpad">view contributions</a></li></ul>
+<li><a href="http://www.prayagverma.com/">Prayag Verma</a> — <a href="https://github.com/docpad/docpad/commits?author=pra85" title="View the GitHub contributions of Prayag Verma on repository docpad/docpad">view contributions</a></li>
+<li><a href="http://www.stevemcarthur.co.uk">Steve Mc</a> — <a href="https://github.com/docpad/docpad/commits?author=SteveMcArthur" title="View the GitHub contributions of Steve Mc on repository docpad/docpad">view contributions</a></li></ul>
 
 <a href="https://github.com/docpad/docpad/blob/master/CONTRIBUTING.md#files">Discover how you can contribute by heading on over to the <code>CONTRIBUTING.md</code> file.</a>
 
