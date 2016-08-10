@@ -45,7 +45,7 @@ class ConsoleInterface
 
 		commander
 			.version(
-				docpad.getVersionString()
+				docpad.getVersionString() + ' ' + pathUtil.join(__dirname, "../../..")
 			)
 			.option(
 				'-o, --out <outPath>'
