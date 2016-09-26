@@ -1,7 +1,7 @@
 {
   "title": "DocPad. Streamlined web development.",
   "name": "docpad",
-  "version": "6.78.6",
+  "version": "6.79.0",
   "description": "DocPad is a dynamic static site generator. Write your content as files, or import your content from other external sources. Render the content with plugins. And deploy your static or dynamic website to your favourite hosting provider.",
   "homepage": "http://docpad.org",
   "installUrl": "http://docpad.org/install",
@@ -26,8 +26,8 @@
     "config": {
       "patreonUsername": "bevry",
       "gratipayUsername": "bevry",
-      "flattrCode": "344188/balupton-on-Flattr",
-      "paypalButtonID": "QB8GQPZAH84N6",
+      "flattrUsername": "balupton",
+      "paypalURL": "https://bevry.me/paypal",
       "bitcoinURL": "https://bevry.me/bitcoin",
       "wishlistURL": "https://bevry.me/wishlist",
       "slackinURL": "https://slack.bevry.me"
@@ -122,7 +122,7 @@
     "Todd Anglin (kendoui.com)",
     "Tatu Tamminen (http://www.triplet.fi)",
     "Nick Matantsev (http://unframework.com)",
-    "Vladislav Botvin <darkvlados@me.com> (https://github.com/darrrk)",
+    "Vladislav Botvin <darkvlados@me.com> (https://github.com/darky)",
     "vsopvsop (https://github.com/vsopvsop)",
     "Zearin (https://github.com/Zearin)",
     "Firede <firede@firede.us> (http://firede.us)",
@@ -133,7 +133,9 @@
     "Morgan Larosa (https://github.com/chaos95)",
     "Paul Armstrong (https://github.com/paularmstrong)",
     "Prayag Verma <prayag.verma@gmail.com> (http://www.prayagverma.com/)",
-    "Steve Mc <contact@stevemcarthur.co.uk> (http://www.stevemcarthur.co.uk)"
+    "Steve Mc <contact@stevemcarthur.co.uk> (http://www.stevemcarthur.co.uk)",
+    "Todd Anglin (nativescript.org)",
+    "Prayag Verma <prayag@stylifyyourblog.com> (http://www.StylifyYourBlog.com/)"
   ],
   "bugs": {
     "url": "https://github.com/docpad/docpad/issues"
@@ -189,7 +191,7 @@
   "optionalDependencies": {},
   "devDependencies": {
     "assert-helpers": "^4.4.0",
-    "coffee-script": "^1.10.0",
+    "coffee-script": "^1.11.0",
     "coffeelint": "^1.15.7",
     "docpad-plugin-coffeekup": "2",
     "docpad-plugin-eco": "2",

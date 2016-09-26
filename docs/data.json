@@ -3397,7 +3397,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1335,
+            "line": 1338,
             "description": "Get the DocPad environment, eg: development,\nproduction or static",
             "itemtype": "method",
             "name": "getEnvironment",
@@ -3409,7 +3409,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1345,
+            "line": 1348,
             "description": "Get the environments",
             "itemtype": "method",
             "name": "getEnvironments",
@@ -3421,7 +3421,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1359,
+            "line": 1362,
             "description": "Hash Key\nThe key that we use to hash some data before sending it to our statistic server",
             "access": "private",
             "tagname": "",
@@ -3432,7 +3432,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1367,
+            "line": 1370,
             "description": "Website Package Configuration",
             "access": "private",
             "tagname": "",
@@ -3443,7 +3443,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1374,
+            "line": 1377,
             "description": "Merged Configuration\nMerged in the order of:\n- initialConfig\n- userConfig\n- websiteConfig\n- instanceConfig\n- environmentConfig\nUse getConfig to retrieve this value",
             "access": "private",
             "tagname": "",
@@ -3454,7 +3454,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1389,
+            "line": 1392,
             "description": "Instance Configuration",
             "access": "private",
             "tagname": "",
@@ -3465,7 +3465,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1397,
+            "line": 1400,
             "description": "Website Configuration\nMerged into the config property",
             "access": "private",
             "tagname": "",
@@ -3476,7 +3476,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1405,
+            "line": 1408,
             "description": "User Configuraiton\nMerged into the config property",
             "access": "private",
             "tagname": "",
@@ -3487,7 +3487,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1434,
+            "line": 1437,
             "description": "Initial Configuration. The default docpadConfig\nsettings that can be overridden in a project's docpad.coffee file.\nMerged into the config property",
             "access": "private",
             "tagname": "",
@@ -3498,7 +3498,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1728,
+            "line": 1731,
             "description": "Regenerate Timer\nWhen config.regenerateEvery is set to a value, we create a timer here",
             "access": "private",
             "tagname": "",
@@ -3509,7 +3509,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1736,
+            "line": 1739,
             "description": "Get the DocPad configuration. Commonly\ncalled within the docpad.coffee file or within\nplugins to access application specific configurations.\n\tserverExtend: (opts) ->\nExtract the server from the options\n\t\t\t{server} = opts\n\t\t\tdocpad = @docpad\n\nAs we are now running in an event,\nensure we are using the latest copy of the docpad configuraiton\nand fetch our urls from it\n\t\t\tlatestConfig = docpad.getConfig()\n\t\t\toldUrls = latestConfig.templateData.site.oldUrls or []\n\t\t\tnewUrl = latestConfig.templateData.site.url\n\nRedirect any requests accessing one of our sites oldUrls to the new site url\n\t\t\tserver.use (req,res,next) ->\n\t\t\t\t...",
             "itemtype": "method",
             "name": "getConfig",
@@ -3521,7 +3521,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1761,
+            "line": 1764,
             "description": "Get the port that DocPad is listening on (eg 9778)",
             "itemtype": "method",
             "name": "getPort",
@@ -3533,7 +3533,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1769,
+            "line": 1772,
             "description": "Get the Hostname",
             "itemtype": "method",
             "name": "getHostname",
@@ -3545,7 +3545,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1777,
+            "line": 1780,
             "description": "Get address",
             "itemtype": "method",
             "name": "getServerUrl",
@@ -3566,7 +3566,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1792,
+            "line": 1795,
             "description": "Get simple server URL (changes 0.0.0.0, ::, and ::1 to 127.0.0.1)",
             "itemtype": "method",
             "name": "getSimpleServerUrl",
@@ -3596,7 +3596,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 1807,
+            "line": 1810,
             "description": "Constructor method. Sets up the DocPad instance.\nnext(err)",
             "itemtype": "method",
             "name": "constructor",
@@ -3623,7 +3623,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2053,
+            "line": 2056,
             "description": "Destructor. Destroy the DocPad instance\nThis is an action, and should be called as such\nE.g. docpad.action('destroy', next)",
             "itemtype": "method",
             "name": "destroy",
@@ -3650,7 +3650,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2111,
+            "line": 2114,
             "description": "Emit event, serial",
             "access": "private",
             "tagname": "",
@@ -3684,7 +3684,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2143,
+            "line": 2146,
             "description": "Emit event, parallel",
             "access": "private",
             "tagname": "",
@@ -3718,7 +3718,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2179,
+            "line": 2182,
             "description": "Get the ignore options for the DocPad project",
             "itemtype": "method",
             "name": "getIgnoreOpts",
@@ -3730,7 +3730,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2187,
+            "line": 2190,
             "description": "Is the supplied path ignored?",
             "itemtype": "method",
             "name": "isIgnoredPath",
@@ -3756,7 +3756,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2198,
+            "line": 2201,
             "description": "Scan directory",
             "itemtype": "method",
             "name": "scandir",
@@ -3773,7 +3773,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2210,
+            "line": 2213,
             "description": "Watch Directory. Wrapper around the Bevry watchr\nmodule (https://github.com/bevry/watchr). Used\ninternally by DocPad to watch project documents\nand files and then activate the regeneration process\nwhen any of those items are updated.\n\nAlthough it is possible to pass a range of options to watchdir\nin practice these options are provided as part of\nthe DocPad config object with a number of default options\nspecified in the DocPad config.",
             "itemtype": "method",
             "name": "watchdir",
@@ -3888,7 +3888,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2247,
+            "line": 2250,
             "description": "DocPad is ready. Peforms the tasks needed after DocPad construction\nand DocPad has loaded. Triggers the docpadReady event.\nnext(err,docpadInstance)",
             "access": "private",
             "tagname": "",
@@ -3923,7 +3923,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2312,
+            "line": 2315,
             "description": "Performs the merging of the passed configuration objects",
             "access": "private",
             "tagname": "",
@@ -3945,7 +3945,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2337,
+            "line": 2340,
             "description": "Set the instance configuration\nby merging the properties of the passed object\nwith the existing DocPad instanceConfig object",
             "access": "private",
             "tagname": "",
@@ -3962,7 +3962,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2354,
+            "line": 2357,
             "description": "Set the DocPad configuration object.\nPerforms a number of tasks, including\nmerging the pass instanceConfig with DocPad's\nother config objects.\nnext(err,config)",
             "access": "private",
             "tagname": "",
@@ -3996,7 +3996,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2455,
+            "line": 2458,
             "description": "Load the various configuration files from the\nfile system. Set the instanceConfig.\nnext(err,config)",
             "access": "private",
             "tagname": "",
@@ -4030,7 +4030,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2589,
+            "line": 2592,
             "description": "Update user configuration with the passed data",
             "itemtype": "method",
             "name": "updateUserConfig",
@@ -4059,7 +4059,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2621,
+            "line": 2624,
             "description": "Load a configuration url.",
             "itemtype": "method",
             "name": "loadConfigUrl",
@@ -4091,7 +4091,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2652,
+            "line": 2655,
             "description": "Load the configuration from a file path\npassed as one of the options (opts.configPath) or\nfrom DocPad's configPaths",
             "access": "private",
             "tagname": "",
@@ -4125,7 +4125,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2717,
+            "line": 2720,
             "description": "Get config paths and check that those\npaths exist",
             "access": "private",
             "tagname": "",
@@ -4159,7 +4159,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2760,
+            "line": 2763,
             "description": "Extend collecitons. Create DocPad's\nstandard (documents, files\nlayouts) and special (generate, referencesOthers,\nhasLayout, html, stylesheet) collections. Set blocks",
             "access": "private",
             "tagname": "",
@@ -4183,7 +4183,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2904,
+            "line": 2907,
             "description": "Reset collections. Perform a complete clean of our collections",
             "access": "private",
             "tagname": "",
@@ -4212,7 +4212,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2942,
+            "line": 2945,
             "description": "Initialise git repo",
             "access": "private",
             "tagname": "",
@@ -4246,7 +4246,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 2967,
+            "line": 2970,
             "description": "Init node modules",
             "access": "private",
             "tagname": "",
@@ -4280,7 +4280,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3000,
+            "line": 3003,
             "description": "Fix node package versions\nCombat to https://github.com/npm/npm/issues/4587#issuecomment-35370453",
             "access": "private",
             "tagname": "",
@@ -4309,7 +4309,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3029,
+            "line": 3032,
             "description": "Install node module. Same as running\n'npm install' through the command line",
             "access": "private",
             "tagname": "",
@@ -4348,7 +4348,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3092,
+            "line": 3095,
             "description": "Uninstall node module. Same as running\n'npm uninstall' through the command line",
             "access": "private",
             "tagname": "",
@@ -4387,7 +4387,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3148,
+            "line": 3151,
             "description": "Set the log level",
             "access": "private",
             "tagname": "",
@@ -4404,7 +4404,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3168,
+            "line": 3171,
             "description": "Get the log level",
             "itemtype": "method",
             "name": "getLogLevel",
@@ -4416,7 +4416,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3176,
+            "line": 3179,
             "description": "Are we debugging?",
             "itemtype": "method",
             "name": "getDebugging",
@@ -4428,7 +4428,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3185,
+            "line": 3188,
             "description": "Handle a fatal error",
             "access": "private",
             "tagname": "",
@@ -4445,7 +4445,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3212,
+            "line": 3215,
             "description": "Inspect. Converts object to JSON string. Wrapper around nodes util.inspect method.\nCan't use the inspect namespace as for some silly reason it destroys everything",
             "itemtype": "method",
             "name": "inspector",
@@ -4469,7 +4469,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3225,
+            "line": 3228,
             "description": "Log arguments",
             "itemtype": "property",
             "name": "log",
@@ -4485,7 +4485,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3239,
+            "line": 3242,
             "description": "Create an error object",
             "itemtype": "method",
             "name": "createError",
@@ -4509,7 +4509,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3273,
+            "line": 3276,
             "description": "Create an error (tracks it) and log it",
             "itemtype": "method",
             "name": "error",
@@ -4531,7 +4531,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3298,
+            "line": 3301,
             "description": "Log an error",
             "itemtype": "method",
             "name": "logError",
@@ -4546,7 +4546,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3329,
+            "line": 3332,
             "description": "Track an error in the background",
             "access": "private",
             "tagname": "",
@@ -4563,7 +4563,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3353,
+            "line": 3356,
             "description": "Notify error",
             "access": "private",
             "tagname": "",
@@ -4580,7 +4580,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3377,
+            "line": 3380,
             "description": "Log an error of level 'warn'",
             "itemtype": "method",
             "name": "warn",
@@ -4604,7 +4604,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3403,
+            "line": 3406,
             "description": "Send a notify event to plugins (like growl)",
             "itemtype": "method",
             "name": "notify",
@@ -4626,7 +4626,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3421,
+            "line": 3424,
             "description": "Check Request",
             "access": "private",
             "tagname": "",
@@ -4655,7 +4655,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3444,
+            "line": 3447,
             "description": "Subscribe to the DocPad email list.",
             "access": "private",
             "tagname": "",
@@ -4679,7 +4679,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3483,
+            "line": 3486,
             "description": "Track",
             "access": "private",
             "tagname": "",
@@ -4715,7 +4715,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3540,
+            "line": 3543,
             "description": "Identify DocPad user",
             "access": "private",
             "tagname": "",
@@ -4739,7 +4739,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3618,
+            "line": 3621,
             "description": "Create file model. Calls\n{{#crossLink \"DocPad/createModel:method\"}}{{/crossLink}}\nwith the 'file' modelType.",
             "itemtype": "method",
             "name": "createFile",
@@ -4767,7 +4767,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3631,
+            "line": 3634,
             "description": "Create document model. Calls\n{{#crossLink \"DocPad/createModel:method\"}}{{/crossLink}}\nwith the 'document' modelType.",
             "itemtype": "method",
             "name": "createDocument",
@@ -4795,7 +4795,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3645,
+            "line": 3648,
             "description": "Parse the files directory and\nreturn a files collection to\nthe passed callback",
             "itemtype": "method",
             "name": "parseFileDirectory",
@@ -4829,7 +4829,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3660,
+            "line": 3663,
             "description": "Parse the documents directory and\nreturn a documents collection to\nthe passed callback.\n\nThe partials plugin (https://github.com/docpad/docpad-plugin-partials)\nuses this method to load a collection of\nfiles from the partials directory.\n\n\tdocpad.parseDocumentDirectory({path: config.partialsPath}, next)",
             "itemtype": "method",
             "name": "parseDocumentDirectory",
@@ -4885,7 +4885,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3690,
+            "line": 3693,
             "description": "Attach events to a document model.",
             "access": "private",
             "tagname": "",
@@ -4902,7 +4902,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3749,
+            "line": 3752,
             "description": "Add supplied model to the DocPad database. If the passed\nmodel definition is a plain object of properties, a new\nmodel will be created prior to adding to the database.\nCalls {{#crossLink \"DocPad/createModel:method\"}}{{/crossLink}}\nbefore adding the model to the database.\n\n\t# Override the stat's mtime to now\n\t# This is because renames will not update the mtime\n\tfileCurrentStat?.mtime = new Date()\n\n\t# Create the file object\n\tfile = docpad.addModel({fullPath:filePath, stat:fileCurrentStat})",
             "itemtype": "method",
             "name": "addModel",
@@ -4926,7 +4926,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3774,
+            "line": 3777,
             "description": "Add the supplied collection of models to the DocPad database.\nCalls {{#crossLink \"DocPad/createModels:method\"}}{{/crossLink}}\nbefore adding the models to the database.\n\n\tdatabaseData = JSON.parse data.toString()\n\tmodels = docpad.addModels(databaseData.models)",
             "itemtype": "method",
             "name": "addModels",
@@ -4950,7 +4950,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3792,
+            "line": 3795,
             "description": "Create a collection of models from the supplied collection\nensuring that the collection is suitable for adding to the\nDocPad database. The method calls {{#crossLink \"DocPad/createModel\"}}{{/crossLink}}\nfor each model in the models array.",
             "access": "private",
             "tagname": "",
@@ -4976,7 +4976,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3808,
+            "line": 3811,
             "description": "Creates either a file or document model.\nThe model type to be created can be passed\nas an opts property, if not, the method will\nattempt to determing the model type by checking\nif the file is in one of the documents or\nlayout paths.\n\nEnsures a duplicate model is not created\nand all required attributes are present and\nevents attached.\n\nGenerally it is not necessary for an application\nto manually create a model via creatModel as DocPad\nwill handle this process when watching a project's\nfile and document directories. However, it is possible\nthat a plugin might have a requirement to do so.\n\n\tmodel = @docpad.createModel({fullPath:fullPath})\n  model.load()",
             "docpad": ".getDatabase().add(model)",
             "itemtype": "method",
@@ -5019,7 +5019,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3907,
+            "line": 3910,
             "description": "Parse a directory and return a\nfiles collection",
             "itemtype": "method",
             "name": "parseDirectory",
@@ -5053,7 +5053,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3987,
+            "line": 3990,
             "description": "Get a plugin by it's name",
             "itemtype": "method",
             "name": "getPlugin",
@@ -5072,7 +5072,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 3997,
+            "line": 4000,
             "description": "Check if we have any plugins",
             "itemtype": "method",
             "name": "hasPlugins",
@@ -5084,7 +5084,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4005,
+            "line": 4008,
             "description": "Destructor. Destroy plugins",
             "access": "private",
             "tagname": "",
@@ -5094,7 +5094,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4016,
+            "line": 4019,
             "description": "Load plugins from the file system\nnext(err)",
             "access": "private",
             "tagname": "",
@@ -5118,7 +5118,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4060,
+            "line": 4063,
             "description": "Checks if a plugin was loaded succesfully.",
             "itemtype": "method",
             "name": "loadedPlugin",
@@ -5150,7 +5150,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4079,
+            "line": 4082,
             "description": "Load a plugin from its full file path\n_next(err)",
             "access": "private",
             "tagname": "",
@@ -5183,7 +5183,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4176,
+            "line": 4179,
             "description": "Load plugins from a directory path",
             "access": "private",
             "tagname": "",
@@ -5212,7 +5212,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4231,
+            "line": 4234,
             "description": "Compare current DocPad version to the latest\nand print out the result to the console.\nUsed at startup.",
             "access": "private",
             "tagname": "",
@@ -5222,7 +5222,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4270,
+            "line": 4273,
             "description": "Get DocPad's exchange data\nRequires internet access\nnext(err,exchange)",
             "access": "private",
             "tagname": "",
@@ -5251,7 +5251,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4318,
+            "line": 4321,
             "description": "Contextualize files.\nContextualizing is the process of adding layouts and\nawareness of other documents to our document. The\ncontextualizeBefore and contextualizeAfter events\nare emitted here.",
             "access": "private",
             "tagname": "",
@@ -5282,7 +5282,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4399,
+            "line": 4402,
             "description": "Render the DocPad project's files.\nThe renderCollectionBefore, renderCollectionAfter,\nrenderBefore, renderAfter events are all emitted here.",
             "access": "private",
             "tagname": "",
@@ -5313,7 +5313,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4523,
+            "line": 4526,
             "description": "Write rendered files to the DocPad out directory.\nThe writeBefore and writeAfter events are emitted here.",
             "access": "private",
             "tagname": "",
@@ -5344,7 +5344,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4619,
+            "line": 4622,
             "description": "Has DocPad's generation process started?",
             "access": "private",
             "tagname": "",
@@ -5355,7 +5355,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4626,
+            "line": 4629,
             "description": "Has DocPad's generation process ended?",
             "access": "private",
             "tagname": "",
@@ -5366,7 +5366,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4633,
+            "line": 4636,
             "description": "Is DocPad currently generating?",
             "access": "private",
             "tagname": "",
@@ -5377,7 +5377,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4640,
+            "line": 4643,
             "description": "Has DocPad done at least one generation?\nTrue once the first generation has occured.",
             "access": "private",
             "tagname": "",
@@ -5388,7 +5388,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4648,
+            "line": 4651,
             "description": "Create the console progress bar.\nProgress only shown if the DocPad config 'progress'\noption is true, the DocPad config 'prompts' option is true\nand the log level is 6 (default)",
             "access": "private",
             "tagname": "",
@@ -5402,7 +5402,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4677,
+            "line": 4680,
             "description": "Destructor. Destroy the progress object",
             "access": "private",
             "tagname": "",
@@ -5423,7 +5423,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4693,
+            "line": 4696,
             "description": "Destructor. Destroy the regeneration timer.",
             "access": "private",
             "tagname": "",
@@ -5433,7 +5433,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4710,
+            "line": 4713,
             "description": "Create the regeneration timer",
             "access": "private",
             "tagname": "",
@@ -5443,7 +5443,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 4733,
+            "line": 4736,
             "description": "Set off DocPad's generation process.\nThe generated, populateCollectionsBefore, populateCollections, populateCollections\ngenerateBefore and generateAfter events are emitted here",
             "itemtype": "method",
             "name": "generate",
@@ -5470,7 +5470,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5117,
+            "line": 5120,
             "description": "Load a document",
             "access": "private",
             "tagname": "",
@@ -5509,7 +5509,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5138,
+            "line": 5141,
             "description": "Load and render a document",
             "itemtype": "method",
             "name": "loadAndRenderDocument",
@@ -5546,7 +5546,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5162,
+            "line": 5165,
             "description": "Render a document",
             "itemtype": "method",
             "name": "renderDocument",
@@ -5588,7 +5588,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5184,
+            "line": 5187,
             "description": "Render a document at a file path\nnext(err,result)",
             "itemtype": "method",
             "name": "renderPath",
@@ -5625,7 +5625,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5208,
+            "line": 5211,
             "description": "Render the passed content data as a\ndocument. Required option, filename\n(opts.filename)\nnext(err,result)",
             "itemtype": "method",
             "name": "renderData",
@@ -5662,7 +5662,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5239,
+            "line": 5242,
             "description": "Render the passed text data as a\ndocument. Required option, filename\n(opts.filename)\nnext(err,result)",
             "access": "private",
             "tagname": "",
@@ -5706,7 +5706,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5275,
+            "line": 5278,
             "description": "Render action\nnext(err,document,result)",
             "itemtype": "method",
             "name": "render",
@@ -5733,7 +5733,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5311,
+            "line": 5314,
             "description": "Array of file watchers",
             "access": "private",
             "tagname": "",
@@ -5744,7 +5744,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5318,
+            "line": 5321,
             "description": "Destructor. Destroy the watchers used\nby DocPad",
             "access": "private",
             "tagname": "",
@@ -5754,7 +5754,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5340,
+            "line": 5343,
             "description": "Start up file watchers used by DocPad",
             "access": "private",
             "tagname": "",
@@ -5783,7 +5783,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5518,
+            "line": 5521,
             "description": "Run an action",
             "itemtype": "method",
             "name": "run",
@@ -5810,7 +5810,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5583,
+            "line": 5586,
             "description": "Initialize the skeleton install process.",
             "access": "private",
             "tagname": "",
@@ -5839,7 +5839,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5630,
+            "line": 5633,
             "description": "Uninstall a plugin.",
             "access": "private",
             "tagname": "",
@@ -5868,7 +5868,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5669,
+            "line": 5672,
             "description": "Install a plugin",
             "access": "private",
             "tagname": "",
@@ -5897,7 +5897,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5720,
+            "line": 5723,
             "description": "Update global NPM and DocPad",
             "access": "private",
             "tagname": "",
@@ -5930,7 +5930,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5740,
+            "line": 5743,
             "description": "Update the local DocPad and plugin dependencies",
             "access": "private",
             "tagname": "",
@@ -5959,7 +5959,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5803,
+            "line": 5806,
             "description": "DocPad cleanup tasks.",
             "access": "private",
             "tagname": "",
@@ -5992,7 +5992,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5857,
+            "line": 5860,
             "description": "Initialize a Skeleton into to a Directory",
             "access": "private",
             "tagname": "",
@@ -6026,7 +6026,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5957,
+            "line": 5960,
             "description": "Install a Skeleton into a Directory",
             "access": "private",
             "tagname": "",
@@ -6060,7 +6060,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 5985,
+            "line": 5988,
             "description": "Use a Skeleton",
             "access": "private",
             "tagname": "",
@@ -6098,7 +6098,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 6029,
+            "line": 6032,
             "description": "Select a Skeleton",
             "access": "private",
             "tagname": "",
@@ -6132,7 +6132,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 6058,
+            "line": 6061,
             "description": "Skeleton Empty?",
             "access": "private",
             "tagname": "",
@@ -6161,7 +6161,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 6086,
+            "line": 6089,
             "description": "Initialize the project directory\nwith the basic skeleton.",
             "access": "private",
             "tagname": "",
@@ -6190,7 +6190,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 6117,
+            "line": 6120,
             "description": "Initialize the project directory\nwith the basic skeleton.",
             "access": "private",
             "tagname": "",
@@ -6223,7 +6223,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 6147,
+            "line": 6150,
             "description": "Serve a document",
             "access": "private",
             "tagname": "",
@@ -6252,7 +6252,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 6240,
+            "line": 6243,
             "description": "Server Middleware: Header",
             "access": "private",
             "tagname": "",
@@ -6279,7 +6279,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 6267,
+            "line": 6270,
             "description": "Server Middleware: Router",
             "access": "private",
             "tagname": "",
@@ -6313,7 +6313,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 6299,
+            "line": 6302,
             "description": "Server Middleware: 404",
             "access": "private",
             "tagname": "",
@@ -6340,7 +6340,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 6326,
+            "line": 6329,
             "description": "Server Middleware: 500",
             "access": "private",
             "tagname": "",
@@ -6372,7 +6372,7 @@
         },
         {
             "file": "src/lib/docpad.coffee",
-            "line": 6350,
+            "line": 6353,
             "description": "Configure and start up the DocPad web server.\nHttp and express server is created, extended with\nmiddleware, started up and begins listening.\nThe events serverBefore, serverExtend and\nserverAfter emitted here.",
             "access": "private",
             "tagname": "",
@@ -7364,7 +7364,7 @@
         },
         {
             "message": "unknown tag: docpad",
-            "line": " src/lib/docpad.coffee:3808"
+            "line": " src/lib/docpad.coffee:3811"
         },
         {
             "message": "Missing item type\nConsole Interface",

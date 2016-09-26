@@ -1,5 +1,9 @@
 # History
 
+## v6.79.0 2016 September 27
+- Bumped coffee-script dependency version
+- Fixed possible `docpad not defined` issue on `loadLocale`
+
 ## v6.78.6 2016 June 27
 - Set joe version to fixed 1.6.0 and event-emitter-grouped to 2.4.3 to handle issue 1047
 
