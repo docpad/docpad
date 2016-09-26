@@ -1310,6 +1310,9 @@ class DocPad extends EventEmitterGrouped
 	# @return {Object} locale
 	###
 	loadLocale: (code) ->
+		# Prepare
+		docpad = @
+
 		# Check if it exists
 		localeFilename = "#{code}.cson"
 		localePath = pathUtil.join(@localePath, localeFilename)
