@@ -1,5 +1,11 @@
 # History
 
+## v6.79.0 2016 October 20
+- This is a beta release, use `npm install --save docpad@beta` to grab it
+- Configuration loading is merged more accurately
+- Updated majors of many dependencies
+	- Closes [issue #1045](https://github.com/docpad/docpad/issues/1045)
+
 ## v6.78.5 2016 June 15
 - Recompiled with latest dev dependencies
 

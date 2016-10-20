@@ -1633,11 +1633,6 @@ class DocPad extends EventEmitterGrouped
 		# Helper's source-code can be found at: https://github.com/docpad/helper
 		helperUrl: if true then 'http://helper.docpad.org/' else 'http://localhost:8000/'
 
-		# Safe Mode
-		# If enabled, we will try our best to sandbox our template rendering so that they cannot modify things outside of them
-		# Not yet implemented
-		safeMode: false
-
 		# Template Data
 		# What data would you like to expose to your templates
 		templateData: {}
@@ -2176,32 +2171,53 @@ class DocPad extends EventEmitterGrouped
 	# internally by DocPad to watch project documents
 	# and files and then activate the regeneration process
 	# when any of those items are updated.
-	#
-	# Although it is possible to pass a range of options to watchdir
-	# in practice these options are provided as part of
-	# the DocPad config object with a number of default options
-	# specified in the DocPad config.
+	# @private
 	# @method watchdir
-	# @param {Object} [opts={}]
-	# @param {String} [opts.path] a single path to watch.
-	# @param {Array} [opts.paths] an array of paths to watch.
-	# @param {Function} [opts.listener] a single change listener to fire when a change occurs.
-	# @param {Array} [opts.listeners] an array of listeners.
-	# @param {Function} [opts.next] callback.
-	# @param {Object} [opts.stat] a file stat object to use for the path, instead of fetching a new one.
-	# @param {Number} [opts.interval=5007] for systems that poll to detect file changes, how often should it poll in millseconds.
-	# @param {Number} [opts.catupDelay=200] handles system swap file deletions and renaming
-	# @param {Array} [opts.preferredMethods=['watch','watchFile'] which order should we prefer our watching methods to be tried?.
-	# @param {Boolean} [opts.followLinks=true] follow symlinks, i.e. use stat rather than lstat.
-	# @param {Boolean|Array} [opts.ignorePaths=false] an array of full paths to ignore.
-	# @param {Boolean|Array} [opts.ignoreHiddenFiles=false] whether or not to ignored files which filename starts with a ".".
-	# @param {Boolean} [opts.ignoreCommonPatterns=true] whether or not to ignore common undesirable file patterns (e.g. .svn, .git, .DS_Store, thumbs.db, etc).
-	# @param {Boolean|Array} [opts.ignoreCustomPatterns=null] any custom ignore patterns that you would also like to ignore along with the common patterns.
+	# @param {String} path - the path to watch
+	# @param {Object} listeners - listeners to attach to the watcher
+	# @param {Function} next - completion callback accepting error
 	# @return {Object} the watcher
 	###
-	watchdir: (opts={}) ->
-		opts = extendr.extend(@getIgnoreOpts(), opts, @config.watchOptions)
-		return require('watchr').watch(opts)
+	watchdir: (path, listeners, next) ->
+		opts = extendr.extend(@getIgnoreOpts(), @config.watchOptions or {})
+		stalker = require('watchr').create(path)
+		for own key, value of listeners
+			stalker.on(key, value)
+		stalker.setConfig(opts)
+		stalker.watch(next)
+		return stalker
+
+	###*
+	# Watch Directories. Wrapper around watchdir.
+	# @private
+	# @method watchdirs
+	# @param {Array} paths - the paths to watch
+	# @param {Object} listeners - listeners to attach to the watcher
+	# @param {Function} next - completion callback accepting error and watchers/stalkers
+	###
+	watchdirs: (paths, listeners, next) ->
+		docpad = @
+		stalkers = []
+
+		tasks = new TaskGroup('watching directories').setConfig(concurrency:0).done (err) ->
+			if err
+				for stalker in stalkers
+					stalker.close()
+				next(err)
+			else
+				next(err, stalkers)
+
+		paths.forEach (path) ->
+			tasks.addTask "watching #{path}", (done) ->
+				# check if the dir exists first as reloadPaths may not apparently
+				safefs.exists path, (exists) ->
+					return done()  unless exists
+					stalkers.push docpad.watchdir(path, listeners, done)
+
+		tasks.run()
+
+		# Chain
+		@
 
 
 	# =================================
@@ -2292,7 +2308,7 @@ class DocPad extends EventEmitterGrouped
 				configsToMerge.push(envConfig)  if envConfig
 
 		# Merge
-		extendr.deepDefaults(configsToMerge...)
+		extendr.deep(configsToMerge...)
 
 		# Chain
 		@
@@ -3121,7 +3137,7 @@ class DocPad extends EventEmitterGrouped
 			if loggers.debug? is false
 				loggers.debug = loggers.logger
 					.pipe(
-						new (require('caterpillar-human').Human)(color:false)
+						require('caterpillar-human').create(color:false)
 					)
 					.pipe(
 						require('fs').createWriteStream(@debugLogPath)
@@ -3900,13 +3916,24 @@ class DocPad extends EventEmitterGrouped
 			# Log
 			docpad.log 'debug', util.format(locale.renderDirectoryParsing, path)
 
+			# Tasks
+			tasks = new TaskGroup('parse directory').setConfig(concurrency:0).done (err) ->
+				# Check
+				return next(err)  if err
+
+				# Log
+				docpad.log 'debug', util.format(locale.renderDirectoryParsed, path)
+
+				# Forward
+				return next(null, files)
+
 			# Files
 			docpad.scandir(
 				# Path
 				path: path
 
 				# File Action
-				fileAction: (fileFullPath,fileRelativePath,nextFile,fileStat) ->
+				fileAction: (fileFullPath, fileRelativePath, filename, fileStat) ->
 					# Prepare
 					data =
 						fullPath: fileFullPath
@@ -3916,28 +3943,27 @@ class DocPad extends EventEmitterGrouped
 					# Create file
 					file = createFunction.call(docpad, data, opts)
 
-					# Update the file's stat
-					# To ensure changes files are handled correctly in generation
-					file.action 'load', (err) ->
-						# Error?
-						return nextFile(err)  if err
+					# Create a task to load the file
+					tasks.addTask "load the file #{fileRelativePath}", (complete) ->
+						# Update the file's stat
+						# To ensure changes files are handled correctly in generation
+						file.action 'load', (err) ->
+							# Error?
+							return complete(err)  if err
 
-						# Add the file to the collection
-						files.add(file)
+							# Add the file to the collection
+							files.add(file)
 
-						# Next
-						nextFile()
+							# Next
+							complete()
+
+					# Return
+					return
 
 				# Next
 				next: (err) ->
-					# Check
 					return next(err)  if err
-
-					# Log
-					docpad.log 'debug', util.format(locale.renderDirectoryParsed, path)
-
-					# Forward
-					return next(null, files)
+					tasks.run()
 			)
 
 		# Chain
@@ -4149,9 +4175,14 @@ class DocPad extends EventEmitterGrouped
 		docpad = @
 		locale = @getLocale()
 
+		# Tasks
+		tasks = new TaskGroup('load plugins').setConfig(concurrency:0).done (err) ->
+			docpad.log 'debug', util.format(locale.pluginsLoadedFor, pluginsPath)
+			return next(err)
+
 		# Load Plugins
 		docpad.log 'debug', util.format(locale.pluginsLoadingFor, pluginsPath)
-		@scandir(
+		docpad.scandir(
 			# Path
 			path: pluginsPath
 
@@ -4159,26 +4190,25 @@ class DocPad extends EventEmitterGrouped
 			fileAction: false
 
 			# Handle directories
-			dirAction: (fileFullPath,fileRelativePath,nextFile) ->
+			dirAction: (fileFullPath, fileRelativePath, pluginName) ->
 				# Prepare
 				pluginName = pathUtil.basename(fileFullPath)
 
-				# Delve deeper into the directory if it is a direcotry of plugins
-				return nextFile(null, false)  if fileFullPath is pluginsPath
+				# Add the task to load the oplugin to the queue
+				tasks.addTask "load the plugin #{pluginName}", (complete) ->
+					# Otherwise, it is a plugin directory, so load the plugin
+					docpad.loadPlugin fileFullPath, (err) ->
+						# Warn about the plugin load error if there is one
+						if err
+							docpad.warn util.format(locale.pluginFailedToLoad, pluginName, fileFullPath), err
 
-				# Otherwise, it is a plugin directory, so load the plugin
-				docpad.loadPlugin fileFullPath, (err) ->
-					# Warn about the plugin load error if there is one
-					if err
-						docpad.warn util.format(locale.pluginFailedToLoad, pluginName, fileFullPath), err
-
-					# All done and don't recurse into this directory
-					return nextFile(null, true)
+						# All done and don't recurse into this directory
+						return complete()
 
 			# Next
 			next: (err) ->
-				docpad.log 'debug', util.format(locale.pluginsLoadedFor, pluginsPath)
-				return next(err)
+				return next(err)  if err
+				tasks.run()
 		)
 
 		# Chain
@@ -4312,7 +4342,7 @@ class DocPad extends EventEmitterGrouped
 			return next(err)  if err
 
 			# Completion callback
-			tasks = new docpad.TaskGroup "contextualizeFiles tasks", concurrency:0, next:(err) ->
+			tasks = docpad.createTaskGroup "contextualizeFiles tasks", concurrency:0, next:(err) ->
 				# Kill the timer
 				clearInterval(slowFilesTimer)
 				slowFilesTimer = null
@@ -4405,7 +4435,7 @@ class DocPad extends EventEmitterGrouped
 				# Prepare
 				return next(err)  if err
 
-				subTasks = new docpad.TaskGroup "renderCollection: #{collectionToRender.options.name}", concurrency:0, next:(err) ->
+				subTasks = docpad.createTaskGroup "renderCollection: #{collectionToRender.options.name}", concurrency:0, next:(err) ->
 					# Prepare
 					return next(err)  if err
 
@@ -4433,7 +4463,7 @@ class DocPad extends EventEmitterGrouped
 			return next(err)  if err
 
 			# Async
-			tasks = new docpad.TaskGroup "renderCollection: renderBefore tasks", next:(err) ->
+			tasks = docpad.createTaskGroup "renderCollection: renderBefore tasks", next:(err) ->
 				# Kill the timer
 				clearInterval(slowFilesTimer)
 				slowFilesTimer = null
@@ -4514,7 +4544,7 @@ class DocPad extends EventEmitterGrouped
 			return next(err)  if err
 
 			# Completion callback
-			tasks = new docpad.TaskGroup "writeFiles tasks", concurrency:0, next:(err) ->
+			tasks = docpad.createTaskGroup "writeFiles tasks", concurrency:0, next:(err) ->
 				# Kill the timer
 				clearInterval(slowFilesTimer)
 				slowFilesTimer = null
@@ -4542,7 +4572,7 @@ class DocPad extends EventEmitterGrouped
 					slowFilesObject[file.id] = file.get('relativePath')
 
 					# Create sub tasks
-					fileTasks = new docpad.TaskGroup "tasks for file write: #{filePath}", concurrency:0, next:(err) ->
+					fileTasks = docpad.createTaskGroup "tasks for file write: #{filePath}", concurrency:0, next:(err) ->
 						delete slowFilesObject[file.id]
 						opts.progress?.tick()
 						return complete(err)
@@ -5159,7 +5189,7 @@ class DocPad extends EventEmitterGrouped
 		[opts,next] = extractOptsAndCallback(opts,next)
 		attributes = extendr.extend({
 			fullPath: path
-		},opts.attributes)
+		}, opts.attributes or {})
 
 		# Handle
 		document = @createDocument(attributes)
@@ -5222,7 +5252,7 @@ class DocPad extends EventEmitterGrouped
 			data: text
 			body: text
 			content: text
-		}, opts.attributes)
+		}, opts.attributes or {})
 
 		# Handle
 		document = @createDocument(attributes)
@@ -5323,61 +5353,68 @@ class DocPad extends EventEmitterGrouped
 			docpad.destroyWatchers()
 
 			# Start a group
-			tasks = new docpad.TaskGroup("watch tasks", {concurrency:0, next})
+			tasks = docpad.createTaskGroup("watch tasks", {concurrency:0, next})
 
 			# Watch reload paths
 			reloadPaths = union(config.reloadPaths, config.configPaths)
-			tasks.addTask "watch reload paths", (complete) -> docpad.watchdir(
-				paths: reloadPaths
-				listeners:
-					'log': docpad.log
-					'error': docpad.error
-					'change': ->
-						docpad.log 'info', util.format(locale.watchReloadChange, new Date().toLocaleTimeString())
-						docpad.action 'load', (err) ->
-							return docpad.fatal(err)  if err
-							performGenerate(reset:true)
-				next: (err,_watchers) ->
-					if err
-						docpad.warn("Watching the reload paths has failed:\n"+docpad.inspector(reloadPaths), err)
+			tasks.addTask "watch reload paths", (complete) ->
+				docpad.watchdirs(
+					reloadPaths,
+					{
+						'log': docpad.log
+						'error': docpad.error
+						'change': ->
+							docpad.log 'info', util.format(locale.watchReloadChange, new Date().toLocaleTimeString())
+							docpad.action 'load', (err) ->
+								return docpad.fatal(err)  if err
+								performGenerate(reset:true)
+					},
+					(err,_watchers) ->
+						if err
+							docpad.warn("Watching the reload paths has failed:\n"+docpad.inspector(reloadPaths), err)
+							return complete()
+						for watcher in _watchers
+							docpad.watchers.push(watcher)
 						return complete()
-					for watcher in _watchers
-						docpad.watchers.push(watcher)
-					return complete()
-			)
+				)
 
 			# Watch regenerate paths
 			regeneratePaths = config.regeneratePaths
-			tasks.addTask "watch regenerate paths", (complete) -> docpad.watchdir(
-				paths: regeneratePaths
-				listeners:
-					'log': docpad.log
-					'error': docpad.error
-					'change': -> performGenerate(reset:true)
-				next: (err,_watchers) ->
-					if err
-						docpad.warn("Watching the regenerate paths has failed:\n"+docpad.inspector(regeneratePaths), err)
+			tasks.addTask "watch regenerate paths", (complete) ->
+				docpad.watchdirs(
+					regeneratePaths,
+					{
+						'log': docpad.log
+						'error': docpad.error
+						'change': -> performGenerate(reset:true)
+					},
+					(err,_watchers) ->
+						if err
+							docpad.warn("Watching the regenerate paths has failed:\n"+docpad.inspector(regeneratePaths), err)
+							return complete()
+						for watcher in _watchers
+							docpad.watchers.push(watcher)
 						return complete()
-					for watcher in _watchers
-						docpad.watchers.push(watcher)
-					return complete()
-			)
+				)
 
 			# Watch the source
 			srcPath = config.srcPath
-			tasks.addTask "watch the source path", (complete) -> docpad.watchdir(
-				path: srcPath
-				listeners:
-					'log': docpad.log
-					'error': docpad.error
-					'change': changeHandler
-				next: (err,watcher) ->
-					if err
-						docpad.warn("Watching the src path has failed: "+srcPath, err)
+			tasks.addTask "watch the source path", (complete) ->
+				docpad.watchdirs(
+					[srcPath],
+					{
+						'log': docpad.log
+						'error': docpad.error
+						'change': changeHandler
+					},
+					(err,_watchers) ->
+						if err
+							docpad.warn("Watching the src path has failed: "+srcPath, err)
+							return complete()
+						for watcher in _watchers
+							docpad.watchers.push(watcher)
 						return complete()
-					docpad.watchers.push(watcher)
-					return complete()
-			)
+				)
 
 			# Run
 			tasks.run()

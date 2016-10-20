@@ -43,13 +43,18 @@ docpadConfig =
 	logLevel: docpadUtil.getDefaultLogLevel()
 	skipUnsupportedPlugins: false
 	catchExceptions: false
+	b: 'instanceConfig'  # overwrite
+	c: 'instanceConfig'  # insert
+	templateData:
+		b: 'instanceConfig templateData'    # overwrite
+		c: 'instanceConfig templateData'    # insert
 	environments:
 		development:
-			a: 'instanceConfig'
-			b: 'instanceConfig'
+			b: 'instanceConfig development'  # overwrite
+			c: 'instanceConfig development'  # insert
 			templateData:
-				a: 'instanceConfig'
-				b: 'instanceConfig'
+				b: 'instanceConfig templateData development'    # overwrite
+				c: 'instanceConfig templateData development'    # insert
 
 # Fail on an uncaught error
 process.on 'uncaughtException', (err) ->
@@ -68,23 +73,25 @@ joe.suite 'docpad-actions', (suite,test) ->
 		docpad = DocPad.createInstance docpadConfig, (err) ->
 			done(err)
 
-	test 'config', (done) ->
-		expected = {a:'instanceConfig', b:'instanceConfig', c:'websiteConfig'}
+	test 'config', ->
+		expected = {a:'websiteConfig development', b:'instanceConfig development', c:'instanceConfig development'}
 		config = docpad.getConfig()
 		{a,b,c} = config
 		deepEqual(
 			{a,b,c}
-			expected
+			expected,
+			"config matched"
 		)
 
+	test 'config templateData', ->
+		expected = {a:'websiteConfig templateData development', b:'instanceConfig templateData development', c:'instanceConfig templateData development'}
 		templateData = docpad.getTemplateData()
 		{a,b,c} = templateData
 		deepEqual(
 			{a,b,c}
-			expected
+			expected,
+			"template data matched"
 		)
-
-		done()
 
 	test 'clean', (done) ->
 		docpad.action 'clean', (err) ->

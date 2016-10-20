@@ -11,17 +11,19 @@ module.exports =
 	# then we tell our test docpad site to use docpad's node modules directory for plugins
 	pluginsPaths: ['../node_modules']
 
+	a: 'websiteConfig'
+	b: 'websiteConfig'
 	environments:
 		development:
-			a: 'websiteConfig'
-			b: 'websiteConfig'
-			c: 'websiteConfig'
+			a: 'websiteConfig development'
+			b: 'websiteConfig development'
 			templateData:
-				a: 'websiteConfig'
-				b: 'websiteConfig'
-				c: 'websiteConfig'
+				a: 'websiteConfig templateData development'
+				b: 'websiteConfig templateData development'
 
 	templateData:
+		a: 'websiteConfig templateData'
+		b: 'websiteConfig templateData'
 		require: require
 
 		site:

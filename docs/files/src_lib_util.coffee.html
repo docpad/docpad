@@ -106,7 +106,6 @@ util = require(&#x27;util&#x27;)
 # External
 {uniq, compact} = require(&#x27;underscore&#x27;)
 extractOptsAndCallback = require(&#x27;extract-opts&#x27;)
-{TaskGroup} = require(&#x27;taskgroup&#x27;)
 
 
 # =====================================
@@ -410,7 +409,7 @@ module.exports = docpadUtil =
 
 		# We have multiple actions
 		if actions.length &gt; 1
-			actionTaskOrGroup = runner.createGroup &#x27;actions bundle: &#x27;+actions.join(&#x27; &#x27;)
+			actionTaskOrGroup = runner.createTaskGroup &#x27;actions bundle: &#x27;+actions.join(&#x27; &#x27;)
 
 			for action in actions
 				# Fetch

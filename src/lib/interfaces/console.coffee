@@ -325,7 +325,7 @@ class ConsoleInterface
 		opts = {}
 		opts.commander = args[-1...][0]
 		opts.args = args[...-1]
-		opts.instanceConfig = extendr.safeDeepExtendPlainObjects({}, @extractConfig(opts.commander), config)
+		opts.instanceConfig = extendr.deepDefaults({}, @extractConfig(opts.commander), config)
 
 		# Complete Action
 		completeAction = (err) ->
