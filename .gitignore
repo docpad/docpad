@@ -1,4 +1,4 @@
-# 2016 October 17
+# 2017 January 27
 # https://github.com/bevry/base
 
 # Temp Files
@@ -21,6 +21,7 @@ coffee/
 es5/
 es2015/
 esnext/
+docs/
 
 # Editor Caches
 .c9/
