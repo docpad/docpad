@@ -1,8 +1,16 @@
 # History
 
+## v6.79.2 2017 March 28
+- Fix `out/lib/testers.js` being omitted in published package (regression since v6.79.1)
+	- Without this file plugin tests break, so this fixes that
+- Fix `src/` being included in published package (regression since v6.79.1)
+	- This reduces package size once again
+- Thanks to [Sebastian Domagała](https://github.com/sdomagala) for his assistance
+
 ## v6.79.1 2017 March 28
 - Updated base files
   - This prefixes DocPad's own `./package.json`  scripts with `our:` to prevent npm v4's use of `prepare` from causing DocPad installs to fail under development conditions
+- Thanks to [Sebastian Domagała](https://github.com/sdomagala) for his assistance
 
 ## v6.79.0 2016 September 27
 - Bumped coffee-script dependency version

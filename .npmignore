@@ -47,4 +47,9 @@ bower.json
 # =====================================
 # CUSTOM MODIFICATIONS
 
-# None
+# DocPad requires out/lib/testers.js for plugin tests
+# without this it is omitted by **/test*
+!out/lib/testers.js
+
+# DocPad has no need for its source directory to be committed
+**/src/
