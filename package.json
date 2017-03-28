@@ -1,7 +1,7 @@
 {
   "title": "DocPad. Streamlined web development.",
   "name": "docpad",
-  "version": "6.79.2",
+  "version": "6.79.3",
   "description": "DocPad is a dynamic static site generator. Write your content as files, or import your content from other external sources. Render the content with plugins. And deploy your static or dynamic website to your favourite hosting provider.",
   "homepage": "http://docpad.org",
   "installUrl": "http://docpad.org/install",
@@ -199,8 +199,8 @@
     "docpad-plugin-coffeekup": "2",
     "docpad-plugin-eco": "2",
     "docpad-plugin-marked": "2",
-    "joe": "1.6.0",
-    "joe-reporter-console": "^1.2.1",
+    "joe": "~1.6.1",
+    "joe-reporter-console": "~1.2.1",
     "moment": "^2.13.0",
     "projectz": "^1.1.6",
     "yuidocjs": "^0.10.1"

@@ -1,5 +1,9 @@
 # History
 
+## v6.79.3 2017 March 29
+- Fix the `this.emitSerial` errors when running plugin tests
+  - This was due to event-emitter-grouped v2.5.0 busting joe v1.6.0 which we pinned, so pinned joe to `~1.6.1` and joe-reporter-console to `~1.2.1`
+
 ## v6.79.2 2017 March 28
 - Fix `out/lib/testers.js` being omitted in published package (regression since v6.79.1)
 	- Without this file plugin tests break, so this fixes that
