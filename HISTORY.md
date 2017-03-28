@@ -1,5 +1,9 @@
 # History
 
+## v6.79.1 2017 March 28
+- Updated base files
+  - This prefixes DocPad's own `./package.json`  scripts with `our:` to prevent npm v4's use of `prepare` from causing DocPad installs to fail under development conditions
+
 ## v6.79.0 2016 September 27
 - Bumped coffee-script dependency version
 - Fixed possible `docpad not defined` issue on `loadLocale`

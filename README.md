@@ -15,13 +15,15 @@
 <span class="badge-daviddm"><a href="https://david-dm.org/docpad/docpad" title="View the status of this project's dependencies on DavidDM"><img src="https://img.shields.io/david/docpad/docpad.svg" alt="Dependency Status" /></a></span>
 <span class="badge-daviddmdev"><a href="https://david-dm.org/docpad/docpad#info=devDependencies" title="View the status of this project's development dependencies on DavidDM"><img src="https://img.shields.io/david/dev/docpad/docpad.svg" alt="Dev Dependency Status" /></a></span>
 <br class="badge-separator" />
-<span class="badge-slackin"><a href="https://slack.bevry.me" title="Join this project's slack community"><img src="https://slack.bevry.me/badge.svg" alt="Slack community badge" /></a></span>
-<span class="badge-patreon"><a href="http://patreon.com/bevry" title="Donate to this project using Patreon"><img src="https://img.shields.io/badge/patreon-donate-yellow.svg" alt="Patreon donate button" /></a></span>
+<span class="badge-patreon"><a href="https://patreon.com/bevry" title="Donate to this project using Patreon"><img src="https://img.shields.io/badge/patreon-donate-yellow.svg" alt="Patreon donate button" /></a></span>
+<span class="badge-opencollective"><a href="https://opencollective.com/bevry" title="Donate to this project using Open Collective"><img src="https://img.shields.io/badge/open%20collective-donate-yellow.svg" alt="Open Collective donate button" /></a></span>
 <span class="badge-gratipay"><a href="https://www.gratipay.com/bevry" title="Donate weekly to this project using Gratipay"><img src="https://img.shields.io/badge/gratipay-donate-yellow.svg" alt="Gratipay donate button" /></a></span>
 <span class="badge-flattr"><a href="https://flattr.com/profile/balupton" title="Donate to this project using Flattr"><img src="https://img.shields.io/badge/flattr-donate-yellow.svg" alt="Flattr donate button" /></a></span>
 <span class="badge-paypal"><a href="https://bevry.me/paypal" title="Donate to this project using Paypal"><img src="https://img.shields.io/badge/paypal-donate-yellow.svg" alt="PayPal donate button" /></a></span>
 <span class="badge-bitcoin"><a href="https://bevry.me/bitcoin" title="Donate once-off to this project using Bitcoin"><img src="https://img.shields.io/badge/bitcoin-donate-yellow.svg" alt="Bitcoin donate button" /></a></span>
 <span class="badge-wishlist"><a href="https://bevry.me/wishlist" title="Buy an item on our wishlist for us"><img src="https://img.shields.io/badge/wishlist-donate-yellow.svg" alt="Wishlist browse button" /></a></span>
+<br class="badge-separator" />
+<span class="badge-slackin"><a href="https://slack.bevry.me" title="Join this project's slack community"><img src="https://slack.bevry.me/badge.svg" alt="Slack community badge" /></a></span>
 
 <!-- /BADGES -->
 
@@ -131,7 +133,7 @@ Here are some quick links to help you get started:
 These amazing people are maintaining this project:
 
 <ul><li><a href="http://balupton.com">Benjamin Lupton</a> — <a href="https://github.com/docpad/docpad/commits?author=balupton" title="View the GitHub contributions of Benjamin Lupton on repository docpad/docpad">view contributions</a></li>
-<li><a href="http://mikeum.us">Michael Duane Mooring</a> — <a href="https://github.com/docpad/docpad/commits?author=mikeumus" title="View the GitHub contributions of Michael Duane Mooring on repository docpad/docpad">view contributions</a></li>
+<li><a href="http://mdm.cc">Michael Duane Mooring</a> — <a href="https://github.com/docpad/docpad/commits?author=mikeumus" title="View the GitHub contributions of Michael Duane Mooring on repository docpad/docpad">view contributions</a></li>
 <li><a href="http://robloach.net">Rob Loach</a> — <a href="https://github.com/docpad/docpad/commits?author=RobLoach" title="View the GitHub contributions of Rob Loach on repository docpad/docpad">view contributions</a></li></ul>
 
 <h3>Sponsors</h3>
@@ -145,7 +147,8 @@ These amazing people have contributed finances to this project:
 
 Become a sponsor!
 
-<span class="badge-patreon"><a href="http://patreon.com/bevry" title="Donate to this project using Patreon"><img src="https://img.shields.io/badge/patreon-donate-yellow.svg" alt="Patreon donate button" /></a></span>
+<span class="badge-patreon"><a href="https://patreon.com/bevry" title="Donate to this project using Patreon"><img src="https://img.shields.io/badge/patreon-donate-yellow.svg" alt="Patreon donate button" /></a></span>
+<span class="badge-opencollective"><a href="https://opencollective.com/bevry" title="Donate to this project using Open Collective"><img src="https://img.shields.io/badge/open%20collective-donate-yellow.svg" alt="Open Collective donate button" /></a></span>
 <span class="badge-gratipay"><a href="https://www.gratipay.com/bevry" title="Donate weekly to this project using Gratipay"><img src="https://img.shields.io/badge/gratipay-donate-yellow.svg" alt="Gratipay donate button" /></a></span>
 <span class="badge-flattr"><a href="https://flattr.com/profile/balupton" title="Donate to this project using Flattr"><img src="https://img.shields.io/badge/flattr-donate-yellow.svg" alt="Flattr donate button" /></a></span>
 <span class="badge-paypal"><a href="https://bevry.me/paypal" title="Donate to this project using Paypal"><img src="https://img.shields.io/badge/paypal-donate-yellow.svg" alt="PayPal donate button" /></a></span>
@@ -171,13 +174,13 @@ These amazing people have contributed code to this project:
 <li><a href="https://github.com/chase">Chase Colman</a> — <a href="https://github.com/docpad/docpad/commits?author=chase" title="View the GitHub contributions of Chase Colman on repository docpad/docpad">view contributions</a></li>
 <li><a href="http://derberg.github.io/">Lukasz Gornicki</a> — <a href="https://github.com/docpad/docpad/commits?author=derberg" title="View the GitHub contributions of Lukasz Gornicki on repository docpad/docpad">view contributions</a></li>
 <li><a href="https://github.com/eldios">eldios</a> — <a href="https://github.com/docpad/docpad/commits?author=eldios" title="View the GitHub contributions of eldios on repository docpad/docpad">view contributions</a></li>
-<li><a href="blog.sylee.tw">Shih-Yung Lee</a> — <a href="https://github.com/docpad/docpad/commits?author=Ferrari" title="View the GitHub contributions of Shih-Yung Lee on repository docpad/docpad">view contributions</a></li>
+<li><a href="blog.sylee.tw">sylee</a> — <a href="https://github.com/docpad/docpad/commits?author=Ferrari" title="View the GitHub contributions of sylee on repository docpad/docpad">view contributions</a></li>
 <li><a href="http://greduan.com">Eduardo Lavaque</a> — <a href="https://github.com/docpad/docpad/commits?author=greduan" title="View the GitHub contributions of Eduardo Lavaque on repository docpad/docpad">view contributions</a></li>
 <li><a href="https://github.com/homme">Homme Zwaagstra</a> — <a href="https://github.com/docpad/docpad/commits?author=homme" title="View the GitHub contributions of Homme Zwaagstra on repository docpad/docpad">view contributions</a></li>
 <li><a href="http://www.jtwebman.com">JT Turner</a></li>
 <li><a href="http://blog.blase16.de/">Bahtiar `kalkin-` Gadimov</a></li>
 <li><a href="lukehagan.com">Luke Hagan</a> — <a href="https://github.com/docpad/docpad/commits?author=lhagan" title="View the GitHub contributions of Luke Hagan on repository docpad/docpad">view contributions</a></li>
-<li><a href="http://mikeum.us">Michael Duane Mooring</a> — <a href="https://github.com/docpad/docpad/commits?author=mikeumus" title="View the GitHub contributions of Michael Duane Mooring on repository docpad/docpad">view contributions</a></li>
+<li><a href="http://mdm.cc">Michael Duane Mooring</a> — <a href="https://github.com/docpad/docpad/commits?author=mikeumus" title="View the GitHub contributions of Michael Duane Mooring on repository docpad/docpad">view contributions</a></li>
 <li><a href="www.myplanetdigital.com">Neil Taylor</a> — <a href="https://github.com/docpad/docpad/commits?author=neilbaylorrulez" title="View the GitHub contributions of Neil Taylor on repository docpad/docpad">view contributions</a></li>
 <li><a href="http://nfriedly.com/">Nathan Friedly</a> — <a href="https://github.com/docpad/docpad/commits?author=nfriedly" title="View the GitHub contributions of Nathan Friedly on repository docpad/docpad">view contributions</a></li>
 <li><a href="http://nickcrohn.com/">Nick Crohn</a> — <a href="https://github.com/docpad/docpad/commits?author=ncrohn" title="View the GitHub contributions of Nick Crohn on repository docpad/docpad">view contributions</a></li>
@@ -202,7 +205,7 @@ These amazing people have contributed code to this project:
 <li><a href="https://github.com/vsopvsop">vsopvsop</a> — <a href="https://github.com/docpad/docpad/commits?author=vsopvsop" title="View the GitHub contributions of vsopvsop on repository docpad/docpad">view contributions</a></li>
 <li><a href="https://github.com/Zearin">Zearin</a> — <a href="https://github.com/docpad/docpad/commits?author=Zearin" title="View the GitHub contributions of Zearin on repository docpad/docpad">view contributions</a></li>
 <li><a href="http://firede.us">Firede</a> — <a href="https://github.com/docpad/docpad/commits?author=firede" title="View the GitHub contributions of Firede on repository docpad/docpad">view contributions</a></li>
-<li><a href="https://github.com/jtwebman">JT Turner</a> — <a href="https://github.com/docpad/docpad/commits?author=jtwebman" title="View the GitHub contributions of JT Turner on repository docpad/docpad">view contributions</a></li>
+<li><a href="http://jtwebman.com">JT Turner</a> — <a href="https://github.com/docpad/docpad/commits?author=jtwebman" title="View the GitHub contributions of JT Turner on repository docpad/docpad">view contributions</a></li>
 <li><a href="https://github.com/timaschew">Anton Wilhelm</a> — <a href="https://github.com/docpad/docpad/commits?author=timaschew" title="View the GitHub contributions of Anton Wilhelm on repository docpad/docpad">view contributions</a></li>
 <li><a href="http://bahtiar.gadimov.de/">Bahtiar Gadimov</a> — <a href="https://github.com/docpad/docpad/commits?author=kalkin" title="View the GitHub contributions of Bahtiar Gadimov on repository docpad/docpad">view contributions</a></li>
 <li><a href="http://blog.shawnzhu.com">Ke Zhu</a> — <a href="https://github.com/docpad/docpad/commits?author=shawnzhu" title="View the GitHub contributions of Ke Zhu on repository docpad/docpad">view contributions</a></li>
