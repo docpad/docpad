@@ -1,41 +1,10 @@
 {
   "title": "DocPad. Streamlined web development.",
   "name": "docpad",
-  "version": "6.79.3",
+  "version": "6.79.4",
   "description": "DocPad is a dynamic static site generator. Write your content as files, or import your content from other external sources. Render the content with plugins. And deploy your static or dynamic website to your favourite hosting provider.",
-  "homepage": "http://docpad.org",
-  "installUrl": "http://docpad.org/install",
-  "upgradeUrl": "http://docpad.org/upgrade",
+  "homepage": "https://github.com/docpad/docpad",
   "license": "MIT",
-  "badges": {
-    "list": [
-      "travisci",
-      "npmversion",
-      "npmdownloads",
-      "daviddm",
-      "daviddmdev",
-      "---",
-      "patreon",
-      "opencollective",
-      "gratipay",
-      "flattr",
-      "paypal",
-      "bitcoin",
-      "wishlist",
-      "---",
-      "slackin"
-    ],
-    "config": {
-      "patreonUsername": "bevry",
-      "opencollectiveUsername": "bevry",
-      "gratipayUsername": "bevry",
-      "flattrUsername": "balupton",
-      "paypalURL": "https://bevry.me/paypal",
-      "bitcoinURL": "https://bevry.me/bitcoin",
-      "wishlistURL": "https://bevry.me/wishlist",
-      "slackinURL": "https://slack.bevry.me"
-    }
-  },
   "keywords": [
     "document management system",
     "dms",
@@ -70,6 +39,35 @@
     "utility",
     "scaffold"
   ],
+  "badges": {
+    "list": [
+      "travisci",
+      "npmversion",
+      "npmdownloads",
+      "daviddm",
+      "daviddmdev",
+      "---",
+      "patreon",
+      "opencollective",
+      "gratipay",
+      "flattr",
+      "paypal",
+      "bitcoin",
+      "wishlist",
+      "---",
+      "slackin"
+    ],
+    "config": {
+      "patreonUsername": "bevry",
+      "opencollectiveUsername": "bevry",
+      "gratipayUsername": "bevry",
+      "flattrUsername": "balupton",
+      "paypalURL": "https://bevry.me/paypal",
+      "bitcoinURL": "https://bevry.me/bitcoin",
+      "wishlistURL": "https://bevry.me/wishlist",
+      "slackinURL": "https://slack.bevry.me"
+    }
+  },
   "author": "2012+ Bevry Pty Ltd <us@bevry.me> (http://bevry.me), Benjamin Lupton <b@lupton.cc> (http://balupton.com)",
   "sponsors": [
     "Myplanet Digital <hello@myplanetdigital.com> (http://www.myplanetdigital.com)",
@@ -151,6 +149,35 @@
     "node": ">=0.10",
     "npm": ">=2.5.0"
   },
+  "editions": [
+    {
+      "description": "Source + CoffeeScript + Require",
+      "entry": "lib/docpad.coffee",
+      "directory": "src",
+      "syntaxes": [
+        "coffeescript",
+        "require"
+      ]
+    },
+    {
+      "description": "CoffeeScript Compiled JavaScript + ES5 + Require",
+      "entry": "lib/docpad.js",
+      "directory": "out",
+      "syntaxes": [
+        "javascript",
+        "es5",
+        "require"
+      ]
+    }
+  ],
+  "bin": {
+    "docpad": "bin/docpad",
+    "docpad-compile": "bin/docpad-compile",
+    "docpad-debug": "bin/docpad-debug",
+    "docpad-server": "bin/docpad-server",
+    "docpad-trace": "bin/docpad-trace"
+  },
+  "main": "out/lib/docpad.js",
   "dependencies": {
     "ambi": "^2.2.0",
     "backbone": "1.2.3",
@@ -191,56 +218,26 @@
     "watchr": "^2.4.13",
     "yamljs": "~0.2.1"
   },
-  "optionalDependencies": {},
   "devDependencies": {
-    "assert-helpers": "^4.4.0",
-    "coffee-script": "^1.11.0",
-    "coffeelint": "^1.15.7",
+    "assert-helpers": "^4.5.0",
+    "coffee-script": "^1.12.4",
+    "coffeelint": "^1.16.0",
     "docpad-plugin-coffeekup": "2",
     "docpad-plugin-eco": "2",
     "docpad-plugin-marked": "2",
     "joe": "~1.6.1",
     "joe-reporter-console": "~1.2.1",
     "moment": "^2.13.0",
-    "projectz": "^1.1.6",
+    "projectz": "^1.3.2",
     "yuidocjs": "^0.10.1"
   },
-  "editions": [
-    {
-      "description": "Source + CoffeeScript + Require",
-      "entry": "src/lib/docpad.coffee",
-      "directory": "src",
-      "syntaxes": [
-        "coffeescript",
-        "require"
-      ]
-    },
-    {
-      "description": "CoffeeScript Compiled JavaScript + ES5 + Require",
-      "entry": "out/lib/docpad.js",
-      "directory": "out",
-      "syntaxes": [
-        "javascript",
-        "es5",
-        "require"
-      ]
-    }
-  ],
-  "main": "out/lib/docpad.js",
-  "bin": {
-    "docpad": "./bin/docpad",
-    "docpad-compile": "./bin/docpad-compile",
-    "docpad-debug": "./bin/docpad-debug",
-    "docpad-server": "./bin/docpad-server",
-    "docpad-trace": "./bin/docpad-trace"
-  },
   "scripts": {
-    "our:setup": "npm install",
-    "our:clean": "rm -Rf ./docs ./es2015 ./out",
-    "our:compile": "npm run our:compile:coffeescript",
-    "our:compile:coffeescript": "coffee -bco ./out ./src",
-    "our:meta": "npm run our:meta:yuidoc && npm run our:meta:projectz",
-    "our:meta:yuidoc": "yuidoc -o ./docs --syntaxtype coffee -e .coffee ./src",
+    "our:setup": "npm run our:setup:npm",
+    "our:setup:npm": "npm install",
+    "our:clean": "rm -Rf ./docs ./es2015 ./es5 ./out",
+    "our:compile": "npm run our:compile:coffee",
+    "our:compile:coffee": "coffee -bco ./out ./src",
+    "our:meta": "npm run our:meta:projectz",
     "our:meta:projectz": "projectz compile",
     "our:verify": "npm run our:verify:coffeelint",
     "our:verify:coffeelint": "coffeelint ./src",
@@ -253,5 +250,7 @@
     "our:release:tag": "export MESSAGE=$(cat ./HISTORY.md | sed -n \"/## v$npm_package_version/,/##/p\" | sed 's/## //' | awk 'NR>1{print buf}{buf = $0}') && test \"$MESSAGE\" || (echo 'proper changelog entry not found' && exit -1) && git tag v$npm_package_version -am \"$MESSAGE\"",
     "our:release:push": "git push origin master && git push origin --tags",
     "test": "node --harmony ./out/test/everything-test.js --joe-reporter=console"
-  }
+  },
+  "installUrl": "https://docpad.org/install",
+  "upgradeUrl": "https://docpad.org/upgrade"
 }

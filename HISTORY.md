@@ -1,5 +1,10 @@
 # History
 
+## v6.79.4 2017 March 31
+- Fixed DocPad having stdin errors on exit under certain circumstances
+   - Thanks to [Craig Smith](https://github.com/craigsssmith) for [issue #1049](https://github.com/docpad/docpad/pull/1049)
+- Updated base files
+
 ## v6.79.3 2017 March 29
 - Fix the `this.emitSerial` errors when running plugin tests
   - This was due to event-emitter-grouped v2.5.0 busting joe v1.6.0 which we pinned, so pinned joe to `~1.6.1` and joe-reporter-console to `~1.2.1`
