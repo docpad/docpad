@@ -266,6 +266,11 @@ class ConsoleInterface
 		# Log Shutdown
 		docpad.log('info', locale.consoleShutdown)
 
+		# Handle any errors that occur when stdin is closed
+		process.stdin.on 'error', (err) ->
+			if 6 < logLevel
+				console.log err
+
 		# Close stdin
 		process.stdin.end()
 
