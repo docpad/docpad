@@ -984,7 +984,7 @@ class FileModel extends Model
 					encoding ?= jschardet.detect(buffer)?.encoding
 
 				# Default the encoding
-				encoding or= 'utf8'
+				encoding or= 'utf-8'
 
 				# Convert into utf8
 				if docpadUtil.isStandardEncoding(encoding) is false
@@ -1015,7 +1015,7 @@ class FileModel extends Model
 		# Text
 		else
 			# Default
-			encoding = changes.encoding = 'utf8'  if encoding? is false
+			encoding = changes.encoding = 'utf-8'  if encoding? is false
 
 			# Set
 			source = buffer?.toString('utf8') or ''
@@ -1266,7 +1266,7 @@ class FileModel extends Model
 
 		# Fetch
 		opts.path      or= file.get('outPath')
-		opts.encoding  or= file.get('encoding') or 'utf8'
+		opts.encoding  or= file.get('encoding') or 'utf-8'
 		opts.content   or= file.getOutContent()
 		opts.type      or= 'out file'
 
