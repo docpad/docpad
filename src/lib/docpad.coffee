@@ -498,13 +498,14 @@ class DocPad extends EventEmitterGrouped
 	###*
 	# Event Listing. String array of event names.
 	# Whenever an event is created, it must be applied here to be available to plugins and configuration files
-	# https://github.com/bevry/docpad/wiki/Events
+	# Events must be sorted by the order of execution, not for a functional need, but for a documentation need
+	# Whenever this array changes, also update: https://docpad.org/docs/events/
 	# @private
 	# @property {Array} string array of event names
 	###
 	events: [
-		'extendTemplateData'           # fired each load
 		'extendCollections'            # fired each load
+		'extendTemplateData'           # fired each load
 		'docpadLoaded'                 # fired multiple times, first time command line configuration hasn't been applied yet
 		'docpadReady'                  # fired only once
 		'docpadDestroy'                # fired once on shutdown
