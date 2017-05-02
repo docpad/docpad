@@ -1428,7 +1428,7 @@
 	- [Chai](http://chaijs.com/) 1.1.x to 1.3.x
 - Removed ability to require uncompiled plugins
 	- This is due to the CoffeeScript 1.4.x from 1.3.x upgrade
-- `skeletonNonexistant` now tells us the path it checked
+- `skeletonNonexistent` now tells us the path it checked
 
 
 ## v6.8.4 2012 October 25
