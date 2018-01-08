@@ -1,7 +1,7 @@
 {
 	# Subscription
 	tosPrompt: """
-		Before we continue, have you read and agree to DocPad's Terms of Service (http://bevry.me/tos) and Privacy Policy (http://bevry.me/privacy)?
+		Before we continue, have you read and agree to DocPad's Terms of Service (https://bevry.me/#today) and Privacy Policy (https://bevry.me/#today)?
 		"""
 	tosAgree: """
 		Fantastic. We like informed people!
@@ -21,7 +21,7 @@
 	subscribeIgnore: "No worries. Continuing with the desired action."
 	subscribeProgress: "Subscribing..."
 	subscribeRequestData: "Subscription request data:"
-	subscribeRequestError: "Subsction request error:"
+	subscribeRequestError: "Subscription request error:"
 
 	# Skeleton
 	pleaseWait: "\nThis can take a moment..."
@@ -36,9 +36,9 @@
 		We couldn't find an existing DocPad project inside your current directory. Looked at: %s
 		If you're wanting to use a pre-made skeleton for the basis of your new project, then run DocPad again inside an empty directory.
 		If you're wanting to start your new project from scratch, then refer to the Getting Started guide here:
-		    http://docpad.org/docs/start
+		    https://docpad.org/docs/begin/
 		For more information about what this means, visit:
-		    http://docpad.org/troubleshoot
+		    https://docpad.org/docs/troubleshoot/
 		"""
 	skeletonNoneName: "No Skeleton"
 	skeletonNoneDescription: "Prefer to start from scratch? You can get started without any skeleton if you wish"
@@ -76,11 +76,11 @@
 		The document %s tried to overwrite its `id` attribute with its meta-data.
 		This will cause unexpected issues. We have ignored the `id` attribute changes to prevent further errors.
 		We recommend you rename the `id` meta-data attribute on this document to something else.
-		For more information, see: https://github.com/bevry/docpad/issues/742
+		For more information, see: https://github.com/docpad/docpad/issues/742
 		"""
 	documentRenderExtensionNoChange: """
 		Rendering the extension \"%s\" to \"%s\" on \"%s\" didn't do anything.
-		Explanation here: http://docpad.org/extension-not-rendering
+		Explanation here: https://github.com/docpad/docpad/issues/192
 		"""
 	documentMissingLayoutError: "Could not find the layout %s on %s"
 	documentApplyError: "The `apply` option when rendering documents is now deprecated. Use `document.clone().action('render', ...)` instead"
@@ -100,7 +100,7 @@
 	renderParsing: 'Parsing everything'
 	renderParsed: 'Parsed everything'
 	renderNonexistant: 'Cannot generate website as the src dir was not found'
-	renderNoPlugins: "DocPad is currently running without any plugins installed. You probably want to install some: http://docpad.org/plugins"
+	renderNoPlugins: "DocPad is currently running without any plugins installed. You probably want to install some: https://docpad.org/docs/plugins/"
 	renderDirectoryParsing: "Parsing directory: %s"
 	renderDirectoryParsed: "Parsed directory: %s"
 	renderDirectoryNonexistant: "Skipped directory: %s (it does not exist)"
@@ -136,17 +136,17 @@
 	pluginNamingConventionInvalid: """
 		The plugin %s uses an invalid naming convention. We only allow alphanumeric characters (no symbols). Perhaps change it to %s
 		For more information about what this means, visit:
-		    http://docpad.org/plugin-conventions
+		    https://github.com/docpad/docpad/issues/313
 		"""
 	pluginPrototypeNameUndefined: """
 		The plugin %s did not have its name defined in its prototype, defaulting it to the directory naming convention.
 		For more information about what this means, visit:
-		    http://docpad.org/plugin-conventions
+		    https://github.com/docpad/docpad/issues/313
 		"""
 	pluginPrototypeNameDifferent: """
 		The plugin %s is using a different name (%s) for its prototype name. This can cause issues.
 		For more information about what this means, visit:
-		    http://docpad.org/plugin-conventions
+		    https://github.com/docpad/docpad/issues/313
 		"""
 
 	# Collections
@@ -193,7 +193,7 @@
 	consoleDescriptionUninstall: "uninstall a plugin"
 	consoleDescriptionUpdate: "update your local DocPad and plugin installations to their latest compatible version"
 	consoleDescriptionUpgrade: "upgrade your global DocPad and NPM installations to the latest"
-	consoleDescriptionClean: "ensure everything is cleaned correctly (will remove your out directory)"
+	consoleDescriptionClean: "ensure everything is cleaned correctly (will remove your output directory)"
 	consoleDescriptionInfo: "display the information about your docpad instance"
 	consoleDescriptionHelp: "output the help"
 	consoleDescriptionUnknown: "anything else outputs the help"
@@ -226,13 +226,13 @@
 	renderedEarlyViaInclude: """
 		Your include of %s has failed as that document has not been rendered yet.
 		For more information about what this means, visit:
-		    http://docpad.org/render-early-via-include
+		    https://github.com/docpad/docpad/issues/378
 		"""
 	versionGlobal: "v%s (global installation: %s)"
 	versionLocal: "v%s (local installation: %s)"
 	welcome: "Welcome to DocPad %s"
-	welcomeContribute: "Contribute: http://docpad.org/docs/contribute"
-	welcomeDonate: "Please donate to DocPad or have your company sponsor it: http://docpad.org/donate"
+	welcomeContribute: "Contribute: https://docpad.org/docs/contribute/"
+	welcomeDonate: "Please donate to DocPad or have your company sponsor it: https://bevry.me/#donate"
 	welcomePlugins: "Plugins: %s"
 	welcomeEnvironment: "Environment: %s"
 	includeFailed: "Could not include the file at path %s as we could not find it"
@@ -242,7 +242,7 @@
 		The plugin %s is using uncompiled CoffeeScript files.
 		  Supporting uncompiled plugins has been deprecated; only legacy support remains.
 		  You may want to report this warning to %s so the plugin author can address it.
-		  For more information, visit: http://docpad.org/plugin-uncompiled
+		  For more information, visit: https://github.com/docpad/docpad/issues/925
 		"""
 	pluginUncompiledFailed: """
 		The uncompiled plugin %s failed to load as DocPad no longer has the ability to load it.
@@ -254,7 +254,7 @@
 		"""
 	warnOccured: "A warning occured:"
 	errorOccured: "An error occured:"
-	errorSubmission: "To report the above, follow the guide at: http://docpad.org/bug-report"
+	errorSubmission: "To report the above, follow the guide at: https://discuss.bevry.me/t/official-bevry-support-channels/63"
 	errorLoggedTo: "Error has been logged to: %s"
 	errorFollows: "\nThe error follows:"
 	errorInvalidCollection: "The custom collection %s is not a valid collection instance"
