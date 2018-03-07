@@ -15,6 +15,8 @@
 - Removed DocPad's custom `--profile` handling, as there are now more modern ways of debugging node apps
 - Removed `safeMode` option as it was never implemented completely
 - Configuration loading is merged more accurately, details at https://github.com/docpad/docpad/issues/1045#issuecomment-231649384
+- Logger references are now removed when loggers are destroyed
+- stdin errors changed to log level 6
 
 ## v6.79.4 2017 March 31
 - Fixed DocPad having stdin errors on exit under certain circumstances
