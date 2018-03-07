@@ -74,11 +74,11 @@ class FileModel extends Model
 	type: 'file'
 
 	###*
-	# Task Group Class
+	# Task Group creator method
 	# @private
-	# @property {Object} TaskGroup
+	# @property {Object} Function
 	###
-	TaskGroup: null
+	createTaskGroup: null
 
 	###*
 	# The out directory path to put the relative path.
@@ -146,7 +146,7 @@ class FileModel extends Model
 	###
 	# @TODO: why does this not use the isOption way?
 	getOptions: ->
-		return {@detectEncoding, @rootOutDirPath, @locale, @stat, @buffer, @meta, @TaskGroup}
+		return {@detectEncoding, @rootOutDirPath, @locale, @stat, @buffer, @meta, @createTaskGroup}
 
 	###*
 	# Checks whether the passed key is one
@@ -157,7 +157,7 @@ class FileModel extends Model
 	# @return {Boolean}
 	###
 	isOption: (key) ->
-		names = ['detectEncoding', 'rootOutDirPath', 'locale', 'stat', 'data', 'buffer', 'meta', 'TaskGroup']
+		names = ['detectEncoding', 'rootOutDirPath', 'locale', 'stat', 'data', 'buffer', 'meta', 'createTaskGroup']
 		result = key in names
 		return result
 
@@ -191,9 +191,9 @@ class FileModel extends Model
 	###
 	setOptions: (attrs={}) ->
 		# TaskGroup
-		if attrs.TaskGroup?
-			@TaskGroup = attrs.TaskGroup
-			delete @attributes.TaskGroup
+		if attrs.createTaskGroup?
+			@createTaskGroup = attrs.createTaskGroup
+			delete @attributes.createTaskGroup
 
 		# Root Out Path
 		if attrs.detectEncoding?
@@ -526,7 +526,7 @@ class FileModel extends Model
 	# @return {Object}
 	###
 	toJSON: (dereference=false) ->
-		data = super
+		data = super()
 		data.meta = @getMeta().toJSON()
 		data = extendr.dereferenceJSON(data)  if dereference is true
 		return data
@@ -655,7 +655,7 @@ class FileModel extends Model
 	# the opts parameter are: fullPath, relativePath
 	# or filename. Format: {filename}
 	# @method getFilename
-	# @param {Object} [opts={}]
+	# @param {Object} [opts]
 	# @return {String}
 	###
 	getFilename: (opts={}) ->
@@ -681,7 +681,7 @@ class FileModel extends Model
 	# fullPath, relativePath
 	# or filename. Format: {fullPath}
 	# @method getFilePath
-	# @param {Object} [opts={}]
+	# @param {Object} [opts]
 	# @return {String}
 	###
 	getFilePath: (opts={}) ->
@@ -729,6 +729,32 @@ class FileModel extends Model
 	###
 	getOutContent: ->
 		return @getContent()
+
+	###*
+	# Get the content type header for the file.
+	# @method getContentTypeHeader
+	# @return {String}
+	###
+	getContentTypeHeader: ->
+		locale = @getLocale()
+
+		contentType = @get('outContentType') or @get('contentType')
+		unless contentType
+			throw new Error(util.format(locale.documentMissingContentType, @getFilePath()))
+
+		encoding = @get('encoding')
+
+		parts = [contentType]
+
+		if encoding
+			if encoding in ['utf8', 'utf-8']
+				charset = 'utf-8'
+			else
+				charset = encoding
+			parts.push("charset=#{charset}")
+
+		contentTypeHeader = parts.join('; ')
+		return contentTypeHeader
 
 	###*
 	# Is this a text file? ie - not
@@ -848,9 +874,9 @@ class FileModel extends Model
 	# attributes and options. Emits the init event.
 	# @method initialize
 	# @param {Object} attrs the file model attributes
-	# @param {Object} [opts={}] the file model options
+	# @param {Object} [opts] the file model options
 	###
-	initialize: (attrs,opts={}) ->
+	initialize: (attrs,opts) ->
 		# Defaults
 		file = @
 		@attributes ?= {}
@@ -871,7 +897,7 @@ class FileModel extends Model
 			throw new Error("Use docpad.createModel to create the file or document model")
 
 		# Create our action runner
-		@actionRunnerInstance = new @TaskGroup("file action runner", {abortOnError: false, destroyOnceDone: false}).whenDone (err) ->
+		@actionRunnerInstance = @createTaskGroup("file action runner", {abortOnError: false, destroyOnceDone: false}).whenDone (err) ->
 			file.emit('error', err)  if err
 
 		# Apply
@@ -886,10 +912,10 @@ class FileModel extends Model
 	# If it doesn't, then parse and normalize the file.
 	# Optionally pass file options as a parameter.
 	# @method load
-	# @param {Object} [opts={}]
+	# @param {Object} [opts]
 	# @param {Function} next callback
 	###
-	load: (opts={},next) ->
+	load: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 		file = @
@@ -905,7 +931,7 @@ class FileModel extends Model
 		file.setBuffer(opts.buffer)    if opts.buffer?
 
 		# Tasks
-		tasks = new @TaskGroup("load tasks for file: #{filePath}", {next})
+		tasks = @createTaskGroup("load tasks for file: #{filePath}", {next})
 			.on('item.run', (item) ->
 				file.log("debug", "#{item.getConfig().name}: #{file.type}: #{filePath}")
 			)
@@ -960,10 +986,10 @@ class FileModel extends Model
 	# Parse our buffer and extract meaningful data from it.
 	# next(err).
 	# @method parse
-	# @param {Object} [opts={}]
+	# @param {Object} [opts]
 	# @param {Object} next callback
 	###
-	parse: (opts={},next) ->
+	parse: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
 		buffer = @getBuffer()
@@ -1037,10 +1063,10 @@ class FileModel extends Model
 	# This will ensure everything is okay.
 	# next(err)
 	# @method normalize
-	# @param {Object} [opts={}]
+	# @param {Object} [opts]
 	# @param {Object} next callback
 	###
-	normalize: (opts={},next) ->
+	normalize: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 		changes = {}
@@ -1115,7 +1141,7 @@ class FileModel extends Model
 
 		# force contentType
 		if !contentType
-			changes.contentType = contentType = mime.lookup(fullPath or relativePath)
+			changes.contentType = contentType = mime.getType(fullPath or relativePath)
 
 		# adjust tags
 		if tags and typeChecker.isArray(tags) is false
@@ -1182,7 +1208,7 @@ class FileModel extends Model
 
 		# force outContentType
 		if !outContentType and contentType
-			changes.outContentType = outContentType = mime.lookup(outPath or relativeOutPath) or contentType
+			changes.outContentType = outContentType = mime.getType(outPath or relativeOutPath) or contentType
 
 		# force slug
 		if !slug
@@ -1208,10 +1234,10 @@ class FileModel extends Model
 	# For instance, generate the url for it's rendered equivalant.
 	# next(err)
 	# @method contextualize
-	# @param {Object} [opts={}]
+	# @param {Object} [opts]
 	# @param {Object} next callback
 	###
-	contextualize: (opts={},next) ->
+	contextualize: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 
@@ -1226,10 +1252,10 @@ class FileModel extends Model
 	# in the callback's document (3rd) parameter.
 	# next(err,result,document)
 	# @method render
-	# @param {Object} [opts={}]
+	# @param {Object} [opts]
 	# @param {Object} next callback
 	###
-	render: (opts={},next) ->
+	render: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
 		file = @

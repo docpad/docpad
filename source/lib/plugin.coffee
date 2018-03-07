@@ -194,8 +194,11 @@ class BasePlugin
 				# Apply the priority
 				eventHandlerPriority = pluginInstance[eventName+'Priority'] or pluginInstance.priority or null
 				eventHandler.priority ?= eventHandlerPriority
-				eventHandler.name = "#{pluginInstance.name}: {eventName}"
-				eventHandler.name += "(priority eventHandler.priority})"  if eventHandler.priority?
+				try
+					eventHandler.name = "#{pluginInstance.name}: {eventName}"
+					eventHandler.name += "(priority eventHandler.priority})"  if eventHandler.priority?
+				catch ignoredError
+					# newer versions of node do not allow writing the name property on functions, as it is readonly
 
 				# Wrap the event handler, and bind it to docpad
 				docpad

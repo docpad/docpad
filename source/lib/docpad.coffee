@@ -1827,6 +1827,7 @@ class DocPad extends EventEmitterGrouped
 	###
 	constructor: (instanceConfig,next) ->
 		# Prepare
+		super()
 		[instanceConfig,next] = extractOptsAndCallback(instanceConfig, next)
 		docpad = @
 
@@ -3631,7 +3632,8 @@ class DocPad extends EventEmitterGrouped
 	# @param {Error} next.err
 	# @param {Object} next.files files collection
 	###
-	parseFileDirectory: (opts={},next) ->
+	parseFileDirectory: (opts,next) ->
+		[opts,next] = extractOptsAndCallback(opts, next)
 		opts.modelType ?= 'file'
 		opts.collection ?= @getDatabase()
 		return @parseDirectory(opts, next)
@@ -3656,7 +3658,8 @@ class DocPad extends EventEmitterGrouped
 	# @param {Error} next.err
 	# @param {Object} next.files files collection of documents
 	###
-	parseDocumentDirectory: (opts={},next) ->
+	parseDocumentDirectory: (opts,next) ->
+		[opts,next] = extractOptsAndCallback(opts, next)
 		opts.modelType ?= 'document'
 		opts.collection ?= @getDatabase()
 		return @parseDirectory(opts, next)
@@ -3695,7 +3698,7 @@ class DocPad extends EventEmitterGrouped
 					docpad.emitSerial('renderDocument', args...)
 
 				# Fetch a layout
-				model.on 'getLayout', (opts={},next) ->
+				model.on 'getLayout', (opts,next) ->
 					opts.collection = docpad.getCollection('layouts')
 					layout = docpad.getFileBySelector(opts.selector, opts)
 					next(null, {layout})
@@ -3864,7 +3867,7 @@ class DocPad extends EventEmitterGrouped
 			detectEncoding: config.detectEncoding
 			rootOutDirPath: config.outPath
 			locale: @getLocale()
-			TaskGroup: @createTaskGroup  # @TODO this a bit dodgy, but works well enough
+			createTaskGroup: @createTaskGroup  # @TODO this a bit dodgy, but works well enough
 		}, opts)
 
 		if opts.modelType is 'file'
@@ -3892,7 +3895,7 @@ class DocPad extends EventEmitterGrouped
 	# @param {Error} next.err
 	# @param {Object} next.files files collection
 	###
-	parseDirectory: (opts={},next) ->
+	parseDirectory: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
 		docpad = @
@@ -4320,7 +4323,7 @@ class DocPad extends EventEmitterGrouped
 	# @param {Function} next
 	# @param {Error} next.err
 	###
-	contextualizeFiles: (opts={},next) ->
+	contextualizeFiles: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 		{collection,templateData} = opts
@@ -4399,7 +4402,7 @@ class DocPad extends EventEmitterGrouped
 	# @param {Function} next
 	# @param {Error} next.err
 	###
-	renderFiles: (opts={},next) ->
+	renderFiles: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 		{collection,templateData,renderPasses} = opts
@@ -4522,7 +4525,7 @@ class DocPad extends EventEmitterGrouped
 	# @param {Function} next
 	# @param {Error} next.err
 	###
-	writeFiles: (opts={},next) ->
+	writeFiles: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 		{collection,templateData} = opts
@@ -6158,6 +6161,7 @@ class DocPad extends EventEmitterGrouped
 		{document,err,req,res} = opts
 		docpad = @
 		config = @getConfig()
+		locale = @getLocale()
 
 		# If no document, then exit early
 		unless document
@@ -6170,18 +6174,13 @@ class DocPad extends EventEmitterGrouped
 		res.setHeaderIfMissing ?= (name, value) ->
 			res.setHeader(name, value)  unless res.getHeader(name)
 
-		# Content Type + Encoding/Charset
-		encoding = document.get('encoding')
-		charset = 'utf-8'  if encoding in ['utf8', 'utf-8']
-		contentType = document.get('outContentType') or document.get('contentType')
-		res.setHeaderIfMissing('Content-Type', contentType + (if charset then "; charset=#{charset}" else ''))
-
 		# Cache-Control (max-age)
 		res.setHeaderIfMissing('Cache-Control', "public, max-age=#{config.maxAge}")  if config.maxAge
 
 		# Send
 		dynamic = document.get('dynamic')
 		if dynamic
+			docpad.log('warn', util.format(locale.documentDynamicError, document.getFilePath()))
 			# If you are debugging why a dynamic document isn't rendering
 			# it could be that you don't have cleanurls installed
 			# e.g. if index.html is dynamic, and you are accessing it via /
@@ -6202,6 +6201,9 @@ class DocPad extends EventEmitterGrouped
 						return res.send(content)
 
 		else
+			# Content Type + Encoding/Charset
+			res.setHeaderIfMissing('Content-Type', document.getContentTypeHeader())
+
 			# ETag: `"<size>-<mtime>"`
 			ctime = document.get('date')    # use the date or mtime, it should always exist
 			mtime = document.get('wtime')   # use the last generate time, it may not exist though

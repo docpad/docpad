@@ -181,10 +181,10 @@ class DocumentModel extends FileModel
 	# Parse our buffer and extract meaningful data from it.
 	# next(err).
 	# @method parse
-	# @param {Object} [opts={}]
+	# @param {Object} [opts]
 	# @param {Object} next callback
 	###
-	parse: (opts={},next) ->
+	parse: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 		buffer = @getBuffer()
@@ -347,10 +347,10 @@ class DocumentModel extends FileModel
 	# This will ensure everything is okay.
 	# next(err)
 	# @method normalize
-	# @param {Object} [opts={}]
+	# @param {Object} [opts]
 	# @param {Object} next callback
 	###
-	normalize: (opts={},next) ->
+	normalize: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 		changes = {}
@@ -377,10 +377,10 @@ class DocumentModel extends FileModel
 	# For instance, generate the url for it's rendered equivalant.
 	# next(err)
 	# @method contextualize
-	# @param {Object} [opts={}]
+	# @param {Object} [opts]
 	# @param {Object} next callback
 	###
-	contextualize: (opts={},next) ->
+	contextualize: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
 
@@ -548,7 +548,7 @@ class DocumentModel extends FileModel
 		return next(null, result)  if extensionsReversed.length <= 1
 
 		# Prepare the tasks
-		tasks = new @TaskGroup "renderExtensions: #{filePath}", next:(err) ->
+		tasks = @createTaskGroup "renderExtensions: #{filePath}", next:(err) ->
 			# Forward with result
 			return next(err, result)
 
@@ -681,10 +681,10 @@ class DocumentModel extends FileModel
 	# instance is returned in the document parameter.
 	# next(err,result,document)
 	# @method render
-	# @param {Object} [opts={}]
+	# @param {Object} [opts]
 	# @param {Function} next callback
 	###
-	render: (opts={},next) ->
+	render: (opts,next) ->
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
 		file = @
@@ -722,7 +722,7 @@ class DocumentModel extends FileModel
 		file.log 'debug', util.format(locale.documentRender, filePath)
 
 		# Prepare the tasks
-		tasks = new @TaskGroup "render tasks for: #{relativePath}", next:(err) ->
+		tasks = @createTaskGroup "render tasks for: #{relativePath}", next:(err) ->
 			# Error?
 			if err
 				err.context = util.format(locale.documentRenderError, filePath)

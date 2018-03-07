@@ -1,5 +1,8 @@
-# 2017 January 27
+# 2017 April 12
 # https://github.com/bevry/base
+
+# System Files
+**/.DS_Store
 
 # Temp Files
 yarn.lock
@@ -25,6 +28,7 @@ docs/
 
 # Editor Caches
 .c9/
+.vscode/
 
 # Private Files
 .env

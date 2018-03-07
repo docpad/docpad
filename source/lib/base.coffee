@@ -93,7 +93,7 @@ class QueryCollection extends queryEngine.QueryCollection
 	emit: emit
 
 	setParentCollection: ->
-		super
+		super(arguments...)
 		parentCollection = @getParentCollection()
 		parentCollection.on('destroy', @destroy)
 		@

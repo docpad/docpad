@@ -56,7 +56,7 @@ class FilesCollection extends QueryCollection
 	initialize: (attrs,opts={}) ->
 		@options ?= {}
 		@options.name ?= opts.name or null
-		super
+		super(arguments...)
 
 	###*
 	# Fuzzy find one

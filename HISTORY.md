@@ -1,5 +1,20 @@
 # History
 
+## Upcoming
+- Now compiled with CoffeeScript v2
+  - To use with CoffeeScript v1 plugins, you will need to add the following environment variable `EDITIONS_SYNTAX_BLACKLIST=esnext`
+  - If you use optional arguments in your function definitions, such as `fn (opts={}, next)`, please change to `fn (opts, next)` as otherwise the completion callback will not be passed, as the `fn.length` will be `0` and ambi will not be able to detect it is an asynchronous function
+- Turns out dynamic documents at the time of content type header setting, had an undefined content type
+  - As dynamic documents is a deprecated feature, the setting of the malfunctioning header has been removed, and a warning will be outputted
+- `TaskGroup` property on models now renamed to the more appropriate `createTaskGroup`
+- Updated most dependencies, except for
+  - express - requires DocPad v7
+  - promptly - drops support for earlier node versions that DocPad still supports
+  - superagent - drops support for earlier node versions that DocPad still supports
+- Removed DocPad's custom `--profile` handling, as there are now more modern ways of debugging node apps
+- Removed `safeMode` option as it was never implemented completely
+- Cixed configuration merging, details at https://github.com/docpad/docpad/issues/1045#issuecomment-231649384
+
 ## v6.79.0 2016 October 20
 - This is a beta release, use `npm install --save docpad@beta` to grab it
 - Configuration loading is merged more accurately

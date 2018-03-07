@@ -1,2 +1,2 @@
 #!/usr/bin/env node
-require('../out/bin/docpad')
+module.exports = require('editions').requirePackage(require('path').resolve(__dirname, '..'), require, 'bin/docpad')
