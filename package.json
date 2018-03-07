@@ -1,7 +1,7 @@
 {
   "title": "DocPad. Streamlined web development.",
   "name": "docpad",
-  "version": "v6.80.0-beta",
+  "version": "6.80.0-beta",
   "description": "DocPad is a dynamic static site generator. Write your content as files, or import your content from other external sources. Render the content with plugins. And deploy your static or dynamic website to your favourite hosting provider.",
   "homepage": "https://github.com/docpad/docpad",
   "license": "MIT",
@@ -154,7 +154,7 @@
     {
       "description": "Source + CoffeeScript + Require",
       "directory": "source",
-      "entry": "docpad.coffee",
+      "entry": "index.coffee",
       "syntaxes": [
         "coffeescript",
         "require"
@@ -163,7 +163,7 @@
     {
       "description": "CoffeeScript Compiled + ESNext + Require",
       "directory": "esnext",
-      "entry": "docpad.js",
+      "entry": "index.js",
       "syntaxes": [
         "javascript",
         "esnext",
@@ -173,7 +173,7 @@
     {
       "description": "CoffeeScript Compiled + ES2015 + Require",
       "directory": "es2015",
-      "entry": "docpad.js",
+      "entry": "index.js",
       "syntaxes": [
         "javascript",
         "es2015",
@@ -251,7 +251,7 @@
   "scripts": {
     "our:setup": "npm run our:setup:npm",
     "our:setup:npm": "npm install",
-    "our:clean": "rm -Rf ./docs ./es2015 ./es5 ./out",
+    "our:clean": "rm -Rf ./docs ./es2015 ./es5 ./out && npm run my:clean",
     "our:compile": "npm run our:compile:coffee:esnext && npm run our:compile:coffee:es2015",
     "our:compile:coffee:esnext": "coffee -bco ./esnext ./source",
     "our:compile:coffee:es2015": "coffee -bcto ./es2015 ./source",
@@ -268,7 +268,8 @@
     "our:release:check-dirty": "git diff --exit-code",
     "our:release:tag": "export MESSAGE=$(cat ./HISTORY.md | sed -n \"/## v$npm_package_version/,/##/p\" | sed 's/## //' | awk 'NR>1{print buf}{buf = $0}') && test \"$MESSAGE\" || (echo 'proper changelog entry not found' && exit -1) && git tag v$npm_package_version -am \"$MESSAGE\"",
     "our:release:push": "git push origin master && git push origin --tags",
-    "test": "env EDITIONS_SYNTAX_BLACKLIST=esnext node --harmony ./es2015/test.js --joe-reporter=console"
+    "my:clean": "rm -Rf ./test/out ./test/render-out ./test/.docpad.db ./test/package-lock.json ./test/node_modules/",
+    "test": "env EDITIONS_SYNTAX_BLACKLIST=esnext node --harmony ./test.js --joe-reporter=console"
   },
   "tag": "beta",
   "installUrl": "http://docpad.org/install",

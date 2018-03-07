@@ -212,11 +212,13 @@ class PluginLoader
 				'engine-node'
 
 			# Check docpad engine
-			else if engines.docpad? and not semver.satisfies(docpad.getVersion(), engines.docpad)
+			# the .replace is to support version flags, such as -beta
+			else if engines.docpad? and not semver.satisfies(docpad.getVersion().replace(/-.+/, ''), engines.docpad)
 				'version-docpad'
 
 			# Check docpad peerDependencies
-			else if peerDependencies.docpad? and not semver.satisfies(docpad.getVersion(), peerDependencies.docpad)
+			# the .replace is to support version flags, such as -beta
+			else if peerDependencies.docpad? and not semver.satisfies(docpad.getVersion().replace(/-.+/, ''), peerDependencies.docpad)
 				'version-docpad'
 
 			# Supported
