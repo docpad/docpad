@@ -280,7 +280,7 @@ class PluginLoader
 			# coffee-script is an external party dependency (docpad doesn't depend on it, so we don't install it)
 			# so we may not have it, hence the try catch
 			try
-				require('coffee-script/register')
+				require('coffeescript/register')
 			catch err
 				# Including coffee-script has failed, so let the user know, and exit
 				err.context = util.format(locale.pluginUncompiledFailed, @pluginName, @packageData.bugs?.url or locale.pluginIssueTracker)
