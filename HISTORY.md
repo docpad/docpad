@@ -1,25 +1,32 @@
 # History
 
 ## v6.80.0-beta 2018 March 7
-- This is a beta release
-- Now compiled with CoffeeScript v2
-    - To use with CoffeeScript v1 plugins, you will need to add the following environment variable `EDITIONS_SYNTAX_BLACKLIST=esnext`
+- This is a beta release, while it is in beta, assume there will be breaking changes
+- DocPad is now compiled with CoffeeScript v2
+    - To use it with CoffeeScript v1 plugins, you will need to set the following environment variable `EDITIONS_SYNTAX_BLACKLIST=esnext`
         - You can do this on unix systems by running DocPad like so: `env EDITIONS_SYNTAX_BLACKLIST=esnext docpad run`
     - To upgrade your plugin to v2, run [boundation](https://github.com/bevry/boundation) on it
-    - If you use optional arguments in your plugin or event functions, such as `fn (opts={}, next)` then it must be changed to `fn (opts, next)` as otherwise the completion callback will not be passed, as the `fn.length` will be `0` and ambi will not be able to detect it is an asynchronous function
-- Turns out dynamic documents have always had invalid content types
-    - As dynamic documents is a deprecated feature, the setting of the malfunctioning header has been removed, and a warning will be outputted
-- `TaskGroup` property on models now renamed to the more appropriate `createTaskGroup`
-- Updated most dependencies, except for
-    - express - requires DocPad v7
-    - promptly - drops support for earlier node versions that DocPad still supports
-    - superagent - drops support for earlier node versions that DocPad still supports
-    - closes [issue #1045](https://github.com/docpad/docpad/issues/1045)
+    - If you use optional arguments in your plugin or event functions, such as `fn (opts={}, next)` then it must be changed to `fn (opts, next)` as otherwise the completion callback will not be passed, as the `fn.length` will be `0` and [ambi](https://github.com/bevry/ambi) will not be able to detect it is an asynchronous function - [details](https://github.com/bevry/ambi/issues/7)
+- Turns out dynamic documents always had invalid content types
+    - As dynamic documents are a deprecated feature, the setting of the malfunctioning header has been removed, and a warning is now outputted when they are used
+- Configuration loading is merged more accurately - [details]
+- Logger references are now removed when they are destroyed, and if logging occurs without loggers, the message will be outputted to the console (unless it seems to be a debug message, in which case it will be outputted only if you are not debugging)
+- stdin errors changed to log level 6(https://github.com/docpad/docpad/issues/1045#issuecomment-231649384)
 - Removed DocPad's custom `--profile` handling, as there are now more modern ways of debugging node apps
 - Removed `safeMode` option as it was never implemented completely
-- Configuration loading is merged more accurately, details at https://github.com/docpad/docpad/issues/1045#issuecomment-231649384
-- Logger references are now removed when loggers are destroyed
-- stdin errors changed to log level 6
+- Internal `TaskGroup` property on models has been renamed to the more appropriate `createTaskGroup`
+- Updated dependencies
+    - closes [issue #1045](https://github.com/docpad/docpad/issues/1045)
+    - major benefits are offered by these upgrades:
+        - extendr - object merging is now more reliable
+        - taskgroup, caterpillar, watchr, scandirectory - huge performance increases and reliability, should be about 50%
+            - [thread on taskgroup performance](https://github.com/bevry/taskgroup/issues/19)
+            - caterpillar performance comes from a more streamlined logging process, before there was some redundant effort
+            - watchr and scandirectory have had a near complete refactoring, as well as implemented the super fast [readdir-cluster](https://github.com/bevry/readdir-cluster)
+    - these deps were not upgraded:
+        - express - requires a future DocPad v7 - [details](https://github.com/docpad/docpad/issues/1055)
+        - promptly - drops support for earlier node versions that DocPad still supports
+        - superagent - drops support for earlier node versions that DocPad still supports
 
 ## v6.79.4 2017 March 31
 - Fixed DocPad having stdin errors on exit under certain circumstances
