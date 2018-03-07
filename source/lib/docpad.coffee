@@ -402,6 +402,8 @@ class DocPad extends EventEmitterGrouped
 		if @loggerInstances
 			for own key,value of @loggerInstances
 				value.end()
+				@loggerInstances[key] = null
+			@loggerInstances = null
 		@
 
 	###*
@@ -3207,14 +3209,33 @@ class DocPad extends EventEmitterGrouped
 		return docpadUtil.inspect(obj, opts)
 
 	###*
-	# Log arguments
+	# Log arguments to
 	# @property {Object} log
 	# @param {Mixed} args...
 	###
 	log: (args...) ->
 		# Log
-		logger = @getLogger() or console
-		logger.log.apply(logger, args)
+		logger = @getLogger()
+		if logger?.log?
+			logger.log.apply(logger, args)
+		else
+			# logger doesn't exist, this is probably because it was destroyed
+			# in which case handle the minimum case
+			# that we want to log everything except debug, unless we are debugging
+			# @todo add an option so this becomes an opt-in error case
+			# this is not an error case because otherwise
+			#   debug action runner ➞  runner task for action: destroy > done
+			# will cause DocPad to fail
+			# @todo alternative approach is to destroy the loggers in a timeout after completion callback has fired
+			# @todo abstract out the log levels mapping from caterpillar into its own package, and use it
+			if typeChecker.isNumber(args[0])
+				logLevel = args[0]
+			else if args[0] is 'debug'
+				logLevel = 7
+			else
+				logLevel = 0
+			if logLevel <= @getLogLevel()
+				console.log(...args)
 
 		# Chain
 		@
