@@ -174,7 +174,7 @@ These amazing people have contributed code to this project:
 <li><a href="https://github.com/chase">Chase Colman</a> — <a href="https://github.com/docpad/docpad/commits?author=chase" title="View the GitHub contributions of Chase Colman on repository docpad/docpad">view contributions</a></li>
 <li><a href="http://derberg.github.io/">Lukasz Gornicki</a> — <a href="https://github.com/docpad/docpad/commits?author=derberg" title="View the GitHub contributions of Lukasz Gornicki on repository docpad/docpad">view contributions</a></li>
 <li><a href="https://github.com/eldios">eldios</a> — <a href="https://github.com/docpad/docpad/commits?author=eldios" title="View the GitHub contributions of eldios on repository docpad/docpad">view contributions</a></li>
-<li><a href="blog.sylee.tw">sylee</a> — <a href="https://github.com/docpad/docpad/commits?author=Ferrari" title="View the GitHub contributions of sylee on repository docpad/docpad">view contributions</a></li>
+<li><a href="http://sylee.tw">Shih-Yung Lee</a> — <a href="https://github.com/docpad/docpad/commits?author=Ferrari" title="View the GitHub contributions of Shih-Yung Lee on repository docpad/docpad">view contributions</a></li>
 <li><a href="http://greduan.com">Eduardo Lavaque</a> — <a href="https://github.com/docpad/docpad/commits?author=greduan" title="View the GitHub contributions of Eduardo Lavaque on repository docpad/docpad">view contributions</a></li>
 <li><a href="https://github.com/homme">Homme Zwaagstra</a> — <a href="https://github.com/docpad/docpad/commits?author=homme" title="View the GitHub contributions of Homme Zwaagstra on repository docpad/docpad">view contributions</a></li>
 <li><a href="http://www.jtwebman.com">JT Turner</a></li>
@@ -204,17 +204,19 @@ These amazing people have contributed code to this project:
 <li><a href="https://github.com/darky">Vladislav Botvin</a> — <a href="https://github.com/docpad/docpad/commits?author=darky" title="View the GitHub contributions of Vladislav Botvin on repository docpad/docpad">view contributions</a></li>
 <li><a href="https://github.com/vsopvsop">vsopvsop</a> — <a href="https://github.com/docpad/docpad/commits?author=vsopvsop" title="View the GitHub contributions of vsopvsop on repository docpad/docpad">view contributions</a></li>
 <li><a href="https://github.com/Zearin">Zearin</a> — <a href="https://github.com/docpad/docpad/commits?author=Zearin" title="View the GitHub contributions of Zearin on repository docpad/docpad">view contributions</a></li>
-<li><a href="http://firede.us">Firede</a> — <a href="https://github.com/docpad/docpad/commits?author=firede" title="View the GitHub contributions of Firede on repository docpad/docpad">view contributions</a></li>
+<li><a href="http://www.firede.com">Firede</a> — <a href="https://github.com/docpad/docpad/commits?author=firede" title="View the GitHub contributions of Firede on repository docpad/docpad">view contributions</a></li>
 <li><a href="http://jtwebman.com">JT Turner</a> — <a href="https://github.com/docpad/docpad/commits?author=jtwebman" title="View the GitHub contributions of JT Turner on repository docpad/docpad">view contributions</a></li>
 <li><a href="https://github.com/timaschew">Anton Wilhelm</a> — <a href="https://github.com/docpad/docpad/commits?author=timaschew" title="View the GitHub contributions of Anton Wilhelm on repository docpad/docpad">view contributions</a></li>
 <li><a href="http://bahtiar.gadimov.de/">Bahtiar Gadimov</a> — <a href="https://github.com/docpad/docpad/commits?author=kalkin" title="View the GitHub contributions of Bahtiar Gadimov on repository docpad/docpad">view contributions</a></li>
-<li><a href="http://blog.shawnzhu.com">Ke Zhu</a> — <a href="https://github.com/docpad/docpad/commits?author=shawnzhu" title="View the GitHub contributions of Ke Zhu on repository docpad/docpad">view contributions</a></li>
+<li><a href="http://blog.shawnzhu.com">Ke Zhu</a></li>
 <li><a href="https://github.com/chaos95">Morgan Larosa</a> — <a href="https://github.com/docpad/docpad/commits?author=chaos95" title="View the GitHub contributions of Morgan Larosa on repository docpad/docpad">view contributions</a></li>
 <li><a href="https://github.com/paularmstrong">Paul Armstrong</a> — <a href="https://github.com/docpad/docpad/commits?author=paularmstrong" title="View the GitHub contributions of Paul Armstrong on repository docpad/docpad">view contributions</a></li>
 <li><a href="http://www.prayagverma.com/">Prayag Verma</a></li>
 <li><a href="http://www.stevemcarthur.co.uk">Steve Mc</a> — <a href="https://github.com/docpad/docpad/commits?author=SteveMcArthur" title="View the GitHub contributions of Steve Mc on repository docpad/docpad">view contributions</a></li>
 <li><a href="nativescript.org">Todd Anglin</a> — <a href="https://github.com/docpad/docpad/commits?author=toddanglin" title="View the GitHub contributions of Todd Anglin on repository docpad/docpad">view contributions</a></li>
-<li><a href="http://www.StylifyYourBlog.com/">Prayag Verma</a> — <a href="https://github.com/docpad/docpad/commits?author=pra85" title="View the GitHub contributions of Prayag Verma on repository docpad/docpad">view contributions</a></li></ul>
+<li><a href="http://www.StylifyYourBlog.com/">Prayag Verma</a> — <a href="https://github.com/docpad/docpad/commits?author=pra85" title="View the GitHub contributions of Prayag Verma on repository docpad/docpad">view contributions</a></li>
+<li><a href="adio.space">Adrian Olaru</a> — <a href="https://github.com/docpad/docpad/commits?author=adiospace" title="View the GitHub contributions of Adrian Olaru on repository docpad/docpad">view contributions</a></li>
+<li><a href="https://github.com/craigsssmith">Craig Smith</a> — <a href="https://github.com/docpad/docpad/commits?author=craigsssmith" title="View the GitHub contributions of Craig Smith on repository docpad/docpad">view contributions</a></li></ul>
 
 <a href="https://github.com/docpad/docpad/blob/master/CONTRIBUTING.md#files">Discover how you can contribute by heading on over to the <code>CONTRIBUTING.md</code> file.</a>
 
