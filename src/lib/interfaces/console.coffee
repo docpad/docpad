@@ -280,8 +280,8 @@ class ConsoleInterface
 			# Error?
 			docpadUtil.writeError(err)  if err
 
-			# Output if we are not in silent mode
-			if 6 <= logLevel
+			# Output if we are in debug mode
+			if 7 <= logLevel
 				# Note any requests that are still active
 				activeRequests = process._getActiveRequests()
 				if activeRequests?.length
