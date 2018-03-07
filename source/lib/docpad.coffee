@@ -3222,19 +3222,22 @@ class DocPad extends EventEmitterGrouped
 			# logger doesn't exist, this is probably because it was destroyed
 			# in which case handle the minimum case
 			# that we want to log everything except debug, unless we are debugging
-			# @todo add an option so this becomes an opt-in error case
-			# this is not an error case because otherwise
+
+			# @todo add an option so this becomes an opt-in error case, however for that to happen, there needs to be a way
+			# to prevent the following log message after destroy from causing an failure state
 			#   debug action runner ➞  runner task for action: destroy > done
-			# will cause DocPad to fail
-			# @todo alternative approach is to destroy the loggers in a timeout after completion callback has fired
-			# @todo abstract out the log levels mapping from caterpillar into its own package, and use it
-			if typeChecker.isNumber(args[0])
-				logLevel = args[0]
-			else if args[0] is 'debug'
-				logLevel = 7
-			else
-				logLevel = 0
-			if logLevel <= @getLogLevel()
+
+			# @todo an alternative approach is to destroy the loggers in a timeout after completion callback has fired
+
+			# @todo one could use caterpillar's log level handling to determine accurate log levels, however
+			# that is does not resolve that anything here should not, in theory, occur, as such this is a murky situation
+
+			# as such, considering all the above, output the message, if
+			# - message is not a debug message, regardless of log level
+			# - message is a debug message, and log level is 7
+			# this is done this way, as without proper log level parsing, and with the murky information
+			# we can only reasonably assume 'debug' as the first argument is a debug message, anything else could be the message
+			if args[0] isnt 'debug' or @getLogLevel() is 7
 				console.log(...args)
 
 		# Chain
