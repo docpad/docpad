@@ -18,15 +18,14 @@ cache:
   - "$HOME/.npm"
   - "$HOME/.yarn-cache"
 install:
-- eval "$(curl -fsSL https://raw.githubusercontent.com/bevry/awesome-travis/1ec050bc004d0e2161cb5286c247850d24aecc02/scripts/node-install.bash)"
+- eval "$(curl -s https://raw.githubusercontent.com/balupton/awesome-travis/master/scripts/node-install.bash)"
 before_script:
-- eval "$(curl -fsSL https://raw.githubusercontent.com/bevry/awesome-travis/1ec050bc004d0e2161cb5286c247850d24aecc02/scripts/node-verify.bash)"
+- eval "$(curl -s https://raw.githubusercontent.com/balupton/awesome-travis/master/scripts/node-verify.bash)"
 after_success:
-- eval "$(curl -fsSL https://raw.githubusercontent.com/bevry/awesome-travis/1ec050bc004d0e2161cb5286c247850d24aecc02/scripts/surge.bash)"
-- eval "$(curl -fsSL https://raw.githubusercontent.com/bevry/awesome-travis/1ec050bc004d0e2161cb5286c247850d24aecc02/scripts/node-publish.bash)"
+- eval "$(curl -s https://raw.githubusercontent.com/balupton/awesome-travis/master/scripts/node-publish.bash)"
 notifications:
   slack:
-    secure: ADswwImRYV/IcqmlAMfHA8ytnxyJ5S4iP9KIFdIr9vFh7B0S4m8RtwfGD13NyjIMjVnODKXeHRAmTMlDsAL70vKOCOAsA3HXLUqxcffsvHPIqGto2qHhLQSCBMpQaze4/j07vU82a1JX45RG7UOpBWn9siaT52+OljMHs/WLTjM=
+    secure: Duwfzd1XIvVLFqFABGPx+iVx1wVJqY0drK4r5pp0yutniocn6A3GP1TmeDmGYx/feUJ5RRBZ3ecPL9i2jxuft7GVHOEV+Ie4iqfVyu9h0ZTAakSzXB9ZkTA7A7aFtiar3ik1XaRHo6Y+Pb7Kml6xNtWHVZwseOETNAzLY2GFUYo=
   email:
     recipients:
-      secure: W5qNNrMmasDNIcA52MKhxPbZg0amnrj925LS3Gp6/7EHna+5uV3q9CwVt8YfU7/AtR4MN0qyyGMv4P/A9WnHFqsePyrNMY7JvZKMg+tugc52aUDuKNT+DCJXqqrkmr4/P4csjfzU+dIp+Ad0v/aErm51XtUbSA2lNr59ESjKpmY=
+      secure: RVriCR4WN+lgiGqLf4YsUJsFhOvrHsmf9PXHbpgKTE0uUQ7f6EGFk8Bv/PDdsIqz9TXU5tfarN68Criyk3Lymma5VlqIKZhRbBXdM+87LNz+9bsPOF53ylaIgwVHhn24hzT7sxSAOCwghFNFjFGTjl05OPnRkEijHSr04CGXaa4=

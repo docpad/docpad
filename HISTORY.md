@@ -11,15 +11,38 @@
   - express - requires DocPad v7
   - promptly - drops support for earlier node versions that DocPad still supports
   - superagent - drops support for earlier node versions that DocPad still supports
+  - Closes [issue #1045](https://github.com/docpad/docpad/issues/1045)
 - Removed DocPad's custom `--profile` handling, as there are now more modern ways of debugging node apps
 - Removed `safeMode` option as it was never implemented completely
-- Cixed configuration merging, details at https://github.com/docpad/docpad/issues/1045#issuecomment-231649384
+- Configuration loading is merged more accurately, details at https://github.com/docpad/docpad/issues/1045#issuecomment-231649384
 
-## v6.79.0 2016 October 20
-- This is a beta release, use `npm install --save docpad@beta` to grab it
-- Configuration loading is merged more accurately
-- Updated majors of many dependencies
-	- Closes [issue #1045](https://github.com/docpad/docpad/issues/1045)
+## v6.79.4 2017 March 31
+- Fixed DocPad having stdin errors on exit under certain circumstances
+   - Thanks to [Craig Smith](https://github.com/craigsssmith) for [issue #1049](https://github.com/docpad/docpad/pull/1049)
+- Updated base files
+
+## v6.79.3 2017 March 29
+- Fix the `this.emitSerial` errors when running plugin tests
+  - This was due to event-emitter-grouped v2.5.0 busting joe v1.6.0 which we pinned, so pinned joe to `~1.6.1` and joe-reporter-console to `~1.2.1`
+
+## v6.79.2 2017 March 28
+- Fix `out/lib/testers.js` being omitted in published package (regression since v6.79.1)
+	- Without this file plugin tests break, so this fixes that
+- Fix `src/` being included in published package (regression since v6.79.1)
+	- This reduces package size once again
+- Thanks to [Sebastian Domagała](https://github.com/sdomagala) for his assistance
+
+## v6.79.1 2017 March 28
+- Updated base files
+  - This prefixes DocPad's own `./package.json`  scripts with `our:` to prevent npm v4's use of `prepare` from causing DocPad installs to fail under development conditions
+- Thanks to [Sebastian Domagała](https://github.com/sdomagala) for his assistance
+
+## v6.79.0 2016 September 27
+- Bumped coffee-script dependency version
+- Fixed possible `docpad not defined` issue on `loadLocale`
+
+## v6.78.6 2016 June 27
+- Set joe version to fixed 1.6.0 and event-emitter-grouped to 2.4.3 to handle issue 1047
 
 ## v6.78.5 2016 June 15
 - Recompiled with latest dev dependencies
