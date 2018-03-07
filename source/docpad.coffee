@@ -1,1 +1,1 @@
-require('./lib/docpad')
+module.exports = require('./lib/docpad')

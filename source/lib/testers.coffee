@@ -84,7 +84,7 @@ class PluginTester
 	# @property {Object}
 	###
 	docpad: null
-	
+
 	###*
 	# Constructor method
 	# @method constructor
@@ -95,8 +95,8 @@ class PluginTester
 	constructor: (config={},docpadConfig={},next) ->
 		# Apply Configuration
 		tester = @
-		@config = extendr.deepExtendPlainObjects({}, PluginTester::config, @config, config)
-		@docpadConfig = extendr.deepExtendPlainObjects({}, PluginTester::docpadConfig, @docpadConfig, docpadConfig)
+		@config = extendr.deep({}, PluginTester::config, @config, config)
+		@docpadConfig = extendr.deep({}, PluginTester::docpadConfig, @docpadConfig, docpadConfig)
 		@docpadConfig.port ?= ++pluginPort
 		@config.testerName ?= "#{@config.pluginName} plugin"
 
