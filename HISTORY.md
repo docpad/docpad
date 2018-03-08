@@ -9,9 +9,9 @@
     - If you use optional arguments in your plugin or event functions, such as `fn (opts={}, next)` then it must be changed to `fn (opts, next)` as otherwise the completion callback will not be passed, as the `fn.length` will be `0` and [ambi](https://github.com/bevry/ambi) will not be able to detect it is an asynchronous function - [details](https://github.com/bevry/ambi/issues/7)
 - Turns out dynamic documents always had invalid content types
     - As dynamic documents are a deprecated feature, the setting of the malfunctioning header has been removed, and a warning is now outputted when they are used
-- Configuration loading is merged more accurately - [details]
+- Configuration loading is merged more accurately - [details](https://github.com/docpad/docpad/issues/1045#issuecomment-231649384)
 - Logger references are now removed when they are destroyed, and if logging occurs without loggers, the message will be outputted to the console (unless it seems to be a debug message, in which case it will be outputted only if you are not debugging)
-- stdin errors changed to log level 6(https://github.com/docpad/docpad/issues/1045#issuecomment-231649384)
+- stdin errors changed to log level 6
 - Removed DocPad's custom `--profile` handling, as there are now more modern ways of debugging node apps
 - Removed `safeMode` option as it was never implemented completely
 - Internal `TaskGroup` property on models has been renamed to the more appropriate `createTaskGroup`
