@@ -4148,13 +4148,7 @@ class DocPad extends EventEmitterGrouped
 						if unsupported in ['version-docpad','version-plugin'] and config.skipUnsupportedPlugins is false
 							docpad.log 'warn', util.format(locale.pluginContinued, pluginName)
 						else
-							# Type?
-							if unsupported is 'type'
-								docpad.log 'debug', util.format(locale.pluginSkippedDueTo, pluginName, unsupported)
-
-							# Something else?
-							else
-								docpad.log 'warn', util.format(locale.pluginSkippedDueTo, pluginName, unsupported)
+							docpad.log 'warn', util.format(locale.pluginSkippedDueTo, pluginName, unsupported)
 							return next()
 
 					# Load the class
