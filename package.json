@@ -136,7 +136,7 @@
     "Todd Anglin (nativescript.org)",
     "Prayag Verma <prayag@stylifyyourblog.com> (http://www.StylifyYourBlog.com/)",
     "Michael Duane Mooring (http://mdm.cc)",
-    "Adrian Olaru <hello@adio.space> (adio.space)",
+    "Adrian Olaru <hello@adio.space> (http://adio.space)",
     "Craig Smith (https://github.com/craigsssmith)"
   ],
   "bugs": {
@@ -237,9 +237,9 @@
     "babel-preset-es2015": "^6.24.1",
     "coffeelint": "^2.1.0",
     "coffeescript": "^2.2.2",
-    "docpad-plugin-coffeekup": "2",
-    "docpad-plugin-eco": "2",
-    "docpad-plugin-marked": "2",
+    "docpad-plugin-coffeekup": "^2.5.0",
+    "docpad-plugin-eco": "^2.3.0",
+    "docpad-plugin-marked": "^2.5.0",
     "joe": "^2.0.2",
     "joe-reporter-console": "^2.0.1",
     "moment": "^2.13.0",
@@ -269,7 +269,7 @@
     "our:release:tag": "export MESSAGE=$(cat ./HISTORY.md | sed -n \"/## v$npm_package_version/,/##/p\" | sed 's/## //' | awk 'NR>1{print buf}{buf = $0}') && test \"$MESSAGE\" || (echo 'proper changelog entry not found' && exit -1) && git tag v$npm_package_version -am \"$MESSAGE\"",
     "our:release:push": "git push origin master && git push origin --tags",
     "my:clean": "rm -Rf ./test/out ./test/render-out ./test/.docpad.db ./test/package-lock.json ./test/node_modules/",
-    "test": "env EDITIONS_SYNTAX_BLACKLIST=esnext node --harmony ./test.js --joe-reporter=console"
+    "test": "node --harmony ./test.js --joe-reporter=console"
   },
   "tag": "beta",
   "installUrl": "http://docpad.org/install",
