@@ -139,7 +139,12 @@ These amazing people are maintaining this project:
 
 These amazing people have contributed finances to this project:
 
-<ul><li><a href="http://www.myplanetdigital.com">Myplanet Digital</a></li>
+<ul><li><a href="http://opencollective.com/jlgeering">Jean-Luc Geering</a></li>
+<li><a href="http://www.patreon.com/user/creators?u=5900863">Nikolas Jeker</a></li>
+<li><a href="http://www.patreon.com/user/creators?u=5292556">Lee Discoll</a></li>
+<li><a href="http://www.patreon.com/Aglezabad">Ángel González</a></li>
+<li><a href="http://www.patreon.com/scokem">Scott Kempson</a></li>
+<li><a href="http://www.myplanetdigital.com">Myplanet Digital</a></li>
 <li><a href="http://www.meeho.net">Meeho!</a></li>
 <li><a href="http://www.prismatik.com.au">Prismatik</a></li>
 <li><a href="http://yaas.io/">hybris</a></li></ul>

@@ -1,6 +1,13 @@
 # History
 
 ## v6.80.0 2018 July 12
+- Huge thank you to the sponsors who supported this release. It really did help.
+    - [Jean-Luc Geering](https://opencollective.com/jlgeering)
+    - [Nikolas Jeker](https://www.patreon.com/user/creators?u=5900863)
+    - [Lee Discoll](https://www.patreon.com/user/creators?u=5292556)
+    - [Ángel González](https://www.patreon.com/Aglezabad)
+    - [Scott Kempson](https://www.patreon.com/scokem)
+- [Leave feedback here](https://github.com/docpad/docpad/issues/1076)
 - Removed all non-vital cloud communication, closes [#1041](https://github.com/docpad/docpad/issues/1041)
 - Removed `docpad-debug` and `docpad-trace` executables, as there are now more modern ways of debugging
 - Updated dependencies
