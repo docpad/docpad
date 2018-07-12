@@ -184,16 +184,14 @@
   "bin": {
     "docpad": "bin/docpad",
     "docpad-compile": "bin/docpad-compile",
-    "docpad-debug": "bin/docpad-debug",
-    "docpad-server": "bin/docpad-server",
-    "docpad-trace": "bin/docpad-trace"
+    "docpad-server": "bin/docpad-server"
   },
   "main": "index.js",
   "dependencies": {
     "ambi": "^2.5.0",
     "babel-polyfill": "^6.9.1",
     "backbone": "1.3.3",
-    "bal-util": "~2.6.0",
+    "bal-util": "~2.8.0",
     "caterpillar": "^3.0.0",
     "caterpillar-filter": "^3.0.0",
     "caterpillar-human": "^3.0.0",
@@ -214,7 +212,7 @@
     "istextorbinary": "^2.1.0",
     "jschardet": "~1.6.0",
     "lazy-require": "^2.2.0",
-    "method-override": "^2.3.6",
+    "method-override": "^3.0.0",
     "mime": "^2.2.0",
     "progressbar": "^1.1.1",
     "promptly": "^2.0.0",

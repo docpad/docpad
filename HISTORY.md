@@ -1,5 +1,10 @@
 # History
 
+## v6.80.0 2018 July 12
+- Removed all non-vital cloud communication, closes [#1041](https://github.com/docpad/docpad/issues/1041)
+- Removed `docpad-debug` and `docpad-trace` executables, as there are now more modern ways of debugging
+- Updated dependencies
+
 ## v6.80.0-beta 2018 March 7
 - This is a beta release, while it is in beta, assume there will be breaking changes
 - DocPad is now compiled with CoffeeScript v2
