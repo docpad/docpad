@@ -1,28 +1,4 @@
 {
-	# Subscription
-	tosPrompt: """
-		Before we continue, have you read and agree to DocPad's Terms of Service (http://bevry.me/tos) and Privacy Policy (http://bevry.me/privacy)?
-		"""
-	tosAgree: """
-		Fantastic. We like informed people!
-		"""
-	tosDisagree: """
-		Run us again once you've read and agree to them.
-		"""
-	subscribePrompt: """
-		Would you like to subscribe to our newsletter and stay up to date with the latest releases and tutorials?
-		"""
-	subscribeConfigNotify: "To speed things up we've fetched your default values, press enter to use the default value or type your own values:"
-	subscribeNamePrompt: "Your name?"
-	subscribeEmailPrompt: "Your email?"
-	subscribeUsernamePrompt: "Your username?"
-	subscribeError: "Whoops, looks like something went wrong when subscribing you to our list... not to worry, we'll try again another time."
-	subscribeSuccess: "Awesome, you're now subscribed our newsletter. Continuing with the desired action."
-	subscribeIgnore: "No worries. Continuing with the desired action."
-	subscribeProgress: "Subscribing..."
-	subscribeRequestData: "Subscription request data:"
-	subscribeRequestError: "Subsction request error:"
-
 	# Skeleton
 	pleaseWait: "\nThis can take a moment..."
 	exchangeUpdate: "Updating the exchange..."
@@ -36,9 +12,9 @@
 		We couldn't find an existing DocPad project inside your current directory. Looked at: %s
 		If you're wanting to use a pre-made skeleton for the basis of your new project, then run DocPad again inside an empty directory.
 		If you're wanting to start your new project from scratch, then refer to the Getting Started guide here:
-		    http://docpad.org/docs/start
+		    https://docpad.org/docs/start
 		For more information about what this means, visit:
-		    http://docpad.org/troubleshoot
+		    https://docpad.org/troubleshoot
 		"""
 	skeletonNoneName: "No Skeleton"
 	skeletonNoneDescription: "Prefer to start from scratch? You can get started without any skeleton if you wish"
@@ -80,7 +56,7 @@
 		"""
 	documentRenderExtensionNoChange: """
 		Rendering the extension \"%s\" to \"%s\" on \"%s\" didn't do anything.
-		Explanation here: http://docpad.org/extension-not-rendering
+		Explanation here: https://docpad.org/extension-not-rendering
 		"""
 	documentMissingContentType: "ContentType was missing on document %s"
 	documentMissingLayoutError: "Could not find the layout %s on %s"
@@ -102,7 +78,7 @@
 	renderParsing: 'Parsing everything'
 	renderParsed: 'Parsed everything'
 	renderNonexistant: 'Cannot generate website as the src dir was not found'
-	renderNoPlugins: "DocPad is currently running without any plugins installed. You probably want to install some: http://docpad.org/plugins"
+	renderNoPlugins: "DocPad is currently running without any plugins installed. You probably want to install some: https://docpad.org/plugins"
 	renderDirectoryParsing: "Parsing directory: %s"
 	renderDirectoryParsed: "Parsed directory: %s"
 	renderDirectoryNonexistant: "Skipped directory: %s (it does not exist)"
@@ -138,17 +114,17 @@
 	pluginNamingConventionInvalid: """
 		The plugin %s uses an invalid naming convention. We only allow alphanumeric characters (no symbols). Perhaps change it to %s
 		For more information about what this means, visit:
-		    http://docpad.org/plugin-conventions
+		    https://docpad.org/plugin-conventions
 		"""
 	pluginPrototypeNameUndefined: """
 		The plugin %s did not have its name defined in its prototype, defaulting it to the directory naming convention.
 		For more information about what this means, visit:
-		    http://docpad.org/plugin-conventions
+		    https://docpad.org/plugin-conventions
 		"""
 	pluginPrototypeNameDifferent: """
 		The plugin %s is using a different name (%s) for its prototype name. This can cause issues.
 		For more information about what this means, visit:
-		    http://docpad.org/plugin-conventions
+		    https://docpad.org/plugin-conventions
 		"""
 
 	# Collections
@@ -228,13 +204,13 @@
 	renderedEarlyViaInclude: """
 		Your include of %s has failed as that document has not been rendered yet.
 		For more information about what this means, visit:
-		    http://docpad.org/render-early-via-include
+		    https://docpad.org/render-early-via-include
 		"""
 	versionGlobal: "v%s (global installation: %s)"
 	versionLocal: "v%s (local installation: %s)"
 	welcome: "Welcome to DocPad %s"
-	welcomeContribute: "Contribute: http://docpad.org/docs/contribute"
-	welcomeDonate: "Please donate to DocPad or have your company sponsor it: http://docpad.org/donate"
+	welcomeContribute: "Contribute: https://docpad.org/docs/contribute"
+	welcomeDonate: "Please donate to DocPad or have your company sponsor it: https://docpad.org/donate"
 	welcomePlugins: "Plugins: %s"
 	welcomeEnvironment: "Environment: %s"
 	includeFailed: "Could not include the file at path %s as we could not find it"
@@ -244,7 +220,7 @@
 		The plugin %s is using uncompiled CoffeeScript files.
 		  Supporting uncompiled plugins has been deprecated; only legacy support remains.
 		  You may want to report this warning to %s so the plugin author can address it.
-		  For more information, visit: http://docpad.org/plugin-uncompiled
+		  For more information, visit: https://docpad.org/plugin-uncompiled
 		"""
 	pluginUncompiledFailed: """
 		The uncompiled plugin %s failed to load as DocPad no longer has the ability to load it.
@@ -256,7 +232,7 @@
 		"""
 	warnOccured: "A warning occured:"
 	errorOccured: "An error occured:"
-	errorSubmission: "To report the above, follow the guide at: http://docpad.org/bug-report"
+	errorSubmission: "To report the above, follow the guide at: https://docpad.org/bug-report"
 	errorLoggedTo: "Error has been logged to: %s"
 	errorFollows: "\nThe error follows:"
 	errorInvalidCollection: "The custom collection %s is not a valid collection instance"

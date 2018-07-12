@@ -428,35 +428,6 @@ class DocPad extends EventEmitterGrouped
 	###
 	action: (args...) -> docpadUtil.action.apply(@, args)
 
-
-	###*
-	# The error runner instance bound to DocPad
-	# @property {Object} errorRunnerInstance
-	###
-	errorRunnerInstance: null
-
-	###*
-	# Get the error runner instance
-	# @method {Object} getErrorRunner
-	# @return {Object} the error runner instance
-	###
-	getErrorRunner: -> @errorRunnerInstance
-
-	###*
-	# The track runner instance bound to DocPad
-	# @private
-	# @property {Object} trackRunnerInstance
-	###
-	trackRunnerInstance: null
-
-	###*
-	# Get the track runner instance
-	# @method getTrackRunner
-	# @return {Object} the track runner instance
-	###
-	getTrackRunner: -> @trackRunnerInstance
-
-
 	###*
 	# Event Listing. String array of event names.
 	# Whenever an event is created, it must be applied here to be available to plugins and configuration files
@@ -1374,28 +1345,7 @@ class DocPad extends EventEmitterGrouped
 	# @private
 	# @property {Object} userConfig
 	###
-	userConfig:
-		# Name
-		name: null
-
-		# Email
-		email: null
-
-		# Username
-		username: null
-
-		# Subscribed
-		subscribed: null
-
-		# Subcribe Try Again
-		# If our subscription has failed, when should we try again?
-		subscribeTryAgain: null
-
-		# Terms of Service
-		tos: null
-
-		# Identified
-		identified: null
+	userConfig: null  # {}
 
 	###*
 	# Initial Configuration. The default docpadConfig
@@ -1569,16 +1519,6 @@ class DocPad extends EventEmitterGrouped
 		# Catch uncaught exceptions
 		catchExceptions: true
 
-		# Report Errors
-		# Whether or not we should report our errors back to DocPad
-		# By default it is only enabled if we are not running inside a test
-		reportErrors: process.argv.join('').indexOf('test') is -1
-
-		# Report Statistics
-		# Whether or not we should report statistics back to DocPad
-		# By default it is only enabled if we are not running inside a test
-		reportStatistics: process.argv.join('').indexOf('test') is -1
-
 		# Color
 		# Whether or not our terminal output should have color
 		# `null` will default to what the terminal supports
@@ -1608,17 +1548,12 @@ class DocPad extends EventEmitterGrouped
 		# Whether or not we should run in offline mode
 		# Offline will disable the following:
 		# - checkVersion
-		# - reportErrors
-		# - reportStatistics
+		# - fetching skeletons
 		offline: false
 
 		# Check Version
 		# Whether or not to check for newer versions of DocPad
 		checkVersion: false
-
-		# Welcome
-		# Whether or not we should display any custom welcome callbacks
-		welcome: false
 
 		# Prompts
 		# Whether or not we should display any prompts
@@ -1635,7 +1570,6 @@ class DocPad extends EventEmitterGrouped
 		poweredByDocPad: true
 
 		# Helper Url
-		# Used for subscribing to newsletter, account information, and statistics etc
 		# Helper's source-code can be found at: https://github.com/docpad/helper
 		helperUrl: if true then 'http://helper.docpad.org/' else 'http://localhost:8000/'
 
@@ -1841,7 +1775,7 @@ class DocPad extends EventEmitterGrouped
 		# Using this over coffescript's => on class methods, ensures that the method length is kept
 		for methodName in """
 			action
-			log warn error fatal inspector notify track identify subscribe checkRequest
+			log warn error fatal inspector notify checkRequest
 			serverMiddlewareRouter serverMiddlewareHeader serverMiddleware404 serverMiddleware500
 			destroyWatchers
 			""".split(/\s+/)
@@ -1867,12 +1801,6 @@ class DocPad extends EventEmitterGrouped
 		# Create our action runner
 		@actionRunnerInstance = @createTaskGroup('action runner', {abortOnError: false, destroyOnceDone: false}).whenDone (err) ->
 			docpad.error(err)  if err
-
-		# Create our track runner
-		@trackRunnerInstance = @createTaskGroup('track runner', {abortOnError: false, destroyOnceDone: false}).whenDone (err) ->
-			if err and docpad.getDebugging()
-				locale = docpad.getLocale()
-				docpad.warn(locale.trackError, err)
 
 		# Initialize the loggers
 		if (loggers = instanceConfig.loggers)
@@ -2254,7 +2182,7 @@ class DocPad extends EventEmitterGrouped
 		# Version Check
 		@compareVersion()
 
-		# Welcome Prepare
+		# Fetch the plugins
 		if @getDebugging()
 			pluginsList = ("#{pluginName} v#{@loadedPlugins[pluginName].version}"  for pluginName in Object.keys(@loadedPlugins).sort()).join(', ')
 		else
@@ -2275,16 +2203,13 @@ class DocPad extends EventEmitterGrouped
 			# All done, forward our DocPad instance onto our creator
 			return next?(null,docpad)
 
+		# kept here in case plugins use it
 		tasks.addTask 'welcome event', (complete) ->
 			# No welcome
 			return complete()  unless config.welcome
 
 			# Welcome
 			docpad.emitSerial('welcome', {docpad}, complete)
-
-		tasks.addTask 'track', (complete) ->
-			# Identify
-			return docpad.identify(complete)
 
 		tasks.addTask 'emit docpadReady', (complete) ->
 			docpad.emitSerial('docpadReady', {docpad}, complete)
@@ -2487,34 +2412,10 @@ class DocPad extends EventEmitterGrouped
 				return complete(err)  if err
 
 				# Apply loaded data
-				extendr.extend(@userConfig, data or {})
+				@userConfig = @userConfig
 
 				# Done
 				docpad.log 'debug', util.format(locale.loadingUserConfig, configPath)
-				return complete()
-
-		preTasks.addTask "load the anonymous user's configuration", (complete) =>
-			# Ignore if username is already identified
-			return complete()  if @userConfig.username
-
-			# User is anonymous, set their username to the hashed and salted mac address
-			require('getmac').getMac (err,macAddress) =>
-				if err or !macAddress
-					docpad.warn(locale.macError, err)
-					return complete()
-
-				# Hash with salt
-				try
-					macAddressHash = require('crypto').createHmac('sha1', docpad.hashKey).update(macAddress).digest('hex')
-				catch err
-					return complete()  if err
-
-				# Apply
-				if macAddressHash
-					@userConfig.name ?= "MAC #{macAddressHash}"
-					@userConfig.username ?= macAddressHash
-
-				# Next
 				return complete()
 
 		preTasks.addTask "load the website's package data", (complete) =>
@@ -3251,16 +3152,10 @@ class DocPad extends EventEmitterGrouped
 	# @param {Object} opts
 	# @return {Object} the error
 	###
-	# @TODO: Decide whether or not we should track warnings
-	# Previously we didn't, but perhaps it would be useful
-	# If the statistics gets polluted after a while, we will remove it
-	# Ask @balupton to check the stats after March 30th 2015
 	createError: (err, opts) ->
 		# Prepare
 		opts ?= {}
 		opts.level ?= err.level ? 'error'
-		opts.track ?= err.track ? true
-		opts.tracked ?= err.tracked ? false
 		opts.log ?= err.log ? true
 		opts.logged ?= err.logged ? false
 		opts.notify ?= err.notify ? true
@@ -3279,7 +3174,7 @@ class DocPad extends EventEmitterGrouped
 
 
 	###*
-	# Create an error (tracks it) and log it
+	# Create an error and log it
 	# @method error
 	# @param {Object} err
 	# @param {Object} [level='err']
@@ -3288,11 +3183,8 @@ class DocPad extends EventEmitterGrouped
 		# Prepare
 		docpad = @
 
-		# Create the error and track it
+		# Create the error
 		err = @createError(err, {level})
-
-		# Track the error
-		@trackError(err)
 
 		# Log the error
 		@logError(err)
@@ -3313,7 +3205,7 @@ class DocPad extends EventEmitterGrouped
 		docpad = @
 		locale = @getLocale()
 
-		# Track
+		# Log
 		if err and err.log isnt false and err.logged isnt true
 			err = @createError(err, {logged:true})
 			occured =
@@ -3329,31 +3221,6 @@ class DocPad extends EventEmitterGrouped
 			message += '\n\n'+err.stack.toString().trim()
 			message += '\n\n'+locale.errorSubmission
 			docpad.log(err.level, message)
-
-		# Chain
-		@
-
-
-	###*
-	# Track an error in the background
-	# @private
-	# @method trackError
-	# @param {Object} err
-	###
-	trackError: (err) ->
-		# Prepare
-		docpad = @
-		config = @getConfig()
-
-		# Track
-		if err and err.track isnt false and err.tracked isnt true and config.offline is false and config.reportErrors is true
-			err = @createError(err, {tracked:true})
-			data = {}
-			data.message = err.message
-			data.stack = err.stack.toString().trim()  if err.stack
-			data.config = config
-			data.env = process.env
-			docpad.track('error', data)
 
 		# Chain
 		@
@@ -3447,174 +3314,6 @@ class DocPad extends EventEmitterGrouped
 
 			# Success
 			return next(null, res)
-
-
-	###*
-	# Subscribe to the DocPad email list.
-	# @private
-	# @method subscribe
-	# @param {Function} next
-	# @param {Error} next.err
-	###
-	subscribe: (next) ->
-		# Prepare
-		config = @getConfig()
-
-		# Check
-		if config.offline is false
-			if @userConfig?.email
-				# Data
-				data = {}
-				data.email = @userConfig.email  # required
-				data.name = @userConfig.name or null
-				data.username = @userConfig.username or null
-
-				# Apply
-				superAgent
-					.post(config.helperUrl)
-					.type('json').set('Accept', 'application/json')
-					.query(
-						method: 'add-subscriber'
-					)
-					.send(data)
-					.timeout(30*1000)
-					.end @checkRequest next
-			else
-				err = new Error('Email not provided')  # @TODO localise this
-				next?(err)
-		else
-			next?()
-
-		# Chain
-		@
-
-	###*
-	# Track
-	# @private
-	# @method track
-	# @param {String} name
-	# @param {Object} [things={}]
-	# @param {Function} next
-	# @param {Error} next.err
-	###
-	track: (name,things={},next) ->
-		# Prepare
-		docpad = @
-		config = @getConfig()
-
-		# Check
-		if config.offline is false and config.reportStatistics
-			# Data
-			data = {}
-			data.userId = @userConfig.username or null
-			data.event = name
-			data.properties = things
-
-			# Things
-			things.websiteName = @websitePackageConfig.name  if @websitePackageConfig?.name
-			things.platform = @getProcessPlatform()
-			things.environment = @getEnvironment()
-			things.version = @getVersion()
-			things.nodeVersion = @getProcessVersion()
-
-			# Plugins
-			eachr docpad.loadedPlugins, (value,key) ->
-				things['plugin-'+key] = value.version or true
-
-			# Apply
-			trackRunner = docpad.getTrackRunner()
-			trackRunner.addTask 'track task', (complete) ->
-				superAgent
-					.post(config.helperUrl)
-					.type('json').set('Accept', 'application/json')
-					.query(
-						method: 'analytics'
-						action: 'track'
-					)
-					.send(data)
-					.timeout(30*1000)
-					.end docpad.checkRequest (err) ->
-						next?(err)
-						complete(err)  # we pass the error here, as if we error, we want to stop all tracking
-
-			# Execute the tracker tasks
-			trackRunner.run()
-		else
-			next?()
-
-		# Chain
-		@
-
-	###*
-	# Identify DocPad user
-	# @private
-	# @method identify
-	# @param {Function} next
-	# @param {Error} next.err
-	###
-	identify: (next) ->
-		# Prepare
-		docpad = @
-		config = @getConfig()
-
-		# Check
-		if config.offline is false and config.reportStatistics and @userConfig?.username
-			# Data
-			data = {}
-			data.userId = @userConfig.username  # required
-			data.traits = things = {}
-
-			# Things
-			now = new Date()
-			things.username = @userConfig.username  # required
-			things.email = @userConfig.email or null
-			things.name = @userConfig.name or null
-			things.lastLogin = now.toISOString()
-			things.lastSeen = now.toISOString()
-			things.countryCode = safeps.getCountryCode()
-			things.languageCode = safeps.getLanguageCode()
-			things.platform = @getProcessPlatform()
-			things.version = @getVersion()
-			things.nodeVersion = @getProcessVersion()
-
-			# Is this a new user?
-			if docpad.userConfig.identified isnt true
-				# Update
-				things.created = now.toISOString()
-
-				# Create the new user
-				docpad.getTrackRunner().addTask 'create new user', (complete) ->
-					superAgent
-						.post(config.helperUrl)
-						.type('json').set('Accept', 'application/json')
-						.query(
-							method: 'analytics'
-							action: 'identify'
-						)
-						.send(data)
-						.timeout(30*1000)
-						.end docpad.checkRequest (err) ->
-							# Save the changes with these
-							docpad.updateUserConfig({identified:true}, complete)
-
-			# Or an existing user?
-			else
-				# Update the existing user's information witht he latest
-				docpad.getTrackRunner().addTask 'update user', (complete) ->
-					superAgent
-						.post(config.helperUrl)
-						.type('json').set('Accept', 'application/json')
-						.query(
-							method: 'analytics'
-							action: 'identify'
-						)
-						.send(data)
-						.timeout(30*1000)
-						.end docpad.checkRequest complete
-
-		# Chain
-		next?()
-		@
 
 
 	# =================================
@@ -4841,7 +4540,7 @@ class DocPad extends EventEmitterGrouped
 			# https://github.com/bevry/docpad/issues/811
 			else if docpad.generated is false
 				return next(
-					new Error('DocPad is in an invalid state, please report this on the github issue tracker. Reference 3360')
+					new Error('DocPad is in an invalid state, please report this. Reference 3360')
 				)
 
 			else
@@ -6036,9 +5735,6 @@ class DocPad extends EventEmitterGrouped
 		skeletonId = skeletonModel?.id or 'none'
 		skeletonName = skeletonModel?.get('name') or locale.skeletonNoneName
 
-		# Track
-		docpad.track('skeleton-use', {skeletonId})
-
 		# Log
 		docpad.log('info', util.format(locale.skeletonInstall, skeletonName, opts.destinationPath)+' '+locale.pleaseWait)
 
@@ -6071,9 +5767,6 @@ class DocPad extends EventEmitterGrouped
 		[opts,next] = extractOptsAndCallback(opts,next)
 		docpad = @
 		opts.selectSkeletonCallback ?= null
-
-		# Track
-		docpad.track('skeleton-ask')
 
 		# Get the available skeletons
 		docpad.getSkeletons (err,skeletonsCollection) ->
