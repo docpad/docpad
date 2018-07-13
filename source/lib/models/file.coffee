@@ -452,7 +452,7 @@ class FileModel extends Model
 	# @param {Object} [buffer]
 	###
 	setBuffer: (buffer) ->
-		buffer = new Buffer(buffer)  unless Buffer.isBuffer(buffer)
+		buffer = docpadUtil.newBuffer(buffer)  unless Buffer.isBuffer(buffer)
 		@bufferTime = @get('mtime') or new Date()
 		@buffer = buffer
 		@

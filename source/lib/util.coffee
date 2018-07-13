@@ -22,6 +22,19 @@ extractOptsAndCallback = require('extract-opts')
 module.exports = docpadUtil =
 
 	###*
+	# Create a new Buffer, with support for Node <4
+	# @private
+	# @method newBuffer
+	# @param {*} data
+	# @return {Buffer}
+	###
+	newBuffer: (data) ->
+		if Buffer.from?
+			return Buffer.from(data)
+		else
+			return new Buffer(data)
+
+	###*
 	# Write to stderr
 	# @private
 	# @method writeStderr

@@ -1,5 +1,9 @@
 # History
 
+## v6.80.2 2018 July 13
+- Fixed `Buffer() is deprecated due to security and usability issues`
+    - Closes [issue #1078](https://github.com/docpad/docpad/issues/1078)
+
 ## v6.80.1 2018 July 13
 - Fixed `Cannot set property initialConfig of #<LessPlugin> which has only a getter`
     - Closes [issue #1077](https://github.com/docpad/docpad/issues/1077)
