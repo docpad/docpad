@@ -1,4 +1,0 @@
----
-dynamic: true
----
-hi <%=(@req.query or {}).name%>

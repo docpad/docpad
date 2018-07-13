@@ -2695,7 +2695,6 @@ class DocPad extends EventEmitterGrouped
 			# Special Collections
 			generate: database.createLiveChildCollection()
 				.setQuery('generate', {
-					dynamic: false
 					ignored: false
 				})
 				.on('add', (model) ->
@@ -2703,7 +2702,6 @@ class DocPad extends EventEmitterGrouped
 				)
 			referencesOthers: database.createLiveChildCollection()
 				.setQuery('referencesOthers', {
-					dynamic: false
 					ignored: false
 					referencesOthers: true
 				})
@@ -2712,7 +2710,6 @@ class DocPad extends EventEmitterGrouped
 				)
 			hasLayout: database.createLiveChildCollection()
 				.setQuery('hasLayout', {
-					dynamic: false
 					ignored: false
 					layout: $exists: true
 				})
@@ -4305,7 +4302,7 @@ class DocPad extends EventEmitterGrouped
 						return complete(err)
 
 					# Write out
-					if file.get('write') isnt false and file.get('dynamic') isnt true and file.get('outPath')
+					if file.get('write') isnt false and file.get('outPath')
 						fileTasks.addTask "write out", (complete) ->
 							file.action('write', complete)
 
@@ -4704,7 +4701,6 @@ class DocPad extends EventEmitterGrouped
 					path: model.getFilePath()
 					mtime: model.get('mtime')
 					wtime: model.get('wtime')
-					dynamic: model.get('dynamic')
 					ignored: model.get('ignored')
 					write: model.get('write')
 				}  for model in opts.collection.models
@@ -4755,7 +4751,6 @@ class DocPad extends EventEmitterGrouped
 					path: model.getFilePath()
 					mtime: model.get('mtime')
 					wtime: model.get('wtime')
-					dynamic: model.get('dynamic')
 					ignored: model.get('ignored')
 					write: model.get('write')
 				}  for model in opts.collection.models
@@ -5841,63 +5836,39 @@ class DocPad extends EventEmitterGrouped
 		# Cache-Control (max-age)
 		res.setHeaderIfMissing('Cache-Control', "public, max-age=#{config.maxAge}")  if config.maxAge
 
+		# Content Type + Encoding/Charset
+		res.setHeaderIfMissing('Content-Type', document.getContentTypeHeader())
+
+		# ETag: `"<size>-<mtime>"`
+		ctime = document.get('date')    # use the date or mtime, it should always exist
+		mtime = document.get('wtime')   # use the last generate time, it may not exist though
+		stat = document.getStat()
+		etag = stat.size + '-' + Number(mtime)   if mtime and stat
+		res.setHeaderIfMissing('ETag', '"' + etag + '"')  if etag
+
+		# Date
+		res.setHeaderIfMissing('Date', ctime.toUTCString())  if ctime?.toUTCString?
+		res.setHeaderIfMissing('Last-Modified', mtime.toUTCString())  if mtime?.toUTCString?
+		# @TODO:
+		# The above .toUTCString? check is a workaround because sometimes the date object
+		# isn't really a date object, this needs to be fixed properly
+		# https://github.com/bevry/docpad/pull/781
+
 		# Send
-		dynamic = document.get('dynamic')
-		if dynamic
-			docpad.log('warn', util.format(locale.documentDynamicError, document.getFilePath()))
-			# If you are debugging why a dynamic document isn't rendering
-			# it could be that you don't have cleanurls installed
-			# e.g. if index.html is dynamic, and you are accessing it via /
-			# then this code will not be reached, as we don't register that url
-			# where if we have the cleanurls plugin installed, then do register that url
-			# against the document, so this is reached
-			collection = new FilesCollection([document], {name:'dynamic collection'})
-			templateData = extendr.extend({}, req.templateData or {}, {req,err})
-			docpad.action 'generate', {collection, templateData}, (err) ->
-				content = document.getOutContent()
-				if err
-					docpad.error(err)
-					return next(err)
-				else
-					if opts.statusCode?
-						return res.send(opts.statusCode, content)
-					else
-						return res.send(content)
-
+		if etag and etag is (req.get('If-None-Match') or '').replace(/^"|"$/g, '')
+			res.send(304)  # not modified
 		else
-			# Content Type + Encoding/Charset
-			res.setHeaderIfMissing('Content-Type', document.getContentTypeHeader())
-
-			# ETag: `"<size>-<mtime>"`
-			ctime = document.get('date')    # use the date or mtime, it should always exist
-			mtime = document.get('wtime')   # use the last generate time, it may not exist though
-			stat = document.getStat()
-			etag = stat.size + '-' + Number(mtime)   if mtime and stat
-			res.setHeaderIfMissing('ETag', '"' + etag + '"')  if etag
-
-			# Date
-			res.setHeaderIfMissing('Date', ctime.toUTCString())  if ctime?.toUTCString?
-			res.setHeaderIfMissing('Last-Modified', mtime.toUTCString())  if mtime?.toUTCString?
-			# @TODO:
-			# The above .toUTCString? check is a workaround because sometimes the date object
-			# isn't really a date object, this needs to be fixed properly
-			# https://github.com/bevry/docpad/pull/781
-
-			# Send
-			if etag and etag is (req.get('If-None-Match') or '').replace(/^"|"$/g, '')
-				res.send(304)  # not modified
-			else
-				content = document.getOutContent()
-				if content
-					if opts.statusCode?
-						res.send(opts.statusCode, content)
-					else
-						res.send(content)
+			content = document.getOutContent()
+			if content
+				if opts.statusCode?
+					res.send(opts.statusCode, content)
 				else
-					if opts.statusCode?
-						res.send(opts.statusCode)
-					else
-						next()
+					res.send(content)
+			else
+				if opts.statusCode?
+					res.send(opts.statusCode)
+				else
+					next()
 
 		# Chain
 		@

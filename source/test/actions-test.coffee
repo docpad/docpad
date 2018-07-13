@@ -234,27 +234,5 @@ joe.suite 'docpad-actions', (suite,test) ->
 					)
 					done()
 
-		test 'served dynamic documents - part 1/2', (done) ->
-			superAgent.get "#{baseUrl}/dynamic.html?name=ben", (err,res) ->
-				return done(err)  if err
-				actual = res.text
-				expected = 'hi ben'
-				equal(
-					actual.toString().trim()
-					expected
-				)
-				done()
-
-		test 'served dynamic documents - part 2/2', (done) ->
-			superAgent.get "#{baseUrl}/dynamic.html?name=joe", (err,res) ->
-				return done(err)  if err
-				actual = res.text
-				expected = 'hi joe'
-				equal(
-					actual.toString().trim()
-					expected
-				)
-				done()
-
 	test 'close the close', ->
 		docpad.getServer(true).serverHttp.close()

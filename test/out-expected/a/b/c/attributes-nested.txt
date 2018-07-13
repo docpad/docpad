@@ -5,7 +5,6 @@
 	"contentRendered": null,
 	"contentRenderedWithoutLayouts": null,
 	"contentType": "text/coffeescript",
-	"dynamic": false,
 	"exists": true,
 	"extension": "coffee",
 	"extensions": [

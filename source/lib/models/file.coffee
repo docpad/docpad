@@ -378,9 +378,6 @@ class FileModel extends Model
 		# Whether or not we should write this file to the source directory
 		writeSource: false
 
-		# Whether or not this file should be re-rendered on each request
-		dynamic: false
-
 		# The title for this document
 		# Useful for page headings
 		title: null

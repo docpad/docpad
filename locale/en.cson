@@ -61,7 +61,6 @@
 	documentMissingContentType: "ContentType was missing on document %s"
 	documentMissingLayoutError: "Could not find the layout %s on %s"
 	documentApplyError: "The `apply` option when rendering documents is now deprecated. Use `document.clone().action('render', ...)` instead"
-	documentDynamicError: "Dynamic documents are deprecated. They do not support content types, and will eventually be removed. Violating document %s"
 	documentRender: "Rendering the file: %s"
 	documentRenderError: "Something went wrong while rendering: %s"
 	documentRendered: "Rendered the file: %s"
