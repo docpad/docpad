@@ -9,6 +9,9 @@
 # Node 0.10 compat
 require('babel-polyfill')
 
+# Better debugging information
+require('unbounded').patch()
+
 # Important
 pathUtil = require('path')
 lazyRequire = require('lazy-require')
@@ -31,6 +34,7 @@ extendr = require('extendr')
 eachr = require('eachr')
 typeChecker = require('typechecker')
 ambi = require('ambi')
+unbounded = require('unbounded')
 {TaskGroup} = require('taskgroup')
 safefs = require('safefs')
 safeps = require('safeps')
@@ -1793,7 +1797,7 @@ class DocPad extends EventEmitterGrouped
 				# Fire the config event handler for this event, if it exists
 				if typeChecker.isFunction(eventHandler)
 					args = [opts,next]
-					ambi(eventHandler.bind(configEventContext), args...)
+					ambi(unbounded.binder.call(eventHandler, configEventContext), args...)
 				# It doesn't exist, so lets continue
 				else
 					next()
@@ -2763,7 +2767,7 @@ class DocPad extends EventEmitterGrouped
 
 			tasks.addTask "creating the custom collection: #{name}", (complete) ->
 				# Init
-				ambi [fn.bind(docpad), fn], database, (err, collection) ->
+				ambi unbounded.binder.call(fn, docpad), database, (err, collection) ->
 					# Check for error
 					if err
 						docpad.error(err)

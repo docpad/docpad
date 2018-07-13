@@ -1,5 +1,9 @@
 # History
 
+## v6.80.3 2018 July 13
+- If a task completed, but had already completed earlier, you will now get more detailed debugging information to help you locate the cause
+- Updated dependencies
+
 ## v6.80.2 2018 July 13
 - Fixed `Buffer() is deprecated due to security and usability issues`
     - Closes [issue #1078](https://github.com/docpad/docpad/issues/1078)

@@ -362,6 +362,7 @@ module.exports = docpadUtil =
 				# If we have a completion callback, let it handle the error
 				if next
 					next(args...)
+					args = args.slice()
 					args[0] = null
 
 				# Continue with our runner

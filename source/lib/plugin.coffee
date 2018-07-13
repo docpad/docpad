@@ -4,8 +4,8 @@
 # External
 extendr = require('extendr')
 typeChecker = require('typechecker')
-ambi = require('ambi')
 eachr = require('eachr')
+unbounded = require('unbounded')
 
 
 # ---------------------------------
