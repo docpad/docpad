@@ -1,5 +1,9 @@
 # History
 
+## v6.80.1 2018 July 13
+- Fixed `Cannot set property initialConfig of #<LessPlugin> which has only a getter`
+    - Closes [issue #1077](https://github.com/docpad/docpad/issues/1077)
+
 ## v6.80.0 2018 July 12
 - Huge thank you to the sponsors who supported this release. It really did help.
     - [Jean-Luc Geering](https://opencollective.com/jlgeering)

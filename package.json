@@ -1,7 +1,7 @@
 {
   "title": "DocPad. Streamlined web development.",
   "name": "docpad",
-  "version": "6.80.0",
+  "version": "6.80.1",
   "description": "DocPad is a dynamic static site generator. Write your content as files, or import your content from other external sources. Render the content with plugins. And deploy your static or dynamic website to your favourite hosting provider.",
   "homepage": "https://github.com/docpad/docpad",
   "license": "MIT",
@@ -142,7 +142,8 @@
     "Prayag Verma <prayag@stylifyyourblog.com> (http://www.StylifyYourBlog.com/)",
     "Michael Duane Mooring (http://mdm.cc)",
     "Adrian Olaru <hello@adio.space> (http://adio.space)",
-    "Craig Smith (https://github.com/craigsssmith)"
+    "Craig Smith (https://github.com/craigsssmith)",
+    "Changwoo Park (https://github.com/pismute)"
   ],
   "bugs": {
     "url": "https://github.com/docpad/docpad/issues"

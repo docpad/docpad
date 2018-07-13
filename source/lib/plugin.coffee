@@ -78,10 +78,20 @@ class BasePlugin
 		# Bind listeners
 		@bindListeners()
 
-		# Swap out our configuration
+		# Setup the configuration so that there are not reference errors
 		@config = extendr.clone(@config)
 		@instanceConfig = extendr.clone(@instanceConfig)
-		@initialConfig = @config
+		if typeChecker.isEmptyObject(@initialConfig)
+			@initialConfig = extendr.clone(@config)
+		else if typeChecker.isEmptyObject(@config)
+			try
+				@initialConfig = extendr.clone(@initialConfig)
+			catch e
+				# ignore, as must be exposed via a getter, in which case it won't have reference issues
+		else
+			throw new Error("Plugin #{@name} is misconfigured, it has both @config and @initialConfig defined, it can only have one or the other")
+
+		# Apply the configuration
 		@setConfig(config)
 
 		# Return early if we are disabled
