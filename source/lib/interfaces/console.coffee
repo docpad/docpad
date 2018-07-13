@@ -82,10 +82,6 @@ class ConsoleInterface
 				parseInt
 			)
 			.option(
-				'--cache'
-				locale.consoleOptionCache
-			)
-			.option(
 				'--silent'
 				locale.consoleOptionSilent
 			)
@@ -371,10 +367,6 @@ class ConsoleInterface
 		# silent -> prompt
 		if commanderConfig.silent?
 			commanderConfig.prompts = !(commanderConfig.silent)
-
-		# cache -> databaseCache
-		if commanderConfig.silent?
-			commanderConfig.databaseCache = commanderConfig.cache
 
 		# config -> configPaths
 		if commanderConfig.config

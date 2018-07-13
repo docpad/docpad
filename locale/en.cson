@@ -187,12 +187,9 @@
 	consoleOptionProfile: "enable profiling"
 	consoleOptionOffline: "don't do any remote requests"
 	consoleOptionSilent: "don't use any prompts"
-	consoleOptionCache: "use the database cache ability to speed up docpad"
 	consoleOptionSkeleton: "specify the id of a skeleton to use instead of prompting"
 
 	# Misc
-	databaseCacheRead: "Imported %s/%s files from the database cache"
-	databaseCacheWrite: "Dumped %s files to the database cache"
 	emittingEvent: "Emitting the event: %s"
 	emittedEvent: "Emitted the event: %s"
 	outPathConflict: """
