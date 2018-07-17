@@ -183,7 +183,6 @@
 	consoleOptionForce: "force a re-install of all modules"
 	consoleOptionNoColor: "don't colorize terminal output"
 	consoleOptionPort: "a custom port to use for the server <port>"
-	consoleOptionProfile: "enable profiling"
 	consoleOptionOffline: "don't do any remote requests"
 	consoleOptionSilent: "don't use any prompts"
 	consoleOptionSkeleton: "specify the id of a skeleton to use instead of prompting"
