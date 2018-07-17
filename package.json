@@ -189,7 +189,6 @@
   ],
   "bin": {
     "docpad": "bin/docpad",
-    "docpad-compile": "bin/docpad-compile",
     "docpad-server": "bin/docpad-server"
   },
   "main": "index.js",
