@@ -1298,14 +1298,6 @@ class DocPad extends EventEmitterGrouped
 	# Configuration
 
 	###*
-	# Hash Key
-	# The key that we use to hash some data before sending it to our statistic server
-	# @private
-	# @property {String} string constant
-	###
-	hashKey: '7>9}$3hP86o,4=@T'  # const
-
-	###*
 	# Website Package Configuration
 	# @private
 	# @property {Object} websitePackageConfig
