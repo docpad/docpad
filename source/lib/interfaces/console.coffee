@@ -77,11 +77,6 @@ class ConsoleInterface
 				locale.consoleOptionNoColor
 			)
 			.option(
-				'-p, --port <port>'
-				locale.consoleOptionPort
-				parseInt
-			)
-			.option(
 				'--silent'
 				locale.consoleOptionSilent
 			)
@@ -115,14 +110,6 @@ class ConsoleInterface
 			.command('run')
 			.description(locale.consoleDescriptionRun)
 			.action(consoleInterface.wrapAction(consoleInterface.run, {
-				_stayAlive: true
-			}))
-
-		# server
-		commander
-			.command('server')
-			.description(locale.consoleDescriptionServer)
-			.action(consoleInterface.wrapAction(consoleInterface.server, {
 				_stayAlive: true
 			}))
 
@@ -713,15 +700,6 @@ class ConsoleInterface
 			selectSkeletonCallback: @selectSkeletonCallback
 			next: next
 		})
-		@
-
-	###*
-	# Server method
-	# @method server
-	# @param {Function} next
-	###
-	server: (next) =>
-		@docpad.action('server generate', next)
 		@
 
 	###*

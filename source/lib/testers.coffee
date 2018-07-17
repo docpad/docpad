@@ -23,8 +23,6 @@ docpadUtil = require('./util')
 # Helpers
 
 # Prepare
-# We want the plugn port to be a semi-random number above 2000
-pluginPort = 2000 + parseInt(String(Date.now()).substr(-6, 4))
 testers = {
 	CSON,
 	DocPad
@@ -65,7 +63,6 @@ class PluginTester
 	###
 	docpadConfig:
 		global: true
-		port: null
 		logLevel: (if ('-d' in process.argv) then 7 else 5)
 		rootPath: null
 		outPath: null
@@ -97,7 +94,6 @@ class PluginTester
 		tester = @
 		@config = extendr.deep({}, PluginTester::config, @config, config)
 		@docpadConfig = extendr.deep({}, PluginTester::docpadConfig, @docpadConfig, docpadConfig)
-		@docpadConfig.port ?= ++pluginPort
 		@config.testerName ?= "#{@config.pluginName} plugin"
 
 		# Extend Configuration
@@ -190,19 +186,6 @@ class PluginTester
 		# Chain
 		@
 
-	# Perform Server
-	testServer: (next) =>
-		# Prepare
-		tester = @
-
-		# Handle
-		@test "server", (done) ->
-			tester.docpad.action 'server', (err) ->
-				return done(err)
-
-		# Chain
-		@
-
 	###*
 	# Test generate
 	# @method
@@ -231,7 +214,6 @@ class PluginTester
 		@testCreate()
 		@testLoad()
 		@testGenerate()
-		@testServer()
 		@testCustom?()
 
 		# Finish
@@ -257,18 +239,8 @@ class PluginTester
 		@
 
 ###*
-# Server tester
-# @class ServerTester
-# @extends PluginTester
-# @constructor
-###
-testers.ServerTester =
-class ServerTester extends PluginTester
-
-
-###*
 # Rednderer tester
-# @class ServerTester
+# @class RendererTester
 # @extends PluginTester
 # @constructor
 ###
@@ -340,7 +312,6 @@ class RendererTester extends PluginTester
 testers.test =
 test = (testerConfig, docpadConfig) ->
 	# Configure
-	testerConfig.testerClass ?= PluginTester
 	testerConfig.pluginPath = pathUtil.resolve(testerConfig.pluginPath)
 	testerConfig.pluginName ?= pathUtil.basename(testerConfig.pluginPath).replace('docpad-plugin-','')
 	testerConfig.testerPath ?= pathUtil.join('out', "#{testerConfig.pluginName}.tester.js")
@@ -351,8 +322,16 @@ test = (testerConfig, docpadConfig) ->
 		# Accept string inputs for testerClass
 		testerConfig.testerClass = testers[testerConfig.testerClass]  if typeof testerConfig.testerClass is 'string'
 
+		# Error if testerclass doesn't exist
+		unless testerConfig.testerClass
+			throw new Error(
+				"""
+				Plugin [#{testerConfig.pluginName}] must define their testerClass. If your plugin is a renderer, then you probably want to use: "RendererTester"
+				"""
+			)
+
 		# Create our tester
-		new testerConfig.testerClass testerConfig, docpadConfig, (err,testerInstance) ->
+		return new testerConfig.testerClass testerConfig, docpadConfig, (err,testerInstance) ->
 			throw err  if err
 
 			# Run the tests
