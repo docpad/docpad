@@ -1,5 +1,9 @@
 # History
 
+## v6.80.4 2018 July 19
+- Fixed `Error: extendr only supports extending plain objects, an input was not a plain object` when scaffolding a new project (bug introduced in v6.80.0)
+    - Closes [issue #1079](https://github.com/docpad/docpad/issues/1079)
+
 ## v6.80.3 2018 July 13
 - If a task completed, but had already completed earlier, you will now get more detailed debugging information to help you locate the cause
 - Updated dependencies

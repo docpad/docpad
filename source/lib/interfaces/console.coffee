@@ -432,7 +432,7 @@ class ConsoleInterface
 			console.log "  #{skeletonModel.get('position')+1}.\t#{skeletonName}\n  \t#{skeletonDescription}\n"
 
 		# Select
-		consoleInterface.choose locale.skeletonSelectionPrompt, skeletonNames, null, (err, choice) ->
+		consoleInterface.choose locale.skeletonSelectionPrompt, skeletonNames, {}, (err, choice) ->
 			return next(err)  if err
 			index = skeletonNames.indexOf(choice)
 			return next(null, skeletonsCollection.at(index))
