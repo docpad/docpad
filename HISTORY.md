@@ -1,5 +1,13 @@
 # History
 
+## v6.80.5 2018 July 20
+- Progress totals are now accurately reflect item completions
+- [progressbar](https://github.com/bevry/progressbar) has been replaced with [progress-title](https://github.com/bevry/progress-title)
+    - This is far more robust and simple, offers greater and more detailed progress updates (ie. progress updates for file system watching), and even supports progress updates inside DocPad's debug mode
+- Fixed progress bar sometimes lingering after a generation
+    - Closes [issue #1080](https://github.com/docpad/docpad/issues/1080)
+- Updated dependencies
+
 ## v6.80.4 2018 July 19
 - Fixed `Error: extendr only supports extending plain objects, an input was not a plain object` when scaffolding a new project (bug introduced in v6.80.0)
     - Closes [issue #1079](https://github.com/docpad/docpad/issues/1079)

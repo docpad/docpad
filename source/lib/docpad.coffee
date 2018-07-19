@@ -412,6 +412,48 @@ class DocPad extends EventEmitterGrouped
 		@
 
 	###*
+	# Instance of progress-title
+	# @private
+	# @property {Progress} progressInstance
+	###
+	progressInstance: null
+
+	###*
+	# Update the configuration of the progress instance, to either enable it or disable it
+	# Progress will be enabled if the DocPad config 'progress' and 'prompts' are both true
+	# @private
+	# @method updateProgress
+	# @param {boolean} [enabled] manually enable or disable the progress bar
+	###
+	updateProgress: (enabled) ->
+		# Prepare
+		docpad = @
+		config = docpad.getConfig()
+		debug = @getDebugging()
+
+		# Enabled
+		enabled ?= config.progress and config.prompts
+
+		# If we are in debug mode, then output more detailed title messages
+		options = {}
+		if debug
+			options.verbose = true
+			options.interval = 0
+			# options.log = true
+
+		# If we wish to have it enabled
+		if enabled
+			if @progressInstance
+				@progressInstance.pause().configure(options).resume()
+			else
+				@progressInstance = Progress.create(options).start()
+		else if @progressInstance
+			@progressInstance.stop().configure(options)
+
+		# Return
+		return this
+
+	###*
 	# The action runner instance bound to docpad
 	# @private
 	# @property {Object} actionRunnerInstance
@@ -1713,13 +1755,13 @@ class DocPad extends EventEmitterGrouped
 	###
 	createTaskGroup: (opts...) =>
 		docpad = @
+		progress = docpad.progressInstance
 		tasks = TaskGroup.create(opts...)
 
 		# Listen to executing tasks and output their progress
 		tasks.on 'running', ->
 			config = tasks.getConfig()
 			name = tasks.getNames()
-			progress = config.progress
 			if progress
 				totals = tasks.getItemTotals()
 				progress.update(name, totals)
@@ -1730,7 +1772,6 @@ class DocPad extends EventEmitterGrouped
 		tasks.on 'item.add', (item) ->
 			config = tasks.getConfig()
 			name = item.getNames()
-			progress = config.progress
 			unless progress
 				docpad.log('debug', name+' > added')
 
@@ -1738,7 +1779,6 @@ class DocPad extends EventEmitterGrouped
 			item.on 'started', (item) ->
 				config = tasks.getConfig()
 				name = item.getNames()
-				progress = config.progress
 				if progress
 					totals = tasks.getItemTotals()
 					progress.update(name, totals)
@@ -1749,7 +1789,6 @@ class DocPad extends EventEmitterGrouped
 			item.done (err) ->
 				config = tasks.getConfig()
 				name = item.getNames()
-				progress = config.progress
 				if progress
 					totals = tasks.getItemTotals()
 					progress.update(name, totals)
@@ -1802,6 +1841,7 @@ class DocPad extends EventEmitterGrouped
 
 		# Create our action runner
 		@actionRunnerInstance = @createTaskGroup('action runner', {abortOnError: false, destroyOnceDone: false}).whenDone (err) ->
+			docpad.progressInstance?.update('')
 			docpad.error(err)  if err
 
 		# Initialize the loggers
@@ -1987,6 +2027,9 @@ class DocPad extends EventEmitterGrouped
 
 				# Destroy Database
 				docpad.destroyDatabase()
+
+				# Destroy progress
+				docpad.updateProgress(false)
 
 				# Destroy Logging
 				docpad.destroyLoggers()
@@ -2306,6 +2349,9 @@ class DocPad extends EventEmitterGrouped
 
 		# Extract and apply the logger
 		@setLogLevel(@config.logLevel)
+
+		# Update the progress bar configuration
+		@updateProgress()
 
 		# Resolve any paths
 		@config.rootPath = pathUtil.resolve(@config.rootPath)
@@ -4347,46 +4393,6 @@ class DocPad extends EventEmitterGrouped
 	generated: false
 
 	###*
-	# Create the console progress bar.
-	# Progress only shown if the DocPad config 'progress'
-	# option is true, the DocPad config 'prompts' option is true
-	# and the log level is 6 (default)
-	# @private
-	# @method createProgress
-	# @return {Object} the progress object
-	###
-	createProgress: ->
-		# Prepare
-		docpad = @
-		config = docpad.getConfig()
-
-		# Only show progress if
-		# - progress is true
-		# - prompts are supported (so no servers)
-		# - and we are log level 6 (the default level)
-		progress = null
-		if config.progress and config.prompts and @getLogLevel() is 6
-			progress = Progress.create().start()
-
-		# Return
-		return progress
-
-	###*
-	# Destructor. Destroy the progress object
-	# @private
-	# @method destroyProgress
-	# @param {Object} progress
-	# @return {Object} the progress object
-	###
-	destroyProgress: (progress) ->
-		# Fetch
-		if progress
-			progress.stop()
-
-		# Return
-		return progress
-
-	###*
 	# Destructor. Destroy the regeneration timer.
 	# @private
 	# @method destroyRegenerateTimer
@@ -4456,10 +4462,6 @@ class DocPad extends EventEmitterGrouped
 		# Update the cached database
 		docpad.databaseTempCache = new FilesCollection(database.models)  if database.models.length
 
-		# Create Progress
-		# Can be over-written by API calls
-		opts.progress ?= docpad.createProgress()
-
 		# Grab the template data we will use for rendering
 		opts.templateData = docpad.getTemplateData(opts.templateData or {})
 
@@ -4479,7 +4481,7 @@ class DocPad extends EventEmitterGrouped
 		docpad.notify (new Date()).toLocaleTimeString(), {title: locale.renderGeneratingNotification}
 
 		# Tasks
-		tasks = @createTaskGroup("generate tasks", {progress: opts.progress}).done (err) ->
+		tasks = @createTaskGroup("generate tasks").done (err) ->
 			# Update generating flag
 			docpad.generating = false
 			docpad.generateEnded = new Date()
@@ -4489,11 +4491,6 @@ class DocPad extends EventEmitterGrouped
 
 			# Create Regenerate Timer
 			docpad.createRegenerateTimer()
-
-			# Clear Progress
-			if opts.progress
-				docpad.destroyProgress(opts.progress)
-				opts.progress = null
 
 			# Error?
 			return next(err)  if err
