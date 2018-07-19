@@ -1,5 +1,8 @@
 # History
 
+## v6.80.6 2018 July 20
+- Abstracted out the document matter parsing into the [docmatter package](https://github.com/bevry/docmatter), which DocPad now consumes
+
 ## v6.80.5 2018 July 20
 - Progress totals are now accurately reflect item completions
 - [progressbar](https://github.com/bevry/progressbar) has been replaced with [progress-title](https://github.com/bevry/progress-title)

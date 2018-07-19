@@ -11,6 +11,7 @@ CSON = require('cson')
 extendr = require('extendr')
 eachr = require('eachr')
 extractOptsAndCallback = require('extract-opts')
+docmatter = require('docmatter')
 
 # Local
 FileModel = require('./file')
@@ -199,96 +200,56 @@ class DocumentModel extends FileModel
 			metaDataChanges = {}
 			parser = header = body = content = null
 
-			# Content
-			content = @get('content').replace(/\r\n?/gm,'\n')  # normalise line endings for the web, just for convience, if it causes problems we can remove
+			# Parse
+			{header, body, content, parser} = docmatter(@get('content'))
+			body = body?.trim()
+			content = content.trim()
 
-			# Header
-			regex = ///
-				# allow some space
-				^\s*
+			# Parse
+			if body
+				parser or= 'yaml'
+				switch parser
+					when 'cson', 'json', 'coffee', 'coffeescript', 'coffee-script', 'js', 'javascript'
+						switch parser
+							when 'coffee', 'coffeescript', 'coffee-script'
+								parser = 'coffeescript'
+							when 'js', 'javascript'
+								parser = 'javascript'
 
-				# allow potential comment characters in seperator
-				[^\n]*?
+						csonOptions =
+							format: parser
+							json: true
+							cson: true
+							coffeescript: true
+							javascript: true
 
-				# discover our seperator characters
-				(
-					([^\s\d\w])  #\2
-					\2{2,}  # match the above (the first character of our seperator), 2 or more times
-				) #\1
-
-				# discover our parser (optional)
-				(?:
-					\x20*  # allow zero or more space characters, see https://github.com/jashkenas/coffee-script/issues/2668
-					(
-						[a-z]+  # parser must be lowercase alpha
-					)  #\3
-				)?
-
-				# discover our meta content
-				(
-					[\s\S]*?  # match anything/everything lazily
-				) #\4
-
-				# allow potential comment characters in seperator
-				[^\n]*?
-
-				# match our seperator (the first group) exactly
-				\1
-
-				# allow potential comment characters in seperator
-				[^\n]*
-				///
-
-			# Extract Meta Data
-			match = regex.exec(content)
-			if match
-				# TODO: Wipe the old meta data
-
-				# Prepare
-				seperator = match[1]
-				parser = match[3] or 'yaml'
-				header = match[4].trim()
-				body = content.substring(match[0].length).trim()
-
-				# Parse
-				try
-					switch parser
-						when 'cson', 'json', 'coffee', 'coffeescript', 'coffee-script', 'js', 'javascript'
-							switch parser
-								when 'coffee', 'coffeescript', 'coffee-script'
-									parser = 'coffeescript'
-								when 'js', 'javascript'
-									parser = 'javascript'
-
-							csonOptions =
-								format: parser
-								json: true
-								cson: true
-								coffeescript: true
-								javascript: true
-
+						try
 							metaParseResult = CSON.parseString(header, csonOptions)
-							if metaParseResult instanceof Error
-								metaParseResult.context = "Failed to parse #{parser} meta header for the file: #{filePath}"
-								return next(metaParseResult)
+							unless metaParseResult instanceof Error
+								extendr.extend(metaDataChanges, metaParseResult)
+						catch err
+							metaParseResult = err
 
-							extendr.extend(metaDataChanges, metaParseResult)
-
-						when 'yaml'
-							YAML = require('yamljs')  unless YAML
+					when 'yaml'
+						YAML = require('yamljs')  unless YAML
+						try
 							metaParseResult = YAML.parse(
 								header.replace(/\t/g,'    ')  # YAML doesn't support tabs that well
 							)
 							extendr.extend(metaDataChanges, metaParseResult)
+						catch err
+							metaParseResult = err
 
-						else
-							err = new Error(util.format(locale.documentMissingParserError, parser, filePath))
-							return next(err)
-				catch err
-					err.context = util.format(locale.documentParserError, parser, filePath)
-					return next(err)
+					else
+						err = new Error(util.format(locale.documentMissingParserError, parser, filePath))
+						return next(err)
 			else
 				body = content
+
+			# Check for error
+			if metaParseResult instanceof Error
+				metaParseResult.context = util.format(locale.documentParserError, parser, filePath)
+				return next(metaParseResult)
 
 			# Incorrect encoding detection?
 			# If so, re-parse with the correct encoding conversion
