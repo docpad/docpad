@@ -219,7 +219,7 @@
     "lazy-require": "^2.2.0",
     "method-override": "^3.0.0",
     "mime": "^2.2.0",
-    "progressbar": "^1.1.1",
+    "progress-title": "^1.0.0",
     "promptly": "^2.0.0",
     "query-engine": "~1.5.7",
     "rimraf": "^2.5.2",

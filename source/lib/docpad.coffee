@@ -40,6 +40,7 @@ safefs = require('safefs')
 safeps = require('safeps')
 ignorefs = require('ignorefs')
 rimraf = require('rimraf')
+Progress = require('progress-title')
 superAgent = require('superagent')
 extractOptsAndCallback = require('extract-opts')
 {EventEmitterGrouped} = require('event-emitter-grouped')
@@ -1564,7 +1565,7 @@ class DocPad extends EventEmitterGrouped
 		prompts: false
 
 		# Progress
-		# Whether or not we should display any progress bars
+		# Whether or not we should display the progress in the terminal title bar
 		# Requires prompts being true, and log level 6 or above
 		progress: true
 
@@ -1721,7 +1722,7 @@ class DocPad extends EventEmitterGrouped
 			progress = config.progress
 			if progress
 				totals = tasks.getItemTotals()
-				progress.step(name).total(totals.total).setTick(totals.completed)
+				progress.update(name, totals)
 			else
 				docpad.log('debug', name+' > running')
 
@@ -1730,10 +1731,7 @@ class DocPad extends EventEmitterGrouped
 			config = tasks.getConfig()
 			name = item.getNames()
 			progress = config.progress
-			if progress
-				totals = tasks.getItemTotals()
-				progress.step(name).total(totals.total).setTick(totals.completed)
-			else
+			unless progress
 				docpad.log('debug', name+' > added')
 
 			# Listen to executing tasks and output their progress
@@ -1743,7 +1741,7 @@ class DocPad extends EventEmitterGrouped
 				progress = config.progress
 				if progress
 					totals = tasks.getItemTotals()
-					progress.step(name).total(totals.total).setTick(totals.completed)
+					progress.update(name, totals)
 				else
 					docpad.log('debug', name+' > started')
 
@@ -1754,7 +1752,7 @@ class DocPad extends EventEmitterGrouped
 				progress = config.progress
 				if progress
 					totals = tasks.getItemTotals()
-					progress.step(name).total(totals.total).setTick(totals.completed)
+					progress.update(name, totals)
 				else
 					docpad.log('debug', name+' > done')
 
@@ -4064,9 +4062,6 @@ class DocPad extends EventEmitterGrouped
 		slowFilesObject = {}
 		slowFilesTimer = null
 
-		# Update progress
-		opts.progress?.step("contextualizeFiles (preparing)").total(1).setTick(0)
-
 		# Log
 		docpad.log 'debug', util.format(locale.contextualizingFiles, collection.length)
 
@@ -4076,16 +4071,13 @@ class DocPad extends EventEmitterGrouped
 			return next(err)  if err
 
 			# Completion callback
-			tasks = docpad.createTaskGroup "contextualizeFiles tasks", concurrency:0, next:(err) ->
+			tasks = docpad.createTaskGroup "contextualizeFiles", concurrency:0, next:(err) ->
 				# Kill the timer
 				clearInterval(slowFilesTimer)
 				slowFilesTimer = null
 
 				# Check
 				return next(err)  if err
-
-				# Update progress
-				opts.progress?.step("contextualizeFiles (postparing)").total(1).setTick(0)
 
 				# After
 				docpad.emitSerial 'contextualizeAfter', {collection}, (err) ->
@@ -4099,14 +4091,12 @@ class DocPad extends EventEmitterGrouped
 					return next()
 
 			# Add contextualize tasks
-			opts.progress?.step('contextualizeFiles').total(collection.length).setTick(0)
 			collection.forEach (file,index) ->
 				filePath = file.getFilePath()
 				slowFilesObject[file.id] = file.get('relativePath') or file.id
 				tasks.addTask "conextualizing: #{filePath}", (complete) ->
 					file.action 'contextualize', (err) ->
 						delete slowFilesObject[file.id]
-						opts.progress?.tick()
 						return complete(err)
 
 			# Setup the timer
@@ -4143,9 +4133,6 @@ class DocPad extends EventEmitterGrouped
 		slowFilesObject = {}
 		slowFilesTimer = null
 
-		# Update progress
-		opts.progress?.step("renderFiles (preparing)").total(1).setTick(0)
-
 		# Log
 		docpad.log 'debug', util.format(locale.renderingFiles, collection.length)
 
@@ -4169,7 +4156,7 @@ class DocPad extends EventEmitterGrouped
 				# Prepare
 				return next(err)  if err
 
-				subTasks = docpad.createTaskGroup "renderCollection: #{collectionToRender.options.name}", concurrency:0, next:(err) ->
+				subTasks = docpad.createTaskGroup "renderFiles: Pass #{renderPass}]: renderCollection: #{collectionToRender.options.name}", concurrency:0, next:(err) ->
 					# Prepare
 					return next(err)  if err
 
@@ -4177,14 +4164,12 @@ class DocPad extends EventEmitterGrouped
 					docpad.emitSerial('renderCollectionAfter', {collection:collectionToRender,renderPass}, next)
 
 				# Cycle
-				opts.progress?.step("renderFiles (pass #{renderPass})").total(collectionToRender.length).setTick(0)
 				collectionToRender.forEach (file) ->
 					filePath = file.getFilePath()
 					slowFilesObject[file.id] = file.get('relativePath')
 					subTasks.addTask "rendering: #{filePath}", (complete) ->
 						renderFile file, (err) ->
 							delete slowFilesObject[file.id] or file.id
-							opts.progress?.tick()
 							return complete(err)
 
 				# Return
@@ -4197,16 +4182,13 @@ class DocPad extends EventEmitterGrouped
 			return next(err)  if err
 
 			# Async
-			tasks = docpad.createTaskGroup "renderCollection: renderBefore tasks", next:(err) ->
+			tasks = docpad.createTaskGroup "renderFiles: renderCollection: renderBefore", next:(err) ->
 				# Kill the timer
 				clearInterval(slowFilesTimer)
 				slowFilesTimer = null
 
 				# Check
 				return next(err)  if err
-
-				# Update progress
-				opts.progress?.step("renderFiles (postparing)").total(1).setTick(0)
 
 				# After
 				docpad.emitSerial 'renderAfter', {collection}, (err) ->
@@ -4266,9 +4248,6 @@ class DocPad extends EventEmitterGrouped
 		slowFilesObject = {}
 		slowFilesTimer = null
 
-		# Update progress
-		opts.progress?.step("writeFiles (preparing)").total(1).setTick(0)
-
 		# Log
 		docpad.log 'debug', util.format(locale.writingFiles, collection.length)
 
@@ -4278,16 +4257,13 @@ class DocPad extends EventEmitterGrouped
 			return next(err)  if err
 
 			# Completion callback
-			tasks = docpad.createTaskGroup "writeFiles tasks", concurrency:0, next:(err) ->
+			tasks = docpad.createTaskGroup "writeFiles", concurrency:0, next:(err) ->
 				# Kill the timer
 				clearInterval(slowFilesTimer)
 				slowFilesTimer = null
 
 				# Check
 				return next(err)  if err
-
-				# Update progress
-				opts.progress?.step("writeFiles (postparing)").total(1).setTick(0)
 
 				# After
 				docpad.emitSerial 'writeAfter', {collection}, (err) ->
@@ -4298,7 +4274,6 @@ class DocPad extends EventEmitterGrouped
 					return next()
 
 			# Add write tasks
-			opts.progress?.step('writeFiles').total(collection.length).setTick(0)
 			collection.forEach (file,index) ->
 				filePath = file.getFilePath()
 				tasks.addTask "writing the file: #{filePath}", (complete) ->
@@ -4308,7 +4283,6 @@ class DocPad extends EventEmitterGrouped
 					# Create sub tasks
 					fileTasks = docpad.createTaskGroup "tasks for file write: #{filePath}", concurrency:0, next:(err) ->
 						delete slowFilesObject[file.id]
-						opts.progress?.tick()
 						return complete(err)
 
 					# Write out
@@ -4392,11 +4366,7 @@ class DocPad extends EventEmitterGrouped
 		# - and we are log level 6 (the default level)
 		progress = null
 		if config.progress and config.prompts and @getLogLevel() is 6
-			progress = require('progressbar').create()
-			@getLoggers().console.unpipe(process.stdout)
-			@getLogger().once 'log', progress.logListener ?= (data) ->
-				if data.levelNumber <= 5  # notice or higher
-					docpad.destroyProgress(progress)
+			progress = Progress.create().start()
 
 		# Return
 		return progress
@@ -4411,8 +4381,7 @@ class DocPad extends EventEmitterGrouped
 	destroyProgress: (progress) ->
 		# Fetch
 		if progress
-			progress.finish()
-			@getLoggers().console.unpipe(process.stdout).pipe(process.stdout)
+			progress.stop()
 
 		# Return
 		return progress
