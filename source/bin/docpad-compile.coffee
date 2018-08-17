@@ -57,12 +57,12 @@ docpadConfig.renderSingleExtensions = (->
 # Create DocPad Instance
 new DocPad docpadConfig, (err,docpad) ->
 	# Check
-	return docpadUtil.writeError(err)  if err
+	return docpad.fatal(err)  if err
 
 	# Generate and Serve
 	docpad.action action, (err) ->
 		# Check
-		return docpadUtil.writeError(err)  if err
+		return docpad.fatal(err)  if err
 
 		# Done
 		console.log('OK')

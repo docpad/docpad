@@ -12,19 +12,17 @@ require('babel-polyfill')
 # Better debugging information
 require('unbounded').patch()
 
-# Important
-pathUtil = require('path')
-lazyRequire = require('lazy-require')
-corePath = pathUtil.resolve(__dirname, '..', '..')
-
 
 # =====================================
 # Requires
 
-# Standard Library
-util     = require('util')
+
+# Standard
+util = require('util')
+pathUtil = require('path')
 
 # External
+Errlop = require('errlop')
 queryEngine = require('query-engine')
 {uniq, union, pick} = require('underscore')
 CSON = require('cson')
@@ -68,12 +66,6 @@ BasePlugin = require('./plugin')
 
 
 # ---------------------------------
-# Helpers
-
-setImmediate = global?.setImmediate or process.nextTick  # node 0.8 b/c
-
-
-# ---------------------------------
 # Variables
 
 isUser = docpadUtil.isUser()
@@ -90,16 +82,12 @@ isUser = docpadUtil.isUser()
 # which is the entry point for a DocPad application.
 #
 # 	new DocPad(docpadConfig, function(err, docpad) {
-# 		if (err) {
-# 			return docpadUtil.writeError(err);
-# 		}
+# 		if (err) return docpad.fatal(err)
 # 		return docpad.action(action, function(err) {
-# 			if (err) {
-# 				return docpadUtil.writeError(err);
-# 			}
-# 			return console.log('OK');
-# 		});
-# 	});
+# 			if (err) return docpad.fatal(err)
+# 			return console.log('OK')
+# 		})
+# 	})
 #
 # @class Docpad
 # @constructor
@@ -126,7 +114,7 @@ class DocPad extends EventEmitterGrouped
 
 		# Check if we are actually a local docpad file
 		if absolutePath.replace(__dirname, '') is absolutePath
-			throw new Error("docpad.require is limited to local docpad files only: #{relativePath}")
+			throw new Errlop("docpad.require is limited to local docpad files only: #{relativePath}")
 
 		# Require the path
 		return require(absolutePath)
@@ -409,6 +397,66 @@ class DocPad extends EventEmitterGrouped
 				value.end()
 				@loggerInstances[key] = null
 			@loggerInstances = null
+		@
+
+	###*
+	# All the timers that exist within DocPad
+	# Used for closing them at shutdown
+	# @private
+	# @property {Object} timers
+	###
+	timers: null
+
+	###*
+	# Create a timer and add it to the known timers
+	# @method timer
+	# @param {string} type - either timeout or interval
+	# @param {number} time - the time to apply to the timer
+	# @param {method} method - the method to use for the timer
+	###
+	timer: (id, type, time, method) ->
+		@timers ?= {}
+
+		# Create a new timer
+		if type?
+			@timer(id)  # clear
+			if type is 'timeout'
+				if time is -1
+					timer = docpadUtil.setImmediate(method)
+				else
+					timer = setTimeout(method, time)
+			else if type is 'interval'
+				timer = setInterval(method, time)
+			else
+				throw new Errlop('unexpected type on new timer')
+			@timers[id] = {id, type, time, method, timer}
+
+		# Destroy an old timer
+		else if @timers[id]
+			if @timers[id].type is 'interval'
+				clearInterval(@timers[id].timer)
+			else if @timers[id].type is 'timeout'
+				if @timers[id].time is -1
+					clearImmediate?(@timers[id].timer)
+				else
+					clearTimeout(@timers[id].timer)
+			else
+				throw new Errlop('unexpected type on stored timer')
+			@timers[id] = null
+
+		@
+
+	###*
+	# Destructor. Destroy all the timers we have kept.
+	# @private
+	# @method {Object} destroyTimers
+	###
+	destroyTimers: (timer) ->
+		@timers ?= {}
+
+		for own key, value of @timers
+			@timer(key)
+
 		@
 
 	###*
@@ -1082,7 +1130,7 @@ class DocPad extends EventEmitterGrouped
 	# The DocPad directory
 	# @property {String} corePath
 	###
-	corePath: corePath
+	corePath: pathUtil.resolve(__dirname, '..', '..')
 
 	###*
 	# The DocPad library directory
@@ -1107,7 +1155,7 @@ class DocPad extends EventEmitterGrouped
 	# The DocPad locale path
 	# @property {String} localePath
 	###
-	localePath: pathUtil.resolve(__dirname, '..', '..', 'locale')
+	localePath: pathUtil.resolve(__dirname, 'locale')
 
 	###*
 	# The DocPad debug log path (docpad-debug.log)
@@ -1236,7 +1284,7 @@ class DocPad extends EventEmitterGrouped
 						return null
 					return file.getOutContent()
 				else
-					err = new Error(util.format(locale.includeFailed, subRelativePath))
+					err = new Errlop(util.format(locale.includeFailed, subRelativePath))
 					throw err
 
 		# Fetch our result template data
@@ -1294,22 +1342,18 @@ class DocPad extends EventEmitterGrouped
 		# Prepare
 		docpad = @
 
-		# Check if it exists
-		localeFilename = "#{code}.cson"
-		localePath = pathUtil.join(@localePath, localeFilename)
-		return null  unless safefs.existsSync(localePath)
-
-		# Load it
-		locale = CSON.parseCSONFile(localePath)
-
-		# Log the error in the background and continue
-		if locale instanceof Error
-			locale.context = "Failed to parse the CSON locale file: #{localePath}"
-			docpad.error(locale)  # @TODO: should this be a fatal error instead?
-			return null
-
-		# Success
-		return locale
+		# Load the locale
+		path = pathUtil.join(@localePath, "#{code}.js")
+		try
+			exists = safefs.existsSync(path)
+			return require(path)  if exists
+		catch loadError
+			err = new Errlop(
+				"Failed to load the locale: #{path}",
+				loadError
+			)
+			docpad.fatal(err)
+			return {}
 
 
 	# -----------------------------
@@ -1466,11 +1510,8 @@ class DocPad extends EventEmitterGrouped
 		# Paths that we should watch for regeneration changes in
 		regeneratePaths: []
 
-		# The time to wait after a source file has changed before using it to regenerate
-		regenerateDelay: 100
-
-		# The time to wait before outputting the files we are waiting on
-		slowFilesDelay: 20*1000
+		# -----------------------------
+		# Project Options
 
 		# The project's out directory
 		outPath: 'out'
@@ -1563,9 +1604,6 @@ class DocPad extends EventEmitterGrouped
 		# Which level of logging should we actually output
 		logLevel: (if ('-d' in process.argv) then 7 else 6)
 
-		# Catch uncaught exceptions
-		catchExceptions: true
-
 		# Color
 		# Whether or not our terminal output should have color
 		# `null` will default to what the terminal supports
@@ -1574,6 +1612,43 @@ class DocPad extends EventEmitterGrouped
 
 		# -----------------------------
 		# Other
+
+		# Catch our own exceptions (error events on the DocPad instance)
+		# use "error"/truthy to report
+		# use "fatal" to report and exit
+		catchOurExceptions: 'error'
+
+		# Catch any uncaught exception
+		# use "error" to report
+		# use "fatal"/truthy to report and exit
+		catchUncaughtExceptions: 'fatal'
+
+		# Whether or not DocPad is allowed to set the exit code on fatal errors
+		# May only work on node v0.11.8 and above
+		setExitCodeOnFatal: true
+
+		# Whether or not DocPad is allowed to set the exit code on standard errors
+		# May only work on node v0.11.8 and above
+		setExitCodeOnError: true
+
+		# Whether or not DocPad is allowed to set the exit code when some code has requested to
+		# May only work on node v0.11.8 and above
+		setExitCodeOnRequest: true
+
+		# The time to wait when destroying DocPad
+		destroyDelay: -1
+
+		# Whether or not to destroy on signal interrupt (ctrl+c)
+		destroyOnSignalInterrupt: true
+
+		# The time to wait after a source file has changed before using it to regenerate
+		regenerateDelay: 100
+
+		# The time to wait before outputting the files we are waiting on
+		slowFilesDelay: 20*1000
+
+		# The time to wait before outputting the plugins we are waiting on
+		slowPluginsDelay: 20*1000
 
 		# Utilise the database cache
 		databaseCache: false  # [false, true, 'write']
@@ -1666,14 +1741,6 @@ class DocPad extends EventEmitterGrouped
 				checkVersion: isUser
 				welcome: isUser
 				prompts: isUser
-
-	###*
-	# Regenerate Timer
-	# When config.regenerateEvery is set to a value, we create a timer here
-	# @private
-	# @property {Object} regenerateTimer
-	###
-	regenerateTimer: null
 
 	###*
 	# Get the DocPad configuration. Commonly
@@ -1805,6 +1872,7 @@ class DocPad extends EventEmitterGrouped
 	# @param {Object} instanceConfig
 	# @param {Function} next callback
 	# @param {Error} next.err
+	# @param {DocPad} next.docpad
 	###
 	constructor: (instanceConfig,next) ->
 		# Prepare
@@ -1817,6 +1885,7 @@ class DocPad extends EventEmitterGrouped
 		for methodName in """
 			action
 			log warn error fatal inspector notify checkRequest
+			onSignalInterruptOne onSignalInterruptTwo
 			serverMiddlewareRouter serverMiddlewareHeader serverMiddleware404 serverMiddleware500
 			destroyWatchers
 			""".split(/\s+/)
@@ -1986,6 +2055,11 @@ class DocPad extends EventEmitterGrouped
 		@
 
 	###*
+	# Has DocPad commenced destruction?
+	###
+	destroying: false
+
+	###*
 	# Destructor. Destroy the DocPad instance
 	# This is an action, and should be called as such
 	# E.g. docpad.action('destroy', next)
@@ -1995,52 +2069,91 @@ class DocPad extends EventEmitterGrouped
 	# @param {Error} next.err
 	###
 	destroy: (opts, next) ->
+		return @  if @destroying
+		@destroying = true
+
 		# Prepare
 		[opts,next] = extractOptsAndCallback(opts, next)
 		docpad = @
+		config = @getConfig()
+		locale = @getLocale()
 
-		# Destroy Regenerate Timer
-		docpad.destroyRegenerateTimer()
+		# Log
+		docpad.log('info', locale.destroyDocPad)
 
-		# Wait one second to wait for any logging to complete
-		docpadUtil.wait 1000, ->
+		# Drop all the remaining tasks
+		dropped = @getActionRunner().clearRemaining()
+		docpad.error("DocPad destruction had to drop #{Number(dropped)} action tasks")  if dropped
+
+		# Destroy Timers
+		docpad.destroyTimers()
+
+		# Wait a configurable oment
+		docpad.timer 'destroy', 'timeout', config.destroyDelay, ->
 
 			# Destroy Plugins
-			docpad.emitSerial 'docpadDestroy', (err) ->
+			docpad.emitSerial 'docpadDestroy', (eventError) ->
 				# Check
-				return next?(err)  if err
+				if eventError
+					# Note
+					err = new Errlop(
+						"DocPad's destroyEvent event failed",
+						eventError
+					)
+					docpad.fatal(err)
 
-				# Destroy Plugins
-				docpad.destroyPlugins()
+					# Callback
+					return next?(err)
 
-				# Destroy Server
-				docpad.destroyServer()
+				# Final closures and checks
+				try
+					# Destroy Timers
+					docpad.destroyTimers()
 
-				# Destroy Watchers
-				docpad.destroyWatchers()
+					# Destroy Plugins
+					docpad.destroyPlugins()
 
-				# Destroy Blocks
-				docpad.destroyBlocks()
+					# Destroy Server
+					docpad.destroyServer()
 
-				# Destroy Collections
-				docpad.destroyCollections()
+					# Destroy Watchers
+					docpad.destroyWatchers()
 
-				# Destroy Database
-				docpad.destroyDatabase()
+					# Destroy Blocks
+					docpad.destroyBlocks()
 
-				# Destroy progress
-				docpad.updateProgress(false)
+					# Destroy Collections
+					docpad.destroyCollections()
 
-				# Destroy Logging
-				docpad.destroyLoggers()
+					# Destroy Database
+					docpad.destroyDatabase()
 
-				# Destroy Process Listners
-				process.removeListener('uncaughtException', docpad.error)
+					# Destroy progress
+					docpad.updateProgress(false)
 
-				# Destroy DocPad Listeners
-				docpad.removeAllListeners()
+					# Destroy Logging
+					docpad.destroyLoggers()
 
-				# Forward
+					# Destroy Process Listeners, with try catch for node 0.10
+					process.removeListener('uncaughtException', docpad.fatal)
+					process.removeListener('uncaughtException', docpad.error)
+					try process.removeListener('SIGINT', docpad.onSignalInterruptOne) catch ignoreError
+					try process.removeListener('SIGINT', docpad.onSignalInterruptTwo) catch ignoreError
+
+					# Destroy DocPad Listeners
+					docpad.removeAllListeners()
+
+				catch finalError
+					# Note
+					err = new Errlop(
+						"DocPad's final destruction efforts failed",
+						finalError
+					)
+					docpad.fatal(err)
+					return next?(err)
+
+				# Success
+				docpad.log('info', locale.destroyedDocPad)
 				return next?()
 
 		# Chain
@@ -2372,13 +2485,30 @@ class DocPad extends EventEmitterGrouped
 			for typePath,key in typePaths
 				typePaths[key] = pathUtil.resolve(@config.rootPath, typePath)
 
-		# Bind the error handler, so we don't crash on errors
+		# Handle errors
+		process.removeListener('uncaughtException', @fatal)
 		process.removeListener('uncaughtException', @error)
+		@removeListener('error', @fatal)
 		@removeListener('error', @error)
-		if @config.catchExceptions
+		if @config.catchExceptions # legacy
+			@config.catchOurExceptions = @config.catchUncaughtExceptions = 'error'
+		if @config.catchUncaughtExceptions
 			process.setMaxListeners(0)
-			process.on('uncaughtException', @error)
-			@on('error', @error)
+			if @config.catchUncaughtExceptions is 'error'
+				process.on('uncaughtException', @error)
+			else
+				process.on('uncaughtException', @fatal)
+		if @config.catchOurExceptions
+			if @config.catchUncaughtExceptions is 'fatal'
+				@on('error', @fatal)
+			else
+				@on('error', @error)
+
+		# Handle interrupt, with try catch for node 0.10
+		try process.removeListener('SIGINT', docpad.onSignalInterruptOne) catch ignoreError
+		try process.removeListener('SIGINT', docpad.onSignalInterruptTwo) catch ignoreError
+		if @config.destroyOnSignalInterrupt
+			process.once('SIGINT', @onSignalInterruptOne)
 
 		# Prepare the Post Tasks
 		postTasks = @createTaskGroup 'setConfig post tasks', next:(err) ->
@@ -2386,6 +2516,7 @@ class DocPad extends EventEmitterGrouped
 
 		###
 		postTasks.addTask 'lazy depedencnies: encoding', (complete) =>
+			lazyRequire = require('lazy-require')
 			return complete()  unless @config.detectEncoding
 			return lazyRequire 'encoding', {cwd:corePath, stdio:'inherit'}, (err) ->
 				docpad.warn(locale.encodingLoadFailed)  if err
@@ -2410,6 +2541,17 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
+	onSignalInterruptOne: ->
+		process.once('SIGINT', @onSignalInterruptTwo)
+		@log('notice', "Signal Interrupt received, queued DocPad's destruction")
+		@action('destroy')
+		@
+
+	onSignalInterruptTwo: ->
+		@exitCode(130)
+		@log('alert', 'Signal Interrupt received again, destroying DocPad right now overlord')
+		@destroy()
+		@
 
 	###*
 	# Load the various configuration files from the
@@ -2540,15 +2682,25 @@ class DocPad extends EventEmitterGrouped
 		extendr.extend(@userConfig, data)  if data
 
 		# Convert to CSON
-		CSON.createCSONString @userConfig, (err, userConfigString) ->
-			if err
-				err.context = "Failed to create the CSON string for the user configuration"
+		CSON.createCSONString @userConfig, (parseError, userConfigString) ->
+			if parseError
+				err = new Errlop(
+					"Failed to create the CSON string for the user configuration",
+					parseError
+				)
 				return next(err)
 
 			# Write it
-			safefs.writeFile userConfigPath, userConfigString, 'utf8', (err) ->
+			safefs.writeFile userConfigPath, userConfigString, 'utf8', (writeError) ->
+				if writeError
+					err = new Errlop(
+						"Failed to write the CSON string for the user configuration to #{userConfigPath}",
+						writeError
+					)
+					return next(err)
+
 				# Forward
-				return next(err)
+				return next()
 
 		# Chain
 		@
@@ -2621,20 +2773,29 @@ class DocPad extends EventEmitterGrouped
 					javascript: true
 
 				# Read the path using CSON
-				CSON.requireFile configPath, csonOptions, (err, data) ->
-					if err
-						err.context = util.format(locale.loadingConfigPathFailed, configPath)
+				CSON.requireFile configPath, csonOptions, (parseError, data) ->
+					if parseError
+						err = new Errlop(
+							util.format(locale.loadingConfigPathFailed, configPath),
+							parseError
+						)
 						return next(err)
 
 					# Check if the data is a function, if so, then execute it as one
 					while typeChecker.isFunction(data)
 						try
 							data = data(docpad)
-						catch err
+						catch executeError
+							err = new Errlop(
+								util.format(locale.executeConfigPathFailed, configPath),
+								executeError
+							)
 							return next(err)
 					unless typeChecker.isObject(data)
-						err = new Error("Loading the configuration #{docpad.inspector configPath} returned an invalid result #{docpad.inspector data}")
-						return next(err)  if err
+						err = new Errlop(
+							util.format(locale.invalidConfigPathData, configPath, docpad.inspector(data))
+						)
+						return next(err)
 
 					# Return the data
 					return next(null, data)
@@ -2800,12 +2961,12 @@ class DocPad extends EventEmitterGrouped
 		# Cycle through Custom Collections
 		eachr docpadConfig.collections or {}, (fn,name) ->
 			if !name or !typeChecker.isString(name)
-				err = new Error("Inside your DocPad configuration you have a custom collection with an invalid name of: #{docpad.inspector name}")
+				err = new Errlop("Inside your DocPad configuration you have a custom collection with an invalid name of: #{docpad.inspector name}")
 				docpad.error(err)
 				return
 
 			if !fn or !typeChecker.isFunction(fn)
-				err = new Error("Inside your DocPad configuration you have a custom collection called #{docpad.inspector name} with an invalid method of: #{docpad.inspector fn}")
+				err = new Errlop("Inside your DocPad configuration you have a custom collection called #{docpad.inspector name} with an invalid method of: #{docpad.inspector fn}")
 				docpad.error(err)
 				return
 
@@ -3116,33 +3277,44 @@ class DocPad extends EventEmitterGrouped
 	getDebugging: ->
 		return @getLogLevel() is 7
 
+	###*
+	# Check Request
+	# @private
+	# @method checkRequest
+	# @param {Function} next
+	# @param {Error} next.err
+	# @param {Object} next.res
+	###
+	checkRequest: (next) ->
+		next ?= @error.bind(@)
+		return (err,res) ->
+			# Check
+			return next(err, res)  if err
+
+			# Check
+			if res.body?.success is false or res.body?.error
+				err = new Errlop(res.body.error or 'unknown request error')
+				return next(err, res)
+
+			# Success
+			return next(null, res)
 
 	###*
-	# Handle a fatal error
-	# @private
-	# @method fatal
-	# @param {Object} err
+	# Send a notify event to plugins (like growl)
+	# @method notify
+	# @param {String} message
+	# @param {Object} [opts={}]
 	###
-	fatal: (err) ->
+	notify: (message,opts={}) ->
+		# Prepare
 		docpad = @
-		config = @getConfig()
 
-		# Check
-		return @  unless err
-
-		# Handle
-		@error(err)
-
-		# Even though the error would have already been logged by the above
-		# Ensure it is definitely outputted in the case the above fails
-		docpadUtil.writeError(err)
-
-		# Destroy DocPad
-		@destroy()
+		# Emit
+		docpad.emitSerial 'notify', {message,opts}, (err) ->
+			docpad.error(err)  if err
 
 		# Chain
 		@
-
 
 	###*
 	# Inspect. Converts object to JSON string. Wrapper around nodes util.inspect method.
@@ -3169,133 +3341,58 @@ class DocPad extends EventEmitterGrouped
 			logger.log.apply(logger, args)
 		else
 			# logger doesn't exist, this is probably because it was destroyed
-			# in which case handle the minimum case
-			# that we want to log everything except debug, unless we are debugging
-
-			# @todo add an option so this becomes an opt-in error case, however for that to happen, there needs to be a way
-			# to prevent the following log message after destroy from causing an failure state
-			#   debug action runner ➞  runner task for action: destroy > done
-
-			# @todo an alternative approach is to destroy the loggers in a timeout after completion callback has fired
-
-			# @todo one could use caterpillar's log level handling to determine accurate log levels, however
-			# that is does not resolve that anything here should not, in theory, occur, as such this is a murky situation
-
-			# as such, considering all the above, output the message, if
-			# - message is not a debug message, regardless of log level
-			# - message is a debug message, and log level is 7
-			# this is done this way, as without proper log level parsing, and with the murky information
-			# we can only reasonably assume 'debug' as the first argument is a debug message, anything else could be the message
-			if args[0] isnt 'debug' or @getLogLevel() is 7
+			# so handle the most basic case ourselves
+			# that case being when the first argument is a log level string
+			# as we don't want to interpret log(new Date().getTime()) as a log level number
+			# @todo
+			# ideally, this logic would be static methods inside caterpillar
+			# as caterpillar methods is already where this logic exist, they just have to be made static
+			logLevels = require('rfc-log-levels')
+			logLevel = logLevels[args[0]] ? 6
+			if @getLogLevel() > logLevel
 				console.log(...args)
 
 		# Chain
 		@
 
-
-	###*
-	# Create an error object
-	# @method createError
-	# @param {Object} err
-	# @param {Object} opts
-	# @return {Object} the error
-	###
-	createError: (err, opts) ->
-		# Prepare
-		opts ?= {}
-		opts.level ?= err.level ? 'error'
-		opts.log ?= err.log ? true
-		opts.logged ?= err.logged ? false
-		opts.notify ?= err.notify ? true
-		opts.notified ?= err.notified ? false
-		opts.context ?= err.context  if err.context?
-
-		# Ensure we have an error object
-		err = new Error(err)  unless err.stack
-
-		# Add our options to the error object
-		for own key,value of opts
-			err[key] ?= value
-
-		# Return the error
-		return err
-
-
 	###*
 	# Create an error and log it
+	# This is called by all sorts of things, including docpad.warn
+	# As such, the err.level is important
 	# @method error
-	# @param {Object} err
-	# @param {Object} [level='err']
+	# @param {Object} input
 	###
-	error: (err, level='err') ->
+	error: (err) ->
 		# Prepare
-		docpad = @
+		locale = @getLocale()
 
-		# Create the error
-		err = @createError(err, {level})
+		# Ensure it is an error
+		err = Errlop.ensure(err)
+		err.level ?= 'error'
+		err.log ?= true
+		err.logged ?= false
+		err.notify ?= true
+		err.notified ?= false
+		err.report ?= err.level isnt 'warn'
+
+		# Set the exit code
+		@exitCode(err)
 
 		# Log the error
-		@logError(err)
+		if err.log isnt false and err.logged isnt true
+			err.logged = true
+			@log(
+				err.logLevel or err.level, err.stack + (err.report and ('\n' + locale.errorSubmission) or '')
+			)
 
 		# Notify the error
-		@notifyError(err)
-
-		# Chain
-		@
-
-	###*
-	# Log an error
-	# @method logError
-	# @param {Object} err
-	###
-	logError: (err) ->
-		# Prepare
-		docpad = @
-		locale = @getLocale()
-
-		# Log
-		if err and err.log isnt false and err.logged isnt true
-			err = @createError(err, {logged:true})
-			occured =
-				if err.level in ['warn', 'warning']
-					locale.warnOccured
-				else
-					locale.errorOccured
-			message =
-				if err.context
-					err.context+locale.errorFollows
-				else
-					occured
-			message += '\n\n'+err.stack.toString().trim()
-			message += '\n\n'+locale.errorSubmission
-			docpad.log(err.level, message)
-
-		# Chain
-		@
-
-	###*
-	# Notify error
-	# @private
-	# @method notifyError
-	# @param {Object} err
-	###
-	notifyError: (err) ->
-		# Prepare
-		docpad = @
-		locale = @getLocale()
-
-		# Check
 		if err.notify isnt false and err.notified isnt true
 			err.notified = true
-			occured =
-				if err.level in ['warn', 'warning']
-					locale.warnOccured
-				else
-					locale.errorOccured
-			docpad.notify(err.message, {title:occured})
+			title = locale[err.level + 'Occured'] or locale.errorOccured
+			@notify(err.message, {title})
 
-		# Chain
-		@
+		# Return the result error
+		return err
 
 	###*
 	# Log an error of level 'warn'
@@ -3304,64 +3401,93 @@ class DocPad extends EventEmitterGrouped
 	# @param {Object} err
 	# @return {Object} description
 	###
-	warn: (message, err) ->
-		# Handle
-		if err
-			err.context = message
-			err.level = 'warn'
-			@error(err)
-		else
-			err =
-				if message instanceof Error
-					message
-				else
-					new Error(message)
-			err.level = 'warn'
-			@error(err)
+	warn: (err) ->
+		err = Errlop.ensure(err)
+		err.level ?= 'warn'
 
-		# Chain
-		@
-
+		# Foward
+		return @error(err)
 
 	###*
-	# Send a notify event to plugins (like growl)
-	# @method notify
-	# @param {String} message
-	# @param {Object} [opts={}]
-	###
-	notify: (message,opts={}) ->
-		# Prepare
-		docpad = @
-
-		# Emit
-		docpad.emitSerial 'notify', {message,opts}, (err) ->
-			docpad.error(err)  if err
-
-		# Chain
-		@
-
-
-	###*
-	# Check Request
+	# Handle a fatal error
 	# @private
-	# @method checkRequest
-	# @param {Function} next
-	# @param {Error} next.err
-	# @param {Object} next.res
+	# @method fatal
+	# @param {Object} err
+	# @param {Function} [next]
 	###
-	checkRequest: (next) ->
-		next ?= @error.bind(@)
-		return (err,res) ->
-			# Check
-			return next(err, res)  if err
+	fatal: (err, next) ->
+		# Check
+		return @  unless err
 
-			# Check
-			if res.body?.success is false or res.body?.error
-				err = new Error(res.body.error or 'unknown request error')  # @TODO localise this
-				return next(err, res)
+		# Enforce errlop with fatal level
+		err = new Errlop(
+			'A fatal error occured within DocPad',
+			err
+		)
+		err.level = 'fatal'
+		err.logLevel = 'critical'
 
-			# Success
-			return next(null, res)
+		# Handle
+		@error(err)
+
+		# Set the exit code if we are allowed to
+		@exitCode(err)
+
+		# Destroy DocPad
+		@destroy({}, next)
+
+		# Return the error
+		return err
+
+	###*
+	# Sets the exit code if we are allowed to, and if it hasn't already been set
+	# @method exitCode
+	# @param {number|Error [input]
+	# @return {number}
+	###
+	exitCode: (input) ->
+		# Determine if necessary
+		unless process.exitCode
+			# Prepare
+			{setExitCodeOnRequest, setExitCodeOnError, setExitCodeOnFatal} = @getConfig()
+
+			# Number
+			if typeChecker.isNumber(input)
+				code = input
+				level = null
+
+			# Error
+			else if input instanceof Error
+				code = input.exitCode
+				level = input.level or null
+				error = input
+
+			# Defaults
+			if !code or isNaN(Number(code))
+				exitCode = 1
+			else
+				exitCode = code
+
+			# Determine desire
+			because = (
+				(!level and setExitCodeOnRequest and 'requested') or
+				(level is 'fatal' and setExitCodeOnFatal and 'fatal') or
+				(level is 'error' and setExitCodeOnFatal and 'error')
+			)
+			if because
+				# Fetch before we apply so we can log it shortly
+				originalExitCode = process.exitCode or 'unset'
+
+				# Apply
+				process.exitCode = exitCode
+
+				# And log it
+				message = ['Set the exit code from', originalExitCode, 'to', exitCode, 'because of', because]
+				message.push('from:', error.message)  if error and error.message
+				@log('note', message...)
+
+		# Return the application
+		return process.exitCode
 
 
 	# =================================
@@ -3485,7 +3611,7 @@ class DocPad extends EventEmitterGrouped
 
 			# Error
 			model.on 'error', (args...) ->
-				docpad.error(args...)
+				docpad.emit('error', args...)
 
 			# Log
 			model.on 'log', (args...) ->
@@ -3791,17 +3917,18 @@ class DocPad extends EventEmitterGrouped
 	loadPlugins: (next) ->
 		# Prepare
 		docpad = @
+		config = @getConfig()
 		locale = @getLocale()
 
-		# Snore
+		# Track the slow plugins
 		@slowPlugins = {}
-		snore = balUtil.createSnore ->
+		@timer 'slowplugins', 'interval', config.slowPluginsDelay, ->
 			docpad.log 'notice', util.format(locale.pluginsSlow, Object.keys(docpad.slowPlugins).join(', '))
 
 		# Async
 		tasks = @createTaskGroup "loadPlugins tasks", concurrency:0, next:(err) ->
+			docpad.timer('slowplugins')
 			docpad.slowPlugins = {}
-			snore.clear()
 			return next(err)
 
 		# Load website plugins
@@ -3959,7 +4086,6 @@ class DocPad extends EventEmitterGrouped
 			return next(err)
 
 		# Load Plugins
-		docpad.log 'debug', util.format(locale.pluginsLoadingFor, pluginsPath)
 		docpad.scandir(
 			# Path
 			path: pluginsPath
@@ -3969,6 +4095,9 @@ class DocPad extends EventEmitterGrouped
 
 			# Handle directories
 			dirAction: (fileFullPath, fileRelativePath, pluginName) ->
+				# Log
+				docpad.log 'debug', util.format(locale.pluginsLoadingFor, pluginsPath), fileRelativePath
+
 				# Prepare
 				pluginName = pathUtil.basename(fileFullPath)
 
@@ -4069,7 +4198,7 @@ class DocPad extends EventEmitterGrouped
 			# Check
 			if err
 				locale = docpad.getLocale()
-				docpad.warn(locale.exchangeError, err)
+				docpad.warn(new Errlop(locale.exchangeError, err))
 				return next()
 
 			# Log
@@ -4106,7 +4235,6 @@ class DocPad extends EventEmitterGrouped
 		config = @getConfig()
 		locale = @getLocale()
 		slowFilesObject = {}
-		slowFilesTimer = null
 
 		# Log
 		docpad.log 'debug', util.format(locale.contextualizingFiles, collection.length)
@@ -4119,8 +4247,7 @@ class DocPad extends EventEmitterGrouped
 			# Completion callback
 			tasks = docpad.createTaskGroup "contextualizeFiles", concurrency:0, next:(err) ->
 				# Kill the timer
-				clearInterval(slowFilesTimer)
-				slowFilesTimer = null
+				docpad.timer('slowfiles')
 
 				# Check
 				return next(err)  if err
@@ -4146,12 +4273,9 @@ class DocPad extends EventEmitterGrouped
 						return complete(err)
 
 			# Setup the timer
-			slowFilesTimer = setInterval(
-				->
-					slowFilesArray = (value or key  for own key,value of slowFilesObject)
-					docpad.log('info', util.format(locale.slowFiles, 'contextualizeFiles')+' \n'+slowFilesArray.join('\n'))
-				config.slowFilesDelay
-			)
+			docpad.timer 'slowfiles', 'interval', config.slowFilesDelay, ->
+				slowFilesArray = (value or key  for own key,value of slowFilesObject)
+				docpad.log('info', util.format(locale.slowFiles, 'contextualizeFiles')+' \n'+slowFilesArray.join('\n'))
 
 			# Run tasks
 			tasks.run()
@@ -4177,7 +4301,6 @@ class DocPad extends EventEmitterGrouped
 		config = @getConfig()
 		locale = @getLocale()
 		slowFilesObject = {}
-		slowFilesTimer = null
 
 		# Log
 		docpad.log 'debug', util.format(locale.renderingFiles, collection.length)
@@ -4230,8 +4353,7 @@ class DocPad extends EventEmitterGrouped
 			# Async
 			tasks = docpad.createTaskGroup "renderFiles: renderCollection: renderBefore", next:(err) ->
 				# Kill the timer
-				clearInterval(slowFilesTimer)
-				slowFilesTimer = null
+				docpad.timer('slowfiles')
 
 				# Check
 				return next(err)  if err
@@ -4262,12 +4384,9 @@ class DocPad extends EventEmitterGrouped
 					renderCollection(subsequentCollection, {renderPass}, complete)
 
 			# Setup the timer
-			slowFilesTimer = setInterval(
-				->
-					slowFilesArray = (value or key  for own key,value of slowFilesObject)
-					docpad.log('info', util.format(locale.slowFiles, 'renderFiles')+' \n'+slowFilesArray.join('\n'))
-				config.slowFilesDelay
-			)
+			docpad.timer 'slowfiles', 'interval', config.slowFilesDelay, ->
+				slowFilesArray = (value or key  for own key,value of slowFilesObject)
+				docpad.log('info', util.format(locale.slowFiles, 'renderFiles')+' \n'+slowFilesArray.join('\n'))
 
 			# Run tasks
 			tasks.run()
@@ -4292,7 +4411,6 @@ class DocPad extends EventEmitterGrouped
 		config = @getConfig()
 		locale = @getLocale()
 		slowFilesObject = {}
-		slowFilesTimer = null
 
 		# Log
 		docpad.log 'debug', util.format(locale.writingFiles, collection.length)
@@ -4305,8 +4423,7 @@ class DocPad extends EventEmitterGrouped
 			# Completion callback
 			tasks = docpad.createTaskGroup "writeFiles", concurrency:0, next:(err) ->
 				# Kill the timer
-				clearInterval(slowFilesTimer)
-				slowFilesTimer = null
+				docpad.timer('slowfiles')
 
 				# Check
 				return next(err)  if err
@@ -4345,12 +4462,9 @@ class DocPad extends EventEmitterGrouped
 					fileTasks.run()
 
 			# Setup the timer
-			slowFilesTimer = setInterval(
-				->
-					slowFilesArray = (value or key  for own key,value of slowFilesObject)
-					docpad.log('info', util.format(locale.slowFiles, 'writeFiles')+' \n'+slowFilesArray.join('\n'))
-				config.slowFilesDelay
-			)
+			docpad.timer 'slowfiles', 'interval', config.slowFilesDelay, ->
+				slowFilesArray = (value or key  for own key,value of slowFilesObject)
+				docpad.log('info', util.format(locale.slowFiles, 'writeFiles')+' \n'+slowFilesArray.join('\n'))
 
 			# Run tasks
 			tasks.run()
@@ -4393,46 +4507,6 @@ class DocPad extends EventEmitterGrouped
 	generated: false
 
 	###*
-	# Destructor. Destroy the regeneration timer.
-	# @private
-	# @method destroyRegenerateTimer
-	###
-	destroyRegenerateTimer: ->
-		# Prepare
-		docpad = @
-
-		# Clear Regenerate Timer
-		if docpad.regenerateTimer
-			clearTimeout(docpad.regenerateTimer)
-			docpad.regenerateTimer = null
-
-		# Chain
-		@
-
-	###*
-	# Create the regeneration timer
-	# @private
-	# @method createRegenerateTimer
-	###
-	createRegenerateTimer: ->
-		# Prepare
-		docpad = @
-		locale = docpad.getLocale()
-		config = docpad.getConfig()
-
-		# Create Regenerate Timer
-		if config.regenerateEvery
-			docpad.regenerateTimer = setTimeout(
-				->
-					docpad.log('info', locale.renderInterval)
-					docpad.action('generate', config.regenerateEveryOptions)
-				config.regenerateEvery
-			)
-
-		# Chain
-		@
-
-	###*
 	# Set off DocPad's generation process.
 	# The generated, populateCollectionsBefore, populateCollections, populateCollections
 	# generateBefore and generateAfter events are emitted here
@@ -4469,9 +4543,8 @@ class DocPad extends EventEmitterGrouped
 		# Can be over-written by API calls
 		opts.renderPasses or= config.renderPasses
 
-
 		# Destroy Regenerate Timer
-		docpad.destroyRegenerateTimer()
+		docpad.timer('regenerate')
 
 		# Check plugin count
 		docpad.log('notice', locale.renderNoPlugins)  unless docpad.hasPlugins()
@@ -4490,7 +4563,10 @@ class DocPad extends EventEmitterGrouped
 			docpad.databaseTempCache = null
 
 			# Create Regenerate Timer
-			docpad.createRegenerateTimer()
+			if config.regenerateEvery
+				docpad.timer 'regenerate', 'timeout', config.regenerateEvery, ->
+					docpad.log('info', locale.renderInterval)
+					docpad.action('generate', config.regenerateEveryOptions)
 
 			# Error?
 			return next(err)  if err
@@ -4510,7 +4586,7 @@ class DocPad extends EventEmitterGrouped
 			# https://github.com/bevry/docpad/issues/811
 			else if docpad.generated is false
 				return next(
-					new Error('DocPad is in an invalid state, please report this. Reference 3360')
+					new Errlop('DocPad is in an invalid state, please report this. Reference 3360')
 				)
 
 			else
@@ -4580,7 +4656,7 @@ class DocPad extends EventEmitterGrouped
 			safefs.exists config.srcPath, (exists) ->
 				# Check
 				unless exists
-					err = new Error(locale.renderNonexistant)
+					err = new Errlop(locale.renderNonexistant)
 					return complete(err)
 
 				# Forward
@@ -4991,7 +5067,7 @@ class DocPad extends EventEmitterGrouped
 				@renderPath(path, opts, next)
 			else
 				# Check
-				err = new Error(locale.renderInvalidOptions)
+				err = new Errlop(locale.renderInvalidOptions)
 				return next(err)
 
 		# Chain
@@ -5123,16 +5199,10 @@ class DocPad extends EventEmitterGrouped
 			@
 
 		# Timer
-		regenerateTimer = null
 		queueRegeneration = ->
-			# Reset the wait
-			if regenerateTimer
-				clearTimeout(regenerateTimer)
-				regenerateTimer = null
+			docpad.timer('regeneration', 'timeout', config.regenerateDelay, performGenerate)
 
-			# Regenerat after a while
-			regenerateTimer = setTimeout(performGenerate, config.regenerateDelay)
-
+		# Generate
 		performGenerate = (opts={}) ->
 			# Q: Should we also pass over the collection?
 			# A: No, doing the mtime query in generate is more robust
@@ -5156,7 +5226,7 @@ class DocPad extends EventEmitterGrouped
 			# as watchr should not be giving us invalid data
 			# https://github.com/bevry/docpad/issues/792
 			unless fileEitherStat
-				err = new Error("""
+				err = new Errlop("""
 						DocPad has encountered an invalid state while detecting changes for your files.
 						So the DocPad team can fix this right away, please provide any information you can to:
 						https://github.com/bevry/docpad/issues/792
@@ -5768,7 +5838,7 @@ class DocPad extends EventEmitterGrouped
 		safefs.exists pathUtil.join(path, 'package.json'), (exists) ->
 			# Check
 			if exists
-				err = new Error(locale.skeletonExists)
+				err = new Errlop(locale.skeletonExists)
 				return next(err)
 
 			# Success
@@ -6150,7 +6220,7 @@ class DocPad extends EventEmitterGrouped
 			opts.serverHttp.once 'error', (err) ->
 				# Friendlify the error message if it is what we suspect it is
 				if err.message.indexOf('EADDRINUSE') isnt -1
-					err = new Error(util.format(locale.serverInUse, port))
+					err = new Errlop(util.format(locale.serverInUse, port))
 
 				# Done
 				return complete(err)

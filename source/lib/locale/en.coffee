@@ -1,4 +1,4 @@
-{
+module.exports = {
 	# Skeleton
 	pleaseWait: "\nThis can take a moment..."
 	exchangeUpdate: "Updating the exchange..."
@@ -141,6 +141,8 @@
 	loadingConfigUrl: "Loading configuration url: %s"
 	loadingConfigPath: "Loading configuration path: %s"
 	loadingConfigPathFailed: "Failed to load the configuration path: %s"
+	executeConfigPathFailed: "Failed to execute the configuration path: %s"
+	invalidConfigPathData: "Loading the configuration %s returned an invalid result %s"
 	loadingFiles: "Loading %s files"
 	loadedFiles: "Loaded %s files"
 	loadingFileFailed: "Failed to load the file: %s"
@@ -157,9 +159,7 @@
 	loadedWebsiteConfig: "Loaded website configuration"
 
 	# Console
-	consoleError: "Something went wrong with the action"
 	consoleSuccess: "The action completed successfully"
-	consoleShutdown: "Shutting down... cya next time!"
 
 	consoleDescriptionInit: "initialize your directory with an empty docpad project"
 	consoleDescriptionRun: "does everything: skeleton, generate, watch, server"
@@ -231,10 +231,9 @@
 		You may want to report this error to %s so the plugin author can address it.
 		"""
 	warnOccured: "A warning occured:"
+	fatalOccured: "A fatal error occured:"
 	errorOccured: "An error occured:"
-	errorSubmission: "To report the above, follow the guide at: https://docpad.org/bug-report"
-	errorLoggedTo: "Error has been logged to: %s"
-	errorFollows: "\nThe error follows:"
+	errorSubmission: "Please report it using this guide: https://docpad.org/bug-report"
 	errorInvalidCollection: "The custom collection %s is not a valid collection instance"
 	exchangeError: "An error occurred fetching the exchange data, this is okay, but not all skeletons will be available to you"
 	unknownModelInCollection: "Unknown model structure inside the collection"
@@ -251,4 +250,7 @@
 	versionOutdatedNotification: "New version of DocPad!"
 	startLocal: "Shutting down the global DocPad, and starting up the local"
 	loggersAlreadyDefined: "Loggers have already been defined"
+	consoleFinish: "Console is shutting down..."
+	destroyDocPad: "DocPad is shutting down..."
+	destroyedDocPad: "Shutdown complete. See you next time."
 }

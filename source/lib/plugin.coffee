@@ -2,6 +2,7 @@
 # Requires
 
 # External
+Errlop = require('errlop')
 extendr = require('extendr')
 typeChecker = require('typechecker')
 eachr = require('eachr')
@@ -89,7 +90,7 @@ class BasePlugin
 			catch e
 				# ignore, as must be exposed via a getter, in which case it won't have reference issues
 		else
-			throw new Error("Plugin #{@name} is misconfigured, it has both @config and @initialConfig defined, it can only have one or the other")
+			throw new Errlop("Plugin #{@name} is misconfigured, it has both @config and @initialConfig defined, it can only have one or the other")
 
 		# Apply the configuration
 		@setConfig(config)

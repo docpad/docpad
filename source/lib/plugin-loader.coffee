@@ -1,11 +1,12 @@
 # ---------------------------------
 # Requires
 
-# Standard Library
+# Standard
 pathUtil = require('path')
 util = require('util')
 
 # External
+Errlop = require('errlop')
 semver = require('semver')
 safefs = require('safefs')
 
@@ -283,18 +284,23 @@ class PluginLoader
 			# so we may not have it, hence the try catch
 			try
 				require('coffeescript/register')
-			catch err
+			catch registerError
 				# Including coffee-script has failed, so let the user know, and exit
-				err.context = util.format(locale.pluginUncompiledFailed, @pluginName, @packageData.bugs?.url or locale.pluginIssueTracker)
+				err = new Errlop(
+					util.format(locale.pluginUncompiledFailed, @pluginName, @packageData.bugs?.url or locale.pluginIssueTracker),
+					registerError
+				)
 				return next(err); @
-
 
 		# Attempt to load the plugin
 		try
 			@pluginClass = require(@pluginPath)(@BasePlugin)
-		catch err
+		catch requireError
 			# Loading the plugin has failed, so let the user know, and exit
-			err.context = util.format(locale.pluginLoadFailed, @pluginName, @packageData.bugs?.url or locale.pluginIssueTracker)
+			err = new Errlop(
+				util.format(locale.pluginLoadFailed, @pluginName, @packageData.bugs?.url or locale.pluginIssueTracker),
+				requireError
+			)
 			return next(err); @
 
 		# Plugin loaded, inject it's version and grab its name
@@ -338,7 +344,6 @@ class PluginLoader
 			docpad = @docpad
 			pluginInstance = new @pluginClass({docpad,config})
 		catch err
-			# An error occured, return it
 			return next(err, null)
 
 		# Return our instance

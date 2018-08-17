@@ -5,7 +5,7 @@
 pathUtil = require('path')
 
 # External
-{equal} = require('assert-helpers')
+{equal, errorEqual} = require('assert-helpers')
 joe = require('joe')
 
 # Local
@@ -111,52 +111,61 @@ joe.suite 'docpad-api', (suite,test) ->
 					# Complete
 					return complete()
 
-	# Render some input
+	# Render action
 	suite 'render', (suite,test) ->
-		# Check rendering stdin inputs
-		inputs = [
+		# Check rendering stdin items
+		items = [
+			{
+				testname: 'markdown without filename'
+				input: '*awesome*'
+				error: require('../lib/locale/en').filenameMissingError
+			}
 			{
 				testname: 'markdown without extension'
 				filename: 'file'
-				stdin: '*awesome*'
-				stdout: '*awesome*'
+				input: '*awesome*'
+				output: '*awesome*'
 			}
 			{
 				testname: 'markdown with extension as filename'
 				filename: 'markdown'
-				stdin: '*awesome*'
-				stdout: '<p><em>awesome</em></p>'
+				input: '*awesome*'
+				output: '<p><em>awesome</em></p>'
 			}
 			{
 				testname: 'markdown with extension'
 				filename: 'example.md'
-				stdin: '*awesome*'
-				stdout: '*awesome*'
+				input: '*awesome*'
+				output: '*awesome*'
 			}
 			{
 				testname: 'markdown with extensions'
 				filename: '.html.md'
-				stdin: '*awesome*'
-				stdout: '<p><em>awesome</em></p>'
+				input: '*awesome*'
+				output: '<p><em>awesome</em></p>'
 			}
 			{
 				testname: 'markdown with filename'
 				filename: 'example.html.md'
-				stdin: '*awesome*'
-				stdout: '<p><em>awesome</em></p>'
+				input: '*awesome*'
+				output: '<p><em>awesome</em></p>'
 			}
 		]
-		inputs.forEach (input) ->
-			test input.testname, (done) ->
-				opts =
-					data: input.stdin
-					filename: input.filename
+		items.forEach (item) ->
+			test item.testname, (done) ->
+				opts = {
+					data: item.input
+					filename: item.filename or null
 					renderSingleExtensions: 'auto'
+				}
 				docpad.action 'render', opts, (err,result) ->
-					return done(err)  if err
-					equal(
-						result.trim()
-						input.stdout
-						'output'
-					)
+					if err
+						if item.error?
+							errorEqual(err, item.error, 'error was as expected')
+						else
+							return done(err)
+
+					if item.output?
+						equal(result.trim(), item.output, 'output')
+
 					done()

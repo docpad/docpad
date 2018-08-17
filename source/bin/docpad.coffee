@@ -57,12 +57,12 @@ startDocPad = ->
 	# Create DocPad Instance
 	new DocPad {action}, (err,docpad) ->
 		# Check
-		return docpadUtil.writeError(err)  if err
+		return docpad.fatal(err)  if err
 
 		# Create Console Interface
 		new ConsoleInterface {docpad}, (err,consoleInterface) ->
 			# Check
-			return docpadUtil.writeError(err)  if err
+			return docpad.fatal(err)  if err
 
 			# Start
 			consoleInterface.start()

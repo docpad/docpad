@@ -1,12 +1,13 @@
 # =====================================
 # Requires
 
-# Standard Library
+# Standard
 util = require('util')
 pathUtil = require('path')
 docpadUtil = require('../util')
 
 # External
+Errlop = require('errlop')
 CSON = require('cson')
 extendr = require('extendr')
 eachr = require('eachr')
@@ -228,7 +229,7 @@ class DocumentModel extends FileModel
 							unless metaParseResult instanceof Error
 								extendr.extend(metaDataChanges, metaParseResult)
 						catch err
-							metaParseResult = err
+							metaParseResult = err  # wrapped later
 
 					when 'yaml'
 						YAML = require('yamljs')  unless YAML
@@ -238,18 +239,21 @@ class DocumentModel extends FileModel
 							)
 							extendr.extend(metaDataChanges, metaParseResult)
 						catch err
-							metaParseResult = err
+							metaParseResult = err  # wrapped later
 
 					else
-						err = new Error(util.format(locale.documentMissingParserError, parser, filePath))
+						err = new Errlop(util.format(locale.documentMissingParserError, parser, filePath))
 						return next(err)
 			else
 				body = content
 
 			# Check for error
 			if metaParseResult instanceof Error
-				metaParseResult.context = util.format(locale.documentParserError, parser, filePath)
-				return next(metaParseResult)
+				err = new Errlop(
+					util.format(locale.documentParserError, parser, filePath),
+					metaParseResult
+				)
+				return next(err)
 
 			# Incorrect encoding detection?
 			# If so, re-parse with the correct encoding conversion
@@ -623,7 +627,7 @@ class DocumentModel extends FileModel
 			# We had a layout, but it is missing
 			else if file.hasLayout()
 				layoutSelector = file.get('layout')
-				err = new Error(util.format(locale.documentMissingLayoutError, layoutSelector, filePath))
+				err = new Errlop(util.format(locale.documentMissingLayoutError, layoutSelector, filePath))
 				return next(err, content)
 
 			# We never had a layout
@@ -660,7 +664,7 @@ class DocumentModel extends FileModel
 		opts = extendr.clone(opts or {})
 		opts.actions ?= ['renderExtensions', 'renderDocument', 'renderLayouts']
 		if opts.apply?
-			err = new Error(locale.documentApplyError)
+			err = new Errlop(locale.documentApplyError)
 			return next(err)
 
 		# Prepare content
@@ -683,10 +687,13 @@ class DocumentModel extends FileModel
 		file.log 'debug', util.format(locale.documentRender, filePath)
 
 		# Prepare the tasks
-		tasks = @createTaskGroup "render tasks for: #{relativePath}", next:(err) ->
+		tasks = @createTaskGroup "render tasks for: #{relativePath}", next:(groupError) ->
 			# Error?
-			if err
-				err.context = util.format(locale.documentRenderError, filePath)
+			if groupError
+				err = new Errlop(
+					util.format(locale.documentRenderError, filePath),
+					groupError
+				)
 				return next(err, opts.content, file)
 
 			# Attributes
@@ -784,8 +791,11 @@ class DocumentModel extends FileModel
 		header    = CSON.stringify(metaData)
 
 		if header instanceof Error
-			header.context = "Failed to write CSON meta header for the file: #{filePath}"
-			return next(header)
+			err = new Errlop(
+				"Failed to write CSON meta header for the file: #{filePath}",
+				header
+			)
+			return next(err)
 
 		if !header or header is '{}'
 			# No meta data

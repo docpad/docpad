@@ -7,7 +7,7 @@ pathUtil = require('path')
 # External
 safefs = require('safefs')
 safeps = require('safeps')
-{equal} = require('assert-helpers')
+{equal, errorEqual} = require('assert-helpers')
 joe = require('joe')
 
 # Local
@@ -64,11 +64,15 @@ joe.suite 'docpad-render', (suite,test) ->
 		# Check rendering stdin items
 		items = [
 			{
+				testname: 'markdown without filename'
+				stdin: '*awesome*'
+				error: require('../lib/locale/en').filenameMissingError
+			}
+			{
 				testname: 'markdown without extension'
-				filename: ''
+				filename: 'file'
 				stdin: '*awesome*'
 				stdout: '*awesome*'
-				error: 'Error: filename is required'
 			}
 			{
 				testname: 'markdown with extension as filename'
@@ -94,45 +98,46 @@ joe.suite 'docpad-render', (suite,test) ->
 				stdin: '*awesome*'
 				stdout: '<p><em>awesome</em></p>'
 			}
+			{
+				testname: 'markdown with extension as filename, with -o'
+				filename: 'markdown'
+				stdin: '*awesome*'
+				output: '<p><em>awesome</em></p>'
+				outpath: pathUtil.join(outPath, 'outpath-render.html')
+			}
 		]
 		items.forEach (item) ->
 			test item.testname, (done) ->
 				command = ['node', cliPath, '--global', 'render']
 				command.push(item.filename)  if item.filename
-				opts = {stdin:item.stdin, cwd:rootPath, output:false}
+				command.push('-o', item.outpath)  if item.outpath
+				opts = {
+					stdin: item.stdin,
+					cwd: rootPath,
+					output: false
+				}
 				safeps.spawn command, opts, (err,stdout,stderr,status,signal) ->
 					stdout = (stdout or '').toString().trim()
-					return done(err)  if err
-					return done()  if item.error and stdout.indexOf(item.error)
-					equal(
-						stdout
-						item.stdout
-						'output'
-					)
-					done()
+					stderr = (stderr or '').toString().trim()
 
-		# Works with out path
-		test 'outPath', (done) ->
-			item = {
-				in: '*awesome*'
-				out: '<p><em>awesome</em></p>'
-				outPath: pathUtil.join(outPath, 'outpath-render.html')
-			}
-			command = ['node', cliPath, '--global', 'render', 'markdown', '-o', item.outPath]
-			opts = {stdin:item.in, cwd:rootPath, output:false}
-			safeps.spawn command, opts, (err,stdout,stderr,status,signal) ->
-				stdout = (stdout or '').toString().trim()
-				return done(err)  if err
-				equal(
-					stdout
-					''
-				)
-				safefs.readFile item.outPath, (err,data) ->
-					return done(err)  if err
-					result = data.toString().trim()
-					equal(
-						result
-						item.out
-						'output'
-					)
-					done()
+					if err
+						if item.error?
+							errorEqual(err, item.error, 'error was as expected')
+						else
+							return done(err)
+
+					if item.stdout?
+						equal(stdout, item.stdout, 'stdout')
+
+					if item.stderr?
+						equal(stderr, item.stderr, 'stderr')
+
+					return done()  unless item.outpath
+
+					safefs.readFile item.outpath, (err,data) ->
+						return done(err)  if err
+
+						if item.output?
+							equal(data.toString().trim(), item.output, 'output')
+
+						done()

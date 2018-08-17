@@ -6,6 +6,7 @@ pathUtil = require('path')
 util = require('util')
 
 # External
+Errlop = require('errlop')
 {uniq, compact} = require('underscore')
 extractOptsAndCallback = require('extract-opts')
 
@@ -44,26 +45,17 @@ module.exports = docpadUtil =
 		try
 			process.stderr.write(data)
 		catch err
+			# ignore the error, try stdout instead
 			process.stdout.write(data)
 
 	###*
-	# Write an error
+	# Version of setImmediate that is compatible with node 0.8
+	# https://github.com/bevry/docpad/issues/717
 	# @private
-	# @method writeError
-	# @param {Object} err
+	# @method setImmediate
 	###
-	writeError: (err) ->
-		docpadUtil.writeStderr(err.stack?.toString?() or err.message or err)
-
-	###*
-	# Wait. Wrapper for setTimeout
-	# @private
-	# @method wait
-	# @param {Number} time
-	# @param {function} fn
-	###
-	wait: (time, fn) -> setTimeout(fn, time)
-
+	setImmediate: (...args) ->
+		return (global?.setImmediate or process.nextTick)(...args)
 
 	###*
 	# Get Default Log Level
@@ -319,7 +311,7 @@ module.exports = docpadUtil =
 
 		# Exit if we have no actions
 		if actions.length is 0
-			err = new Error(locale.actionEmpty)
+			err = new Errlop(locale.actionEmpty)
 			return next(err); me
 
 		# We have multiple actions
@@ -332,7 +324,7 @@ module.exports = docpadUtil =
 
 				# Check
 				unless actionMethod
-					err = new Error(util.format(locale.actionNonexistant, action))
+					err = new Errlop(util.format(locale.actionNonexistant, action))
 					return next(err); me
 
 				# Task
@@ -349,7 +341,7 @@ module.exports = docpadUtil =
 
 			# Check
 			unless actionMethod
-				err = new Error(util.format(locale.actionNonexistant, action))
+				err = new Errlop(util.format(locale.actionNonexistant, action))
 				return next(err); me
 
 			# Task

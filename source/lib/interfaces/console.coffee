@@ -1,10 +1,11 @@
 # =====================================
 # Requires
 
-# Standard Library
+# Standard
 pathUtil = require('path')
 
 # External
+Errlop = require('errlop')
 safefs = require('safefs')
 safeps = require('safeps')
 {TaskGroup} = require('taskgroup')
@@ -38,6 +39,11 @@ class ConsoleInterface
 		@docpad = docpad = opts.docpad
 		@commander = commander = require('commander')
 		locale = docpad.getLocale()
+
+		# -----------------------------
+		# Exit handler
+
+		process.once('exit', @onExit)
 
 
 		# -----------------------------
@@ -97,7 +103,6 @@ class ConsoleInterface
 				'--offline'
 				locale.consoleOptionOffline
 			)
-
 
 		# -----------------------------
 		# Commands
@@ -209,8 +214,7 @@ class ConsoleInterface
 
 		# Plugins
 		docpad.emitSerial 'consoleSetup', {consoleInterface,commander}, (err) ->
-			return consoleInterface.destroyWithError(err)  if err
-			return next(null, consoleInterface)
+			return next(err, consoleInterface)
 
 		# Chain
 		@
@@ -218,6 +222,14 @@ class ConsoleInterface
 
 	# =================================
 	# Helpers
+
+	###*
+	# Get the commander
+	# @method getCommander
+	# @return the commander instance
+	###
+	getCommander: =>
+		@commander
 
 	###*
 	# Start the CLI
@@ -229,65 +241,68 @@ class ConsoleInterface
 		@
 
 	###*
-	# Get the commander
-	# @method getCommander
-	# @return the commander instance
-	###
-	getCommander: =>
-		@commander
-
-	###*
-	# Destructor.
+	# Finish the CLI and destroy DocPad.
 	# @method destroy
 	# @param {Object} err
 	###
-	destroy: (err) =>
+	finish: =>
 		# Prepare
 		docpad = @docpad
-		locale = docpad.getLocale()
-		logLevel = docpad.getLogLevel()
 
-		# Error?
-		docpadUtil.writeError(err)  if err
-
-		# Log Shutdown
-		docpad.log('info', locale.consoleShutdown)
-
-		# Handle any errors that occur when stdin is closed
-		# https://github.com/docpad/docpad/pull/1049
-		process.stdin.on 'error', (err) ->
-			if 6 <= logLevel
-				console.error err
-
-		# Close stdin
-		process.stdin.end()
+		# Log
+		docpad.log('debug', docpad.getLocale().consoleFinish)
 
 		# Destroy docpad
 		docpad.destroy (err) ->
-			# Error?
-			docpadUtil.writeError(err)  if err
-
-			# Output if we are not in silent mode
-			if 6 <= logLevel
-				# Note any requests that are still active
-				activeRequests = process._getActiveRequests()
-				if activeRequests?.length
-					console.log """
-						Waiting on the requests:
-						#{docpadUtil.inspect activeRequests}
-						"""
-
-				# Note any handles that are still active
-				activeHandles = process._getActiveHandles()
-				if activeHandles?.length
-					console.log """
-						Waiting on the handles:
-						#{docpadUtil.inspect activeHandles}
-						"""
+			# We don't care about logging the error, as it would have already been done
+			process.exit(process.exitCode or (err and 1) or 0)
 
 		# Chain
 		@
 
+	###*
+	# Handler for the process.exit event
+	# @method onExit
+	# @param {number} exitCode
+	###
+	onExit: (exitCode) ->
+		# Handle any errors that occur when stdin is closed
+		# https://github.com/docpad/docpad/pull/1049
+		process.stdin?.on? 'error', (stdinError) ->
+			# ignore ENOTCONN as it means stdin was already closed when we called stdin.end
+			# node v8 and above have stdin.destroy to avoid emitting this error
+			if stdinError.toString().indexOf('ENOTCONN') is -1
+				err = new Errlop(
+					"closing stdin encountered an error",
+					stdinError
+				)
+				docpad.fatal(err)
+
+		# Close stdin
+		# https://github.com/docpad/docpad/issues/1028
+		# https://github.com/docpad/docpad/pull/1029
+		process.stdin?.destroy?() or process.stdin?.end?()
+
+		# Wait a moment before outputting things that are preventing closure
+		docpadUtil.setImmediate ->
+			# Note any requests that are still active
+			activeRequests = process._getActiveRequests?()
+			if activeRequests?.length
+				docpadUtil.writeStderr """
+					Waiting on these #{activeRequests.length} requests to close:
+					#{docpadUtil.inspect activeRequests}
+					"""
+
+			# Note any handles that are still active
+			activeHandles = process._getActiveHandles?()
+			if activeHandles?.length
+				docpadUtil.writeStderr """
+					Waiting on these #{activeHandles.length} handles to close:
+					#{docpadUtil.inspect activeHandles}
+					"""
+
+		# Chain
+		@
 
 	###*
 	# Wrap Action
@@ -330,15 +345,13 @@ class ConsoleInterface
 			locale = docpad.getLocale()
 
 			# Handle the error
-			if err
-				docpad.log('error', locale.consoleSuccess)
-				return docpad.fatal(err)
+			return docpad.fatal(err)  if err
 
 			# Success
 			docpad.log('info', locale.consoleSuccess)
 
 			# Shutdown
-			return consoleInterface.destroy()  if stayAlive is false
+			return consoleInterface.finish()  if stayAlive is false
 
 		# Load
 		docpad.action 'load ready', opts.instanceConfig, (err) ->
@@ -419,7 +432,7 @@ class ConsoleInterface
 			if skeletonModel
 				next(null, skeletonModel)
 			else
-				err = new Error("Couldn't fetch the skeleton with id #{@commander.skeleton}")
+				err = new Errlop("Couldn't fetch the skeleton with id #{@commander.skeleton}")
 				next(err)
 			return @
 
@@ -653,16 +666,15 @@ class ConsoleInterface
 		# Prepare
 		docpad = @docpad
 		commander = @commander
-		renderOpts = {}
+
+		# Prepare
+		data = ''
+		renderOpts = {
+			renderSingleExtensions: 'auto'
+		}
 
 		# Extract
-		filename = opts.args[0] or null
-		basename = pathUtil.basename(filename)
-		renderOpts.filename = filename
-		renderOpts.renderSingleExtensions = 'auto'
-
-		# Prepare text
-		data = ''
+		renderOpts.filename = opts.args[0] or null
 
 		# Render
 		useStdin = true
@@ -681,14 +693,11 @@ class ConsoleInterface
 					return complete()
 
 		# Timeout if we don't have stdin
-		timeout = docpadUtil.wait 1000, ->
-			# Clear timeout
-			timeout = null
-
+		docpad.timer 'console.render', 'timeout', 1005, ->
 			# Skip if we are using stdin
 			return next()  if data.replace(/\s+/,'')
 
-			# Close stdin as we are not using it
+			# Close stdin as we are no longer using using it
 			useStdin = false
 			stdin.pause()
 
@@ -703,9 +712,7 @@ class ConsoleInterface
 			data += _data.toString()
 		process.stdin.on 'end', ->
 			return  unless useStdin
-			if timeout
-				clearTimeout(timeout)
-				timeout = null
+			docpad.timer('console.render')
 			renderOpts.data = data
 			renderDocument(next)
 

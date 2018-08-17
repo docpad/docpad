@@ -1,11 +1,12 @@
 # =====================================
 # Requires
 
-# Standard Library
+# Standard
 util = require('util')
 pathUtil = require('path')
 
 # External
+Errlop = require('errlop')
 isTextOrBinary = require('istextorbinary')
 typeChecker = require('typechecker')
 safefs = require('safefs')
@@ -435,10 +436,17 @@ class FileModel extends Model
 			@log 'info', util.format(locale.fileEncode, opts.to, opts.from, opts.path)
 			try
 				result = encodingUtil.convert(opts.content, opts.to, opts.from)
-			catch err
-				@log 'warn', util.format(locale.fileEncodeConvertError, opts.to, opts.from, opts.path)
+			catch encodeError
+				err = new Errlop(
+					util.format(locale.fileEncodeConvertError, opts.to, opts.from, opts.path),
+					encodeError
+				)
+				@log 'warn', err
 		else
-			@log 'warn', util.format(locale.fileEncodeConvertError, opts.to, opts.from, opts.path)
+			err = new Errlop(
+				util.format(locale.fileEncodeConvertError, opts.to, opts.from, opts.path)
+			)
+			@log('warn', err)
 
 		# Return
 		return result
@@ -740,7 +748,7 @@ class FileModel extends Model
 
 		contentType = @get('outContentType') or @get('contentType')
 		unless contentType
-			throw new Error(util.format(locale.documentMissingContentType, @getFilePath()))
+			throw new Errlop(util.format(locale.documentMissingContentType, @getFilePath()))
 
 		encoding = @get('encoding')
 
@@ -894,7 +902,7 @@ class FileModel extends Model
 
 		# Error
 		if @rootOutDirPath? is false or @locale? is false
-			throw new Error("Use docpad.createModel to create the file or document model")
+			throw new Errlop("Use docpad.createModel to create the file or document model")
 
 		# Create our action runner
 		@actionRunnerInstance = @createTaskGroup("file action runner", {abortOnError: false, destroyOnceDone: false}).whenDone (err) ->
@@ -1109,7 +1117,7 @@ class FileModel extends Model
 
 		# check
 		if !filename
-			err = new Error(locale.filenameMissingError)
+			err = new Errlop(locale.filenameMissingError)
 			return next(err)
 
 		# relativePath
