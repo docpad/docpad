@@ -201,7 +201,7 @@
     "babel-polyfill": "^6.9.1",
     "backbone": "1.3.3",
     "bal-util": "~2.8.0",
-    "caterpillar": "^3.1.0",
+    "caterpillar": "^3.1.1",
     "caterpillar-filter": "^3.0.0",
     "caterpillar-human": "^3.0.0",
     "commander": "^2.9.0",
