@@ -532,6 +532,9 @@ class DocumentModel extends FileModel
 					file: file
 					content: result
 
+				# Prepare result for the later check
+				result = eventData.content
+
 				# Render
 				file.trigger 'render', eventData, (err) ->
 					# Check
@@ -540,7 +543,7 @@ class DocumentModel extends FileModel
 					# Check if the render did anything
 					# and only check if we actually have content to render!
 					# if this check fails, error with a suggestion
-					if result and (result is eventData.content)
+					if result is eventData.content
 						file.log 'warn', util.format(locale.documentRenderExtensionNoChange, eventData.inExtension, eventData.outExtension, filePath)
 						return complete()
 

@@ -39,5 +39,6 @@ docs/
 # =====================================
 # CUSTOM
 
-test/render-out/
+test/out-actual*
+test/render-actual*
 test/.docpad.db

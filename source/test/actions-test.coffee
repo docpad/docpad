@@ -25,12 +25,12 @@ docpadUtil = require('../lib/util')
 docpadPath = pathUtil.join(__dirname, '..', '..')
 rootPath   = pathUtil.join(docpadPath, 'test')
 srcPath    = pathUtil.join(rootPath, 'src')
-outPath    = pathUtil.join(rootPath, 'out')
+outPath    = pathUtil.join(rootPath, 'out-actual-' + Math.floor(Math.random() * 100000))
 expectPath = pathUtil.join(rootPath, 'out-expected')
 cliPath    = pathUtil.join(docpadPath, 'bin', 'docpad')
 
 # Params
-port = 9770
+port = 3000 + Math.floor(Math.random() * 1000)
 hostname = "0.0.0.0"
 baseUrl = "http://#{hostname}:#{port}"
 testWait = 1000*60*5  # five minutes
@@ -40,6 +40,7 @@ docpadConfig =
 	port: port
 	hostname: hostname
 	rootPath: rootPath
+	outPath: outPath
 	logLevel: docpadUtil.getDefaultLogLevel()
 	skipUnsupportedPlugins: false
 	catchExceptions: false
@@ -202,7 +203,7 @@ joe.suite 'docpad-actions', (suite,test) ->
 
 				deepEqual(
 					res.redirects
-					['http://0.0.0.0:9770/secondary-urls.html']
+					["#{baseUrl}/secondary-urls.html"]
 					'redirects to be as expected'
 				)
 
@@ -221,7 +222,7 @@ joe.suite 'docpad-actions', (suite,test) ->
 
 				deepEqual(
 					res.redirects
-					['http://0.0.0.0:9770/secondary-urls.html']
+					["#{baseUrl}/secondary-urls.html"]
 					'redirects to be as expected'
 				)
 

@@ -278,7 +278,7 @@
     "our:release:check-dirty": "git diff --exit-code",
     "our:release:tag": "export MESSAGE=$(cat ./HISTORY.md | sed -n \"/## v$npm_package_version/,/##/p\" | sed 's/## //' | awk 'NR>1{print buf}{buf = $0}') && test \"$MESSAGE\" || (echo 'proper changelog entry not found' && exit -1) && git tag v$npm_package_version -am \"$MESSAGE\"",
     "our:release:push": "git push origin master && git push origin --tags",
-    "my:clean": "rm -Rf ./test/out ./test/render-out ./test/.docpad.db ./test/package-lock.json ./test/node_modules/",
+    "my:clean": "rm -Rf ./test/out-actual* ./test/render-actual* ./test/.docpad.db ./test/package-lock.json ./test/node_modules/",
     "test": "node --harmony ./test.js --joe-reporter=console"
   },
   "installUrl": "http://docpad.org/install",
