@@ -21,8 +21,6 @@
 <span class="badge-paypal"><a href="https://bevry.me/paypal" title="Donate to this project using Paypal"><img src="https://img.shields.io/badge/paypal-donate-yellow.svg" alt="PayPal donate button" /></a></span>
 <span class="badge-bitcoin"><a href="https://bevry.me/bitcoin" title="Donate once-off to this project using Bitcoin"><img src="https://img.shields.io/badge/bitcoin-donate-yellow.svg" alt="Bitcoin donate button" /></a></span>
 <span class="badge-wishlist"><a href="https://bevry.me/wishlist" title="Buy an item on our wishlist for us"><img src="https://img.shields.io/badge/wishlist-donate-yellow.svg" alt="Wishlist browse button" /></a></span>
-<br class="badge-separator" />
-<span class="badge-slackin"><a href="https://slack.bevry.me" title="Join this project's slack community"><img src="https://slack.bevry.me/badge.svg" alt="Slack community badge" /></a></span>
 
 <!-- /BADGES -->
 
@@ -172,7 +170,7 @@ These amazing people have contributed code to this project:
 <li><a href="http://ashnur.com">GÁBOR Áron Zsolt</a> — <a href="https://github.com/docpad/docpad/commits?author=ashnur" title="View the GitHub contributions of GÁBOR Áron Zsolt on repository docpad/docpad">view contributions</a></li>
 <li><a href="https://github.com/barberboy">Ben Barber</a> — <a href="https://github.com/docpad/docpad/commits?author=barberboy" title="View the GitHub contributions of Ben Barber on repository docpad/docpad">view contributions</a></li>
 <li><a href="http://delapouite.com">Bruno Heridet</a> — <a href="https://github.com/docpad/docpad/commits?author=Delapouite" title="View the GitHub contributions of Bruno Heridet on repository docpad/docpad">view contributions</a></li>
-<li><a href="http://pismute.github.io">Changwoo Park</a></li>
+<li><a href="http://pismute.github.io">Changwoo Park</a> — <a href="https://github.com/docpad/docpad/commits?author=pismute" title="View the GitHub contributions of Changwoo Park on repository docpad/docpad">view contributions</a></li>
 <li><a href="http://aptiture.com">Morgan Larosa</a></li>
 <li><a href="https://github.com/chase">Chase Colman</a> — <a href="https://github.com/docpad/docpad/commits?author=chase" title="View the GitHub contributions of Chase Colman on repository docpad/docpad">view contributions</a></li>
 <li><a href="http://derberg.github.io/">Lukasz Gornicki</a> — <a href="https://github.com/docpad/docpad/commits?author=derberg" title="View the GitHub contributions of Lukasz Gornicki on repository docpad/docpad">view contributions</a></li>
@@ -192,7 +190,7 @@ These amazing people have contributed code to this project:
 <li><a href="https://github.com/pavangupta">pavangupta</a> — <a href="https://github.com/docpad/docpad/commits?author=pavangupta" title="View the GitHub contributions of pavangupta on repository docpad/docpad">view contributions</a></li>
 <li><a href="http://pavgup.io">Pavan Gupta</a> — <a href="https://github.com/docpad/docpad/commits?author=pavgup" title="View the GitHub contributions of Pavan Gupta on repository docpad/docpad">view contributions</a></li>
 <li><a href="https://github.com/pflannery">Peter Flannery</a> — <a href="https://github.com/docpad/docpad/commits?author=pflannery" title="View the GitHub contributions of Peter Flannery on repository docpad/docpad">view contributions</a></li>
-<li><a href="http://www.alolo.co">Darío Villanueva</a></li>
+<li><a href="http://www.alolo.co/about-me">Darío Villanueva</a> — <a href="https://github.com/docpad/docpad/commits?author=radiodario" title="View the GitHub contributions of Darío Villanueva on repository docpad/docpad">view contributions</a></li>
 <li><a href="https://github.com/rantecki">Richard A</a> — <a href="https://github.com/docpad/docpad/commits?author=rantecki" title="View the GitHub contributions of Richard A on repository docpad/docpad">view contributions</a></li>
 <li><a href="http://robloach.net">Rob Loach</a> — <a href="https://github.com/docpad/docpad/commits?author=RobLoach" title="View the GitHub contributions of Rob Loach on repository docpad/docpad">view contributions</a></li>
 <li><a href="http://www.ruemic.com">RueMic</a> — <a href="https://github.com/docpad/docpad/commits?author=ruemic" title="View the GitHub contributions of RueMic on repository docpad/docpad">view contributions</a></li>
@@ -224,7 +222,7 @@ These amazing people have contributed code to this project:
 <li><a href="https://github.com/pismute">Changwoo Park</a> — <a href="https://github.com/docpad/docpad/commits?author=pismute" title="View the GitHub contributions of Changwoo Park on repository docpad/docpad">view contributions</a></li>
 <li><a href="http://beamworks.io">Nick Matantsev</a> — <a href="https://github.com/docpad/docpad/commits?author=unframework" title="View the GitHub contributions of Nick Matantsev on repository docpad/docpad">view contributions</a></li>
 <li><a href="http://www.upwork.com/fl/prayagverma">Prayag Verma</a> — <a href="https://github.com/docpad/docpad/commits?author=pra85" title="View the GitHub contributions of Prayag Verma on repository docpad/docpad">view contributions</a></li>
-<li><a href="http://www.alolo.co/about-me">Darío Villanueva</a> — <a href="https://github.com/docpad/docpad/commits?author=radiodario" title="View the GitHub contributions of Darío Villanueva on repository docpad/docpad">view contributions</a></li></ul>
+<li><a href="http://www.alolo.co/about-me">Darío Villanueva</a></li></ul>
 
 <a href="https://github.com/docpad/docpad/blob/master/CONTRIBUTING.md#files">Discover how you can contribute by heading on over to the <code>CONTRIBUTING.md</code> file.</a>
 
