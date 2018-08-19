@@ -55,7 +55,7 @@ module.exports = {
 		For more information, see: https://github.com/bevry/docpad/issues/742
 		"""
 	documentRenderExtensionNoChange: """
-		Rendering the extension \"%s\" to \"%s\" on \"%s\" didn't do anything.
+		Rendering the extension [%s] to [%s] on [%s] didn't do anything.
 		Explanation here: https://docpad.org/extension-not-rendering
 		"""
 	documentMissingContentType: "ContentType was missing on document %s"
