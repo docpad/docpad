@@ -1,5 +1,9 @@
 # History
 
+## v6.80.8 2018 August 19
+- Updated base files and [editions](https://github.com/bevry/editions) using [boundation](https://github.com/bevry/boundation)
+- Close [issue #1085](https://github.com/docpad/docpad/issues/1085)
+
 ## v6.80.7 2018 August 17
 - `docpad render` command now behaves as expected, and omission of the filename now shows the error that before failed to report
     - Fixes the `ERR_INVALID_ARG_TYPE` error when using stdin
