@@ -3360,14 +3360,15 @@ class DocPad extends EventEmitterGrouped
 	# This is called by all sorts of things, including docpad.warn
 	# As such, the err.level is important
 	# @method error
-	# @param {Object} input
+	# @param {*} value
+	# @return {Error}
 	###
-	error: (err) ->
+	error: (value) ->
 		# Prepare
 		locale = @getLocale()
 
 		# Ensure it is an error
-		err = Errlop.ensure(err)
+		err = Errlop.ensure(value)
 		err.level ?= 'error'
 		err.log ?= true
 		err.logged ?= false
@@ -3397,12 +3398,11 @@ class DocPad extends EventEmitterGrouped
 	###*
 	# Log an error of level 'warn'
 	# @method warn
-	# @param {String} message
-	# @param {Object} err
-	# @return {Object} description
+	# @param {*} value
+	# @return {Error}
 	###
-	warn: (err) ->
-		err = Errlop.ensure(err)
+	warn: (value) ->
+		err = Errlop.ensure(value)
 		err.level ?= 'warn'
 
 		# Foward
@@ -3412,18 +3412,16 @@ class DocPad extends EventEmitterGrouped
 	# Handle a fatal error
 	# @private
 	# @method fatal
-	# @param {Object} err
+	# @param {*} value
 	# @param {Function} [next]
+	# @return {Error}
 	###
-	fatal: (err, next) ->
+	fatal: (value, next) ->
 		# Check
-		return @  unless err
+		return @  unless value
 
 		# Enforce errlop with fatal level
-		err = new Errlop(
-			'A fatal error occured within DocPad',
-			err
-		)
+		err = new Errlop('A fatal error occured within DocPad', value)
 		err.level = 'fatal'
 		err.logLevel = 'critical'
 
@@ -3615,6 +3613,8 @@ class DocPad extends EventEmitterGrouped
 
 			# Log
 			model.on 'log', (args...) ->
+				# .error and .warn only accept one argument
+				# so only forward to them if args length is 2
 				if args.length is 2
 					if args[0] in ['err', 'error']
 						docpad.error(args[1])
@@ -3624,7 +3624,9 @@ class DocPad extends EventEmitterGrouped
 						docpad.warn(args[1])
 						return
 
+				# otherwise forward to log
 				docpad.log(args...)
+				return
 
 		# Chain
 		@
