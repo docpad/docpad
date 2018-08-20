@@ -1,6 +1,11 @@
 # History
 
-## v6.81.0 2018 August 20
+## v6.81.0 2018 August 21
+- This release accomplishes the removal of some long standing deprecations, for background reading refer to:
+    - [Deprecating In-Memory DocPad Importers & Exporters](https://discuss.bevry.me/t/deprecating-in-memory-docpad-importers-exporters/87)
+    - [Abstract out Server functionality into pluginland](https://github.com/docpad/docpad/issues/1081)
+    - [Operation Disassemble & Diversify](https://github.com/docpad/docpad/issues/821)
+    - To maintain static server functionality, install the [`serve` plugin](https://github.com/docpad/docpad-plugin-serve)
 - Changes:
     - `docpadReady` event now includes the `action` property if it was specified
     - DocPad is now verbose about when it has to perform an mtime change
