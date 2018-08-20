@@ -19,12 +19,6 @@ module.exports = {
 	skeletonNoneName: "No Skeleton"
 	skeletonNoneDescription: "Prefer to start from scratch? You can get started without any skeleton if you wish"
 
-	# Server
-	serverInUse: "Could not start the web server, chances are the desired port %s is already in use"
-	serverStart: "Starting server on hostname %s port %s"
-	serverStarted: "Server started on %s"
-	serverBrowse: "In your web browser use %s"
-
 	# Watching
 	watchStart: 'Watching setup starting...'
 	watchStarted: 'Watching setup'
@@ -61,7 +55,6 @@ module.exports = {
 	documentMissingContentType: "ContentType was missing on document %s"
 	documentMissingLayoutError: "Could not find the layout %s on %s"
 	documentApplyError: "The `apply` option when rendering documents is now deprecated. Use `document.clone().action('render', ...)` instead"
-	documentDynamicError: "Dynamic documents are deprecated. They do not support content types, and will eventually be removed. Violating document %s"
 	documentRender: "Rendering the file: %s"
 	documentRenderError: "Something went wrong while rendering: %s"
 	documentRendered: "Rendered the file: %s"
@@ -162,8 +155,7 @@ module.exports = {
 	consoleSuccess: "The action completed successfully"
 
 	consoleDescriptionInit: "initialize your directory with an empty docpad project"
-	consoleDescriptionRun: "does everything: skeleton, generate, watch, server"
-	consoleDescriptionServer: "creates a server for your generated project"
+	consoleDescriptionRun: "run docpad on your project"
 	consoleDescriptionRender: "render the file at <path> and output its results to stdout"
 	consoleDescriptionGenerate: "(re)generates your project"
 	consoleDescriptionWatch: "watches your project for changes, and (re)generates whenever a change is made"
@@ -183,16 +175,11 @@ module.exports = {
 	consoleOptionDebug: "the level of debug messages you would like to display, if specified defaults to 7, otherwise 6"
 	consoleOptionForce: "force a re-install of all modules"
 	consoleOptionNoColor: "don't colorize terminal output"
-	consoleOptionPort: "a custom port to use for the server <port>"
-	consoleOptionProfile: "enable profiling"
 	consoleOptionOffline: "don't do any remote requests"
 	consoleOptionSilent: "don't use any prompts"
-	consoleOptionCache: "use the database cache ability to speed up docpad"
 	consoleOptionSkeleton: "specify the id of a skeleton to use instead of prompting"
 
 	# Misc
-	databaseCacheRead: "Imported %s/%s files from the database cache"
-	databaseCacheWrite: "Dumped %s files to the database cache"
 	emittingEvent: "Emitting the event: %s"
 	emittedEvent: "Emitted the event: %s"
 	outPathConflict: """

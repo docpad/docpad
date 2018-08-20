@@ -12,8 +12,6 @@
     "cms",
     "static site generator",
     "generator",
-    "static file server",
-    "server",
     "web",
     "web framework",
     "framework",
@@ -195,9 +193,7 @@
     }
   ],
   "bin": {
-    "docpad": "bin/docpad",
-    "docpad-compile": "bin/docpad-compile",
-    "docpad-server": "bin/docpad-server"
+    "docpad": "bin/docpad"
   },
   "main": "index.js",
   "dependencies": {

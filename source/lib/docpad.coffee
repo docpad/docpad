@@ -73,13 +73,9 @@ isUser = docpadUtil.isUser()
 
 ###*
 # Contains methods for managing the DocPad application.
-# This includes managing a DocPad projects files and
-# documents, watching directories, emitting events and
-# managing the node.js/express.js web server.
 # Extends https://github.com/bevry/event-emitter-grouped
 #
-# The class is instantiated in the docpad-server.js file
-# which is the entry point for a DocPad application.
+# You can use it like so:
 #
 # 	new DocPad(docpadConfig, function(err, docpad) {
 # 		if (err) return docpad.fatal(err)
@@ -280,64 +276,6 @@ class DocPad extends EventEmitterGrouped
 	###
 	getProcessVersion: -> process.version.replace(/^v/,'')
 
-	###*
-	# The express.js server instance bound to DocPad.
-	# http://expressjs.com
-	# @private
-	# @property {Object} serverExpress
-	###
-	serverExpress: null
-
-	###*
-	# The Node.js http server instance bound to DocPad
-	# https://nodejs.org/api/http.html
-	# @private
-	# @property {Object} serverHttp
-	###
-	serverHttp: null
-
-	###*
-	# Get the DocPad express.js server instance and, optionally,
-	# the node.js https server instance
-	# @method getServer
-	# @param {Boolean} [both=false]
-	# @return {Object}
-	###
-	getServer: (both=false) ->
-		{serverExpress,serverHttp} = @
-		if both
-			return {serverExpress, serverHttp}
-		else
-			return serverExpress
-
-	###*
-	# Set the express.js server and node.js http server
-	# to bind to DocPad
-	# @method setServer
-	# @param {Object} servers
-	###
-	setServer: (servers) ->
-		# Apply
-		if servers.serverExpress and servers.serverHttp
-			@serverExpress = servers.serverExpress
-			@serverHttp = servers.serverHttp
-
-		# Cleanup
-		delete @config.serverHttp
-		delete @config.serverExpress
-		delete @config.server
-
-	###*
-	# Destructor. Close and destroy the node.js http server
-	# @private
-	# @method destroyServer
-	###
-	destroyServer: ->
-		@serverHttp?.close()
-		@serverHttp = null
-		# @TODO figure out how to destroy the express server
-
-	#
 	###*
 	# Internal property. The caterpillar logger instances bound to DocPad
 	# @private
@@ -541,9 +479,6 @@ class DocPad extends EventEmitterGrouped
 		'writeAfter'
 		'generateAfter'
 		'generated'
-		'serverBefore'
-		'serverExtend'
-		'serverAfter'
 		'notify'
 	]
 
@@ -569,27 +504,10 @@ class DocPad extends EventEmitterGrouped
 	database: null
 
 	###*
-	# A FilesCollection of models updated
-	# from the DocPad database after each regeneration.
-	# @private
-	# @property {Object} databaseTempCache FileCollection of models
-	###
-	databaseTempCache: null
-
-	###*
 	# Description for getDatabase
 	# @method {Object} getDatabase
 	###
 	getDatabase: -> @database
-
-	###*
-	# Safe method for retrieving the database by
-	# either returning the database itself or the temporary
-	# database cache
-	# @method getDatabaseSafe
-	# @return {Object}
-	###
-	getDatabaseSafe: -> @databaseTempCache or @database
 
 	###*
 	# Destructor. Destroy the DocPad database
@@ -600,31 +518,7 @@ class DocPad extends EventEmitterGrouped
 		if @database?
 			@database.destroy()
 			@database = null
-		if @databaseTempCache?
-			@databaseTempCache.destroy()
-			@databaseTempCache = null
 		@
-
-	###*
-	# Files by url. Used to speed up fetching
-	# @private
-	# @property {Object} filesByUrl
-	###
-	filesByUrl: null
-
-	###*
-	# Files by Selector. Used to speed up fetching
-	# @private
-	# @property {Object} filesBySelector
-	###
-	filesBySelector: null
-
-	###*
-	# Files by Out Path. Used to speed up conflict detection. Do not use for anything else
-	# @private
-	# @property {Object} filesByOutPath
-	###
-	filesByOutPath: null
 
 	###*
 	# Blocks
@@ -892,7 +786,6 @@ class DocPad extends EventEmitterGrouped
 			@addCollection(collection)
 		return collection
 
-
 	###*
 	# Get a single file based on a query
 	# @method getFile
@@ -930,21 +823,6 @@ class DocPad extends EventEmitterGrouped
 		file = @getDatabase().fuzzyFindOne(path, sorting, paging)
 		return file
 
-
-	# TODO: Does this still work???
-	###*
-	# Get a file by its url
-	# @method getFileByUrl
-	# @param {String} url
-	# @param {Object} [opts={}]
-	# @return {Object} a file
-	###
-	getFileByUrl: (url,opts={}) ->
-		opts.collection ?= @getDatabase()
-		file = opts.collection.get(@filesByUrl[url])
-		return file
-
-
 	###*
 	# Get a file by its id
 	# @method getFileById
@@ -957,7 +835,6 @@ class DocPad extends EventEmitterGrouped
 		file = opts.collection.get(id)
 		return file
 
-
 	###*
 	# Remove the query string from a url
 	# Pathname convention taken from document.location.pathname
@@ -969,49 +846,7 @@ class DocPad extends EventEmitterGrouped
 		return url.replace(/\?.*/,'')
 
 	###*
-	# Get a file by its route and return
-	# it to the supplied callback.
-	# @method getFileByRoute
-	# @param {String} url
-	# @param {Object} next
-	# @param {Error} next.err
-	# @param {String} next.file
-	###
-	getFileByRoute: (url,next) ->
-		# Prepare
-		docpad = @
-
-		# If we have not performed a generation yet then wait until the initial generation has completed
-		if docpad.generated is false
-			# Wait until generation has completed and recall ourselves
-			docpad.once 'generated', ->
-				return docpad.getFileByRoute(url, next)
-
-			# hain
-			return @
-
-		# @TODO the above causes a signifcant delay when importing external documents (like tumblr data) into the database
-		# we need to figure out a better way of doing this
-		# perhaps it is via `writeSource: once` for imported documents
-		# or providing an option to disable this so it forward onto the static handler instead
-
-		# Prepare
-		database = docpad.getDatabaseSafe()
-
-		# Fetch
-		cleanUrl = docpad.getUrlPathname(url)
-		file = docpad.getFileByUrl(url, {collection:database}) or docpad.getFileByUrl(cleanUrl, {collection:database})
-
-		# Forward
-		next(null, file)
-
-		# Chain
-		@
-
-
-	# TODO: What on earth is a selector?
-	###*
-	# Get a file by its selector
+	# Get a file by its selector (this is used to fetch layouts by their name)
 	# @method getFileBySelector
 	# @param {Object} selector
 	# @param {Object} [opts={}]
@@ -1019,13 +854,8 @@ class DocPad extends EventEmitterGrouped
 	###
 	getFileBySelector: (selector,opts={}) ->
 		opts.collection ?= @getDatabase()
-		file = opts.collection.get(@filesBySelector[selector])
-		unless file
-			file = opts.collection.fuzzyFindOne(selector)
-			if file
-				@filesBySelector[selector] = file.id
+		file = opts.collection.fuzzyFindOne(selector)
 		return file
-
 
 	# ---------------------------------
 	# Skeletons
@@ -1279,7 +1109,7 @@ class DocPad extends EventEmitterGrouped
 		templateData = extendr.extend({}, @initialTemplateData, @pluginsTemplateData, @getConfig().templateData, userTemplateData)
 
 		# Add site data
-		templateData.site.url or= @getSimpleServerUrl()
+		templateData.site.url or= ''
 		templateData.site.date or= new Date()
 		templateData.site.keywords or= []
 		if typeChecker.isString(templateData.site.keywords)
@@ -1373,14 +1203,6 @@ class DocPad extends EventEmitterGrouped
 	# Configuration
 
 	###*
-	# Hash Key
-	# The key that we use to hash some data before sending it to our statistic server
-	# @private
-	# @property {String} string constant
-	###
-	hashKey: '7>9}$3hP86o,4=@T'  # const
-
-	###*
 	# Website Package Configuration
 	# @private
 	# @property {Object} websitePackageConfig
@@ -1466,9 +1288,6 @@ class DocPad extends EventEmitterGrouped
 		# The project directory
 		rootPath: process.cwd()
 
-		# The project's database cache path
-		databaseCachePath: '.docpad.db'
-
 		# The project's package.json path
 		packagePath: 'package.json'
 
@@ -1536,53 +1355,6 @@ class DocPad extends EventEmitterGrouped
 
 		# Watch options
 		watchOptions: null
-
-
-		# -----------------------------
-		# Server
-
-		# Port
-		# The port that the server should use
-		# Defaults to these environment variables:
-		# - PORT — Heroku, Nodejitsu, Custom
-		# - VCAP_APP_PORT — AppFog
-		# - VMC_APP_PORT — CloudFoundry
-		port: null
-
-		# Hostname
-		# The hostname we wish to listen to
-		# Defaults to these environment variables:
-		# HOSTNAME — Generic
-		# Do not set to "localhost" it does not work on heroku
-		hostname: null
-
-		# Max Age
-		# The caching time limit that is sent to the client
-		maxAge: 86400000
-
-		# Server
-		# The Express.js server that we want docpad to use
-		serverExpress: null
-		# The HTTP server that we want docpad to use
-		serverHttp: null
-
-		# Extend Server
-		# Whether or not we should extend the server with extra middleware and routing
-		extendServer: true
-
-		# Which middlewares would you like us to activate
-		# The standard middlewares (bodyParser, methodOverride, express router)
-		middlewareStandard: true
-		# The standard bodyParser middleware
-		middlewareBodyParser: true
-		# The standard methodOverride middleware
-		middlewareMethodOverride: true
-		# The standard express router middleware
-		middlewareExpressRouter: true
-		# Our own 404 middleware
-		middleware404: true
-		# Our own 500 middleware
-		middleware500: true
 
 
 		# -----------------------------
@@ -1722,80 +1494,18 @@ class DocPad extends EventEmitterGrouped
 		# Environment specific configuration to over-ride the global configuration
 		environments:
 			development:
-				# Always refresh from server
-				maxAge: false
-
 				# Only do these if we are running standalone (aka not included in a module)
 				checkVersion: isUser
 				welcome: isUser
 				prompts: isUser
 
 	###*
-	# Get the DocPad configuration. Commonly
-	# called within the docpad.coffee file or within
-	# plugins to access application specific configurations.
-	# 	serverExtend: (opts) ->
-			# Extract the server from the options
-			{server} = opts
-			docpad = @docpad
-
-			# As we are now running in an event,
-			# ensure we are using the latest copy of the docpad configuraiton
-			# and fetch our urls from it
-			latestConfig = docpad.getConfig()
-			oldUrls = latestConfig.templateData.site.oldUrls or []
-			newUrl = latestConfig.templateData.site.url
-
-			# Redirect any requests accessing one of our sites oldUrls to the new site url
-			server.use (req,res,next) ->
-				...
+	# Get the DocPad configuration
 	# @method getConfig
 	# @return {Object} the DocPad configuration object
 	###
 	getConfig: ->
 		return @config or {}
-
-	###*
-	# Get the port that DocPad is listening on (eg 9778)
-	# @method getPort
-	# @return {Number} the port number
-	###
-	getPort: ->
-		return @getConfig().port ? require('hostenv').PORT ? 9778
-
-	###*
-	# Get the Hostname
-	# @method getHostname
-	# @return {String}
-	###
-	getHostname: ->
-		return @getConfig().hostname ? require('hostenv').HOSTNAME ? '0.0.0.0'
-
-	###*
-	# Get address
-	# @method getServerUrl
-	# @param {Object} [opts={}]
-	# @return {String}
-	###
-	getServerUrl: (opts={}) ->
-		opts.hostname ?= @getHostname()
-		opts.port ?= @getPort()
-		opts.simple ?= false
-		if opts.simple is true and opts.hostname in ['0.0.0.0', '::', '::1']
-			return "http://127.0.0.1:#{opts.port}"
-		else
-			return "http://#{opts.hostname}:#{opts.port}"
-
-	###*
-	# Get simple server URL (changes 0.0.0.0, ::, and ::1 to 127.0.0.1)
-	# @method getSimpleServerUrl
-	# @param {Object} [opts={}]
-	# @param {Boolean} [opts.simple=true]
-	# @return {String}
-	###
-	getSimpleServerUrl: (opts={}) ->
-		opts.simple = true
-		return @getServerUrl(opts)
 
 
 	# =================================
@@ -1870,13 +1580,7 @@ class DocPad extends EventEmitterGrouped
 
 		# Binders
 		# Using this over coffescript's => on class methods, ensures that the method length is kept
-		for methodName in """
-			action
-			log warn error fatal inspector notify checkRequest
-			onSignalInterruptOne onSignalInterruptTwo
-			serverMiddlewareRouter serverMiddlewareHeader serverMiddleware404 serverMiddleware500
-			destroyWatchers
-			""".split(/\s+/)
+		for methodName in "action log warn error fatal inspector notify checkRequest onSignalInterruptOne onSignalInterruptTwo destroyWatchers".split(/\s+/)
 			@[methodName] = @[methodName].bind(@)
 
 		# Allow DocPad to have unlimited event listeners
@@ -1938,17 +1642,10 @@ class DocPad extends EventEmitterGrouped
 		@instanceConfig = {}
 		@collections = []
 		@blocks = {}
-		@filesByUrl = {}
-		@filesBySelector = {}
-		@filesByOutPath = {}
 		@database = new FilesCollection(null, {name:'database'})
 			.on('remove', (model,options) ->
 				# Skip if we are not a writeable file
 				return  if model.get('write') is false
-
-				# Delete the urls
-				for url in model.get('urls') or []
-					delete docpad.filesByUrl[url]
 
 				# Ensure we regenerate anything (on the next regeneration) that was using the same outPath
 				outPath = model.get('outPath')
@@ -1959,22 +1656,7 @@ class DocPad extends EventEmitterGrouped
 						model.set('mtime': new Date())
 
 					# Log
-					docpad.log('debug', 'Updated mtime for these models due to remove of a similar one', updatedModels.pluck('relativePath'))
-
-				# Return safely
-				return true
-			)
-			.on('add change:urls', (model) ->
-				# Skip if we are not a writeable file
-				return  if model.get('write') is false
-
-				# Delete the old urls
-				for url in model.previous('urls') or []
-					delete docpad.filesByUrl[url]
-
-				# Add the new urls
-				for url in model.get('urls')
-					docpad.filesByUrl[url] = model.cid
+					docpad.log('info', 'Updated mtime for these models due to the removal of a similar one:', updatedModels.pluck('relativePath'))
 
 				# Return safely
 				return true
@@ -1983,39 +1665,29 @@ class DocPad extends EventEmitterGrouped
 				# Skip if we are not a writeable file
 				return  if model.get('write') is false
 
-				# Check if we have changed our outPath
+				# Prepare
+				outPath = model.get('outPath')
 				previousOutPath = model.previous('outPath')
+
+				# Check if we have changed our outPath
 				if previousOutPath
 					# Ensure we regenerate anything (on the next regeneration) that was using the same outPath
-					previousModels = docpad.database.findAll(outPath:previousOutPath)
+					previousModels = docpad.database.findAll({outPath: previousOutPath})
 					previousModels.remove(model)
-					previousModels.each (model) ->
-						model.set('mtime': new Date())
+					previousModels.each (previousModel) ->
+						previousModel.set('mtime': new Date())
 
 					# Log
-					docpad.log('debug', 'Updated mtime for these models due to addition of a similar one', previousModels.pluck('relativePath'))
+					docpad.log('info', 'Updated mtime for these models due to the addition of a similar one:', previousModels.pluck('relativePath'))
 
-					# Update the cache entry with another file that has the same outPath or delete it if there aren't any others
-					previousModelId = docpad.filesByOutPath[previousOutPath]
-					if previousModelId is model.id
-						if previousModels.length
-							docpad.filesByOutPath[previousOutPath] = previousModelId
-						else
-							delete docpad.filesByOutPath[previousOutPath]
-
-				# Update the cache entry and fetch the latest if it was already set
-				if (outPath = model.get('outPath'))
-					existingModelId = docpad.filesByOutPath[outPath] ?= model.id
-					if existingModelId isnt model.id
-						existingModel = docpad.database.get(existingModelId)
-						if existingModel
-							# We have a conflict, let the user know
+				# Determine if there are any conflicts with the new outPath
+				if outPath
+					existingModels = docpad.database.findAll({outPath})
+					existingModels.each (existingModel) ->
+						if existingModel.id isnt model.id
 							modelPath = model.get('fullPath') or (model.get('relativePath')+':'+model.id)
 							existingModelPath = existingModel.get('fullPath') or (existingModel.get('relativePath')+':'+existingModel.id)
 							docpad.warn util.format(docpad.getLocale().outPathConflict, outPath, modelPath, existingModelPath)
-						else
-							# There reference was old, update it with our new one
-							docpad.filesByOutPath[outPath] = model.id
 
 				# Return safely
 				return true
@@ -2100,9 +1772,6 @@ class DocPad extends EventEmitterGrouped
 
 					# Destroy Plugins
 					docpad.destroyPlugins()
-
-					# Destroy Server
-					docpad.destroyServer()
 
 					# Destroy Watchers
 					docpad.destroyWatchers()
@@ -2358,7 +2027,7 @@ class DocPad extends EventEmitterGrouped
 			docpad.emitSerial('welcome', {docpad}, complete)
 
 		tasks.addTask 'emit docpadReady', (complete) ->
-			docpad.emitSerial('docpadReady', {docpad}, complete)
+			docpad.emitSerial('docpadReady', {docpad, action: config.action}, complete)
 
 		# Run tasks
 		tasks.run()
@@ -2442,12 +2111,6 @@ class DocPad extends EventEmitterGrouped
 		configsToMerge = [@config]
 		docpad.mergeConfigurations(configPackages, configsToMerge)
 
-		# Extract and apply the server
-		@setServer extendr.defaults({
-			serverHttp: @config.serverHttp
-			serverExpress: @config.serverExpress
-		}, @config.server or {})
-
 		# Extract and apply the logger
 		@setLogLevel(@config.logLevel)
 
@@ -2458,7 +2121,6 @@ class DocPad extends EventEmitterGrouped
 		@config.rootPath = pathUtil.resolve(@config.rootPath)
 		@config.outPath = pathUtil.resolve(@config.rootPath, @config.outPath)
 		@config.srcPath = pathUtil.resolve(@config.rootPath, @config.srcPath)
-		@config.databaseCachePath = pathUtil.resolve(@config.rootPath, @config.databaseCachePath)
 		@config.packagePath = pathUtil.resolve(@config.rootPath, @config.packagePath)
 
 		# Resolve Documents, Files, Layouts paths
@@ -2895,7 +2557,6 @@ class DocPad extends EventEmitterGrouped
 			# Special Collections
 			generate: database.createLiveChildCollection()
 				.setQuery('generate', {
-					dynamic: false
 					ignored: false
 				})
 				.on('add', (model) ->
@@ -2903,7 +2564,6 @@ class DocPad extends EventEmitterGrouped
 				)
 			referencesOthers: database.createLiveChildCollection()
 				.setQuery('referencesOthers', {
-					dynamic: false
 					ignored: false
 					referencesOthers: true
 				})
@@ -2912,7 +2572,6 @@ class DocPad extends EventEmitterGrouped
 				)
 			hasLayout: database.createLiveChildCollection()
 				.setQuery('hasLayout', {
-					dynamic: false
 					ignored: false
 					layout: $exists: true
 				})
@@ -3012,11 +2671,6 @@ class DocPad extends EventEmitterGrouped
 
 		# Add default block entries
 		meta.add("""<meta name="generator" content="DocPad v#{docpad.getVersion()}" />""")  if docpad.getConfig().poweredByDocPad isnt false
-
-		# Reset caches
-		@filesByUrl = {}
-		@filesBySelector = {}
-		@filesByOutPath = {}
 
 		# Chain
 		next()
@@ -4439,7 +4093,7 @@ class DocPad extends EventEmitterGrouped
 						return complete(err)
 
 					# Write out
-					if file.get('write') isnt false and file.get('dynamic') isnt true and file.get('outPath')
+					if file.get('write') isnt false and file.get('outPath')
 						fileTasks.addTask "write out", (complete) ->
 							file.action('write', complete)
 
@@ -4523,9 +4177,6 @@ class DocPad extends EventEmitterGrouped
 		docpad.generateEnded = null
 		docpad.generating = true
 
-		# Update the cached database
-		docpad.databaseTempCache = new FilesCollection(database.models)  if database.models.length
-
 		# Grab the template data we will use for rendering
 		opts.templateData = docpad.getTemplateData(opts.templateData or {})
 
@@ -4548,9 +4199,6 @@ class DocPad extends EventEmitterGrouped
 			# Update generating flag
 			docpad.generating = false
 			docpad.generateEnded = new Date()
-
-			# Update caches
-			docpad.databaseTempCache = null
 
 			# Create Regenerate Timer
 			if config.regenerateEvery
@@ -4599,11 +4247,6 @@ class DocPad extends EventEmitterGrouped
 		# This is here as resetCollections could change our state
 		# https://github.com/bevry/docpad/issues/811
 		addTask 'Figure out options', ->
-			# Mode: Cache
-			# Shall we write to the database cache?
-			# Set to true if the configuration option says we can, and we are the initial generation
-			opts.cache     ?= config.databaseCache
-
 			# Mode: Initial
 			# Shall we do some basic initial checks
 			# Set to the opts.reset value if specified, or whether are the initial generation
@@ -4633,7 +4276,7 @@ class DocPad extends EventEmitterGrouped
 			docpad.log(
 				'debug'
 				'Generate options:'
-				pick(opts, ['cache', 'initial', 'reset', 'populate', 'reload', 'partial', 'renderPasses'])
+				pick(opts, ['initial', 'reset', 'populate', 'reload', 'partial', 'renderPasses'])
 			)
 
 
@@ -4660,35 +4303,6 @@ class DocPad extends EventEmitterGrouped
 				# This will pull in new data from plugins
 				addTask 'populateCollectionsBefore', (complete) ->
 					docpad.emitSerial('populateCollectionsBefore', opts, complete)
-
-				# Import the cached data
-				# If we are the initial generation, and we have caching enabled
-				if opts.initial is true and opts.cache in [true, 'read']
-					addTask 'import data from cache', (complete) ->
-						# Check if we do have a databae cache
-						safefs.exists config.databaseCachePath, (exists) ->
-							return complete()  if exists is false
-
-							# Read the database cache if it exists
-							safefs.readFile config.databaseCachePath, (err, data) ->
-								return complete(err)  if err
-
-								# Parse it and apply the data values
-								databaseData = JSON.parse data.toString()
-								opts.cache     = true
-								opts.initial   = true
-								opts.reset     = false
-								opts.populate  = true
-								opts.reload    = true
-								opts.partial   = true
-
-								lastGenerateStarted = new Date(databaseData.generateStarted)
-								addedModels = docpad.addModels(databaseData.models)
-								docpad.log 'info', util.format(locale.databaseCacheRead, database.length, databaseData.models.length)
-
-								# @TODO we need a way of detecting deleted files between generations
-
-								return complete()
 
 				# Rescan the file system
 				# If we are a reload generation (by default an initial generation)
@@ -4734,7 +4348,6 @@ class DocPad extends EventEmitterGrouped
 
 		addGroup 'determine files to render', (addGroup, addTask) ->
 			# Perform a complete regeneration
-			# If we are a reset generation (by default an initial non-cached generation)
 			if opts.partial is false
 				# Use Entire Collection
 				addTask 'Add all database models to render queue', ->
@@ -4777,7 +4390,6 @@ class DocPad extends EventEmitterGrouped
 					path: model.getFilePath()
 					mtime: model.get('mtime')
 					wtime: model.get('wtime')
-					dynamic: model.get('dynamic')
 					ignored: model.get('ignored')
 					write: model.get('write')
 				}  for model in opts.collection.models
@@ -4828,7 +4440,6 @@ class DocPad extends EventEmitterGrouped
 					path: model.getFilePath()
 					mtime: model.get('mtime')
 					wtime: model.get('wtime')
-					dynamic: model.get('dynamic')
 					ignored: model.get('ignored')
 					write: model.get('write')
 				}  for model in opts.collection.models
@@ -4846,22 +4457,6 @@ class DocPad extends EventEmitterGrouped
 
 		addTask 'generateAfter', (complete) ->
 			docpad.emitSerial('generateAfter', opts, complete)
-
-
-		# Write the cache file
-		addTask 'Write the database cache', (complete) ->
-			# Skip if we do not care for writing the cache
-			return complete()  unless opts.cache in [true, 'write']
-
-			# Write the cache
-			databaseData =
-				generateStarted: docpad.generateStarted
-				generateEnded: docpad.generateEnded
-				models: (model.getAttributes()  for model in database.models)
-			databaseDataDump = JSON.stringify(databaseData, null, '  ')
-			docpad.log 'info', util.format(locale.databaseCacheWrite, databaseData.models.length)
-			return safefs.writeFile(config.databaseCachePath, databaseDataDump, complete)
-
 
 		# Run
 		tasks.run()
@@ -5294,7 +4889,7 @@ class DocPad extends EventEmitterGrouped
 		run = (complete) ->
 			balUtil.flow(
 				object: docpad
-				action: 'server generate watch'
+				action: 'generate watch'
 				args: [opts]
 				next: complete
 			)
@@ -5375,9 +4970,9 @@ class DocPad extends EventEmitterGrouped
 					description: 'New DocPad project without using a skeleton'
 					dependencies:
 						docpad: '~'+docpad.getVersion()
-					main: 'node_modules/.bin/docpad-server'
 					scripts:
-						start: 'node_modules/.bin/docpad-server'
+						start: 'docpad run'
+						test: 'docpad generate'
 				}, null, '  ')
 				safefs.writeFile(path, data, complete)
 
@@ -5601,10 +5196,6 @@ class DocPad extends EventEmitterGrouped
 
 			# Our outPath is not related or lower than our root path, so do remove it
 			rimraf(config.outPath, complete)
-
-		# Delete database cache
-		tasks.addTask 'delete database cache file', (complete) ->
-			safefs.unlink(config.databaseCachePath, complete)
 
 		# Run tasks
 		tasks.run()
@@ -5890,362 +5481,6 @@ class DocPad extends EventEmitterGrouped
 
 			# Basic Skeleton
 			docpad.useSkeleton(null, next)
-
-		# Chain
-		@
-
-
-	# ---------------------------------
-	# Server
-
-	###*
-	# Serve a document
-	# @private
-	# @method serveDocument
-	# @param {Object} opts
-	# @param {Function} next
-	# @param {Error} next.err
-	###
-	serveDocument: (opts,next) ->
-		# Prepare
-		[opts,next] = extractOptsAndCallback(opts,next)
-		{document,err,req,res} = opts
-		docpad = @
-		config = @getConfig()
-		locale = @getLocale()
-
-		# If no document, then exit early
-		unless document
-			if opts.statusCode?
-				return res.send(opts.statusCode)
-			else
-				return next()
-
-		# Prepare
-		res.setHeaderIfMissing ?= (name, value) ->
-			res.setHeader(name, value)  unless res.getHeader(name)
-
-		# Cache-Control (max-age)
-		res.setHeaderIfMissing('Cache-Control', "public, max-age=#{config.maxAge}")  if config.maxAge
-
-		# Send
-		dynamic = document.get('dynamic')
-		if dynamic
-			docpad.log('warn', util.format(locale.documentDynamicError, document.getFilePath()))
-			# If you are debugging why a dynamic document isn't rendering
-			# it could be that you don't have cleanurls installed
-			# e.g. if index.html is dynamic, and you are accessing it via /
-			# then this code will not be reached, as we don't register that url
-			# where if we have the cleanurls plugin installed, then do register that url
-			# against the document, so this is reached
-			collection = new FilesCollection([document], {name:'dynamic collection'})
-			templateData = extendr.extend({}, req.templateData or {}, {req,err})
-			docpad.action 'generate', {collection, templateData}, (err) ->
-				content = document.getOutContent()
-				if err
-					docpad.error(err)
-					return next(err)
-				else
-					if opts.statusCode?
-						return res.send(opts.statusCode, content)
-					else
-						return res.send(content)
-
-		else
-			# Content Type + Encoding/Charset
-			res.setHeaderIfMissing('Content-Type', document.getContentTypeHeader())
-
-			# ETag: `"<size>-<mtime>"`
-			ctime = document.get('date')    # use the date or mtime, it should always exist
-			mtime = document.get('wtime')   # use the last generate time, it may not exist though
-			stat = document.getStat()
-			etag = stat.size + '-' + Number(mtime)   if mtime and stat
-			res.setHeaderIfMissing('ETag', '"' + etag + '"')  if etag
-
-			# Date
-			res.setHeaderIfMissing('Date', ctime.toUTCString())  if ctime?.toUTCString?
-			res.setHeaderIfMissing('Last-Modified', mtime.toUTCString())  if mtime?.toUTCString?
-			# @TODO:
-			# The above .toUTCString? check is a workaround because sometimes the date object
-			# isn't really a date object, this needs to be fixed properly
-			# https://github.com/bevry/docpad/pull/781
-
-			# Send
-			if etag and etag is (req.get('If-None-Match') or '').replace(/^"|"$/g, '')
-				res.send(304)  # not modified
-			else
-				content = document.getOutContent()
-				if content
-					if opts.statusCode?
-						res.send(opts.statusCode, content)
-					else
-						res.send(content)
-				else
-					if opts.statusCode?
-						res.send(opts.statusCode)
-					else
-						next()
-
-		# Chain
-		@
-
-
-	###*
-	# Server Middleware: Header
-	# @private
-	# @method serverMiddlewareHeader
-	# @param {Object} req
-	# @param {Object} res
-	# @param {Object} next
-	###
-	serverMiddlewareHeader: (req,res,next) ->
-		# Prepare
-		docpad = @
-
-		# Handle
-		# Always enable this until we get a complaint about not having it
-		# For instance, Express.js also forces this
-		tools = res.get('X-Powered-By').split(/[,\s]+/g)
-		tools.push("DocPad v#{docpad.getVersion()}")
-		tools = tools.join(', ')
-		res.set('X-Powered-By', tools)
-
-		# Forward
-		next()
-
-		# Chain
-		@
-
-
-	###*
-	# Server Middleware: Router
-	# @private
-	# @method serverMiddlewareRouter
-	# @param {Object} req
-	# @param {Object} res
-	# @param {Function} next
-	# @param {Error} next.err
-	###
-	serverMiddlewareRouter: (req,res,next) ->
-		# Prepare
-		docpad = @
-
-		# Get the file
-		docpad.getFileByRoute req.url, (err,file) ->
-			# Check
-			return next(err)  if err or file? is false
-
-			# Check if we are the desired url
-			# if we aren't do a permanent redirect
-			url = file.get('url')
-			cleanUrl = docpad.getUrlPathname(req.url)
-			if (url isnt cleanUrl) and (url isnt req.url)
-				return res.redirect(301, url)
-
-			# Serve the file to the user
-			docpad.serveDocument({document:file, req, res, next})
-
-		# Chain
-		@
-
-
-	###*
-	# Server Middleware: 404
-	# @private
-	# @method serverMiddleware404
-	# @param {Object} req
-	# @param {Object} res
-	# @param {Object} next
-	###
-	serverMiddleware404: (req,res,next) ->
-		# Prepare
-		docpad = @
-		database = docpad.getDatabaseSafe()
-
-		# Notify the user of a 404
-		docpad.log('notice', "404 Not Found:", req.url)
-
-		# Check
-		return res.send(500)  unless database
-
-		# Serve the document to the user
-		document = database.findOne({relativeOutPath: '404.html'})
-		docpad.serveDocument({document, req, res, next, statusCode:404})
-
-		# Chain
-		@
-
-
-	###*
-	# Server Middleware: 500
-	# @private
-	# @method serverMiddleware500
-	# @param {Object} err
-	# @param {Object} req
-	# @param {Object} res
-	# @param {Function} next
-	###
-	serverMiddleware500: (err,req,res,next) ->
-		# Prepare
-		docpad = @
-		database = docpad.getDatabaseSafe()
-
-		# Check
-		return res.send(500)  unless database
-
-		# Serve the document to the user
-		document = database.findOne({relativeOutPath: '500.html'})
-		docpad.serveDocument({document,err,req,res,next,statusCode:500})
-
-		# Chain
-		@
-
-	###*
-	# Configure and start up the DocPad web server.
-	# Http and express server is created, extended with
-	# middleware, started up and begins listening.
-	# The events serverBefore, serverExtend and
-	# serverAfter emitted here.
-	# @private
-	# @method server
-	# @param {Object} opts
-	# @param {Function} next
-	###
-	server: (opts,next) ->
-		# Prepare
-		[opts,next] = extractOptsAndCallback(opts,next)
-		docpad = @
-		config = @config
-		locale = @getLocale()
-		port = @getPort()
-		hostname = @getHostname()
-
-		# Require
-		http = require('http')
-		express = require('express')
-
-		# Config
-		servers = @getServer(true)
-		opts.serverExpress ?= servers.serverExpress
-		opts.serverHttp ?= servers.serverHttp
-		opts.middlewareBodyParser ?= config.middlewareBodyParser ? config.middlewareStandard
-		opts.middlewareMethodOverride ?= config.middlewareMethodOverride ? config.middlewareStandard
-		opts.middlewareExpressRouter ?= config.middlewareExpressRouter ? config.middlewareStandard
-		opts.middleware404 ?= config.middleware404
-		opts.middleware500 ?= config.middleware500
-		# @TODO: Why do we do opts here instead of config???
-
-		# Tasks
-		tasks = @createTaskGroup("server tasks", {next})
-
-		# Before Plugin Event
-		tasks.addTask "emit serverBefore", (complete) ->
-			docpad.emitSerial('serverBefore', complete)
-
-		# Create server when none is defined
-		if !opts.serverExpress or !opts.serverHttp
-			tasks.addTask "create server", ->
-				opts.serverExpress or= express()
-				opts.serverHttp or= http.createServer(opts.serverExpress)
-				docpad.setServer(opts)
-
-		# Extend the server with our middlewares
-		if config.extendServer is true
-			tasks.addTask "extend the server", (complete) ->
-				# Parse url-encoded and json encoded form data
-				if opts.middlewareBodyParser isnt false
-					opts.serverExpress.use(express.urlencoded())
-					opts.serverExpress.use(express.json())
-
-				# Allow over-riding of the request type (e.g. GET, POST, PUT, DELETE)
-				if opts.middlewareMethodOverride isnt false
-					if typeChecker.isString(opts.middlewareMethodOverride)
-						opts.serverExpress.use(require('method-override')(opts.middlewareMethodOverride))
-					else
-						opts.serverExpress.use(require('method-override')())
-
-				# Emit the serverExtend event
-				# So plugins can define their routes earlier than the DocPad routes
-				docpad.emitSerial 'serverExtend', {
-					server: opts.serverExpress # b/c
-					express: opts.serverExpress # b/c
-					serverHttp: opts.serverHttp
-					serverExpress: opts.serverExpress
-				}, (err) ->
-					return next(err)  if err
-
-					# DocPad Header Middleware
-					# Keep it after the serverExtend event
-					opts.serverExpress.use(docpad.serverMiddlewareHeader)
-
-					# Router Middleware
-					# Keep it after the serverExtend event
-					opts.serverExpress.use(opts.serverExpress.router)  if opts.middlewareExpressRouter isnt false
-
-					# DocPad Router Middleware
-					# Keep it after the serverExtend event
-					opts.serverExpress.use(docpad.serverMiddlewareRouter)
-
-					# Static
-					# Keep it after the serverExtend event
-					if config.maxAge
-						opts.serverExpress.use(express.static(config.outPath, {maxAge:config.maxAge}))
-					else
-						opts.serverExpress.use(express.static(config.outPath))
-
-					# DocPad 404 Middleware
-					# Keep it after the serverExtend event
-					opts.serverExpress.use(docpad.serverMiddleware404)  if opts.middleware404 isnt false
-
-					# DocPad 500 Middleware
-					# Keep it after the serverExtend event
-					opts.serverExpress.use(docpad.serverMiddleware500)  if opts.middleware500 isnt false
-
-					# Done
-					return complete()
-
-		# Start Server
-		tasks.addTask "start the server", (complete) ->
-			# Catch
-			opts.serverHttp.once 'error', (err) ->
-				# Friendlify the error message if it is what we suspect it is
-				if err.message.indexOf('EADDRINUSE') isnt -1
-					err = new Errlop(util.format(locale.serverInUse, port))
-
-				# Done
-				return complete(err)
-
-			# Listen
-			docpad.log 'debug', util.format(locale.serverStart, hostname, port)
-			opts.serverHttp.listen port, hostname,  ->
-				# Log
-				address = opts.serverHttp.address()
-				serverUrl = docpad.getServerUrl(
-					hostname: address.hostname
-					port: address.port
-				)
-				simpleServerUrl = docpad.getSimpleServerUrl(
-					hostname: address.hostname
-					port: address.port
-				)
-				docpad.log 'info', util.format(locale.serverStarted, serverUrl)
-				if serverUrl isnt simpleServerUrl
-					docpad.log 'info', util.format(locale.serverBrowse, simpleServerUrl)
-
-				# Done
-				return complete()
-
-		# After Plugin Event
-		tasks.addTask "emit serverAfter", (complete) ->
-			docpad.emitSerial('serverAfter', {
-				server: opts.serverExpress # b/c
-				express: opts.serverExpress # b/c
-				serverHttp: opts.serverHttp
-				serverExpress: opts.serverExpress
-			}, complete)
-
-		# Run the tasks
-		tasks.run()
 
 		# Chain
 		@

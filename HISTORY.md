@@ -1,16 +1,31 @@
 # History
 
 ## v6.81.0 2018 August 20
-- Migrations:
+- Changes:
+    - `docpadReady` event now includes the `action` property if it was specified
+    - DocPad is now verbose about when it has to perform an mtime change
+- Migrations / Removals:
     - Progress on [issue #691](https://github.com/docpad/docpad/issues/691) and [issue #391](https://github.com/docpad/docpad/issues/391)
         - Abstracted out base plugin into [docpad-baseplugin](https://github.com/docpad/docpad-baseplugin)
         - Abstracted out testers into [docpad-plugintester](https://github.com/docpad/docpad-plugintester)
-- Removals:
     - Close [issue #1081](https://github.com/docpad/docpad/issues/1081)
         - Removed the deprecated dynamic server abilities
         - Abstracted out the static server abilities into the new [`serve` plugin](https://github.com/docpad/docpad-plugin-serve)
+        - Removes the following properties: `serverExpress`, `serverHttp`, `filesByUrl`, `filesBySelector`, `filesByOutPath`
+        - Removes the following methods: `getServer`, `setServer`, `destroyServer`, `getFileByUrl`, `getFileByRoute`, `getPort`, `getHostname`, `getServerUrl`, `getSimpleServerUrl`, `serverDocument`, `serverMiddlewareHeader`, `serverMiddlewareRouter`, `serverMiddleware404`, `serverMiddleware500`, `server`
+        - Removes the following events: `serverBefore`, `serverExtend`, `serverAfter`
+        - Removes the following options: `databaseCachePath`, `port`, `hostname`, `maxAge`, `serverHttp`, `serverExpress`, `extendServer`, `middlewareStandard`, `middlewareBodyParser`, `middlewareMethodOverride`, `middlewareExpressRouter`, `middleware404`, `middleware500`
+        - Removes the following document properties: `dynamic`
+        - `templateData.site.url` will now default to an empty string
+        - Removes the `docpad-server` executable, use `docpad run` with the `server` plugin instead
     - Removed the deprecated ability to load uncompiled plugins
-- Deprecations:
+    - Removed the deprecated DocPad database cache, it never worked well
+        - Removes the following properties: `databaseTempCache`
+        - Removes the following methods: `getDatabaseSafe`
+        - Removes the following `generate` event properties: `cache`
+    - Removed the deprecated `docpad-compile` executable, no one used it
+    - Removed leftover `hashKey` property
+- New Deprecations:
     - `require('docpad').require('testers')` will be removed in an upcoming release
         - Use `require('docpad-plugintester')` instead
     - `require('docpad').BasePlugin` will be removed in an upcoming release

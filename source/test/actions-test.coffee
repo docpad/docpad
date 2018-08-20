@@ -30,15 +30,10 @@ expectPath = pathUtil.join(rootPath, 'out-expected')
 cliPath    = pathUtil.join(docpadPath, 'bin', 'docpad')
 
 # Params
-port = 3000 + Math.floor(Math.random() * 1000)
-hostname = "0.0.0.0"
-baseUrl = "http://#{hostname}:#{port}"
 testWait = 1000*60*5  # five minutes
 
 # Configure DocPad
 docpadConfig =
-	port: port
-	hostname: hostname
 	rootPath: rootPath
 	outPath: outPath
 	logLevel: docpadUtil.getDefaultLogLevel()
@@ -166,96 +161,3 @@ joe.suite 'docpad-actions', (suite,test) ->
 			safefs.exists "#{outPath}/.svn", (exists) ->
 				equal(exists, false)
 				done()
-
-	suite 'server', (suite,test) ->
-
-		test 'server action', (done) ->
-			docpad.action 'server', (err) ->
-				done(err)
-
-		test 'served generated documents', (done) ->
-			superAgent.get "#{baseUrl}/html.html", (err,res) ->
-				return done(err)  if err
-				actual = res.text
-				safefs.readFile "#{expectPath}/html.html", (err,expected) ->
-					return done(err)  if err
-					equal(
-						actual.toString().trim()
-						expected.toString().trim()
-					)
-					done()
-
-		test 'served custom urls', (done) ->
-			superAgent.get "#{baseUrl}/my-custom-url", (err,res) ->
-				return done(err)  if err
-				actual = res.text
-				safefs.readFile "#{expectPath}/custom-url.html", (err,expected) ->
-					return done(err)  if err
-					equal(
-						actual.toString().trim()
-						expected.toString().trim()
-					)
-					done()
-
-		test 'supports secondary urls - part 1/2', (done) ->
-			superAgent.get "#{baseUrl}/my-secondary-urls1", (err,res) ->
-				return done(err)  if err
-
-				deepEqual(
-					res.redirects
-					["#{baseUrl}/secondary-urls.html"]
-					'redirects to be as expected'
-				)
-
-				actual = res.text
-				safefs.readFile "#{expectPath}/secondary-urls.html", (err,expected) ->
-					return done(err)  if err
-					equal(
-						actual.toString().trim()
-						expected.toString().trim()
-					)
-					done()
-
-		test 'supports secondary urls - part 2/2', (done) ->
-			superAgent.get "#{baseUrl}/my-secondary-urls2", (err,res) ->
-				return done(err)  if err
-
-				deepEqual(
-					res.redirects
-					["#{baseUrl}/secondary-urls.html"]
-					'redirects to be as expected'
-				)
-
-				actual = res.text
-				safefs.readFile "#{expectPath}/secondary-urls.html", (err,expected) ->
-					return done(err)  if err
-					equal(
-						actual.toString().trim()
-						expected.toString().trim()
-					)
-					done()
-
-		test 'served dynamic documents - part 1/2', (done) ->
-			superAgent.get "#{baseUrl}/dynamic.html?name=ben", (err,res) ->
-				return done(err)  if err
-				actual = res.text
-				expected = 'hi ben'
-				equal(
-					actual.toString().trim()
-					expected
-				)
-				done()
-
-		test 'served dynamic documents - part 2/2', (done) ->
-			superAgent.get "#{baseUrl}/dynamic.html?name=joe", (err,res) ->
-				return done(err)  if err
-				actual = res.text
-				expected = 'hi joe'
-				equal(
-					actual.toString().trim()
-					expected
-				)
-				done()
-
-	test 'close the close', ->
-		docpad.getServer(true).serverHttp.close()

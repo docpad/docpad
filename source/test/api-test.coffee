@@ -26,7 +26,6 @@ cliPath    = pathUtil.join(docpadPath, 'bin', 'docpad')
 # Configure DocPad
 docpadConfig =
 	action: false
-	port: 9780
 	rootPath: rootPath
 	logLevel: docpadUtil.getDefaultLogLevel()
 	skipUnsupportedPlugins: false
