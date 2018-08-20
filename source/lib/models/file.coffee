@@ -30,7 +30,6 @@ docpadUtil = require('../util')
 # The FileModel class is DocPad's representation
 # of a file in the file system.
 # Extends the DocPad Model class
-# https://github.com/docpad/docpad/blob/master/src/lib/base.coffee#L49.
 # FileModel manages the loading
 # of a file and parsing both the content and the metadata (if any).
 # Once loaded, the content, metadata and file stat (file info)

@@ -107,17 +107,14 @@ class DocPad extends EventEmitterGrouped
 
 	# Require a local DocPad file
 	# Before v6.73.0 this allowed requiring of files inside src/lib, as well as files inside src
-	# Now it only allows requiring of files inside src/lib as that makes more sense
-	@require: (relativePath) ->
-		# Absolute the path
-		absolutePath = pathUtil.normalize(pathUtil.join(__dirname, relativePath))
-
-		# Check if we are actually a local docpad file
-		if absolutePath.replace(__dirname, '') is absolutePath
-			throw new Errlop("docpad.require is limited to local docpad files only: #{relativePath}")
-
-		# Require the path
-		return require(absolutePath)
+	# After v6.73.0 it only allows requiring of files inside src/lib as that makes more sense
+	# After v6.80.9 it only allows requiring specific aliases
+	@require: (key) ->
+		keys = ['testers']
+		if key in keys
+			return require('./' + key)
+		else
+			throw new Errlop("docpad.require is limited to requiring these: #{keys.join(', ')}")
 
 
 	# =================================
@@ -131,7 +128,6 @@ class DocPad extends EventEmitterGrouped
 
 	###*
 	# Events class
-	# https://github.com/docpad/docpad/blob/master/src/lib/base.coffee
 	# @property {Object} Events
 	###
 	Events: Events
@@ -140,7 +136,6 @@ class DocPad extends EventEmitterGrouped
 	# Model class
 	# Extension of the Backbone Model class
 	# http://backbonejs.org/#Model
-	# https://github.com/docpad/docpad/blob/master/src/lib/base.coffee
 	# @property {Object} Model
 	###
 	Model: Model
@@ -148,7 +143,6 @@ class DocPad extends EventEmitterGrouped
 	###*
 	# Collection class
 	# Extension of the Backbone Collection class
-	# https://github.com/docpad/docpad/blob/master/src/lib/base.coffee
 	# http://backbonejs.org/#Collection
 	# @property {Object} Collection
 	###
@@ -157,8 +151,6 @@ class DocPad extends EventEmitterGrouped
 	###*
 	# QueryCollection class
 	# Extension of the Query Engine QueryCollection class
-	# https://github.com/docpad/docpad/blob/master/src/lib/base.coffee
-	# https://github.com/bevry/query-engine/blob/master/src/documents/lib/query-engine.js.coffee
 	# @property {Object} QueryCollection
 	###
 	QueryCollection: QueryCollection
@@ -169,7 +161,6 @@ class DocPad extends EventEmitterGrouped
 	###*
 	# File Model class
 	# Extension of the Model class
-	# https://github.com/docpad/docpad/blob/master/src/lib/models/file.coffee
 	# @property {Object} FileModel
 	###
 	FileModel: FileModel
@@ -177,7 +168,6 @@ class DocPad extends EventEmitterGrouped
 	###*
 	# Document Model class
 	# Extension of the File Model class
-	# https://github.com/docpad/docpad/blob/master/src/lib/models/document.coffee
 	# @property {Object} DocumentModel
 	###
 	DocumentModel: DocumentModel
@@ -188,7 +178,6 @@ class DocPad extends EventEmitterGrouped
 	###*
 	# Collection of files in a DocPad project
 	# Extension of the QueryCollection class
-	# https://github.com/docpad/docpad/blob/master/src/lib/collections/files.coffee
 	# @property {Object} FilesCollection
 	###
 	FilesCollection: FilesCollection
@@ -196,7 +185,6 @@ class DocPad extends EventEmitterGrouped
 	###*
 	# Collection of elements in a DocPad project
 	# Extension of the Collection class
-	# https://github.com/docpad/docpad/blob/master/src/lib/collections/elements.coffee
 	# @property {Object} ElementsCollection
 	###
 	ElementsCollection: ElementsCollection
@@ -204,7 +192,6 @@ class DocPad extends EventEmitterGrouped
 	###*
 	# Collection of metadata in a DocPad project
 	# Extension of the ElementsCollection class
-	# https://github.com/docpad/docpad/blob/master/src/lib/collections/meta.coffee
 	# @property {Object} MetaCollection
 	###
 	MetaCollection: MetaCollection
@@ -212,7 +199,6 @@ class DocPad extends EventEmitterGrouped
 	###*
 	# Collection of JS script files in a DocPad project
 	# Extension of the ElementsCollection class
-	# https://github.com/docpad/docpad/blob/master/src/lib/collections/scripts.coffee
 	# @property {Object} ScriptsCollection
 	###
 	ScriptsCollection: ScriptsCollection
@@ -220,14 +206,12 @@ class DocPad extends EventEmitterGrouped
 	###*
 	# Collection of CSS style files in a DocPad project
 	# Extension of the ElementsCollection class
-	# https://github.com/docpad/docpad/blob/master/src/lib/collections/styles.coffee
 	# @property {Object} StylesCollection
 	###
 	StylesCollection: StylesCollection
 
 	###*
 	# Plugin Loader class
-	# https://github.com/docpad/docpad/blob/master/src/lib/plugin-loader.coffee
 	# Loads the DocPad plugins from the file system into
 	# a DocPad project
 	# @property {Object} PluginLoader
@@ -236,7 +220,6 @@ class DocPad extends EventEmitterGrouped
 
 	###*
 	# Base class for all DocPad plugins
-	# https://github.com/docpad/docpad/blob/master/src/lib/plugin.coffee
 	# @property {Object} BasePlugin
 	###
 	BasePlugin: BasePlugin

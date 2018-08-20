@@ -15,7 +15,6 @@ FileModel = require('../models/file')
 ###*
 # The DocPad files and documents query collection class
 # Extends the DocPad QueryCollection class
-# https://github.com/docpad/docpad/blob/master/src/lib/base.coffee#L91
 # Used as the query collection class for DocPad files and documents.
 # This differs from standard collections in that it provides backbone.js,
 # noSQL style methods for querying the file system. In DocPad this

@@ -12,6 +12,7 @@ joe = require('joe')
 
 # Local
 docpadUtil = require('../lib/util')
+locale = require('../lib/locale/en')
 
 
 # =====================================
@@ -66,7 +67,7 @@ joe.suite 'docpad-render', (suite,test) ->
 			{
 				testname: 'markdown without filename'
 				stdin: '*awesome*'
-				error: require('../lib/locale/en').filenameMissingError
+				error: locale.filenameMissingError
 			}
 			{
 				testname: 'markdown without extension'

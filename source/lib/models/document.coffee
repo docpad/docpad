@@ -32,7 +32,6 @@ YAML = null
 # unless there is a requirement to have DocPad do transformation on
 # these files.
 # Extends the DocPad FileModel class
-# https://github.com/docpad/docpad/blob/master/src/lib/models/file.coffee
 # DocumentModel primarily handles the rendering and parsing of document files.
 # This includes merging the document with layouts and managing the rendering
 # from one file extension to another. The class inherits many of the file

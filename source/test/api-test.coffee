@@ -10,6 +10,7 @@ joe = require('joe')
 
 # Local
 docpadUtil = require('../lib/util')
+locale = require('../lib/locale/en')
 
 
 # =====================================
@@ -54,7 +55,7 @@ joe.suite 'docpad-api', (suite,test) ->
 	# Create a DocPad Instance
 	suite 'create', (suite,test) ->
 		test 'output configuration', ->
-			console.log 'Creating DocPad with the configuration:\n'+require('../lib/util').inspect(docpadConfig)
+			console.log 'Creating DocPad with the configuration:\n' + docpadUtil.inspect(docpadConfig)
 
 		test 'create DocPad instance without an action', (done) ->
 			docpad = require('../lib/docpad').create(docpadConfig, done)
@@ -118,7 +119,7 @@ joe.suite 'docpad-api', (suite,test) ->
 			{
 				testname: 'markdown without filename'
 				input: '*awesome*'
-				error: require('../lib/locale/en').filenameMissingError
+				error: locale.filenameMissingError
 			}
 			{
 				testname: 'markdown without extension'

@@ -1,5 +1,8 @@
 # History
 
+## v6.80.9 2018 August 20
+- `require('docpad').require('thing')` now only supports the thing `testers`
+
 ## v6.80.8 2018 August 19
 - Updated base files and [editions](https://github.com/bevry/editions) using [boundation](https://github.com/bevry/boundation)
 - Close [issue #1085](https://github.com/docpad/docpad/issues/1085)

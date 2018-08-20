@@ -14,7 +14,6 @@ typeChecker = require('typechecker')
 ###*
 # Base class for the DocPad Elements Collection object
 # Extends the DocPad collection class
-# https://github.com/docpad/docpad/blob/master/src/lib/base.coffee#L72
 # Used as the base collection class for specific collection of file types.
 # In particular metadata, scripts and styles.
 # @class ElementsCollection
