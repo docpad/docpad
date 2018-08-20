@@ -464,6 +464,8 @@ class DocPad extends EventEmitterGrouped
 		'docpadReady'                  # fired only once
 		'docpadDestroy'                # fired once on shutdown
 		'consoleSetup'                 # fired once
+		'runBefore'
+		'runAfter'
 		'generateBefore'
 		'populateCollectionsBefore'
 		'populateCollections'
@@ -1694,10 +1696,10 @@ class DocPad extends EventEmitterGrouped
 		@initialConfig = extendr.dereferenceJSON(@initialConfig)
 
 		# Extract action
+		action = 'load ready'
 		if instanceConfig.action?
 			action = instanceConfig.action
-		else
-			action = 'load ready'
+			delete instanceConfig.action
 
 		# Check if we want to perform an action
 		if action
@@ -2025,7 +2027,7 @@ class DocPad extends EventEmitterGrouped
 			docpad.emitSerial('welcome', {docpad}, complete)
 
 		tasks.addTask 'emit docpadReady', (complete) ->
-			docpad.emitSerial('docpadReady', {docpad, action: config.action}, complete)
+			docpad.emitSerial('docpadReady', {docpad}, complete)
 
 		# Run tasks
 		tasks.run()
@@ -4884,13 +4886,16 @@ class DocPad extends EventEmitterGrouped
 		{srcPath, rootPath} = config
 
 		# Prepare
-		run = (complete) ->
-			balUtil.flow(
-				object: docpad
-				action: 'generate watch'
-				args: [opts]
-				next: complete
-			)
+		run = (next) ->
+			docpad.emitSerial 'runBefore', (err) ->
+				return next(err)  if err
+				balUtil.flow(
+					object: docpad
+					action: 'generate watch'
+					args: [opts]
+					next: (err) ->
+						docpad.emitSerial('runAfter', next)
+				)
 
 		# Check if we have the docpad structure
 		safefs.exists srcPath, (exists) ->

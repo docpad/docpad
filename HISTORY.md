@@ -7,7 +7,7 @@
     - [Operation Disassemble & Diversify](https://github.com/docpad/docpad/issues/821)
     - To maintain static server functionality, install the [`serve` plugin](https://github.com/docpad/docpad-plugin-serve)
 - Changes:
-    - `docpadReady` event now includes the `action` property if it was specified
+    - Added `runBefore` and `runAfter` events
     - DocPad is now verbose about when it has to perform an mtime change
 - Migrations / Removals:
     - Progress on [issue #691](https://github.com/docpad/docpad/issues/691) and [issue #391](https://github.com/docpad/docpad/issues/391)
