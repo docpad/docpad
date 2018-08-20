@@ -1652,11 +1652,10 @@ class DocPad extends EventEmitterGrouped
 				if outPath
 					updatedModels = docpad.database.findAll({outPath})
 					updatedModels.remove(model)
-					updatedModels.each (model) ->
-						model.set('mtime': new Date())
-
-					# Log
-					docpad.log('info', 'Updated mtime for these models due to the removal of a similar one:', updatedModels.pluck('relativePath'))
+					if updatedModels.length
+						updatedModels.each (model) ->
+							model.set('mtime': new Date())
+						docpad.log('info', 'Updated mtime for these models due to the removal of a similar one:', updatedModels.pluck('relativePath'))
 
 				# Return safely
 				return true
@@ -1674,11 +1673,10 @@ class DocPad extends EventEmitterGrouped
 					# Ensure we regenerate anything (on the next regeneration) that was using the same outPath
 					previousModels = docpad.database.findAll({outPath: previousOutPath})
 					previousModels.remove(model)
-					previousModels.each (previousModel) ->
-						previousModel.set('mtime': new Date())
-
-					# Log
-					docpad.log('info', 'Updated mtime for these models due to the addition of a similar one:', previousModels.pluck('relativePath'))
+					if previousModels.length
+						previousModels.each (previousModel) ->
+							previousModel.set('mtime': new Date())
+						docpad.log('info', 'Updated mtime for these models due to the addition of a similar one:', previousModels.pluck('relativePath'))
 
 				# Determine if there are any conflicts with the new outPath
 				if outPath
