@@ -27,7 +27,6 @@ rootPath   = pathUtil.join(docpadPath, 'test')
 srcPath    = pathUtil.join(rootPath, 'src')
 outPath    = pathUtil.join(rootPath, 'out-actual-' + Math.floor(Math.random() * 100000))
 expectPath = pathUtil.join(rootPath, 'out-expected')
-cliPath    = pathUtil.join(docpadPath, 'bin', 'docpad')
 
 # Params
 testWait = 1000*60*5  # five minutes

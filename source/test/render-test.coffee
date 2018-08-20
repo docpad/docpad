@@ -24,7 +24,7 @@ rootPath   = pathUtil.join(docpadPath, 'test')
 renderPath = pathUtil.join(rootPath, 'render')
 outPath    = pathUtil.join(rootPath, 'render-actual-' + Math.floor(Math.random() * 100000))
 expectPath = pathUtil.join(rootPath, 'render-expected')
-cliPath    = pathUtil.join(docpadPath, 'bin', 'docpad')
+cliPath    = pathUtil.join(docpadPath, 'bin.js')
 nodePath   = null
 
 

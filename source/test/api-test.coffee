@@ -21,7 +21,6 @@ docpadPath = pathUtil.join(__dirname, '..', '..')
 rootPath   = pathUtil.join(docpadPath, 'test')
 renderPath = pathUtil.join(rootPath, 'render')
 expectPath = pathUtil.join(rootPath, 'render-expected')
-cliPath    = pathUtil.join(docpadPath, 'bin', 'docpad')
 
 # Configure DocPad
 docpadConfig =
