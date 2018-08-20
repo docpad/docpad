@@ -218,13 +218,9 @@ module.exports = {
 	pluginIssueTracker: "the plugin's issue tracker"
 	pluginUncompiled: """
 		The plugin %s is using uncompiled CoffeeScript files.
-		  Supporting uncompiled plugins has been deprecated; only legacy support remains.
-		  You may want to report this warning to %s so the plugin author can address it.
+		  Supporting uncompiled plugins has been removed, and has been deprecated for years.
+		  You will want to report this error to %s so the plugin author can address it.
 		  For more information, visit: https://docpad.org/plugin-uncompiled
-		"""
-	pluginUncompiledFailed: """
-		The uncompiled plugin %s failed to load as DocPad no longer has the ability to load it.
-		You may want to report this error to %s so the plugin author can address it.
 		"""
 	pluginLoadFailed: """
 		The plugin %s failed to load.

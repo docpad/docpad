@@ -1,5 +1,21 @@
 # History
 
+## v6.81.0 2018 August 20
+- Migrations:
+    - Progress on [issue #691](https://github.com/docpad/docpad/issues/691) and [issue #391](https://github.com/docpad/docpad/issues/391)
+        - Abstracted out base plugin into [docpad-baseplugin](https://github.com/docpad/docpad-baseplugin)
+        - Abstracted out testers into [docpad-plugintester](https://github.com/docpad/docpad-plugintester)
+- Removals:
+    - Close [issue #1081](https://github.com/docpad/docpad/issues/1081)
+        - Removed the deprecated dynamic server abilities
+        - Abstracted out the static server abilities into the new [`serve` plugin](https://github.com/docpad/docpad-plugin-serve)
+    - Removed the deprecated ability to load uncompiled plugins
+- Deprecations:
+    - `require('docpad').require('testers')` will be removed in an upcoming release
+        - Use `require('docpad-plugintester')` instead
+    - `require('docpad').BasePlugin` will be removed in an upcoming release
+        - Use `require('docpad-baseplugin')` instead
+
 ## v6.80.9 2018 August 20
 - `require('docpad').require('thing')` now only supports the thing `testers`
 

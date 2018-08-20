@@ -272,29 +272,23 @@ class PluginLoader
 		docpad = @docpad
 		locale = docpad.getLocale()
 
-		# Ensure we still have deprecated support for old-style uncompiled plugins
+		# Fail if the user tried to load an uncompiled plugin
 		if pathUtil.extname(@pluginPath) is '.coffee'
-			# Warn the user they are trying to include an uncompiled plugin (if they want to be warned)
-			# They have the option of opting out of warnings for private plugins
-			unless @packageData.private is true and docpad.getConfig().warnUncompiledPrivatePlugins is false
-				docpad.warn util.format(locale.pluginUncompiled, @pluginName, @packageData.bugs?.url or locale.pluginIssueTracker)
-
-			# Attempt to include the coffee-script register extension
-			# coffee-script is an external party dependency (docpad doesn't depend on it, so we don't install it)
-			# so we may not have it, hence the try catch
-			try
-				require('coffeescript/register')
-			catch registerError
-				# Including coffee-script has failed, so let the user know, and exit
-				err = new Errlop(
-					util.format(locale.pluginUncompiledFailed, @pluginName, @packageData.bugs?.url or locale.pluginIssueTracker),
-					registerError
-				)
-				return next(err); @
+			err = new Errlop(
+				util.format(locale.pluginUncompiled, @pluginName, @packageData.bugs?.url or locale.pluginIssueTracker)
+			)
+			return next(err); @
 
 		# Attempt to load the plugin
 		try
-			@pluginClass = require(@pluginPath)(@BasePlugin)
+			pluginResolution = require(@pluginPath)
+			if pluginResolution.prototype instanceof @BasePlugin or pluginResolution.isDocPadPlugin?()
+				# module.exports = class MyPlugin extends require('docpad-baseplugin') {}
+				@pluginClass = pluginResolution
+			else
+				# module.exports = (BasePlugin) -> class MyPlugin extends BasePlugin {}
+				@pluginClass = pluginResolution(@BasePlugin)
+
 		catch requireError
 			# Loading the plugin has failed, so let the user know, and exit
 			err = new Errlop(

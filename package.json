@@ -212,6 +212,7 @@
     "csextends": "^1.0.3",
     "cson": "^5.1.0",
     "docmatter": "^1.0.0",
+    "docpad-baseplugin": "^1.0.0",
     "eachr": "^3.2.0",
     "editions": "^2.0.0",
     "encoding": "~0.1.12",

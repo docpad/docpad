@@ -62,7 +62,7 @@ StylesCollection = require('./collections/styles')
 
 # Plugins
 PluginLoader = require('./plugin-loader')
-BasePlugin = require('./plugin')
+BasePlugin = require('docpad-baseplugin')
 
 
 # ---------------------------------
@@ -109,12 +109,16 @@ class DocPad extends EventEmitterGrouped
 	# Before v6.73.0 this allowed requiring of files inside src/lib, as well as files inside src
 	# After v6.73.0 it only allows requiring of files inside src/lib as that makes more sense
 	# After v6.80.9 it only allows requiring specific aliases
-	@require: (key) ->
-		keys = ['testers']
-		if key in keys
-			return require('./' + key)
+	@require: (name) ->
+		if name is 'testers'
+			console.log(
+				''''
+				docpad.require('testers') is deprecated, replacement instructions at: https://github.com/docpad/docpad-plugintester
+				'''
+			)
+			return require('docpad-plugintester')
 		else
-			throw new Errlop("docpad.require is limited to requiring these: #{keys.join(', ')}")
+			throw new Errlop("docpad.require is limited to requiring: testers")
 
 
 	# =================================
@@ -220,6 +224,7 @@ class DocPad extends EventEmitterGrouped
 
 	###*
 	# Base class for all DocPad plugins
+	# As of DocPad v6.81.0 this is the `docpad-baseplugin` package
 	# @property {Object} BasePlugin
 	###
 	BasePlugin: BasePlugin
