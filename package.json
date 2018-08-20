@@ -165,7 +165,7 @@
       "engines": false
     },
     {
-      "description": "coffeescript compiled for node.js true with require for modules",
+      "description": "coffeescript compiled for node.js with require for modules",
       "directory": "edition:esnext",
       "entry": "index.js",
       "syntaxes": [
