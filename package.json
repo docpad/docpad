@@ -192,9 +192,7 @@
       }
     }
   ],
-  "bin": {
-    "docpad": "bin/docpad"
-  },
+  "bin": "bin.js",
   "main": "index.js",
   "dependencies": {
     "ambi": "^3.1.0",
