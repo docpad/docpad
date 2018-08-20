@@ -33,8 +33,10 @@
 - New Deprecations:
     - `require('docpad').require('testers')` will be removed in an upcoming release
         - Use `require('docpad-plugintester')` instead
+        - A warning will be outputted
     - `require('docpad').BasePlugin` will be removed in an upcoming release
         - Use `require('docpad-baseplugin')` instead
+        - No warning will be outputted
 
 ## v6.80.9 2018 August 20
 - `require('docpad').require('thing')` now only supports the thing `testers`
