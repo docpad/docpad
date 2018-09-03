@@ -65,6 +65,7 @@
     - Closes [issue #698](https://github.com/docpad/docpad/issues/698)
 - Errors that occured before the locale was ready are now reported
     - Required precompiling the locale, as such it has moved from `locale/en.cson` to `source/lib/locale/en.coffee`
+    - Closes [issue #1012](https://github.com/docpad/docpad/issues/1012)
 - DocPad shut downs are now quicker by default (1 second quicker)
     - Shutdown delay was reduced and made customisable via the new `destroyDelay` configuration option
 - Errors will now report their causations thanks to [Errlop](https://github.com/bevry/errlop)
