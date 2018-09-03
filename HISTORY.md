@@ -68,6 +68,7 @@
 - DocPad shut downs are now quicker by default (1 second quicker)
     - Shutdown delay was reduced and made customisable via the new `destroyDelay` configuration option
 - Errors will now report their causations thanks to [Errlop](https://github.com/bevry/errlop)
+    - Closes [issue #1017](https://github.com/docpad/docpad/issues/1017)
 - For DocPad users and plugin developers, if you ever need to make timers/timeouts/intervals, please use `docpad.timer` to make and destroy them, that way DocPad can ensure they are cleaned up so they don't prevent shutdown
 - `consoleSetup` errors are now reported correctly
 - Uncaught exceptions are now fatal errors by default, which will cause DocPad to shut down
