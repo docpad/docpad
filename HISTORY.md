@@ -123,6 +123,7 @@
 - DocPad is now compiled with CoffeeScript v2
     - To use it with CoffeeScript v1 plugins, you will need to set the following environment variable `EDITIONS_SYNTAX_BLACKLIST=esnext`
         - You can do this on unix systems by running DocPad like so: `env EDITIONS_SYNTAX_BLACKLIST=esnext docpad run`
+        - Otherwise you will encounter `TypeError: Class constructor BasePlugin cannot be invoked without 'new'`
     - To upgrade your plugin to v2, run [boundation](https://github.com/bevry/boundation) on it
     - If you use optional arguments in your plugin or event functions, such as `fn (opts={}, next)` then it must be changed to `fn (opts, next)` as otherwise the completion callback will not be passed, as the `fn.length` will be `0` and [ambi](https://github.com/bevry/ambi) will not be able to detect it is an asynchronous function - [details](https://github.com/bevry/ambi/issues/7)
 - Turns out dynamic documents always had invalid content types
