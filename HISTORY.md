@@ -22,7 +22,8 @@
         - Removes the following options: `databaseCachePath`, `port`, `hostname`, `maxAge`, `serverHttp`, `serverExpress`, `extendServer`, `middlewareStandard`, `middlewareBodyParser`, `middlewareMethodOverride`, `middlewareExpressRouter`, `middleware404`, `middleware500`
         - Removes the following document properties: `dynamic`
         - `templateData.site.url` will now default to an empty string
-        - Removes the `docpad-server` executable, use `docpad run` with the `server` plugin instead
+        - Removes the `docpad-server` executable, and the `docpad server` action
+            - Use `docpad run` with the [`serve` plugin](https://github.com/docpad/docpad-plugin-serve) instead
     - Removed the deprecated ability to load uncompiled plugins
     - Removed the deprecated DocPad database cache, it never worked well
         - Removes the following properties: `databaseTempCache`
