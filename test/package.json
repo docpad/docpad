@@ -1,6 +1,10 @@
 {
-	"name": "docpad-testsite",
-	"private": true,
-	"version": "0.1.0",
-	"dependencies": {}
+  "name": "docpad-testsite",
+  "private": true,
+  "version": "0.1.0",
+  "dependencies": {
+    "docpad-plugin-coffeekup": "~2.5.0",
+    "docpad-plugin-eco": "~2.3.0",
+    "docpad-plugin-marked": "~2.5.0"
+  }
 }

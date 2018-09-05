@@ -1,5 +1,66 @@
 # History
 
+## v6.82.0 2018 September 4
+- This release focuses on eliminating the situation where DocPad would initiate with invalid configuration that would then need to be overwritten later, this could cause plugins to not load correctly, invalid configuration persisting, and general instability until the correct configuration was loaded. Now the correct configuration is loaded from commencement.
+- Fix DocPad not working on windows (regression since v6.81.0)
+    - Closes [issue #1088](https://github.com/docpad/docpad/issues/1088), [thread #240](https://discuss.bevry.me/t/error-cannot-find-module-editions/240), [issue #1085](https://github.com/docpad/docpad/issues/1085), [issue #1084](https://github.com/docpad/docpad/issues/1084)
+- Progress indicator will now pause once the action has completed, and resume on new actions, this allows for cleaner shutdowns with no change of ability
+- Debug log file will now only be removed if it needs to be replaced with another one
+- Fixed `--no-color` CLI argument and `color` configuration option not working
+    - Closes [issue #938](https://github.com/docpad/docpad/issues/938)
+    - Color now correctly defaults to environment support
+    - Also now supports `--colour` and `--no-colour`
+    - Removed `--prompts` CLI argument and `prompts` config option in favour of the `--progress` CLI argument and `progress` config option (as that is all `prompts` did really)
+- The CLI has been rewritten and simplified
+    - The [`commander` package](https://github.com/tj/commander.js) has been swapped out for the [`cac` package](https://github.com/cacjs/cac)
+        - Closes [issue #1048](https://github.com/docpad/docpad/issues/1048)
+    - Customisation of the out path via a CLI option now occurs via `--outPath` to remove ambiguity with `docpad render` out file customisation
+    - Introduced `--verbose` and `--debug` CLI options, such that one can do `--silent --debug`
+    - For `docpad render` there is no longer a delay to check for stdin, however if you are using stdin, you must now provide the `--stdin` CLI argument
+        - `stdin` reading abilities has been moved into the docpad `renderStdin` method, and `render` has gained support for it, as well as support for writing an output file
+    - Global CLI options are now parsed before DocPad is instantiated, to ensure configuration is correct from initiation, rather than incorrect at instantiation then made correct later
+        - This removes built in support for customising this, however, no one should be customising global CLI options anyway
+        - As expected, `consoleSetup` event fires after DocPad is ready, and commands can be added to the `cac` instance in the event options
+            - CLI commands are executed after this event resolves
+- Configuration parsing improvements
+    - Paths will now be resolved when requested, rather than having their resolutions cached, this results in more reliable path resolution across configuration changes
+    - Fixed user configuration never actually being applied (regression since v6.80.1)
+    - Fixed user configuration never loading if it was in your home folder yet you had Dropbox present
+        - Closes [issue #799](https://github.com/docpad/docpad/issues/799)
+    - Fixed the loaded user and env configuration debug messages still saying loading
+    - The method `loadConfigPath` now receives a string as its first argument
+    - The method `getConfigPath` has been replaced with the new `getPath('config')`
+    - Leftover DocPad configuration and Plugin configuration will now be correctly removed, before it would linger due to new configuration always being merged into the old, now new configuration swaps out the old
+- Plugins are now determined via your project's `package.json` dependencies, rather than scanning the `node_modules` directory
+    - This new approach is dramatically faster, and also allows us to concisely warn on plugin skips
+        - Closes [pull request #903](https://github.com/docpad/docpad/pull/903)
+- Instantiation has removed unneeded complexity (and paired with the aforementioned CLI changes) this ensures DocPad always results in a valid state
+    - Removed the configuration option `loggers` that allowed users to swap our caterpillar for something else
+        - No one used it, nor is it optimal to do so. It just introduced a lot of unnecessary complexity and fragility
+        - Removed the method `setLoggers`
+    - Constructing DocPad will now always perform the `load` and `ready` actions
+        - Removed the instation option `action` that allowed one to override the initiation actions
+        - Removed the `docpadLoaded` event. It was poorly named, non-optimal, and only used by a single outdated plugin.
+    - Fixed `docpad clean` not cleaning a custom `outPath`
+        - DocPad now also outputs which paths were cleaned
+        - Path cleaning now uses a more robust way of ensuring DocPad doesn't clean a parent outPath
+        - Closes [issue #727](https://github.com/docpad/docpad/issues/727)
+- The Plugin Loader class has been abstracted out to [pluginloader](https://github.com/bevry/pluginloader) and made generic
+    - Removes `require('docpad').PluginLoader` use `require('@bevry/pluginloader')` instead
+    - Removes the methods: `loadPluginsIn`, `loadedPlugin`
+    - Removes the configuration options: `pluginsPaths`, `enableUnlistedPlugins`, `skipUnsupportedPlugins`, `warnUncompiledPrivatePlugins`, `enabledPlugins`
+    - Closes [issue #391](https://github.com/docpad/docpad/issues/391)
+- Removed the `--force` CLI option, it was unnecessary customisation
+    - Simplified the installer methods: `initGitRepo`, `initNodeModules`, `installNodeModule`, `uninstallNodeModule`
+- Removed some long standing deprecations
+    - Removed `require('docpad').BasePlugin` use `require('docpad-baseplugin')` instead
+    - Removed `require('docpad').createInstance` use `require('docpad').create` instead
+    - Removed `docpadUtil.setImmediate` (existed for node 0.8 compat which hasn't been there since DocPad 6.72) use `setImmediate` instead
+- Renamed `docpad.inspector` to `docpad.inspect` and removed `docpadUtil.inspect`
+- Removed the unstable node.js version warning from DocPad v6.55.6
+- Removed leftover `.babelrc` file that was causing everything to be compiled againt `es2015` instead of what we desire from our `package.json` configuration
+- Updated base files and [editions](https://github.com/bevry/editions) using [boundation](https://github.com/bevry/boundation)
+
 ## v6.81.0 2018 August 21
 - This release accomplishes the removal of some long standing deprecations, for background reading refer to:
     - [Deprecating In-Memory DocPad Importers & Exporters](https://discuss.bevry.me/t/deprecating-in-memory-docpad-importers-exporters/87)
@@ -16,19 +77,19 @@
     - Close [issue #1081](https://github.com/docpad/docpad/issues/1081)
         - Removed the deprecated dynamic server abilities
         - Abstracted out the static server abilities into the new [`serve` plugin](https://github.com/docpad/docpad-plugin-serve)
-        - Removes the following properties: `serverExpress`, `serverHttp`, `filesByUrl`, `filesBySelector`, `filesByOutPath`
-        - Removes the following methods: `getServer`, `setServer`, `destroyServer`, `getFileByUrl`, `getFileByRoute`, `getPort`, `getHostname`, `getServerUrl`, `getSimpleServerUrl`, `serverDocument`, `serverMiddlewareHeader`, `serverMiddlewareRouter`, `serverMiddleware404`, `serverMiddleware500`, `server`
-        - Removes the following events: `serverBefore`, `serverExtend`, `serverAfter`
-        - Removes the following options: `databaseCachePath`, `port`, `hostname`, `maxAge`, `serverHttp`, `serverExpress`, `extendServer`, `middlewareStandard`, `middlewareBodyParser`, `middlewareMethodOverride`, `middlewareExpressRouter`, `middleware404`, `middleware500`
-        - Removes the following document properties: `dynamic`
+        - Removes the properties: `serverExpress`, `serverHttp`, `filesByUrl`, `filesBySelector`, `filesByOutPath`
+        - Removes the methods: `getServer`, `setServer`, `destroyServer`, `getFileByUrl`, `getFileByRoute`, `getPort`, `getHostname`, `getServerUrl`, `getSimpleServerUrl`, `serverDocument`, `serverMiddlewareHeader`, `serverMiddlewareRouter`, `serverMiddleware404`, `serverMiddleware500`, `server`
+        - Removes the events: `serverBefore`, `serverExtend`, `serverAfter`
+        - Removes the options: `databaseCachePath`, `port`, `hostname`, `maxAge`, `serverHttp`, `serverExpress`, `extendServer`, `middlewareStandard`, `middlewareBodyParser`, `middlewareMethodOverride`, `middlewareExpressRouter`, `middleware404`, `middleware500`
+        - Removes the document properties: `dynamic`
         - `templateData.site.url` will now default to an empty string
         - Removes the `docpad-server` executable, and the `docpad server` action
             - Use `docpad run` with the [`serve` plugin](https://github.com/docpad/docpad-plugin-serve) instead
     - Removed the deprecated ability to load uncompiled plugins
     - Removed the deprecated DocPad database cache, it never worked well
-        - Removes the following properties: `databaseTempCache`
-        - Removes the following methods: `getDatabaseSafe`
-        - Removes the following `generate` event properties: `cache`
+        - Removes the properties: `databaseTempCache`
+        - Removes the methods: `getDatabaseSafe`
+        - Removes the `generate` event properties: `cache`
     - Removed the deprecated `docpad-compile` executable, no one used it
     - Removed leftover `hashKey` property
 - New Deprecations:
@@ -191,7 +252,6 @@
 - Fixed `path option is deprecated` error when cloning a skeleton
     - Thanks to [Gabriel Ignisca](https://github.com/16nsk) for [issue #1016](https://github.com/docpad/docpad/issues/1016)
 - Changed donation message, maybe this one will be more successful
-- The next x.X.x release of DocPad will drop support for Node v0.10, Node v4.0.0 is out with many improvements. [Upgrade.](https://learn.bevry.me/node/install)
 - Updated dev dependencies
 - Updated base files
 
@@ -340,7 +400,8 @@
     - Thanks to [paleite](https://github.com/paleite) and [Stephen Brown II](https://github.com/StephenBrown2) for [issue #911](https://github.com/docpad/docpad/issues/911)
 
 ## v6.70.0 2015 February 12
-- Node 0.12 and io.js support
+- Added support for Node 0.12 and IO.js
+- Dropped support for Node 0.8. Minimum supported Node version is now 0.10.
 - CSON has been updated to v2, this means that your `docpad.cson` files will no longer work with functions
     - If you have functions inside your `docpad.cson` file:
         - Rename `docpad.cson` to `docpad.coffee`

@@ -5,7 +5,7 @@ module.exports = {
 	exchangeUpdated: "Updated the exchange"
 	skeletonSelectionIntroduction: "You are about to create your new project inside your current directory. Below is a list of skeletons to bootstrap your new project:"
 	skeletonSelectionPrompt: "Which skeleton will you use?"
-	skeletonInstall: "Installing the %s skeleton into %s"
+	skeletonInstall: "Installing the %s skeleton"
 	skeletonInstalled: "Installed the skeleton successfully"
 	skeletonExists: "Didn't place the skeleton as the desired structure already exists"
 	skeletonNonexistant: """
@@ -75,8 +75,8 @@ module.exports = {
 	renderDirectoryParsing: "Parsing directory: %s"
 	renderDirectoryParsed: "Parsed directory: %s"
 	renderDirectoryNonexistant: "Skipped directory: %s (it does not exist)"
-	renderCleaning: "Cleaning files"
-	renderCleaned: "Cleaned files"
+	cleanStarted: "Cleaning..."
+	cleanFinish: "Cleaned %s paths"
 	renderInterval: "Performing interval regeneration"
 	slowFiles: "Waiting on the following files on %s:"
 
@@ -95,30 +95,12 @@ module.exports = {
 	actionEmpty: "No action was provided"
 
 	# Plugins
-	pluginFailedToLoad: "Failed to load the plugin: %s at %s"
-	pluginsLoadingFor: "Plugins loading for: %s"
-	pluginsLoadedFor: "Plugins loaded for: %s"
 	pluginsSlow: "We're preparing your plugins, this may take a while the first time. Waiting on the plugins: %s"
 	pluginLoading: "Loading plugin: %s"
 	pluginLoaded: "Loaded plugin: %s"
-	pluginSkipped: "Skipped plugin: %s"
-	pluginSkippedDueTo: "Skipped the unsupported plugin: %s due to %s"
-	pluginContinued: "Continuing with the unsupported plugin: %s"
-	pluginNamingConventionInvalid: """
-		The plugin %s uses an invalid naming convention. We only allow alphanumeric characters (no symbols). Perhaps change it to %s
-		For more information about what this means, visit:
-		    https://docpad.org/plugin-conventions
-		"""
-	pluginPrototypeNameUndefined: """
-		The plugin %s did not have its name defined in its prototype, defaulting it to the directory naming convention.
-		For more information about what this means, visit:
-		    https://docpad.org/plugin-conventions
-		"""
-	pluginPrototypeNameDifferent: """
-		The plugin %s is using a different name (%s) for its prototype name. This can cause issues.
-		For more information about what this means, visit:
-		    https://docpad.org/plugin-conventions
-		"""
+	pluginUnsupported: "Skipped unsupported plugin: %s"
+	pluginDisabled: "Skipped disabled plugin: %s"
+	pluginFailed: "Plugin failed to instantiate: %s"
 
 	# Collections
 	addingDocument: "Adding document: %s"
@@ -153,7 +135,7 @@ module.exports = {
 
 	# Console
 	consoleSuccess: "The action completed successfully"
-
+	consoleFailed: "The action failed to complete"
 	consoleDescriptionInit: "initialize your directory with an empty docpad project"
 	consoleDescriptionRun: "run docpad on your project"
 	consoleDescriptionRender: "render the file at <path> and output its results to stdout"
@@ -169,14 +151,18 @@ module.exports = {
 	consoleDescriptionUnknown: "anything else outputs the help"
 
 	consoleOptionGlobal: "whether or not we should just fire the global installation of docpad"
-	consoleOptionOut: "where to output the rendered files (to a directory) or file (to an output file)"
+	consoleOptionOutPath: "a custom directory to place the rendered project"
+	consoleOptionOutput: "where to output the rendered document"
+	consoleOptionStdin: "whether we should receive input via stdin"
 	consoleOptionConfig: "a custom configuration file to load in"
 	consoleOptionEnv: "the environment name to use for this instance, multiple names can be separated with a comma"
-	consoleOptionDebug: "the level of debug messages you would like to display, if specified defaults to 7, otherwise 6"
-	consoleOptionForce: "force a re-install of all modules"
-	consoleOptionNoColor: "don't colorize terminal output"
+	consoleOptionLogLevel: "the rfc log level to display"
+	consoleOptionVerbose: "set log level to 7"
+	consoleOptionDebug: "output a log file"
+	consoleOptionColor: "use color in terminal output"
 	consoleOptionOffline: "don't do any remote requests"
-	consoleOptionSilent: "don't use any prompts"
+	consoleOptionSilent: "don't write anything that isn't essential"
+	consoleOptionProgress: "output the progress as it occurs"
 	consoleOptionSkeleton: "specify the id of a skeleton to use instead of prompting"
 
 	# Misc
@@ -233,7 +219,7 @@ module.exports = {
 	versionOutdatedNotification: "New version of DocPad!"
 	startLocal: "Shutting down the global DocPad, and starting up the local"
 	loggersAlreadyDefined: "Loggers have already been defined"
-	consoleFinish: "Console is shutting down..."
+	consoleExit: "Console is exiting..."
 	destroyDocPad: "DocPad is shutting down..."
 	destroyedDocPad: "Shutdown complete. See you next time."
 }

@@ -166,7 +166,7 @@
     },
     {
       "description": "coffeescript compiled for node.js with require for modules",
-      "directory": "edition:esnext",
+      "directory": "edition-esnext",
       "entry": "index.js",
       "syntaxes": [
         "javascript",
@@ -180,7 +180,7 @@
     },
     {
       "description": "coffeescript compiled for node.js >=0.10 with require for modules",
-      "directory": "edition:node:0.10",
+      "directory": "edition-node-0.10",
       "entry": "index.js",
       "syntaxes": [
         "javascript",
@@ -195,14 +195,15 @@
   "bin": "bin.js",
   "main": "index.js",
   "dependencies": {
+    "@bevry/pluginloader": "^1.0.0",
     "ambi": "^3.1.0",
-    "babel-polyfill": "^6.9.1",
     "backbone": "1.3.3",
     "bal-util": "~2.8.0",
+    "cac": "^5.0.10",
     "caterpillar": "^3.1.1",
     "caterpillar-filter": "^3.0.0",
     "caterpillar-human": "^3.0.0",
-    "commander": "^2.9.0",
+    "core-js": "^2.5.7",
     "cson": "^5.1.0",
     "docmatter": "^1.0.0",
     "docpad-baseplugin": "^1.0.1",
@@ -238,15 +239,10 @@
   },
   "devDependencies": {
     "assert-helpers": "^4.5.1",
-    "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.0",
+    "babel-core": "^6.26.3",
     "babel-preset-env": "^1.7.0",
-    "babel-preset-es2015": "^6.24.1",
     "coffeelint": "^2.1.0",
     "coffeescript": "^2.3.1",
-    "docpad-plugin-coffeekup": "^2.5.0",
-    "docpad-plugin-eco": "^2.3.0",
-    "docpad-plugin-marked": "^2.5.0",
     "docpad-plugintester": "^1.1.1",
     "joe": "^2.0.2",
     "joe-reporter-console": "^2.0.2",
@@ -257,12 +253,11 @@
   },
   "scripts": {
     "my:clean": "rm -Rf ./test/out-actual* ./test/render-actual* ./test/.docpad.db ./test/package-lock.json ./test/node_modules/",
-    "our:clean": "rm -Rf ./docs ./edition:* ./es2015 ./es5 ./out",
-    "our:compile": "npm run our:compile:edition",
-    "our:compile:edition": "npm run our:compile:edition:esnext && npm run our:compile:edition:node",
-    "our:compile:edition:esnext": "coffee -bco ./edition:esnext ./source",
-    "our:compile:edition:node": "npm run our:compile:edition:node:0.10",
-    "our:compile:edition:node:0.10": "env BABEL_ENV=edition:node:0.10 coffee -bcto ./edition:node:0.10/ ./source",
+    "my:compile:test": "cd ./test && npm install && cd ../",
+    "our:clean": "npm run my:clean && rm -Rf ./docs ./edition* ./es2015 ./es5 ./out",
+    "our:compile": "npm run my:compile:test && npm run our:compile:edition-esnext && npm run our:compile:edition-node-0.10",
+    "our:compile:edition-esnext": "coffee -bco ./edition-esnext ./source",
+    "our:compile:edition-node-0.10": "env BABEL_ENV=edition-node-0.10 coffee -bcto ./edition-node-0.10/ ./source",
     "our:deploy": "echo no need for this project",
     "our:meta": "npm run our:meta:projectz",
     "our:meta:projectz": "projectz compile",
@@ -281,7 +276,7 @@
   },
   "babel": {
     "env": {
-      "edition:node:0.10": {
+      "edition-node-0.10": {
         "presets": [
           [
             "env",

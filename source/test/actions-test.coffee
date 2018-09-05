@@ -22,7 +22,7 @@ docpadUtil = require('../lib/util')
 # Configuration
 
 # Paths
-docpadPath = pathUtil.join(__dirname, '..', '..')
+docpadPath = pathUtil.resolve(__dirname, '..', '..')
 rootPath   = pathUtil.join(docpadPath, 'test')
 srcPath    = pathUtil.join(rootPath, 'src')
 outPath    = pathUtil.join(rootPath, 'out-actual-' + Math.floor(Math.random() * 100000))
@@ -35,8 +35,7 @@ testWait = 1000*60*5  # five minutes
 docpadConfig =
 	rootPath: rootPath
 	outPath: outPath
-	logLevel: docpadUtil.getDefaultLogLevel()
-	skipUnsupportedPlugins: false
+	logLevel: docpadUtil.getTestingLogLevel()
 	catchExceptions: false
 	b: 'instanceConfig'  # overwrite
 	c: 'instanceConfig'  # insert
@@ -65,8 +64,7 @@ docpad = null
 joe.suite 'docpad-actions', (suite,test) ->
 
 	test 'create', (done) ->
-		docpad = DocPad.createInstance docpadConfig, (err) ->
-			done(err)
+		docpad = DocPad.create(docpadConfig, done)
 
 	test 'config', ->
 		expected = {a:'websiteConfig development', b:'instanceConfig development', c:'instanceConfig development'}

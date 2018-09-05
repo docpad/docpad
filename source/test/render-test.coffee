@@ -19,7 +19,7 @@ locale = require('../lib/locale/en')
 # Configuration
 
 # Paths
-docpadPath = pathUtil.join(__dirname, '..', '..')
+docpadPath = pathUtil.resolve(__dirname, '..', '..')
 rootPath   = pathUtil.join(docpadPath, 'test')
 renderPath = pathUtil.join(rootPath, 'render')
 outPath    = pathUtil.join(rootPath, 'render-actual-' + Math.floor(Math.random() * 100000))
@@ -47,9 +47,7 @@ joe.suite 'docpad-render', (suite,test) ->
 		]
 		items.forEach (item) ->
 			test item.filename, (done) ->
-				# IMPORTANT THAT ANY OPTIONS GO AFTER THE RENDER CALL, SERIOUSLY
-				# OTHERWISE the sky falls down on scoping, seriously, it is wierd
-				command = ['node', cliPath, '--global', '--silent', 'render', pathUtil.join(renderPath,item.filename)]
+				command = ['node', cliPath, '--global', 'render', pathUtil.join(renderPath,item.filename)]
 				opts = {cwd:rootPath, output:false}
 				safeps.spawn command, opts, (err,stdout,stderr,status,signal) ->
 					stdout = (stdout or '').toString().trim()
@@ -112,6 +110,7 @@ joe.suite 'docpad-render', (suite,test) ->
 				command = ['node', cliPath, '--global', 'render']
 				command.push(item.filename)  if item.filename
 				command.push('-o', item.outpath)  if item.outpath
+				command.push('--stdin')  if item.stdin
 				opts = {
 					stdin: item.stdin,
 					cwd: rootPath,

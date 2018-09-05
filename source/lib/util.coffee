@@ -9,6 +9,8 @@ util = require('util')
 Errlop = require('errlop')
 {uniq, compact} = require('underscore')
 extractOptsAndCallback = require('extract-opts')
+promptly = require('promptly')
+extendr = require('extendr')
 
 
 # =====================================
@@ -49,21 +51,12 @@ module.exports = docpadUtil =
 			process.stdout.write(data)
 
 	###*
-	# Version of setImmediate that is compatible with node 0.8
-	# https://github.com/bevry/docpad/issues/717
-	# @private
-	# @method setImmediate
-	###
-	setImmediate: (...args) ->
-		return (global?.setImmediate or process.nextTick)(...args)
-
-	###*
 	# Get Default Log Level
 	# @private
 	# @method getDefaultLogLevel
 	# @return {Number} default log level
 	###
-	getDefaultLogLevel: ->
+	getTestingLogLevel: ->
 		if docpadUtil.isTravis() or ('-d' in process.argv)
 			return 7
 		else
@@ -107,28 +100,6 @@ module.exports = docpadUtil =
 		return docpadUtil.isStandalone() and docpadUtil.isTTY() and docpadUtil.isTravis() is false
 
 	###*
-	# Wrapper for the node.js method util.inspect
-	# @method inspect
-	# @param {Object} obj
-	# @param {Object} opts
-	# @return {String}
-	###
-	inspect: (obj, opts) ->
-		# Prepare
-		opts ?= {}
-
-		# If the terminal supports colours, and the user hasn't set anything, then default to a sensible default
-		if docpadUtil.isTTY()
-			opts.colors ?= '--no-colors' not in process.argv
-
-		# If the terminal doesn't support colours, then over-write whatever the user set
-		else
-			opts.colors = false
-
-		# Inspect and return
-		return util.inspect(obj, opts)
-
-	###*
 	# Are we using standard encoding?
 	# @private
 	# @method isStandardEncoding
@@ -137,7 +108,6 @@ module.exports = docpadUtil =
 	###
 	isStandardEncoding: (encoding) ->
 		return encoding.toLowerCase() in ['ascii', 'utf8', 'utf-8']
-
 
 	###*
 	# Get Local DocPad Installation Executable - ie
@@ -280,6 +250,95 @@ module.exports = docpadUtil =
 	###
 	getSlug: (relativeBase) ->
 		return require('bal-util').generateSlugSync(relativeBase)
+
+	###*
+	# Prompt for input
+	# @method prompt
+	# @param {String} message
+	# @param {Object} [opts={}]
+	# @param {Function} next
+	###
+	prompt: (message, opts={}, next) ->
+		# Default
+		message += " [#{opts.default}]"  if opts.default
+
+		# Options
+		opts = extendr.extend({
+			trim: true
+			retry: true
+			silent: false
+		}, opts)
+
+		# Log
+		promptly.prompt(message, opts, next)
+
+		# Chain
+		@
+
+	###*
+	# Confirm an option
+	# @method confirm
+	# @param {String} message
+	# @param {Object} [opts={}]
+	# @param {Function} next
+	###
+	confirm: (message, opts={}, next) ->
+		# Default
+		if opts.default is true
+			message += " [Y/n]"
+		else if opts.default is false
+			message += " [y/N]"
+
+		# Options
+		opts = extendr.extend({
+			trim: true
+			retry: true
+			silent: false
+		}, opts)
+
+		# Log
+		promptly.confirm(message, opts, next)
+
+		# Chain
+		@
+
+	###*
+	# Choose something
+	# @method choose
+	# @param {String} message
+	# @param {Object} choices
+	# @param {Object} [opts={}]
+	# @param {Function} next
+	###
+	choose: (message, choices, opts={}, next) ->
+		# Default
+		message += " [1-#{choices.length}]"
+		indexes = []
+		for choice,i in choices
+			index = i+1
+			indexes.push(index)
+			message += "\n  #{index}.\t#{choice}"
+
+		# Options
+		opts = extendr.extend({
+			trim: true
+			retry: true
+			silent: false
+		}, opts)
+
+		# Prompt
+		prompt = '> '
+		prompt += " [#{opts.default}]"  if opts.default
+
+		# Log
+		console.log(message)
+		promptly.choose prompt, indexes, opts, (err, index) ->
+			return next(err)  if err
+			choice = choices[index-1]
+			return next(null, choice)
+
+		# Chain
+		@
 
 	###*
 	# Perform an action

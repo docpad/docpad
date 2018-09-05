@@ -1,10 +1,12 @@
-# 2017 April 3
+# 2018 September 3
 # https://github.com/bevry/base
+
+# System Files
+**/.DS_Store
 
 # Temp Files
 yarn.lock
 **/.docpad.db
-**/out.*
 **/*.log
 **/*.cpuprofile
 **/*.heapsnapshot
@@ -13,14 +15,16 @@ yarn.lock
 .c9/
 .vscode/
 
-# Build Files
+# Private Files
+.env
+.idea
+.cake_task_cache
+
+# Build Caches
 build/
 components/
 bower_components/
 node_modules/
-
-# Private Files
-.env
 
 # Documentation Files
 docs/
@@ -33,6 +37,7 @@ HISTORY.md
 web/
 **/example*
 **/test*
+.babelrc*
 .editorconfig
 .eslintrc*
 .jshintrc
@@ -49,7 +54,7 @@ component.json
 bower.json
 
 # =====================================
-# CUSTOM MODIFICATIONS
+# CUSTOM
 
 # DocPad requires lib/testers.js for plugin tests
 # without this it is omitted by **/test*

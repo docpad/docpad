@@ -9,6 +9,7 @@ pathUtil = require('path')
 joe = require('joe')
 
 # Local
+DocPad = require('../lib/docpad')
 docpadUtil = require('../lib/util')
 locale = require('../lib/locale/en')
 
@@ -17,17 +18,15 @@ locale = require('../lib/locale/en')
 # Configuration
 
 # Paths
-docpadPath = pathUtil.join(__dirname, '..', '..')
+docpadPath = pathUtil.resolve(__dirname, '..', '..')
 rootPath   = pathUtil.join(docpadPath, 'test')
 renderPath = pathUtil.join(rootPath, 'render')
 expectPath = pathUtil.join(rootPath, 'render-expected')
 
 # Configure DocPad
 docpadConfig =
-	action: false
 	rootPath: rootPath
-	logLevel: docpadUtil.getDefaultLogLevel()
-	skipUnsupportedPlugins: false
+	logLevel: docpadUtil.getTestingLogLevel()
 	catchExceptions: false
 	environments:
 		development:
@@ -53,16 +52,11 @@ joe.suite 'docpad-api', (suite,test) ->
 	# Create a DocPad Instance
 	suite 'create', (suite,test) ->
 		test 'output configuration', ->
-			console.log 'Creating DocPad with the configuration:\n' + docpadUtil.inspect(docpadConfig)
+			console.log 'Creating DocPad with the configuration:'
+			console.log docpadConfig
 
-		test 'create DocPad instance without an action', (done) ->
-			docpad = require('../lib/docpad').create(docpadConfig, done)
-
-		test 'load action', (done) ->
-			docpad.action('load', done)
-
-		test 'ready action', (done) ->
-			docpad.action('ready', done)
+		test 'create', (done) ->
+			docpad = DocPad.create(docpadConfig, done)
 
 	# Instantiate Files
 	suite 'models', (suite,test) ->
@@ -165,6 +159,6 @@ joe.suite 'docpad-api', (suite,test) ->
 							return done(err)
 
 					if item.output?
-						equal(result.trim(), item.output, 'output')
+						equal(result?.trim(), item.output, 'output')
 
 					done()
