@@ -150,7 +150,7 @@
     "url": "https://github.com/docpad/docpad.git"
   },
   "engines": {
-    "node": ">=0.10",
+    "node": ">=6",
     "npm": ">=2.5.0"
   },
   "editions": [
@@ -175,19 +175,6 @@
       ],
       "engines": {
         "node": ">=6",
-        "browsers": false
-      }
-    },
-    {
-      "description": "coffeescript compiled for node.js >=0.10 with require for modules",
-      "directory": "edition-node-0.10",
-      "entry": "index.js",
-      "syntaxes": [
-        "javascript",
-        "require"
-      ],
-      "engines": {
-        "node": "0.10 || 0.12 || 4",
         "browsers": false
       }
     }
@@ -239,8 +226,6 @@
   },
   "devDependencies": {
     "assert-helpers": "^4.5.1",
-    "babel-core": "^6.26.3",
-    "babel-preset-env": "^1.7.0",
     "coffeelint": "^2.1.0",
     "coffeescript": "^2.3.1",
     "docpad-plugintester": "^1.1.1",
@@ -255,9 +240,8 @@
     "my:clean": "rm -Rf ./test/out-actual* ./test/render-actual* ./test/.docpad.db ./test/package-lock.json ./test/node_modules/",
     "my:compile:test": "cd ./test && npm install && cd ../",
     "our:clean": "npm run my:clean && rm -Rf ./docs ./edition* ./es2015 ./es5 ./out",
-    "our:compile": "npm run my:compile:test && npm run our:compile:edition-esnext && npm run our:compile:edition-node-0.10",
+    "our:compile": "npm run my:compile:test && npm run our:compile:edition-esnext",
     "our:compile:edition-esnext": "coffee -bco ./edition-esnext ./source",
-    "our:compile:edition-node-0.10": "env BABEL_ENV=edition-node-0.10 coffee -bcto ./edition-node-0.10/ ./source",
     "our:deploy": "echo no need for this project",
     "our:meta": "npm run our:meta:projectz",
     "our:meta:projectz": "projectz compile",
@@ -273,22 +257,6 @@
     "our:verify": "npm run our:verify:coffeelint",
     "our:verify:coffeelint": "coffeelint ./source",
     "test": "node --harmony ./test.js --joe-reporter=console"
-  },
-  "babel": {
-    "env": {
-      "edition-node-0.10": {
-        "presets": [
-          [
-            "env",
-            {
-              "targets": {
-                "node": "0.10"
-              }
-            }
-          ]
-        ]
-      }
-    }
   },
   "installUrl": "http://docpad.org/install",
   "upgradeUrl": "http://docpad.org/upgrade"

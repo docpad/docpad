@@ -2,6 +2,8 @@
 
 ## v6.82.0 2018 September 4
 - This release focuses on eliminating the situation where DocPad would initiate with invalid configuration that would then need to be overwritten later, this could cause plugins to not load correctly, invalid configuration persisting, and general instability until the correct configuration was loaded. Now the correct configuration is loaded from commencement.
+- Due to new dependency requirements, the minimum supported Node version is now Node version 6, which drops support for Node versions 0.10, 0.12, and 4.
+    - Closes [issue #1086](https://github.com/docpad/docpad/issues/1086)
 - Fix DocPad not working on windows (regression since v6.81.0)
     - Closes [issue #1088](https://github.com/docpad/docpad/issues/1088), [thread #240](https://discuss.bevry.me/t/error-cannot-find-module-editions/240), [issue #1085](https://github.com/docpad/docpad/issues/1085), [issue #1084](https://github.com/docpad/docpad/issues/1084)
 - Progress indicator will now pause once the action has completed, and resume on new actions, this allows for cleaner shutdowns with no change of ability
