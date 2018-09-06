@@ -1,14 +1,9 @@
-# Extensions
-require('../lib/extensions')
-
-# Prepare
-main = ->
-
+module.exports = ->
 	# ---------------------------------
-	# Check for Local DocPad Installation
+	# Are we the desired DocPad installation?
 
 	# Prepare
-	docpadUtil = require('../lib/util')
+	docpadUtil = require('./util')
 
 	# Continue if we explcitly want to use the global installation
 	if '--global' in process.argv
@@ -29,14 +24,15 @@ main = ->
 		# return
 		return docpadUtil.startLocalDocPadExecutable()
 
+
 	# ---------------------------------
-	# CLI
+	# We are the desired DocPad installation
 
 	# Prepare
 	extendr = require('extendr')
 	cli = require('cac')()
-	locale = require('../lib/locale/en')
-	DocPad = require('../lib/docpad')
+	locale = require('./locale/en')
+	DocPad = require('./docpad')
 	Errlop = require('errlop')
 	docpad = null
 	instanceConfig = {}
@@ -270,9 +266,3 @@ main = ->
 
 			# Run the command
 			cli.parse()
-
-
-# ---------------------------------
-# Fire
-
-main()
