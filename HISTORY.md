@@ -7,6 +7,8 @@
 - Fix DocPad not working on windows (regression since v6.81.0)
     - Closes [issue #1088](https://github.com/docpad/docpad/issues/1088), [thread #240](https://discuss.bevry.me/t/error-cannot-find-module-editions/240), [issue #1085](https://github.com/docpad/docpad/issues/1085), [issue #1084](https://github.com/docpad/docpad/issues/1084)
 - Progress indicator will now pause once the action has completed, and resume on new actions, this allows for cleaner shutdowns with no change of ability
+- Graceful shutdown is now offered by the `destroyOnExit` configuration option, which uses `process.on('beforeExit', docpad.onBeforeExit)` to destroy DocPad gracefully. This is now possible as we don't have to support Node 0.10. Before we had to do graceful shutdowns in a more complex and manual manner, which resulted in less graceful shutdowns.
+- DocPad will now longer output `The action completed successfully.`, as unless an error has displayed, then evidently everything remains successful
 - Debug log file will now only be removed if it needs to be replaced with another one
 - Fixed `--no-color` CLI argument and `color` configuration option not working
     - Closes [issue #938](https://github.com/docpad/docpad/issues/938)
@@ -41,7 +43,7 @@
         - No one used it, nor is it optimal to do so. It just introduced a lot of unnecessary complexity and fragility
         - Removed the method `setLoggers`
     - Constructing DocPad will now always perform the `load` and `ready` actions
-        - Removed the instation option `action` that allowed one to override the initiation actions
+        - Removed the construction option `action` that allowed one to override the initiation actions
         - Removed the `docpadLoaded` event. It was poorly named, non-optimal, and only used by a single outdated plugin.
     - Fixed `docpad clean` not cleaning a custom `outPath`
         - DocPad now also outputs which paths were cleaned
@@ -60,7 +62,7 @@
     - Removed `docpadUtil.setImmediate` (existed for node 0.8 compat which hasn't been there since DocPad 6.72) use `setImmediate` instead
 - Renamed `docpad.inspector` to `docpad.inspect` and removed `docpadUtil.inspect`
 - Removed the unstable node.js version warning from DocPad v6.55.6
-- Removed leftover `.babelrc` file that was causing everything to be compiled againt `es2015` instead of what we desire from our `package.json` configuration
+- Removed leftover `.babelrc` file that was causing everything to be compiled against `es2015` instead of what we desire from our `package.json` configuration
 - Updated base files and [editions](https://github.com/bevry/editions) using [boundation](https://github.com/bevry/boundation)
 
 ## v6.81.0 2018 August 21

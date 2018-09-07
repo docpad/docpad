@@ -406,13 +406,33 @@ class DocPad extends EventEmitterGrouped
 	# @return {Object}
 	###
 	action: (action, opts, next) ->
-		docpad = @
+		# Prepare
 		[opts,next] = extractOptsAndCallback(opts,next)
-		docpad.progressInstance?.resume()
-		docpadUtil.action.call @, action, opts, (args...) ->
-			docpad.progressInstance?.stop()
-			return next(args...)  if next
-			docpad.error(args[0])  if args[0]
+		locale = @getLocale()
+
+		# Log
+		@progressInstance?.resume()
+		@log 'debug', util.format(locale.actionStart, action)
+
+		# Act
+		docpadUtil.action.call @, action, opts, (args...) =>
+			# Prepare
+			err = args[0]
+
+			# Log
+			@progressInstance?.stop()
+			if err
+				@error(new Errlop(
+					util.format(locale.actionFailure, action),
+					err
+				))
+			else
+				@log 'debug', util.format(locale.actionSuccess, action)
+
+			# Act
+			return next?(args...)
+
+		# Chain
 		@
 
 	###*
@@ -1337,6 +1357,9 @@ class DocPad extends EventEmitterGrouped
 		# The time to wait when destroying DocPad
 		destroyDelay: -1
 
+		# Whether or not to destroy on exit
+		destroyOnExit: true
+
 		# Whether or not to destroy on signal interrupt (ctrl+c)
 		destroyOnSignalInterrupt: true
 
@@ -1513,7 +1536,7 @@ class DocPad extends EventEmitterGrouped
 
 		# Binders
 		# Using this over coffescript's => on class methods, ensures that the method length is kept
-		for methodName in "action log warn error fatal inspect notify checkRequest onSignalInterruptOne onSignalInterruptTwo destroyWatchers".split(/\s+/)
+		for methodName in "action log warn error fatal inspect notify checkRequest activeHandles onBeforeExit onSignalInterruptOne onSignalInterruptTwo onSignalInterruptThree destroyWatchers".split(/\s+/)
 			@[methodName] = @[methodName].bind(@)
 
 		# Adjust configPaths
@@ -1723,11 +1746,13 @@ class DocPad extends EventEmitterGrouped
 					# Destroy Logging
 					docpad.destroyLoggers()
 
-					# Destroy Process Listeners, with try catch for node 0.10
+					# Destroy Process Listeners
 					process.removeListener('uncaughtException', docpad.fatal)
 					process.removeListener('uncaughtException', docpad.error)
-					try process.removeListener('SIGINT', docpad.onSignalInterruptOne) catch ignoreError
-					try process.removeListener('SIGINT', docpad.onSignalInterruptTwo) catch ignoreError
+					process.removeListener('beforeExit', docpad.onBeforeExit)
+					process.removeListener('SIGINT', docpad.onSignalInterruptOne)
+					process.removeListener('SIGINT', docpad.onSignalInterruptTwo)
+					process.removeListener('SIGINT', docpad.onSignalInterruptThree)
 
 					# Destroy DocPad Listeners
 					docpad.removeAllListeners()
@@ -1742,7 +1767,7 @@ class DocPad extends EventEmitterGrouped
 					return next?(err)
 
 				# Success
-				docpad.log('info', locale.destroyedDocPad)
+				docpad.log(locale.destroyedDocPad)  # log level omitted, as this will hit console.log
 				return next?()
 
 		# Chain
@@ -2071,9 +2096,13 @@ class DocPad extends EventEmitterGrouped
 			else
 				@on('error', @error)
 
-		# Handle interrupt, with try catch for node 0.10
-		try process.removeListener('SIGINT', docpad.onSignalInterruptOne) catch ignoreError
-		try process.removeListener('SIGINT', docpad.onSignalInterruptTwo) catch ignoreError
+		# Handle interrupt
+		process.removeListener('beforeExit', @onBeforeExit)
+		process.removeListener('SIGINT', @onSignalInterruptOne)
+		process.removeListener('SIGINT', @onSignalInterruptTwo)
+		process.removeListener('SIGINT', @onSignalInterruptThree)
+		if @config.destroyOnExit
+			process.once('beforeExit', @onBeforeExit)
 		if @config.destroyOnSignalInterrupt
 			process.once('SIGINT', @onSignalInterruptOne)
 
@@ -2081,17 +2110,78 @@ class DocPad extends EventEmitterGrouped
 		@
 
 	onSignalInterruptOne: ->
-		process.once('SIGINT', @onSignalInterruptTwo)
+		# Log
 		@log('notice', "Signal Interrupt received, queued DocPad's destruction")
+
+		# Escalate next time
+		process.once('SIGINT', @onSignalInterruptTwo)
+
+		# Act
 		@action('destroy')
+
+		# Chain
 		@
 
 	onSignalInterruptTwo: ->
-		@exitCode(130)
-		@log('alert', 'Signal Interrupt received again, destroying DocPad right now overlord')
-		@destroy()
+		# Log
+		@log('alert', 'Signal Interrupt received again, closing stdin and dumping handles')
+
+		# Escalate next time
+		process.once('SIGINT', @onSignalInterruptThree)
+
+		# Handle any errors that occur when stdin is closed
+		# https://github.com/docpad/docpad/pull/1049
+		process.stdin?.once? 'error', (stdinError) ->
+			# ignore ENOTCONN as it means stdin was already closed when we called stdin.end
+			# node v8 and above have stdin.destroy to avoid emitting this error
+			if stdinError.toString().indexOf('ENOTCONN') is -1
+				err = new Errlop(
+					"closing stdin encountered an error",
+					stdinError
+				)
+				docpad.fatal(err)
+
+		# Close stdin
+		# https://github.com/docpad/docpad/issues/1028
+		# https://github.com/docpad/docpad/pull/1029
+		process.stdin?.destroy?() or process.stdin?.end?()
+
+		# Wait a moment before outputting things that are preventing closure
+		setImmediate(@activeHandles)
+
+		# Chain
 		@
 
+	onSignalInterruptThree: ->
+		# Log
+		@log('alert', 'Signal Interrupt received yet again, skipping queue and destroying DocPad right now')
+
+		# Act
+		@exitCode(130)
+		@destroy()
+
+		# Chain
+		@
+
+	onBeforeExit: ->
+		@action('destroy')
+
+	activeHandles: ->
+		# Note any requests that are still active
+		activeRequests = process._getActiveRequests?()
+		if activeRequests?.length
+			docpadUtil.writeStderr """
+				Waiting on these #{activeRequests.length} requests to close:
+				#{@inspect activeRequests}
+				"""
+
+		# Note any handles that are still active
+		activeHandles = process._getActiveHandles?()
+		if activeHandles?.length
+			docpadUtil.writeStderr """
+				Waiting on these #{activeHandles.length} handles to close:
+				#{@inspect activeHandles}
+				"""
 
 	###*
 	# Load the various configuration files from the
@@ -2863,7 +2953,7 @@ class DocPad extends EventEmitterGrouped
 			# as caterpillar methods is already where this logic exist, they just have to be made static
 			logLevels = require('rfc-log-levels')
 			logLevel = logLevels[args[0]] ? 6
-			if @getLogLevel() > logLevel
+			if @getLogLevel() >= logLevel
 				console.log(args...)
 
 		# Chain

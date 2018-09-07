@@ -6,7 +6,7 @@ module.exports = {
 	skeletonSelectionIntroduction: "You are about to create your new project inside your current directory. Below is a list of skeletons to bootstrap your new project:"
 	skeletonSelectionPrompt: "Which skeleton will you use?"
 	skeletonInstall: "Installing the %s skeleton"
-	skeletonInstalled: "Installed the skeleton successfully"
+	skeletonInstalled: "Installed the skeleton successfully!"
 	skeletonExists: "Didn't place the skeleton as the desired structure already exists"
 	skeletonNonexistant: """
 		We couldn't find an existing DocPad project inside your current directory. Looked at: %s
@@ -20,8 +20,8 @@ module.exports = {
 	skeletonNoneDescription: "Prefer to start from scratch? You can get started without any skeleton if you wish"
 
 	# Watching
-	watchStart: 'Watching setup starting...'
-	watchStarted: 'Watching setup'
+	watchStart: 'Watching is starting...'
+	watchStarted: 'Watching has started successfully!'
 	watchRegenerating: "Regenerating at %s"
 	watchRegenerated: "Regenerated at %s"
 	watchChange: "Change detected at %s"
@@ -66,7 +66,7 @@ module.exports = {
 	renderProgress: "Currently on %s at %s"
 	renderGenerating: "Generating..."
 	renderGeneratingNotification: "Website generating..."
-	renderGenerated: "Generated %s files in %s seconds"
+	renderGenerated: "Generated %s files in %s seconds!"
 	renderGeneratedNotification: "Website generated"
 	renderParsing: 'Parsing everything'
 	renderParsed: 'Parsed everything'
@@ -89,8 +89,9 @@ module.exports = {
 	wroteFiles: "Wrote %s files"
 
 	# Action
-	actionStart: "Performing the action %s"
-	actionFinished: "Performed the action %s"
+	actionStart: "The action [%s] is starting..."
+	actionSuccess: "The action [%s] compelted successfully!"
+	actionFailure: "The action [%s] failed to complete!"
 	actionNonexistant: "The action %s does not exist"
 	actionEmpty: "No action was provided"
 
@@ -134,8 +135,6 @@ module.exports = {
 	loadedWebsiteConfig: "Loaded website configuration"
 
 	# Console
-	consoleSuccess: "The action completed successfully"
-	consoleFailed: "The action failed to complete"
 	consoleDescriptionInit: "initialize your directory with an empty docpad project"
 	consoleDescriptionRun: "run docpad on your project"
 	consoleDescriptionRender: "render the file at <path> and output its results to stdout"
@@ -149,7 +148,6 @@ module.exports = {
 	consoleDescriptionInfo: "display the information about your docpad instance"
 	consoleDescriptionHelp: "output the help"
 	consoleDescriptionUnknown: "anything else outputs the help"
-
 	consoleOptionGlobal: "whether or not we should just fire the global installation of docpad"
 	consoleOptionOutPath: "a custom directory to place the rendered project"
 	consoleOptionOutput: "where to output the rendered document"
@@ -188,17 +186,6 @@ module.exports = {
 	welcomeEnvironment: "Environment: %s"
 	includeFailed: "Could not include the file at path %s as we could not find it"
 	encodingLoadFailed: "Could not load the libraries required for encoding detection"
-	pluginIssueTracker: "the plugin's issue tracker"
-	pluginUncompiled: """
-		The plugin %s is using uncompiled CoffeeScript files.
-		  Supporting uncompiled plugins has been removed, and has been deprecated for years.
-		  You will want to report this error to %s so the plugin author can address it.
-		  For more information, visit: https://docpad.org/plugin-uncompiled
-		"""
-	pluginLoadFailed: """
-		The plugin %s failed to load.
-		You may want to report this error to %s so the plugin author can address it.
-		"""
 	warnOccured: "A warning occured:"
 	fatalOccured: "A fatal error occured:"
 	errorOccured: "An error occured:"
@@ -218,7 +205,6 @@ module.exports = {
 		"""
 	versionOutdatedNotification: "New version of DocPad!"
 	startLocal: "Shutting down the global DocPad, and starting up the local"
-	loggersAlreadyDefined: "Loggers have already been defined"
 	consoleExit: "Console is exiting..."
 	destroyDocPad: "DocPad is shutting down..."
 	destroyedDocPad: "Shutdown complete. See you next time."

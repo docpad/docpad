@@ -94,7 +94,7 @@ module.exports = ->
 	# Commands
 	cli.command('run', {
 		desc: locale.consoleDescriptionRun
-	}, (input, flags) -> performAction('run', {skeleton: flags.skeleton}))
+	}, (input, flags) -> docpad?.action('run', {skeleton: flags.skeleton}))
 		.option('skeleton', {
 			type: 'string',
 			desc: locale.consoleOptionSkeleton
@@ -102,7 +102,7 @@ module.exports = ->
 
 	cli.command('init', {
 		desc: locale.consoleDescriptionInit
-	}, (input, flags) -> performAction('init', {skeleton: flags.skeleton}))
+	}, (input, flags) -> docpad?.action('init', {skeleton: flags.skeleton}))
 		.option('skeleton', {
 			type: 'string',
 			desc: locale.consoleOptionSkeleton
@@ -110,7 +110,7 @@ module.exports = ->
 
 	cli.command('generate', {
 		desc: locale.consoleDescriptionGenerate
-	}, (input, flags) -> performAction('generate'))
+	}, (input, flags) -> docpad?.action('generate'))
 
 	cli.command('render', {
 		desc: locale.consoleDescriptionRender,
@@ -121,7 +121,7 @@ module.exports = ->
 		]
 	}, (input, flags) ->
 		instanceConfig.silent = true
-		performAction('render', {
+		docpad?.action('render', {
 			filename: input[0],
 			renderSingleExtensions: 'auto',
 			output: flags.output ? true,
@@ -138,61 +138,39 @@ module.exports = ->
 
 	cli.command('watch', {
 		desc: locale.consoleDescriptionWatch
-	}, (input, flags) -> performAction('generate watch'))
+	}, (input, flags) -> docpad?.action('generate watch'))
 
 	cli.command('clean', {
 		desc: locale.consoleDescriptionClean
-	}, (input, flags) -> performAction('clean'))
+	}, (input, flags) -> docpad?.action('clean'))
 
 	cli.command('update', {
 		desc: locale.consoleDescriptionUpdate
-	}, (input, flags) -> performAction('clean update'))
+	}, (input, flags) -> docpad?.action('clean update'))
 
 	cli.command('upgrade', {
 		desc: locale.consoleDescriptionUpdate
-	}, (input, flags) -> performAction('upgrade'))
+	}, (input, flags) -> docpad?.action('upgrade'))
 
 	cli.command('install', {
 		desc: locale.consoleDescriptionInstall,
 		examples: ['install <plugin>']
-	}, (input, flags) -> performAction('install', {plugin: input[0]}))
+	}, (input, flags) -> docpad?.action('install', {plugin: input[0]}))
 
 	cli.command('uninstall', {
 		desc: locale.consoleDescriptionUninstall,
 		examples: ['uninstall <plugin>']
-	}, (input, flags) -> performAction('uninstall', {plugin: input[0]}))
+	}, (input, flags) -> docpad?.action('uninstall', {plugin: input[0]}))
 
 	cli.command('info', {
 		desc: locale.consoleDescriptionInfo
 	}, (input, flags) ->
 		instanceConfig.silent = true
-		performAction('info')
+		docpad?.action('info')
 	)
 
 	# ---------------------------------
 	# DocPad
-
-	# Action
-	performAction = (action, opts = {}, stayAlive) ->
-		# Check if we are ready yet
-		return  unless docpad
-
-		# Continue with action
-		docpad.action action, opts, (err) ->
-			# Status
-			if err
-				docpad.fatal(new Errlop(locale.consoleFailed, err))
-			else
-				docpad.log('info', locale.consoleSuccess)
-
-			###
-			@todo determine if we want to keep this or not, as it is now unnecessary
-			# Destroy docpad
-			unless stayAlive
-				docpad.destroy (err) ->
-					# We don't care about logging the error, as it would have already been done
-					process.exit(process.exitCode or (err and 1) or 0)
-			###
 
 	# Convert help command to --help
 	process.argv[2] = '--help'  if process.argv[2] is 'help'
@@ -207,49 +185,6 @@ module.exports = ->
 	Object.keys(DocPad.prototype.initialConfig).forEach (name) ->
 		value = result.flags[name]
 		instanceConfig[name] ?= value  if value?
-
-	# Exit
-	process.once 'exit', (exitCode) ->
-		# Log
-		docpad.log('info', locale.consoleExit)
-
-		# Handle any errors that occur when stdin is closed
-		# https://github.com/docpad/docpad/pull/1049
-		process.stdin?.on? 'error', (stdinError) ->
-			# ignore ENOTCONN as it means stdin was already closed when we called stdin.end
-			# node v8 and above have stdin.destroy to avoid emitting this error
-			if stdinError.toString().indexOf('ENOTCONN') is -1
-				err = new Errlop(
-					"closing stdin encountered an error",
-					stdinError
-				)
-				docpad.fatal(err)
-
-		# Close stdin
-		# https://github.com/docpad/docpad/issues/1028
-		# https://github.com/docpad/docpad/pull/1029
-		process.stdin?.destroy?() or process.stdin?.end?()
-
-		# Wait a moment before outputting things that are preventing closure
-		setImmediate ->
-			# Note any requests that are still active
-			activeRequests = process._getActiveRequests?()
-			if activeRequests?.length
-				docpadUtil.writeStderr """
-					Waiting on these #{activeRequests.length} requests to close:
-					#{docpad.inspect activeRequests}
-					"""
-
-			# Note any handles that are still active
-			activeHandles = process._getActiveHandles?()
-			if activeHandles?.length
-				docpadUtil.writeStderr """
-					Waiting on these #{activeHandles.length} handles to close:
-					#{docpad.inspect activeHandles}
-					"""
-
-		# Chain
-		@
 
 	# Create
 	docpad = new DocPad instanceConfig, (err) ->
