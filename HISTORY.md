@@ -1,5 +1,13 @@
 # History
 
+## v6.82.1 2018 September 7
+- Fixed initialising new projects (regression from v6.82.0)
+- `docpad init` will now prompt for skeletons (before v6.82.0 this was done via `docpad skeleton`, which was removed)
+- Upgraded remaining dependencies
+    - Upgraded `promptly` dependency from v2 to v3
+    - Swapped `superagent` for `node-fetch`
+    - Close [issue #1091](https://github.com/docpad/docpad/issues/1091)
+
 ## v6.82.0 2018 September 7
 - This release focuses on eliminating the situation where DocPad would initiate with invalid configuration that would then need to be overwritten later, this could cause plugins to not load correctly, invalid configuration persisting, and general instability until the correct configuration was loaded. Now the correct configuration is loaded from commencement.
 - Due to new dependency requirements, the minimum supported Node version is now Node version 6, which drops support for Node versions 0.10, 0.12, and 4.

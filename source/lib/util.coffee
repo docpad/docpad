@@ -270,7 +270,9 @@ module.exports = docpadUtil =
 		}, opts)
 
 		# Log
-		promptly.prompt(message, opts, next)
+		promptly.prompt(message, opts)
+			.catch(next)
+			.then((value) -> next(null, value))
 
 		# Chain
 		@
@@ -297,7 +299,9 @@ module.exports = docpadUtil =
 		}, opts)
 
 		# Log
-		promptly.confirm(message, opts, next)
+		promptly.confirm(message, opts)
+			.catch(next)
+			.then((value) -> next(null, value))
 
 		# Chain
 		@
@@ -314,8 +318,8 @@ module.exports = docpadUtil =
 		# Default
 		message += " [1-#{choices.length}]"
 		indexes = []
-		for choice,i in choices
-			index = i+1
+		for choice, i in choices
+			index = i + 1
 			indexes.push(index)
 			message += "\n  #{index}.\t#{choice}"
 
@@ -332,10 +336,9 @@ module.exports = docpadUtil =
 
 		# Log
 		console.log(message)
-		promptly.choose prompt, indexes, opts, (err, index) ->
-			return next(err)  if err
-			choice = choices[index-1]
-			return next(null, choice)
+		promptly.choose(prompt, indexes, opts)
+			.catch(next)
+			.then((index) -> next(null, choices[index - 1]))
 
 		# Chain
 		@

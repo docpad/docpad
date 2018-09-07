@@ -28,7 +28,7 @@ safeps = require('safeps')
 ignorefs = require('ignorefs')
 rimraf = require('rimraf')
 Progress = require('progress-title')
-superAgent = require('superagent')
+fetch = require('node-fetch')
 extractOptsAndCallback = require('extract-opts')
 {EventEmitterGrouped} = require('event-emitter-grouped')
 envFile = require('envfile')
@@ -1354,6 +1354,9 @@ class DocPad extends EventEmitterGrouped
 		# May only work on node v0.11.8 and above
 		setExitCodeOnRequest: true
 
+		# The time to wait before cancelling a request
+		requestTimeout: 30*1000
+
 		# The time to wait when destroying DocPad
 		destroyDelay: -1
 
@@ -2348,20 +2351,17 @@ class DocPad extends EventEmitterGrouped
 		# Prepare
 		docpad = @
 		locale = @getLocale()
+		config = @getConfig()
 
 		# Log
 		docpad.log 'debug', util.format(locale.loadingConfigUrl, configUrl)
 
 		# Read the URL
-		superAgent
-			.get(configUrl)
-			.timeout(30*1000)
-			.end (err,res) ->
-				# Check
-				return next(err)  if err
-
-				# Read the string using CSON
-				CSON.parseCSONString(res.text, next)
+		fetch(configUrl, {timeout: config.requestTimeout})
+			.then((res) -> res.text())
+			.then((text) -> CSON.parseCSONString(text))
+			.catch(next)
+			.then((data) -> next(null, data))
 
 		# Chain
 		@
@@ -4813,7 +4813,7 @@ class DocPad extends EventEmitterGrouped
 
 		# We don't have the correct structure
 		# Check if we are running on an empty directory
-		rootPath = @getPath()
+		rootPath = @getPath('root')
 		safefs.readdir rootPath, (err,files) ->
 			return next(err)  if err
 
@@ -5128,7 +5128,7 @@ class DocPad extends EventEmitterGrouped
 		tasks = @createTaskGroup("initSkeleton tasks").done(next)
 
 		tasks.addTask "ensure the path we are writing to exists", (complete) ->
-			safefs.ensurePath(rootpath, complete)
+			safefs.ensurePath(rootPath, complete)
 
 		# Clone out the repository if applicable
 		if skeletonModel? and skeletonModel.id isnt 'none'
@@ -5142,7 +5142,7 @@ class DocPad extends EventEmitterGrouped
 				})
 		else
 			tasks.addTask "ensure src path exists", (complete) ->
-				safefs.ensurePath(@getPath(false, 'source'), complete)
+				safefs.ensurePath(docpad.getPath(false, 'source'), complete)
 
 			tasks.addGroup "initialize the website directory files", ->
 				@setConfig(concurrency:0)
@@ -5160,17 +5160,17 @@ class DocPad extends EventEmitterGrouped
 
 				# Config
 				@addTask "docpad.coffee configuration file", (complete) ->
-					configPath = docpad.getPath(false, 'config')
+					configPath = docpad.getPath(false, 'root', 'docpad.js')
 					data = """
-						# DocPad Configuration File
-						# http://docpad.org/docs/config
+						// DocPad Configuration File
+						// http://docpad.org/docs/config
 
-						# Define the DocPad Configuration
-						docpadConfig = {
-							# ...
+						// Define the DocPad Configuration
+						const docpadConfig = {
+							// ...
 						}
 
-						# Export the DocPad Configuration
+						// Export the DocPad Configuration
 						module.exports = docpadConfig
 						"""
 					safefs.writeFile(configPath, data, complete)
@@ -5306,7 +5306,7 @@ class DocPad extends EventEmitterGrouped
 		@
 
 	###*
-	# Skeleton Empty?
+	# Fail if the skeleton is not empty
 	# @private
 	# @method skeletonEmpty
 	# @param {Function} next
@@ -5352,32 +5352,6 @@ class DocPad extends EventEmitterGrouped
 
 				# Use Skeleton
 				docpad.useSkeleton(skeletonModel, next)
-
-		# Chain
-		@
-
-	###*
-	# Initialize the project directory
-	# with the basic skeleton.
-	# @private
-	# @method init
-	# @param {Object} opts
-	# @param {Object} next
-	# @param {Error} next.err
-	# @return {Object} description
-	###
-	init: (opts,next) ->
-		# Prepare
-		[opts,next] = extractOptsAndCallback(opts,next)
-		docpad = @
-
-		# Init the directory with the basic skeleton
-		@skeletonEmpty (err) ->
-			# Check
-			return next(err)  if err
-
-			# Basic Skeleton
-			docpad.useSkeleton(null, next)
 
 		# Chain
 		@

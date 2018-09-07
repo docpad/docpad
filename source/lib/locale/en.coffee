@@ -135,7 +135,7 @@ module.exports = {
 	loadedWebsiteConfig: "Loaded website configuration"
 
 	# Console
-	consoleDescriptionInit: "initialize your directory with an empty docpad project"
+	consoleDescriptionInit: "initialize your project"
 	consoleDescriptionRun: "run docpad on your project"
 	consoleDescriptionRender: "render the file at <path> and output its results to stdout"
 	consoleDescriptionGenerate: "(re)generates your project"

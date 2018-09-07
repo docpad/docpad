@@ -102,7 +102,7 @@ module.exports = ->
 
 	cli.command('init', {
 		desc: locale.consoleDescriptionInit
-	}, (input, flags) -> docpad?.action('init', {skeleton: flags.skeleton}))
+	}, (input, flags) -> docpad?.action('skeleton', {skeleton: flags.skeleton}))
 		.option('skeleton', {
 			type: 'string',
 			desc: locale.consoleOptionSkeleton

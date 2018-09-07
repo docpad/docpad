@@ -7,7 +7,6 @@ pathUtil = require('path')
 
 # External
 {difference} = require('underscore')
-superAgent = require('superagent')
 scandir = require('scandirectory')
 safefs = require('safefs')
 {equal, deepEqual} = require('assert-helpers')
