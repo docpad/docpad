@@ -173,9 +173,9 @@ These amazing people have contributed code to this project:
 <li><a href="http://pismute.github.io">Changwoo Park</a></li>
 <li><a href="http://aptiture.com">Morgan Larosa</a></li>
 <li><a href="https://github.com/chase">Chase Colman</a> — <a href="https://github.com/docpad/docpad/commits?author=chase" title="View the GitHub contributions of Chase Colman on repository docpad/docpad">view contributions</a></li>
-<li><a href="http://derberg.github.io/">Lukasz Gornicki</a> — <a href="https://github.com/docpad/docpad/commits?author=derberg" title="View the GitHub contributions of Lukasz Gornicki on repository docpad/docpad">view contributions</a></li>
+<li><a href="http://derberg.github.io/">Lukasz Gornicki</a></li>
 <li><a href="https://github.com/eldios">eldios</a> — <a href="https://github.com/docpad/docpad/commits?author=eldios" title="View the GitHub contributions of eldios on repository docpad/docpad">view contributions</a></li>
-<li><a href="http://sylee.tw">Shih-Yung Lee</a> — <a href="https://github.com/docpad/docpad/commits?author=Ferrari" title="View the GitHub contributions of Shih-Yung Lee on repository docpad/docpad">view contributions</a></li>
+<li><a href="http://sylee.tw">Shih-Yung Lee</a></li>
 <li><a href="http://greduan.com">Eduardo Lavaque</a> — <a href="https://github.com/docpad/docpad/commits?author=greduan" title="View the GitHub contributions of Eduardo Lavaque on repository docpad/docpad">view contributions</a></li>
 <li><a href="https://github.com/homme">Homme Zwaagstra</a> — <a href="https://github.com/docpad/docpad/commits?author=homme" title="View the GitHub contributions of Homme Zwaagstra on repository docpad/docpad">view contributions</a></li>
 <li><a href="http://www.jtwebman.com">JT Turner</a></li>
@@ -221,7 +221,9 @@ These amazing people have contributed code to this project:
 <li><a href="https://github.com/craigsssmith">Craig Smith</a> — <a href="https://github.com/docpad/docpad/commits?author=craigsssmith" title="View the GitHub contributions of Craig Smith on repository docpad/docpad">view contributions</a></li>
 <li><a href="https://github.com/pismute">Changwoo Park</a> — <a href="https://github.com/docpad/docpad/commits?author=pismute" title="View the GitHub contributions of Changwoo Park on repository docpad/docpad">view contributions</a></li>
 <li><a href="http://beamworks.io">Nick Matantsev</a> — <a href="https://github.com/docpad/docpad/commits?author=unframework" title="View the GitHub contributions of Nick Matantsev on repository docpad/docpad">view contributions</a></li>
-<li><a href="http://www.upwork.com/fl/prayagverma">Prayag Verma</a> — <a href="https://github.com/docpad/docpad/commits?author=pra85" title="View the GitHub contributions of Prayag Verma on repository docpad/docpad">view contributions</a></li></ul>
+<li><a href="http://www.upwork.com/fl/prayagverma">Prayag Verma</a> — <a href="https://github.com/docpad/docpad/commits?author=pra85" title="View the GitHub contributions of Prayag Verma on repository docpad/docpad">view contributions</a></li>
+<li><a href="http://resume.github.io/?derberg">Lukasz Gornicki</a> — <a href="https://github.com/docpad/docpad/commits?author=derberg" title="View the GitHub contributions of Lukasz Gornicki on repository docpad/docpad">view contributions</a></li>
+<li><a href="http://blog.sylee.tw">Shih-Yung Lee</a> — <a href="https://github.com/docpad/docpad/commits?author=Ferrari" title="View the GitHub contributions of Shih-Yung Lee on repository docpad/docpad">view contributions</a></li></ul>
 
 <a href="https://github.com/docpad/docpad/blob/master/CONTRIBUTING.md#files">Discover how you can contribute by heading on over to the <code>CONTRIBUTING.md</code> file.</a>
 
