@@ -32,6 +32,7 @@ fetch = require('node-fetch')
 extractOptsAndCallback = require('extract-opts')
 {EventEmitterGrouped} = require('event-emitter-grouped')
 envFile = require('envfile')
+ansiStyles = require('ansistyles')
 
 # Base
 {Events,Model,Collection,QueryCollection} = require('./base')
@@ -5276,7 +5277,6 @@ class DocPad extends EventEmitterGrouped
 			return next(err)  if err
 
 			# Prepare
-			skeletonNames = []
 			skeleton = opts.skeleton
 
 			# Already selected
@@ -5291,16 +5291,16 @@ class DocPad extends EventEmitterGrouped
 
 			# Show
 			docpad.log('info', locale.skeletonSelectionIntroduction + '\n')
-			skeletonsCollection.forEach (skeletonModel) ->
+			skeletonNames = skeletonsCollection.map (skeletonModel) ->
 				skeletonName = skeletonModel.get('name')
 				skeletonDescription = skeletonModel.get('description').replace(/\n/g, '\n\t')
-				skeletonNames.push(skeletonName)
-				console.log "  #{skeletonModel.get('position')+1}.\t#{skeletonName}\n  \t#{skeletonDescription}\n"
+				console.log "  #{ansiStyles.underline skeletonName}\n  #{skeletonDescription}\n"
+				return skeletonName
 
 			# Select
-			docpadUtil.choose locale.skeletonSelectionPrompt, skeletonNames, {}, (err, choice) ->
+			docpadUtil.choose locale.skeletonSelectionPrompt, skeletonNames, {}, (err, name) ->
 				return next(err)  if err
-				index = skeletonNames.indexOf(choice)
+				index = skeletonNames.indexOf(name)
 				return next(null, skeletonsCollection.at(index))
 
 		# Chain

@@ -1,5 +1,9 @@
 # History
 
+## v6.82.3 2018 September 8
+- Swapped out promptly for inquirer, which brings back Node v6 support (regression since v6.82.1)
+    - Close [issue #1093](https://github.com/docpad/docpad/issues/1093)
+
 ## v6.82.2 2018 September 8
 - Add logging support to the pluginloader to make debugging plugin resolutions easier
 - Fixed failures of plugin loading and creation not being reported correctly

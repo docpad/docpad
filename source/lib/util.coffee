@@ -9,7 +9,7 @@ util = require('util')
 Errlop = require('errlop')
 {uniq, compact} = require('underscore')
 extractOptsAndCallback = require('extract-opts')
-promptly = require('promptly')
+inquirer = require('inquirer')
 extendr = require('extendr')
 
 
@@ -252,93 +252,26 @@ module.exports = docpadUtil =
 		return require('bal-util').generateSlugSync(relativeBase)
 
 	###*
-	# Prompt for input
-	# @method prompt
-	# @param {String} message
-	# @param {Object} [opts={}]
-	# @param {Function} next
-	###
-	prompt: (message, opts={}, next) ->
-		# Default
-		message += " [#{opts.default}]"  if opts.default
-
-		# Options
-		opts = extendr.extend({
-			trim: true
-			retry: true
-			silent: false
-		}, opts)
-
-		# Log
-		promptly.prompt(message, opts)
-			.catch(next)
-			.then((value) -> next(null, value))
-
-		# Chain
-		@
-
-	###*
-	# Confirm an option
-	# @method confirm
-	# @param {String} message
-	# @param {Object} [opts={}]
-	# @param {Function} next
-	###
-	confirm: (message, opts={}, next) ->
-		# Default
-		if opts.default is true
-			message += " [Y/n]"
-		else if opts.default is false
-			message += " [y/N]"
-
-		# Options
-		opts = extendr.extend({
-			trim: true
-			retry: true
-			silent: false
-		}, opts)
-
-		# Log
-		promptly.confirm(message, opts)
-			.catch(next)
-			.then((value) -> next(null, value))
-
-		# Chain
-		@
-
-	###*
-	# Choose something
+	# Get the user to select one of the choices
 	# @method choose
-	# @param {String} message
-	# @param {Object} choices
+	# @param {string} message
+	# @param {Array<string>} choices
 	# @param {Object} [opts={}]
 	# @param {Function} next
 	###
 	choose: (message, choices, opts={}, next) ->
-		# Default
-		message += " [1-#{choices.length}]"
-		indexes = []
-		for choice, i in choices
-			index = i + 1
-			indexes.push(index)
-			message += "\n  #{index}.\t#{choice}"
-
-		# Options
-		opts = extendr.extend({
-			trim: true
-			retry: true
-			silent: false
+		# Question
+		question = extendr.extend({
+			name: 'question',
+			type: 'list',
+			message,
+			choices
 		}, opts)
 
-		# Prompt
-		prompt = '> '
-		prompt += " [#{opts.default}]"  if opts.default
-
-		# Log
-		console.log(message)
-		promptly.choose(prompt, indexes, opts)
+		# Ask
+		inquirer.prompt([question])
 			.catch(next)
-			.then((index) -> next(null, choices[index - 1]))
+			.then((answers) -> next(null, answers.question))
 
 		# Chain
 		@
