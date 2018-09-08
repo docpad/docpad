@@ -1,5 +1,11 @@
 # History
 
+## v6.82.2 2018 September 8
+- Add logging support to the pluginloader to make debugging plugin resolutions easier
+- Fixed failures of plugin loading and creation not being reported correctly
+- Ensure all dependencies are the latest right now, to help fix false negatives in plugin resolution
+- Close [thread #248](https://discuss.bevry.me/t/plugins-broken-in-6-82-1/248)
+
 ## v6.82.1 2018 September 7
 - Fixed initialising new projects (regression from v6.82.0)
 - `docpad init` will now prompt for skeletons (before v6.82.0 this was done via `docpad skeleton`, which was removed)

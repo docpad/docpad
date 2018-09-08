@@ -3581,6 +3581,7 @@ class DocPad extends EventEmitterGrouped
 		opts.keyword ?= 'docpad-plugin'
 		opts.prefix ?= 'docpad-plugin-'
 		opts.BasePlugin ?= BasePlugin
+		opts.log ?= @log
 
 		# Load and validate the plugin
 		try
@@ -3620,10 +3621,10 @@ class DocPad extends EventEmitterGrouped
 			# Add to plugin stores
 			docpad.loadedPlugins[pluginName] = loader.create({docpad})
 		catch failedError
-			docpad.warn(new Errlop(
+			err = new Errlop(
 				util.format(locale.pluginFailed, opts.pluginPath),
 				failedError
-			))
+			)
 			return next(err)
 
 		# Log completion
