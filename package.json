@@ -1,7 +1,7 @@
 {
   "title": "DocPad. Streamlined web development.",
   "name": "docpad",
-  "version": "6.82.3",
+  "version": "6.82.4",
   "description": "DocPad is a dynamic static site generator. Write your content as files, or import your content from other external sources. Render the content with plugins. And deploy your static or dynamic website to your favourite hosting provider.",
   "homepage": "https://github.com/docpad/docpad",
   "license": "MIT",
@@ -231,7 +231,7 @@
     "assert-helpers": "^4.5.1",
     "coffeelint": "^2.1.0",
     "coffeescript": "^2.3.1",
-    "docpad-plugintester": "^1.1.1",
+    "docpad-plugintester": "^1.2.0",
     "joe": "^2.0.2",
     "joe-reporter-console": "^2.0.2",
     "moment": "^2.22.2",

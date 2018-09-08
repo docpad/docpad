@@ -1,5 +1,9 @@
 # History
 
+## v6.82.4 2018 September 8
+- Report the correct error for missing action requests
+- Ensure `docpad-plugintester` dependency is latest
+
 ## v6.82.3 2018 September 8
 - Swapped out promptly for inquirer, which brings back Node v6 support (regression since v6.82.1)
     - Close [issue #1093](https://github.com/docpad/docpad/issues/1093)

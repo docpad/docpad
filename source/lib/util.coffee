@@ -315,11 +315,13 @@ module.exports = docpadUtil =
 
 			for action in actions
 				# Fetch
-				actionMethod = me[action].bind(me)
-
-				# Check
-				unless actionMethod
-					err = new Errlop(util.format(locale.actionNonexistant, action))
+				try
+					actionMethod = me[action].bind(me)
+				catch missingError
+					err = new Errlop(
+						util.format(locale.actionNonexistant, action),
+						missingError
+					)
 					return next(err); me
 
 				# Task
@@ -332,11 +334,13 @@ module.exports = docpadUtil =
 			action = actions[0]
 
 			# Fetch
-			actionMethod = me[action].bind(me)
-
-			# Check
-			unless actionMethod
-				err = new Errlop(util.format(locale.actionNonexistant, action))
+			try
+				actionMethod = me[action].bind(me)
+			catch missingError
+				err = new Errlop(
+					util.format(locale.actionNonexistant, action),
+					missingError
+				)
 				return next(err); me
 
 			# Task
