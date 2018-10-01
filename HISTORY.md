@@ -1,5 +1,8 @@
 # History
 
+## v6.82.5 2018 October 1
+- Prevent plugin `false` could not be loaded errors, now it will output the path that failed to be found, as expected
+
 ## v6.82.4 2018 September 8
 - Report the correct error for missing action requests
 - Ensure `docpad-plugintester` dependency is latest

@@ -3544,7 +3544,7 @@ class DocPad extends EventEmitterGrouped
 			)
 			.filter((name) -> name.startsWith('docpad-plugin-'))
 			.concat(config.pluginPaths or [])
-			.map((name) -> docpad.getPath('root', 'node_modules', name))
+			.map((name) -> docpad.getPath(false, 'root', 'node_modules', name))
 		)
 		plugins.forEach (pluginPath) ->
 			tasks.addTask "load the plugin at: #{pluginPath}", (complete) ->
