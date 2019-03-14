@@ -15,7 +15,7 @@
 - Add logging support to the pluginloader to make debugging plugin resolutions easier
 - Fixed failures of plugin loading and creation not being reported correctly
 - Ensure all dependencies are the latest right now, to help fix false negatives in plugin resolution
-- Close [thread #248](https://discuss.bevry.me/t/plugins-broken-in-6-82-1/248)
+- Close [thread #248](https://discuss.bevry.me/t/plugins-broken-in-6-82-1/573?u=balupton)
 
 ## v6.82.1 2018 September 7
 - Fixed initialising new projects (regression from v6.82.0)
@@ -30,7 +30,7 @@
 - Due to new dependency requirements, the minimum supported Node version is now Node version 6, which drops support for Node versions 0.10, 0.12, and 4.
     - Closes [issue #1086](https://github.com/docpad/docpad/issues/1086)
 - Fix DocPad not working on windows (regression since v6.81.0)
-    - Closes [issue #1088](https://github.com/docpad/docpad/issues/1088), [thread #240](https://discuss.bevry.me/t/error-cannot-find-module-editions/240), [issue #1085](https://github.com/docpad/docpad/issues/1085), [issue #1084](https://github.com/docpad/docpad/issues/1084)
+    - Closes [issue #1088](https://github.com/docpad/docpad/issues/1088), [thread #240](https://discuss.bevry.me/t/error-cannot-find-module-editions/570?u=balupton), [issue #1085](https://github.com/docpad/docpad/issues/1085), [issue #1084](https://github.com/docpad/docpad/issues/1084)
 - Progress indicator will now pause once the action has completed, and resume on new actions, this allows for cleaner shutdowns with no change of ability
 - Graceful shutdown is now offered by the `destroyOnExit` configuration option, which uses `process.on('beforeExit', docpad.onBeforeExit)` to destroy DocPad gracefully. This is now possible as we don't have to support Node 0.10. Before we had to do graceful shutdowns in a more complex and manual manner, which resulted in less graceful shutdowns.
 - DocPad will now longer output `The action completed successfully.`, as unless an error has displayed, then evidently everything remains successful
@@ -92,7 +92,7 @@
 
 ## v6.81.0 2018 August 21
 - This release accomplishes the removal of some long standing deprecations, for background reading refer to:
-    - [Deprecating In-Memory DocPad Importers & Exporters](https://discuss.bevry.me/t/deprecating-in-memory-docpad-importers-exporters/87)
+    - [Deprecating In-Memory DocPad Importers & Exporters](https://discuss.bevry.me/t/deprecating-in-memory-docpad-importers-exporters/591?u=balupton)
     - [Abstract out Server functionality into pluginland](https://github.com/docpad/docpad/issues/1081)
     - [Operation Disassemble & Diversify](https://github.com/docpad/docpad/issues/821)
     - To maintain static server functionality, install the [`serve` plugin](https://github.com/docpad/docpad-plugin-serve)
