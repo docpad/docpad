@@ -93,14 +93,13 @@ Here are some quick links to help you get started:
 - [Getting Started](https://docpad.bevry.me/docs/intro)
 - [Frequently Asked Questions](https://docpad.bevry.me/docs/faq)
 - [Showcase and Examples](https://docpad.bevry.me/docs/showcase)
-- [Guides and Tutorials](https://docpad.bevry.me/docs)
+- [Guides and Tutorials](https://docpad.bevry.me)
 - [Deployment Guide](https://docpad.bevry.me/docs/deploy)
 - [Extension Guide](https://docpad.bevry.me/docs/extend)
 - [Plugins](https://docpad.bevry.me/docs/plugins)
 - [Skeletons](https://docpad.bevry.me/docs/skeletons)
 - [Troubleshooting](https://docpad.bevry.me/docs/troubleshoot)
-- [Support Channels](https://docpad.bevry.me/support)
-- [Everything else](https://docpad.bevry.me/docs)
+- [Support Channels](https://bevry.me/support)
 
 
 <!-- HISTORY/ -->
