@@ -435,7 +435,7 @@
     - If you have functions inside your `docpad.cson` file:
         - Rename `docpad.cson` to `docpad.coffee`
         - Export your configuration inside `docpad.coffee` by doing: `module.exports = {your configuration data}`
-        - [Example `docpad.coffee` file.](https://docpad.org/docs/config)
+        - [Example `docpad.coffee` file.](https://docpad.bevry.me/docs/config)
 - Updated dependencies
 
 ## v6.69.2 2014 December 17
@@ -1058,7 +1058,7 @@
     - Added `docpad-debug` for easy debugging
     - Added `docpad-trace` for easy tracing
     - Added `--profile` for easy profiling
-    - See our [debug guide](http://docpad.org/docs/debug) for details
+    - See our [debug guide](http://docpad.bevry.me/docs/debug) for details
 
 ## v6.40.0 2013 June 24
 - Removed excessive dirname usage
@@ -1258,7 +1258,7 @@
 - When passing arrays to blocks we now clone the array to avoid modifying the argument
 
 ## v6.23.0 2013 March 6
-- DocPad can now handle foreign encodings when you set `detectEncoding: true` in the [docpad configuration](http://docpad.org/docs/config)
+- DocPad can now handle foreign encodings when you set `detectEncoding: true` in the [docpad configuration](http://docpad.bevry.me/docs/config)
     - Thanks to [Yellow Dragon](https://github.com/huanglong) for [issue #411](https://github.com/bevry/docpad/issues/411)
 
 ## v6.22.0 2013 March 6
