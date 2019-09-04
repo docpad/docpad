@@ -1,5 +1,3 @@
-[![DocPad Logo](https://raw.githubusercontent.com/bevry/designs/1437c9993a77b24c3ad1856087908b508f3ceec6/docpad/flyers/docpad-youtube.gif)](https://docpad.bevry.me "Visit the DocPad Website")
-
 <!-- TITLE/ -->
 
 <h1>DocPad. Streamlined web development.</h1>
