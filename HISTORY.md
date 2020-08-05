@@ -1,5 +1,9 @@
 # History
 
+## v6.83.1 2020 August 5
+
+-   Add a new `loadPlugins` event for use in the [`docpad-plugintester`](https://github.com/docpad/docpad-plugintester) to make sure all test plugins are properly loaded before `docpadReady` and other events are fired
+
 ## v6.83.0 2020 August 5
 
 -   Removed superflous option aliases
@@ -14,7 +18,7 @@
         -   `docpad skeleton` => `docpad init` (same functionality as selecting no sekleton)
     -   Removed version check
 -   Updated dependencies, [base files](https://github.com/bevry/base), and [editions](https://editions.bevry.me) using [boundation](https://github.com/bevry/boundation)
-    - This will bring a massive performance boost to DocPad, especially with [Caterpillar](https://github.com/bevry/caterpillar) v6 which allows DocPad to disable fetching line information (a very expensive process) for log messages we don't care about
+    -   This will bring a massive performance boost to DocPad, especially with [Caterpillar](https://github.com/bevry/caterpillar) v6 which allows DocPad to disable fetching line information (a very expensive process) for log messages we don't care about
 -   Minimum required node version changed from `node: >=6` to `node: >=10` to keep up with mandatory ecosystem changes
 
 ## v6.82.5 2018 October 1

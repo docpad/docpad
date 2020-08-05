@@ -437,6 +437,7 @@ class DocPad extends EventEmitterGrouped
 	# @property {Array} string array of event names
 	###
 	events: [
+		'loadPlugins'                  # fired each load
 		'extendCollections'            # fired each load
 		'extendTemplateData'           # fired each load
 		'docpadReady'                  # fired only once
@@ -3421,23 +3422,32 @@ class DocPad extends EventEmitterGrouped
 			docpad.log 'notice', util.format(locale.pluginsSlow, Object.keys(docpad.slowPlugins).join(', '))
 
 		# Async
-		tasks = @createTaskGroup("loadPlugins tasks", concurrency:0).done (err) ->
+		tasks = @createTaskGroup("loadPlugins tasks").done (err) ->
 			docpad.timer('slowplugins')
 			docpad.slowPlugins = {}
 			return next(err)
 
-		# Load the plugins
+		# Prepare the plugins to loaded
 		plugins = new Set(
 			Object.keys(docpad.websitePackageConfig.dependencies or {}).concat(
 				Object.keys(docpad.websitePackageConfig.devDependencies or {})
 			)
 			.filter((name) -> name.startsWith('docpad-plugin-'))
 			.concat(config.pluginPaths or [])
-			.map((name) -> docpad.getPath(false, 'root', 'node_modules', name))
+			.map((name) -> {
+				pluginPath: docpad.getPath(false, 'root', 'node_modules', name)
+			})
 		)
-		plugins.forEach (pluginPath) ->
-			tasks.addTask "load the plugin at: #{pluginPath}", (complete) ->
-				docpad.loadPlugin({pluginPath}, complete)
+
+		# Emit the even
+		tasks.addTask 'emit loadPlugins', (complete) ->
+			docpad.emitSerial('loadPlugins', {docpad, plugins}, complete)
+
+		# Load the plugins
+		tasks.addTaskGroup 'load plugins', {concurrency: 0}, (suite, task) ->
+			plugins.forEach (plugin) ->
+				tasks.addTask "load the plugin at: #{plugin.pluginPath}", (complete) ->
+					docpad.loadPlugin(plugin, complete)
 
 		# Execute the loading asynchronously
 		tasks.run()
