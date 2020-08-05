@@ -10,7 +10,7 @@ pathUtil = require('path')
 scandir = require('scandirectory')
 safefs = require('safefs')
 {equal, deepEqual} = require('assert-helpers')
-joe = require('joe')
+kava = require('kava')
 
 # Local
 DocPad = require('../lib/docpad')
@@ -60,7 +60,7 @@ docpad = null
 # -------------------------------------
 # Tests
 
-joe.suite 'docpad-actions', (suite,test) ->
+kava.suite 'docpad-actions', (suite,test) ->
 
 	test 'create', (done) ->
 		docpad = DocPad.create(docpadConfig, done)

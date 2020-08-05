@@ -6,8 +6,8 @@ util = require('util')
 pathUtil = require('path')
 
 # External
-Errlop = require('errlop')
-isTextOrBinary = require('istextorbinary')
+Errlop = require('errlop').default
+{ isText }  = require('istextorbinary')
 typeChecker = require('typechecker')
 safefs = require('safefs')
 mime = require('mime')
@@ -988,7 +988,7 @@ class FileModel extends Model
 
 	###*
 	# Parse our buffer and extract meaningful data from it.
-	# next(err).
+	# next(err)
 	# @method parse
 	# @param {Object} [opts]
 	# @param {Object} next callback
@@ -1003,10 +1003,8 @@ class FileModel extends Model
 
 		# Detect Encoding
 		if buffer and encoding? is false or opts.reencode is true
-			isText = isTextOrBinary.isTextSync(relativePath, buffer)
-
 			# Text
-			if isText is true
+			if isText(relativePath, buffer)
 				# Detect source encoding if not manually specified
 				if @detectEncoding
 					jschardet ?= require('jschardet')

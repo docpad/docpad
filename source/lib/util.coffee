@@ -6,7 +6,7 @@ pathUtil = require('path')
 util = require('util')
 
 # External
-Errlop = require('errlop')
+Errlop = require('errlop').default
 {uniq, compact} = require('underscore')
 extractOptsAndCallback = require('extract-opts')
 inquirer = require('inquirer')

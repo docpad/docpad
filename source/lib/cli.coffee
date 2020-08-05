@@ -33,171 +33,114 @@ module.exports = ->
 	cli = require('cac')()
 	locale = require('./locale/en')
 	DocPad = require('./docpad')
-	Errlop = require('errlop')
+	Errlop = require('errlop').default
 	docpad = null
 	instanceConfig = {}
 
 	# Global options
 	cli
-		.option('outPath', {
-			type: 'string',
-			desc: locale.consoleOptionOutPath
+		.option('--outpath <outPath>', locale.consoleOptionOutPath, {
+			type: 'string'
 		})
-		.option('configPaths', {
-			alias: ['configPath', 'config', 'c'],
+		.option('--config <configPaths>', locale.consoleOptionConfig, {
 			type: 'string',
-			desc: locale.consoleOptionConfig
 		})
-		.option('environment', {
-			alias: ['env', 'e'],
+		.option('--env <environment>', locale.consoleOptionEnv, {
 			type: 'string',
-			desc: locale.consoleOptionEnv
 		})
-		.option('logLevel', {
+		.option('--log <logLevel>', locale.consoleOptionLogLevel, {
 			type: 'string',
-			desc: locale.consoleOptionLogLevel
 		})
-		.option('verbose', {
-			alias: ['v'],
+		.option('--verbose, -v', locale.consoleOptionVerbose, {
 			type: 'boolean',
-			desc: locale.consoleOptionVerbose
 		})
-		.option('debug', {
-			alias: ['d'],
+		.option('--debug, -d', locale.consoleOptionDebug, {
 			type: 'boolean',
-			desc: locale.consoleOptionDebug
 		})
-		.option('global', {
+		.option('--global', locale.consoleOptionGlobal, {
 			type: 'boolean',
-			desc: locale.consoleOptionGlobal
 		})
-		.option('color', {
-			alias: ['colour'],
+		.option('--color, --colour', locale.consoleOptionColor, {
 			default: true,
 			type: 'boolean',
-			desc: locale.consoleOptionColor
 		})
-		.option('silent', {
+		.option('--silent', locale.consoleOptionSilent, {
 			type: 'boolean',
-			desc: locale.consoleOptionSilent
 		})
-		.option('progress', {
+		.option('--progress', locale.consoleOptionProgress, {
 			default: true,
 			type: 'boolean',
-			desc: locale.consoleOptionProgress
-		})
-		.option('offline', {
-			type: 'boolean',
-			desc: locale.consoleOptionOffline
 		})
 
 	# Commands
-	cli.command('run', {
-		desc: locale.consoleDescriptionRun
-	}, (input, flags) -> docpad?.action('run', {skeleton: flags.skeleton}))
-		.option('skeleton', {
-			type: 'string',
-			desc: locale.consoleOptionSkeleton
-		})
+	cli.command('run', locale.consoleDescriptionRun).action(-> docpad?.action('run'))
 
-	cli.command('init', {
-		desc: locale.consoleDescriptionInit
-	}, (input, flags) -> docpad?.action('skeleton', {skeleton: flags.skeleton}))
-		.option('skeleton', {
-			type: 'string',
-			desc: locale.consoleOptionSkeleton
-		})
+	cli.command('init', locale.consoleDescriptionInit).action(-> docpad?.action('init'))
 
-	cli.command('generate', {
-		desc: locale.consoleDescriptionGenerate
-	}, (input, flags) -> docpad?.action('generate'))
+	cli.command('generate', locale.consoleDescriptionGenerate).action(-> docpad?.action('generate'))
 
-	cli.command('render', {
-		desc: locale.consoleDescriptionRender,
-		examples: [
-			'docpad render <filename>',
-			'docpad render <filepath>',
-			"echo '*example*' | docpad render"
-		]
-	}, (input, flags) ->
+	cli.command('render [input]', locale.consoleDescriptionRender).action((input, options) ->
 		instanceConfig.silent = true
 		docpad?.action('render', {
-			filename: input[0],
+			filename: input,
 			renderSingleExtensions: 'auto',
-			output: flags.output ? true,
-			stdin: flags.stdin
+			output: options?.output ? true,
+			stdin: options?.stdin
 		})
-	).option('output', {
-		alias: ['out', 'o'],
+	).option('--output <output>', locale.consoleOptionOutput, {
 		type: 'string',
-		desc: locale.consoleOptionOutput
-	}).option('stdin', {
+	}).option('--stdin', locale.consoleOptionStdin, {
 		type: 'boolean',
-		desc: locale.consoleOptionStdin
-	})
+	}).example('docpad render <filename>').example('docpad render <filepath>').example("echo '*example*' | docpad render")
 
-	cli.command('watch', {
-		desc: locale.consoleDescriptionWatch
-	}, (input, flags) -> docpad?.action('generate watch'))
+	cli.command('watch', locale.consoleDescriptionWatch).action(-> docpad?.action('generate watch'))
 
-	cli.command('clean', {
-		desc: locale.consoleDescriptionClean
-	}, (input, flags) -> docpad?.action('clean'))
+	cli.command('clean', locale.consoleDescriptionClean).action(-> docpad?.action('clean'))
 
-	cli.command('update', {
-		desc: locale.consoleDescriptionUpdate
-	}, (input, flags) -> docpad?.action('clean update'))
+	cli.command('update', locale.consoleDescriptionUpdate).action(-> docpad?.action('clean update'))
 
-	cli.command('upgrade', {
-		desc: locale.consoleDescriptionUpdate
-	}, (input, flags) -> docpad?.action('upgrade'))
+	cli.command('upgrade', locale.consoleDescriptionUpdate).action(-> docpad?.action('upgrade'))
 
-	cli.command('install', {
-		desc: locale.consoleDescriptionInstall,
-		examples: ['install <plugin>']
-	}, (input, flags) -> docpad?.action('install', {plugin: input[0]}))
+	cli.command('install', locale.consoleDescriptionInstall).action(-> docpad?.action('install', {plugin: input[0]})).example('install <plugin>')
 
-	cli.command('uninstall', {
-		desc: locale.consoleDescriptionUninstall,
-		examples: ['uninstall <plugin>']
-	}, (input, flags) -> docpad?.action('uninstall', {plugin: input[0]}))
+	cli.command('uninstall', locale.consoleDescriptionUninstall).action(-> docpad?.action('uninstall', {plugin: input[0]})).example('uninstall <plugin>')
 
-	cli.command('info', {
-		desc: locale.consoleDescriptionInfo
-	}, (input, flags) ->
+	cli.command('info', locale.consoleDescriptionInfo).action(->
 		instanceConfig.silent = true
 		docpad?.action('info')
 	)
 
+	# Help
+	cli.help()
+
+	# Unknown
+	cli.on('command:*', -> cli.showHelp())
+
 	# ---------------------------------
 	# DocPad
-
-	# Convert help command to --help
-	process.argv[2] = '--help'  if process.argv[2] is 'help'
 
 	# Fetch options
 	result = cli.parse()
 
 	# Exit if we are help
-	return  if result.flags.help
+	return  if result.options.help
 
-	# Otherwie, apply the configuration options to the instanceConfig
+	# Otherwise, apply the configuration options to the instanceConfig
 	Object.keys(DocPad.prototype.initialConfig).forEach (name) ->
-		value = result.flags[name]
+		value = result.options[name]
 		instanceConfig[name] ?= value  if value?
 
 	# Create
 	docpad = new DocPad instanceConfig, (err) ->
-		return docpad.fatal(err)  if err
+		if err
+			console.error(err)
+			return docpad.fatal(err)
 
 		# CLI
 		docpad.emitSerial 'consoleSetup', {cac: cli}, (err) ->
-			return docpad.fatal(err)  if err
-
-			# Help
-			cli.command('*', {
-				desc: locale.consoleDescriptionUnknown
-			}, (input, flags) -> cli.showHelp())
+			if err
+				console.error(err)
+				return docpad.fatal(err)
 
 			# Run the command
 			cli.parse()

@@ -6,7 +6,7 @@ pathUtil = require('path')
 
 # External
 {equal, errorEqual} = require('assert-helpers')
-joe = require('joe')
+kava = require('kava')
 
 # Local
 DocPad = require('../lib/docpad')
@@ -47,7 +47,7 @@ docpad = null
 # -------------------------------------
 # Tests
 
-joe.suite 'docpad-api', (suite,test) ->
+kava.suite 'docpad-api', (suite,test) ->
 
 	# Create a DocPad Instance
 	suite 'create', (suite,test) ->

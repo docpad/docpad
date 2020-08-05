@@ -8,7 +8,7 @@ pathUtil = require('path')
 safefs = require('safefs')
 safeps = require('safeps')
 {equal, errorEqual} = require('assert-helpers')
-joe = require('joe')
+kava = require('kava')
 
 # Local
 docpadUtil = require('../lib/util')
@@ -24,14 +24,14 @@ rootPath   = pathUtil.join(docpadPath, 'test')
 renderPath = pathUtil.join(rootPath, 'render')
 outPath    = pathUtil.join(rootPath, 'render-actual-' + Math.floor(Math.random() * 100000))
 expectPath = pathUtil.join(rootPath, 'render-expected')
-cliPath    = pathUtil.join(docpadPath, 'bin.js')
+cliPath    = pathUtil.join(docpadPath, 'bin.cjs')
 nodePath   = null
 
 
 # -------------------------------------
 # Tests
 
-joe.suite 'docpad-render', (suite,test) ->
+kava.suite 'docpad-render', (suite,test) ->
 
 	suite 'files', (suite,test) ->
 		# Check render physical files
@@ -109,7 +109,7 @@ joe.suite 'docpad-render', (suite,test) ->
 			test item.testname, (done) ->
 				command = ['node', cliPath, '--global', 'render']
 				command.push(item.filename)  if item.filename
-				command.push('-o', item.outpath)  if item.outpath
+				command.push('--output', item.outpath)  if item.outpath
 				command.push('--stdin')  if item.stdin
 				opts = {
 					stdin: item.stdin,

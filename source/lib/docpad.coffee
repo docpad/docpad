@@ -11,7 +11,9 @@ util = require('util')
 pathUtil = require('path')
 
 # External
-Errlop = require('errlop')
+{ Logger, Human, Filter } = require('caterpillar')
+fsUtil = require('fs')
+Errlop = require('errlop').default
 queryEngine = require('query-engine')
 {uniq, union, pick} = require('underscore')
 CSON = require('cson')
@@ -52,7 +54,7 @@ ScriptsCollection = require('./collections/scripts')
 StylesCollection = require('./collections/styles')
 
 # Plugins
-PluginLoader = require('@bevry/pluginloader')
+PluginLoader = require('@bevry/pluginloader').default
 BasePlugin = require('docpad-baseplugin')
 
 
@@ -251,25 +253,18 @@ class DocPad extends EventEmitterGrouped
 	getProcessVersion: -> process.version.replace(/^v/,'')
 
 	###*
-	# Internal property. The caterpillar logger instances bound to DocPad
+	# Internal property. The caterpillar logger instance bound to DocPad
 	# @private
 	# @property {Object} loggerInstances
 	###
-	loggerInstances: null
+	logger: null
 
 	###*
 	# Get the caterpillar logger instance bound to DocPad
 	# @method getLogger
 	# @return {Object} caterpillar logger
 	###
-	getLogger: -> @loggerInstances?.logger
-
-	###*
-	# Get all the caterpillar logger instances bound to DocPad
-	# @method getLoggers
-	# @return {Object} collection of caterpillar loggers
-	###
-	getLoggers: -> @loggerInstances
+	getLogger: -> @logger
 
 	###*
 	# Destructor. Destroy the caterpillar logger instances bound to DocPad
@@ -277,11 +272,8 @@ class DocPad extends EventEmitterGrouped
 	# @method {Object} destroyLoggers
 	###
 	destroyLoggers: ->
-		if @loggerInstances
-			for own key,value of @loggerInstances
-				value.end()
-				@loggerInstances[key] = null
-			@loggerInstances = null
+		# @logger.end()
+		@logger = null
 		@
 
 	###*
@@ -845,67 +837,6 @@ class DocPad extends EventEmitterGrouped
 		file = opts.collection.fuzzyFindOne(selector)
 		return file
 
-	# ---------------------------------
-	# Skeletons
-
-
-	###*
-	# Skeletons Collection
-	# @private
-	# @property {Object} skeletonsCollection
-	###
-	skeletonsCollection: null
-
-	###*
-	# Get Skeletons
-	# Get all the available skeletons with their details and
-	# return this collection to the supplied callback.
-	# @method getSkeletons
-	# @param {Function} next
-	# @param {Error} next.err
-	# @param {Object} next.skeletonsCollection DocPad collection of skeletons
-	# @return {Object} DocPad skeleton collection
-	###
-	getSkeletons: (next) ->
-		# Prepare
-		docpad = @
-		locale = @getLocale()
-
-		# Check if we have cached locally
-		if @skeletonsCollection?
-			return next(null, @skeletonsCollection)
-
-		# Fetch the skeletons from the exchange
-		@skeletonsCollection = new Collection()
-		@skeletonsCollection.comparator = queryEngine.generateComparator(position:1, name:1)
-		@getExchange (err,exchange) ->
-			# Check
-			return next(err)  if err
-
-			# Prepare
-			index = 0
-
-			# If we have the exchange data, then add the skeletons from it
-			if exchange
-				eachr exchange.skeletons, (skeleton, skeletonKey) ->
-					skeleton.id ?= skeletonKey
-					skeleton.name ?= skeletonKey
-					skeleton.position ?= index
-					docpad.skeletonsCollection.add(new Model(skeleton))
-					++index
-
-			# Add No Skeleton Option
-			docpad.skeletonsCollection.add(new Model(
-				id: 'none'
-				name: locale.skeletonNoneName
-				description: locale.skeletonNoneDescription
-				position: index
-			))
-
-			# Return Collection
-			return next(null, docpad.skeletonsCollection)
-		@
-
 
 	# ---------------------------------
 	# Plugins
@@ -922,12 +853,6 @@ class DocPad extends EventEmitterGrouped
 	# @property {Object} loadedPlugins
 	###
 	loadedPlugins: null  # {}
-
-	###*
-	# A listing of all the available extensions for DocPad
-	# @property {Object} exchange
-	###
-	exchange: null  # {}
 
 	# -----------------------------
 	# Paths
@@ -1321,8 +1246,8 @@ class DocPad extends EventEmitterGrouped
 
 		# Silent
 		# Will set the following
-		# logLEvel = 3
-		# progress = welcome = checkVersion = false
+		# logLevel = 3
+		# progress = welcome = false
 		silent: false
 
 		# Progress
@@ -1392,25 +1317,10 @@ class DocPad extends EventEmitterGrouped
 		# How many times should we render documents that reference other documents?
 		renderPasses: 1
 
-		# Offline
-		# Whether or not we should run in offline mode
-		# Offline will disable the following:
-		# - checkVersion
-		# - fetching skeletons
-		offline: false
-
-		# Check Version
-		# Whether or not to check for newer versions of DocPad
-		checkVersion: false
-
 		# Powered By DocPad
 		# Whether or not we should include DocPad in the Powered-By meta header
 		# Please leave this enabled as it is a standard practice and promotes DocPad in the web eco-system
 		poweredByDocPad: true
-
-		# Helper Url
-		# Helper's source-code can be found at: https://github.com/docpad/helper
-		helperUrl: if true then 'http://helper.docpad.org/' else 'http://localhost:8000/'
 
 		# Template Data
 		# What data would you like to expose to your templates
@@ -1452,7 +1362,6 @@ class DocPad extends EventEmitterGrouped
 		environments:
 			development:
 				# Only do these if we are running standalone (aka not included in a module)
-				checkVersion: isUser
 				welcome: isUser
 				progress: isUser
 
@@ -1551,7 +1460,6 @@ class DocPad extends EventEmitterGrouped
 		# we deliberately ommit initialTemplateData here, as it is setup in getTemplateData
 		@slowPlugins = {}
 		@loadedPlugins = {}
-		@exchange = {}
 		@pluginsTemplateData = {}
 		@collections = []
 		@blocks = {}
@@ -1562,31 +1470,40 @@ class DocPad extends EventEmitterGrouped
 		@instanceConfig = instanceConfig or {}
 		@config = @mergeConfigs()
 
-		# Create and apply the loggers
-		@loggerInstances = {}
-		@loggerInstances.logger = require('caterpillar').create(lineOffset: 2)
-		@loggerInstances.console = @loggerInstances.logger
-				.pipe(
-					require('caterpillar-filter').create()
-				)
-				.pipe(
-					require('caterpillar-human').create(color: @config.color)
-				)
+		# Prepare the loggers
+		instanceConfig.logLevel ?= @initialConfig.logLevel
+		color = instanceConfig.color
+		lineLevel = -1
+		if instanceConfig.silent
+			instanceConfig.logLevel = 3  # 3:error, 2:critical, 1:alert, 0:emergency
+			instanceConfig.progress = instanceConfig.welcome = false
+		if instanceConfig.verbose || instanceConfig.debug
+			instanceConfig.logLevel = 7
+			lineLevel = 7
 
-		# Create the debug logger
+		# Create the loggers
+		logger = new Logger({lineLevel: lineLevel})
+		filter = new Filter({filterLevel: instanceConfig.logLevel})
+
+		# Apply the loggers
+		@logger = logger
+
+		# Console
+		logger.pipe(filter).pipe(
+			new Human({ color: color })
+		).pipe(process.stdout)
+
+		# File
 		if instanceConfig.debug
 			logPath = @getPath(false, 'log')
 			safefs.unlink logPath, =>
-				@loggerInstances.debug = @loggerInstances.logger
+				logger
 					.pipe(
-						require('caterpillar-human').create(color: false)
+						new Human(color: false)
 					)
 					.pipe(
-						require('fs').createWriteStream(logPath)
+						fsUtil.createWriteStream(logPath)
 					)
-
-		# Start logging
-		@loggerInstances.console.pipe(process.stdout)
 
 		# Forward log events to the logger
 		@on 'log', (args...) ->
@@ -1955,9 +1872,6 @@ class DocPad extends EventEmitterGrouped
 		# Render Single Extensions
 		@DocumentModel::defaults.renderSingleExtensions = config.renderSingleExtensions
 
-		# Version Check
-		@compareVersion()
-
 		# Fetch the plugins
 		pluginsList = Object.keys(@loadedPlugins).sort().join(', ')
 
@@ -2058,18 +1972,6 @@ class DocPad extends EventEmitterGrouped
 
 		# Merge the configurations together
 		@config = @mergeConfigs()
-
-		# Shorthands
-		if @config.offline
-			@config.checkVersion = false
-		if @config.silent
-			@config.logLevel = 3 # 3:error, 2:critical, 1:alert, 0:emergency
-			@config.progress = @config.welcome = @config.checkVersion = false
-		if @config.verbose
-			@config.logLevel = 7
-
-		# Apply the log level
-		@setLogLevel(@config.logLevel)
 
 		# Update the progress bar configuration
 		@updateProgress()
@@ -2651,7 +2553,7 @@ class DocPad extends EventEmitterGrouped
 		scripts = @getBlock('scripts').reset([])
 		styles = @getBlock('styles').reset([])
 		# ^ Backbone.js v1.1 changes the return values of these, however we change that in our Element class
-		# because if we didn't, all our skeletons would fail
+		# because if we didn't, all our projects would fail
 
 		# Add default block entries
 		meta.add("""<meta name="generator" content="DocPad v#{docpad.getVersion()}" />""")  if docpad.getConfig().poweredByDocPad isnt false
@@ -2709,7 +2611,6 @@ class DocPad extends EventEmitterGrouped
 		# Command
 		command = ['npm', 'install']
 		command.push(opts.args...)
-		command.push('--no-registry')  if config.offline
 
 		# Log
 		docpad.log('info', command.join(' '))
@@ -2791,7 +2692,6 @@ class DocPad extends EventEmitterGrouped
 
 		# Arguments
 		command.push(opts.args...)
-		command.push('--no-registry')  if config.Offline
 		command.push(opts.save...)     if opts.save and opts.save.length
 		command.push('--global')       if opts.global
 
@@ -2853,17 +2753,6 @@ class DocPad extends EventEmitterGrouped
 
 	# =================================
 	# Logging
-
-	###*
-	# Set the log level
-	# @private
-	# @method setLogLevel
-	# @param {Number} level
-	###
-	setLogLevel: (level) ->
-		level = 7  if level is true
-		@getLogger().setConfig({level})
-		@
 
 	###*
 	# Get the log level
@@ -3499,7 +3388,7 @@ class DocPad extends EventEmitterGrouped
 	# @return {Boolean}
 	###
 	hasPlugins: ->
-		return typeChecker.isEmptyObject(@loadedPlugins) is false
+		return typeChecker.isEmptyPlainObject(@loadedPlugins) is false
 
 	###*
 	# Destructor. Destroy plugins
@@ -3635,93 +3524,6 @@ class DocPad extends EventEmitterGrouped
 
 	# =================================
 	# Utilities
-
-	# ---------------------------------
-	# Utilities: Misc
-
-	###*
-	# Compare current DocPad version to the latest
-	# and print out the result to the console.
-	# Used at startup.
-	# @private
-	# @method compareVersion
-	###
-	compareVersion: ->
-		# Prepare
-		docpad = @
-		config = @getConfig()
-		locale = @getLocale()
-
-		# Check
-		return @  unless config.checkVersion
-
-		# Check
-		balUtil.packageCompare(
-			local: @packagePath
-			remote: config.helperUrl+'latest'
-			newVersionCallback: (details) ->
-				isLocalInstallation = docpadUtil.isLocalDocPadExecutable()
-				message = (if isLocalInstallation then locale.versionOutdatedLocal else locale.versionOutdatedGlobal)
-				currentVersion = 'v'+details.local.version
-				latestVersion = 'v'+details.remote.version
-				upgradeUrl = details.local.upgradeUrl or details.remote.installUrl or details.remote.homepage
-				messageFilled = util.format(message, currentVersion, latestVersion, upgradeUrl)
-				docpad.notify(latestVersion, title:locale.versionOutdatedNotification)
-				docpad.log('notice', messageFilled)
-		)
-
-		# Chain
-		@
-
-
-	# ---------------------------------
-	# Utilities: Exchange
-
-
-	###*
-	# Get DocPad's exchange data
-	# Requires internet access
-	# next(err,exchange)
-	# @private
-	# @method getExchange
-	# @param {Function} next
-	# @param {Error} next.err
-	# @param {Object} next.exchange docpad.exchange
-	###
-	getExchange: (next) ->
-		# Prepare
-		docpad = @
-		config = @getConfig()
-		locale = @getLocale()
-
-		# Check if it is stored locally
-		return next(null, docpad.exchange)  if typeChecker.isEmptyObject(docpad.exchange) is false
-
-		# Offline?
-		return next(null, null)  if config.offline
-
-		# Log
-		docpad.log('info', locale.exchangeUpdate+' '+locale.pleaseWait)
-
-		# Otherwise fetch it from the exchangeUrl
-		exchangeUrl = config.helperUrl+'?method=exchange&version='+@version
-		docpad.loadConfigUrl exchangeUrl, (err,parsedData) ->
-			# Check
-			if err
-				locale = docpad.getLocale()
-				docpad.warn(new Errlop(locale.exchangeError, err))
-				return next()
-
-			# Log
-			docpad.log('info', locale.exchangeUpdated)
-
-			# Success
-			docpad.exchange = parsedData
-			return next(null, parsedData)
-
-		# Chain
-		@
-
 
 	# ---------------------------------
 	# Utilities: Files
@@ -4822,10 +4624,10 @@ class DocPad extends EventEmitterGrouped
 			# Check if our directory is empty
 			if files.length
 				# It isn't empty, display a warning
-				docpad.warn util.format(locale.skeletonNonexistant, rootPath)
+				docpad.warn util.format(locale.invalidProject, rootPath)
 				return next()
 			else
-				docpad.skeleton opts, (err) ->
+				docpad.init opts, (err) ->
 					# Check
 					return next(err)  if err
 
@@ -4860,10 +4662,10 @@ class DocPad extends EventEmitterGrouped
 		@
 
 	# ---------------------------------
-	# Skeleton
+	# Project
 
 	###*
-	# Initialize the skeleton install process.
+	# Initialize the project install process.
 	# @private
 	# @method initInstall
 	# @param {Object} opts
@@ -5110,249 +4912,73 @@ class DocPad extends EventEmitterGrouped
 		# Chain
 		@
 
-
-
 	###*
-	# Initialize a Skeleton into to a Directory
+	# Initialize the directory for DocPad
 	# @private
-	# @method initSkeleton
-	# @param {Object} skeletonModel
+	# @method init
 	# @param {Function} next
 	# @param {Error} next.err
 	###
-	initSkeleton: (skeletonModel,next) ->
+	init: (opts,next) ->
 		# Prepare
 		docpad = @
 		config = @getConfig()
 		rootPath = @getPath(false, 'root')
 
 		# Tasks
-		tasks = @createTaskGroup("initSkeleton tasks").done(next)
+		tasks = @createTaskGroup("init tasks").done(next)
 
 		tasks.addTask "ensure the path we are writing to exists", (complete) ->
 			safefs.ensurePath(rootPath, complete)
 
-		# Clone out the repository if applicable
-		if skeletonModel? and skeletonModel.id isnt 'none'
-			tasks.addTask "clone out the git repo", (complete) ->
-				docpad.initGitRepo({
-					cwd: rootPath
-					url: skeletonModel.get('repo')
-					branch: skeletonModel.get('branch')
-					remote: 'skeleton'
-					next: complete
-				})
-		else
-			tasks.addTask "ensure src path exists", (complete) ->
-				safefs.ensurePath(docpad.getPath(false, 'source'), complete)
+		tasks.addTask "ensure src path exists", (complete) ->
+			safefs.ensurePath(docpad.getPath(false, 'source'), complete)
 
-			tasks.addGroup "initialize the website directory files", ->
-				@setConfig(concurrency:0)
+		tasks.addGroup "initialize the website directory files", ->
+			@setConfig(concurrency:0)
 
-				# README
-				@addTask "README.md", (complete) ->
-					readmePath = docpad.getPath(false, 'root', 'README.md')
-					data = """
-						# Your [DocPad](http://docpad.org) Project
+			# README
+			@addTask "README.md", (complete) ->
+				readmePath = docpad.getPath(false, 'root', 'README.md')
+				data = """
+					# Your [DocPad](http://docpad.org) Project
 
-						## License
-						Copyright &copy; #{(new Date()).getFullYear()}+ All rights reserved.
-						"""
-					safefs.writeFile(readmePath, data, complete)
+					## License
+					Copyright &copy; #{(new Date()).getFullYear()}+ All rights reserved.
+					"""
+				safefs.writeFile(readmePath, data, complete)
 
-				# Config
-				@addTask "docpad.coffee configuration file", (complete) ->
-					configPath = docpad.getPath(false, 'root', 'docpad.js')
-					data = """
-						// DocPad Configuration File
-						// http://docpad.org/docs/config
+			# Config
+			@addTask "docpad.coffee configuration file", (complete) ->
+				configPath = docpad.getPath(false, 'root', 'docpad.js')
+				data = """
+					// DocPad Configuration File
+					// http://docpad.org/docs/config
 
-						// Define the DocPad Configuration
-						const docpadConfig = {
-							// ...
-						}
+					// Define the DocPad Configuration
+					const docpadConfig = {
+						// ...
+					}
 
-						// Export the DocPad Configuration
-						module.exports = docpadConfig
-						"""
-					safefs.writeFile(configPath, data, complete)
+					// Export the DocPad Configuration
+					module.exports = docpadConfig
+					"""
+				safefs.writeFile(configPath, data, complete)
 
-				# Documents
-				@addTask "documents directory", (complete) ->
-					safefs.ensurePath(docpad.getPath(false, 'document'), complete)
+			# Documents
+			@addTask "documents directory", (complete) ->
+				safefs.ensurePath(docpad.getPath(false, 'document'), complete)
 
-				# Layouts
-				@addTask "layouts directory", (complete) ->
-					safefs.ensurePath(docpad.getPath(false, 'layout'), complete)
+			# Layouts
+			@addTask "layouts directory", (complete) ->
+				safefs.ensurePath(docpad.getPath(false, 'layout'), complete)
 
-				# Files
-				@addTask "files directory", (complete) ->
-					safefs.ensurePath(docpad.getPath(false, 'file'), complete)
+			# Files
+			@addTask "files directory", (complete) ->
+				safefs.ensurePath(docpad.getPath(false, 'file'), complete)
 
 		# Run
 		tasks.run()
-
-		# Chain
-		@
-
-	###*
-	# Install a Skeleton into a Directory
-	# @private
-	# @method installSkeleton
-	# @param {Object} skeletonModel
-	# @param {Function} next
-	# @param {Error} next.err
-	###
-	installSkeleton: (skeletonModel,next) ->
-		# Prepare
-		docpad = @
-
-		# Initialize and install the skeleton
-		docpad.initSkeleton skeletonModel, (err) ->
-			# Check
-			return next(err)  if err
-
-			# Forward
-			docpad.install(null, next)
-
-		# Chain
-		@
-
-	###*
-	# Use a Skeleton
-	# @private
-	# @method useSkeleton
-	# @param {Object} skeletonModel
-	# @param {Object} opts
-	# @param {Object} next
-	# @param {Error} next.err
-	# @return {Object} description
-	###
-	useSkeleton: (skeletonModel,next) ->
-		# Prepare
-		docpad = @
-		locale = @getLocale()
-
-		# Extract
-		skeletonId = skeletonModel?.id or 'none'
-		skeletonName = skeletonModel?.get('name') or locale.skeletonNoneName
-
-		# Log
-		docpad.log('info', util.format(locale.skeletonInstall, skeletonName)+' '+locale.pleaseWait)
-
-		# Install Skeleton
-		docpad.installSkeleton skeletonModel, (err) ->
-			# Error?
-			return next(err)  if err
-
-			# Log
-			docpad.log('info', locale.skeletonInstalled)
-
-			# Forward
-			return next(err)
-
-		# Chain
-		@
-
-
-	###*
-	# Select a Skeleton
-	# @private
-	# @method selectSkeleton
-	# @param {Object} opts
-	# @param {Function} next
-	# @param {Error} next.err
-	# @param {Error} next.skeletonModel
-	###
-	selectSkeleton: (opts,next) ->
-		# Prepare
-		[opts,next] = extractOptsAndCallback(opts,next)
-		docpad = @
-		locale = @getLocale()
-		config = @getConfig()
-
-		# Get the available skeletons
-		docpad.getSkeletons (err,skeletonsCollection) ->
-			# Check
-			return next(err)  if err
-
-			# Prepare
-			skeleton = opts.skeleton
-
-			# Already selected
-			if skeleton
-				skeletonModel = skeletonsCollection.get(skeleton)
-				if skeletonModel
-					return next(null, skeletonModel)
-				else
-					return next(new Errlop(
-						"Couldn't fetch the skeleton with id #{@commander.skeleton}"
-					))
-
-			# Show
-			docpad.log('info', locale.skeletonSelectionIntroduction + '\n')
-			skeletonNames = skeletonsCollection.map (skeletonModel) ->
-				skeletonName = skeletonModel.get('name')
-				skeletonDescription = skeletonModel.get('description').replace(/\n/g, '\n\t')
-				console.log "  #{ansiStyles.underline skeletonName}\n  #{skeletonDescription}\n"
-				return skeletonName
-
-			# Select
-			docpadUtil.choose locale.skeletonSelectionPrompt, skeletonNames, {}, (err, name) ->
-				return next(err)  if err
-				index = skeletonNames.indexOf(name)
-				return next(null, skeletonsCollection.at(index))
-
-		# Chain
-		@
-
-	###*
-	# Fail if the skeleton is not empty
-	# @private
-	# @method skeletonEmpty
-	# @param {Function} next
-	# @param {Error} next.err
-	###
-	skeletonEmpty: (next) ->
-		# Prepare
-		locale = @getLocale()
-		packagePath = @getPath('package')
-
-		# Check
-		if packagePath
-			err = new Errlop(locale.skeletonExists)
-			return next(err)
-
-		# Success
-		return next()
-
-	###*
-	# Initialize the project directory
-	# with the basic skeleton.
-	# @private
-	# @method skeleton
-	# @param {Object} opts
-	# @param {Function} next
-	# @param {Error} next.err
-	###
-	skeleton: (opts,next) ->
-		# Prepare
-		[opts,next] = extractOptsAndCallback(opts,next)
-		docpad = @
-		opts.selectSkeletonCallback ?= null
-
-		# Init the directory with the basic skeleton
-		@skeletonEmpty (err) ->
-			# Check
-			return next(err)  if err
-
-			# Select Skeleton
-			docpad.selectSkeleton opts, (err,skeletonModel) ->
-				# Check
-				return next(err)  if err
-
-				# Use Skeleton
-				docpad.useSkeleton(skeletonModel, next)
 
 		# Chain
 		@

@@ -1,23 +1,14 @@
 module.exports = {
-	# Skeleton
-	pleaseWait: "\nThis can take a moment..."
-	exchangeUpdate: "Updating the exchange..."
-	exchangeUpdated: "Updated the exchange"
-	skeletonSelectionIntroduction: "You are about to create your new project inside your current directory. Below is a list of skeletons to bootstrap your new project:"
-	skeletonSelectionPrompt: "Which skeleton will you use?"
-	skeletonInstall: "Installing the %s skeleton"
-	skeletonInstalled: "Installed the skeleton successfully!"
-	skeletonExists: "Didn't place the skeleton as the desired structure already exists"
-	skeletonNonexistant: """
+	# Project
+	invalidProject: """
 		We couldn't find an existing DocPad project inside your current directory. Looked at: %s
-		If you're wanting to use a pre-made skeleton for the basis of your new project, then run DocPad again inside an empty directory.
+		If you're wanting to use a pre-made project, then refer to:
+		    https://github.com/search?q=topic%3Adocpad-project
 		If you're wanting to start your new project from scratch, then refer to the Getting Started guide here:
 		    https://docpad.org/docs/start
 		For more information about what this means, visit:
 		    https://docpad.org/troubleshoot
 		"""
-	skeletonNoneName: "No Skeleton"
-	skeletonNoneDescription: "Prefer to start from scratch? You can get started without any skeleton if you wish"
 
 	# Watching
 	watchStart: 'Watching is starting...'
@@ -90,7 +81,7 @@ module.exports = {
 
 	# Action
 	actionStart: "The action [%s] is starting..."
-	actionSuccess: "The action [%s] compelted successfully!"
+	actionSuccess: "The action [%s] completed successfully!"
 	actionFailure: "The action [%s] failed to complete!"
 	actionNonexistant: "The action %s does not exist"
 	actionEmpty: "No action was provided"
@@ -158,10 +149,8 @@ module.exports = {
 	consoleOptionVerbose: "set log level to 7"
 	consoleOptionDebug: "output a log file"
 	consoleOptionColor: "use color in terminal output"
-	consoleOptionOffline: "don't do any remote requests"
 	consoleOptionSilent: "don't write anything that isn't essential"
 	consoleOptionProgress: "output the progress as it occurs"
-	consoleOptionSkeleton: "specify the id of a skeleton to use instead of prompting"
 
 	# Misc
 	emittingEvent: "Emitting the event: %s"
@@ -191,19 +180,7 @@ module.exports = {
 	errorOccured: "An error occured:"
 	errorSubmission: "Please report it using this guide: https://docpad.org/bug-report"
 	errorInvalidCollection: "The custom collection %s is not a valid collection instance"
-	exchangeError: "An error occurred fetching the exchange data, this is okay, but not all skeletons will be available to you"
 	unknownModelInCollection: "Unknown model structure inside the collection"
-	versionOutdatedLocal: """
-		There's a new version of DocPad available!
-		  Run `docpad upgrade; docpad update` to update your local installation: %s to %s
-		  For more information, visit: %s
-		"""
-	versionOutdatedGlobal: """
-		There's a new version of DocPad available!
-		  Run `docpad upgrade` to upgrade your global installation: %s to %s
-		  For more information, visit: %s
-		"""
-	versionOutdatedNotification: "New version of DocPad!"
 	startLocal: "Shutting down the global DocPad, and starting up the local"
 	consoleExit: "Console is exiting..."
 	destroyDocPad: "DocPad is shutting down..."

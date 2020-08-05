@@ -3,8 +3,8 @@
   "private": true,
   "version": "0.1.0",
   "dependencies": {
-    "docpad-plugin-coffeekup": "~2.5.0",
-    "docpad-plugin-eco": "~2.3.0",
-    "docpad-plugin-marked": "~2.5.0"
+    "docpad-plugin-coffeekup": "~2.6.0",
+    "docpad-plugin-eco": "~2.5.0",
+    "docpad-plugin-marked": "~2.6.0"
   }
 }

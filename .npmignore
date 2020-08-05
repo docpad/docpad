@@ -1,11 +1,10 @@
-# 2018 September 3
+# 2020 May 5
 # https://github.com/bevry/base
 
 # System Files
 **/.DS_Store
 
 # Temp Files
-yarn.lock
 **/.docpad.db
 **/*.log
 **/*.cpuprofile
@@ -25,6 +24,15 @@ build/
 components/
 bower_components/
 node_modules/
+.pnp/
+.pnp.js
+
+# Ecosystem Files
+.dependabout
+.github
+
+# -------------------------------------
+# CDN Inclusions, Package Exclusions
 
 # Documentation Files
 docs/

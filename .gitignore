@@ -1,11 +1,10 @@
-# 2018 September 3
+# 2020 June 3
 # https://github.com/bevry/base
 
 # System Files
 **/.DS_Store
 
 # Temp Files
-yarn.lock
 **/.docpad.db
 **/*.log
 **/*.cpuprofile
@@ -15,6 +14,15 @@ yarn.lock
 .c9/
 .vscode/
 
+# Yarn Files
+.yarn/*
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+.pnp/
+
 # Private Files
 .env
 .idea
@@ -22,15 +30,19 @@ yarn.lock
 
 # Build Caches
 build/
-components/
 bower_components/
 node_modules/
+.next/
+
+# -------------------------------------
+# CDN Inclusions, Git Exclusions
 
 # Build Outputs
 **/out.*
 **/*.out.*
 **/out/
 **/output/
+*compiled*
 edition*/
 coffeejs/
 coffee/

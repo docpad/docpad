@@ -7,7 +7,7 @@ pathUtil = require('path')
 docpadUtil = require('../util')
 
 # External
-Errlop = require('errlop')
+Errlop = require('errlop').default
 CSON = require('cson')
 extendr = require('extendr')
 eachr = require('eachr')
