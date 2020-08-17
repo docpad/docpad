@@ -233,7 +233,7 @@
     "kava": "^5.10.0",
     "moment": "^2.27.0",
     "projectz": "^2.13.0",
-    "valid-directory": "^2.8.0"
+    "valid-directory": "^3.0.0"
   },
   "scripts": {
     "my:clean": "rm -Rf ./test/out-actual* ./test/render-actual* ./test/.docpad.db ./test/package-lock.json ./test/node_modules/",
