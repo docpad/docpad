@@ -1,5 +1,12 @@
 # History
 
+## v6.83.2 2020 September 8
+
+-   If the source path is missing, the correct and useful error is now displayed
+-   The deprecated `srcPath` is now removed, use `sourcePaths` to write and `getPath('source')` and `getPath('sources')` to read
+-   Extra debugging for when getting a path fails
+-   Updated documentation and website links to their new locations
+
 ## v6.83.1 2020 August 5
 
 -   Add a new `loadPlugins` event for use in the [`docpad-plugintester`](https://github.com/docpad/docpad-plugintester) to make sure all test plugins are properly loaded before `docpadReady` and other events are fired
@@ -507,7 +514,7 @@
     -   If you have functions inside your `docpad.cson` file:
         -   Rename `docpad.cson` to `docpad.coffee`
         -   Export your configuration inside `docpad.coffee` by doing: `module.exports = {your configuration data}`
-        -   [Example `docpad.coffee` file.](https://docpad.bevry.me/docs/config)
+        -   [Example `docpad.coffee` file.](https://docpad.bevry.me/config)
 -   Updated dependencies
 
 ## v6.69.2 2014 December 17
@@ -1234,7 +1241,6 @@
     -   Added `docpad-debug` for easy debugging
     -   Added `docpad-trace` for easy tracing
     -   Added `--profile` for easy profiling
-    -   See our [debug guide](http://docpad.bevry.me/docs/debug) for details
 
 ## v6.40.0 2013 June 24
 
@@ -1473,7 +1479,7 @@
 
 ## v6.23.0 2013 March 6
 
--   DocPad can now handle foreign encodings when you set `detectEncoding: true` in the [docpad configuration](http://docpad.bevry.me/docs/config)
+-   DocPad can now handle foreign encodings when you set `detectEncoding: true` in the [docpad configuration](http://docpad.bevry.me/config)
     -   Thanks to [Yellow Dragon](https://github.com/huanglong) for [issue #411](https://github.com/bevry/docpad/issues/411)
 
 ## v6.22.0 2013 March 6

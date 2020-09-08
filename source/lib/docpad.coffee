@@ -63,6 +63,8 @@ BasePlugin = require('docpad-baseplugin')
 
 isUser = docpadUtil.isUser()
 
+isTruthy = (i) -> Boolean(i)
+
 
 ###*
 # Contains methods for managing the DocPad application.
@@ -432,7 +434,7 @@ class DocPad extends EventEmitterGrouped
 	# Event Listing. String array of event names.
 	# Whenever an event is created, it must be applied here to be available to plugins and configuration files
 	# Events must be sorted by the order of execution, not for a functional need, but for a documentation need
-	# Whenever this array changes, also update: https://docpad.org/docs/events/
+	# Whenever this array changes, also update: https://docpad.bevry.me/events
 	# @private
 	# @property {Array} string array of event names
 	###
@@ -1195,14 +1197,14 @@ class DocPad extends EventEmitterGrouped
 		]
 
 		# The project's documents directories
-		# relative to the srcPath
+		# relative to the source path
 		documentsPaths: [
 			'documents'
 			'render'
 		]
 
 		# The project's files directories
-		# relative to the srcPath
+		# relative to the source path
 		filesPaths: [
 			'files'
 			'static'
@@ -1210,7 +1212,7 @@ class DocPad extends EventEmitterGrouped
 		]
 
 		# The project's layouts directory
-		# relative to the srcPath
+		# relative to the source path
 		layoutsPaths: [
 			'layouts'
 		]
@@ -1497,7 +1499,7 @@ class DocPad extends EventEmitterGrouped
 		# File
 		if instanceConfig.debug
 			logPath = @getPath(false, 'log')
-			safefs.unlink logPath, =>
+			safefs.unlink logPath, ->
 				logger
 					.pipe(
 						new Human(color: false)
@@ -1977,13 +1979,6 @@ class DocPad extends EventEmitterGrouped
 		# Update the progress bar configuration
 		@updateProgress()
 
-		# Legacy to ensure srcPath customisation works, as well as srcPath fetcing works
-		if @config.srcPath and @config.sourcePaths.includes(@config.srcPath) is false
-			@config.srcPath = @getPath('root', @config.srcPath)
-			@config.sourcePaths.push(@config.srcPath)
-		else
-			@config.srcPath = @getPath('source')
-
 		# Handle errors
 		process.removeListener('uncaughtException', @fatal)
 		process.removeListener('uncaughtException', @error)
@@ -2332,8 +2327,12 @@ class DocPad extends EventEmitterGrouped
 		@
 
 	resolvePath: (args...) ->
-		path = pathUtil.resolve(args...)
-		return path  if safefs.existsSync(path)
+		try
+			path = pathUtil.resolve(args...)
+			return path  if safefs.existsSync(path)
+		catch error
+			@log('error', 'failed to resolve the path:', {path, error})
+			throw error
 		return false
 
 	getPath: (args...) ->
@@ -2366,29 +2365,31 @@ class DocPad extends EventEmitterGrouped
 			when 'env' then @getPath(check, 'root', '.env')
 			when 'home' then require('os').homedir()  # works in node v4 and above
 			when 'dropbox' then @getPath(check, 'home', 'Dropbox')
-			when 'users' then [@getPath(check, 'dropbox', config.userConfigPath), @getPath(check, 'root', config.userConfigPath)].filter(Boolean)
-			when 'user' then @getPath(check, 'users')[0]
+			when 'users' then [@getPath(check, 'dropbox', config.userConfigPath), @getPath(check, 'root', config.userConfigPath)].filter(isTruthy)
+			when 'user' then @getPath(check, 'users')[0] or false
 			when 'package' then @getPath(check, 'root', config.packagePath)
-			when 'sources' then config.sourcePaths.map((path) => @getPath(check, 'root', path)).filter(Boolean)
-			when 'source' then @getPath(check, 'sources')[0]
-			when 'configs' then config.configPaths.map((path) => @getPath(check, 'root', path)).filter(Boolean)
-			when 'config' then @getPath(check, 'configs')[0]
-			when 'documents' then config.documentsPaths.map((path) => @getPath(check, 'source', path)).filter(Boolean)
-			when 'document' then @getPath(check, 'documents')[0]
-			when 'files' then config.filesPaths.map((path) => @getPath(check, 'source', path)).filter(Boolean)
-			when 'file' then @getPath(check, 'files')[0]
-			when 'layouts' then config.layoutsPaths.map((path) => @getPath(check, 'source', path)).filter(Boolean)
-			when 'layout' then @getPath(check, 'layouts')[0]
-			when 'reloads' then config.reloadPaths.map((path) => @getPath(check, 'source', path)).filter(Boolean)
-			when 'regenerates' then config.regeneratePaths.map((path) => @getPath(check, 'source', path)).filter(Boolean)
+			when 'sources' then config.sourcePaths.map((path) => @getPath(check, 'root', path)).filter(isTruthy)
+			when 'source' then @getPath(check, 'sources')[0] or false
+			when 'configs' then config.configPaths.map((path) => @getPath(check, 'root', path)).filter(isTruthy)
+			when 'config' then @getPath(check, 'configs')[0] or false
+			when 'documents' then config.documentsPaths.map((path) => @getPath(check, 'source', path)).filter(isTruthy)
+			when 'document' then @getPath(check, 'documents')[0] or false
+			when 'files' then config.filesPaths.map((path) => @getPath(check, 'source', path)).filter(isTruthy)
+			when 'file' then @getPath(check, 'files')[0] or false
+			when 'layouts' then config.layoutsPaths.map((path) => @getPath(check, 'source', path)).filter(isTruthy)
+			when 'layout' then @getPath(check, 'layouts')[0] or false
+			when 'reloads' then config.reloadPaths.map((path) => @getPath(check, 'source', path)).filter(isTruthy)
+			when 'regenerates' then config.regeneratePaths.map((path) => @getPath(check, 'source', path)).filter(isTruthy)
 			else null
 
-		result = if typeof path is 'string' and tail.length
-			method(check, path, tail...)
-		else
-			path
-
-		return result
+		try
+			if typeof path is 'string' and tail.length
+				return method(check, path, tail...)
+			else
+				return path
+		catch error
+			@log('error', 'failed to get the path:', {check, name, tail, error})
+			throw error
 
 	###*
 	# Extend collections. Create DocPad's
@@ -3243,7 +3244,7 @@ class DocPad extends EventEmitterGrouped
 		if fileFullPath
 			# Check if we have a document or layout
 			unless opts.modelType
-				for dirPath in @getPath('documents').concat(@getPath('layouts'))
+				for dirPath in @getPath('documents').concat(@getPath('layouts')).filter(isTruthy)
 					if fileFullPath.indexOf(dirPath) is 0
 						attrs.relativePath or= fileFullPath.replace(dirPath, '').replace(/^[\/\\]/,'')
 						opts.modelType = 'document'
@@ -3251,7 +3252,7 @@ class DocPad extends EventEmitterGrouped
 
 			# Check if we have a file
 			unless opts.modelType
-				for dirPath in @getPath('files')
+				for dirPath in @getPath('files').filter(isTruthy)
 					if fileFullPath.indexOf(dirPath) is 0
 						attrs.relativePath or= fileFullPath.replace(dirPath, '').replace(/^[\/\\]/,'')
 						opts.modelType = 'file'
@@ -3967,7 +3968,7 @@ class DocPad extends EventEmitterGrouped
 			# Continue if we are the initial generation
 			sourcePath = docpad.getPath('source')
 			unless sourcePath
-				err = new Errlop(locale.renderNonexistant)
+				err = new Errlop(util.format(locale.renderNonexistant, docpad.getPath(false, 'source')))
 				return complete(err)
 
 			# Forward
@@ -4951,7 +4952,7 @@ class DocPad extends EventEmitterGrouped
 			@addTask "README.md", (complete) ->
 				readmePath = docpad.getPath(false, 'root', 'README.md')
 				data = """
-					# Your [DocPad](http://docpad.org) Project
+					# Your [DocPad](https://docpad.bevry.me) Project
 
 					## License
 					Copyright &copy; #{(new Date()).getFullYear()}+ All rights reserved.
@@ -4963,7 +4964,7 @@ class DocPad extends EventEmitterGrouped
 				configPath = docpad.getPath(false, 'root', 'docpad.js')
 				data = """
 					// DocPad Configuration File
-					// http://docpad.org/docs/config
+					// https://docpad.bevry.me/config
 
 					// Define the DocPad Configuration
 					const docpadConfig = {

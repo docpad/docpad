@@ -26,138 +26,72 @@
 <!-- /BADGES -->
 
 
-Hi! I'm DocPad, I streamline the web development process and help close the gap between experts and beginners. I've been used in production by big and small companies for over a year and a half now to create [plenty of amazing and powerful web sites and applications](https://docpad.bevry.me/docs/showcase) quicker than ever before. What makes me different is instead of being a box to cram yourself into and hold you back, I'm a freeway to what you want to accomplish, just getting out of your way and allowing you to create stuff quicker than ever before without limits. Leave the redundant stuff up to me, so you can focus on the awesome stuff.
+Hi! I'm DocPad, I streamline the web development process and help close the gap between experts and beginners. I've been used in production by big and small companies for over a year and a half now to create [plenty of amazing and powerful web sites and applications](https://docpad.bevry.me/showcase) quicker than ever before. What makes me different is instead of being a box to cram yourself into and hold you back, I'm a freeway to what you want to accomplish, just getting out of your way and allowing you to create stuff quicker than ever before without limits. Leave the redundant stuff up to me, so you can focus on the awesome stuff.
 
-Discover my features below, or skip ahead to the installation instructions to get started with a [fully functional pre-made website](https://docpad.bevry.me/docs/skeletons) in a few minutes from reading this.
+Discover my features below, or skip ahead to the installation instructions to get started with a [fully functional pre-made website](https://docpad.bevry.me/projects) in a few minutes from reading this.
 
 **[Watch the Screencast!](http://www.youtube.com/watch?v=hvQCXDWh7Wg&feature=share&list=PLYVl5EnzwqsQs0tBLO6ug6WbqAbrpVbNf)**
-
 
 ## Features
 
 ### Out of the box
 
-- Completely file based, meaning there are no pesky databases that need to be installed, and for version control you get to use systems like Git and SVN, which you're already used to (You can still hook in remote data sources if you want, DocPad doesn't impose any limits on you, ever)
-- Choose from plenty of community maintained [pre-made websites](https://docpad.bevry.me/docs/skeletons) to use for your next project instead of starting from scratch every time
-- Write your documents in any language, markup, templating engine, or pre-processor you wish (we're truly agnostic thanks to your plugin system). You can even mix and match them when needed by combining their extensions in a rails-like fashion (e.g. `coffee-with-some-eco.js.coffee.eco`)
-- Changes to your website are automatically recompiled through our built-in watch system
-- Add metadata to the top of your files to be used by templating engines to display non-standard information such as titles and descriptions for your documents
-- Display custom listings of content with our powerful [Query Engine](https://github.com/bevry/query-engine) available to your templating engines
-- Abstract out generic headers and footers into layouts using our nested layout system
-- For simple static websites easily deploy your generated website to any web server like apache or github pages. For dynamic projects deploy them to servers like [heroku](http://www.heroku.com) to take advantage of custom routing with [express.js](http://expressjs.com). [Deploy guide here](https://docpad.bevry.me/docs/deploy)
-- Built-in server to save you from having to startup your own, for dynamic deployments this even supports things like clean urls, custom routes and server-side logic
-- Robust architecture and powerful plugin system means that you are never boxed in. Unlike traditional CMS systems, you can always [extend DocPad](https://docpad.bevry.me/docs/extend) to do whatever you need it to do, and you can even write to bundle common custom functionality and distribute them through the amazing node package manager [npm](http://npmjs.org)
-- Built-in support for dynamic documents (e.g. search pages, signup forms, etc), so you can code pages that change on each request by just adding `dynamic: true` to your document's meta data (exposes the [express.js](http://expressjs.com) `req` and `res` objects to your templating engine)
-- You can use it standalone, or even easily include it within your existing systems with our [API](https://docpad.bevry.me/docs/api)
-
+-   Completely file based, meaning there are no pesky databases that need to be installed, and for version control you get to use systems like Git and SVN, which you're already used to (You can still hook in remote data sources if you want, DocPad doesn't impose any limits on you, ever)
+-   Choose from plenty of community maintained [pre-made websites](https://docpad.bevry.me/projects) to use for your next project instead of starting from scratch every time
+-   Write your documents in any language, markup, templating engine, or pre-processor you wish (we're truly agnostic thanks to your plugin system). You can even mix and match them when needed by combining their extensions in a rails-like fashion (e.g. `coffee-with-some-eco.js.coffee.eco`)
+-   Changes to your website are automatically recompiled through our built-in watch system
+-   Add metadata to the top of your files to be used by templating engines to display non-standard information such as titles and descriptions for your documents
+-   Display custom listings of content with our powerful [Query Engine](https://github.com/bevry/query-engine) available to your templating engines
+-   Abstract out generic headers and footers into layouts using our nested layout system
+-   For simple static websites easily deploy your generated website to any web server like apache or github pages. For dynamic projects deploy them to servers like [heroku](http://www.heroku.com) to take advantage of custom routing with [express.js](http://expressjs.com). [Deploy guide here](https://docpad.bevry.me/deploy)
+-   Built-in server to save you from having to startup your own, for dynamic deployments this even supports things like clean urls, custom routes and server-side logic
+-   Robust architecture and powerful plugin system means that you are never boxed in. Unlike traditional CMS systems, you can always [extend DocPad](https://docpad.bevry.me/extend) to do whatever you need it to do, and you can even write to bundle common custom functionality and distribute them through the amazing node package manager [npm](http://npmjs.org)
+-   Built-in support for dynamic documents (e.g. search pages, signup forms, etc), so you can code pages that change on each request by just adding `dynamic: true` to your document's meta data (exposes the [express.js](http://expressjs.com) `req` and `res` objects to your templating engine)
+-   You can use it standalone, or even easily include it within your existing systems with our [API](https://docpad.bevry.me/api)
 
 ### With our amazing community maintained plugins
 
-- Use the [Live Reload](https://docpad.bevry.me/plugin/livereload) plugin to automatically refresh your web browser whenever a change is made, this is amazing
-- Pull in remote RSS/Atom/JSON feeds into your templating engines allowing you to display your latest twitter updates or github projects easily and effortlessly using the [Feedr Plugin](https://docpad.bevry.me/plugin/feedr)
-- Support for every templating engine and pre-processor under the sun, including (but not limited to) CoffeeScript, CoffeeKup, ECO, HAML, Handlebars, Jade, Less, Markdown, PHP, Ruby, SASS and Stylus - [the full listing is here](https://docpad.bevry.me/docs/plugins)
-- Use the [Partials Plugin](https://docpad.bevry.me/plugin/partials) to abstract common pieces of code into their own individual file that can be included as much as you want
-- Syntax highlight code blocks automatically with either our [Highlight.js Plugin](https://docpad.bevry.me/plugin/highlightjs) or [Pygments Plugin](https://docpad.bevry.me/plugin/pygments)
-- Get SEO friendly clean URLs with our [Clean URLs Plugin](https://docpad.bevry.me/plugin/cleanurls) (dynamic deployments only)
-- Lint your code automatically with our Ling Plugins: [jshint](https://github.com/jking90/docpad-plugin-jshint) and [coffeelint](https://github.com/jking90/docpad-plugin-coffeelint)
-- Concatenate and minify your JavaScript and CSS assets making page loads faster for your users with our Minify Plugins: [htmlmin](https://github.com/robloach/docpad-plugin-htmlmin) and [grunt](https://gist.github.com/balupton/3898915)
-- Install common javascript libraries like jQuery, Backbone and Underscore directly from the command line - (under construction, coming soon)
-- Automatically translate your entire website into other languages with our Translation Plugin - under construction, coming soon
-- Add an admin interface to your website allowing you to edit, save and preview your changes on live websites then push them back to your source repository with the [Admin Plugins](https://docpad.bevry.me/docs/plugins#admin-interfaces)
-- Pretty much if DocPad doesn't already do something, it is trivial to [write a plugin](https://docpad.bevry.me/docs/extend) to do it. DocPad can accomplish anything; it never holds you back, and there are no limits.
-- [Many other plugins](https://docpad.bevry.me/docs/plugins) not listed here that are still definitely worth checking out! :)
-
+-   Use the [Live Reload](https://docpad.bevry.me/plugin/livereload) plugin to automatically refresh your web browser whenever a change is made, this is amazing
+-   Pull in remote RSS/Atom/JSON feeds into your templating engines allowing you to display your latest twitter updates or github projects easily and effortlessly using the [Feedr Plugin](https://docpad.bevry.me/plugin/feedr)
+-   Support for every templating engine and pre-processor under the sun, including (but not limited to) CoffeeScript, CoffeeKup, ECO, HAML, Handlebars, Jade, Less, Markdown, PHP, Ruby, SASS and Stylus - [the full listing is here](https://docpad.bevry.me/plugins)
+-   Use the [Partials Plugin](https://docpad.bevry.me/plugin/partials) to abstract common pieces of code into their own individual file that can be included as much as you want
+-   Syntax highlight code blocks automatically with either our [Highlight.js Plugin](https://docpad.bevry.me/plugin/highlightjs) or [Pygments Plugin](https://docpad.bevry.me/plugin/pygments)
+-   Get SEO friendly clean URLs with our [Clean URLs Plugin](https://docpad.bevry.me/plugin/cleanurls) (dynamic deployments only)
+-   Lint your code automatically with our Ling Plugins: [jshint](https://docpad.bevry.me/plugin/jshint) and [coffeelint](https://docpad.bevry.me/plugin/coffeelint)
+-   Concatenate and minify your JavaScript and CSS assets making page loads faster for your users with our Minify Plugins: [htmlmin](https://docpad.bevry.me/plugin/htmlmin) and [grunt](https://gist.github.com/balupton/3898915)
+-   Install common javascript libraries like jQuery, Backbone and Underscore directly from the command line - (under construction, coming soon)
+-   Automatically translate your entire website into other languages with our Translation Plugin - under construction, coming soon
+-   Add an admin interface to your website allowing you to edit, save and preview your changes on live websites then push them back to your source repository with the [Admin Plugins](https://docpad.bevry.me/admin)
+-   Pretty much if DocPad doesn't already do something, it is trivial to [write a plugin](https://docpad.bevry.me/extend) to do it. DocPad can accomplish anything; it never holds you back, and there are no limits.
+-   [Many other plugins](https://docpad.bevry.me/plugins) not listed here that are still definitely worth checking out! :)
 
 ## People love DocPad
 
 All sorts of people love DocPad, from first time web developers to even industry leaders and experts. In fact, people even migrate to DocPad from other systems as they love it so much. Here are some our [favourite tweets](https://twitter.com/#!/DocPad/favorites) of what people are saying about DocPad :)
 
-[![Some favourite tweets about DocPad](https://github.com/bevry/designs/raw/1437c9993a77b24c3ad1856087908b508f3ceec6/docpad/favourites/docpad-favs.gif)](https://twitter.com/#!/DocPad/favorites)
-
-
-
+[![Some favourite tweets about DocPad](https://github.com/bevry/designs/raw/1437c9993a77b24c3ad1856087908b508f3ceec6/docpad/favourites/docpad-favs.gif)](https://docpad.bevry.me/praise)
 
 ## Install
 
-[Click here for our latest Install Instructions.](https://docpad.bevry.me/docs/install)
-
+[Click here for our latest Install Instructions.](https://docpad.bevry.me/install)
 
 ## Quick Start
 
-[Click here to skip ahead to our latest Quick Start Guide.](https://docpad.bevry.me/docs/start)
-
+[Click here to skip ahead to our latest Quick Start Guide.](https://docpad.bevry.me/start)
 
 ## What next?
 
 Here are some quick links to help you get started:
 
-- [Getting Started](https://docpad.bevry.me/docs/intro)
-- [Frequently Asked Questions](https://docpad.bevry.me/docs/faq)
-- [Showcase and Examples](https://docpad.bevry.me/docs/showcase)
-- [Guides and Tutorials](https://docpad.bevry.me)
-- [Deployment Guide](https://docpad.bevry.me/docs/deploy)
-- [Extension Guide](https://docpad.bevry.me/docs/extend)
-- [Plugins](https://docpad.bevry.me/docs/plugins)
-- [Skeletons](https://docpad.bevry.me/docs/skeletons)
-- [Troubleshooting](https://docpad.bevry.me/docs/troubleshoot)
-- [Support Channels](https://bevry.me/support)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+-   [Getting Started](https://docpad.bevry.me/intro)
+-   [Frequently Asked Questions](https://docpad.bevry.me/faq)
+-   [Showcase and Examples](https://docpad.bevry.me/showcase)
+-   [Guides and Tutorials](https://docpad.bevry.me)
+-   [Deployment Guide](https://docpad.bevry.me/deploy)
+-   [Extension Guide](https://docpad.bevry.me/extend)
+-   [Plugins](https://docpad.bevry.me/plugins)
+-   [Troubleshooting](https://docpad.bevry.me/troubleshoot)
+-   [Support](https://bevry.me/support)
 
 
 
@@ -262,7 +196,7 @@ These amazing people have contributed code to this project:
 <li><a href="https://github.com/paularmstrong">Paul Armstrong</a> — <a href="https://github.com/docpad/docpad/commits?author=paularmstrong" title="View the GitHub contributions of Paul Armstrong on repository docpad/docpad">view contributions</a></li>
 <li><a href="https://github.com/pavgup">Pavan Gupta</a> — <a href="https://github.com/docpad/docpad/commits?author=pavgup" title="View the GitHub contributions of Pavan Gupta on repository docpad/docpad">view contributions</a></li>
 <li><a href="https://github.com/pflannery">Peter Flannery</a> — <a href="https://github.com/docpad/docpad/commits?author=pflannery" title="View the GitHub contributions of Peter Flannery on repository docpad/docpad">view contributions</a></li>
-<li><a href="https://github.com/pra85">Prayag Verma</a> — <a href="https://github.com/docpad/docpad/commits?author=pra85" title="View the GitHub contributions of Prayag Verma on repository docpad/docpad">view contributions</a></li>
+<li><a href="https://github.com/prayagverma">Prayag Verma</a> — <a href="https://github.com/docpad/docpad/commits?author=prayagverma" title="View the GitHub contributions of Prayag Verma on repository docpad/docpad">view contributions</a></li>
 <li><a href="https://github.com/rantecki">Richard A</a> — <a href="https://github.com/docpad/docpad/commits?author=rantecki" title="View the GitHub contributions of Richard A on repository docpad/docpad">view contributions</a></li>
 <li><a href="https://github.com/RobLoach">Rob Loach</a> — <a href="https://github.com/docpad/docpad/commits?author=RobLoach" title="View the GitHub contributions of Rob Loach on repository docpad/docpad">view contributions</a></li>
 <li><a href="https://github.com/Ferrari">Shih-Yung Lee</a> — <a href="https://github.com/docpad/docpad/commits?author=Ferrari" title="View the GitHub contributions of Shih-Yung Lee on repository docpad/docpad">view contributions</a></li>
@@ -287,8 +221,8 @@ These amazing people have contributed code to this project:
 
 
 ### Participants
-Also thanks to all the countless others who have continued to raise DocPad even higher by submitting plugins, issues reports, discussion topics, IRC chat messages, and praise on twitter. We love you.
 
+Also thanks to all the countless others who have continued to raise DocPad even higher by submitting plugins, issues reports, discussion topics, IRC chat messages, and praise on twitter. We love you.
 
 <!-- LICENSE/ -->
 
