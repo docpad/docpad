@@ -230,7 +230,7 @@
   },
   "devDependencies": {
     "@bevry/update-contributors": "^1.17.0",
-    "assert-helpers": "^7.2.0",
+    "assert-helpers": "^8.1.0",
     "coffeelint": "^2.1.0",
     "coffeescript": "^2.5.1",
     "kava": "^5.12.0",
