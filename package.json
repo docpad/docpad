@@ -190,7 +190,7 @@
   "main": "edition-esnext/index.js",
   "dependencies": {
     "@bevry/pluginloader": "^4.11.0",
-    "ambi": "3.2.0",
+    "ambi": "8.25.0",
     "ansistyles": "^0.1.3",
     "backbone": "^1.4.0",
     "bal-util": "~2.8.0",
