@@ -212,7 +212,7 @@
     "jschardet": "~2.2.1",
     "lazy-require": "^4.6.0",
     "mime": "^2.4.6",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^3.2.10",
     "progress-title": "^3.13.0",
     "query-engine": "~1.5.7",
     "rfc-log-levels": "^3.14.0",
