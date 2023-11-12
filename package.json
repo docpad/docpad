@@ -208,7 +208,7 @@
     "extract-opts": "^4.3.0",
     "ignorefs": "^3.13.0",
     "inquirer": "^7.3.3",
-    "istextorbinary": "^5.11.0",
+    "istextorbinary": "^7.0.0",
     "jschardet": "~2.2.1",
     "lazy-require": "^4.6.0",
     "mime": "^2.4.6",
