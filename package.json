@@ -199,7 +199,7 @@
     "cson": "^7.20.0",
     "docmatter": "^3.18.0",
     "docpad-baseplugin": "^1.4.0",
-    "eachr": "^4.5.0",
+    "eachr": "^6.4.0",
     "encoding": "~0.1.13",
     "envfile": "^6.14.0",
     "errlop": "^3.17.0",
