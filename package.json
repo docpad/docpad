@@ -218,7 +218,7 @@
     "rfc-log-levels": "^3.14.0",
     "rimraf": "^3.0.2",
     "safefs": "^6.13.0",
-    "safeps": "^10.14.0",
+    "safeps": "^11.4.0",
     "scandirectory": "^6.13.0",
     "semver": "^7.3.2",
     "taskgroup": "^7.16.0",
