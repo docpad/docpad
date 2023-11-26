@@ -235,7 +235,7 @@
     "coffeescript": "^2.5.1",
     "kava": "^5.12.0",
     "moment": "^2.27.0",
-    "projectz": "^2.16.0",
+    "projectz": "^3.4.0",
     "valid-directory": "^3.4.0"
   },
   "scripts": {
