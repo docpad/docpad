@@ -195,7 +195,7 @@
     "backbone": "^1.4.0",
     "bal-util": "~2.8.0",
     "cac": "^6.6.1",
-    "caterpillar": "^6.5.0",
+    "caterpillar": "^7.0.0",
     "cson": "^7.20.0",
     "docmatter": "^3.18.0",
     "docpad-baseplugin": "^1.4.0",
