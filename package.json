@@ -76,12 +76,14 @@
   },
   "funding": "https://bevry.me/fund",
   "author": "2012+ Bevry Pty Ltd <us@bevry.me> (http://bevry.me), Benjamin Lupton <b@lupton.cc> (https://balupton.com)",
-  "sponsors": [
+  "backers": [
     "Jean-Luc Geering (https://opencollective.com/jlgeering)",
     "Nikolas Jeker (https://www.patreon.com/user/creators?u=5900863)",
     "Lee Discoll (https://www.patreon.com/user/creators?u=5292556)",
     "Ángel González (https://www.patreon.com/Aglezabad)",
-    "Scott Kempson (https://www.patreon.com/scokem)",
+    "Scott Kempson (https://www.patreon.com/scokem)"
+  ],
+  "funders": [
     "Myplanet Digital <hello@myplanetdigital.com> (http://www.myplanetdigital.com)",
     "Meeho! <info@meeho.net> (http://www.meeho.net)",
     "Prismatik <hello@prismatik.com.au> (http://www.prismatik.com.au)",
